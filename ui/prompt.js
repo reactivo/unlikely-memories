@@ -1,4 +1,4 @@
-// Command line: shows what you type, sends it on Enter, keeps itself focused. (It's always on screen: layout.css.)
+// Command line: shows what you type, sends it on Enter, keeps itself focused (on a computer; see focus()). (It's always on screen: layout.css.)
 // The real <input> is invisible on top; the visible line (pixel font + block cursor) mirrors it.
 // At the start of a story, a hint sits at the right end of the line ("Type <HELP> for ideas."), fading in once the
 // room's description has appeared; it steps aside while you type, and goes with your command. After two minutes with
@@ -29,17 +29,35 @@ export function mount(root, on) {
     idle = setTimeout(() => { if (!hinting && cmd.value === "" && hint.childNodes.length) fadeIn(0); }, IDLE_HINT);
   }
 
-  // Focus the command line (without scrolling).
-  function focus() { if (document.activeElement !== cmd) cmd.focus({ preventScroll: true }); }
+  // Touch screens (a phone or tablet: no hover, a coarse pointer; asked of the device, not of the window's width):
+  // focusing the input opens the on-screen keyboard, which covers half the screen. So on touch the game never focuses
+  // the line by itself (not on a tap in the story or the picture, not after a button, a panel or a new game): the
+  // keyboard opens only when the player taps the command line, and the input itself takes that tap.
+  const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 
-  // Keep the command line focused: when the window/tab comes back, on clicks (unless selecting text or
-  // clicking a button/link/panel), and on typing keys pressed while something else has focus.
+  // Focus the command line (without scrolling). Does nothing on touch screens; every caller, in this file and in
+  // js/main.js and the panels, goes through here, so this is the one place that decides.
+  function focus() {
+    if (touch.matches) return;
+    if (document.activeElement !== cmd) cmd.focus({ preventScroll: true });
+  }
+
+  // Keep the command line focused (computers only; on touch, focus() does nothing): when the window/tab comes back,
+  // on clicks (unless selecting text or clicking a button/link/panel), and on typing keys pressed while something
+  // else has focus.
   window.addEventListener("focus", focus);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) focus(); });
   document.addEventListener("click", (e) => {
     if (e.target.closest("button, select, a, [popover]")) return;
     if (String(window.getSelection && window.getSelection()).length) return;
     focus();
+  });
+  // On touch, a tap on the visible line (the ">", the text, the empty space, the hint's words) opens the keyboard.
+  // The invisible input lies over the line and takes most taps itself; this covers what lies above it (the hint).
+  // A tap on the hint's <HELP> button runs the command and leaves the keyboard shut.
+  root.addEventListener("click", (e) => {
+    if (!touch.matches || e.target.closest("button, a")) return;
+    cmd.focus({ preventScroll: true });
   });
   document.addEventListener("keydown", (e) => {
     if (e.target === cmd || e.metaKey || e.ctrlKey || e.altKey) return;

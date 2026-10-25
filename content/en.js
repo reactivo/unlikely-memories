@@ -164,7 +164,7 @@ export default {
   panel: { title: "SETTINGS", language: "LANGUAGE", languageNote: "Changing the language starts a new game.",
            game: "GAME", newGame: "New game", quit: "Quit" },
   // The landing page (ui/home.js). The game's name is not translated. The buttons show in capitals (home.css): LOAD GAME on a world with a saved game, NEW GAME always.
-  home: { subtitle: "Interactive fiction from elsewhere", newGame: "New game", load: "Load game", version: "Version",
+  home: { subtitle: "Artificial Interactive fiction engine", newGame: "New game", load: "Load game", version: "Version",
           language: (l) => `Language: ${{ en: "English", es: "Spanish" }[l]}`,   // the switch's buttons, top right
           none: "There are no games in English yet." },
   labels: { directions: "DIRECTIONS", inv: "INVENTORY", day: "Day", map: "Map" },

@@ -90,8 +90,12 @@
 
     /* A description with the object's image beside it: the image on the left in a surface-coloured square
        (9rem wide: the picture itself 8rem, with half a rem of square around it), the text flowing on
-       the right. */
-    & p.with-image { display: flex; gap: var(--space-4); align-items: flex-start; }
+       the right. Phones (below 760px): a column instead, the image first, left-aligned at the same size, then the
+       whole text under it, with the same gap. */
+    & p.with-image {
+      display: flex; gap: var(--space-4); align-items: flex-start;
+      @media (max-width: 759px) { flex-direction: column; }
+    }
     & .figure {
       flex: none; width: 9rem; aspect-ratio: 1; padding: var(--space-2); box-sizing: border-box;
       background: var(--figure-bg); margin-top: var(--figure-nudge);
