@@ -1,0 +1,22 @@
+/* Title bar above the picture: the place name, and the day and time, "Day 1 │ 00:00:00" (thin box-drawing line;
+   the colons blink slowly, like an old digital clock). Side by side on wider windows; on phones one above the
+   other, with ♫ ≡ beside them (layout.css). */
+@layer ui {
+  .titlebar {
+    /* Colours in the title bar, by meaning. */
+    --place: var(--color-text);      /* the place name */
+    --clock: var(--color-text-dim);  /* day and time */
+
+    display: flex; flex-direction: column; justify-content: center; gap: var(--space-s); color: var(--clock);
+    @media (min-width: 760px) { flex-direction: row; justify-content: space-between; gap: var(--space-m); }
+
+    & h1, & p { font: inherit; line-height: inherit; margin: 0; }
+    & > :first-child { color: var(--place); }
+    & > :last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      & .colon { animation: colon-blink 2s steps(1) infinite; }
+    }
+  }
+  @keyframes colon-blink { 50% { opacity: 0; } }
+}

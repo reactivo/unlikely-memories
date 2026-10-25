@@ -1,0 +1,38 @@
+/* Tabs (phones only): DIRECTIONS and INVENTORY under the prompt, side by side. Each opens its panel just above it,
+   lined up with it: the panel is as wide as its tab, with one character of space around, in the page colour, over
+   the story. The open tab turns yellow. A panel closes when you pick something in it, press its tab again or tap
+   anywhere else (tabs.js; the closing comes free with popovers).
+   On wider windows there are no tabs: the panels sit in the strip beside the story as ordinary sections. */
+@layer ui {
+  .tabs {
+    /* Colours of the tabs, by meaning. */
+    --tab:          var(--color-surface);    /* a tab */
+    --tab-text:     var(--color-text);
+    --tab-open:     var(--color-highlight);  /* the tab whose panel is open */
+    --tab-open-text: var(--color-bg);
+
+    display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-m);
+
+    & .tab {
+      font: inherit; line-height: var(--line-height-tight); color: var(--tab-text); background: var(--tab);
+      border: 0; margin: 0; padding: var(--space-m) var(--space-s); cursor: pointer;
+    }
+    & .tab[aria-expanded="true"] { color: var(--tab-open-text); background: var(--tab-open); }
+    & .tab:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+    @media (min-width: 760px) { display: none; }
+  }
+
+  /* The panels: on phones, popovers placed by tabs.js; their size and look here. */
+  .panel {
+    margin: 0; inset: auto; position: fixed; box-sizing: border-box;
+    font-family: var(--game); font-size: var(--size); -webkit-font-smoothing: none;   /* the top layer is outside .layout */
+    color: var(--color-text); background: var(--color-bg); border: 0;
+    padding: var(--space-m); overflow: visible;
+
+    /* Wider windows: always shown, in the strip, like any other part of the page. */
+    @media (min-width: 760px) {
+      &, &:popover-open { display: block; position: static; padding: 0; width: auto; background: none; }
+    }
+  }
+}

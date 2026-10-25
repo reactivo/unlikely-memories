@@ -1,0 +1,40 @@
+/* Inventory: 9 square slots (3 x 3), the same size as the compass tiles, filled in order with pixel-art sprites of
+   what you carry. A slot with something in it is a filled tile; an empty one is just an outline. Clicking an item
+   examines it, then suggests what else to do with it. */
+@layer ui {
+  .inventory {
+    /* Colours in the inventory, by meaning. */
+    --slot:       var(--color-surface);  /* a filled slot, and the outline of an empty one */
+    --slot-hover: var(--color-text);     /* the border drawn inside a filled slot under the pointer */
+    --over-dim:   0.4;                   /* once the story is over: the items fade to this, and nothing responds */
+
+    & .slots {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-s);
+      list-style: none; margin: 0; padding: 0;
+    }
+    & .slot { aspect-ratio: 1; min-width: 3em; box-shadow: inset 0 0 0 0.125em var(--slot); }   /* outline: one font pixel */
+    & .slot:has(.item) { background: var(--slot); }
+
+    /* An item in a slot: a pixel-art sprite filling the slot (kept square, centred). */
+    & .item {
+      display: block; width: 100%; height: 100%; padding: var(--space-s); box-sizing: border-box;
+      border: 0; background: none; cursor: pointer;
+    }
+    & .item svg { display: block; width: 100%; height: 100%; }
+    /* Hover: a white border drawn inside the slot, so nothing shifts. */
+    & .item:hover { box-shadow: inset 0 0 0 2px var(--slot-hover); }
+    & .item:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+    /* The story is over (inventory.js adds "over"): dim, no hover, no clicks. */
+    &.over .item { opacity: var(--over-dim); cursor: default; pointer-events: none; }
+
+    /* An item arriving drops into its slot; one leaving sinks away (inventory.js adds the class; timing in
+       tokens.css). Stepped, not smooth, to keep the 8-bit feel. */
+    @media (prefers-reduced-motion: no-preference) {
+      & .item.arrive { animation: item-arrive var(--duration-arrive) steps(4, end) both; }
+      & .item.depart { animation: item-depart var(--duration-depart) steps(3, end) both; }
+    }
+  }
+  @keyframes item-arrive { from { opacity: 0; translate: 0 -25%; } }
+  @keyframes item-depart { to { opacity: 0; translate: 0 25%; } }
+}

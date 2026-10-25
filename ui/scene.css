@@ -1,0 +1,11 @@
+/* Picture: the room's picture, exactly the width of the column, scaled up with crisp pixels. */
+@layer ui {
+  .picture {
+    /* The canvas's exact size and position are set by scene.js (drawn at screen resolution, on the pixel
+       grid); until then it fills the column. */
+    & canvas {
+      width: 100%; max-width: 100%; height: auto; display: block; aspect-ratio: 320 / 136;
+      image-rendering: crisp-edges; image-rendering: pixelated;
+    }
+  }
+}

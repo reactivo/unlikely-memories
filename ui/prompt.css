@@ -1,0 +1,37 @@
+/* Prompt: "> " and what you're typing, with a blinking block cursor right after the last letter. The real input
+   lies invisibly on top (#cmd), so the visible line can use the pixel font and the block cursor. */
+@layer ui {
+  .prompt {
+    /* Colours on the command line, by meaning. The line you're writing on is yellow, like the health bar (the one
+       bright accent), so it stands out from the story; once sent, your command is echoed in the story in dim grey. */
+    --chevron: var(--color-highlight);  /* the ">" */
+    --typed:   var(--color-highlight);  /* what you're typing */
+    --cursor:  var(--color-highlight);  /* the blinking block */
+    --hint-text: var(--color-text-dim); /* the hint at the right end of the line, like dim lines in the story */
+
+    font-size: var(--size-text);
+    display: flex; gap: var(--space-m); align-items: center; position: relative; min-width: 0;
+
+    & .mark { color: var(--chevron); }
+    & .line { display: flex; align-items: center; min-width: 0; }
+    & .typed { white-space: pre; overflow: hidden; color: var(--typed); }
+    /* The block fills one full character cell (1ch x 1em), the same box every CGA glyph occupies, so it lines up
+       with the text. */
+    & .cursor { display: block; flex: none; width: 1ch; height: 1em; background: var(--cursor); }
+    @media (prefers-reduced-motion: no-preference) {
+      & .cursor { animation: blink 1.06s steps(1) infinite; }
+    }
+    /* The hint at the start of a story ("Type <HELP> for ideas."): dim, at the right end of the line, in the story's
+       lettering; it fades in like story text, once the room's description has appeared (prompt.js). Above the
+       invisible input, so its <HELP> can be clicked. */
+    & .hint {
+      margin-left: auto; text-align: right; min-width: 0; position: relative; z-index: 1;
+      font-family: var(--story); color: var(--hint-text);
+    }
+    & .hint[hidden] { display: none; }
+    & .hint.in { animation: phrase-in var(--duration-phrase) ease-out both; }
+    @media (prefers-reduced-motion: reduce) { & .hint.in { animation: none; } }
+    & #cmd { position: absolute; inset: 0; opacity: 0; font: inherit; border: 0; background: transparent; color: transparent; width: 100%; }
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+}

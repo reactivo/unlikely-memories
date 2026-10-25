@@ -1,0 +1,74 @@
+/* Page layout: where each piece sits on the screen. The pieces themselves (ui/*.css) never position themselves on
+   the page; this file does. Breakpoint and sizing: tokens.css.
+
+   One column, centred, always the whole window high: the title bar and the picture on top, the prompt at the
+   bottom, and the story in between, scrolling on its own (log.css), so nothing ever moves off screen.
+   The column is 75 characters wide at most (--main), then narrowed by ui/scene.js to the picture's width at a
+   whole-number scale (--column-w), so the picture and everything under it are exactly as wide as each other.
+   On phones it is simply the page's width inside the side padding, and the picture is stretched to it.
+
+   Wider windows (760px and up): the strip sits beside the story, top edges aligned.
+       ┌──────────────────────────┐
+       │ PLACE          Day 1 │ … │
+       │ picture                  │
+       │ story ……………………  ♫ ≡    │
+       │ story ……………………  compass │
+       │ story ……………………  items   │
+       │ > _             hint →   │
+       └──────────────────────────┘
+   Phones: ♫ ≡ go up beside the title bar; directions and inventory become panels opened from two tabs under the
+   prompt (ui/tabs.css). */
+@layer layout {
+  /* Two views of one page (INTERFACE.md §13): the controller sets data-view on the page ("home", the list of games, or "game")
+     and only that one shows. Before it sets one, the list's page shows. */
+  :root:not([data-view="game"]) .layout { display: none; }
+  :root[data-view="game"] .home { display: none; }
+
+  .layout {
+    font-family: var(--game);
+    font-size: var(--size);
+    line-height: var(--line-height);
+    -webkit-font-smoothing: none;
+    cursor: text;
+
+    width: 100%; margin-inline: auto;
+    @media (min-width: 760px) { max-width: var(--column-w, calc(var(--main) * 1ch)); }   /* phones: the page's width */
+    height: 100dvh; box-sizing: border-box;
+    padding-block: max(var(--space-l), env(safe-area-inset-top, 0px)) max(var(--space-l), env(safe-area-inset-bottom, 0px));
+
+    display: grid; gap: var(--space-m);
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* The story's row takes the room left over, but never fewer than 4 lines: on a very low window the page
+       scrolls instead. */
+    grid-template-rows: auto auto minmax(calc(var(--size-text) * 1.5 * 4), 1fr) auto auto;
+    grid-template-areas:
+      "title   tools"
+      "picture picture"
+      "log     log"
+      "prompt  prompt"
+      "tabs    tabs";
+
+    @media (min-width: 760px) {
+      column-gap: var(--space-xl);
+      grid-template-columns: minmax(0, 1fr) calc(var(--strip) * 1ch);
+      grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "title   title"
+        "picture picture"
+        "log     tools"
+        "log     exits"
+        "log     inventory"
+        "log     ."
+        "prompt  prompt";   /* the command line spans the whole column, under the strip too */
+    }
+  }
+
+  .titlebar  { grid-area: title; }
+  .picture   { grid-area: picture; }
+  .log       { grid-area: log; }
+  .prompt    { grid-area: prompt; }
+  .tools     { grid-area: tools; }
+  .tabs      { grid-area: tabs; }
+  .exits     { grid-area: exits; }
+  .inventory { grid-area: inventory; }
+}

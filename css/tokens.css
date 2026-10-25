@@ -1,0 +1,142 @@
+/* Design tokens: the only place values are defined. Everything else uses these variables.
+   See ARCHITECTURE.md §7 "Styles" for how the CSS is organised.
+
+   Layer order for the whole page. It is declared here, in the first stylesheet, so it holds whatever order the
+   other files load in: later layers win, so a piece (ui) can never be overridden by the page layout by accident. */
+@layer tokens, base, layout, ui;
+/* (base.css is the exception: unlayered, see the note there.) */
+
+/* Breakpoint. CSS variables can't be used inside media queries, so this number is written where needed:
+     min-width 760px   the strip (♫ ≡, directions, inventory) sits beside the story; narrower, the story takes the
+                       whole width and directions and inventory open from two tabs at the bottom (phones).
+                       760px keeps at least about 40 characters on each story line beside the strip.
+                       (tokens.css, layout.css, tabs.css, map.css)
+
+   Sizing: the font size decides every size on the page. It's the largest whole pixel size at which
+     - 75 characters fit across the window (the column: title bar, picture, story + strip), and
+     - on wider windows, the whole screen fits the window's height with room for --story-lines lines of story
+       (--screen-rows below adds it all up),
+   never below 12px (on phones the column simply holds fewer characters) and never above 24px.
+   On wider windows the picture sets the column's width (a whole number of screen pixels per picture pixel, --column-w);
+   on phones the column fills the page's width inside its side padding and the picture is stretched to it. */
+@layer tokens {
+  :root {
+    /* Colour palette: the raw colours. Change a value here to recolour everything that uses it. */
+    /* Greys with the same faint warmth (hue 40°, about 6% saturation: neutral, but never a cold default grey),
+       numbered by darkness. 24 October 2026; brown before. */
+    --palette-ink-950:   #1b1a18;   /* near black */
+    --palette-ink-925:   #1f1e1c;   /* a step above it: 30% of 900 over 950 */
+    --palette-ink-900:   #2a2926;   /* lifted: about 6 points lighter than 950 */
+    --palette-stone-700: #42403c;   /* darker grey (#4c4a46 until 24 October 2026: a step fainter) */
+    --palette-stone-600: #6b6964;   /* dark grey */
+    --palette-stone-400: #97948e;   /* mid grey */
+    --palette-stone-300: #b5b3ae;   /* light grey */
+    --palette-paper-50:  #eeede9;   /* near white */
+    --palette-amber-300: #e8c46a;   /* soft amber */
+    --palette-yellow-300: #f2d25c;  /* CGA-style yellow */
+    --palette-red-400:   #e0645a;   /* soft red: bright enough on near black, not alarm red */
+    /* Two of the pictures' 16 EGA colours (content/art.js), for the landing page's ornament: pixel art, so the one place the
+       interface uses picture colours. */
+    --palette-ega-red:   #aa0000;   /* EGA 4 */
+    --palette-ega-green: #00aa00;   /* EGA 2 */
+
+    /* Colour roles: what each colour is FOR, anywhere in the game. A short list of purposes, never named after
+       one piece. Each piece's CSS defines its own semantic variables (e.g. --exit-closed in compass.css) that point
+       at these roles; nothing outside this file uses a --palette colour directly. Three layers:
+         palette (what the colour is) → role (what it's for) → piece variable (what it means in that piece). */
+    --color-bg:          var(--palette-ink-950);    /* the page background */
+    --color-surface:     var(--palette-ink-900);    /* raised areas: buttons, tabs, tiles, filled slots, outlines */
+    --color-surface-faint: var(--palette-ink-925);  /* barely raised: tiles that do nothing (the compass corners) */
+    --color-text:        var(--palette-paper-50);   /* main text, and anything bright: the cursor, open exits, hovers */
+    --color-text-dim:    var(--palette-stone-400);  /* secondary text: labels, headings, hints, echoed commands, fades */
+    --color-text-faint:  var(--palette-stone-700);  /* barely there: inactive things, notes, buttons at rest */
+    --color-text-soft:   var(--palette-stone-300);  /* light grey (not used at the moment) */
+    --color-mark:        var(--palette-stone-600);  /* small marks around or between things: brackets, the compass dot */
+    --color-highlight:   var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
+    --color-focus:       var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
+    --color-hurt:        var(--palette-red-400);    /* harm: the line said when you lose health (the only red) */
+    --color-decor-warm:  var(--palette-ega-red);    /* decoration in pixel art: the ornament's flowers. The only place the interface uses picture colours */
+    --color-decor-cool:  var(--palette-ega-green);  /* …and its vine */
+
+    /* Fonts and the character grid */
+    --ui: ui-monospace, "SF Mono", Menlo, monospace;
+    --game: "CGA", ui-monospace, monospace;
+    --story: "CGA Story", "CGA", ui-monospace, monospace;   /* the story: capitals a step smaller (base.css) */
+    --main: 75;             /* characters across the column (title bar, picture, and the story with the strip) */
+    --strip: 10;            /* the strip beside the story, in characters: three 3-character tiles and their gaps */
+    --text-step: 1.08;      /* story text and prompt: this much larger than the interface (1.15 until 24 October 2026) */
+    --story-lines: 16;      /* lines of story that must fit on screen on wider windows (they shrink the font if not) */
+    --gutter: max(16px, 2vw);
+    /* The screen's height in characters on wider windows: padding (2 + 2), title bar (1.25), the picture (75 x
+       136/320 = 32), the story (--story-lines x --text-step x 1.375) and the prompt (about 1), and the 3 gaps between them.
+       DEPENDS ON layout.css: change this if rows are added there. */
+    --screen-rows: calc(41.5 + var(--story-lines) * var(--text-step) * var(--line-height-story));
+    /* IBM CGA is an 8x8 font: square glyphs, so 1 character = 1em wide */
+    --fit: calc((100vw - 2 * var(--gutter)) / var(--main));
+    --size: clamp(12px, var(--fit), 24px);
+    /* (Text sizes built from --size, rounded to whole pixels, are below: --size-text, --size-command.) */
+
+    /* Line heights */
+    --line-height:       1.25;   /* interface text: labels, headings, the settings panel */
+    --line-height-story: 1.375;  /* story text: more open, for reading (log.css). 11 rows of the 8-row font per
+                                    line: keep to eighths (1.25, 1.375, 1.5) so lines stay on the pixel grid */
+    --line-height-tight: 1;      /* boxes exactly one character tall: buttons, tiles, tabs */
+
+    /* Spacing scale. Every step is a multiple of the game font size, so spacing grows and shrinks with the text
+       and lines up with the character grid (with IBM CGA, 1em = one character, horizontally and vertically). */
+    --space-xs: calc(var(--size) * 0.25);   /* tight: a command and its reply */
+    --space-s:  calc(var(--size) * 0.5);    /* small: inside controls */
+    --space-m:  var(--size);                /* base: one character / one line */
+    --space-l:  calc(var(--size) * 2);      /* groups: sections within a column */
+    --space-xl: calc(var(--size) * 4);      /* major: between the story and the strip */
+    /* Durations. Motion that shows a change in the game (an item arriving, an exit opening…): the timing is here,
+       the look is in the piece's own CSS (its @keyframes), and the script only says *that* something changed.
+       Everything stops with the system's reduce motion setting; restores (new game, language change) don't move. */
+    --duration-phrase: 450ms;        /* each phrase of story text fades in over this time (log.css; gaps in log.js) */
+    --duration-arrive: 420ms;        /* an item appearing in its inventory slot (inventory.css) */
+    --duration-depart: 300ms;        /* an item leaving its slot (inventory.css) */
+    --duration-exit-change: 720ms;   /* an exit that opens or closes blinks (compass.css) */
+    /* The map (ui/map.css; ui/map.js reads these to place rooms). Everything is built from the text size of a room's name,
+       --map-text (a step under the base size): a room is 18 of its characters wide and 5.5 tall, the gap between rooms (where
+       the lines run) 2.5 wide, and a stub (a way not yet taken) 2. Make the text bigger and the rooms, the gaps and the stubs
+       grow with it, with the lines still meeting the rooms' edges. The level's name is the same size as a room's name, the hint a little smaller. */
+    --map-text: calc(var(--size) * 0.8);
+    --map-room-w: calc(var(--map-text) * 18);
+    --map-room-h: calc(var(--map-text) * 5.5);
+    --map-gap: calc(var(--map-text) * 2.5);
+    --map-stub: calc(var(--map-text) * 2);
+    --map-level-text: var(--map-text);               /* the level's name (and the ×): the rooms' text size */
+    --map-note-text: calc(var(--map-text) * 0.9);    /* the hint: a little smaller */
+  }
+  @supports (width: round(down, 10px, 4px)) {
+    :root { --size: clamp(12px, round(down, var(--fit), 1px), 24px); }
+  }
+  @supports (width: round(nearest, 10px, 1px)) {
+    :root { --map-text: round(nearest, calc(var(--size) * 0.8), 1px); --map-note-text: round(nearest, calc(var(--map-text) * 0.9), 1px); }   /* whole pixels, to stay crisp */
+  }
+  /* Story text and prompt: a step up from the base size, rounded to a whole pixel to stay crisp.
+     Commands in the story (<EXAMINE DOOR>): a step down from story text, so their capitals sit with the lower-case
+     words around them; also a whole pixel. */
+  :root {
+    --size-text: calc(var(--size) * var(--text-step));
+    --size-command: calc(var(--size-text) * 0.875);
+    /* The landing page (ui/home.css): the title is a whole multiple of the base size, so the CGA font's 8-pixel grid stays crisp;
+       the subtitle at story-text size; the version a step under the base size; the ornament's 2×2-pixel block is
+       about 0.6 of it, in whole pixels (13px: 8px). */
+    --size-title: calc(var(--size) * 3);
+    --size-small: calc(var(--size) * 0.8);
+    --ornament-unit: calc(var(--size) * 0.6);
+  }
+  @supports (width: round(nearest, 10px, 1px)) {
+    :root {
+      --size-text: round(nearest, calc(var(--size) * var(--text-step)), 1px);
+      --size-command: round(nearest, calc(var(--size-text) * 0.875), 1px);
+      --size-small: round(nearest, calc(var(--size) * 0.8), 1px);
+      --ornament-unit: round(nearest, calc(var(--size) * 0.6), 1px);
+    }
+  }
+    /* Wider windows: the font also fits the window's height (the whole screen stays in view). */
+  @media (min-width: 760px) {
+    :root { --fit: min((100vw - 2 * var(--gutter)) / var(--main), 100dvh / var(--screen-rows)); }
+  }
+}
