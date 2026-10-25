@@ -18,7 +18,13 @@
        │ > _             hint →   │
        └──────────────────────────┘
    Phones: ♫ ≡ go up beside the title bar; directions and inventory become panels opened from two tabs under the
-   prompt (ui/tabs.css). */
+   prompt (ui/tabs.css).
+
+   Phones with the on-screen keyboard open (ui/page.js sets data-keyboard on <html>, and --visible-height and
+   --visible-top, measured): the page is only as high as the part of the screen you can see, and sits where that part
+   is, so it fits above the keyboard. The story is the one row that gives way, so the picture, the title bar, ♫ ≡, the
+   prompt and the tabs stay as they are, and the prompt lies just above the keyboard. The home indicator's padding goes
+   (the keyboard is under it). Closing the keyboard puts everything back. */
 @layer layout {
   /* Two views of one page (INTERFACE.md §13): the controller sets data-view on the page ("home", the list of games, or "game")
      and only that one shows. Before it sets one, the list's page shows. */
@@ -33,7 +39,7 @@
 
     width: 100%; margin-inline: auto;
     @media (min-width: 760px) { max-width: min(var(--column), var(--column-fit)); }   /* phones: the page's width */
-    height: 100dvh; box-sizing: border-box;
+    height: var(--visible-height, 100dvh); box-sizing: border-box;
     padding-block: max(var(--space-8), env(safe-area-inset-top, 0px)) max(var(--space-8), env(safe-area-inset-bottom, 0px));
 
     display: grid; gap: var(--space-4);
@@ -61,6 +67,11 @@
         "log     ."
         "prompt  prompt";   /* the command line spans the whole column, under the strip too */
     }
+  }
+
+  :root[data-keyboard] .layout {
+    translate: 0 var(--visible-top, 0px);
+    padding-bottom: var(--space-8);
   }
 
   .titlebar  { grid-area: title; }
