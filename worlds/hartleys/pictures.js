@@ -3,62 +3,66 @@
 // text names and on what the story may change (the roof door opens).
 
 export default {
-  // ---- THE PAVEMENT (the opening): straight on, from across the street, at dusk; two lit windows either side of the door --
+  // ---- THE ARCADE (the opening): looking up from its floor, horizon 116; a glass roof over lit windows, the blind end wall and the door; lead blue --
   pavement: {
     version: 1,
     draw: `
-      rect sky 0,0,320,30 fade:1,5/0,0/0,30
-      dots stars 14,5 52,10 96,4 168,8 214,3 262,9 304,5 c15
-      dots stars_dim 30,14 120,12 190,16 250,14 c7
-      rect facade 0,24,320,92 mix:6,4@0.3
-      rect cornice 0,22,320,6 14 e6
-      rect frieze 0,28,320,3 6 e0
-      rect nameplate 118,33,84,11 0 e14
-      line - 128,38 192,38 c14
-      rect plinth 0,106,320,10 mix:8,0@0.4
-      rect window_l 14,50,96,48 mix:14,15@0.2 e0
-      rect display_l 14,84,96,14 mix:6,14@0.4
-      rect window_r 210,50,96,48 mix:14,15@0.2 e0
-      rect display_r 210,84,96,14 mix:6,14@0.4
-      ellipse head_l1 32,58,3,4 7
-      poly dress_l1 26,64 38,64 43,90 21,90 12 e4
-      ellipse head_l2 62,56,3,4 7
-      poly dress_l2 55,62 69,62 75,92 49,92 9 e1
-      ellipse head_l3 90,60,3,4 7
-      poly dress_l3 85,66 95,66 99,90 81,90 13 e5
-      ellipse head_r1 232,58,3,4 7
-      poly dress_r1 226,64 238,64 243,90 221,90 10 e2
-      ellipse head_r2 262,56,3,4 7
-      poly dress_r2 255,62 269,62 275,92 249,92 15 e8
-      ellipse head_r3 290,60,3,4 7
-      poly dress_r3 285,66 295,66 299,90 281,90 12 e4
-      rect awning_l 10,42,104,8 stripes:4,15 e0
-      rect awning_r 206,42,104,8 stripes:4,15 e0
-      rect sill_l 8,98,108,6 7 e0
-      rect sill_r 204,98,108,6 7 e0
-      rect door_surround 128,46,64,64 0 e14
-      rect door_glass 134,52,52,58 mix:11,3@0.45
-      line leaf_v 160,52 160,110 c14
-      line leaf_h 134,81 186,81 c14
-      rect step_1 124,110,72,4 7 e0
-      rect step_2 118,114,84,4 8 e0
-      rect pavement 0,118,320,18 fade:8,0/0,118/0,136
-      line - 0,127 320,127 c0
-      line - 40,118 22,136 c0
-      line - 100,118 92,136 c0
-      line - 220,118 228,136 c0
-      line - 280,118 298,136 c0
-      ellipse lamp_glow 314,38,16,12 mix:,14@0.25
-      line lamp_post 314,42 314,120 c0
-      ellipse lamp 314,37,5,4 14
+      rect sky 0,0,320,136 fade:1,0/0,0/0,136
+      poly roof 0,0 320,0 262,44 150,44 fade:9,5/0,0/0,44
+      dots - 58,4 124,9 196,3 246,12 104,24 c15
+      line - 41,12 304,12 c0
+      line - 89,26 290,26 c0
+      line - 123,36 273,36 c0
+      line - 80,0 175,44 c0
+      line - 160,0 206,44 c0
+      line - 240,0 237,44 c0
+      poly wall_l 0,0 150,44 150,116 0,136 fade:0,1/20,0/150,0
+      poly wall_r 320,0 262,44 262,116 320,136 fade:0,1/300,0/262,0
+      rect facade 150,44,112,72 mix:1,0@0.3
+      poly floor 150,116 262,116 320,136 0,136 fade:1,0/0,116/0,136
+      line - 0,136 150,116 c8
+      line - 178,116 128,136 c8
+      line - 206,116 206,136 c8
+      line - 234,116 284,136 c8
+      line - 262,116 320,136 c8
+      poly window_l1 6,30 68,50 68,93 6,100 mix:14,15@0.2 e0
+      poly window_l2 84,54 130,66 130,96 84,94 mix:14,15@0.2 e0
+      poly window_r1 314,32 266,52 266,93 314,100 mix:14,15@0.2 e0
+      ellipse head_l1 16,50,3,4 0
+      poly dress_l1 13,56 19,56 19,70 24,98 8,98 13,70 4 e0
+      ellipse head_l2 56,58,3,3 0
+      poly dress_l2 53,64 59,64 58,76 62,96 50,96 54,76 1 e0
+      ellipse head_l3 98,66,2,2 0
+      poly dress_l3 96,70 100,70 100,78 103,94 93,94 96,78 5 e0
+      ellipse head_r1 304,52,3,4 0
+      poly dress_r1 301,58 307,58 307,72 312,98 296,98 301,72 2 e0
+      ellipse head_r2 290,57,3,3 0
+      poly dress_r2 287,62 293,62 292,74 297,95 283,95 288,74 5 e0
+      ellipse head_r3 277,62,2,3 0
+      poly dress_r3 275,66 279,66 279,76 283,93 271,93 275,76 4 e0
+      poly sill_l 2,100 130,94 130,97 2,105 7 e0
+      poly sill_r 319,100 260,93 260,96 319,106 7 e0
+      ellipse door_glow 210,100,38,22 mix:,11@0.22
+      rect nameplate 178,47,64,8 0 e14
+      line - 184,51 236,51 c14
+      ellipse canopy 210,60,24,5 6 e14
+      rect door_surround 188,62,44,54 0 e14
+      rect door_glass 192,66,36,50 mix:11,3@0.45
+      line leaf_v 210,66 210,116 c14
+      line leaf_h 192,92 228,92 c14
+      rect step 184,116,52,3 7 e0
+      ellipse door_spill 210,124,30,5 mix:,11@0.2
+      line - 165,60 165,67 c6
+      ellipse lamp_glow 165,76,13,10 mix:,14@0.25
+      ellipse lamp 165,76,3,3 14
     `,
     cycles: [
-      { name: "the street lamp", areas: ["lamp"], colors: [14, 6], style: "flicker", ms: [900, 4500] },
+      { name: "the wall lamp", areas: ["lamp"], colors: [14, 6], style: "flicker", ms: [900, 4500] },
       { name: "the door turning", areas: ["door_glass"], colors: [11, 3], style: "pingpong", ms: 1600 }
     ],
     overlays: [
-      { object: "wireless", at: [34, 92], alt: "A small cream wireless sits on the sill." },
-      { object: "mints", at: [54, 92], alt: "A paper bag of peppermints sits on the sill." }
+      { object: "wireless", at: [46, 88], alt: "A small cream wireless sits on the sill." },
+      { object: "mints", at: [30, 89], alt: "A paper bag of peppermints sits on the sill." }
     ]
   },
 
@@ -169,7 +173,7 @@ export default {
     draw: `
       rect wall 0,0,320,104 mix:6,0@0.45
       rect floor 0,104,320,32 mix:15,8@0.5
-      ellipse indicator 160,18,26,12 14 e6
+      ellipse indicator 160,18,26,12 14 e8
       rect - 132,18,56,12 mix:6,0@0.45
       line - 160,18 178,8 c0
       dots - 140,14 148,8 158,6 172,8 c0

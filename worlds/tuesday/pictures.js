@@ -17,12 +17,12 @@ export default {
       poly platform_end 194,94 194,114 208,114 0
       line - 0,96 194,96 c14
       rect track_bed 0,114,320,22 fade:8,0/0,114/0,136
-      rect ties 0,120,320,10 stripes:6,0
-      rect rail_near 0,118,320,2 7
-      rect rail_far 0,130,320,2 7
+      rect ties 14,120,292,10 stripes:6,0
+      rect rail_near 14,118,292,2 7
+      rect rail_far 14,130,292,2 7
       ellipse lamp_glow 70,54,28,16 mix:,14@0.25
       line lamp_post 70,58 70,94 c8
-      ellipse lamp 70,52,8,5 14 e6
+      ellipse lamp 70,52,8,5 14 e8
       rect bench_back 18,72,44,3 6 e0
       rect bench_seat 18,82,44,4 6 e0
       line - 22,75 22,82 c0
@@ -45,6 +45,10 @@ export default {
       rect underframe 198,108,126,5 0
       ellipse wheel_1 232,114,7,5 8 e0
       ellipse wheel_2 292,114,7,5 8 e0
+      rect end_wall_l 0,58,12,78 8 e0
+      rect buffer_l 12,114,5,20 4 e0
+      rect buffer_r 306,114,6,20 4 e0
+      rect end_wall_r 312,98,8,38 8 e0
     `,
     cycles: [
       { name: "the platform lamp", areas: ["lamp"], colors: [14, 6], style: "flicker", ms: [1200, 5000] },

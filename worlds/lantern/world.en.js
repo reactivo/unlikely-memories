@@ -54,7 +54,7 @@ const rooms = {
     scenery: [
       { words: ["reins", "cabman", "horse", "shafts"], name: "the reins", says: "Leather reins, going up over the roof to where a cabman was. They are still warm where he held them." },
       { words: ["window", "glass", "pane"], name: "the window", says: "A small side window, misted. On the other side of it, white, and nothing in the white." },
-      { words: ["seat", "cushion", "plush", "cab", "hansom"], name: "the seat", says: "Red plush worn shiny by a great many people going somewhere in a hurry. Yours is the only warm place on it." },
+      { words: ["seat", "cushion", "plush", "cab", "hansom"], name: "the seat", says: "Red plush worn shiny by a great many people going somewhere in a hurry. Yours is the only warm place on it.", leads: "out" },
       { words: ["hook", "roof", "ceiling"], name: "the hook", says: "A brass hook in the roof, for a lantern. Somebody has hung a bird on it instead." }
     ],
     mentions: ["reins", "window", "glass", "fog", "doors", "seat", "hook", "roof"],
@@ -79,6 +79,8 @@ const rooms = {
     },
     scenery: [
       { words: ["lamps", "lamp", "gas", "oranges", "muslin"], name: "the lamps", says: "Gas lamps on iron posts, one every few doors, each lit by hand. In the fog they give light to themselves and not much to anyone else." },
+      { words: ["bell", "pub"], name: "the Bell", says: "A low pub front, brown varnish and brass, with a smell of porter coming through the door.", leads: "w" },
+      { words: ["pie", "pies", "halloran's"], name: "the pie shop", says: "The pie shop's window is yellow and steamed over.", leads: "e" },
       { words: ["shops", "shop", "fronts", "front", "street", "row"], name: "the shop fronts", says: "A tobacconist, a chandler, a shop that mends umbrellas and nothing else. All shut, all lit by somebody else's lamp." },
       { words: ["fog", "muck", "peasouper"], name: "the fog", says: "Yellow-grey and thick enough to lean on. Now and then a word goes by in it at head height, too faint to make out." },
       { words: ["cobbles", "cobble", "kerb"], name: "the cobbles", says: "Wet cobbles. The fog has been lying on them so long they have taken its colour." }
@@ -88,7 +90,8 @@ const rooms = {
       "A lamp further down the Row coughs, and steadies.",
       "Footsteps go by in the fog, quite close, and nobody comes with them.",
       "A word drifts past at head height, too faint to make out, like a moth that has lost its lamp.",
-      "Constable Pye stops, writes something in his notebook, and walks on."
+      "Constable Pye stops, writes something in his notebook, and walks on.",
+      "You look back for the cab. There is only [way], the same as everywhere else."
     ], every: [40, 80] },
     // The court sits at midnight: worth waiting for here whenever it isn't sitting.
     waitFor: { time: "next 00:00", says: "You wait by the court doors. The fog comes and stands beside you, and waits too.", if: [{ "time.hour": { between: [6, 24] } }] },
@@ -235,7 +238,7 @@ const rooms = {
     exits: { w: "river_steps" },
     scenery: [
       { words: ["river", "water", "thames"], name: "the river", says: "Below, the river, going under the bridge as if it had an appointment." },
-      { words: ["lamps", "lamp", "string", "gap", "bank", "lantern"], name: "the Row", says: "Eleven lamps in a line, small and yellow, and then a gap where the twelfth should be." },
+      { words: ["lamps", "lamp", "string", "gap", "bank", "lantern", "row"], name: "the Row", says: "Eleven lamps in a line, small and yellow, and then a gap where the twelfth should be." },
       { words: ["half", "far", "end"], name: "the far half", says: "Fog, and more fog. The bridge goes into it and does not come out. Nobody on the Row has ever needed the other bank." }
     ],
     mentions: ["parapet", "river", "lamps", "bank", "far half"],
@@ -257,7 +260,7 @@ const objects = {
   summons: { at: "player", portable: true, name: "Summons", note: "Folded, official.", actions: ["Read summons"], heldActions: ["Read summons"],
     words: { nouns: ["summons"], adj: ["folded", "official"] }, ...item("summons"),
     examine: "\"You are called as witness to the inquest into the death of Albert Fenn, lamplighter, of Lantern Row. The court sits at midnight.\" Under the seal, in another hand, smaller: \"The deceased will be present.\"" },
-  cab_fog: { at: "cab", scenery: true, name: "The fog", note: "The only way on.", actions: ["Examine fog", "Enter fog"],
+  cab_fog: { at: "cab", scenery: true, name: "Fog", note: "The only way on.", actions: ["Examine fog", "Enter fog"],
     words: { nouns: ["fog", "doors", "door", "white"], adj: ["folding", "open", "thick"] },
     examine: "The cab's folding doors stand open on a fog so thick it has a grain, like paper. Somewhere in it, very far off, a lamp is lit, or remembered." },
 
@@ -299,7 +302,7 @@ const objects = {
   fire: { at: "bell", scenery: true, name: "Fire", note: "Banked high.", actions: ["Examine fire"],
     words: { nouns: ["fire", "coal", "flames"], adj: ["coal"] },
     examine: "Coal, banked high and roaring quietly to itself. The fog comes in at the door, takes one look at it, and goes out again." },
-  porter: { at: null, portable: false, name: "Half of porter", note: "Dark.", actions: ["Examine porter"],
+  porter: { at: null, portable: false, name: "Half of porter", note: "Dark, with a head.", actions: ["Examine porter"],
     words: { nouns: ["porter", "drink", "half", "pint", "beer", "ale"], adj: ["dark"] },
     examine: "Dark as the river and warmer." },
 
@@ -320,7 +323,7 @@ const objects = {
   oven: { at: "pie_shop", scenery: true, name: "Oven", note: "Never out.", actions: ["Examine oven"],
     words: { nouns: ["oven", "range", "door"], adj: ["iron", "black"] },
     examine: "A black iron oven, its door ajar on a glow the colour of a good evening. It has been lit since the old Queen, and Mrs Halloran talks to it when the shop is empty." },
-  pie: { at: null, portable: false, name: "Pie", note: "Hot.", actions: ["Examine pie"],
+  pie: { at: null, portable: false, name: "Pie", note: "Hot, still steaming.", actions: ["Examine pie"],
     words: { nouns: ["pie", "pies", "supper"], adj: ["hot", "steak"] },
     examine: "A pie in a paper, too hot to hold and too good to put down." },
 
@@ -367,7 +370,7 @@ const objects = {
     words: { nouns: ["lamp", "lamppost", "post", "lantern", "glass"], adj: ["last", "unlit", "dark", "twelfth", "iron"] },
     examine: "An iron post and a lantern of four panes, cold, with the tap shut. It is the twelfth lamp of twelve, and the only one on the Row that nobody lit tonight. It is too high to reach without a lamplighter's pole.",
     climb: "The post is iron and wet, and there is nothing to hold on to. Lamplighters never climbed. They had a pole for it." },
-  fog_lamp: { at: "last_lamp", scenery: true, name: "Fog", note: "Murmuring.", actions: ["Listen to fog"],
+  fog_lamp: { at: "last_lamp", scenery: true, name: "Fog", note: "Murmuring, word by word.", actions: ["Listen to fog"],
     words: { nouns: ["fog", "murmur", "murmuring", "mist"], adj: ["thick"] },
     examine: "The fog is thickest here, and it murmurs: a word, half a word, too faint to make out, all of them said here and none of them heard yet." },
   hut_door: { at: "last_lamp", scenery: true, name: "Hut door", note: "Mr Fenn's.", actions: ["Examine door", "Open door"], leads: "e",
@@ -406,7 +409,7 @@ const objects = {
   bowler: { at: "voss", scenery: true, name: "Bowler hat", note: "Company issue.", actions: ["Examine bowler"],
     words: { nouns: ["bowler", "hat"], adj: ["bowler", "black"] },
     examine: "A black bowler, brushed against the fog. He has not taken it off since the Company sent him, in case the Company looks in." },
-  dynamo: { at: "substation", scenery: true, name: "Dynamo", note: "Humming.", actions: ["Listen to dynamo"],
+  dynamo: { at: "substation", scenery: true, name: "Dynamo", note: "Humming, very sure.", actions: ["Listen to dynamo"],
     words: { nouns: ["dynamo", "machine", "drum", "coil"], adj: ["big", "humming"] },
     examine: "A great iron drum wound with copper, humming. It is going to light twelve lamps at once on Monday and has already stopped thinking about anything else.",
     listen: "A hum, low and certain, with no words in it at all. Mr Voss finds it restful.",
@@ -528,8 +531,22 @@ const rules = [
   { id: "say_words_in_court", match: { verb: "say" }, if: [{ "player.at": "court" }, { "last_words.at": "player" },
       { "$text": { in: ["words", "the words", "last words", "the last words", "them", "it", "leave it albert", "leave it, albert"] } }],
     do: [{ change: "truth_ending" }] },
+  { id: "say_voss", match: { verb: "say" }, if: [{ "player.at": "court" }, { "$text": { in: ["voss", "mr voss", "mister voss", "it was voss", "it was mr voss"] } }],
+    do: [{ confirm: "Name Mr Voss before the court? A name said here stays said.", yes: [{ change: "blamed_ending" }],
+           no: [{ say: "You close your mouth on it. The fog in the jury chairs sits back, disappointed." }] }] },
+  { id: "say_halloran", match: { verb: "say" }, if: [{ "player.at": "court" }, { "last_words.at": "player" }, { "$text": { in: ["halloran", "mrs halloran", "missus halloran", "it was halloran", "it was mrs halloran"] } }],
+    do: [{ confirm: "Name Mrs Halloran before the court? A name said here stays said.", yes: [{ change: "truth_ending" }],
+           no: [{ say: "You close your mouth on it. The fog in the jury chairs sits back, disappointed." }] }] },
+  { id: "say_halloran_bare", match: { verb: "say" }, if: [{ "player.at": "court" }, { "$text": { in: ["halloran", "mrs halloran", "missus halloran", "it was halloran", "it was mrs halloran"] } }],
+    do: [{ say: "\"On what evidence?\" says Dr Mabbott, mildly. \"The court hears words, not feelings. The fog will have kept the last ones said at the lamp.\"" }] },
   { id: "say_in_court", match: { verb: "say" }, if: [{ "player.at": "court" }],
     do: [{ say: "\"If you are naming someone,\" says Dr Mabbott, \"name them plainly, and the court will write it down.\"" }] },
+
+  // The pole lies in the hut as a shape in its picture: taking it removes the shape, dropping it back in the hut redraws it.
+  { id: "pole_up", match: { verb: "take", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "hut" }],
+    do: [{ draw: "hut", remove: ["pole_shape", "pole_flame"] }], then: "default" },
+  { id: "pole_down", match: { verb: "drop", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "player" }],
+    do: [{ draw: "hut", add: ["line pole_shape 256,112 244,26 c14", "ellipse pole_flame 244,22,2,3 9"] }], then: "default" },
 
   // The last lamp: whoever lights it takes the post.
   { id: "light_lamp", match: { verb: ["switch_on", "use"], obj: ["dark_lamp", "pole"], obj2: [null, "dark_lamp", "pole"] },

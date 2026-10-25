@@ -285,10 +285,7 @@ export default {
       rect - 264,74,16,26 8 e0
       poly flag 176,34 186,37 176,40 12
       line - 176,34 176,46 c7
-    `,
-    overlays: [
-      {object: "oars", at: [150,110], alt: "A pair of oars lies on the sand by the open hut."}
-    ]
+    `
   },
 
   // ---- THE DUNES: a boardwalk winding between dunes towards the glow of the promenade ----------------------------

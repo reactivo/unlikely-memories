@@ -16,7 +16,7 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Department-store manners: mahogany, brass, floorwalkers, cash railways, a store that " +
     "has never quite managed to close.",
   start: "Saturday, 17:10, on the ground floor.",
-  opening: "The pavement outside the store, at ten to five: a bag of peppermints (to begin again), a wireless (hints), a " +
+  opening: "The arcade behind the store, at ten to five: a bag of peppermints (to begin again), a wireless (hints), a " +
     "shopping list you already carry (why you came). The revolving door is the way in.",
   rules: [
     "Everything at Hartley's has a price, and the price is a memory.",
@@ -42,22 +42,22 @@ const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"]
 // Area "store" (x grows east, y grows south, z is the floor: -1 the basement, 0 the ground floor, up to 3, the roof).
 // Area "fourth": the fourth floor, reached only by the lift.
 const rooms = {
-  // The opening (GUIDE.md §8): the street outside, never returned to. Area "street" is its own.
+  // The opening (GUIDE.md §8): the arcade behind the store, shut at both ends, never returned to. Area "arcade" is its own.
   pavement: {
-    name: "THE PAVEMENT", area: "street", at: [0, 0, 0],
+    name: "THE ARCADE", area: "arcade", at: [0, 0, 0],
     describe: [
-      "The pavement outside Hartley's, at ten to five on a Saturday. Every window is lit, and the dresses in them have turned a little towards the street.",
+      "The arcade behind Hartley's, at ten to five on a Saturday: a tiled passage under a glass roof, shuttered behind you. Every window along it is lit, and the dresses in them have turned a little towards you. The air smells of wet umbrellas.",
       "The only way in is the {revolving door|street_door}, to the north."
     ],
     exits: { n: true },
     scenery: [
-      { words: ["window", "windows", "glass", "display", "dresses", "dress"], name: "the windows", says: "Dresses on stands, in colours from before you were born, each turned a few degrees towards the street. The ones at the back are turned a few degrees more." },
+      { words: ["window", "windows", "glass", "display", "dresses", "dress"], name: "the windows", says: "Dresses on stands, in colours from before you were born, each turned a few degrees towards you. The ones at the back are turned a few degrees more." },
       { words: ["sill", "sills", "ledge"], name: "the sill", says: "A stone sill, wide enough for a bag of peppermints, worn smooth by people who stopped to look at dresses and then didn't leave." },
-      { words: ["pavement", "street", "kerb", "road"], name: "the street", says: "Wet, though it hasn't rained. There are no other shops in the street. Hartley's is the street." }
+      { words: ["arcade", "passage", "roof", "tiles", "floor", "shutter", "street"], name: "the arcade", says: "Wet tiles, though it hasn't rained, and a glass roof with the last of the light in it. The shutter behind you has no handle, and the street beyond it is somebody else's Saturday." }
     ],
     mentions: ["windows", "dresses", "sill", "revolving door"],
-    ambience: { lines: ["In the nearest window a dress has changed its hands, and is looking at the street as if it hadn't.", "A bus goes by with every seat taken by a hat.", "Somewhere inside, someone laughs at a price.", "The wireless on the sill finds a station, loses it, and apologises."], every: [30, 70] },
-    alt: "The front of a department store at dusk: two lit windows full of dresses, a revolving door between them, a street lamp at the edge of the pavement."
+    ambience: { lines: ["In the nearest window a dress has changed its hands, and is looking at the glass as if it hadn't.", "Something heavy is wheeled past on the far side of the shutter, and nobody apologises.", "Somewhere inside, someone laughs at a price.", "The wireless on the sill finds a station, loses it, and apologises."], every: [30, 70] },
+    alt: "A glass-roofed arcade at dusk, seen from its floor and shut at both ends: lit windows full of dresses along both walls, a revolving door in the blind end wall, a lamp beside it."
   },
   front_hall: {
     name: "HARTLEY'S", area: "store", at: [1, 1, 0],
@@ -114,7 +114,7 @@ const rooms = {
       "The gate opens south, onto the lobby."
     ],
     exits: { s: { to: "lift_lobby", out: true }, u: true, d: false },
-    scenery: [{ words: ["mirror", "bench", "velvet", "stool", "ceiling", "buttons", "button", "gate"], name: "the lift", says: "There are no buttons. There is Mr Pell, and the lever, and a small brass keyhole beside the number 4." }],
+    scenery: [{ words: ["mirror", "bench", "velvet", "stool", "ceiling", "buttons", "button", "gate", "lift"], name: "the lift", says: "There are no buttons. There is Mr Pell, and the lever, and a small brass keyhole beside the number 4. The gate is folded open onto the lobby.", leads: "s" }],
     mentions: ["mirror", "bench", "gate", "Mr Pell", "stool", "lever"],
     alt: "Inside an old lift: a mirror, a red velvet bench, a folding brass gate, and a man in a uniform on a stool, one hand near a brass lever."
   },
@@ -159,7 +159,8 @@ const rooms = {
       "Furniture is west, coats east. The stairs go down."
     ],
     exits: { w: "furniture", e: "coats", d: "first_landing", u: true },
-    scenery: [{ words: ["stairs", "staircase", "flight", "carpet"], name: "the stairs", says: "The main stairs go down. A short flight goes up to the roof door." }],
+    scenery: [{ words: ["stairs", "staircase", "carpet"], name: "the stairs", says: "The main stairs go down to the first floor.", leads: "d" },
+              { words: ["flight", "steps"], name: "the flight", says: "A short flight goes up to the roof door.", leads: "u" }],
     mentions: ["carpet", "door", "flight", "stairs"],
     alt: "A quiet landing with new carpet. A short flight of steps leads up to a painted door with a sign. Archways left and right."
   },
@@ -261,7 +262,7 @@ const objects = {
     examine: "A brass half-moon with an arrow: B, G, 1, 2, and then, after a gap, 4. The arrow rests on 4, and has for years. Under the 4, engraved: LOST AFTERNOONS. BY APPOINTMENT." },
   revolving_door: { at: "front_hall", scenery: true, name: "Revolving door", note: "Turning on its own.", actions: ["Push revolving door"],
     words: { nouns: ["door", "doors"], adj: ["revolving", "front", "turning"] },
-    examine: "Four leaves of mahogany and bevelled panes, turning slowly. Through it, the street is the colour of tea.",
+    examine: "Four leaves of mahogany and bevelled panes, turning slowly. Through it, the arcade is the colour of tea.",
     push: "You push. The door turns you all the way round and sets you down inside again, a little more politely than before. Hartley's doesn't let its customers go without something." },
   gage: { at: "front_hall", scenery: true, name: "Mr Gage", note: "The floorwalker.", actions: ["Talk to Mr Gage"],
     words: { nouns: ["gage", "floorwalker", "man", "carnation"], adj: ["mr", "mister"] },
@@ -292,6 +293,7 @@ const objects = {
     examine: "A crystal tester with a rubber bulb. The label says: NO. 7. AN AFTERNOON INDOORS. And below, smaller: PRICE ON REQUEST." },
   memory: { at: null, portable: true, name: "Memory", note: "An afternoon, stoppered.", actions: ["Examine memory"], heldActions: ["Smell memory", "Open memory"],
     words: { nouns: ["memory", "bottle", "phial", "stopper", "cork"], adj: ["small", "little", "stoppered", "my"] }, ...item("memory"),
+    here: "A small stoppered {bottle|memory} stands here, with an afternoon in it.",
     examine: "A little bottle stoppered with cork. Inside, very small, rain on a kitchen window and someone you loved, asleep in a chair. It is warm to hold.",
     smell: "Rain, toast, a radio in the next room. You had that afternoon. You had forgotten you had it." },
 
@@ -302,6 +304,7 @@ const objects = {
     take: "It won't be carried. It would rather be held." },
   roof_key: { at: null, portable: true, name: "Roof key", note: "Long, brass, mended.", actions: ["Examine roof key"],
     words: { nouns: ["key", "latchkey"], adj: ["roof", "brass", "long", "mended"] }, ...item("roof_key"),
+    here: "A long brass {key|roof_key} lies here, labelled ROOF.",
     examine: "A long brass key with a paper label: ROOF. MENDED. It has been mended so carefully that it's hard to say where." },
 
   // The lift
@@ -434,16 +437,16 @@ const rules = [
     do: [{ say: "You step into the revolving door. It turns you all the way round and sets you down inside again. Hartley's doesn't let its customers go without something." }] },
 
   // The tester: a memory, bottled, once.
-  { id: "smell_tester", match: { verb: ["smell", "use", "push"], obj: "tester" }, if: [{ "memory.at": null }], once: true,
+  { id: "smell_tester", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] }, if: [{ "memory.at": null }], once: true,
     do: [{ say: "You press the bulb. Rain on a kitchen window. Toast. A radio in the next room, and someone you loved asleep in a chair, on an afternoon you had forgotten you had." },
          { say: "Madame Corre holds a little bottle under your nose, and the afternoon goes into it. She corks it and gives it to you. \"Payment,\" she says. \"Or not. That is up to you.\"" },
          { move: "memory", to: "player" }, tension(-5)] },
-  { id: "smell_tester_again", match: { verb: ["smell", "use", "push"], obj: "tester" },
+  { id: "smell_tester_again", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] },
     do: [{ say: "Madame Corre caps the tester with one gloved finger. \"One each,\" she says. \"Memories are not samples.\"" }] },
 
   // The cash railway: put the payment in the canister, pull the handle.
   { id: "put_canister", match: { verb: "put", obj2: "canister" }, if: [at("haberdashery"), { "$obj.at": "player" }],
-    do: [{ move: "$obj", to: "canister" }, { say: "You put it in the canister. The canister seems to approve." }] },
+    do: [{ move: "$obj", to: "canister" }, { say: "You put it in the canister. The canister approves." }] },
   { id: "send_memory", match: { verb: ["pull", "use", "send"], obj: ["handle", "canister", "memory"] }, if: [at("haberdashery"), { "memory.at": "canister" }],
     do: [{ say: "You pull the handle. The tube breathes in, hard, and the canister is gone, up into the ceiling, with a sound like a word swallowed." },
          { say: "A moment later it drops back into its cradle with a thump. Inside, a pink appointment ticket, and no memory. You take the ticket. You can't, for the moment, remember what it cost." },
@@ -477,7 +480,7 @@ const rules = [
   { id: "lift_go_up", match: { verb: "go", dir: "u" }, if: [at("lift"), holding("lift_ticket")],
     do: [{ say: "Mr Pell holds out his hand for your ticket, and punches it. \"The fourth.\" The lift goes up for longer than the store is tall." },
          { travel: "fourth_floor" }, { describe: "$here" }] },
-  { id: "lift_lever_up", match: { verb: ["push", "pull", "use"], obj: "lift_lever" }, if: [at("lift"), holding("lift_ticket")],
+  { id: "lift_lever_up", match: { verb: ["push", "pull", "use"], obj: "lift_lever", obj2: [null] }, if: [at("lift"), holding("lift_ticket")],
     do: [{ say: "Mr Pell holds out his hand for your ticket, and punches it. \"The fourth.\" He puts the lever over. The lift goes up for longer than the store is tall." },
          { travel: "fourth_floor" }, { describe: "$here" }] },
   { id: "lift_no_ticket_go", match: { verb: "go", dir: "u" }, if: [at("lift")],
@@ -488,17 +491,17 @@ const rules = [
     do: [{ say: "Mr Pell takes you down without a word, which is his way of being kind." }, { travel: "lift" }, { describe: "$here" }] },
 
   // The fourth floor: the afternoon you didn't go.
-  { id: "wear_afternoon", match: { verb: ["wear", "enter", "use"], obj: "afternoon" }, if: [at("fourth_floor")],
+  { id: "wear_afternoon", match: { verb: ["wear", "enter", "use"], obj: "afternoon", obj2: [null] }, if: [at("fourth_floor")],
     do: [{ change: "afternoon_ending" }] },
 
   // The memory: let out somewhere high, under the sky.
-  { id: "keep_memory", match: { verb: ["open", "use", "drink", "pull"], obj: "memory" }, if: [at("roof_garden"), holding("memory")],
+  { id: "keep_memory", match: { verb: ["open", "use", "drink", "pull"], obj: "memory", obj2: [null] }, if: [at("roof_garden"), holding("memory")],
     do: [{ change: "kept_ending" }] },
   { id: "keep_memory_not_here", match: { verb: ["open", "use", "drink", "pull"], obj: "memory", obj2: [null] }, if: [holding("memory")],
     do: [{ say: "You put your thumb to the cork, and stop. Not here, under a ceiling. It wants somewhere high, with sky." }] },
 
   // The bear: wound, it says what the first floor has seen.
-  { id: "wind_bear", match: { verb: ["turn", "use", "push"], obj: "bear" },
+  { id: "wind_bear", match: { verb: ["turn", "use", "push"], obj: "bear", obj2: [null] },
     do: [{ say: ["You wind the bear. It walks to the edge of the shelf and says, in a voice like a music box running down: \"The glove in Gloves is holding the roof key. It only lets go for a handshake.\"",
                  "You wind the bear. It nods three times and says: \"Afternoons on the fourth. Pay by tube. Everybody pays with the one they liked.\"",
                  "You wind the bear. \"The roof,\" it says. \"Somewhere high. Things let out up there stay out.\" It sits down, pleased."] }] },
@@ -551,7 +554,7 @@ const opening = {
     notYet: "The door turns past you without a gap in it. Customers with empty hands are asked to wait, and there is a bag and a wireless on the sill.",
     notYetRestart: "The door turns past you without a gap in it. You have nothing to begin again with, and there is a bag of peppermints on the sill.",
     notYetHints: "The door turns past you without a gap in it. You have nothing to listen to, and there is a wireless on the sill.",
-    through: "The next pane comes round with a gap in it, and you step into the gap, and ride it round, and step out into the store. Behind you the street goes on being a Saturday.",
+    through: "The next pane comes round with a gap in it, and you step into the gap, and ride it round, and step out into the store. Behind you the arcade goes on being a Saturday.",
     askRestart: "Put a peppermint in your mouth and begin again?",
     restartYes: "You unwrap a peppermint and put it on your tongue. It tastes of every time you were handed one. The windows go dark, one by one, and…",
     restartNo: "You twist the bag shut and keep it. Not yet.",
@@ -596,6 +599,7 @@ export default {
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", actions: ["Examine ticket"], heldActions: ["Examine ticket", "Show ticket to Pell"],
       words: { nouns: ["ticket", "appointment"], adj: ["pink", "appointment", "lift"] }, ...item("lift_ticket"),
+      here: "A pink {ticket|lift_ticket} lies here.",
       examine: "A pink ticket: HARTLEY'S. FOURTH FLOOR. ONE APPOINTMENT. PAID. On the back, in the cash office's hand: ONE AFTERNOON, INDOORS, WITH RAIN." },
     ...rules.map((rule) => ({ add: "rule", rule }))
   ]

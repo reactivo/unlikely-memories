@@ -79,7 +79,7 @@ export default {
       ellipse fog_near 160,80,170,26 mix:,6@0.25
       line - 70,30 70,112 c0
       ellipse glow_l1 70,28,20,14 mix:,14@0.35
-      ellipse lamp_l1 70,28,5,6 14 e6
+      ellipse lamp_l1 70,28,5,6 14 e0
       line - 136,46 136,88 c0
       ellipse glow_l2 136,44,12,9 mix:,14@0.35
       ellipse lamp_l2 136,44,3,4 14
@@ -87,7 +87,7 @@ export default {
       ellipse lamp_l3 170,53,2,2 14
       line - 268,28 268,110 c0
       ellipse glow_r1 268,26,18,13 mix:,14@0.35
-      ellipse lamp_r1 268,26,5,6 14 e6
+      ellipse lamp_r1 268,26,5,6 14 e0
       line - 226,46 226,86 c0
       ellipse glow_r2 226,44,11,8 mix:,14@0.35
       ellipse lamp_r2 226,44,3,4 14
@@ -186,7 +186,7 @@ export default {
       line - 106,114 106,136 c8
       line - 212,114 212,136 c8
     `,
-    cycles: [{ name: "the oven", areas: ["oven_mouth"], colors: [14, 12], style: "pingpong", ms: 2200 }]
+    cycles: [{ name: "the oven", areas: ["oven_glow"], colors: [14, 12], style: "pingpong", ms: 2200 }]
   },
 
   // ---- CORONER'S COURT: looking up from the witness box at the high green bench; the jury of fog on the right -------
@@ -313,10 +313,11 @@ export default {
       line - 112,75 122,75 c7
       line - 130,75 140,75 c7
       rect matches 170,74,10,6 4 e0
+      line pole_shape 256,112 244,26 c14
+      ellipse pole_flame 244,22,2,3 9
     `,
     cycles: [{ name: "the caps", areas: ["caps_top"], colors: [10, 2], style: "pingpong", ms: 4000 }],
     overlays: [
-      { object: "pole", at: [244, 80], alt: "A lamplighter's pole leans in the corner, its little blue flame burning." },
       { object: "trumpet", at: [180, 104], alt: "A dented brass ear trumpet lies on the floor." }
     ]
   },
@@ -340,7 +341,7 @@ export default {
       line arc 60,120 70,116 80,122 90,116 100,120 c11
       rect dynamo_foot 10,124,150,12 0
       line flex 214,0 214,30 c7
-      ellipse bulb 214,36,6,8 15 e7
+      ellipse bulb 214,36,6,8 15 e0
       poly desk 198,104 320,98 320,136 192,136 6 e0
       line - 192,112 320,106 c0
       rect ledger 220,98,40,8 15 e8

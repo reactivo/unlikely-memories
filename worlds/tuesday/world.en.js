@@ -80,8 +80,9 @@ const rooms = {
       "Behind the counter, {Mr Ambrose|ambrose} keeps the {ledger}. A damp {crate|sea_crate} says SEA, ONE, UNCLAIMED. The station hall is east."
     ],
     exits: { e: "station_hall" },
-    scenery: [{ words: ["shelves", "shelf", "umbrellas", "gloves", "birdcage", "dress", "box", "labels", "label"], name: "the shelves", says: "Things people stopped looking for. Each has a label, and each label a date. None of the dates is a Monday after the decree." }],
-    mentions: ["shelves", "birdcage", "Mr Ambrose", "ledger", "crate"],
+    scenery: [{ words: ["shelves", "shelf", "umbrellas", "gloves", "birdcage", "dress", "wedding", "box", "labels", "label"], name: "the shelves", says: "Things people stopped looking for. Each has a label, and each label a date. None of the dates is a Monday after the decree." },
+              { words: ["counter"], name: "the counter", says: "A long counter, scarred where a century of claimants have leaned." }],
+    mentions: ["shelves", "birdcage", "counter", "Mr Ambrose", "ledger", "crate"],
     alt: "A long room of shelves crowded with umbrellas, boxes and a birdcage. A counter with a ledger and an old clerk; a damp crate by the wall."
   },
   station_hall: {
@@ -92,6 +93,7 @@ const rooms = {
       "The platform is north, the square south. Lost property is west; the waiting room, east."
     ],
     exits: { n: "platform", s: { to: "square", out: true }, w: "lost_property", e: "waiting_room" },
+    waitFor: { time: "next 21:00", says: "You wait under the clock. It is honest about every minute.", if: [hours(6, 21)] },
     scenery: [{ words: ["roof", "glass", "tiles", "tiled", "hall"], name: "the hall", says: "Green and cream tiles, and glass so high that the pigeons under it look like thoughts." }],
     mentions: ["clock", "calendar", "decree", "ticket window", "grille", "shutter", "timetable", "roof"],
     alt: "A station hall with green and cream tiles under a glass roof. A big clock with a calendar below it and a framed notice. A ticket window with a brass grille on the right; a timetable on the left wall."
@@ -104,7 +106,7 @@ const rooms = {
       "The station hall is west."
     ],
     exits: { w: "station_hall" },
-    scenery: [{ words: ["benches", "stove", "posters", "poster", "resorts"], name: "the waiting room", says: "The stove has been cold for a long time. The posters promise sea air, mountain air, any air but this." }],
+    scenery: [{ words: ["benches", "bench", "stove", "posters", "poster", "resorts"], name: "the waiting room", says: "The stove has been cold for a long time. The posters promise sea air, mountain air, any air but this." }],
     mentions: ["benches", "stove", "posters", "photo booth", "curtain", "Mrs Oduya", "suitcase"],
     alt: "A dim waiting room with wooden benches and a black stove. An old woman sits with a suitcase on her knees. A photo booth with a drawn curtain in the corner."
   },
@@ -147,7 +149,7 @@ const rooms = {
   square: {
     name: "STATION SQUARE", area: "town", at: [1, 1, 0],
     describe: squareDusk,
-    exits: { n: "station_hall", w: "hotel", e: "cafe", s: "high_street" },
+    exits: { n: "station_hall", w: "hotel", e: { to: "cafe", if: hours(7, 22), closed: "The café is dark, the chairs up on the tables. A card on the door: 7 TO 22." }, s: "high_street" },
     scenery: [{ words: ["lamps", "lamp", "ladder", "cobbles", "pigeons", "hat", "lamplighter"], name: "the lamps", says: "Iron lamps with glass hats. Someone lights them at eight, and the one under the fountain's water too." }],
     mentions: ["fountain", "statue", "lamps", "ladder"],
     // Worth waiting for from seven in the morning until the lamps are lit at eight; from the first morning the words change (daybreak).
@@ -196,11 +198,12 @@ const rooms = {
       "Shops with their shutters down: a draper's, a chemist's, a shop that sells only calendars. The town hall is west, with a brass {plate} by its door. The clockmaker's is east, and its window is full of different times.",
       "The square is north. The park is south."
     ],
-    exits: { n: "square", w: true, e: "clock_shop", s: "park" },
-    scenery: [{ words: ["shops", "shutters", "draper", "chemist", "calendars", "calendar"], name: "the shops", says: "The calendar shop's window shows calendars with six days a week. They sell well." },
+    exits: { n: "square", w: { to: "town_hall", if: hours(9, 17), closed: "The doors are shut. The brass plate gives the hours: nine to five." }, e: "clock_shop", s: "park" },
+    scenery: [{ words: ["shops", "shutters", "draper", "drapers", "chemist", "chemists", "calendars", "calendar"], name: "the shops", says: "The calendar shop's window shows calendars with six days a week. They sell well." },
               { words: ["hall", "columns", "steps"], name: "the town hall", says: "Columns, steps, and doors that keep office hours. The brass plate gives them.", leads: "w" },
               { words: ["clockmakers", "clockmaker", "shop", "clocks", "window"], name: "the clockmaker's", says: "A window full of clocks, each showing a different time, and all of them right somewhere.", leads: "e" }],
     mentions: ["shops", "town hall", "plate", "clockmakers", "calendars"],
+    waitFor: { time: "next 09:00", says: "You sit on the town hall steps. The night passes in no particular hurry. At nine a clerk unlocks the doors, looks at you, and decides not to ask.", if: [notHours(9, 17)] },
     alt: "A street of shuttered shops. On the left, a town hall with columns and a brass plate by the door; on the right, a clockmaker's window full of clock faces."
   },
   town_hall: {
@@ -293,7 +296,7 @@ const rooms = {
   dining_car: {
     name: "THE DINING CAR", area: "train", at: [1, 0, 0],
     describe: [
-      "White tablecloths, a lamp on each table, and places laid for a meal that comes after midnight. The {guard} sits at the last table doing his sums.",
+      "White tablecloths, a lamp on each table, and places laid for a meal that comes on Tuesday. The {guard} sits at the last table doing his sums.",
       "The compartment is west."
     ],
     exits: { w: "compartment" },
@@ -316,7 +319,7 @@ const objects = {
     examine: "A cocoa tin with a hole punched in the base and a length of string running out of it, along the platform and over the edge into the dark. The string is taut, as if something were on the other end." },
   diary_leaf: { at: "player", portable: true, name: "Diary leaf", note: "Ruled for a week.", actions: ["Read leaf"], heldActions: ["Read leaf"],
     words: { nouns: ["leaf", "diary"], adj: ["folded", "yellow", "ruled", "diary"] }, ...item("diary_leaf"),
-    examine: "A leaf from a diary, ruled for a week. Sunday is filled in, in your hand. Tuesday is filled in. Where Monday should be is a clean, careful gap, rubbed through to the next page." },
+    examine: "A diary leaf, ruled for a week. Sunday and Tuesday are filled in, in your hand; where Monday should be is a clean, careful gap, rubbed through to the next page." },
   carriage_door: { at: "halt", scenery: true, name: "Carriage door", note: "Open, and waiting.", actions: ["Examine door", "Enter carriage"],
     words: { nouns: ["door", "carriage"], adj: ["carriage", "open", "single"] },
     examine: "A green carriage, one only, with its door open and a step down to the gravel. The light inside is the yellow of a room where someone has just stood up." },
@@ -335,11 +338,10 @@ const objects = {
     } },
   ledger: { at: "lost_property", scenery: true, name: "Ledger", note: "Everything lost, in order.", actions: ["Read ledger"], opens: ["monday", "umbrella"],
     words: { nouns: ["ledger", "book", "register"], adj: ["big", "black"] },
-    examine: "Columns of lost things. Near the end, in the same patient hand: \"One umbrella, grey. Left on a Monday. Unclaimed.\" Beside it, in another hand, the owner's name has run in the rain. The handwriting is yours.",
+    examine: "Columns of lost things. Near the end, in the same patient hand: \"One umbrella, grey. Left on a Monday. Unclaimed.\" Beside it the owner's name has run in the rain, in handwriting that is yours.",
     parts: [{ words: ["columns", "hand", "entry", "entries"], name: "the entries" }], mentions: ["umbrella", "columns"] },
-  umbrella: { at: "lost_property", portable: false, unnoticed: true, name: "Grey umbrella", note: "Yours, apparently.", actions: ["Examine umbrella"], heldActions: ["Examine umbrella", "Give umbrella to archivist"],
+  umbrella: { at: "lost_property", portable: false, unnoticed: true, name: "Grey umbrella", note: "Yours, by the tag.", actions: ["Examine umbrella"], heldActions: ["Examine umbrella", "Give umbrella to archivist"],
     words: { nouns: ["umbrella", "brolly"], adj: ["grey", "gray"] }, ...item("umbrella"),
-    take: "It's behind the counter. Mr Ambrose doesn't hand things over to people who haven't asked.",
     examine: "A grey umbrella with a wooden handle and a paper tag. It smells of the last rain on the last Monday.",
     parts: [{ words: ["tag", "handle"], name: "the tag", says: "A name, run in the rain. In your handwriting, though you don't remember writing it." }], mentions: ["tag", "handle"] },
   sea_crate: { at: "lost_property", scenery: true, name: "Crate", note: "SEA, ONE, UNCLAIMED.", actions: ["Listen to crate", "Open crate"],
@@ -350,27 +352,27 @@ const objects = {
     parts: [{ words: ["seams", "water", "lid", "nails", "stencil"], name: "the seams", says: "Salt water. It finds your feet every time, as if it had somewhere to be." }], mentions: ["seams", "water", "lid"] },
 
   // Station hall
-  station_clock: { at: "station_hall", scenery: true, name: "Station clock", note: "Honest.", actions: ["Examine clock"],
+  station_clock: { at: "station_hall", scenery: true, name: "Station clock", note: "Honest about every minute.", actions: ["Examine clock"],
     words: { nouns: ["clock"], adj: ["station", "big", "honest"] },
     examine: "A big plain clock. It says [time]. The town keeps its hours by it, and it keeps them well." },
   calendar: { at: "station_hall", scenery: true, name: "Calendar", note: "Torn off at Sunday.", actions: ["Examine calendar"], opens: ["monday"],
     words: { nouns: ["calendar", "stub", "pages"], adj: ["tear-off", "tear", "off"] },
     examine: "A tear-off calendar showing SUNDAY. Between Sunday's page and the next, Tuesday, there's a stub where a page was torn out, and a little paste, still sticky.",
     parts: [{ words: ["paste", "page"], name: "the stub", says: "Room for one page. The paste is still sticky, after all these years." }], mentions: ["stub", "paste"] },
-  decree: { at: "station_hall", scenery: true, name: "Decree", note: "Framed.", actions: ["Read decree"], opens: ["monday"],
+  decree: { at: "station_hall", scenery: true, name: "Decree", note: "Framed, and signed.", actions: ["Read decree"], opens: ["monday"],
     words: { nouns: ["decree", "notice", "frame"], adj: ["framed"] },
     examine: "\"By order: Monday is abolished in this town, with effect from the next one. The last Monday shall be kept at the town hall, in case.\" Signed by the Minister, with a flourish that goes on too long.",
     parts: [{ words: ["flourish", "signature", "minister"], name: "the signature" }], mentions: ["signature"] },
   window: { at: "station_hall", scenery: true, name: "Ticket window", note: "Tickets from nine in the evening.", actions: ["Examine window", "Buy ticket"],
     words: { nouns: ["window", "grille", "shutter", "card"], adj: ["ticket", "booking", "brass"] },
     examine: "A brass grille, a shutter, and a card: TICKETS FROM 21:00. ONE FARE: ONE COIN. OLD CURRENCY ONLY.",
-    waitFor: null, mentions: ["grille", "shutter", "card"] },
+    mentions: ["grille", "shutter", "card"] },
   booking_clerk: { at: null, scenery: true, name: "Booking clerk", note: "Behind the grille.", actions: ["Buy ticket"],
     words: { nouns: ["clerk", "woman"], adj: ["booking", "ticket"] },
     examine: "A woman with a ticket punch and no expression to spare.",
     here: "The shutter is up. Behind the grille, the {booking clerk|booking_clerk} waits with her punch.",
     talk: "\"One fare, one coin,\" she says. \"The old sort. Tuesday's the only place we go.\"",
-    topics: { coin: { about: "window", label: "coins", words: ["coin", "coins", "currency", "money", "fare"], says: "\"The old sort. They stopped making them when they stopped making Mondays. People threw them in the fountain for luck.\"" },
+    topics: { coin: { about: "window", label: "coins", words: ["coin", "coins", "currency", "money", "fare"], says: "\"The old sort. They stopped making them when they stopped making Mondays. People threw them in the fountain on the square for luck.\"" },
               default: "\"Tickets,\" she says, as if that were the answer." } },
   timetable: { at: "station_hall", scenery: true, name: "Timetable", note: "One train.", actions: ["Read timetable"],
     words: { nouns: ["timetable", "wall"], adj: [] },
@@ -383,17 +385,17 @@ const objects = {
     examine: "A photo booth with a stool and a red button. A notice says it develops TOMORROW'S photographs, NO REFUNDS.",
     parts: [{ words: ["stool", "mirror", "notice"], name: "the mirror", says: "Your face arrives in it a moment after you do." }],
     mentions: ["stool", "button", "notice"] },
-  button: { at: "booth", scenery: true, name: "Button", note: "Red.", actions: ["Push button"],
+  button: { at: "booth", scenery: true, name: "Button", note: "Red, worn pale.", actions: ["Push button"],
     words: { nouns: ["button"], adj: ["red"] }, examine: "A red button, worn pale in the middle." },
-  photograph: { at: null, portable: true, name: "Photograph", note: "Tomorrow, apparently.", actions: ["Examine photograph"],
+  photograph: { at: null, portable: true, name: "Photograph", note: "Tomorrow's, still wet.", actions: ["Examine photograph"],
     words: { nouns: ["photograph", "photo", "picture", "strip"], adj: ["wet"] }, ...item("photograph"),
-    examine: "A strip of four photographs, still wet. Daylight. The town hall steps. A woman in a grey cardigan, upstairs at a window, holding up a page from a calendar. It says MONDAY. In the last frame you are taking it." },
-  oduya: { at: "waiting_room", scenery: true, name: "Mrs Oduya", note: "Waiting.", actions: ["Talk to Mrs Oduya"],
+    examine: "A strip of four photographs, still wet, in daylight: the town hall steps, then a woman in a grey cardigan upstairs at a window, holding up a calendar page that says MONDAY. In the last frame you are taking it." },
+  oduya: { at: "waiting_room", scenery: true, name: "Mrs Oduya", note: "Waiting, with a suitcase.", actions: ["Talk to Mrs Oduya"],
     words: { nouns: ["oduya", "woman", "traveller", "lady", "suitcase"], adj: ["mrs", "old"] },
-    examine: "A neat old woman in a hat with a feather that has given up. Her ticket is for the 08:12 to Monday. It is very old.",
-    talk: "\"I'm waiting for the 08:12,\" she says. \"It doesn't run any more. I'm very patient.\"",
+    examine: "A neat old woman in a hat with a feather that has given up. Her ticket is for the eight-twelve to Monday. It is very old.",
+    talk: "\"I'm waiting for the eight-twelve,\" she says. \"It doesn't run any more. I'm very patient.\"",
     topics: {
-      coin: { about: "window", label: "fares", words: ["coin", "coins", "money", "currency", "fare", "fares", "ticket"], says: "\"You'll want an old coin for a ticket. The fountain's full of them. You can't see them until the lamp under the water comes on, at eight.\"" },
+      coin: { about: "window", label: "fares", words: ["coin", "coins", "money", "currency", "fare", "fares", "ticket"], says: "\"You'll want an old coin for a ticket. The fountain on the square is full of them. You can't see them until the lamp under the water comes on, at eight.\"" },
       monday: { label: "Monday", words: ["monday", "mondays", "decree"], says: "\"They kept the last one at the town hall, in case. In case of what, they never said. The archivist would know. Nine till five.\"" },
       train: { about: "timetable", words: ["train", "tuesday", "midnight"], says: "\"The Tuesday train. Twenty to midnight. Nobody comes back from Tuesday. I don't hold it against them.\"" },
       default: "\"Oh, I wouldn't know,\" she says. \"I've only been waiting.\""
@@ -406,7 +408,7 @@ const objects = {
     parts: [{ words: ["plate"], name: "the plate", says: "IN MEMORY OF MONDAY, WHO KEPT US BUSY." }], mentions: ["plate"] },
   board: { at: "platform", scenery: true, name: "Timetable board", note: "One line.", actions: ["Read board"],
     words: { nouns: ["board"], adj: ["timetable", "hanging"] },
-    examine: "TUESDAY. DEPARTS 23:40. The train is in ten minutes before. Passengers with tickets only." },
+    examine: "TUESDAY, DEPARTS 23:40. The train is in ten minutes before. Passengers with tickets only." },
   train: { at: null, scenery: true, name: "Train", note: "For Tuesday.", actions: ["Board train"],
     words: { nouns: ["train", "carriage", "carriages", "engine"], adj: ["tuesday", "night"] }, enterable: "in",
     examine: "Three green carriages and an engine breathing steam in slow, deliberate breaths. Every window is lit. Nobody looks out.",
@@ -426,7 +428,7 @@ const objects = {
     topics: {
       train: { about: "board", words: ["train", "tuesday", "midnight"], says: "\"She's in at half past eleven and away at twenty to. You'll want a ticket. The guard's particular.\"" },
       tunnel: { words: ["tunnel", "dark", "line"], says: "\"Don't go in. Not when she's due. Not when she isn't, either.\"" },
-      monday: { label: "Monday", words: ["monday", "mondays"], says: "\"There used to be the 08:12 to Monday. I pulled the lever for it the last time myself.\" He looks at his hand." },
+      monday: { label: "Monday", words: ["monday", "mondays"], says: "\"There used to be the eight-twelve to Monday. I pulled the lever for it the last time myself.\" He looks at his hand." },
       default: "\"Not my line,\" he says. He means it kindly."
     } },
   diagram: { at: "signal_box", scenery: true, name: "Diagram", note: "A single stroke.", actions: ["Examine diagram"],
@@ -471,21 +473,21 @@ const objects = {
     topics: {
       monday: { label: "Monday", words: ["monday", "mondays", "archive", "archivist"], says: "\"The last Monday? Up at the town hall. Nine till five. The archivist won't give anything to anyone who can't prove they lost it.\"" },
       train: { open: true, words: ["train", "tuesday"], says: "\"People have their last coffee here,\" she says. \"Then they go. I wash the cup.\"" },
-      coin: { about: "fountain", label: "coins", words: ["coin", "coins", "currency", "money"], says: "\"Old coins? In the fountain. You'll see them when the water lamp comes on.\"" },
+      coin: { about: "fountain", label: "coins", words: ["coin", "coins", "currency", "money"], says: "\"Old coins? In the fountain on the square. You'll see them when the water lamp comes on.\"" },
       coffee: { open: true, words: ["coffee", "cup", "drink"], says: "\"Coffee,\" she says." },
       default: "\"Coffee,\" she says. \"I'd know about coffee.\""
     } },
-  menu: { at: "cafe", scenery: true, name: "Menu board", note: "Coffee.", actions: ["Read board"],
+  menu: { at: "cafe", scenery: true, name: "Menu board", note: "Coffee, and nothing else.", actions: ["Read board"],
     words: { nouns: ["board", "menu", "chalk"], adj: ["menu", "chalk"] },
     examine: "In chalk: COFFEE. Under it, rubbed out but legible: CROISSANTS (MONDAYS ONLY)." },
-  coffee: { at: null, portable: false, name: "Cup of coffee", note: "Hot.", actions: ["Drink coffee"],
+  coffee: { at: null, portable: false, name: "Cup of coffee", note: "Hot, and free.", actions: ["Drink coffee"],
     words: { nouns: ["coffee", "cup"], adj: [] },
     examine: "Small, black, very hot. It smells of mornings you didn't have to get up for." },
 
   // High street, town hall, archive
   plate: { at: "high_street", scenery: true, name: "Brass plate", note: "Office hours.", actions: ["Read plate"], opens: ["monday"],
     words: { nouns: ["plate", "hours"], adj: ["brass", "office"] },
-    examine: "TOWN HALL. OPEN 09:00 TO 17:00. ARCHIVE UPSTAIRS. CLOSED MONDAYS. The last line has been polished more than the others." },
+    examine: "TOWN HALL, OPEN 09:00 TO 17:00, ARCHIVE UPSTAIRS, CLOSED MONDAYS. The last line has been polished more than the others." },
   archivist: { at: "archive", scenery: true, name: "Archivist", note: "Keeps the last Monday.", actions: ["Talk to archivist"],
     words: { nouns: ["archivist", "woman"], adj: [] },
     examine: "A grey cardigan, half-moon glasses, and the patience of someone who files things alphabetically by feeling.",
@@ -516,7 +518,7 @@ const objects = {
   // Chapel, pond
   gravestones: { at: "chapel", scenery: true, name: "Stones", note: "All Mondays.", actions: ["Examine stones"], opens: ["monday"],
     words: { nouns: ["stones", "stone", "gravestones", "graves", "dates"], adj: ["plain"] },
-    examine: "Small plain stones, each with a date. All Mondays. The newest says only: THE LAST ONE IS NOT HERE. KEPT AT THE TOWN HALL, IN CASE.",
+    examine: "Small plain stones, each with a date, all Mondays. The newest says only: THE LAST ONE IS NOT HERE. KEPT AT THE TOWN HALL, IN CASE.",
     parts: [{ words: ["date", "newest"], name: "the newest stone", says: "THE LAST ONE IS NOT HERE. KEPT AT THE TOWN HALL, IN CASE." }], mentions: ["date"] },
   pond_water: { at: "pond", scenery: true, name: "Pond", note: "The town, upside down.", actions: ["Look in pond"],
     words: { nouns: ["pond", "water", "reflection"], adj: ["round"] },
@@ -548,11 +550,15 @@ const changes = {
   nightfall: [
     { set: "square.describe", to: squareNight },
     ...skies(0, 1),
+    { draw: "pond", restyle: [{ id: "pond", fill: { fade: [0, 1], from: [0, 60], to: [0, 126] } }] },
+    { draw: "station_hall", restyle: [{ id: "roof", fill: { mix: [1, 8], level: 0.6 } }] },
     { draw: "square", restyle: [{ id: "lamp_a", fill: 14 }, { id: "lamp_b", fill: 14 }, { id: "lamp_c", fill: 14 }, { id: "lamp_d", fill: 14 }, { id: "water_lamp", fill: { mix: [3, 11], level: 0.5 } }] }
   ],
   daybreak: [
     { set: "square.describe", to: squareDay }, { set: "square.waitFor.says", to: "You sit on the rim of the fountain and let the day go by. Late in the evening a man with a pole lights the lamps, and last of all the one under the water." },
     ...skies(9, 11),
+    { draw: "pond", restyle: [{ id: "pond", fill: { fade: [9, 11], from: [0, 60], to: [0, 126] } }] },
+    { draw: "station_hall", restyle: [{ id: "roof", fill: { mix: [11, 8], level: 0.6 } }] },
     { draw: "square", restyle: [{ id: "lamp_a", fill: 8 }, { id: "lamp_b", fill: 8 }, { id: "lamp_c", fill: 8 }, { id: "lamp_d", fill: 8 }, { id: "water_lamp", fill: 1 }] }
   ],
   // The train comes in and goes.
@@ -598,12 +604,12 @@ const rules = [
   { id: "claim_umbrella", match: { verb: "ask", obj: "ambrose", topic: "umbrella" }, if: [{ "umbrella.at": "lost_property" }],
     do: [{ say: "\"Grey umbrella,\" he reads. He looks at your hands, then at the tag, then takes it down from the shelf. \"Your writing,\" he says. \"They usually know.\"" },
          { set: "umbrella.portable", to: true }, { move: "umbrella", to: "player" }, tension(-5)] },
+  { id: "take_umbrella_early", match: { verb: "take", obj: "umbrella" }, if: [{ "umbrella.portable": false }],
+    do: [{ say: "It's behind the counter. Mr Ambrose doesn't hand things over to people who haven't asked." }] },
   { id: "claim_umbrella_say", match: { verb: "say", obj: [null, "ambrose"] }, if: [at("lost_property"), { "umbrella.at": "lost_property" }],
     do: [{ say: "\"If it's something you lost,\" says Mr Ambrose, \"ask me for it by name. Asking is how it's done.\"" }] },
 
   // The café: open seven in the morning to ten at night; coffee steadies you.
-  { id: "cafe_shut", match: { verb: "go", dir: "e" }, if: [at("square"), notHours(7, 22)],
-    do: [{ say: "The café is dark, the chairs up on the tables. A card on the door: 7 TO 22." }] },
   { id: "cafe_closes", when: "at", at: "22:00", if: [at("cafe")],
     do: [{ say: "Inés turns the radio off in the middle of the waltz. \"Closing,\" she says, and you find yourself on the square." }, { travel: "square" }, { describe: "$here" }] },
   { id: "order_coffee", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }, { "coffee.at": null }, { "coffee.day": { "!=": "$time.day" } }],
@@ -616,8 +622,6 @@ const rules = [
   // The ticket window keeps its hours (nine in the evening to six in the morning).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
     do: [{ say: "The shutter is up. Behind the grille, the booking clerk waits with her punch. The card says: ONE FARE: ONE COIN. OLD CURRENCY ONLY." }] },
-  { id: "wait_window", match: { verb: "wait" }, if: [at("station_hall"), notHours(21, 6), { "$text": { "!=": null } }],
-    do: [{ say: "You wait under the clock. It is honest about every minute." }, { time: "next 21:00" }] },
   { id: "buy_ticket_have", match: { verb: "buy" }, if: [holding("ticket")], do: [{ say: "You have one already. One is all anyone needs." }] },
   { id: "buy_ticket", match: { verb: "buy", obj: [null, "ticket", "window", "booking_clerk"] }, if: [at("station_hall"), hours(21, 6), holding("coin")],
     do: [{ say: "You slide the old coin under the grille. The clerk bites it, nods, punches a ticket, and slides it back. \"Tuesday,\" she says. \"One way.\"" },
@@ -637,7 +641,7 @@ const rules = [
     do: [{ say: "The water gives back only the sky. Whatever is on the bottom, you can't make it out. The lamp in the basin isn't lit." }] },
   { id: "coin_take", match: { verb: "take", obj: ["coin", "fountain"] }, if: [at("square"), { "coin.at": "fountain" }],
     do: [{ say: "You roll up your sleeve. The water is colder than it looks. You come up with an old coin; the others settle back." }, { move: "coin", to: "player" }] },
-  { id: "coin_more", match: { verb: "take", obj: ["coin", "fountain"] }, if: [at("square")],
+  { id: "coin_more", match: { verb: "take", obj: ["coin", "fountain"] }, if: [at("square"), { "coin.at": { "!=": "square" } }],
     do: [{ say: "One is a fare. The rest are someone else's luck." }] },
 
   // Night falls at eight, the day breaks at seven: the square's text and every outdoor sky.
@@ -677,11 +681,6 @@ const rules = [
          { hurt: 30, says: "Something caught you as it passed." }, tension(15)] },
 
   // The town hall keeps office hours (nine to five); you can wait on its steps, or sleep at the hotel.
-  { id: "hall_shut", match: { verb: "go", dir: "w" }, if: [at("high_street"), notHours(9, 17)],
-    do: [{ say: "The doors are shut. The brass plate gives the hours: nine to five." }] },
-  { id: "hall_in", match: { verb: "go", dir: "w" }, if: [at("high_street")], do: [{ travel: "town_hall" }, { describe: "$here" }] },
-  { id: "wait_hall", match: { verb: "wait" }, if: [at("high_street"), notHours(9, 17), { "$text": { "!=": null } }],
-    do: [{ say: "You sit on the town hall steps. The night passes in no particular hurry. At nine a clerk unlocks the doors, looks at you, and decides not to ask." }, { time: "next 09:00" }] },
   { id: "hall_closes", when: "at", at: "17:00", if: [at("town_hall", "archive")],
     do: [{ say: "A bell rings for five. A clerk shows you out, politely, as if you were a draught." }, { travel: "high_street" }, { describe: "$here" }] },
 
@@ -702,23 +701,25 @@ const rules = [
   // The hotel: a room for the asking; sleep until morning.
   { id: "ask_room", match: { verb: "ask", obj: "porter", topic: "room" }, if: [{ "room_key.at": null }],
     do: [{ say: "\"Number 4,\" he says, and puts a key on the desk without looking up. \"Breakfast is on Tuesdays.\"" }, { move: "room_key", to: "player" }] },
-  { id: "sleep", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room")],
-    do: [{ say: "You lie down. The bed fits you as if it had been waiting. Trains you don't hear go by. When you wake it is morning, and the room smells of someone else's toast." }, { time: "next 07:30" }, tension(-15)] },
+  { id: "sleep", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room"), { "bed.slept": { "!=": "$time.day" } }],
+    do: [{ say: "You lie down. The bed fits you as if it had been waiting. Trains you don't hear go by. When you wake it is morning, and the room smells of someone else's toast." }, { time: "next 07:30" }, tension(-15), { set: "bed.slept", to: "$time.day" }] },
+  { id: "sleep_again", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room")],
+    do: [{ say: "You are not tired. The bed has been slept in already today, and by you." }] },
   { id: "sleep_elsewhere", match: { verb: "sleep" }, do: [{ say: "Not here. There's a hotel on the square." }] },
 
   // The photo booth: tomorrow's photograph, once.
-  { id: "photo", match: { verb: ["push", "use"], obj: ["button", "booth"] }, if: [{ "player.in": "booth" }, { "photograph.at": null }],
+  { id: "photo", match: { verb: ["push", "use"], obj: ["button", "booth"], obj2: [null] }, if: [{ "player.in": "booth" }, { "photograph.at": null }],
     do: [{ say: "The flash goes four times. You wait. A strip drops into the slot outside, and you fetch it, still wet." }, { move: "photograph", to: "player" }, tension(-5)] },
-  { id: "photo_again", match: { verb: ["push", "use"], obj: ["button", "booth"] }, if: [{ "player.in": "booth" }],
+  { id: "photo_again", match: { verb: ["push", "use"], obj: ["button", "booth"], obj2: [null] }, if: [{ "player.in": "booth" }],
     do: [{ say: "The booth whirs and gives nothing back. NO REFUNDS, says the notice. Tomorrow only happens once." }] },
   { id: "photo_outside", match: { verb: "push", obj: "button" }, if: [{ "player.in": { "!=": "booth" } }],
     do: [{ say: "The button is inside. You have to sit in the booth first." }] },
 
   // The backwards clock: yesterday, once there is one.
   // (Not to before you came: a day back from day 2 only once it's past this evening's half past seven.)
-  { id: "wind_back", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock" }, if: [{ "time.day": { ">=": 3 } }], do: [{ change: "yesterday" }] },
-  { id: "wind_back_2", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock" }, if: [{ "time.day": 2 }, { "time.hour": { ">=": 20 } }], do: [{ change: "yesterday" }] },
-  { id: "wind_back_first", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock" },
+  { id: "wind_back", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock", obj2: [null] }, if: [{ "time.day": { ">=": 3 } }], do: [{ change: "yesterday" }] },
+  { id: "wind_back_2", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock", obj2: [null] }, if: [{ "time.day": 2 }, { "time.hour": { ">=": 20 } }], do: [{ change: "yesterday" }] },
+  { id: "wind_back_first", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock", obj2: [null] },
     do: [{ say: "The key turns and stops. \"Not yet,\" says the clockmaker. \"There's no yesterday here yet. Not one you were in.\"" }] },
 
   // Tension: the longer you stay, the harder it is to leave; warned, then the door closes.
@@ -767,6 +768,7 @@ export default {
   opening,
   // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
   properties: {
+    "bed.slept": { type: "number" },    // the day the bed was last slept in
     "coffee.day": { type: "number" },   // the day the coffee was last served
     "game.wayLastWarned": { type: "boolean", start: false }   // the last warning about the way you came: the end waits for it
   },
