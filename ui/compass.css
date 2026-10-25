@@ -3,9 +3,9 @@
        ◄  M  ►
       ←|  ▼  ⇩
    An open exit is a bright arrow (click = go that way); the others are faint and inert. In and out (left) and up and
-   down (right) are in the corners (an arrow to a bar, drawn on the font's 8x8 pixel grid) and only show when the room
+   down (right) are in the corners (an arrow to a bar, drawn as small pictures) and only show when the room
    has that exit: otherwise the corner is just an empty dark tile. M opens the map (map.css): bright like an open exit.
-   The tiles are 3 characters square in the strip; on phones they fill the panel's width (tabs.css). */
+   The tiles are 3rem square in the strip; on phones they fill the panel's width (tabs.css). */
 @layer ui {
   .compass {
     /* Colours in the compass, by meaning (pointing at roles in tokens.css). */
@@ -18,10 +18,10 @@
     --exit-flash:  var(--color-highlight);   /* an exit that just opened or closed blinks in this */
     --over:        var(--color-text-faint);  /* once the story is over: every exit dim, and nothing responds */
 
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-s);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2);
     line-height: var(--line-height-tight);
 
-    & > * { aspect-ratio: 1; background: var(--tile); min-width: 3em; }
+    & > * { aspect-ratio: 1; background: var(--tile); min-width: 3rem; }
     & > .corner { background: var(--corner); }
     & button {
       font: inherit; line-height: inherit; letter-spacing: inherit; border: 0; padding: 0; margin: 0;
@@ -45,7 +45,8 @@
 
     /* ▲ and ▼ are the same triangle as ► (◄), turned a quarter: the font's own ▲ ▼ are a different shape. The turn
        happens around the triangle's own centre (it sits in pixels 0-6 of its 8x8 cell: 3.5/8 = 43.75%). */
-    /* Up and down icons: one character cell, on the font's pixel grid (1 pixel = 1/8 em), in the text colour. */
+    /* Corner icons and the turned triangles: ch and em on purpose, so they are the size of the font's own arrow
+       glyphs beside them (one character cell, square), whatever the font size is. Text colour. */
     & .icon { display: block; width: 1ch; height: 1em; fill: currentColor; shape-rendering: crispEdges; }
     & .up, & .down { display: block; width: 1ch; height: 1em; transform-origin: 43.75% 43.75%; }
     & .up   { transform: rotate(-90deg); }

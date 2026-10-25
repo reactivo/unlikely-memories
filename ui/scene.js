@@ -2,27 +2,24 @@
 // objects as overlays, palette cycling (water, lamps, lights) and a transition when the picture changes. When the story
 // has ended it shows the ending's own picture instead, reached by a transition from the room's (ui/transitions.js).
 // Transitions: ui/transitions.js. Palette cycles: ui/effects.js and content/art.js. Purely visual: never changes the game.
-// The picture is shown at a whole number of screen pixels per picture pixel, so every pixel is the same size, and
-// lined up on the screen's pixel grid, so the browser never rescales it (fit() below). The column is set to the
-// same width (--column-w, layout.css), so the picture and everything under it always line up.
-// Phones (below 760px) are the exception: the column fills the page's width and the picture is stretched to it (fit() below).
+// The canvas is the picture's own 320×136 pixels; CSS stretches it to the column's whole width with hard edges
+// (ui/scene.css), at every window size, so the browser does all the scaling.
 
 import art from "../content/art.js";
 import { paintPicture, compose, overlaysShown } from "./draw.js";
 import { CYCLES } from "./effects.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
-import { scaleFor, phoneSize, PHONE } from "./fit.js";
 
 const W = art.picture.width, H = art.picture.height;
 const RGB = art.palette.colors.map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-// Set up the picture on its element (.picture). Returns update() and fit().
+// Set up the picture on its element (.picture). Returns update().
 export function mount(root) {
   const canvas = root.querySelector("canvas");
+  canvas.width = W; canvas.height = H;                           // the picture's own pixels (the markup says so too)
   const ctx = canvas.getContext("2d");
-  const small = new OffscreenCanvas(W, H), sctx = small.getContext("2d");   // the picture at its own 320×136
-  const image = sctx.createImageData(W, H);
+  const image = ctx.createImageData(W, H);                      // the canvas is the picture at its own 320×136
   const painted = new Map();     // painted pictures, by room + version (painting is the slow part)
   let frame = null;              // the picture now (palette numbers), without cycling
   let from = null;               // the picture being changed from, during a transition
@@ -33,44 +30,6 @@ export function mount(root) {
   let lastSteps = "";            // the cycles' steps last drawn (redraw only when one moves)
 
   const calm = () => art.effects.respectReducedMotion && reducedMotion.matches;
-
-  // Size the picture: the largest whole number of screen pixels per picture pixel that fits the column's
-  // natural width (75 characters, or the window), then narrow the column to match (--column-w) and nudge the
-  // canvas onto the screen's pixel grid. The canvas's own pixels = screen pixels, 1 to 1. On a phone instead the canvas is
-  // the picture's own 320×136 and CSS stretches it to the whole column with hard edges (--column-w is left unset).
-  // Runs on start, on resize, when the zoom changes and when the font has loaded.
-  const box = canvas.parentElement, page = document.documentElement;
-  function fit() {
-    if (!box.getClientRects().length) return;                        // the game isn't on screen (the landing page is): leave --column-w to it
-    const dpr = window.devicePixelRatio || 1;
-    page.style.removeProperty("--column-w");                        // measure the column's natural width
-    const room = box.clientWidth;
-    if (!room) return;
-    if (matchMedia(PHONE).matches) {                                  // phones: the column is the page's width; the picture fills it
-      const { cssW, cssH } = phoneSize(room, W, H, dpr);
-      if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
-      canvas.style.width = cssW + "px"; canvas.style.height = cssH + "px";
-      canvas.style.marginLeft = canvas.style.marginTop = "0px";
-      if (frame) render(performance.now());
-      return;
-    }
-    const k = scaleFor(room, W, dpr);                                // screen pixels per picture pixel
-    const cw = W * k, ch = H * k;                                    // screen pixels across and down
-    page.style.setProperty("--column-w", cw / dpr + "px");            // the column: exactly as wide
-    if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
-    canvas.style.width = cw / dpr + "px"; canvas.style.height = ch / dpr + "px";
-    canvas.style.marginLeft = canvas.style.marginTop = "0px";
-    const r = canvas.getBoundingClientRect();
-    const snap = (v) => Math.round(v * dpr) / dpr - v;               // distance to the nearest screen pixel
-    canvas.style.marginLeft = snap(r.left) + "px";
-    canvas.style.marginTop = snap(r.top) + "px";
-    if (frame) render(performance.now());
-  }
-  window.addEventListener("resize", fit);
-  const watchZoom = () => matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
-    .addEventListener("change", () => { fit(); watchZoom(); }, { once: true });
-  watchZoom();
-  document.fonts.ready.then(fit);
 
   // Paint (or reuse) a room's picture.
   function base(roomId, picture) {
@@ -112,9 +71,7 @@ export function mount(root) {
       const [r, g, b] = RGB[out[k]];
       image.data[k * 4] = r; image.data[k * 4 + 1] = g; image.data[k * 4 + 2] = b; image.data[k * 4 + 3] = 255;
     }
-    sctx.putImageData(image, 0, 0);
-    ctx.imageSmoothingEnabled = false;                              // scale up with hard pixel edges
-    ctx.drawImage(small, 0, 0, canvas.width, canvas.height);
+    ctx.putImageData(image, 0, 0);
   }
 
   // Keep animating while a transition runs or cycles are moving (not while the tab is hidden: the browser
@@ -128,7 +85,6 @@ export function mount(root) {
   reducedMotion.addEventListener("change", () => { if (frame) { render(performance.now()); animate(); } });
 
   return {
-    fit,                                                             // the controller asks for it when the game comes on screen
     // Redraw when the room, its picture version or the overlays shown change; once the story has ended, when it
     // changes to the ending's own picture (a state with no such picture keeps the room's). A restore (new game,
     // language change, undo, a loaded game) switches at once; the ending and a room each use their own named transition

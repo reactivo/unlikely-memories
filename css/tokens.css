@@ -12,13 +12,16 @@
                        760px keeps at least about 40 characters on each story line beside the strip.
                        (tokens.css, layout.css, tabs.css, map.css)
 
-   Sizing: the font size decides every size on the page. It's the largest whole pixel size at which
-     - 75 characters fit across the window (the column: title bar, picture, story + strip), and
-     - on wider windows, the whole screen fits the window's height with room for --story-lines lines of story
-       (--screen-rows below adds it all up),
-   never below 12px (on phones the column simply holds fewer characters) and never above 24px.
-   On wider windows the picture sets the column's width (a whole number of screen pixels per picture pixel, --column-w);
-   on phones the column fills the page's width inside its side padding and the picture is stretched to it. */
+   Sizing: the root font size (css/base.css) decides every size on the page: everything else is in rem, so the whole
+   page scales together. It is fluid, with no rounding: the smaller of
+     - the size at which --column-rem rem fit across the window (the column: title bar, picture, story + strip), and
+     - on wider windows, the size at which the whole screen fits the window's height with room for --story-lines
+       lines of story (--screen-rem below adds it all up),
+   never below 12px (on phones the column simply holds fewer rem across, filling the page's width inside its side
+   padding) and never above 24px.
+   The column is at most --column-rem rem wide (75), so lines stay short and big screens keep side space; it
+   changes smoothly with the window.
+   Pictures are not scaled in steps: the canvas is drawn at its own pixel size and CSS stretches it to its slot (ui/scene.css, ui/home.css). */
 @layer tokens {
   :root {
     /* Colour palette: the raw colours. Change a value here to recolour everything that uses it. */
@@ -58,37 +61,62 @@
     --color-decor-warm:  var(--palette-ega-red);    /* decoration in pixel art: the ornament's flowers. The only place the interface uses picture colours */
     --color-decor-cool:  var(--palette-ega-green);  /* …and its vine */
 
-    /* Fonts and the character grid */
-    --ui: ui-monospace, "SF Mono", Menlo, monospace;
-    --game: "CGA", ui-monospace, monospace;
-    --story: "CGA Story", "CGA", ui-monospace, monospace;   /* the story: capitals a step smaller (base.css) */
-    --main: 75;             /* characters across the column (title bar, picture, and the story with the strip) */
-    --strip: 10;            /* the strip beside the story, in characters: three 3-character tiles and their gaps */
+    /* Fonts: generic defaults. The font profile at the end of this file sets the game's own. */
+    --ui: ui-monospace, "SF Mono", Menlo, monospace;   /* the page itself, before anything else is drawn */
+    --game: var(--ui);              /* the game's lettering: everything in the interface */
+    --story: var(--game);           /* the story's lettering */
+    --font-smoothing: auto;         /* -webkit-font-smoothing, set once on the body (css/base.css) */
+    --command-step: 1;              /* a <COMMAND> in the story is this much of the story text size */
+    --object-sign-gap: 0;           /* the object marker's space before it… */
+    --object-sign-trim: 0;          /* …and taken back after it (ui/log.css) */
+    --figure-nudge: 0;              /* how far an object's picture moves down beside its text (ui/log.css) */
+
+    /* Sizing (see the top of this file). Unitless numbers of rem, because css/base.css uses them inside the root
+       font size itself, where "rem" would still mean the browser's own 16px. */
+    --column-rem: 75;       /* rem across the column (title bar, picture, and the story with the strip) */
     --text-step: 1.08;      /* story text and prompt: this much larger than the interface (1.15 until 24 October 2026) */
     --story-lines: 16;      /* lines of story that must fit on screen on wider windows (they shrink the font if not) */
-    --gutter: max(16px, 2vw);
-    /* The screen's height in characters on wider windows: padding (2 + 2), title bar (1.25), the picture (75 x
-       136/320 = 32), the story (--story-lines x --text-step x 1.375) and the prompt (about 1), and the 3 gaps between them.
-       DEPENDS ON layout.css: change this if rows are added there. */
-    --screen-rows: calc(41.5 + var(--story-lines) * var(--text-step) * var(--line-height-story));
-    /* IBM CGA is an 8x8 font: square glyphs, so 1 character = 1em wide */
-    --fit: calc((100vw - 2 * var(--gutter)) / var(--main));
-    --size: clamp(12px, var(--fit), 24px);
-    /* (Text sizes built from --size, rounded to whole pixels, are below: --size-text, --size-command.) */
+    --gutter: max(16px, 2vw);   /* the page's side padding: tied to the window, not to the text size */
+    --fade-lines: 2;        /* lines at the story's bottom edge that fade out above the prompt (ui/log.css) */
+    /* The screen's height in rem on wider windows: padding (2 + 2), title bar (1.25), the picture (75 x 136/320 =
+       32), the story (--story-lines, and the faded lines under them: --text-step x 1.375 each), the prompt (1.35) and
+       the 3 gaps between them. DEPENDS ON layout.css: change this if rows are added there. */
+    --screen-rem: calc(41.5 + (var(--story-lines) + var(--fade-lines)) * var(--text-step) * var(--line-height-story));
+    --column: calc(var(--column-rem) * 1rem);   /* the column's widest */
+    /* The column's widest that still lets the whole screen fit the window's height: the height left once everything but
+       the picture is taken off (--screen-rem minus the picture's 32), turned into a width in the picture's ratio (320 x 136).
+       Only matters when the root size is held at its 12px floor (a low window): otherwise the root size already makes the
+       screen fit. Used on wider windows only (layout.css). DEPENDS ON --screen-rem. */
+    --column-fit: calc((100dvh - (var(--screen-rem) - 32) * 1rem) * 320 / 136);
+    --strip: 10rem;         /* the strip beside the story: three 3rem tiles and their two 0.5rem gaps */
 
-    /* Line heights */
+    /* Text sizes, all in rem. */
+    --size-text: calc(1rem * var(--text-step));
+    --size-command: calc(var(--size-text) * var(--command-step));   /* a <COMMAND> in the story */
+    /* The landing page (ui/home.css): the title three times the base size; the subtitle at story-text size; the
+       version a step under the base size; the ornament's 2x2 block (of its drawing) about 0.6 of it. */
+    --size-title: 3rem;
+    --size-small: 0.8rem;
+    --ornament-unit: 0.6rem;
+
+    /* Line heights: plain unitless values. */
     --line-height:       1.25;   /* interface text: labels, headings, the settings panel */
-    --line-height-story: 1.375;  /* story text: more open, for reading (log.css). 11 rows of the 8-row font per
-                                    line: keep to eighths (1.25, 1.375, 1.5) so lines stay on the pixel grid */
-    --line-height-tight: 1;      /* boxes exactly one character tall: buttons, tiles, tabs */
+    --line-height-story: 1.375;  /* story text: more open, for reading (log.css) */
+    --line-height-tight: 1;      /* boxes exactly one line tall: buttons, tiles, tabs */
+    --line-height-large: 1.5;
 
-    /* Spacing scale. Every step is a multiple of the game font size, so spacing grows and shrinks with the text
-       and lines up with the character grid (with IBM CGA, 1em = one character, horizontally and vertically). */
-    --space-xs: calc(var(--size) * 0.25);   /* tight: a command and its reply */
-    --space-s:  calc(var(--size) * 0.5);    /* small: inside controls */
-    --space-m:  var(--size);                /* base: one character / one line */
-    --space-l:  calc(var(--size) * 2);      /* groups: sections within a column */
-    --space-xl: calc(var(--size) * 4);      /* major: between the story and the strip */
+    /* Spacing scale: a 4px grid, in rem. The steps are quarter-rems (4px at the browser's usual 16px); the root
+       font size scales with the window, so the steps scale with it, in proportion. Names are the step number
+       (1 = a quarter-rem); not every step exists. */
+    --space-1:  0.25rem;   /*  4px: tight: a command and its reply */
+    --space-2:  0.5rem;    /*  8px: small: inside controls */
+    --space-3:  0.75rem;   /* 12px */
+    --space-4:  1rem;      /* 16px: base */
+    --space-6:  1.5rem;    /* 24px */
+    --space-8:  2rem;      /* 32px: groups: sections within a column */
+    --space-12: 3rem;      /* 48px */
+    --space-16: 4rem;      /* 64px: major: between the story and the strip */
+
     /* Durations. Motion that shows a change in the game (an item arriving, an exit opening…): the timing is here,
        the look is in the piece's own CSS (its @keyframes), and the script only says *that* something changed.
        Everything stops with the system's reduce motion setting; restores (new game, language change) don't move. */
@@ -99,8 +127,8 @@
     /* The map (ui/map.css; ui/map.js reads these to place rooms). Everything is built from the text size of a room's name,
        --map-text (a step under the base size): a room is 18 of its characters wide and 5.5 tall, the gap between rooms (where
        the lines run) 2.5 wide, and a stub (a way not yet taken) 2. Make the text bigger and the rooms, the gaps and the stubs
-       grow with it, with the lines still meeting the rooms' edges. The level's name is the same size as a room's name, the hint a little smaller. */
-    --map-text: calc(var(--size) * 0.8);
+       grow with it. The level's name is the same size as a room's name, the hint a little smaller. */
+    --map-text: 0.8rem;
     --map-room-w: calc(var(--map-text) * 18);
     --map-room-h: calc(var(--map-text) * 5.5);
     --map-gap: calc(var(--map-text) * 2.5);
@@ -108,35 +136,23 @@
     --map-level-text: var(--map-text);               /* the level's name (and the ×): the rooms' text size */
     --map-note-text: calc(var(--map-text) * 0.9);    /* the hint: a little smaller */
   }
-  @supports (width: round(down, 10px, 4px)) {
-    :root { --size: clamp(12px, round(down, var(--fit), 1px), 24px); }
-  }
-  @supports (width: round(nearest, 10px, 1px)) {
-    :root { --map-text: round(nearest, calc(var(--size) * 0.8), 1px); --map-note-text: round(nearest, calc(var(--map-text) * 0.9), 1px); }   /* whole pixels, to stay crisp */
-  }
-  /* Story text and prompt: a step up from the base size, rounded to a whole pixel to stay crisp.
-     Commands in the story (<EXAMINE DOOR>): a step down from story text, so their capitals sit with the lower-case
-     words around them; also a whole pixel. */
+
+  /* FONT PROFILE: tuned for the CGA font (IBM CGA, an 8x8 font: square glyphs, capitals that start at the very top of
+     the character). Replace or delete this block when changing fonts; nothing else depends on the font. The defaults
+     above (a plain monospace, no adjustments) hold without it. The font files are declared in css/base.css. */
   :root {
-    --size-text: calc(var(--size) * var(--text-step));
-    --size-command: calc(var(--size-text) * 0.875);
-    /* The landing page (ui/home.css): the title is a whole multiple of the base size, so the CGA font's 8-pixel grid stays crisp;
-       the subtitle at story-text size; the version a step under the base size; the ornament's 2×2-pixel block is
-       about 0.6 of it, in whole pixels (13px: 8px). */
-    --size-title: calc(var(--size) * 3);
-    --size-small: calc(var(--size) * 0.8);
-    --ornament-unit: calc(var(--size) * 0.6);
-  }
-  @supports (width: round(nearest, 10px, 1px)) {
-    :root {
-      --size-text: round(nearest, calc(var(--size) * var(--text-step)), 1px);
-      --size-command: round(nearest, calc(var(--size-text) * 0.875), 1px);
-      --size-small: round(nearest, calc(var(--size) * 0.8), 1px);
-      --ornament-unit: round(nearest, calc(var(--size) * 0.6), 1px);
-    }
-  }
-    /* Wider windows: the font also fits the window's height (the whole screen stays in view). */
-  @media (min-width: 760px) {
-    :root { --fit: min((100vw - 2 * var(--gutter)) / var(--main), 100dvh / var(--screen-rows)); }
+    --game: "CGA", ui-monospace, monospace;
+    --story: "CGA Story", "CGA", ui-monospace, monospace;   /* the story: capitals a step smaller (base.css) */
+    --command-step: 0.875;      /* <COMMANDS> an eighth smaller than story text, so their capitals sit with the lower-case
+                                   words around them. Keep "CGA Story"'s size-adjust (base.css) equal to this */
+    --font-smoothing: none;     /* no anti-aliasing, so the pixel letters stay sharp */
+    /* The object marker ⁺ (ui/log.css), spaced to sit snugly after the word. MEASURED FROM THE FONT'S GLYPH: CGA draws
+       it in the left 6 of its 8 pixel columns. Em, because these must follow the text they are in. */
+    --object-sign-gap:  0.125em;   /* space before it: one pixel column of the font */
+    --object-sign-trim: -0.25em;   /* taken back after it: its 2 empty right-hand columns */
+    /* How far the picture of an object (ui/log.css) moves down so its top lines up with the top of the capitals beside
+       it: the space a line leaves above its letters (half the line height minus the text). MEASURED FOR CGA, whose
+       capitals start at the very top of the character: with another font, add the gap above its capitals. */
+    --figure-nudge: calc((var(--line-height-story) - 1) * 0.5 * var(--size-text));
   }
 }

@@ -1,6 +1,6 @@
 /* The landing page (ui/home.js; INTERFACE.md §13): the list of games, the other view of the page. Shown instead of the game by
-   css/layout.css (data-view), so this file never sets display on .home. Same font and grid as the game; the column is the
-   game's column (--column-w, set by home.js the way ui/scene.js sets it; on phones the whole width inside the page's padding) and the page scrolls. The ornament is pixel art on
+   css/layout.css (data-view), so this file never sets display on .home. Same font as the game; the column is the
+   game's column (at most --column wide; on phones the whole width inside the page's padding) and the page scrolls. The ornament is pixel art on
    a 72 × 10 grid of 1-pixel cells in 2 × 2 blocks, each --ornament-unit wide, so 36 blocks across and 5 down. */
 @layer ui {
   .home {
@@ -26,25 +26,25 @@
     --none:         var(--color-text-dim);    /* "There are no games in English yet." */
 
     box-sizing: border-box;
-    font-family: var(--game); font-size: var(--size); line-height: var(--line-height); -webkit-font-smoothing: none;
+    font-family: var(--game); font-size: 1rem; line-height: var(--line-height);
     color: var(--color-text);
-    padding-block: max(var(--space-xl), env(safe-area-inset-top, 0px)) max(var(--space-xl), env(safe-area-inset-bottom, 0px));
+    padding-block: max(var(--space-16), env(safe-area-inset-top, 0px)) max(var(--space-16), env(safe-area-inset-bottom, 0px));
 
     /* Positioned against the page, not the column: the corner of the window. */
     & .version {
-      position: absolute; top: max(var(--space-l), env(safe-area-inset-top, 0px)); left: max(var(--space-l), env(safe-area-inset-left, 0px));
+      position: absolute; top: max(var(--space-8), env(safe-area-inset-top, 0px)); left: max(var(--space-8), env(safe-area-inset-left, 0px));
       margin: 0; font-size: var(--size-small); line-height: var(--line-height-tight); color: var(--version);
     }
 
     & .lang {
-      position: absolute; top: max(var(--space-l), env(safe-area-inset-top, 0px)); right: max(var(--space-l), env(safe-area-inset-right, 0px));
-      display: flex; gap: var(--space-s); font-size: var(--size-small); line-height: var(--line-height-tight); color: var(--lang-off);
+      position: absolute; top: max(var(--space-8), env(safe-area-inset-top, 0px)); right: max(var(--space-8), env(safe-area-inset-right, 0px));
+      display: flex; gap: var(--space-2); font-size: var(--size-small); line-height: var(--line-height-tight); color: var(--lang-off);
       & button { font: inherit; padding: 0; border: 0; background: none; color: var(--lang-off); cursor: pointer; }
       & button[aria-pressed="true"], & button:hover { color: var(--lang-on); }
       & button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
     }
 
-    & .header { display: flex; flex-direction: column; align-items: center; gap: var(--space-m); text-align: center; }
+    & .header { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); text-align: center; }
     & .ornament {
       display: block; shape-rendering: crispEdges;
       width: calc(var(--ornament-unit) * 36); height: calc(var(--ornament-unit) * 5);
@@ -52,39 +52,38 @@
       & .cool { fill: var(--vine); }
       &.flip { transform: rotate(180deg); }
     }
-    & h1 { margin: 0; font: inherit; font-size: var(--size-title); line-height: var(--line-height); color: var(--title); text-transform: uppercase; }
+    & h1 { margin: 0; font: inherit; font-size: var(--size-title); line-height: var(--line-height); color: var(--title); text-transform: uppercase; padding-top: var(--space-2); }
     & h1 span { display: block; }
     & .subtitle {
-      margin: calc(var(--space-xl) - var(--space-m)) 0 0;
-      font-size: var(--size-text); line-height: var(--line-height); color: var(--subtitle); text-transform: uppercase;
+      margin: var(--space-12) 0 0;
+      font-size: var(--size-text); line-height: var(--line-height-large); color: var(--subtitle); text-transform: uppercase;
+      text-wrap: balance;
     }
 
     /* The column: as wide as the game's, with the same gutters (the page's own side padding). */
-    & .column { width: 100%; margin: calc(var(--space-xl) + var(--space-s)) auto 0;
-                @media (min-width: 760px) { max-width: var(--column-w, calc(var(--main) * 1ch)); } }   /* phones: the whole width inside the page's padding */
-    & .list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-l); }
+    & .column { width: 100%; margin: calc(var(--space-16) + var(--space-2)) auto 0;
+                @media (min-width: 760px) { max-width: var(--column); } }   /* phones: the whole width inside the page's padding */
+    & .list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-8); }
     & .none { margin: 0; text-align: center; color: var(--none); font-size: var(--size-text); line-height: var(--line-height-story); }
 
     & .card {
-      display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-m);
-      padding: var(--space-m); border: 1px solid var(--card-line); background: var(--card-bg);
-      @media (min-width: 760px) { grid-template-columns: var(--thumb-w, minmax(0, 0.75fr)) minmax(0, 1fr); column-gap: var(--space-l); }   /* 3/7 of the card for the picture, then exactly the picture's width (home.js) */
+      display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4);
+      padding: var(--space-4); border: 1px solid var(--card-line); background: var(--card-bg);
+      @media (min-width: 760px) { grid-template-columns: minmax(0, 3fr) minmax(0, 4fr); column-gap: var(--space-8); }   /* 3/7 of the card for the picture */
     }
     /* The card is not a link: only its buttons are. The pointer anywhere on it, or the focus on a button in it, lights its outline. */
     & .card:hover, & .card:focus-within { border-color: var(--card-line-on); }
-    /* The thumbnail's slot is the layout's (3/7 of the card, or all of it on a phone); home.js crops the picture to fill it at a whole
-       number of screen pixels per picture pixel and narrows the tile to the canvas (--thumb-w, --thumb-h), so no tile shows round it.
-       On a phone it is centred when a few pixels narrower. */
-    & .tile { position: relative; align-self: start; justify-self: center; width: var(--thumb-w, 100%); height: var(--thumb-h, auto); aspect-ratio: 5 / 3; background: var(--tile);
-              @media (min-width: 760px) { justify-self: start; } }
-    & .tile canvas { position: absolute; image-rendering: pixelated; }
-    & .body { display: flex; flex-direction: column; gap: var(--space-s); min-width: 0; }
-    & .title { margin: 0 0 var(--space-s); font: inherit; font-size: var(--size-text); line-height: var(--line-height-story); color: var(--card-title); text-transform: uppercase; }
+    /* The thumbnail's slot is the layout's (3/7 of the card, or all of it on a phone), always in the shape of the bible's crop (5:3).
+       home.js draws the crop at its own size (225 × 135) and CSS stretches the canvas to fill the slot, with hard edges. */
+    & .tile { position: relative; align-self: start; width: 100%; aspect-ratio: 5 / 3; background: var(--tile); }
+    & .tile canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: crisp-edges; image-rendering: pixelated; }
+    & .body { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+    & .title { margin: 0 0 var(--space-2); font: inherit; font-size: var(--size-text); line-height: var(--line-height-story); color: var(--card-title); text-transform: uppercase; }
     & .blurb { margin: 0; font-family: var(--card-story); font-size: var(--size-text); line-height: var(--line-height-story); color: var(--card-blurb); }
     /* One button (NEW GAME), or two side by side that together fill the width (LOAD GAME, NEW GAME). */
-    & .buttons { display: flex; gap: var(--space-s); margin-top: auto; @media (max-width: 759px) { margin-top: var(--space-s); } }
+    & .buttons { display: flex; gap: var(--space-2); margin-top: auto; @media (max-width: 759px) { margin-top: var(--space-2); } }
     & .play {
-      flex: 1 1 0; min-width: 0; height: calc(var(--size) * 3); padding: 0 var(--space-xs); border: 0;
+      flex: 1 1 0; min-width: 0; height: 3rem; padding: 0 var(--space-1); border: 0;
       font: inherit; font-size: var(--size-text); line-height: var(--line-height-tight); text-transform: uppercase; white-space: nowrap;
       color: var(--button-text); background: var(--button); cursor: pointer;
     }

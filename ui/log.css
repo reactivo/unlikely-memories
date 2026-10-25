@@ -9,7 +9,7 @@
     --command-bg:   transparent;            /* optional background behind the whole command */
     --command-open:  "<";                   /* character(s) before a command */
     --command-close: ">";                   /* character(s) after a command */
-    --command-size: var(--size-command);    /* a little smaller than the story text, so its capitals fit in */
+    --command-size: var(--size-command);    /* a little smaller than the story text, so its capitals fit in (tokens.css) */
   }
 
   /* Story text: a little more open than the interface (--line-height-story, tokens.css). */
@@ -19,21 +19,14 @@
     --hint:         var(--color-text-dim);  /* dim lines: the help hint, suggestions, the prototype's end */
     --hurt:         var(--color-hurt);      /* the line said when you lose health */
     --figure-bg:    var(--color-surface);   /* the square behind an object's picture */
-    /* How far the picture's square moves down so its top lines up with the top of the capitals beside it: the
-       space a line leaves above its letters (half the line height minus the text). MEASURED FOR CGA, whose
-       capitals start at the very top of the character: with another font, add the gap above its capitals. */
-    --figure-nudge: calc((var(--line-height-story) - 1) * 0.5em);
     --object:       var(--color-text);      /* an object's name: looks like the story text… */
     --object-mark:  var(--color-highlight); /* …with a small mark after it, in this colour… */
     --object-sign:  "⁺";                    /* …this character (the CGA font has it)… */
-    /* …spaced to sit snugly after the word. MEASURED FROM THE FONT'S GLYPH: CGA draws ⁺ in the left 6 of its 8
-       pixel columns. Change both if the font or the sign changes. */
-    --object-sign-gap:  0.125em;            /* space before it: one font pixel (CGA: 1 em = 8 pixels) */
-    --object-sign-trim: -0.25em;            /* taken back after it: its 2 empty right-hand columns */
+    /* …spaced to sit snugly after the word (--object-sign-gap and --object-sign-trim: the font profile, tokens.css). */
     --object-hover: var(--color-highlight); /* the name under the pointer */
     --past:         var(--color-text-dim);  /* everything in rooms you've left: one grey, like your echoed commands */
 
-    --fade: calc(var(--size-text) * var(--line-height-story) * 2);   /* the fade above the prompt: two lines */
+    --fade: calc(var(--size-text) * var(--line-height-story) * var(--fade-lines));   /* the fade above the prompt: two lines */
 
     min-width: 0; white-space: pre-wrap; overflow-wrap: break-word;
     text-wrap: pretty;   /* never a single word alone on a paragraph's last line (browsers without it: as before) */
@@ -69,21 +62,22 @@
        Commands (`Begin again`) keep working. */
     &.over .object { --object-hover: var(--object); cursor: default; }
 
-    & p { margin: 0 0 var(--space-m); }
-    & .cmd { color: var(--echo); margin-bottom: var(--space-xs); }
+    & p { margin: 0 0 var(--space-4); }
+    & .cmd { color: var(--echo); margin-bottom: var(--space-1); }
     /* Each of your commands starts a new block: two lines of space above it (the paragraph before it has one; the
-       two margins overlap, so the gap is exactly space-l), so the story reads as command → answer, command → answer. */
-    & .cmd { margin-top: var(--space-l); }
+       two margins overlap, so the gap is exactly 2rem), so the story reads as command → answer, command → answer. */
+    & .cmd { margin-top: var(--space-8); }
     & .visit:first-child > .cmd:first-child { margin-top: 0; }   /* …except at the very top of the story */
     & .sys { color: var(--hint); }
     & .hurt { color: var(--hurt); }
     & .keep { white-space: nowrap; }
     /* What the world says on its own, nobody having asked (a timed line: js/main.js, tick): set apart like a stage
-       direction, indented two characters, with the same space above as a command (decided 24 October 2026). */
-    & .aside { margin-left: var(--space-l); }
-    & :not(.aside) + .aside { margin-top: var(--space-l); }
+       direction, indented 2rem, with the same space above as a command (decided 24 October 2026). */
+    & .aside { margin-left: var(--space-8); }
+    & :not(.aside) + .aside { margin-top: var(--space-8); }
     /* ▲ ▼ in a text (HELP's directions): the compass's ► turned a quarter, so the two look the same (log.js;
-       the turn is around the triangle's own centre, as in compass.css). */
+       the turn is around the triangle's own centre, as in compass.css). 1ch on purpose: it is the width of a glyph of the
+       text it sits in. */
     & .turn { display: inline-block; width: 1ch; line-height: 1; transform-origin: 43.75% 43.75%; }
     & .turn.up   { transform: rotate(-90deg); }
     & .turn.down { transform: rotate(90deg); }   /* a marker and the punctuation right after it, on one line (log.js) */
@@ -95,11 +89,11 @@
     @media (prefers-reduced-motion: reduce) { & .ph { animation: none; } }
 
     /* A description with the object's image beside it: the image on the left in a surface-coloured square
-       (9 characters wide: the picture itself 8, with half a character of square around it), the text flowing on
+       (9rem wide: the picture itself 8rem, with half a rem of square around it), the text flowing on
        the right. */
-    & p.with-image { display: flex; gap: var(--space-m); align-items: flex-start; }
+    & p.with-image { display: flex; gap: var(--space-4); align-items: flex-start; }
     & .figure {
-      flex: none; width: calc(var(--space-m) * 9); aspect-ratio: 1; padding: var(--space-s); box-sizing: border-box;
+      flex: none; width: 9rem; aspect-ratio: 1; padding: var(--space-2); box-sizing: border-box;
       background: var(--figure-bg); margin-top: var(--figure-nudge);
     }
     & .figure svg { display: block; width: 100%; height: 100%; }
@@ -113,7 +107,7 @@
      in sentence case ("> Examinar puerta"), as if typed. */
   .command {
     font: inherit; line-height: inherit; letter-spacing: inherit;
-    font-family: var(--game);       /* plain CGA: its capitals are already made smaller by --command-size */
+    font-family: var(--game);       /* the game's lettering, not the story's: its capitals are already made smaller by --command-size */
     font-size: var(--command-size);
     color: var(--command-text);
     background: var(--command-bg);
@@ -138,7 +132,7 @@
 
     &:hover { color: var(--object-hover); }
     &:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-    /* Spacing in font pixels, not screen pixels, so it stays on the pixel grid at every size (values at the top). */
+    /* Spacing that follows the text's own size (em; values in the font profile, tokens.css). */
     &::after {
       content: var(--object-sign); color: var(--object-mark);
       padding-left: var(--object-sign-gap); margin-right: var(--object-sign-trim);

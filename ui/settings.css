@@ -1,5 +1,5 @@
 /* Settings popover, opened from ≡ (ui/tools.css). Placed under the button, right edges aligned (settings.js).
-   Same font and grid as the game; framed with a line in the surface colour. It lives in the browser's top layer,
+   Same font as the game; framed with a line in the surface colour. It lives in the browser's top layer,
    outside .layout, so it sets its own font. */
 @layer ui {
   .settings {
@@ -12,32 +12,32 @@
     --note:         var(--color-text-faint);  /* the small note at the bottom */
 
     margin: 0; inset: auto; position: fixed;
-    font-family: var(--game); font-size: var(--size); line-height: var(--line-height); -webkit-font-smoothing: none;
+    font-family: var(--game); font-size: 1rem; line-height: var(--line-height);
     color: var(--color-text); background: var(--color-bg);
-    border: 0.125em solid var(--frame); padding: var(--space-m);
-    width: 28ch; max-width: calc(100vw - 2 * var(--gutter)); box-sizing: border-box;   /* phones: never off screen */
+    border: 0.125rem solid var(--frame); padding: var(--space-4);
+    width: 28rem; max-width: calc(100vw - 2 * var(--gutter)); box-sizing: border-box;   /* phones: never off screen */
 
-    & h2 { font: inherit; margin: 0 0 var(--space-m); color: var(--heading); }
-    & .choice { border: 0; margin: 0; padding: 0; display: grid; gap: var(--space-s); }
-    & legend { padding: 0; margin-bottom: var(--space-s); color: var(--heading); }
+    & h2 { font: inherit; margin: 0 0 var(--space-4); color: var(--heading); }
+    & .choice { border: 0; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+    & legend { padding: 0; margin-bottom: var(--space-2); color: var(--heading); }
 
     /* Radio buttons drawn with font characters: ○ unselected, ● selected. The real input stays in the page (for
        keyboard and screen readers) but is hidden from view. */
     & label { display: block; cursor: pointer; color: var(--choice); }
     & label:hover { color: var(--choice-hover); }
     & input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
-    & label span::before { content: "○"; margin-right: var(--space-m); }
+    & label span::before { content: "○"; margin-right: var(--space-4); }
     & input:checked + span { color: var(--chosen); }
     & input:checked + span::before { content: "●"; }
     & input:focus-visible + span { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-    & .note { margin: var(--space-m) 0 0; color: var(--note); }
+    & .note { margin: var(--space-4) 0 0; color: var(--note); }
 
     /* GAME: "New game" (it asks in the story, like every yes/no question) and "Quit" (back to the list of games), side by side. Buttons look like the options above: plain text, brighter
        under the pointer. */
-    & .game { margin-top: var(--space-l, calc(var(--space-m) * 2)); }
+    & .game { margin-top: var(--space-8); }
     & h3 { font: inherit; margin: 0; color: var(--heading); }
-    & .game { display: grid; gap: var(--space-s); }
-    & .actions { display: flex; flex-wrap: wrap; column-gap: var(--space-l); row-gap: var(--space-s); }
+    & .game { display: grid; gap: var(--space-2); }
+    & .actions { display: flex; flex-wrap: wrap; column-gap: var(--space-8); row-gap: var(--space-2); }
     & .action { font: inherit; color: var(--choice); background: none; border: 0; padding: 0; cursor: pointer; }
     & .action:hover { color: var(--choice-hover); }
     & .action:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }

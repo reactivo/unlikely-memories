@@ -10,13 +10,13 @@
     --hint-text: var(--color-text-dim); /* the hint at the right end of the line, like dim lines in the story */
 
     font-size: var(--size-text);
-    display: flex; gap: var(--space-m); align-items: center; position: relative; min-width: 0;
+    display: flex; gap: var(--space-4); align-items: center; position: relative; min-width: 0;
 
     & .mark { color: var(--chevron); }
     & .line { display: flex; align-items: center; min-width: 0; }
     & .typed { white-space: pre; overflow: hidden; color: var(--typed); }
-    /* The block fills one full character cell (1ch x 1em), the same box every CGA glyph occupies, so it lines up
-       with the text. */
+    /* The block fills one full character cell (1ch x 1em), the box a glyph of the text occupies, so it lines up with the
+       text. ch and em on purpose: it must match the text it sits in (the prompt's, a step above the base size). */
     & .cursor { display: block; flex: none; width: 1ch; height: 1em; background: var(--cursor); }
     @media (prefers-reduced-motion: no-preference) {
       & .cursor { animation: blink 1.06s steps(1) infinite; }

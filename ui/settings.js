@@ -14,8 +14,8 @@ export function mount(panel, on) {
   // Place the panel under the ≡ button, right edges lined up.
   function place() {
     const r = button.getBoundingClientRect();
-    const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--size")) || 16;
-    panel.style.top = (r.bottom + gap * 0.5) + "px";
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;   // the root font size, in px
+    panel.style.top = (r.bottom + rem * 0.5) + "px";
     panel.style.right = Math.max(8, document.documentElement.clientWidth - r.right) + "px";
   }
   // If a different language is selected, switch to it (this restarts the game).

@@ -489,7 +489,6 @@ async function showHome() {
   if (mine !== opening) return;                          // another view was asked for meanwhile
   landing.update({ lang, pack: LANG_PACKS[lang], worlds: worlds.map((w, i) => ({ ...w, thumb: thumbnailFor(w.id, lang), saved: !!saved[i] })) });
   ui.page.show("home", lang);
-  landing.fit();
 }
 
 // The language chosen on the list of games: remembered like the settings' choice, and the list drawn again in it. No game is being
@@ -510,7 +509,6 @@ async function openWorld(id, askNew = false) {
   if (mine !== opening) return;
   view = "game"; openId = id; shown = null;           // (shown = null: every piece draws itself afresh)
   ui.page.show("game", lang);
-  ui.scene.fit();
   clock.resume();
   if (r) { restore(r); if (askNew) on.newGame(); }
   else { clock.reset(); showTime(); startStory(undefined, id); }

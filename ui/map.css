@@ -20,10 +20,10 @@
 
 
     box-sizing: border-box; margin: auto; inset: 0; position: fixed; padding: 0; overflow: hidden;
-    width: min(57em, calc(100vw - 4em)); height: min(41em, calc(100dvh - 8em));
-    font-family: var(--game); font-size: var(--size); line-height: var(--line-height); -webkit-font-smoothing: none;
+    width: min(57rem, calc(100vw - 4rem)); height: min(41rem, calc(100dvh - 8rem));
+    font-family: var(--game); font-size: 1rem; line-height: var(--line-height);
     color: var(--color-text); background: var(--color-bg); border: 1px solid var(--frame);
-    @media (max-width: 759px) { height: min(44em, calc(100dvh - 12em)); }
+    @media (max-width: 759px) { height: min(44rem, calc(100dvh - 12rem)); }
 
     &:popover-open { display: flex; flex-direction: column; }
     &::backdrop { background: var(--veil); }
@@ -41,10 +41,11 @@
     & .area.dragging { cursor: grabbing; }
     & .world { position: absolute; width: 0; height: 0; transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)); }
 
-    /* A room: a box with its name in capitals on one line, cut with … when it doesn't fit. */
+    /* A room: a box with its name in capitals on one line, cut with … when it doesn't fit. map.js also sets its width and
+       height in integer pixels, so the lines between rooms meet its edges (the sizes here are what it measures). */
     & .room {
       position: absolute; box-sizing: border-box; width: var(--map-room-w); height: var(--map-room-h);
-      display: flex; align-items: center; justify-content: center; padding-inline: 1em;
+      display: flex; align-items: center; justify-content: center; padding-inline: var(--map-text);   /* as much as the name's text size */
       font-size: var(--map-text); line-height: 1; text-transform: uppercase;
       color: var(--room-name); border: 1px solid var(--room-border); cursor: pointer;
     }
@@ -59,7 +60,7 @@
 
     /* The × at the top left. */
     & .close {
-      position: absolute; z-index: 1; top: var(--space-s); left: var(--space-s); width: 2em; height: 2em;
+      position: absolute; z-index: 1; top: var(--space-2); left: var(--space-2); width: calc(var(--map-level-text) * 2); height: calc(var(--map-level-text) * 2);
       display: flex; align-items: center; justify-content: center;
       font: inherit; font-size: var(--map-level-text); line-height: 1; color: var(--close); background: none; border: 0; padding: 0; cursor: pointer;
     }
@@ -67,12 +68,12 @@
     & .close:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
     /* The location bar: the level you are on at the left, how to move the map at the right. On a phone, one above the other. */
-    & .where { flex: none; margin: 0; padding: var(--space-m) var(--space-l); border-top: 1px solid var(--frame);
-      display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-l);
+    & .where { flex: none; margin: 0; padding: var(--space-4) var(--space-8); border-top: 1px solid var(--frame);
+      display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-8);
       @media (max-width: 759px) { display: block; } }
     & .where p { margin: 0; line-height: 1.25; }
     & .level { font-size: var(--map-level-text); color: var(--level); text-transform: uppercase; }
     & .where .hint { font-size: var(--map-note-text); color: var(--note); text-transform: uppercase;
-      @media (max-width: 759px) { margin-top: var(--space-m); } }
+      @media (max-width: 759px) { margin-top: var(--space-4); } }
   }
 }

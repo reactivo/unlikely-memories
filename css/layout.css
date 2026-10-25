@@ -3,9 +3,10 @@
 
    One column, centred, always the whole window high: the title bar and the picture on top, the prompt at the
    bottom, and the story in between, scrolling on its own (log.css), so nothing ever moves off screen.
-   The column is 75 characters wide at most (--main), then narrowed by ui/scene.js to the picture's width at a
-   whole-number scale (--column-w), so the picture and everything under it are exactly as wide as each other.
-   On phones it is simply the page's width inside the side padding, and the picture is stretched to it.
+   The column is 75rem wide at most (--column, tokens.css), narrower when the window is, and, on a low window where the
+   font is at its smallest, narrower so the whole screen still fits the height (--column-fit); smoothly, in all cases. The
+   picture is stretched to the column's whole width, so it and everything under it are exactly as wide as each other.
+   On phones the column is simply the page's width inside the side padding.
 
    Wider windows (760px and up): the strip sits beside the story, top edges aligned.
        ┌──────────────────────────┐
@@ -26,17 +27,16 @@
 
   .layout {
     font-family: var(--game);
-    font-size: var(--size);
+    font-size: 1rem;
     line-height: var(--line-height);
-    -webkit-font-smoothing: none;
     cursor: text;
 
     width: 100%; margin-inline: auto;
-    @media (min-width: 760px) { max-width: var(--column-w, calc(var(--main) * 1ch)); }   /* phones: the page's width */
+    @media (min-width: 760px) { max-width: min(var(--column), var(--column-fit)); }   /* phones: the page's width */
     height: 100dvh; box-sizing: border-box;
-    padding-block: max(var(--space-l), env(safe-area-inset-top, 0px)) max(var(--space-l), env(safe-area-inset-bottom, 0px));
+    padding-block: max(var(--space-8), env(safe-area-inset-top, 0px)) max(var(--space-8), env(safe-area-inset-bottom, 0px));
 
-    display: grid; gap: var(--space-m);
+    display: grid; gap: var(--space-4);
     grid-template-columns: minmax(0, 1fr) auto;
     /* The story's row takes the room left over, but never fewer than 4 lines: on a very low window the page
        scrolls instead. */
@@ -49,8 +49,8 @@
       "tabs    tabs";
 
     @media (min-width: 760px) {
-      column-gap: var(--space-xl);
-      grid-template-columns: minmax(0, 1fr) calc(var(--strip) * 1ch);
+      column-gap: var(--space-16);
+      grid-template-columns: minmax(0, 1fr) var(--strip);
       grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
       grid-template-areas:
         "title   title"

@@ -7,8 +7,8 @@
     --place: var(--color-text);      /* the place name */
     --clock: var(--color-text-dim);  /* day and time */
 
-    display: flex; flex-direction: column; justify-content: center; gap: var(--space-s); color: var(--clock);
-    @media (min-width: 760px) { flex-direction: row; justify-content: space-between; gap: var(--space-m); }
+    display: flex; flex-direction: column; justify-content: center; gap: var(--space-2); color: var(--clock);
+    @media (min-width: 760px) { flex-direction: row; justify-content: space-between; gap: var(--space-4); }
 
     & h1, & p { font: inherit; line-height: inherit; margin: 0; }
     & > :first-child { color: var(--place); }

@@ -17,8 +17,8 @@ export function paint(draw, width = art.picture.width, height = art.picture.heig
 }
 
 // A world's thumbnail on the landing page: the room's picture painted at its real size (320×136), no sprites, no cycling, then
-// the largest crop, THUMB.width pixels wide from column x, rows 0 to THUMB.height (the landing page crops tighter on smaller screens:
-// ui/fit.js thumbFit and thumbCrop, around this crop's centre). `draw` is a drawing list or the short notation (a string).
+// the largest crop, THUMB.width pixels wide from column x, rows 0 to THUMB.height (always this crop: the landing page draws it at its own size and
+// CSS stretches it to the card's slot). `draw` is a drawing list or the short notation (a string).
 export const THUMB = { width: 225, height: 135 };   // 5:3; x runs 0 to 95 (320 − 225)
 export function thumbnailPixels(draw, x) {
   const full = paint(typeof draw === "string" ? parseShapes(draw).shapes : draw);

@@ -9,15 +9,15 @@
     --over-dim:   0.4;                   /* once the story is over: the items fade to this, and nothing responds */
 
     & .slots {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-s);
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2);
       list-style: none; margin: 0; padding: 0;
     }
-    & .slot { aspect-ratio: 1; min-width: 3em; box-shadow: inset 0 0 0 0.125em var(--slot); }   /* outline: one font pixel */
+    & .slot { aspect-ratio: 1; min-width: 3rem; box-shadow: inset 0 0 0 0.125rem var(--slot); }   /* outline: a thin line */
     & .slot:has(.item) { background: var(--slot); }
 
     /* An item in a slot: a pixel-art sprite filling the slot (kept square, centred). */
     & .item {
-      display: block; width: 100%; height: 100%; padding: var(--space-s); box-sizing: border-box;
+      display: block; width: 100%; height: 100%; padding: var(--space-2); box-sizing: border-box;
       border: 0; background: none; cursor: pointer;
     }
     & .item svg { display: block; width: 100%; height: 100%; }

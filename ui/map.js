@@ -21,20 +21,22 @@ export function mount(panel, on) {
   const wide = matchMedia("(min-width: 760px)");   // a desktop window: the middle of the whole map is the middle of the area
 
   const isOpen = () => panel.matches(":popover-open");
-  // A size from tokens.css in whole pixels (even ones, so the middle of a room is a whole pixel too): measured on a hidden
+  // A size from tokens.css in integer pixels (even ones, so the middle of a room falls on a pixel too): measured on a hidden
   // stand-in, because the sizes are built from the text size and the popup may not be showing yet when it is drawn.
+  // This rounding is the one that is needed: the lines are 1 pixel thick and must meet the rooms' edges exactly, and the
+  // text size is not a round number of pixels. The rooms get these same sizes (see draw), so nothing else is rounded.
   const probe = document.createElement("i");
   probe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none;height:0";
   document.body.append(probe);
   const size = (name) => { probe.style.width = `var(${name})`; return Math.round(probe.getBoundingClientRect().width / 2) * 2; };
 
-  // Move the map (whole pixels, so lines and borders stay sharp).
+  // Move the map (integer pixels, so lines and borders stay sharp).
   function setPan(x, y) {
     pan = { x: Math.round(x), y: Math.round(y) };
     world.style.setProperty("--pan-x", pan.x + "px");
     world.style.setProperty("--pan-y", pan.y + "px");
   }
-  // Put the middle of the map area at the origin of the drawing (whole pixels again).
+  // Put the middle of the map area at the origin of the drawing (integer pixels again).
   function centre() {
     world.style.left = Math.round(area.clientWidth / 2) + base.x + "px";
     world.style.top = Math.round(area.clientHeight / 2) + base.y + "px";
@@ -74,7 +76,7 @@ export function mount(panel, on) {
                : piece("i", "stub v", { left: x, top: y + H / 2, height: S }));
     }
     for (const r of m.rooms) {
-      const box = piece("div", "room" + (r.current ? " current" : ""), { left: cx(r) - W / 2, top: cy(r) - H / 2 });
+      const box = piece("div", "room" + (r.current ? " current" : ""), { left: cx(r) - W / 2, top: cy(r) - H / 2, width: W, height: H });
       box.dataset.room = r.id;
       box.setAttribute("aria-hidden", "true");                    // the list below says it for screen readers
       const name = document.createElement("span");
