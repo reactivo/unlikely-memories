@@ -27,7 +27,7 @@ export const bible = {
     "Cada farol de la calle se enciende a mano, el último al final."
   ],
   characters: ["El señor Fenn, el farolero muerto", "El agente Pye", "La señora Halloran, de la tienda de pasteles",
-    "El señor Voss, de la Compañía Eléctrica", "El señor Cotter, de la Campana", "El doctor Mabbott, el forense",
+    "El señor Voss, de la Compañía Eléctrica", "El señor Cotter, de The Bell", "El doctor Mabbott, el forense",
     "Pip, una niña que rebusca en el fango"],
   endings: [
     "La verdad: lleva a la investigación las últimas palabras oídas junto al farol; vuelven con quien las dijo, y la niebla se levanta.",
@@ -58,7 +58,7 @@ const endingPictures = {
 
 // ---- Salas -------------------------------------------------------------------------------------------------------------
 // Zona "cab": la apertura, a la que no se vuelve. Zona "row" (la x crece al este, la y al sur): el tribunal al norte de la
-// calle, la Campana al oeste y la tienda de pasteles al este; el último farol al sur, con la subestación al oeste, la
+// calle, The Bell al oeste y la tienda de pasteles al este; el último farol al sur, con la subestación al oeste, la
 // caseta al este y la escalera del río al sur; el puente al este de la escalera.
 const rooms = {
   cab: {
@@ -91,16 +91,16 @@ const rooms = {
     name: "LANTERN ROW", area: "row", at: [1, 0, 0],
     describe: [
       "Lantern Row: una calle de tiendas entre el tribunal del forense y el río, alumbrada por gas. Con esta niebla los faroles cuelgan como naranjas envueltas en papel de seda; podría ser cualquier hora.",
-      "{El agente Pye|pye} hace su ronda, que es la calle, que es corta. Al norte, tras unas {puertas|court_doors} de roble, el tribunal. La Campana está al oeste, la tienda de pasteles al este. Al sur, la calle baja hasta el último farol y el río."
+      "{El agente Pye|pye} hace su ronda, que es la calle, que es corta. Al norte, tras unas {puertas|court_doors} de roble, el tribunal. El pub The Bell está al oeste, la tienda de pasteles al este. Al sur, la calle baja al último farol y el río."
     ],
     exits: {
       n: { to: "court", if: { "time.hour": { between: [0, 6] } }, closed: "Las puertas del tribunal están cerradas. La cartulina que las cubre dice que la investigación es a medianoche." },
-      w: { to: "bell", if: { "time.hour": { between: [11, 23] } }, closed: "La Campana está cerrada. A través de la ventana, las sillas están sobre las mesas con las patas al aire, como algo que se ha dado por vencido." },
+      w: { to: "bell", if: { "time.hour": { between: [11, 23] } }, closed: "The Bell está cerrado. A través de la ventana, las sillas están sobre las mesas con las patas al aire, como algo que se ha dado por vencido." },
       e: "pie_shop", s: "last_lamp"
     },
     scenery: [
       { words: ["faroles", "farol", "farolas", "farola", "gas", "naranjas", "naranja"], name: "los faroles", says: "Faroles de gas sobre postes de hierro, uno cada pocas puertas, cada uno encendido a mano. En la niebla se dan luz a sí mismos y no mucha a nadie más." },
-      { words: ["campana", "taberna", "pub"], name: "la Campana", says: "La fachada baja de una taberna, barniz marrón y latón, con un olor a cerveza negra que sale por la puerta.", leads: "w" },
+      { words: ["bell", "pub", "campana", "taberna"], name: "el pub The Bell", says: "La fachada baja de un pub, barniz marrón y latón, con un olor a cerveza negra que sale por la puerta.", leads: "w" },
       { words: ["tienda", "pasteleria", "pasteles", "pastel", "halloran"], name: "la tienda de pasteles", says: "El escaparate de la tienda de pasteles está amarillo y empañado.", leads: "e" },
       { words: ["fachadas", "fachada", "tiendas", "escaparates", "calle"], name: "las fachadas", says: "Un estanco, una cerería, una tienda que arregla paraguas y nada más. Todo cerrado, todo alumbrado por el farol de otro." },
       { words: ["niebla", "bruma", "calima"], name: "la niebla", says: "Gris amarillenta y tan espesa que se puede apoyar uno en ella. De vez en cuando pasa una palabra a la altura de la cabeza, demasiado débil para entenderla." },
@@ -116,12 +116,12 @@ const rooms = {
     ], every: [40, 80] },
     // El tribunal se reúne a medianoche: vale la pena esperarla aquí siempre que no esté reunido.
     waitFor: { time: "next 00:00", says: "Esperas junto a las puertas del tribunal. La niebla viene y se pone a tu lado, y también espera.", if: [{ "time.hour": { between: [6, 24] } }] },
-    alt: "Una calle de fachadas de tiendas en espesa niebla gris, vista desde el centro de los adoquines: faroles de gas que se alejan como borrones naranjas, la ventana roja de la Campana a la izquierda, la amarilla de la tienda de pasteles a la derecha, las puertas oscuras del tribunal al fondo y, a la derecha, un policía con casco de pie."
+    alt: "Una calle de fachadas de tiendas en espesa niebla gris, vista desde el centro de los adoquines: faroles de gas que se alejan como borrones naranjas, la ventana roja de The Bell a la izquierda, la amarilla de la tienda de pasteles a la derecha, las puertas oscuras del tribunal al fondo y, a la derecha, un policía con casco de pie."
   },
   bell: {
-    name: "LA CAMPANA", area: "row", at: [0, 0, 0],
+    name: "THE BELL", area: "row", at: [0, 0, 0],
     describe: [
-      "La Campana: barniz marrón, vigas bajas y un calor como el del interior del abrigo de alguien. Unos hombres de gorra cantan en la barra, cada uno un poco por detrás del anterior.",
+      "The Bell: barniz marrón, vigas bajas y un calor como el del interior del abrigo de alguien. Unos hombres de gorra cantan en la barra, cada uno un poco por detrás del anterior.",
       "{El señor Cotter|cotter}, el tabernero, saca brillo a un vaso que nunca estará lo bastante limpio para él. En la chimenea arde un {fuego|fire}. La calle queda al este."
     ],
     exits: { e: { to: "row", out: true } },
@@ -139,10 +139,10 @@ const rooms = {
       "El fuego se asienta. Un hombre de gorra lo mira como si le debiera dinero.",
       "La puerta se abre, la niebla se asoma, y alguien le cierra la puerta en las narices."
     ], every: [35, 70] },
-    alt: "Una taberna de vigas bajas en silueta: hombres de gorra negros contra el resplandor rojo y naranja de un fuego de carbón a la izquierda, una larga barra oscura y, tras ella, el tabernero sosteniendo en alto un vaso."
+    alt: "Un pub de vigas bajas en silueta: hombres de gorra negros contra el resplandor rojo y naranja de un fuego de carbón a la izquierda, una larga barra oscura y, tras ella, el tabernero sosteniendo en alto un vaso."
   },
   pie_shop: {
-    name: "PASTELES HALLORAN", area: "row", at: [2, 0, 0],
+    name: "HALLORAN'S", area: "row", at: [2, 0, 0],
     describe: [
       "Una tienda de pasteles tan ancha como un perchero: un mostrador, un escaparate empañado hasta la ceguera y un {horno|oven} que no se ha apagado desde los tiempos de la vieja Reina. Todo huele a masa y a grasa caliente.",
       "{La señora Halloran|halloran} está tras el mostrador con harina hasta los codos, pasando el trapo por un sitio que ya está limpio. La calle queda al oeste."
@@ -192,7 +192,7 @@ const rooms = {
       "Un farol calle arriba sisea, y el señor Fenn vuelve la cabeza hacia él, por costumbre.",
       "El señor Fenn se aclara la garganta, lo piensa mejor y sigue estando muerto."
     ], every: [35, 70] },
-    // Vale la pena esperar hasta que cierre la Campana y la calle se calle.
+    // Vale la pena esperar hasta que cierre The Bell y la calle se calle.
     waitFor: { time: "next 23:00", says: "Esperas junto al último farol con el señor Fenn. Ninguno de los dos dice nada, que es lo que él prefiere.", if: [{ "time.hour": { between: [11, 23] } }] },
     alt: "Una vista amplia a lo largo de un muro de río en niebla azul oscura. A la izquierda, un alto poste de hierro con el farol apagado, el cristal negro; a su pie, un hombre menudo con gorra sentado en el bordillo. A la derecha, una caseta verde de madera con su puerta. A lo lejos, calle arriba, el débil resplandor de otros faroles."
   },
@@ -294,7 +294,7 @@ const objects = {
     talk: "«Buenas noches», dice el agente Pye. «Tú serás el testigo. La investigación es a medianoche, en el tribunal. Tengo apuntados a los presentes, si los quieres».",
     topics: {
       present: { open: true, label: "los presentes", words: ["presentes", "presente", "personas", "lista", "sospechosos", "gente", "libreta"], says: "«Presentes junto al último farol esta noche», lee. «El señor Voss, de la Compañía. La señora Halloran, de los pasteles. El difunto. Es todo lo que la niebla me ha dejado ver»." },
-      fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "voces", "voz"], says: "«Las palabras se quedan colgadas en esta niebla hasta que alguien las oye hasta el final. Es sabido. Para eso hace falta la trompetilla de un farolero, y silencio. En la calle nunca hay silencio hasta que cierra la Campana, a las once»." },
+      fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "voces", "voz"], says: "«Las palabras se quedan colgadas en esta niebla hasta que alguien las oye hasta el final. Es sabido. Para eso hace falta la trompetilla de un farolero, y silencio. En la calle nunca hay silencio hasta que cierra The Bell, a las once»." },
       fenn: { label: "Fenn", words: ["fenn", "albert", "farolero", "muerte", "cuerpo", "difunto", "muerto"], says: "«Lo encontré en el último farol, sentado. Ni una marca. Dijo buenas noches. Yo dije buenas noches. Luego lo apunté»." },
       voss: { label: "Voss", words: ["voss", "compania", "electrica", "electricidad"], says: "«Le dijo algo desagradable al señor Fenn en el tercer farol. Me lo repitió a mí, para la libreta. Orgulloso, estaba»." },
       halloran: { label: "Halloran", words: ["halloran", "pasteles", "pastel", "pastelera"], says: "«La señora Halloran le dio su pastel, como todas las noches. No ha dicho una palabra desde entonces. Tampoco decía mucho nunca»." },
@@ -308,10 +308,10 @@ const objects = {
     words: { nouns: ["puertas", "puerta", "cartulina", "cartel", "aviso"], adj: ["tribunal", "roble", "forense"], g: "f", pl: true },
     examine: "Puertas de roble con una cartulina clavada: «Investigación. A. Fenn, farolero. Medianoche». Se abren cuando el tribunal se reúne, y no antes." },
 
-  // La Campana
+  // The Bell
   cotter: { at: "bell", scenery: true, name: "Señor Cotter", note: "El tabernero.", actions: ["Hablar con señor Cotter", "Pedir porter"],
     words: { nouns: ["cotter", "tabernero", "posadero", "camarero"], adj: ["señor", "senor"], g: "m" },
-    examine: "Un hombre ancho en mangas de camisa y chaleco, que ha oído cada canción de la Campana cantada mal y no ha perdonado ninguna.",
+    examine: "Un hombre ancho en mangas de camisa y chaleco, que ha oído cada canción de The Bell cantada mal y no ha perdonado ninguna.",
     talk: "«¿Qué te pongo?», dice el señor Cotter. «Cerramos a las once. Después, la calle queda tan quieta que se oye caer una palabra».",
     topics: {
       porter: { open: true, label: "una cerveza", words: ["porter", "cerveza", "pinta", "media", "bebida", "trago", "copa", "jarra"], says: "«Una», dice el señor Cotter. «Ya lo he dicho. Esto no es una casa de socorro»." },
@@ -506,10 +506,10 @@ const rules = [
   { id: "ask_key", match: { verb: "ask", obj: "fenn", topic: "hut" }, if: [{ "hut_key.at": "fenn" }],
     do: [{ say: "«La llave está al cuello», dice el señor Fenn, e inclina la cabeza para que puedas pasarle el cordel por encima. «No voy a ir a ninguna parte»." }, { move: "hut_key", to: "player" }, { change: "key_taken" }] },
 
-  // Escuchar la niebla en el último farol: con la trompetilla, cuando la Campana ha cerrado y la calle está en silencio.
+  // Escuchar la niebla en el último farol: con la trompetilla, cuando The Bell ha cerrado y la calle está en silencio.
   { id: "hear_noisy", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "time.hour": { between: [11, 23] } }],
-    do: [{ say: "Acercas la trompetilla a la niebla. Se llena hasta el borde con el coro de la Campana, una docena de hombres, cada uno un poco por detrás del siguiente. Debajo, muy pequeño, algo intenta que lo oigan. Tendrá que esperar a que cierre la Campana." }] },
+    do: [{ say: "Acercas la trompetilla a la niebla. Se llena hasta el borde con el coro de The Bell, una docena de hombres, cada uno un poco por detrás del siguiente. Debajo, muy pequeño, algo intenta que lo oigan. Tendrá que esperar a que cierre The Bell." }] },
   { id: "hear_words", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "last_words.at": null }],
     do: [{ say: "Acercas la trompetilla a la niebla y escuchas. Casi todo lo que guarda la niebla es tiempo. Luego, cerca del farol, grave: una voz de mujer, cálida, con harina encima. «Déjalo, Albert. Siéntate un momento. Nadie echará de menos un farol»." },
@@ -597,7 +597,7 @@ const rules = [
   { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
     do: [{ say: "«Con uno basta», dice la señora Halloran. «Él solo tomaba uno»." }] },
   { id: "order_elsewhere", match: { verb: "order" },
-    do: [{ say: "Hay porter en la Campana, al oeste de la calle, y pasteles en casa de Halloran, al este." }] },
+    do: [{ say: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." }] },
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
     do: [{ say: "Respiras. Aquí fuera el aire es solo medio niebla; la otra mitad es el río que pasa. Por un momento, el pecho es tuyo." }, { set: "game.tension", add: -10 }] },
   { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
@@ -619,13 +619,13 @@ const rules = [
     do: [{ say: "Bajas al río. Está más frío de lo que nada tiene derecho a estar, y te tiene por las piernas, y luego, como si hubiera cambiado de idea, te suelta. Subes a gatas la escalera." },
          { hurt: 30, says: "El río te tuvo un momento, y se quedó con parte de ti." }, { set: "game.tension", add: 15 }] },
 
-  // La Campana cierra a las once; el tribunal se reúne a medianoche y se levanta a las seis.
+  // The Bell cierra a las once; el tribunal se reúne a medianoche y se levanta a las seis.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
     do: [{ say: "El señor Cotter hace sonar la campanilla de la barra. «Hora», dice, y el canto se corta en mitad de una palabra. Te encuentras en la calle con los demás, que se van en distintas direcciones por la niebla y no salen de ella." },
          { travel: "row" }, { describe: "$here" }] },
   { id: "bell_shuts", when: "at", at: "23:00", if: [{ "player.at": { in: ["row", "last_lamp", "pie_shop", "substation", "hut", "river_steps"] } }],
-    do: [{ say: "Calle arriba suena una campanilla en la Campana, y el canto se corta en mitad de una palabra. Lantern Row se queda callada, lo bastante para oír caer una palabra." }] },
-  // Lo que la imagen de la calle muestra: la ventana de la Campana se oscurece a las once y se enciende a las once de la mañana; las
+    do: [{ say: "Calle arriba suena una campanilla en The Bell, y el canto se corta en mitad de una palabra. Lantern Row se queda callada, lo bastante para oír caer una palabra." }] },
+  // Lo que la imagen de la calle muestra: la ventana de The Bell se oscurece a las once y se enciende a las once de la mañana; las
   // puertas del tribunal están abiertas de medianoche a las seis.
   { id: "bell_dark", when: "at", at: "23:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:0,4@0.2" }] }] },
   { id: "bell_lit", when: "at", at: "11:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:4,12@0.45" }] }] },
@@ -642,7 +642,7 @@ const rules = [
   { id: "fog_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 60 } }], once: true,
     do: [{ say: "La niebla está ya en tu abrigo, y en tus mangas. Entra con cada aliento y no sale con él." }] },
   { id: "fog_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 80 } }, { "game.fogWarned": false }],
-    do: [{ say: "Tienes el pecho lleno de niebla. Algo cálido ayudaría: una copa en la Campana, un pastel, un respiro fuera, en el puente. Cualquier cosa menos esperar." }, { set: "game.fogWarned", to: true }] },
+    do: [{ say: "Tienes el pecho lleno de niebla. Algo cálido ayudaría: una copa en The Bell, un pastel, un respiro fuera, en el puente. Cualquier cosa menos esperar." }, { set: "game.fogWarned", to: true }] },
   { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 80 } }, { "game.fogWarned": true }],
     do: [{ hurt: 20, says: "La niebla se te mete en los pulmones y se sienta, como si pensara quedarse." }] }
 ];
@@ -655,9 +655,9 @@ const puzzles = {
     hints: ["Su caseta está justo al este del último farol, y la llave encaja.", "Abre la puerta de la caseta con la llave, y ve al este."] },
   take_trumpet: { where: "hut", needs: ["open_hut"], solve: ["{take} trompetilla"], gives: ["trumpet"], clues: ["fenn", "pye"],
     hints: ["El señor Fenn escuchaba el gas con una vieja trompetilla. La guarda en su caseta.", "En la caseta, coge la trompetilla."] },
-  hear_words: { where: "last_lamp", needs: ["trumpet"], solve: ["espera hasta que cierre la Campana", "escucha la niebla"], gives: ["last_words"], clues: ["pye", "fenn", "trumpet", "cotter"],
-    hints: ["La niebla guarda lo que se dijo en ella, pero hace falta la trompetilla de un farolero para oírlo, y silencio. En la calle nunca hay silencio hasta que cierra la Campana, a las once.",
-            "Con la trompetilla de la caseta, espera junto al último farol hasta que cierre la Campana, y luego escucha la niebla."] },
+  hear_words: { where: "last_lamp", needs: ["trumpet"], solve: ["espera hasta que cierre The Bell", "escucha la niebla"], gives: ["last_words"], clues: ["pye", "fenn", "trumpet", "cotter"],
+    hints: ["La niebla guarda lo que se dijo en ella, pero hace falta la trompetilla de un farolero para oírlo, y silencio. En la calle nunca hay silencio hasta que cierra The Bell, a las once.",
+            "Con la trompetilla de la caseta, espera junto al último farol hasta que cierre The Bell, y luego escucha la niebla."] },
   open_court: { where: "row", needs: [], solve: ["espera hasta medianoche", "norte"], reaches: "court", clues: ["court_doors", "pye", "fenn"],
     hints: ["La investigación es a medianoche, en el tribunal, al norte de la calle.", "Espera en la calle hasta medianoche, y luego ve al norte, al tribunal."] },
   truth: { where: "court", needs: ["last_words", "open_court"], solve: ["da las palabras a Mabbott"], ending: true, clues: ["mabbott", "halloran", "pip", "logbook", "parapet"],
@@ -695,7 +695,7 @@ export default {
   facts: [
     "El jugador llega a Lantern Row, en Londres, en una niebla espesa, un jueves a las diez y media de la noche.",
     "Albert Fenn, farolero, murió esta noche bajo el único farol que no encendió, y sigue allí sentado, muerto, hasta que lo releven.",
-    "La investigación se celebra a medianoche en el tribunal del forense, al norte de la calle; la Campana cierra a las once.",
+    "La investigación se celebra a medianoche en el tribunal del forense, al norte de la calle; The Bell cierra a las once.",
     "Las palabras de la señora Halloran, «Déjalo, Albert. Siéntate un momento», cuelgan en la niebla del último farol."
   ],
   effects: [
