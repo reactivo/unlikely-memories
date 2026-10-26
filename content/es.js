@@ -312,7 +312,7 @@ export default {
       wake: ["despertar", "despierta", "despierte", "despertarse", "despiertate"],
       wait: ["esperar", "espera", "espere", "espero", "z", "aguardar", "aguarda", "quedarse", "quedate"],
       talk: ["hablar", "habla", "hable", "hablo", "hablar con", "habla con", "charlar", "charla", "conversar",
-             "saludar", "saluda", "salude", "hola"],
+             "saludar", "saluda", "salude", "hola", "platicar", "platica", "platique", "platico"],   // (platicar: lo escribe quien lo dice así)
       ask: ["preguntar", "pregunta", "pregunte", "pregunto", "consultar", "consulta", "interrogar", "interroga"],
       say: ["decir", "di", "diga", "digo", "contestar", "contesta", "responder", "responde", "susurrar", "susurra",
             "murmurar", "murmura"],
@@ -354,7 +354,34 @@ export default {
     invites: {
       in: ["entra", "entrar", "entras", "pasa dentro", "pasar dentro", "adentro", "métete", "metete", "meterte"],
       out: ["salir", "sal de", "sales de", "sal fuera", "salir fuera", "sálte"],
-      not: ["no", "nunca", "jamas", "jamás", "tampoco"]
+      not: ["no", "nunca", "jamas", "jamás", "tampoco"],
+      // Lo que va justo antes de un verbo que el texto ofrece («puedes nadar», «podrías remar»): el verificador avisa si lo que se
+      // ofrece es un decorado al que nada responde (js/check.js).
+      can: ["puedes", "podrías", "podrias", "podrás", "podras", "debes", "deberías", "deberias", "quieres"]
+    },
+    // El español de España es el del juego: lo que el juego escribe (descripciones, líneas, nombres, pistas, finales) lleva las palabras
+    // de la Península. `avoid`: palabras solo latinoamericanas; `prefer`: la de España para cada una. El verificador AVISA (nunca
+    // rechaza) cuando un mundo en español usa una de `avoid` (js/check.js, regionalWarnings). Se leen como todas las palabras del
+    // paquete (sin tildes, ñ = n), enteras. Lo que escribe el jugador no cambia: el intérprete entiende «agarra», «tomar»,
+    // «platica»… y las listas de palabras de cada mundo guardan las dos formas.
+    regional: {
+      avoid: ["carro", "carros", "boleto", "boletos", "platicar", "plática", "pláticas", "rentar", "celular", "celulares",
+              "computadora", "computadoras", "computador", "jugo", "jugos", "departamento", "departamentos", "manejar", "ahorita",
+              "lindo", "linda", "lindos", "lindas", "chévere", "estacionar", "estacionamiento", "elevador", "elevadores",
+              "frazada", "mesero", "mesera", "durazno", "frutilla", "palta", "frijol", "frijoles", "maní", "cacahuate",
+              "pollera", "remera", "chompa", "regadera", "recámara", "cajuela", "popote", "chamaco", "pibe", "bacán", "chido",
+              "chida", "órale", "ándale", "híjole", "enojarse", "enojado", "enojada", "vos"],
+      prefer: { carro: "coche", carros: "coches", boleto: "billete", boletos: "billetes", platicar: "charlar", plática: "charla",
+                pláticas: "charlas", rentar: "alquilar", celular: "móvil", celulares: "móviles", computadora: "ordenador",
+                computadoras: "ordenadores", computador: "ordenador", jugo: "zumo", jugos: "zumos", departamento: "piso",
+                departamentos: "pisos", manejar: "conducir", ahorita: "ahora mismo", lindo: "bonito", linda: "bonita",
+                lindos: "bonitos", lindas: "bonitas", chévere: "genial", estacionar: "aparcar", estacionamiento: "aparcamiento",
+                elevador: "ascensor", elevadores: "ascensores", frazada: "manta", mesero: "camarero", mesera: "camarera",
+                durazno: "melocotón", frutilla: "fresa", palta: "aguacate", frijol: "judía", frijoles: "judías", maní: "cacahuete",
+                cacahuate: "cacahuete", pollera: "falda", remera: "camiseta", chompa: "jersey", regadera: "ducha",
+                recámara: "dormitorio", cajuela: "maletero", popote: "pajita", chamaco: "chico", pibe: "chaval", bacán: "genial",
+                chido: "guay", chida: "guay", órale: "venga", ándale: "venga", híjole: "vaya", enojarse: "enfadarse",
+                enojado: "enfadado", enojada: "enfadada", vos: "tú" }
     },
     articles: ["el", "la", "los", "las", "un", "una", "unos", "unas", "mi", "mis"],
     preps: ["hasta", "a", "al", "de", "del", "en", "con", "sobre", "bajo", "hacia", "para", "por", "dentro", "contra"],

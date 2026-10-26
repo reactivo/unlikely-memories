@@ -318,7 +318,10 @@ export default {
     invites: {
       in: ["go in", "go inside", "step in", "step inside", "walk in", "come in", "get in", "get inside", "go into", "step into", "walk into", "enter"],
       out: ["go out", "go outside", "step out", "step outside", "walk out", "get out"],
-      not: ["not", "never", "dont", "don't", "cant", "can't", "cannot", "wont", "won't"]
+      not: ["not", "never", "dont", "don't", "cant", "can't", "cannot", "wont", "won't"],
+      // The words right before a verb the text offers ("you can swim", "you could row out"): the checker warns when what is offered
+      // is scenery that nothing answers (js/check.js, "A scenery noun with a verb that nothing answers").
+      can: ["you", "can", "could", "may", "might", "would", "should", "must", "will"]
     },
     articles: ["the", "a", "an", "some", "my"],
     preps: ["until", "till", "at", "on", "to", "in", "into", "with", "from", "under", "about", "of", "inside", "through", "for"],

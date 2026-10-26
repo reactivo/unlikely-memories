@@ -15,6 +15,11 @@
 // its overlays: the world file says what they look like, in its language (the room's `alt`; its `overlayAlt` for each overlay;
 // an ending's `add picture` `alt`), and the checker finds a picture that carries one, an ending with none and an overlay with none.
 //
+// Also, in what a world writes (BRIEF.md §6): every command in backticks in a text parses in the world's language and names something the
+// world has (commandProblems); a room's text that names one of its scenery nouns with an obvious verb nothing answers is warned of
+// (sceneryVerbWarnings); and a world written in a language whose pack lists regional words (`words.regional`: Spanish from Spain) is warned
+// of a word of the other region, with the preferred one (regionalWarnings).
+//
 // Also: an exit with a condition (`{ to, if, closed }`) is well formed, and can open: the playthrough waits for the hour
 // of a timed one, and a way no property or hour could ever open is warned of (neverOpen below).
 //
@@ -31,7 +36,7 @@
 //
 //   check(state, pack, bible?) → { ok, problems: [...], warnings: [...], endings: { id: [commands played] } }
 
-import { parse } from "./parser.js";
+import { parse, normalise } from "./parser.js";
 import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js";
 import { placeOf } from "./use.js";
 import { solveCommand } from "./narrator.js";
@@ -263,8 +268,11 @@ export function check(state, pack, bible) {
   }
 
   // Clock times the text names (GUIDE.md §3): each needs something in the world at that hour, or [time].
+  problems.push(...commandProblems(state, pack, arrived));
   warnings.push(...clockTimeWarnings(state, pack, arrived));
   warnings.push(...wayWarnings(state, pack, arrived));
+  warnings.push(...sceneryVerbWarnings(state, pack, arrived));
+  if (pack.words.regional) warnings.push(...regionalWarnings(state, pack, bible));
   warnings.push(...wordWarnings(state, pack));
   const never = neverHolds(state, arrived);
   warnings.push(...neverOpen(state, never, arrived, badExits));
@@ -635,8 +643,10 @@ function collectTexts(root, where, pack, out = []) {
     for (const [k, v] of Object.entries(node)) {
       if (NOT_TEXT.has(k)) continue;
       if (TEXT_KEYS.has(k)) {
-        const lines = [].concat(resolve(v)).flatMap(x => [].concat(resolve(x)));
-        for (const t of lines) if (typeof t === "string") out.push({ where, field: [...path, k].join("."), text: t });
+        for (const raw of [].concat(v)) {                  // (a "@key" is the language pack's own line, not the world's: marked `pack`)
+          const lines = [].concat(resolve(raw)).flatMap(x => [].concat(resolve(x)));
+          for (const t of lines) if (typeof t === "string") out.push({ where, field: [...path, k].join("."), text: t, ...(typeof raw === "string" && raw.startsWith("@") ? { pack: true } : {}) });
+        }
         if (v && typeof v === "object" && !Array.isArray(v)) walk(v, [...path, k]);
         else if (Array.isArray(v)) v.forEach(x => x && typeof x === "object" && walk(x, [...path, k]));
         continue;
@@ -691,6 +701,161 @@ function wayWarnings(state, pack, arrived) {
       const enterable = way === "in" && Object.values(arrived.world.objects).some(o => o.at === id && o.enterable);   // a boat to get into
       if (!hit || enterable || answers(id, [pack.words.dirs[way][0], ...(verb ? [verb] : [])])) continue;
       out.push(`${id} (${hit.field}): says "${hit.phrase}", but nothing in the room answers "${pack.words.dirs[way][0]}": mark the exit that goes ${way} \`${way}: true\` (or give the room an \`${way}\` exit)`);
+    }
+  }
+  return out;
+}
+
+// A text shortened to name it in a message.
+const shortText = (t) => { const x = String(t).replace(/\s+/g, " ").trim(); return x.length > 48 ? x.slice(0, 47) + "…" : x; };
+
+// ---- Commands written in the text -------------------------------------------------------------------------------------------
+// A command in backticks in a text the world writes (a description, a line said, a hint, an ending, a reply) becomes a clickable
+// command (WRITING-DIRECTION.md §9), so it must be one the game reads, in the world's language: understood by the parser, and
+// naming only what the world has. It is tried where the text is read (the room, or the thing's room); a thing that is only
+// shut away or elsewhere for now (the oars in the hut) doesn't count against it, so a command that is understood nowhere is
+// retried with everything in reach. A text from the language pack ("@help") is the pack's own and is left alone. Each problem
+// names the text, the command and why.
+function commandProblems(state, pack, arrived) {
+  const out = [], seen = new Set(), rooms = Object.keys(arrived.world.rooms);
+  const inRoom = (room) => ({ ...arrived, player: { ...arrived.player, at: room } });
+  // Everything in reach: each thing in the room, out of any container (a thing that is still shut away, or elsewhere, is not
+  // what a command is wrong about).
+  const reachAll = (room) => {
+    const s = structuredClone(inRoom(room));
+    for (const o of Object.values(s.world.objects)) o.at = room;
+    return s;
+  };
+  const read = (command, s) => {
+    const r = parse(command, s, pack);
+    if (r.actions || r.meta) return { ok: true };
+    const e = r.error || {};
+    if (e.scenery || e.say === "@which" || e.say === "@whoMean") return { ok: true };     // read: a scenery answers; the thing is only ambiguous
+    return { ok: false, error: e };
+  };
+  const NOT_HERE = ["@notHere", "@onlyMentioned", "@noIt", "@noPerson"];
+  const why = (e, command) => {
+    const arg = Array.isArray(e.arg) ? e.arg.join(" ") : e.arg;
+    if (e.say === "@unsure") return e.word ? `isn't understood: "${e.word}" is not a word the game knows in this language` : "isn't read as a command";
+    if (e.say === "@noVerb") return "starts with no verb the game knows";
+    if (e.say === "@whatTo") return `needs something to act on after "${arg ?? command}"`;
+    if (NOT_HERE.includes(e.say)) return `names ${arg ? `"${arg}"` : "a thing"}, which nothing in the world answers to (no object, scenery, part or room by that name)`;
+    return `isn't understood (${e.say})`;
+  };
+  for (const { where, field, text, pack: fromPack } of worldTexts(state, pack)) {
+    if (fromPack) continue;
+    for (const [, command] of String(text).matchAll(/`([^`]+)`/g)) {
+      const room = arrived.world.rooms[where] ? [where] : arrived.world.objects[where] && arrived.world.rooms[placeOf(arrived, where)] ? [placeOf(arrived, where)] : rooms;
+      let result = room.map(r => read(command, inRoom(r))).find(x => x.ok);
+      if (!result) {
+        const first = room.map(r => read(command, inRoom(r)))[0];
+        result = NOT_HERE.includes(first.error.say) ? room.map(r => read(command, reachAll(r))).find(x => x.ok) || first : first;
+      }
+      if (result.ok) continue;
+      const line = `${where} (${field}): the text "${shortText(text)}" offers the command \`${command}\`, which ${why(result.error, command)}`;
+      if (!seen.has(line)) { seen.add(line); out.push(line); }
+    }
+  }
+  return out;
+}
+
+// ---- A scenery noun with a verb that nothing answers -------------------------------------------------------------------------
+// A room's text (its description, and what each thing lying there says of itself) that offers a verb the game knows on one of the
+// room's scenery nouns ("you can row out to the boat": row; boat), when typing that gets nothing but the stock reply: scenery answers
+// only to being looked at, so unless the noun is also something the room can answer for (a thing, a part, a way it leads, or a
+// rule for the verb that names the scenery), the text invites what the game can't do. Offered means an obvious verb after a word
+// of the pack's `words.invites.can` ("you", "can", "could"…: "you can swim"; Spanish "puedes", "podrías"…), not a word that is
+// only spelt like a verb ("shut shops", "lift doors"), within a few words of the noun. The verbs are the pack's and the ones the
+// world adds; looking-type verbs (look, examine, read, search) are left out, since scenery has an answer for them. A warning, never
+// a problem: it names the room, the noun and the verb. Only the words the text itself uses; nothing is guessed beyond them.
+const PASSIVE = new Set(["look", "examine", "read", "search", "inventory", "time", "status", "help", "hint", "wait", "think"]);
+function sceneryVerbWarnings(state, pack, arrived) {
+  const g = pack.words.grammar || {}, norm = (x) => normalise(String(x), g), out = [], seen = new Set();
+  const can = new Set((pack.words.invites?.can || []).map(norm));
+  if (!can.size) return out;
+  const verbs = [];                           // { id, phrase, parts }, longest first
+  for (const [id, list] of [...Object.entries(pack.words.verbs), ...Object.entries(state.vocab || {}).map(([id, v]) => [id, v.words])]) {
+    if (PASSIVE.has(id)) continue;
+    for (const w of (list || []).map(norm).filter(w => w.length > 1)) verbs.push({ id, phrase: w, parts: w.split(" ") });
+  }
+  verbs.sort((a, b) => b.parts.length - a.parts.length);
+  const linkers = new Set([...(pack.words.articles || []), ...(pack.words.preps || [])].map(norm).concat(["out", "up", "off", "over", "down", "away", "fuera", "arriba", "abajo", "lejos"]));
+  const markup = (t) => String(t).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1").replace(/\[[^\]]*\]/g, " ");
+  for (const [roomId, room] of Object.entries(arrived.world.rooms)) {
+    // The room's scenery: what its text mentions without being a thing, and the things marked scenery that lie in it.
+    const scenery = [...(room.scenery || []).filter(x => Array.isArray(x.words)),
+      ...Object.entries(arrived.world.objects).filter(([oid, o]) => o.scenery && placeOf(arrived, oid) === roomId && o.words?.nouns?.length).map(([oid, o]) => ({ id: oid, words: o.words.nouns }))];
+    if (!scenery.length) continue;
+    const texts = [...(Array.isArray(room.describe) ? room.describe : []).filter(t => typeof t === "string" && !t.startsWith("@")).map(t => ({ field: "describe", text: t })),
+      ...Object.entries(arrived.world.objects).filter(([oid, o]) => placeOf(arrived, oid) === roomId && typeof o.here === "string" && !o.here.startsWith("@")).map(([oid, o]) => ({ field: `${oid} here`, text: o.here }))];
+    const there = { ...arrived, player: { ...arrived.player, at: roomId } };
+    for (const { field, text } of texts) for (const sentence of markup(text).split(/[.!?;:—–«»]+/)) {
+      const tokens = norm(sentence).replace(/[.,;]/g, " , ").split(/\s+/).filter(Boolean);
+      for (let i = 1; i < tokens.length; i++) {
+        if (!can.has(tokens[i - 1])) continue;
+        const v = verbs.find(p => p.parts.every((w, k) => tokens[i + k] === w));
+        if (!v) continue;
+        let content = 0;
+        for (let j = i + v.parts.length; j < tokens.length && j < i + v.parts.length + 5; j++) {
+          const noun = scenery.find(x => x.words.some(w => norm(w) === tokens[j]));
+          if (noun) {
+            const key = `${roomId} ${v.id} ${tokens[j]}`;
+            if (!seen.has(key) && !answeredByWorld(state, there, v, tokens[j], noun, pack)) {
+              seen.add(key);
+              out.push(`${roomId} (${field}): "${shortText(sentence)}" offers "${v.phrase}" with the scenery "${tokens[j]}", and nothing answers it: "${v.phrase} ${tokens[j]}" gets only the stock reply (give it a thing or a rule, or reword)`);
+            }
+            break;
+          }
+          if (tokens[j] === ",") break;
+          if (!linkers.has(tokens[j]) && ++content > 1) break;
+        }
+      }
+    }
+  }
+  return out;
+}
+// Does the world answer "verb noun" in this room: a thing or part that really answers it (not the stock reply), the way a scenery
+// leads, or a rule for that verb that names the scenery (`match.scenery`: using something on it)?
+function answeredByWorld(state, there, v, word, scenery, pack) {
+  const r = parse(`${v.phrase} ${word}`, there, pack);
+  if (r.actions) return answered(there, r.actions).meaningful;
+  if (!r.error?.scenery) return true;                                       // not understood as scenery: another warning's business
+  const ids = [scenery.id, scenery.words[0]].filter(Boolean);
+  return state.rules.some(rule => {
+    const m = rule.match || {};
+    return (rule.when || "action") === "action" && [].concat(m.verb ?? []).includes(v.id) && [].concat(m.scenery ?? []).some(x => ids.includes(x));
+  });
+}
+
+// ---- Words of the other region ----------------------------------------------------------------------------------------------
+// A pack may list the words of one region of its language to avoid, with the one to prefer (`words.regional: { avoid: [word…],
+// prefer: { word: the other } }`: Spanish from Spain avoids Latin American words, "carro" for "coche"). Every text a world is
+// written in (what it says, the names and labels shown, the descriptions for screen readers, the card's title and blurb) is read
+// word by word, folded like the pack's own words; a hit is a warning naming the word, where, and the word to say instead. Only the
+// game's own text: what the player types is understood either way, and a world's word lists keep both forms.
+function regionalWarnings(state, pack, bible) {
+  const r = pack.words.regional, g = pack.words.grammar || {}, norm = (x) => normalise(String(x), g);
+  const avoid = new Map((r.avoid || []).map(w => [norm(w), w])), prefer = Object.fromEntries(Object.entries(r.prefer || {}).map(([k, v]) => [norm(k), v]));
+  const shown = [];                                   // names, labels and descriptions: what is shown but isn't one of the texts above
+  const SKIP = new Set(["picture", "draw", "words", "mentions", "sprite", "floorSprite", "if", "match", "id", "solve"]);
+  const walk = (node, where, field, text) => {
+    if (typeof node === "string") { if (text) shown.push({ where, field, text: node }); return; }
+    if (Array.isArray(node)) return node.forEach(x => walk(x, where, field, text));
+    if (!node || typeof node !== "object") return;
+    for (const [k, v] of Object.entries(node)) if (!SKIP.has(k)) walk(v, where, text ? field : k, text || ["name", "label", "alt", "overlayAlt"].includes(k));
+  };
+  for (const [id, x] of Object.entries(state.world.rooms)) walk(x, id, "", false);
+  for (const [id, x] of Object.entries(state.world.objects)) walk(x, id, "", false);
+  for (const [id, x] of Object.entries(state.pictures || {})) walk({ alt: x?.alt }, "pictures/" + id, "", false);
+  for (const k of ["title", "blurb"]) if (typeof bible?.[k] === "string") shown.push({ where: "bible", field: k, text: bible[k] });
+  const out = [], seen = new Set();
+  for (const { where, field, text, pack: fromPack } of [...worldTexts(state, pack), ...shown]) {
+    if (fromPack) continue;
+    const plain = String(text).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1").replace(/\[[^\]]*\]/g, " ");
+    for (const token of norm(plain).split(" ")) {
+      if (!avoid.has(token)) continue;
+      const line = `${where} (${field}): uses "${avoid.get(token)}", a word of another region of this language${prefer[token] ? `; the pack prefers "${prefer[token]}"` : ""}`;
+      if (!seen.has(line)) { seen.add(line); out.push(line); }
     }
   }
   return out;
@@ -800,7 +965,7 @@ function checkOpening(state, pack) {
   if (why.length) return why;
   const problems = [], { restart: R, hints: H, intro: I, way: W, room: roomId, lines } = d;
   const objects = state.world.objects, rooms = state.world.rooms, room = rooms[roomId];
-  const noun = (id) => objects[id].words.nouns[0], low = (list) => (list || []).map(x => String(x).toLowerCase());
+  const noun = (id) => objects[id].words.nouns[0];
 
   // Its room: in an area of its own, never returned to, and nothing else to take.
   for (const [id, r] of Object.entries(rooms)) {
@@ -808,24 +973,48 @@ function checkOpening(state, pack) {
     for (const [dir, to] of Object.entries(r.exits || {}))
       if (exitTo(to) === roomId) problems.push(`${id} has an exit ${dir} back to the opening room: it is never returned to`);
   }
-  for (const [dir, to] of Object.entries(room.exits || {}))
-    if (typeof exitTo(to) === "string") problems.push(`the opening room has an exit ${dir} to ${to}: its only way on is the way on`);
+  // A closed place (BRIEF.md §3): the way on is the only way out. No exit to an open area (a room), and no second way on: every
+  // other exit is `false` or absent. Nor a thing that leads somewhere else (stairs, a path: `leads`), here or as scenery.
+  const onDir = opening.direction(state, d);
+  for (const [dir, to] of Object.entries(room.exits || {})) {
+    if (dir === onDir || to === false || to === undefined || to === null) continue;
+    if (typeof exitTo(to) === "string") problems.push(`the opening room has an exit ${dir} to ${exitTo(to)}, an open area: the opening is a closed place, and its only way on is the way on (BRIEF.md §3)`);
+    else problems.push(`the opening room has a second way on, ${dir}: a closed place has one way on, the one that closes behind you (BRIEF.md §3)`);
+  }
+  for (const [oid, o] of Object.entries(objects))
+    if (o.leads && o.leads !== onDir && o.at === roomId && oid !== W) problems.push(`"${oid}" in the opening room leads ${o.leads}: a second way out of a closed place (BRIEF.md §3)`);
+  for (const x of room.scenery || [])
+    if (x.leads && x.leads !== onDir) problems.push(`the opening room's scenery "${x.name ?? x.words?.[0]}" leads ${x.leads}: a second way out of a closed place (BRIEF.md §3)`);
   for (const [id, o] of Object.entries(objects))
     if ((o.at === roomId || o.at === "player") && o.portable && ![R, H, I].includes(id))
       problems.push(`"${id}" can be taken in the opening: only the restart and hints things can be (the intro is carried)`);
   if (state.tension !== 0) problems.push("the opening has no tension");
   if (!state.puzzles.opening_way) problems.push("the opening's own steps aren't among the puzzles");
 
-  // The three things' words: nothing else in the world answers to them (the way's: nothing else in its room).
-  const words = (id) => low(objects[id].words.nouns);
-  const users = (id, only) => [
-    ...Object.entries(objects).filter(([oid, o]) => oid !== id && (!only || o.at === roomId))
-      .flatMap(([oid, o]) => [...low(o.words?.nouns).map(w => [w, oid]), ...(o.parts || []).flatMap(x => low(x.words).map(w => [w, oid + " (a part)"]))]),
+  // Every thing in the opening has its own nouns (BRIEF.md §3): a word that names two things there is a clash, and so is a word of
+  // the three things that names anything else in the world (the way's: anything else in its own room). Things are the objects in
+  // the room or carried, their parts, and the room's scenery; each is told apart in the message by id and kind, so one can be renamed.
+  const fold = (list) => (list || []).map(x => normalise(String(x), pack.words.grammar));
+  const kindOf = (id) => objects[id].at === "player" ? "carried" : objects[id].scenery ? "scenery" : "an object";
+  const things = (only) => [
+    ...Object.entries(objects).filter(([, o]) => !only || o.at === roomId || o.at === "player")
+      .map(([oid, o]) => ({ id: oid, owner: oid, label: `"${oid}" (${kindOf(oid)})`, words: fold(o.words?.nouns) })),
+    ...Object.entries(objects).filter(([oid, o]) => !only || o.at === roomId || o.at === "player")
+      .flatMap(([oid, o]) => (o.parts || []).map(x => ({ id: null, owner: oid, label: `the part "${x.name ?? x.words?.[0]}" of "${oid}" (part)`, words: fold(x.words) }))),
     ...Object.entries(rooms).filter(([rid]) => !only || rid === roomId)
-      .flatMap(([rid, r]) => (r.scenery || []).flatMap(x => low(x.words).map(w => [w, rid + "'s scenery"])))];
-  for (const [k, id] of [["restart", R], ["hints", H], ["intro", I], ["way", W]])
-    for (const w of words(id)) for (const [x, who] of users(id, k === "way"))
-      if (x === w) problems.push(`"${w}", a word of the ${k} thing "${id}", is also a word of ${who}`);
+      .flatMap(([rid, r]) => (r.scenery || []).map(x => ({ id: null, owner: rid, label: `the scenery "${x.name ?? x.words?.[0]}" of room "${rid}" (scenery)`, words: fold(x.words) })))];
+  const MAIN = [["restart", R], ["hints", H], ["intro", I], ["way", W]], clash = new Set();
+  const name = (id) => `the ${MAIN.find(([, x]) => x === id)[0]} thing "${id}" (${kindOf(id)})`;
+  const report = (w, x, y, text) => {
+    const key = [w, x, y].sort().join("|");
+    if (!clash.has(key)) { clash.add(key); problems.push(`"${w}" names two things${text}: ${x} and ${y}; rename one of them, so each thing has its own word`); }
+  };
+  for (const [k, id] of MAIN)                                          // a word of one of the four: nothing else answers to it
+    for (const w of fold(objects[id].words.nouns)) for (const x of things(k === "way"))
+      if (!(x.id === id) && x.words.includes(w)) report(w, name(id), x.label, "");
+  const inside = things(true).filter(x => !MAIN.some(([, id]) => x.id === id));   // the others: their parts, the room's scenery, the rest
+  for (let a = 0; a < inside.length; a++) for (let b = a + 1; b < inside.length; b++)
+    for (const w of inside[a].words) if (inside[b].words.includes(w)) report(w, inside[a].label, inside[b].label, " in the opening");
 
   // Play it from its start.
   if (state.player.at !== roomId) return [...problems, "the opening has to be checked from its start: the player isn't in its room"];
