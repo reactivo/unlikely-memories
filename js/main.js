@@ -7,7 +7,7 @@ import en from "../content/en.js";
 import es from "../content/es.js";
 import { newState, FORMAT } from "./state.js";
 import { step, nextDue, ask } from "./engine.js";
-import { parse, normalise } from "./parser.js";
+import { parse, normalise, retype } from "./parser.js";
 import { tell, describe, text, listName, placeOf } from "./narrator.js";
 import { parts } from "./time.js";
 import * as saves from "./saves.js";
@@ -233,7 +233,7 @@ function problem(error, raw) {
   if (error.which) pendingWhich = error.which;           // the next input may be the answer
   if (error.word) lastUnknown = error.word;
   say(text(vary(error.say, pack), pack, arg), error.style || "");
-  if (error.didYouMean) say(text("@didYouMean", pack, normalise(raw, pack.words.grammar).replace(error.word, error.didYouMean)), "sys");
+  if (error.didYouMean) say(text("@didYouMean", pack, retype(raw, error.word, error.didYouMean, pack.words.grammar)), "sys");
 }
 
 // One of a pack entry's phrasings ("@unsure" → "@unsure.2"): the next one in turn, so never the same twice in a

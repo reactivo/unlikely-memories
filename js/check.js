@@ -807,7 +807,7 @@ function checkOpening(state, pack) {
   };
   const said = (r) => r.applied.filter(e => e.say).map(e => e.say);
   const holding = (...ids) => { const s = structuredClone(state); for (const id of ids) { s.world.objects[id].at = "player"; s.player.carrying.push(id); } return s; };
-  for (const command of [v.enter[0] + " " + noun(W), v.go[0] + " " + pack.words.dirs[dir][0]]) {
+  for (const command of [solveCommand("{enter+} " + noun(W), pack), v.go[0] + " " + pack.words.dirs[dir][0]]) {   // (the hint's own words)
     for (const [have, line, label] of [[[], "notYet", "with neither thing"], [[R], "notYetHints", "without the hints thing"], [[H], "notYetRestart", "without the restart thing"]]) {
       const r = type(holding(...have), command);
       if (!said(r).includes(lines[line])) problems.push(`"${command}" ${label} doesn't say the "${line}" line${r.error ? ` (not understood: ${r.error})` : ""}`);

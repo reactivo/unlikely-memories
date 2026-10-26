@@ -44,9 +44,14 @@ function hintText(e, pack) {
 }
 
 // A command that solves a puzzle, in this game's language. It may start with a verb in braces, "{take} tin": the pack's
-// first word for that verb stands in its place ("coge tin"). Any other command is returned as it is.
+// first word for that verb stands in its place ("coge tin"). "{enter+} door" puts the word the verb takes before its
+// object after it too, if the pack has one (`grammar.verbPreps`: Spanish "entrar en puerta"; English none: "enter door").
+// Any other command is returned as it is.
 export function solveCommand(command, pack) {
-  return String(command).replace(/^\{(\w+)\}/, (whole, verb) => pack.words.verbs[verb]?.[0] ?? whole);
+  return String(command).replace(/^\{(\w+)(\+?)\}/, (whole, verb, plus) => {
+    const word = pack.words.verbs[verb]?.[0], prep = plus && pack.words.grammar?.verbPreps?.[verb];
+    return word === undefined ? whole : prep ? word + " " + prep : word;
+  });
 }
 
 // A room's description: its paragraphs, then a line for each object lying there that has one (`here`).

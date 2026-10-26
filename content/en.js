@@ -330,7 +330,7 @@ export default {
     pronouns: { it: { pl: false }, them: { pl: true }, him: { g: "m", person: true }, her: { g: "f", person: true } },
     // What's particular to English when reading (js/parser.js). A new language sets these for itself.
     grammar: {
-      keep: [],                                    // letters kept when accents are taken off
+      fold: {},                                    // what a keyboard without a letter types for it ({ "ß": "ss" }), read before accents come off: none
       elisions: {},                                // short forms written out in full before reading
       secondObject: ["with", "in", "into", "on", "to", "at", "about", "through", "for"],   // "unlock door WITH key"
       fromWords: ["from", "out of"],               // "take letter FROM bottle": where a thing is taken out of
@@ -338,6 +338,8 @@ export default {
       speechTo: ["to", "at"],                      // who words are said to: "say hello TO the waiter"
       oneWords: ["one", "ones"],                   // "the iron ONE": answers "Which do you mean?" without naming anything
       contractions: {},                            // words written out in full right after the verb (Spanish al, del): none
+      verbPreps: {},                               // what a verb takes before its object, in hints (`{enter+}`): none ("enter door" reads fine)
+      nameParts: [],                               // prepositions that can be part of a name ("butaca DEL pasillo"): none
       lowerNames: true,                            // names in a sentence start in lower case ("tin of mints"); German: false
       gender: false                                // things have no gender (`words.g`) to agree with: the standard replies ignore it
     },

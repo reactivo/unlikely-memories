@@ -20,22 +20,39 @@ import { exitTo, wayFor } from "./exits.js";
 import { placeOf, shut } from "./use.js";
 import { distance } from "./fields.js";
 
-// Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from
-// its pack's grammar (words.grammar): the letters it keeps (Spanish ñ), its elisions written out in full (French
-// "l'oiseau" → "le oiseau").
+// Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
+// grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
+// without a letter types for it (`fold`: German { "ß": "ss", "ä": "ae" }), applied before the accents come off. A letter
+// with no fold just loses its accent, so Spanish "ñ" reads as "n": "enseña" and "ensena" are the same word. Typed input and
+// every word list (the pack's, the world's) go through this, so they always meet.
 export function normalise(text, grammar = {}) {
-  let t = text.toLowerCase().replace(/[‘’]/g, "'");
+  let t = text.toLowerCase().replace(/[‘’]/g, "'").normalize("NFC");
   // (an apostrophe inside a word goes, after the language's elisions: "clockmaker's" → "clockmakers")
   for (const [short, full] of Object.entries(grammar.elisions || {}))
     t = t.replace(new RegExp("(^|[\\s.,;])" + short.replace(/'/g, "'"), "g"), "$1" + full + " ");
   t = t.replace(/(\p{L})'(\p{L})/gu, "$1$2");
-  const keep = grammar.keep || [];
-  keep.forEach((ch, i) => { t = t.replaceAll(ch, String.fromCharCode(0xE000 + i)); });   // set kept letters aside
+  for (const [letter, typed] of Object.entries(grammar.fold || {})) t = t.replaceAll(letter.toLowerCase().normalize("NFC"), typed);
   t = t.normalize("NFD").replace(/[̀-ͯ]/g, "");
-  keep.forEach((ch, i) => { t = t.replaceAll(String.fromCharCode(0xE000 + i), ch); });
   return t.replace(/[¿¡!?"'«»“”()]/g, " ")
     .replace(/([.,;])/g, " $1 ")
     .replace(/\s+/g, " ").trim();
+}
+
+// The spelling the player sees. Matching works on folded words ("senor"), but what is shown back keeps the original
+// ("señor"): `note` records, for each word of a text that normalising changes, how it was written (folded → original).
+function note(into, text, grammar) {
+  for (const piece of String(text).toLowerCase().split(/\s+/)) {
+    const folded = normalise(piece, grammar);
+    if (folded && folded !== piece && !folded.includes(" ")) into.set(folded, into.get(folded) ?? piece);
+  }
+}
+const show = (tokens, W) => tokens.map(t => W.shown.get(t) ?? t).join(" ");
+
+// The player's own text with one word put right, in the spelling they typed ("¿Querías decir…?"): the unknown word (as
+// parse() reports it, normalised) is replaced by the suggestion, as the pack or the world writes it.
+export function retype(raw, word, fix, grammar = {}) {
+  let done = false;
+  return raw.toLowerCase().replace(/[\p{L}\p{M}\p{N}'’]+/gu, w => (!done && normalise(w, grammar) === word ? ((done = true), fix) : w)).trim();
 }
 
 // Read what you typed. A "did you mean…?" is only offered when the corrected command would be understood here: each
@@ -58,11 +75,13 @@ export function parse(text, state, words, seen = "", which = null) {
     return o.clear ? a.works : a.meaningful;
   };
   const fix = options.find(offers);
-  return { error: { ...error, didYouMean: fix?.word || null } };
+  const shown = vocabulary(withWorld(words, state)).shown;           // the suggestion as it is written, not folded ("enseñar")
+  return { error: { ...error, didYouMean: fix ? shown.get(fix.word) ?? fix.word : null } };
 }
 
 function read(text, state, words, seen = "", which = null, picks = []) {
-  const W = { ...vocabulary(withWorld(words, state)), seen: seenWords(seen, words.words.grammar), picks };
+  const V = vocabulary(withWorld(words, state)), seenShown = new Map();
+  const W = { ...V, seen: seenWords(seen, words.words.grammar, seenShown), picks, shown: new Map([...V.shown, ...seenShown]) };
   const tokens = normalise(text, words.words.grammar).split(" ").filter(Boolean);
 
   // Layer 0: a waiting question reads the input as its answer first.
@@ -124,9 +143,11 @@ function quits(meta, tokens, W) {
 }
 
 // The words of what was just shown, markup out ({label|id} → label, `Command` → Command).
-function seenWords(seen, grammar) {
+function seenWords(seen, grammar, shown = new Map()) {
   if (!seen) return new Set();
-  return new Set(normalise(seen.replace(/\{([^|}]*)(\|[^}]*)?\}/g, "$1").replace(/`/g, ""), grammar).split(" "));
+  const plain = seen.replace(/\{([^|}]*)(\|[^}]*)?\}/g, "$1").replace(/`/g, "");
+  note(shown, plain.replace(/[.,;:¿¡!?"«»“”()]/g, " "), grammar);
+  return new Set(normalise(plain, grammar).split(" "));
 }
 
 // ---- Vocabulary ---------------------------------------------------------------------------------------
@@ -135,27 +156,27 @@ function seenWords(seen, grammar) {
 // world adds nothing new, so the vocabulary cache keeps working.
 const merged = new WeakMap();
 function withWorld(words, state) {
-  const names = {}, scenery = {}, verbs = {}, parts = {};
-  // The world's words are read the way typed words are (accents, apostrophes, capitals), so "Inés" or
-  // "clockmaker's" in a world still matches what the player types.
-  const g = words.words.grammar, norm = (list) => (list || []).map(w => normalise(String(w), g));
+  const names = {}, scenery = {}, verbs = {}, parts = {}, shown = new Map();
+  // The world's words are read the way typed words are (accents, folded letters, apostrophes, capitals), so "Inés" or
+  // "clockmaker's" in a world still matches what the player types (and what comes back to them is as the world wrote it).
+  const g = words.words.grammar, norm = (list) => (list || []).map(w => { note(shown, w, g); return normalise(String(w), g); });
   const normWords = (x) => ({ ...x, words: norm(x.words) });
   const topics = {}, roomNames = {};
   for (const [id, r] of Object.entries(state.world.rooms))           // rooms by name: "hotel" for HOTEL MIRAMAR
-    if (typeof r.name === "string" && !r.name.startsWith("@")) roomNames[id] = normalise(r.name, words.words.grammar).split(" ");
+    if (typeof r.name === "string" && !r.name.startsWith("@")) { note(shown, r.name, g); roomNames[id] = normalise(r.name, g).split(" "); }
   for (const [id, o] of Object.entries(state.world.objects)) {
     if (o.words) names[id] = { ...o.words, nouns: norm(o.words.nouns), adj: norm(o.words.adj) };
     if (o.topics) topics[id] = Object.fromEntries(Object.entries(o.topics).map(([k, v]) => [k, typeof v === "object" ? normWords(v) : v]));
     if (o.parts) parts[id] = o.parts.map(normWords);
   }
   for (const [id, r] of Object.entries(state.world.rooms)) if (r.scenery) scenery[id] = r.scenery.map(normWords);
-  for (const [verb, v] of Object.entries(state.vocab || {})) verbs[verb] = v.words;
+  for (const [verb, v] of Object.entries(state.vocab || {})) verbs[verb] = norm(v.words);
   const key = JSON.stringify([names, scenery, verbs, topics, roomNames, parts]);
   if (key === "[{},{},{},{},{},{}]") return words;
   const seen = merged.get(words);
   if (seen && seen.key === key) return seen.value;
   const value = { ...words, names: { ...words.names, ...names }, scenery: { ...words.scenery, ...scenery }, topics, roomNames, parts,
-                  words: { ...words.words, verbs: { ...words.words.verbs, ...verbs } } };
+                  shown: Object.fromEntries(shown), words: { ...words.words, verbs: { ...words.words.verbs, ...verbs } } };
   merged.set(words, { key, value });
   return value;
 }
@@ -164,7 +185,23 @@ function withWorld(words, state) {
 const cache = new WeakMap();
 function vocabulary(words) {
   if (cache.has(words)) return cache.get(words);
-  const w = words.words;
+  const w0 = words.words, g = w0.grammar || {};
+  // The pack's words are read like typed ones (accents, folded letters), so a pack may write its words as they are
+  // spelt ("enseñar") and still meet what a keyboard without that letter types.
+  const nl = (list) => (list || []).map(x => normalise(x, g));
+  const nm = (map) => Object.fromEntries(Object.entries(map || {}).map(([k, list]) => [k, nl(list)]));
+  const keys = (map, f = (x) => x) => Object.fromEntries(Object.entries(map || {}).map(([k, x]) => [normalise(k, g), f(x)]));
+  const a = g.attached;
+  const w = { ...w0, verbs: nm(w0.verbs), meta: nm(w0.meta), dirs: nm(w0.dirs), articles: nl(w0.articles), preps: nl(w0.preps),
+    and: nl(w0.and), then: nl(w0.then), it: nl(w0.it), yes: nl(w0.yes), no: nl(w0.no), pronouns: keys(w0.pronouns),
+    restart: nl(w0.restart), filler: w0.filler && { start: nl(w0.filler.start), end: nl(w0.filler.end) },
+    grammar: { ...g, secondObject: nl(g.secondObject), fromWords: nl(g.fromWords), speechTo: nl(g.speechTo), oneWords: nl(g.oneWords),
+               nameParts: nl(g.nameParts), contractions: keys(g.contractions, nl),
+               attached: a && { ...a, forms: nl(a.forms), verbEndings: nl(a.verbEndings),
+                                pairs: keys(a.pairs, (p) => ({ person: normalise(p.person, g), thing: normalise(p.thing, g) })),
+                                doubling: a.doubling && { forms: nl(a.doubling.forms), preps: nl(a.doubling.preps) } } } };
+  const shown = new Map();
+  for (const list of Object.values(w0.verbs)) for (const word of list) note(shown, word, g);
   const phrases = (map) => Object.entries(map).flatMap(([id, list]) => list.map(p => ({ id, parts: p.split(" ") })))
                                                .sort((a, b) => b.parts.length - a.parts.length);   // longest first
   const v = {
@@ -177,6 +214,7 @@ function vocabulary(words) {
     restart: phrases({ r: w.restart || [] }),         // "begin again", "new game": a command only after the end
     one: new Set(w.grammar?.oneWords || []),          // "the iron ONE": stands for the thing, names nothing
     contractions: w.grammar?.contractions || {},      // Spanish "al" → "a el", read right after the verb
+    nameParts: new Set(w.grammar?.nameParts || []),   // prepositions that can be part of a name ("butaca DEL pasillo")
     fillerStart: phrases({ f: w.filler?.start || [] }), fillerEnd: phrases({ f: w.filler?.end || [] }),
     punct: new Set([".", ",", ";"]),
     names: words.names || {},
@@ -185,7 +223,8 @@ function vocabulary(words) {
     topicWords: [],
     scenery: words.scenery || {},
     parts: words.parts || {},                     // things an object's lines mention: { objectId: [{ words, name, says? }] }
-    verbWord: Object.fromEntries(Object.entries(w.verbs).map(([id, list]) => [id, list[0]]))   // "take" → "take"
+    shown: new Map([...shown, ...Object.entries(words.shown || {})]),   // how the words that normalising changes were written
+    verbWord: Object.fromEntries(Object.entries(w0.verbs).map(([id, list]) => [id, list[0]]))   // "take" → "take", as the pack writes it
   };
   v.topicWords = Object.values(words.topics || {}).flatMap(t => Object.values(t).flatMap(x => x.words || []));
   v.known = new Set([...v.verbs, ...v.meta, ...v.dirs, ...v.fillerStart, ...v.fillerEnd].flatMap(p => p.parts).concat(v.topicWords, Object.values(v.roomNames).flat())
@@ -263,7 +302,9 @@ function splitEnclitic(token, W) {
     return v ? { verb: v.id, pronoun: p } : null;
   }
   if (!a.joined) return null;
-  for (const e of a.forms) {
+  // The shortest pronoun first: "probarsela" is "probarse" + "la" (to try on), not "probar" + "sela" (to taste); "dáselo" has no
+  // verb "dase", so it is "da" + "selo".
+  for (const e of [...a.forms].sort((x, y) => x.length - y.length)) {
     if (token.length <= e.length + 1 || !token.endsWith(e)) continue;
     const v = verbOf(token.slice(0, -e.length));
     if (v) return { verb: v.id, pronoun: e };
@@ -300,7 +341,7 @@ function readCommand(tokens, state, W, words, recent) {
 
   // The verb first, with its articles still in place ("dar un golpe", "dar la vuelta" are phrases).
   const v = matchPhrase(tokens, 0, W.verbs);
-  if (v) { verb = v.id; verbText = tokens.slice(0, v.len).join(" "); rest = tokens.slice(v.len); }
+  if (v) { verb = v.id; verbText = show(tokens.slice(0, v.len), W); rest = tokens.slice(v.len); }
   else {
     const enc = splitEnclitic(tokens[0], W);
     if (enc) { verb = enc.verb; verbText = W.verbWord[enc.verb]; pronoun = enc.pronoun; rest = tokens.slice(1); }
@@ -377,7 +418,7 @@ function readCommand(tokens, state, W, words, recent) {
   }
 
   // The object(s): noun phrases joined by "and"; a preposition can introduce a second object ("with key").
-  const objs = [], phrases = splitPhrases(rest, W, !!pronoun);
+  const objs = [], phrases = splitPhrases(rest, W, !!pronoun, (ws) => namesOne(ws, state, W));
   // Asking with no one named ("ask about the umbrella", "pregunta por la llave"): it goes to whoever you're talking
   // to, or the only one here with something to say.
   if (verb === "ask" && !pronoun && phrases.length) {
@@ -480,22 +521,48 @@ function readSpeech(verb, words, pronoun, state, W, recent) {
 // Split the words after the verb into noun phrases: on "and"/","; a preposition after a first object starts a
 // second one ("unlock door with key"); prepositions before the first object are dropped ("look at", "knock on").
 // hasFirst: the first object came attached to the verb ("pregúntale POR el faro": le, then a second object).
-function splitPhrases(tokens, W, hasFirst = false) {
+// A contraction (Spanish "al", "del") that brings in a second object is kept as the words it stands for ("a", "de"), so
+// "da la caracola al administrador" reads like "da la caracola a el administrador". One that can be part of a name (the
+// pack's `nameParts`: "del") stays in it when the words around it are one name ("la butaca del pasillo": `names` says
+// whether these words, all together, name a thing).
+function splitPhrases(tokens, W, hasFirst = false, names = () => false) {
   const out = [];
   let cur = { words: [], prep: null };
-  for (const t of tokens) {
-    if (W.and.has(t)) { if (cur.words.length) out.push(cur); cur = { words: [], prep: null }; continue; }
+  tokens.forEach((t, i) => {
+    if (W.and.has(t)) { if (cur.words.length) out.push(cur); cur = { words: [], prep: null }; return; }
     if (W.preps.has(t)) {
-      const first = !cur.words.length && !out.length;
-      if (first && hasFirst && W.secondObject.has(t)) { cur.prep = t; continue; }
-      if (first) continue;                                                // "look at door"
-      if (cur.words.length && W.secondObject.has(t)) { out.push(cur); cur = { words: [], prep: t }; continue; }
-      continue;                                                           // "caja de pastillas": part of the name
+      const first = !cur.words.length && !out.length, written = W.contractions[t]?.[0] ?? t;
+      if (first && hasFirst && W.secondObject.has(t)) { cur.prep = written; return; }
+      if (first) return;                                                  // "look at door"
+      if (cur.words.length && W.secondObject.has(t)) {
+        if (W.nameParts.has(t)) {                                         // "butaca del pasillo": one name, not two things
+          const end = tokens.findIndex((x, j) => j > i && (W.preps.has(x) || W.and.has(x)));
+          if (names([...cur.words, ...tokens.slice(i + 1, end < 0 ? tokens.length : end)])) return;
+        }
+        out.push(cur); cur = { words: [], prep: written };
+      }
+      return;                                                             // "caja de pastillas": part of the name
     }
     cur.words.push(t);
-  }
+  });
   if (cur.words.length) out.push(cur);
   return out;
+}
+
+// Do these words fit this thing's names: one of its nouns among them, and all of them its nouns or adjectives?
+function fitsName(n, words) {
+  if (!n) return false;
+  const nouns = new Set(n.nouns || []), adj = new Set(n.adj || []);
+  return words.some(w => nouns.has(w)) && words.every(w => nouns.has(w) || adj.has(w));
+}
+
+// Do these words, all together, name one thing (anywhere), scenery here, or a neighbouring room? "butaca pasillo" does, for
+// "la butaca del pasillo", and "escalera rio" for "ir a la escalera del río", so the "del" isn't taken for a second object.
+function namesOne(phrase, state, W) {
+  const words = phrase.filter(w => !W.preps.has(w));
+  if (words.length < 2 || words.some(w => !W.known.has(w))) return false;
+  return Object.keys(state.world.objects).some(id => fitsName(W.names[id], words)) ||
+         sceneryHere(state, W).some(s => words.every(w => s.words.includes(w))) || !!neighbourNamed(words, state, W);
 }
 
 // Which object do these words name? Only things in scope (here, carried, or inside those). first: these are the
@@ -530,13 +597,9 @@ function topicOf(phrase, topics, W) {
 function resolve(phrase, state, W, first, absentOK = false, verb = null) {
   const words = phrase.filter(w => !W.preps.has(w));
   const unknown = words.find(w => !W.known.has(w));
-  if (unknown && W.seen.has(unknown) && !(first && unknown === words[0])) return { error: { say: "@onlyMentioned", arg: words.join(" ") } };
+  if (unknown && W.seen.has(unknown) && !(first && unknown === words[0])) return { error: { say: "@onlyMentioned", arg: show(words, W) } };
   if (unknown) return { error: suggestion(unknown, W, first && unknown === words[0] ? W.verbWords : wordsHere(state, W)) };
-  const fits = (id) => {
-    const n = W.names[id]; if (!n) return false;
-    const nouns = new Set(n.nouns || []), adj = new Set(n.adj || []);
-    return words.some(w => nouns.has(w)) && words.every(w => nouns.has(w) || adj.has(w));
-  };
+  const fits = (id) => fitsName(W.names[id], words);
   const matches = Object.keys(state.world.objects).filter(id => fits(id));
   const here = matches.filter(id => inScope(state, id));
   if (here.length === 1) return { id: here[0], ...leadsOf(state.world.objects[here[0]]) };
@@ -554,8 +617,8 @@ function resolve(phrase, state, W, first, absentOK = false, verb = null) {
     if (free.length === 1) return { id: free[0], ...leadsOf(state.world.objects[free[0]]) };
     return { error: { say: "@which", arg: here, phrase: words.join(" ") } };
   }
-  if (W.seen.has(words.at(-1))) return { error: { say: "@onlyMentioned", arg: words.join(" ") } };   // just read about
-  return { error: { say: "@notHere", arg: phrase.join(" ") } };
+  if (W.seen.has(words.at(-1))) return { error: { say: "@onlyMentioned", arg: show(words, W) } };   // just read about
+  return { error: { say: "@notHere", arg: show(phrase, W) } };
 }
 
 // What's mentioned here but not there to use: the room's scenery, and the parts of things in reach (the key in

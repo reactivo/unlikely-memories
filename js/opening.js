@@ -103,7 +103,7 @@ export function puzzles(g, d) {
   return {
     opening_take_restart: { where: room, needs: [], solve: ["{take} " + noun(g, R)], gives: [R], clues: [R, W], hints: [] },
     opening_take_hints: { where: room, needs: [], solve: ["{take} " + noun(g, H)], gives: [H], clues: [H, W], hints: [] },
-    opening_way: { where: room, needs: ["opening_take_restart", "opening_take_hints"], solve: ["{enter} " + noun(g, W)],
+    opening_way: { where: room, needs: ["opening_take_restart", "opening_take_hints"], solve: ["{enter+} " + noun(g, W)],
                    reaches: "entrance", clues: [W, I], hints: [] }
   };
 }

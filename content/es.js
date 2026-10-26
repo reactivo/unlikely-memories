@@ -233,7 +233,9 @@ export default {
   // y primera persona, que algunos jugadores escriben. Sin tildes: se quitan al leer (la ñ se queda).
   words: {
     verbs: {
-      look: ["mirar", "mira", "mire", "miro", "m", "l", "mirar alrededor", "mira alrededor", "otear"],
+      look: ["mirar", "mira", "mire", "miro", "m", "l", "mirar alrededor", "mira alrededor", "otear",
+             "echar un vistazo", "echa un vistazo", "eche un vistazo", "echo un vistazo", "echar una mirada", "echa una mirada",
+             "echar un ojo", "echa un ojo"],   // (más largas que «echar»: poner)
       examine: ["examinar", "examina", "examine", "examino", "x", "ex", "inspeccionar", "inspecciona", "inspeccione",
                 "observar", "observa", "observe", "observo", "describir", "describe", "estudiar", "estudia", "ver", "veo",
                 "mirar bien", "mira bien"],
@@ -252,13 +254,16 @@ export default {
       drop: ["dejar", "deja", "deje", "dejo", "soltar", "suelta", "suelte", "suelto", "tirar", "tira", "tire", "tiro",
              "abandonar", "abandona", "desechar"],
       put: ["poner", "pon", "ponga", "pongo", "meter", "mete", "meta", "meto", "colocar", "coloca", "coloque", "coloco",
-            "introducir", "introduce", "dejar en", "deja en"],
+            "introducir", "introduce", "dejar en", "deja en", "echar", "echa", "eche", "echo"],   // «echa el pan en la caja», «echa la foto a la lámpara»
       give: ["dar", "da", "doy", "entregar", "entrega", "entregue", "entrego", "ofrecer", "ofrece", "ofrezca",
              "ofrezco", "regalar", "regala", "pasar", "pasa"],
-      show: ["mostrar", "muestra", "muestre", "muestro", "ensenar", "ensena", "ensene", "enseno"],
+      show: ["mostrar", "muestra", "muestre", "muestro", "enseñar", "enseña", "enseñe", "enseño"],
       throw: ["lanzar", "lanza", "lance", "lanzo", "arrojar", "arroja", "arroje", "arrojo", "tirar a", "tira a",
               "tirar contra", "tira contra"],
-      wear: ["ponerse", "ponte", "pongase", "me pongo", "vestir", "vestirse", "vistete", "calzarse"],
+      wear: ["ponerse", "ponte", "pongase", "me pongo", "vestir", "vestirse", "vistete", "calzarse",
+             // probarse una prenda; «probar» y «prueba» solos siguen siendo el sabor. Con pronombre ("pruébatela", "probársela",
+             // "pruébesela") se leen como verbo + pronombre: «probarse» + «la».
+             "probarse", "probarme", "probarte", "pruebate", "pruebese", "me pruebo"],
       remove: ["quitarse", "quitate", "quitese", "me quito", "desvestirse", "descalzarse", "sacarse"],
       inventory: ["inventario", "inv", "i"],
       time: ["hora", "fecha", "que hora es"],
@@ -282,13 +287,13 @@ export default {
                    "soplar", "sopla"],
       attack: ["atacar", "ataca", "ataque", "ataco", "golpear", "golpea", "golpee", "golpeo", "pegar", "pega", "pegue",
                "pego", "romper", "rompe", "rompa", "rompo", "patear", "patea", "dar una patada", "da una patada",
-               "dar un golpe", "da un golpe", "dar un punetazo", "da un punetazo", "destrozar", "destroza", "machacar",
+               "dar un golpe", "da un golpe", "dar un puñetazo", "da un puñetazo", "destrozar", "destroza", "machacar",
                "machaca", "matar", "mata", "luchar", "lucha", "abofetear"],
       knock: ["llamar", "llama", "llame", "llamo", "aporrear", "aporrea", "golpear la puerta"],
       use: ["usar", "usa", "use", "uso", "utilizar", "utiliza", "utilice", "utilizo", "emplear", "emplea", "manejar",
             "maneja"],
       eat: ["comer", "come", "coma", "como", "tragar", "traga", "trague", "trago", "tragarse", "tragate", "comerse",
-            "cometelo", "devorar", "devora", "masticar", "mastica", "engullir"],
+            "comete", "devorar", "devora", "masticar", "mastica", "engullir"],
       drink: ["beber", "bebe", "beba", "bebo", "beberse", "sorber", "sorbe", "tragar agua"],
       go: ["ir", "ve", "vaya", "voy", "andar", "anda", "ande", "ando", "caminar", "camina", "camine", "camino", "dirigirse",
            "dirigete", "avanzar", "avanza", "correr", "corre", "gatear", "gatea", "visitar", "visita", "visite", "visito",
@@ -313,7 +318,7 @@ export default {
             "murmurar", "murmura"],
       shout: ["gritar", "grita", "grite", "grito", "chillar", "chilla", "vociferar", "aullar", "aulla"],
       sing: ["cantar", "canta", "cante", "canto", "tararear", "tararea", "silbar", "silba"],
-      wave: ["agitar la mano", "agita la mano", "hacer senas", "haz senas", "senalar", "senala", "gesticular"],
+      wave: ["agitar la mano", "agita la mano", "hacer señas", "haz señas", "señalar", "señala", "gesticular"],
       kiss: ["besar", "besa", "bese", "beso", "abrazar", "abraza", "abrace", "abrazo"],
       think: ["pensar", "piensa", "piense", "pienso", "recordar", "recuerda", "reflexionar", "reflexiona", "meditar",
               "medita"],
@@ -336,9 +341,9 @@ export default {
       map: ["mapa"],                        // el mapa de por dónde has estado (ui/map.js)
       quit: ["salir del juego", "abandonar partida", "salir"]   // vuelve a la lista de juegos. Las más largas primero. «salir» es también el camino hacia fuera: mientras dura la historia sigue siendo eso, y solo sale del juego tras el final (js/parser.js)
     },
-    dirs: { n: ["n", "norte"], s: ["s", "sur"], e: ["e", "este"], w: ["o", "oeste", "w"], u: ["arriba", "sube", "subir", "suba", "subo", "escaleras arriba", "sube escaleras", "subir escaleras",
+    dirs: { n: ["n", "norte"], s: ["s", "sur"], e: ["e", "este"], w: ["o", "oeste", "w"], u: ["u", "arriba", "sube", "subir", "suba", "subo", "escaleras arriba", "sube escaleras", "subir escaleras",
                  "suba escaleras", "subo escaleras"],
-            d: ["abajo", "baja", "bajar", "baje", "escaleras abajo", "baja escaleras", "bajar escaleras",
+            d: ["d", "abajo", "baja", "bajar", "baje", "escaleras abajo", "baja escaleras", "bajar escaleras",
                  "baje escaleras"],   // ("bajo" is "under": a preposition, not a direction)
             // Hacia dentro / hacia fuera de un lugar (un coche, una cabaña). Los verbos (entra, sal…) se leen primero como
             // verbos y significan lo mismo solos en una sala con esa salida (js/parser.js).
@@ -364,9 +369,9 @@ export default {
                 ellos: { person: true, g: "m", pl: true }, ellas: { person: true, g: "f", pl: true } },
     // Lo particular del español al leer (js/parser.js). Un idioma nuevo pone aquí lo suyo.
     grammar: {
-      keep: ["ñ"],                                 // letras que se conservan al quitar las tildes
+      fold: {},                                    // lo que escribe un teclado sin cierta letra (alemán: ß → ss): al leer, antes de quitar las tildes. La ñ no necesita nada: sin tilde es n, y «enseña» y «ensena» son la misma palabra
       elisions: {},                                // formas cortas que se escriben enteras antes de leer
-      secondObject: ["con", "en", "sobre", "a", "contra", "por"],   // "abre la puerta CON la llave"
+      secondObject: ["con", "en", "sobre", "a", "al", "del", "contra", "por"],   // "abre la puerta CON la llave", "da la caracola AL portero"
       fromWords: ["de", "del"],                    // "saca la carta DE la botella": de dónde se saca una cosa
       // Pronombres pegados al verbo: "cógelo", "dáselo"; y la r del infinitivo para "tragarse" → "tragar".
       attached: { joined: true, hyphen: false, verbEndings: ["r"],
@@ -378,6 +383,8 @@ export default {
                            selos: { person: "le", thing: "los" }, selas: { person: "le", thing: "las" } } },
       speechTo: ["a", "al"],                       // a quién se dice: "di hola AL portero"
       oneWords: ["uno", "una", "unos", "unas"],    // "la de hierro, UNA": responde a «¿Cuál quieres decir?» sin nombrar nada
+      verbPreps: { enter: "en" },                  // lo que lleva un verbo antes de su objeto, en las pistas (`{enter+}`): «Entrar EN puerta»
+      nameParts: ["del"],                          // pueden ser parte de un nombre: "la butaca DEL pasillo" es una sola cosa, no dos
       contractions: { al: ["a", "el"], del: ["de", "el"] },   // justo después del verbo se escriben enteras: "sal DEL coche", "sube AL tren"
       lowerNames: true,                            // los nombres dentro de una frase, en minúscula ("lata de caramelos")
       gender: true                                 // las cosas llevan género (`words.g`) y las respuestas normales concuerdan con él
