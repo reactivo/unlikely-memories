@@ -60,6 +60,15 @@ const farDoor = "Far off, the beach. The green door is a small lit square in the
 const farSand = "Far off, the beach. Where the door was, there is only dark sand.";
 const down = "The stairs go down.";
 
+// ---- The ending pictures ----------------------------------------------------------------------------------------------------
+// The drawings are language-free (pictures.js); what each one says to a screen reader (alt) is said here, in this world's language.
+const endingPictures = {
+  photograph: { alt: "An office floor seen from far above: rows of identical grey desks in grey partitions, and at one of them a tiny figure sitting very still.", picture: endings.photograph },
+  shell: { alt: "Far off across black water at night, a lighthouse on its rock throws a wide sweep of yellow light over the sea and the town. On the dark beach near the left, where a door stood, there is only a piece of driftwood.", picture: endings.shell },
+  drowned: { alt: "Seen from under the water, looking up: a pale, broken moon on the surface far above and long shafts of light going down into the dark, where a small red shoe and a grey glove drift slowly.", picture: endings.drowned },
+  died: { alt: "A hand, close to the camera, lies open on the wet sand at the tide's edge, reaching for the sea. Beyond it, a thin strip of grey water under a pale dawn sky.", picture: endings.died }
+};
+
 // ---- Rooms ------------------------------------------------------------------------------------------------------
 // area + at: where it is (js/space.js). Coast: x grows east, y grows south (the sea is north). The lighthouse is an
 // area of its own, reached only by boat. exits: a room id; true = there's a way, but a rule answers; false = none.
@@ -86,7 +95,11 @@ const rooms = {
       "\"You are content,\" the {loudspeaker} murmurs. \"Please remain content until further notice.\"",
       "\"A message from the Ministry: elsewhere is a rumour.\"",
       "Somewhere above, the {loudspeaker} crackles. \"Lunch will be adequate.\""], every: [40, 90] },
-    alt: "A long grey corridor lit by ceiling lamps. A poster with a red eye hangs on the left wall; a camera on the right wall faces away. Low on the right wall, a tiny green door leaks yellow light and water onto the floor."
+    alt: "A long grey corridor lit by ceiling lamps. A poster with a red eye hangs on the left wall; a camera on the right wall faces away. Low on the right wall, a tiny green door leaks yellow light and water onto the floor.",
+    overlayAlt: {
+      stamp: "A rubber stamp lies on the lino by the puddle.",
+      suggestion_box: "A small wooden suggestion box hangs on the wall under the poster."
+    }
   },
   beach: {
     name: "THE BEACH", area: "coast", at: [0, 0, 0],
@@ -111,6 +124,7 @@ const rooms = {
     ],
     exits: { e: "beach", s: "huts" },
     alt: "Wet sand seen from above. A line of seaweed crosses it, with a grey glove, a small red shoe and a sodden typed page.",
+    overlayAlt: { shell: "A pale shell lies near the page." },
     scenery: [
       { words: ["weed", "seaweed", "line", "tide"], name: "the weed" }, { words: ["sand", "beach"], name: "the sand" },
       { words: ["sea", "water", "foam", "waves"], name: "the sea" }, { words: ["huts"], name: "the huts" }
@@ -155,6 +169,7 @@ const rooms = {
     ],
     exits: { s: "pier", n: true },
     alt: "The end of a pier at night. Across the water, a white lighthouse with a red band stands on a rock, its lantern dark.",
+    overlayAlt: { boat: "A small blue rowing boat is tied to the post." },
     scenery: [
       { words: ["post", "ring", "pier", "boards"], name: "the post" }, { words: ["sea", "water"], name: "the sea" },
       { words: ["rock"], name: "the rock" }
@@ -266,6 +281,7 @@ const rooms = {
     ],
     exits: { e: { to: "hallway", out: true } },
     alt: "A small hotel room at night: a window on the dark sea between red curtains, a blue coat over a chair, a made bed with a white pillow.",
+    overlayAlt: { letter: "A letter lies on the pillow." },
     scenery: [
       { words: ["bed", "pillow", "cover", "sheets"], name: "the bed" }, { words: ["chair"], name: "the chair" },
       { words: ["curtains", "curtain"], name: "the curtains" }, { words: ["door", "room"], name: "the door", leads: "e" },
@@ -310,6 +326,7 @@ const rooms = {
     ],
     exits: { w: { to: "square", out: true } },
     alt: "A small warm café: a steaming coffee machine on the counter, round marble tables, a waiter in a white apron folding a napkin, a window on the dark square.",
+    overlayAlt: { coffee: "A cup of coffee steams on the table." },
     scenery: [
       { words: ["tables", "table", "chairs", "chair"], name: "the tables" }, { words: ["machine", "steam"], name: "the coffee machine" },
       { words: ["napkin"], name: "the napkin" }, { words: ["window", "square"], name: "the window" },
@@ -338,6 +355,7 @@ const rooms = {
     ],
     exits: { u: "lantern", s: true },
     alt: "Looking up at a tall white lighthouse with red bands, its lantern dark against the stars. Foam breaks on the rock at its foot; the door is open.",
+    overlayAlt: { boat: "The rowing boat is tied to the mooring ring." },
     scenery: [
       { words: ["lighthouse", "tower", "door", "staircase", "stairs"], name: "the lighthouse", leads: "u" },
       { words: ["rock", "ring"], name: "the rock" }, { words: ["sea", "waves", "water", "foam"], name: "the sea" }
@@ -864,7 +882,7 @@ export default {
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
     // Rooms, objects and rules
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),

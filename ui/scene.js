@@ -6,7 +6,7 @@
 // (ui/scene.css), at every window size, so the browser does all the scaling.
 
 import art from "../content/art.js";
-import { paintPicture, compose, overlaysShown } from "./draw.js";
+import { paintPicture, compose, overlaysShown, overlayAlt } from "./draw.js";
 import { CYCLES } from "./effects.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
 
@@ -94,8 +94,8 @@ export function mount(root) {
       const end = s.ended && s.ending && s.pictures?.[s.ending] ? s.pictures[s.ending] : null;   // the ending's picture, once it's over
       const picture = end ? end.picture : room.picture, where = end ? "ending:" + s.ending : roomId;
       const shown = overlaysShown(picture, s, roomId);
-      // The description for screen readers: the room's or the ending's, plus a line for each overlay drawn.
-      canvas.setAttribute("aria-label", [end ? end.alt : room.alt, ...shown.map(o => o.alt)].filter(Boolean).map(t => text(t, next.pack)).join(" "));
+      // The description for screen readers: the room's or the ending's, plus a line for each overlay drawn (the room's `overlayAlt`).
+      canvas.setAttribute("aria-label", [end ? end.alt : room.alt, ...shown.map(o => overlayAlt(room, o))].filter(Boolean).map(t => text(t, next.pack)).join(" "));
       const key = where + "#" + picture.version + "|" + shown.map(o => o.object).join(",");
       if (key === drawnKey) return;
       const { px, areas } = base(where, picture);

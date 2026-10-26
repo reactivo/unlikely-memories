@@ -38,6 +38,15 @@ const holding = (id) => ({ [id + ".at"]: "player" });
 const tension = (n) => ({ set: "game.tension", add: n });
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
+// ---- The ending pictures ----------------------------------------------------------------------------------------------------
+// The drawings are language-free (pictures.js); what each one says to a screen reader (alt) is said here, in this world's language.
+const endingPictures = {
+  afternoon: { alt: "Through the window of a bus, wound down: a bright sea along the horizon, a green verge going by, and an elbow resting on the sill.", picture: endings.afternoon },
+  kept: { alt: "A roof garden at dusk, seen from low down among the chimneys. A small bottle stands open, and a tall pale-gold column of light rises from it far above the roofs.", picture: endings.kept },
+  window: { alt: "The front window of a department store at first light, seen from the pavement. Three figures stand in it, still: two mannequins, and between them you, in a coat a little warmer than yours, with a small red price tag on the sleeve.", picture: endings.window },
+  died: { alt: "The ceiling of the store, seen from the floor: a bundle of pneumatic tubes running away to a single yellow lamp, and the edge of your shoes at the bottom of the picture.", picture: endings.died }
+};
+
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
 // Area "store" (x grows east, y grows south, z is the floor: -1 the basement, 0 the ground floor, up to 3, the roof).
 // Area "fourth": the fourth floor, reached only by the lift.
@@ -57,7 +66,11 @@ const rooms = {
     ],
     mentions: ["windows", "dresses", "sill", "revolving door"],
     ambience: { lines: ["In the nearest window a dress has changed its hands, and is looking at the glass as if it hadn't.", "Something heavy is wheeled past on the far side of the shutter, and nobody apologises.", "Somewhere inside, someone laughs at a price.", "The wireless on the sill finds a station, loses it, and apologises."], every: [30, 70] },
-    alt: "A glass-roofed arcade at dusk, seen from its floor and shut at both ends: lit windows full of dresses along both walls, a revolving door in the blind end wall, a lamp beside it."
+    alt: "A glass-roofed arcade at dusk, seen from its floor and shut at both ends: lit windows full of dresses along both walls, a revolving door in the blind end wall, a lamp beside it.",
+    overlayAlt: {
+      wireless: "A small cream wireless sits on the sill.",
+      mints: "A paper bag of peppermints sits on the sill."
+    }
   },
   front_hall: {
     name: "HARTLEY'S", area: "store", at: [1, 1, 0],
@@ -594,7 +607,7 @@ export default {
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", actions: ["Examine ticket"], heldActions: ["Examine ticket", "Show ticket to Pell"],

@@ -9,7 +9,11 @@
 //
 // Also: the ending's picture (BRIEF.md §7): every `end` effect names a picture the world has, a world that can hurt the player
 // has a `died` picture (the one the story ends with when health runs out), and each picture in `state.pictures` is well formed
-// and described (`alt`).
+// and described (`alt`, in the world file: the ending's `add picture`).
+//
+// Also: pictures are language-free (ART-DIRECTION.md §5). No picture, room's or ending's, carries an `alt` of its own, nor any of
+// its overlays: the world file says what they look like, in its language (the room's `alt`; its `overlayAlt` for each overlay;
+// an ending's `add picture` `alt`), and the checker finds a picture that carries one, an ending with none and an overlay with none.
 //
 // Also: an exit with a condition (`{ to, if, closed }`) is well formed, and can open: the playthrough waits for the hour
 // of a timed one, and a way no property or hour could ever open is warned of (neverOpen below).
@@ -314,12 +318,36 @@ export function bibleProblems(bible, state) {
   return problems;
 }
 
-// What is wrong with the world's pictures that aren't a room's: an `end` that names none, or one that doesn't exist; a world
-// that can hurt the player and has no `died` picture; a picture that is badly drawn or has no description.
+// What is wrong with the world's pictures: an `end` that names none, or one that doesn't exist; a world that can hurt the player
+// and has no `died` picture; a picture that is badly drawn; an ending with no description (`alt` on its `add picture`, in the
+// world file); a room's overlay with no description (`overlayAlt`, on the room); and a picture, or one of its overlays, that
+// carries an `alt` itself (pictures.js holds shapes, not words).
 function pictureProblems(state) {
-  const problems = [], pictures = state.pictures || {};
+  const problems = [], pictures = state.pictures || {}, file = `world.${state.lang || "en"}.js`;
+  const described = (x) => typeof x === "string" && x.trim();
+  // A picture's own `alt`, or an overlay's: pictures are language-free, so the description belongs in the world file.
+  const carried = (name, picture, say) => {
+    if (picture && typeof picture === "object" && "alt" in picture)
+      problems.push(`${name}: its picture carries an alt (pictures.js holds shapes only, no text); ${say} in ${file}`);
+    for (const o of Array.isArray(picture?.overlays) ? picture.overlays : []) if (o && typeof o === "object" && "alt" in o)
+      problems.push(`${name}: the picture's overlay "${o.object}" carries an alt (pictures.js holds shapes only, no text); say it as overlayAlt.${o.object} on the room in ${file}`);
+  };
+  const overlaysDescribed = (name, roomId, overlays) => {
+    for (const o of Array.isArray(overlays) ? overlays : [])
+      if (!described(state.world.rooms[roomId]?.overlayAlt?.[o?.object]))
+        problems.push(`${name}: the overlay "${o?.object}" has no alt, its description for screen readers; add overlayAlt.${o?.object} to room "${roomId}" in ${file}`);
+  };
+  for (const [id, room] of Object.entries(state.world.rooms)) {
+    if (!room?.picture) continue;
+    carried(`rooms/${id}`, room.picture, "describe it as the room's alt");
+    overlaysDescribed(`rooms/${id}`, id, room.picture.overlays);
+  }
   let hurts = null;
   for (const { effect: e, where } of effectsOf(state)) {
+    if (typeof e.draw === "string" && Array.isArray(e.overlays)) {      // an edit that sets a room's overlays
+      carried(where, { overlays: e.overlays }, "say it");
+      overlaysDescribed(where, e.draw, e.overlays);
+    }
     if (e.end === true) {
       if (typeof e.picture !== "string") problems.push(`${where}: ends the story without naming its picture (end: true, picture: "…")`);
       else if (!pictures[e.picture]) problems.push(`${where}: ends the story with picture "${e.picture}", which the world doesn't have`);
@@ -329,7 +357,8 @@ function pictureProblems(state) {
   }
   if (hurts && !pictures.died) problems.push(`${hurts} can hurt the player, so the world needs a "died" picture (the ending when health runs out)`);
   for (const [id, p] of Object.entries(pictures)) {
-    if (typeof p?.alt !== "string" || !p.alt.trim()) problems.push(`pictures/${id}: has no alt, the description of the picture for screen readers`);
+    if (!described(p?.alt)) problems.push(`pictures/${id}: has no alt, the description of the picture for screen readers; give its add picture an alt in ${file}`);
+    carried(`pictures/${id}`, p?.picture, "describe it as the add picture's alt");
     for (const why of drawingProblems(p?.picture)) problems.push(`pictures/${id}: ${why}`);
   }
   return problems;
@@ -586,7 +615,7 @@ export function clockMentions(raw) {
 
 // Every player-facing text of a world: [{ where, field, text }]. Not pictures or their descriptions (`alt`).
 const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines"]);
-const NOT_TEXT = new Set(["picture", "alt", "draw", "sprite", "floorSprite", "words", "mentions", "if", "match", "id", "name", "label"]);
+const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "words", "mentions", "if", "match", "id", "name", "label"]);
 function worldTexts(state, pack) {
   const out = [];
   for (const [id, r] of Object.entries(state.world.rooms)) collectTexts(r, id, pack, out);

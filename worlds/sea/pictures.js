@@ -82,8 +82,8 @@ export default {
       { name: "camera", areas: ["camera_light"], colors: [12, 8], style: "blink", ms: 700 }
     ],
     overlays: [
-      { object: "stamp", at: [222, 112], alt: "A rubber stamp lies on the lino by the puddle." },
-      { object: "suggestion_box", at: [72, 84], alt: "A small wooden suggestion box hangs on the wall under the poster." }
+      { object: "stamp", at: [222, 112] },
+      { object: "suggestion_box", at: [72, 84] }
     ]
   },
 
@@ -148,7 +148,7 @@ export default {
       {name: "foam", areas: ["foam"], colors: [7,9], style: "pingpong", ms: 1200}
     ],
     overlays: [
-      {object: "shell", at: [182,104], alt: "A pale shell lies near the page."}
+      {object: "shell", at: [182,104]}
     ]
   },
 
@@ -252,7 +252,7 @@ export default {
       {name: "moon on the water", areas: ["glints", "glints2", "glints3", "glints4"], colors: [15,9,1], style: "rotate", ms: 700}
     ],
     overlays: [
-      {object: "boat", at: [174,116], alt: "A small blue rowing boat is tied to the post."}
+      {object: "boat", at: [174,116]}
     ]
   },
 
@@ -612,7 +612,7 @@ export default {
       ellipse pillow 288,80,16,6 15 e7
     `,
     overlays: [
-      {object: "letter", at: [280,75], alt: "A letter lies on the pillow."}
+      {object: "letter", at: [280,75]}
     ]
   },
 
@@ -754,7 +754,7 @@ export default {
       {name: "steam", areas: ["steam", "steam2"], colors: [15,7,8], style: "rotate", ms: 350}
     ],
     overlays: [
-      {object: "coffee", at: [146,91], alt: "A cup of coffee steams on the table."}
+      {object: "coffee", at: [146,91]}
     ]
   },
 
@@ -827,7 +827,7 @@ export default {
       {name: "foam", areas: ["foam", "foam2"], colors: [15,9], style: "pingpong", ms: 1000}
     ],
     overlays: [
-      {object: "boat", at: [40,112], alt: "The rowing boat is tied to the mooring ring."}
+      {object: "boat", at: [40,112]}
     ]
   },
 
@@ -871,110 +871,98 @@ export default {
 //   died        close-up, at sand level · horizon y 94, low · a hand on the wet sand reaching for the sea, 35% of the width · 6 brown
 export const endings = {
   photograph: {
-    alt: "An office floor seen from far above: rows of identical grey desks in grey partitions, and at one of them a tiny figure sitting very still.",
-    picture: {
-      version: 1,
-      draw: `
-        rect floor 0,0,320,136 mix:7,8@0.5
-        rect aisle_h 0,64,320,10 mix:7,8@0.3
-        rect aisle_v 150,0,14,136 mix:7,8@0.3
-        rect - 20,10,100,40 8 e0
-        rect - 20,84,100,40 8 e0
-        rect - 190,10,100,40 8 e0
-        rect - 190,84,100,40 8 e0
-        line - 70,10 70,50 c0
-        line - 70,84 70,124 c0
-        line - 240,10 240,50 c0
-        line - 240,84 240,124 c0
-        rect desk_a 28,18,34,22 7
-        rect desk_b 78,18,34,22 7
-        rect desk_c 28,92,34,22 7
-        rect desk_d 78,92,34,22 7
-        rect desk_e 198,18,34,22 7
-        rect desk_f 248,18,34,22 7
-        rect desk_g 198,92,34,22 7
-        rect desk_you 248,92,34,22 7
-        rect - 34,22,10,8 0
-        rect - 84,22,10,8 0
-        rect - 34,96,10,8 0
-        rect - 84,96,10,8 0
-        rect - 204,22,10,8 0
-        rect - 254,22,10,8 0
-        rect - 204,96,10,8 0
-        rect - 254,96,10,8 0
-        ellipse - 266,112,10,4 0
-        ellipse you 266,106,5,5 0
-        ellipse speaker 156,68,3,3 0
-        rect door 300,56,20,24 mix:8,0@0.5
-      `
-    }
+    version: 1,
+    draw: `
+      rect floor 0,0,320,136 mix:7,8@0.5
+      rect aisle_h 0,64,320,10 mix:7,8@0.3
+      rect aisle_v 150,0,14,136 mix:7,8@0.3
+      rect - 20,10,100,40 8 e0
+      rect - 20,84,100,40 8 e0
+      rect - 190,10,100,40 8 e0
+      rect - 190,84,100,40 8 e0
+      line - 70,10 70,50 c0
+      line - 70,84 70,124 c0
+      line - 240,10 240,50 c0
+      line - 240,84 240,124 c0
+      rect desk_a 28,18,34,22 7
+      rect desk_b 78,18,34,22 7
+      rect desk_c 28,92,34,22 7
+      rect desk_d 78,92,34,22 7
+      rect desk_e 198,18,34,22 7
+      rect desk_f 248,18,34,22 7
+      rect desk_g 198,92,34,22 7
+      rect desk_you 248,92,34,22 7
+      rect - 34,22,10,8 0
+      rect - 84,22,10,8 0
+      rect - 34,96,10,8 0
+      rect - 84,96,10,8 0
+      rect - 204,22,10,8 0
+      rect - 254,22,10,8 0
+      rect - 204,96,10,8 0
+      rect - 254,96,10,8 0
+      ellipse - 266,112,10,4 0
+      ellipse you 266,106,5,5 0
+      ellipse speaker 156,68,3,3 0
+      rect door 300,56,20,24 mix:8,0@0.5
+    `
   },
   shell: {
-    alt: "Far off across black water at night, a lighthouse on its rock throws a wide sweep of yellow light over the sea and the town. On the dark beach near the left, where a door stood, there is only a piece of driftwood.",
-    picture: {
-      version: 1,
-      draw: `
-        rect sky 0,0,320,84 fade:0,1/0,0/0,84
-        dots stars 20,10 70,22 130,8 180,26 220,12 300,10 c15
-        ellipse moon 50,24,9,9 15
-        rect sea 0,84,320,52 fade:1,0/0,84/0,136
-        poly beam_r 266,40 320,54 320,84 266,44 mix:,14@0.45
-        poly beam_l 266,40 100,62 100,84 266,44 mix:,14@0.3
-        rect shimmer 120,84,150,10 mix:,14@0.25
-        poly rock 236,88 250,78 282,78 296,88 0
-        poly tower 262,78 266,46 272,46 276,78 stripes:15,4
-        ellipse glow 269,43,14,10 mix:,14@0.45
-        ellipse lamp 269,43,4,3 14
-        poly town 130,98 130,92 140,92 140,88 150,88 150,94 170,94 170,90 184,90 184,98 mix:8,0@0.5
-        dots windows 134,95 144,92 158,96 176,94 c14
-        poly beach 0,106 80,102 200,106 320,108 320,136 0,136 mix:6,0@0.55
-        poly driftwood 38,118 58,112 64,115 44,121 6
-        line - 50,116 60,110 c6
-      `,
-      cycles: [{ name: "the light", areas: ["beam_r", "beam_l", "glow"], colors: [14, 6], style: "pingpong", ms: 3000 }]
-    }
+    version: 1,
+    draw: `
+      rect sky 0,0,320,84 fade:0,1/0,0/0,84
+      dots stars 20,10 70,22 130,8 180,26 220,12 300,10 c15
+      ellipse moon 50,24,9,9 15
+      rect sea 0,84,320,52 fade:1,0/0,84/0,136
+      poly beam_r 266,40 320,54 320,84 266,44 mix:,14@0.45
+      poly beam_l 266,40 100,62 100,84 266,44 mix:,14@0.3
+      rect shimmer 120,84,150,10 mix:,14@0.25
+      poly rock 236,88 250,78 282,78 296,88 0
+      poly tower 262,78 266,46 272,46 276,78 stripes:15,4
+      ellipse glow 269,43,14,10 mix:,14@0.45
+      ellipse lamp 269,43,4,3 14
+      poly town 130,98 130,92 140,92 140,88 150,88 150,94 170,94 170,90 184,90 184,98 mix:8,0@0.5
+      dots windows 134,95 144,92 158,96 176,94 c14
+      poly beach 0,106 80,102 200,106 320,108 320,136 0,136 mix:6,0@0.55
+      poly driftwood 38,118 58,112 64,115 44,121 6
+      line - 50,116 60,110 c6
+    `,
+    cycles: [{ name: "the light", areas: ["beam_r", "beam_l", "glow"], colors: [14, 6], style: "pingpong", ms: 3000 }]
   },
   drowned: {
-    alt: "Seen from under the water, looking up: a pale, broken moon on the surface far above and long shafts of light going down into the dark, where a small red shoe and a grey glove drift slowly.",
-    picture: {
-      version: 1,
-      draw: `
-        rect water 0,0,320,136 fade:1,0/0,18/0,136
-        rect surface 0,0,320,18 fade:11,3/0,0/0,18
-        ellipse moon 80,8,14,6 15
-        poly ray_a 70,10 10,136 80,136 mix:,11@0.18
-        poly ray_b 84,10 120,136 190,136 mix:,11@0.14
-        poly ray_c 92,10 230,136 300,136 mix:,11@0.1
-        line ripples 20,14 36,17 52,14 68,17 c11
-        line - 150,12 170,16 190,12 210,16 c3
-        ellipse - 240,40,3,3 11
-        ellipse - 250,62,2,2 11
-        ellipse - 232,84,2,2 11
-        poly shoe 190,104 202,98 214,104 214,110 190,110 4
-        poly glove 120,116 132,108 142,116 138,126 124,126 7
-      `,
-      cycles: [{ name: "the surface", areas: ["ripples", "moon"], colors: [11, 15], style: "flicker", ms: [600, 2000] }]
-    }
+    version: 1,
+    draw: `
+      rect water 0,0,320,136 fade:1,0/0,18/0,136
+      rect surface 0,0,320,18 fade:11,3/0,0/0,18
+      ellipse moon 80,8,14,6 15
+      poly ray_a 70,10 10,136 80,136 mix:,11@0.18
+      poly ray_b 84,10 120,136 190,136 mix:,11@0.14
+      poly ray_c 92,10 230,136 300,136 mix:,11@0.1
+      line ripples 20,14 36,17 52,14 68,17 c11
+      line - 150,12 170,16 190,12 210,16 c3
+      ellipse - 240,40,3,3 11
+      ellipse - 250,62,2,2 11
+      ellipse - 232,84,2,2 11
+      poly shoe 190,104 202,98 214,104 214,110 190,110 4
+      poly glove 120,116 132,108 142,116 138,126 124,126 7
+    `,
+    cycles: [{ name: "the surface", areas: ["ripples", "moon"], colors: [11, 15], style: "flicker", ms: [600, 2000] }]
   },
   died: {
-    alt: "A hand, close to the camera, lies open on the wet sand at the tide's edge, reaching for the sea. Beyond it, a thin strip of grey water under a pale dawn sky.",
-    picture: {
-      version: 1,
-      draw: `
-        rect sky 0,0,320,94 fade:8,7/0,0/0,94
-        rect sea 0,86,320,10 mix:1,3@0.5
-        rect foam 0,94,320,3 15
-        rect sand 0,97,320,39 fade:6,8/0,97/0,136
-        dots grains 30,110 80,126 150,104 210,118 270,108 300,128 c14
-        poly sleeve 0,136 0,114 36,110 52,136 8 e0
-        poly palm 40,136 46,112 100,106 124,112 128,124 100,134 mix:12,6@0.4 e6
-        line f1 124,112 160,104 c12
-        line f2 126,116 168,112 c12
-        line f3 126,121 164,120 c12
-        line f4 120,126 150,130 c12
-        line thumb 62,112 70,100 c12
-        ellipse - 250,114,16,3 mix:,8@0.4
-      `
-    }
+    version: 1,
+    draw: `
+      rect sky 0,0,320,94 fade:8,7/0,0/0,94
+      rect sea 0,86,320,10 mix:1,3@0.5
+      rect foam 0,94,320,3 15
+      rect sand 0,97,320,39 fade:6,8/0,97/0,136
+      dots grains 30,110 80,126 150,104 210,118 270,108 300,128 c14
+      poly sleeve 0,136 0,114 36,110 52,136 8 e0
+      poly palm 40,136 46,112 100,106 124,112 128,124 100,134 mix:12,6@0.4 e6
+      line f1 124,112 160,104 c12
+      line f2 126,116 168,112 c12
+      line f3 126,121 164,120 c12
+      line f4 120,126 150,130 c12
+      line thumb 62,112 70,100 c12
+      ellipse - 250,114,16,3 mix:,8@0.4
+    `
   }
 };

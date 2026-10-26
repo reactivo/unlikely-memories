@@ -52,8 +52,8 @@ export default {
     `,
     cycles: [{ name: "the far lamp", areas: ["lamp_glow", "lamp"], colors: [14, 6], style: "pingpong", ms: 2600 }],
     overlays: [
-      { object: "canary", at: [96, 6], alt: "A canary in a small brass cage hangs from a hook in the roof." },
-      { object: "egg_timer", at: [236, 108], alt: "An egg timer lies on the seat." }
+      { object: "canary", at: [96, 6] },
+      { object: "egg_timer", at: [236, 108] }
     ]
   },
 
@@ -318,7 +318,7 @@ export default {
     `,
     cycles: [{ name: "the caps", areas: ["caps_top"], colors: [10, 2], style: "pingpong", ms: 4000 }],
     overlays: [
-      { object: "trumpet", at: [180, 104], alt: "A dented brass ear trumpet lies on the floor." }
+      { object: "trumpet", at: [180, 104] }
     ]
   },
 
@@ -418,136 +418,124 @@ export default {
 export const endings = {
   // The truth: from far above, the Row at dawn with the fog gone; two small figures walk off along the river.
   truth: {
-    alt: "Lantern Row from far above at dawn, the fog gone: rooftops in rows, a line of twelve lit lamps along the street, and the river curving past, pink with the sky. Two small figures walk away along the river, arm in arm.",
-    picture: {
-      version: 1,
-      draw: `
-        rect ground 0,0,320,136 mix:8,0@0.4
-        rect roof1 4,4,44,24 mix:4,8@0.3 e0
-        rect roof2 54,4,60,24 mix:8,7@0.3 e0
-        rect roof3 120,4,38,24 mix:4,6@0.4 e0
-        rect roof4 164,4,70,24 mix:8,4@0.3 e0
-        rect roof5 240,4,76,24 mix:6,8@0.4 e0
-        dots chimneys 14,10 30,10 70,10 96,10 134,10 180,10 210,10 256,10 290,10 c0
-        rect street 0,32,320,10 mix:7,13@0.25
-        dots lamps 12,37 38,37 64,37 90,37 116,37 142,37 168,37 194,37 220,37 246,37 272,37 298,37 c14
-        rect roof6 0,46,62,24 mix:8,4@0.3 e0
-        rect roof7 68,46,54,24 mix:4,6@0.4 e0
-        rect roof8 128,46,88,24 mix:8,7@0.3 e0
-        rect roof9 222,46,46,24 mix:6,8@0.4 e0
-        rect roof10 274,46,46,24 mix:4,8@0.3 e0
-        dots chimneys2 20,52 46,52 90,52 150,52 190,52 240,52 296,52 c0
-        rect embankment 0,74,320,10 mix:7,13@0.35
-        poly river 0,84 120,86 220,92 320,88 320,136 0,136 fade:5,1/0,84/0,136
-        line sheen1 10,98 110,100 c13
-        line sheen2 160,110 300,106 c13
-        line sheen3 40,124 200,126 c13
-        ellipse mist 260,118,50,4 mix:,13@0.3
-        ellipse dawn_light 214,78,22,8 mix:,15@0.35
-        rect figure1 206,72,4,9 0
-        rect figure2 212,72,4,9 7
-        ellipse - 208,70,2,2 0
-        ellipse - 214,70,2,2 7
-        line shadows 210,81 246,83 c0
-        line - 216,81 250,82 c8
-      `,
-      cycles: [{ name: "the river at dawn", areas: ["sheen1", "sheen2", "sheen3"], colors: [13, 15, 5], style: "rotate", ms: 1200 }]
-    }
+    version: 1,
+    draw: `
+      rect ground 0,0,320,136 mix:8,0@0.4
+      rect roof1 4,4,44,24 mix:4,8@0.3 e0
+      rect roof2 54,4,60,24 mix:8,7@0.3 e0
+      rect roof3 120,4,38,24 mix:4,6@0.4 e0
+      rect roof4 164,4,70,24 mix:8,4@0.3 e0
+      rect roof5 240,4,76,24 mix:6,8@0.4 e0
+      dots chimneys 14,10 30,10 70,10 96,10 134,10 180,10 210,10 256,10 290,10 c0
+      rect street 0,32,320,10 mix:7,13@0.25
+      dots lamps 12,37 38,37 64,37 90,37 116,37 142,37 168,37 194,37 220,37 246,37 272,37 298,37 c14
+      rect roof6 0,46,62,24 mix:8,4@0.3 e0
+      rect roof7 68,46,54,24 mix:4,6@0.4 e0
+      rect roof8 128,46,88,24 mix:8,7@0.3 e0
+      rect roof9 222,46,46,24 mix:6,8@0.4 e0
+      rect roof10 274,46,46,24 mix:4,8@0.3 e0
+      dots chimneys2 20,52 46,52 90,52 150,52 190,52 240,52 296,52 c0
+      rect embankment 0,74,320,10 mix:7,13@0.35
+      poly river 0,84 120,86 220,92 320,88 320,136 0,136 fade:5,1/0,84/0,136
+      line sheen1 10,98 110,100 c13
+      line sheen2 160,110 300,106 c13
+      line sheen3 40,124 200,126 c13
+      ellipse mist 260,118,50,4 mix:,13@0.3
+      ellipse dawn_light 214,78,22,8 mix:,15@0.35
+      rect figure1 206,72,4,9 0
+      rect figure2 212,72,4,9 7
+      ellipse - 208,70,2,2 0
+      ellipse - 214,70,2,2 7
+      line shadows 210,81 246,83 c0
+      line - 216,81 250,82 c8
+    `,
+    cycles: [{ name: "the river at dawn", areas: ["sheen1", "sheen2", "sheen3"], colors: [13, 15, 5], style: "rotate", ms: 1200 }]
   },
   // Relieved: close up, the twelfth lamp's lantern, lit at last, against the dark.
   relieved: {
-    alt: "Close up, the lantern of the last lamp, lit: four panes of yellow light round a white flame, the iron cap above, and the brass hook of a lamplighter's pole at the tap below.",
-    picture: {
-      version: 1,
-      draw: `
-        rect dark 0,0,320,136 fade:1,0/0,0/0,136
-        ellipse glow 120,66,110,66 mix:,14@0.3
-        ellipse glow_in 120,66,70,46 mix:,14@0.45
-        poly cap 70,22 120,4 170,22 0 e8
-        rect brim 66,22,108,6 0
-        poly lantern 72,28 168,28 156,104 84,104 14 e0
-        line - 120,28 120,104 c0
-        line - 96,28 102,104 c0
-        line - 144,28 138,104 c0
-        ellipse flame 120,70,9,16 15
-        ellipse flame_core 120,74,4,8 14
-        poly base 84,104 156,104 140,116 100,116 0
-        rect post 112,116,16,20 0
-        line pole 300,136 180,104 146,110 c6
-        line - 300,135 180,103 c6
-        ellipse hook 146,110,4,3 none e14
-      `,
-      cycles: [
-        { name: "the flame", areas: ["flame", "flame_core"], colors: [15, 14], style: "flicker", ms: [200, 900] },
-        { name: "the light", areas: ["glow_in"], colors: [14, 6], style: "pingpong", ms: 2400 }
-      ]
-    }
+    version: 1,
+    draw: `
+      rect dark 0,0,320,136 fade:1,0/0,0/0,136
+      ellipse glow 120,66,110,66 mix:,14@0.3
+      ellipse glow_in 120,66,70,46 mix:,14@0.45
+      poly cap 70,22 120,4 170,22 0 e8
+      rect brim 66,22,108,6 0
+      poly lantern 72,28 168,28 156,104 84,104 14 e0
+      line - 120,28 120,104 c0
+      line - 96,28 102,104 c0
+      line - 144,28 138,104 c0
+      ellipse flame 120,70,9,16 15
+      ellipse flame_core 120,74,4,8 14
+      poly base 84,104 156,104 140,116 100,116 0
+      rect post 112,116,16,20 0
+      line pole 300,136 180,104 146,110 c6
+      line - 300,135 180,103 c6
+      ellipse hook 146,110,4,3 none e14
+    `,
+    cycles: [
+      { name: "the flame", areas: ["flame", "flame_core"], colors: [15, 14], style: "flicker", ms: [200, 900] },
+      { name: "the light", areas: ["glow_in"], colors: [14, 6], style: "pingpong", ms: 2400 }
+    ]
   },
   // The wrong name: from far above, a sea of grey fog with chimney pots through it, and one cold electric point.
   blamed: {
-    alt: "From far above, a flat grey sea of fog over London, chimney pots poking through it in rows, and one small hard white light where Lantern Row should be.",
-    picture: {
-      version: 1,
-      draw: `
-        rect fog 0,0,320,136 fade:7,8/0,0/0,136
-        ellipse bank1 70,30,90,16 mix:,15@0.25
-        ellipse bank2 240,80,110,18 mix:,15@0.25
-        ellipse bank3 120,116,120,14 mix:,7@0.3
-        rect pots1 20,18,4,6 0
-        rect - 60,22,4,6 0
-        rect - 102,16,4,6 0
-        rect - 150,20,4,6 0
-        rect - 196,14,4,6 0
-        rect - 240,20,4,6 0
-        rect - 286,16,4,6 0
-        rect pots2 36,58,4,6 0
-        rect - 84,54,4,6 0
-        rect - 130,60,4,6 0
-        rect - 236,56,4,6 0
-        rect - 280,62,4,6 0
-        rect pots3 14,100,4,6 0
-        rect - 64,96,4,6 0
-        rect - 110,102,4,6 0
-        rect - 160,98,4,6 0
-        rect - 208,104,4,6 0
-        rect - 256,96,4,6 0
-        rect - 300,100,4,6 0
-        ellipse electric_glow 184,62,10,7 mix:,15@0.5
-        rect electric 182,60,4,4 15
-      `,
-      cycles: [{ name: "the fog", areas: ["bank1", "bank2"], colors: [15, 7], style: "pingpong", ms: 5000 }]
-    }
+    version: 1,
+    draw: `
+      rect fog 0,0,320,136 fade:7,8/0,0/0,136
+      ellipse bank1 70,30,90,16 mix:,15@0.25
+      ellipse bank2 240,80,110,18 mix:,15@0.25
+      ellipse bank3 120,116,120,14 mix:,7@0.3
+      rect pots1 20,18,4,6 0
+      rect - 60,22,4,6 0
+      rect - 102,16,4,6 0
+      rect - 150,20,4,6 0
+      rect - 196,14,4,6 0
+      rect - 240,20,4,6 0
+      rect - 286,16,4,6 0
+      rect pots2 36,58,4,6 0
+      rect - 84,54,4,6 0
+      rect - 130,60,4,6 0
+      rect - 236,56,4,6 0
+      rect - 280,62,4,6 0
+      rect pots3 14,100,4,6 0
+      rect - 64,96,4,6 0
+      rect - 110,102,4,6 0
+      rect - 160,98,4,6 0
+      rect - 208,104,4,6 0
+      rect - 256,96,4,6 0
+      rect - 300,100,4,6 0
+      ellipse electric_glow 184,62,10,7 mix:,15@0.5
+      rect electric 182,60,4,4 15
+    `,
+    cycles: [{ name: "the fog", areas: ["bank1", "bank2"], colors: [15, 7], style: "pingpong", ms: 5000 }]
   },
   // Died: close up, the canary in its cage, gone quiet, its head under its wing, with the fog coming in through the bars.
   died: {
-    alt: "Close up, a small brass birdcage in grey fog. The canary sits on its perch with its head tucked under its wing, and the fog comes in between the bars.",
-    picture: {
-      version: 1,
-      draw: `
-        rect fog 0,0,320,136 fade:7,8/0,0/0,136
-        ellipse fog_in 120,70,80,46 mix:,15@0.15
-        line hook 120,0 120,10 c6
-        ellipse ring 120,12,5,3 none e14
-        poly dome 64,40 76,22 96,14 120,12 144,14 164,22 176,40 mix:6,14@0.3 e0
-        rect base 56,118,128,10 6 e0
-        rect tray 52,128,136,6 0
-        line bars 64,40 64,118 c14
-        line - 80,24 80,118 c14
-        line - 96,16 96,118 c14
-        line - 120,12 120,118 c14
-        line - 144,16 144,118 c14
-        line - 160,24 160,118 c14
-        line - 176,40 176,118 c14
-        line perch 76,92 164,92 c6
-        ellipse canary 124,82,16,11 14 e6
-        ellipse wing 128,80,11,7 mix:14,6@0.3
-        poly tail 108,86 96,98 102,98 112,90 14 e6
-        line - 128,93 128,96 c6
-        line - 120,93 120,96 c6
-        ellipse wisp 236,70,70,12 mix:,15@0.2
-        ellipse wisp2 150,108,50,6 mix:,15@0.25
-      `,
-      cycles: [{ name: "the fog coming in", areas: ["wisp", "wisp2", "fog_in"], colors: [15, 7], style: "pingpong", ms: 4200 }]
-    }
+    version: 1,
+    draw: `
+      rect fog 0,0,320,136 fade:7,8/0,0/0,136
+      ellipse fog_in 120,70,80,46 mix:,15@0.15
+      line hook 120,0 120,10 c6
+      ellipse ring 120,12,5,3 none e14
+      poly dome 64,40 76,22 96,14 120,12 144,14 164,22 176,40 mix:6,14@0.3 e0
+      rect base 56,118,128,10 6 e0
+      rect tray 52,128,136,6 0
+      line bars 64,40 64,118 c14
+      line - 80,24 80,118 c14
+      line - 96,16 96,118 c14
+      line - 120,12 120,118 c14
+      line - 144,16 144,118 c14
+      line - 160,24 160,118 c14
+      line - 176,40 176,118 c14
+      line perch 76,92 164,92 c6
+      ellipse canary 124,82,16,11 14 e6
+      ellipse wing 128,80,11,7 mix:14,6@0.3
+      poly tail 108,86 96,98 102,98 112,90 14 e6
+      line - 128,93 128,96 c6
+      line - 120,93 120,96 c6
+      ellipse wisp 236,70,70,12 mix:,15@0.2
+      ellipse wisp2 150,108,50,6 mix:,15@0.25
+    `,
+    cycles: [{ name: "the fog coming in", areas: ["wisp", "wisp2", "fog_in"], colors: [15, 7], style: "pingpong", ms: 4200 }]
   }
 };

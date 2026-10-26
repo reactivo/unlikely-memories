@@ -61,8 +61,8 @@ export default {
       { name: "the door turning", areas: ["door_glass"], colors: [11, 3], style: "pingpong", ms: 1600 }
     ],
     overlays: [
-      { object: "wireless", at: [46, 88], alt: "A small cream wireless sits on the sill." },
-      { object: "mints", at: [30, 89], alt: "A paper bag of peppermints sits on the sill." }
+      { object: "wireless", at: [46, 88] },
+      { object: "mints", at: [30, 89] }
     ]
   },
 
@@ -502,100 +502,88 @@ export default {
 //   died       looking up from the floor · no horizon · the tube bundle and one lamp, off to the left · 8 dark grey
 export const endings = {
   afternoon: {
-    alt: "Through the window of a bus, wound down: a bright sea along the horizon, a green verge going by, and an elbow resting on the sill.",
-    picture: {
-      version: 1,
-      draw: `
-        rect sky 0,0,320,74 fade:11,9/0,0/0,74
-        ellipse sun 250,26,14,14 14
-        ellipse sun_glow 250,26,30,26 mix:,14@0.25
-        dots gulls 80,40 96,34 120,46 c15
-        rect sea 0,74,320,26 fade:3,1/0,74/0,100
-        dots sparkle 30,80 74,88 120,78 170,92 220,82 280,90 c15
-        poly hills 0,100 50,90 120,98 190,88 250,97 320,92 320,100 2
-        rect verge 0,100,320,36 mix:2,10@0.5
-        rect frame_top 0,0,320,10 0
-        rect pillar_l 0,0,22,136 0
-        rect pillar_r 298,0,22,136 0
-        rect pole 266,0,5,136 7
-        rect sill 0,110,320,26 mix:6,0@0.6
-        poly arm 110,136 124,112 176,106 214,136 mix:12,6@0.4 e6
-        ellipse hand 172,108,16,7 mix:12,6@0.4
-        line - 150,112 190,112 c6
-      `,
-      cycles: [{ name: "sparkle", areas: ["sparkle"], colors: [15, 11], style: "flicker", ms: [400, 1500] }]
-    }
+    version: 1,
+    draw: `
+      rect sky 0,0,320,74 fade:11,9/0,0/0,74
+      ellipse sun 250,26,14,14 14
+      ellipse sun_glow 250,26,30,26 mix:,14@0.25
+      dots gulls 80,40 96,34 120,46 c15
+      rect sea 0,74,320,26 fade:3,1/0,74/0,100
+      dots sparkle 30,80 74,88 120,78 170,92 220,82 280,90 c15
+      poly hills 0,100 50,90 120,98 190,88 250,97 320,92 320,100 2
+      rect verge 0,100,320,36 mix:2,10@0.5
+      rect frame_top 0,0,320,10 0
+      rect pillar_l 0,0,22,136 0
+      rect pillar_r 298,0,22,136 0
+      rect pole 266,0,5,136 7
+      rect sill 0,110,320,26 mix:6,0@0.6
+      poly arm 110,136 124,112 176,106 214,136 mix:12,6@0.4 e6
+      ellipse hand 172,108,16,7 mix:12,6@0.4
+      line - 150,112 190,112 c6
+    `,
+    cycles: [{ name: "sparkle", areas: ["sparkle"], colors: [15, 11], style: "flicker", ms: [400, 1500] }]
   },
   kept: {
-    alt: "A roof garden at dusk, seen from low down among the chimneys. A small bottle stands open, and a tall pale-gold column of light rises from it far above the roofs.",
-    picture: {
-      version: 1,
-      draw: `
-        rect sky 0,0,320,122 fade:0,1/0,0/0,122
-        dots stars 20,10 60,30 110,12 230,8 270,26 300,12 c7
-        poly plume 154,124 148,92 138,58 148,26 160,4 172,28 182,60 170,94 166,124 fade:14,1/0,124/0,0
-        ellipse haze 160,70,50,62 mix:,14@0.25
-        ellipse haze_in 160,90,22,30 mix:,15@0.3
-        poly roofs 0,136 0,120 30,112 60,118 90,108 122,116 200,114 230,106 260,116 290,110 320,114 320,136 0
-        rect - 36,90,8,24 0
-        rect - 238,84,8,30 0
-        rect - 276,96,8,18 0
-        poly rail 0,128 320,128 320,136 0,136 8
-        poly bottle 150,128 152,116 158,116 160,128 7
-        rect cork 153,112,4,4 6
-        poly figure 218,128 220,108 226,104 232,108 234,128 0
-        ellipse - 226,100,5,5 0
-      `,
-      cycles: [{ name: "the afternoon", areas: ["plume", "haze_in"], colors: [14, 15], style: "pingpong", ms: 2400 }]
-    }
+    version: 1,
+    draw: `
+      rect sky 0,0,320,122 fade:0,1/0,0/0,122
+      dots stars 20,10 60,30 110,12 230,8 270,26 300,12 c7
+      poly plume 154,124 148,92 138,58 148,26 160,4 172,28 182,60 170,94 166,124 fade:14,1/0,124/0,0
+      ellipse haze 160,70,50,62 mix:,14@0.25
+      ellipse haze_in 160,90,22,30 mix:,15@0.3
+      poly roofs 0,136 0,120 30,112 60,118 90,108 122,116 200,114 230,106 260,116 290,110 320,114 320,136 0
+      rect - 36,90,8,24 0
+      rect - 238,84,8,30 0
+      rect - 276,96,8,18 0
+      poly rail 0,128 320,128 320,136 0,136 8
+      poly bottle 150,128 152,116 158,116 160,128 7
+      rect cork 153,112,4,4 6
+      poly figure 218,128 220,108 226,104 232,108 234,128 0
+      ellipse - 226,100,5,5 0
+    `,
+    cycles: [{ name: "the afternoon", areas: ["plume", "haze_in"], colors: [14, 15], style: "pingpong", ms: 2400 }]
   },
   window: {
-    alt: "The front window of a department store at first light, seen from the pavement. Three figures stand in it, still: two mannequins, and between them you, in a coat a little warmer than yours, with a small red price tag on the sleeve.",
-    picture: {
-      version: 1,
-      draw: `
-        rect wall 0,0,320,136 mix:6,0@0.35
-        rect window 18,12,284,88 fade:14,6/0,12/0,100
-        rect floor 18,88,284,12 mix:6,0@0.5
-        ellipse head_l 98,36,7,8 7
-        poly mannequin_l 88,46 108,46 112,90 84,90 1
-        ellipse head_r 266,36,7,8 7
-        poly mannequin_r 256,46 276,46 280,90 252,90 1
-        ellipse head 188,32,8,9 12
-        poly you 174,42 202,42 208,90 168,90 6
-        line - 174,44 164,76 c6
-        line - 202,44 214,76 c6
-        rect tag 210,70,6,5 4
-        line - 213,66 213,70 c7
-        poly glare 30,12 80,12 46,100 18,100 mix:,15@0.12
-        poly glare2 100,12 120,12 86,100 66,100 mix:,15@0.1
-        rect sign 18,2,284,8 0
-        rect pavement 0,100,320,36 mix:8,0@0.5
-        line - 0,104 320,104 c7
-        poly passer 258,136 262,108 274,102 292,108 296,136 0
-        ellipse - 278,98,7,8 0
-      `
-    }
+    version: 1,
+    draw: `
+      rect wall 0,0,320,136 mix:6,0@0.35
+      rect window 18,12,284,88 fade:14,6/0,12/0,100
+      rect floor 18,88,284,12 mix:6,0@0.5
+      ellipse head_l 98,36,7,8 7
+      poly mannequin_l 88,46 108,46 112,90 84,90 1
+      ellipse head_r 266,36,7,8 7
+      poly mannequin_r 256,46 276,46 280,90 252,90 1
+      ellipse head 188,32,8,9 12
+      poly you 174,42 202,42 208,90 168,90 6
+      line - 174,44 164,76 c6
+      line - 202,44 214,76 c6
+      rect tag 210,70,6,5 4
+      line - 213,66 213,70 c7
+      poly glare 30,12 80,12 46,100 18,100 mix:,15@0.12
+      poly glare2 100,12 120,12 86,100 66,100 mix:,15@0.1
+      rect sign 18,2,284,8 0
+      rect pavement 0,100,320,36 mix:8,0@0.5
+      line - 0,104 320,104 c7
+      poly passer 258,136 262,108 274,102 292,108 296,136 0
+      ellipse - 278,98,7,8 0
+    `
   },
   died: {
-    alt: "The ceiling of the store, seen from the floor: a bundle of pneumatic tubes running away to a single yellow lamp, and the edge of your shoes at the bottom of the picture.",
-    picture: {
-      version: 1,
-      draw: `
-        rect ceiling 0,0,320,136 fade:0,8/0,136/0,0
-        poly panel_l 0,0 150,40 150,60 0,100 mix:8,0@0.5
-        poly panel_r 320,0 230,40 230,60 320,100 mix:8,0@0.4
-        poly tubes 10,136 60,136 200,52 196,40 mix:7,8@0.5 e0
-        poly tube2 70,136 120,136 210,56 204,44 mix:7,8@0.4 e0
-        line - 40,136 198,46 c15
-        line - 98,136 206,50 c15
-        line - 20,120 80,86 c8
-        ellipse glow 214,38,34,16 mix:,14@0.35
-        ellipse lamp 214,38,10,4 14
-        line - 214,0 214,34 c7
-        poly shoes_l 214,136 228,118 262,120 270,136 0
-        poly shoes_r 276,136 284,122 316,124 320,136 0
-      `
-    }
+    version: 1,
+    draw: `
+      rect ceiling 0,0,320,136 fade:0,8/0,136/0,0
+      poly panel_l 0,0 150,40 150,60 0,100 mix:8,0@0.5
+      poly panel_r 320,0 230,40 230,60 320,100 mix:8,0@0.4
+      poly tubes 10,136 60,136 200,52 196,40 mix:7,8@0.5 e0
+      poly tube2 70,136 120,136 210,56 204,44 mix:7,8@0.4 e0
+      line - 40,136 198,46 c15
+      line - 98,136 206,50 c15
+      line - 20,120 80,86 c8
+      ellipse glow 214,38,34,16 mix:,14@0.35
+      ellipse lamp 214,38,10,4 14
+      line - 214,0 214,34 c7
+      poly shoes_l 214,136 228,118 262,120 270,136 0
+      poly shoes_r 276,136 284,122 316,124 320,136 0
+    `
   }
 };

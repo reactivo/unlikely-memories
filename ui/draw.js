@@ -132,6 +132,10 @@ const INDEX = Object.fromEntries(Object.entries(COLORS).map(([ch, hex]) =>
 export const overlaysShown = (picture, state, roomId) =>
   (picture.overlays || []).filter(o => state.world.objects[o.object]?.at === roomId);
 
+// What an overlay says to a screen reader: its room's `overlayAlt` for that object (a world's pictures carry no text; the
+// world file, in its own language, says it). A game saved before that kept the line on the overlay itself.
+export const overlayAlt = (room, overlay) => room?.overlayAlt?.[overlay.object] ?? overlay.alt;
+
 // A world sprite's characters as palette numbers: hex digits 0–f ("." and anything else stay clear).
 const HEX_INDEX = Object.fromEntries([..."0123456789abcdef"].flatMap((c, i) => [[c, i], [c.toUpperCase(), i]]));
 

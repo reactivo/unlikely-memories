@@ -54,6 +54,15 @@ const squareDay = [
   "North, the station. West, the Hotel Terminus. East, the café. The high street goes south."
 ];
 
+// ---- The ending pictures ----------------------------------------------------------------------------------------------------
+// The drawings are language-free (pictures.js); what each one says to a screen reader (alt) is said here, in this world's language.
+const endingPictures = {
+  tuesday: { alt: "Through a train window: a dark tunnel rushing past in rings, and at the far end a growing white-and-yellow light. In the glass, faint, your own face.", picture: endings.tuesday },
+  monday: { alt: "Close up, a tear-off calendar on a brown wall. Its top page has a wide red band and a torn lower edge, with a few grey lines of print. At the calendar's right edge, the round face of a clock.", picture: endings.monday },
+  sunday: { alt: "Far away across an empty plain, a small railway station and its clock tower stand under a pale, flat sky. Two rails run to it. Nothing moves. The clock's hands are stopped.", picture: endings.sunday },
+  died: { alt: "The railway track and the platform edge seen from far above: two rails across brown sleepers, a pale platform with a yellow line, a red signal lamp, and a tiny figure lying by the edge as bright lights come down the line from the top of the picture.", picture: endings.died }
+};
+
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
 // Area "town" (x grows east, y grows south, z is the floor); area "train" is reached only when the train is in.
 const rooms = {
@@ -71,7 +80,11 @@ const rooms = {
     ],
     mentions: ["bench", "lamp", "name board", "timetable", "carriage door"],
     ambience: { lines: ["The lamp over the bench hums a note and holds it.", "A telegraph wire ticks, once, like a clock deciding.", "Very far down the line, something that is not a train sounds its whistle and thinks better of it.", "The name board turns a little in the wind, and turns back."], every: [30, 70] },
-    alt: "A small railway halt at dusk: a platform with a bench and a lamp, a name board, and a single lit carriage at the end with its door open."
+    alt: "A small railway halt at dusk: a platform with a bench and a lamp, a name board, and a single lit carriage at the end with its door open.",
+    overlayAlt: {
+      alarm: "A brass travel alarm sits on the bench.",
+      tin: "A cocoa tin sits on the bench, a string running from it off the platform."
+    }
   },
   lost_property: {
     name: "LOST PROPERTY", area: "town", at: [0, 0, 0],
@@ -799,7 +812,7 @@ export default {
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "ticket", at: null, portable: true, name: "Ticket", note: "Tuesday. One way.", actions: ["Examine ticket"],

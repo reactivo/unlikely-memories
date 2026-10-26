@@ -39,17 +39,14 @@ const holding = (id) => ({ [id + ".at"]: "player" });
 const tension = (n) => ({ set: "game.tension", add: n });
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
-// Los textos de los dibujos que viven en pictures.js (en inglés allí): aquí, en español, sin tocar el archivo.
-const endingAlt = {
-  afternoon: "A través de la ventanilla bajada de un autobús: un mar brillante a lo largo del horizonte, un talud verde que pasa y un codo apoyado en el marco.",
-  kept: "Una azotea al atardecer, vista desde abajo, entre las chimeneas. Un frasquito abierto, y de él sube una columna alta de luz dorada y pálida, muy por encima de los tejados.",
-  window: "El escaparate principal de unos grandes almacenes al amanecer, visto desde la acera. Tres figuras inmóviles dentro: dos maniquíes y, entre ellos, tú, con un abrigo algo más cálido que el tuyo y una pequeña etiqueta roja con el precio en la manga.",
-  died: "El techo de la tienda, visto desde el suelo: un haz de tubos neumáticos que se alejan hacia una sola lámpara amarilla y, abajo, la punta de tus zapatos."
+// ---- Los dibujos de los finales ---------------------------------------------------------------------------------------------
+// Los dibujos no llevan lengua (pictures.js); lo que cada uno dice a un lector de pantalla (alt) se dice aquí, en español.
+const endingPictures = {
+  afternoon: { alt: "A través de la ventanilla bajada de un autobús: un mar brillante a lo largo del horizonte, un talud verde que pasa y un codo apoyado en el marco.", picture: endings.afternoon },
+  kept: { alt: "Una azotea al atardecer, vista desde abajo, entre las chimeneas. Un frasquito abierto, y de él sube una columna alta de luz dorada y pálida, muy por encima de los tejados.", picture: endings.kept },
+  window: { alt: "El escaparate principal de unos grandes almacenes al amanecer, visto desde la acera. Tres figuras inmóviles dentro: dos maniquíes y, entre ellos, tú, con un abrigo algo más cálido que el tuyo y una pequeña etiqueta roja con el precio en la manga.", picture: endings.window },
+  died: { alt: "El techo de la tienda, visto desde el suelo: un haz de tubos neumáticos que se alejan hacia una sola lámpara amarilla y, abajo, la punta de tus zapatos.", picture: endings.died }
 };
-const overlayAlt = { wireless: "Una pequeña radio color crema en la repisa.", mints: "Una bolsa de papel con caramelos de menta en la repisa." };
-const pictureOf = (id) => id === "pavement"
-  ? { ...pictures.pavement, overlays: pictures.pavement.overlays.map(o => ({ ...o, alt: overlayAlt[o.object] ?? o.alt })) }
-  : pictures[id];
 
 // ---- Salas -----------------------------------------------------------------------------------------------------------------
 // Área "store" (x crece al este, y al sur, z es la planta: -1 el sótano, 0 la planta baja, hasta 3, la azotea).
@@ -70,7 +67,11 @@ const rooms = {
     ],
     mentions: ["escaparates", "vestidos", "repisa", "puerta giratoria"],
     ambience: { lines: ["En el escaparate más cercano, un vestido ha cambiado las manos de sitio y mira al cristal como si no lo hubiera hecho.", "Al otro lado de la persiana arrastran algo pesado, y nadie pide perdón.", "En algún lugar, dentro, alguien se ríe de un precio.", "La radio de la repisa encuentra una emisora, la pierde y pide disculpas."], every: [30, 70] },
-    alt: "Un pasaje cubierto, con techo de cristal, al anochecer, visto desde el suelo y cerrado por los dos extremos: escaparates iluminados y llenos de vestidos a lo largo de las dos paredes, una puerta giratoria en el muro ciego del fondo y una lámpara a su lado."
+    alt: "Un pasaje cubierto, con techo de cristal, al anochecer, visto desde el suelo y cerrado por los dos extremos: escaparates iluminados y llenos de vestidos a lo largo de las dos paredes, una puerta giratoria en el muro ciego del fondo y una lámpara a su lado.",
+    overlayAlt: {
+      wireless: "Una pequeña radio color crema en la repisa.",
+      mints: "Una bolsa de papel con caramelos de menta en la repisa."
+    }
   },
   front_hall: {
     name: "HARTLEY'S", area: "store", at: [1, 1, 0],
@@ -614,8 +615,8 @@ export default {
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e, alt: endingAlt[id] ?? e.alt })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictureOf(id) })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "lift_ticket", at: null, portable: true, name: "Volante de cita", note: "Cuarta planta.", actions: ["Examinar volante"], heldActions: ["Examinar volante", "Mostrar volante a Pell"],
       words: { nouns: ["volante", "cita", "billete", "ticket", "resguardo"], adj: ["rosa", "cita", "ascensor", "previa", "de"], g: "m" }, ...item("lift_ticket"),

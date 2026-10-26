@@ -42,22 +42,6 @@ const notHours = (from, to) => ({ "time.hour": { between: [to, from] } });   // 
 const tension = (n) => ({ set: "game.tension", add: n });
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
-// ---- Las imágenes: las del mundo inglés, con sus descripciones (alt) en español -------------------------------------------
-// (pictures.js guarda en inglés lo que las imágenes dicen a un lector de pantalla: aquí se sustituye, sin tocar el archivo)
-const OVERLAY_ALT = {
-  alarm: "Un despertador de latón sobre el banco.",
-  tin: "Una lata de cacao sobre el banco, con un cordel que sale de ella por el borde del andén."
-};
-const ENDING_ALT = {
-  tuesday: "Por la ventanilla de un tren: un túnel oscuro que pasa a toda velocidad en anillos y, al fondo, una luz blanca y amarilla que crece. En el cristal, tenue, tu propia cara.",
-  monday: "Primer plano de un calendario de hojas sobre una pared marrón. La hoja de arriba tiene una ancha franja roja y el borde inferior rasgado, con unas pocas líneas grises de letra impresa. Junto al borde derecho del calendario, la esfera redonda de un reloj.",
-  sunday: "A lo lejos, en una llanura vacía, una pequeña estación de ferrocarril y su torre del reloj bajo un cielo pálido y plano. Dos raíles llegan hasta ella. Nada se mueve. Las agujas del reloj están paradas.",
-  died: "La vía y el borde del andén vistos desde muy arriba: dos raíles sobre traviesas marrones, un andén pálido con una línea amarilla, una luz roja de señal y una figura diminuta tendida junto al borde mientras unas luces brillantes bajan por la vía desde lo alto de la imagen."
-};
-const roomPicture = (id) => id === "halt"
-  ? { ...pictures.halt, overlays: pictures.halt.overlays.map(o => ({ ...o, alt: OVERLAY_ALT[o.object] ?? o.alt })) }
-  : pictures[id];
-
 // ---- Textos que cambian -------------------------------------------------------------------------------------------------
 const squareDusk = [
   "La plaza de la estación, empedrada, con una {fuente|fountain} en el centro y una estatua del {Ministro|statue} que abolió los lunes. Las farolas aún no están encendidas. Una escalera de farolero se apoya en la primera.",
@@ -71,6 +55,15 @@ const squareDay = [
   "La plaza de la estación, empedrada, con una {fuente|fountain} en el centro y una estatua del {Ministro|statue} que abolió los lunes. Las palomas se turnan para posarse en su sombrero.",
   "Al norte, la estación. Al oeste, el Hotel Término. Al este, el café. La calle Mayor sigue hacia el sur."
 ];
+
+// ---- Los dibujos de los finales ---------------------------------------------------------------------------------------------
+// Los dibujos no llevan lengua (pictures.js); lo que cada uno dice a un lector de pantalla (alt) se dice aquí, en español.
+const endingPictures = {
+  tuesday: { alt: "Por la ventanilla de un tren: un túnel oscuro que pasa a toda velocidad en anillos y, al fondo, una luz blanca y amarilla que crece. En el cristal, tenue, tu propia cara.", picture: endings.tuesday },
+  monday: { alt: "Primer plano de un calendario de hojas sobre una pared marrón. La hoja de arriba tiene una ancha franja roja y el borde inferior rasgado, con unas pocas líneas grises de letra impresa. Junto al borde derecho del calendario, la esfera redonda de un reloj.", picture: endings.monday },
+  sunday: { alt: "A lo lejos, en una llanura vacía, una pequeña estación de ferrocarril y su torre del reloj bajo un cielo pálido y plano. Dos raíles llegan hasta ella. Nada se mueve. Las agujas del reloj están paradas.", picture: endings.sunday },
+  died: { alt: "La vía y el borde del andén vistos desde muy arriba: dos raíles sobre traviesas marrones, un andén pálido con una línea amarilla, una luz roja de señal y una figura diminuta tendida junto al borde mientras unas luces brillantes bajan por la vía desde lo alto de la imagen.", picture: endings.died }
+};
 
 // ---- Salas ---------------------------------------------------------------------------------------------------------------
 // Zona "town" (x crece al este, y crece al sur, z es la planta); a la zona "train" solo se llega cuando el tren está en el andén.
@@ -89,7 +82,11 @@ const rooms = {
     ],
     mentions: ["banco", "farola", "cartel", "horario", "puerta del vagón"],
     ambience: { lines: ["La farola sobre el banco zumba una nota y la sostiene.", "Un hilo del telégrafo hace tic, una sola vez, como un reloj que se lo está pensando.", "Muy lejos, línea abajo, algo que no es un tren hace sonar su silbato y se arrepiente.", "El cartel con el nombre gira un poco con el viento, y vuelve a su sitio."], every: [30, 70] },
-    alt: "Un pequeño apeadero al anochecer: un andén con un banco y una farola, un cartel con el nombre y, al fondo, un único vagón iluminado con la puerta abierta."
+    alt: "Un pequeño apeadero al anochecer: un andén con un banco y una farola, un cartel con el nombre y, al fondo, un único vagón iluminado con la puerta abierta.",
+    overlayAlt: {
+      alarm: "Un despertador de latón sobre el banco.",
+      tin: "Una lata de cacao sobre el banco, con un cordel que sale de ella por el borde del andén."
+    }
   },
   lost_property: {
     name: "OBJETOS PERDIDOS", area: "town", at: [0, 0, 0],
@@ -828,8 +825,8 @@ export default {
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e, alt: ENDING_ALT[id] ?? e.alt })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: roomPicture(id) })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "ticket", at: null, portable: true, name: "Billete", note: "Martes. Solo ida.", actions: ["Examinar billete"],
       words: { nouns: ["billete", "tarjeta", "boleto"], adj: ["tren", "martes", "cartón", "carton"], g: "m" }, ...item("ticket"),

@@ -55,8 +55,8 @@ export default {
       { name: "the carriage light", areas: ["door_glow", "spill"], colors: [14, 6], style: "pingpong", ms: 1400 }
     ],
     overlays: [
-      { object: "alarm", at: [26, 76], alt: "A brass travel alarm sits on the bench." },
-      { object: "tin", at: [42, 76], alt: "A cocoa tin sits on the bench, a string running from it off the platform." }
+      { object: "alarm", at: [26, 76] },
+      { object: "tin", at: [42, 76] }
     ]
   },
 
@@ -531,111 +531,99 @@ export default {
 //   died     from far above · no horizon · two rails and a tiny figure by the platform edge, 4% · 12 light red
 export const endings = {
   tuesday: {
-    alt: "Through a train window: a dark tunnel rushing past in rings, and at the far end a growing white-and-yellow light. In the glass, faint, your own face.",
-    picture: {
-      version: 1,
-      draw: `
-        rect carriage 0,0,320,136 8
-        rect window 50,14,220,92 0
-        ellipse tunnel_a 160,60,120,66 8
-        ellipse tunnel_b 160,60,84,50 0
-        ellipse tunnel_c 160,60,62,38 8
-        ellipse tunnel_d 160,60,44,28 0
-        ellipse tunnel_e 160,60,30,20 7
-        ellipse light 160,60,20,13 14
-        ellipse light_in 160,60,10,7 15
-        dots lamps 90,40 74,62 100,86 230,40 250,62 224,86 c14
-        ellipse face 96,62,14,18 mix:,15@0.15
-        poly shoulders 66,106 74,86 118,86 126,106 mix:,15@0.12
-        rect frame_top 0,0,320,14 mix:8,0@0.5
-        rect frame_bottom 0,106,320,30 mix:8,0@0.5
-        rect frame_l 0,0,50,136 mix:8,0@0.5
-        rect frame_r 270,0,50,136 mix:8,0@0.5
-        rect sill 40,106,240,8 6
-        poly seat 0,136 0,124 40,118 40,136 6
-        rect ticket 210,98,14,8 14
-      `,
-      cycles: [{ name: "the light", areas: ["light", "light_in"], colors: [14, 15], style: "pingpong", ms: 2200 }]
-    }
+    version: 1,
+    draw: `
+      rect carriage 0,0,320,136 8
+      rect window 50,14,220,92 0
+      ellipse tunnel_a 160,60,120,66 8
+      ellipse tunnel_b 160,60,84,50 0
+      ellipse tunnel_c 160,60,62,38 8
+      ellipse tunnel_d 160,60,44,28 0
+      ellipse tunnel_e 160,60,30,20 7
+      ellipse light 160,60,20,13 14
+      ellipse light_in 160,60,10,7 15
+      dots lamps 90,40 74,62 100,86 230,40 250,62 224,86 c14
+      ellipse face 96,62,14,18 mix:,15@0.15
+      poly shoulders 66,106 74,86 118,86 126,106 mix:,15@0.12
+      rect frame_top 0,0,320,14 mix:8,0@0.5
+      rect frame_bottom 0,106,320,30 mix:8,0@0.5
+      rect frame_l 0,0,50,136 mix:8,0@0.5
+      rect frame_r 270,0,50,136 mix:8,0@0.5
+      rect sill 40,106,240,8 6
+      poly seat 0,136 0,124 40,118 40,136 6
+      rect ticket 210,98,14,8 14
+    `,
+    cycles: [{ name: "the light", areas: ["light", "light_in"], colors: [14, 15], style: "pingpong", ms: 2200 }]
   },
   monday: {
-    alt: "Close up, a tear-off calendar on a brown wall. Its top page has a wide red band and a torn lower edge, with a few grey lines of print. At the calendar's right edge, the round face of a clock.",
-    picture: {
-      version: 1,
-      draw: `
-        rect wall 0,0,320,136 fade:6,0/0,0/0,136
-        ellipse clock 284,26,22,22 15 e0
-        line - 284,26 284,12 c0
-        line - 284,26 296,32 c0
-        rect pad 96,10,128,120 7 e0
-        rect sheet 90,6,140,118 15 e0
-        rect band 90,6,140,34 4
-        ellipse ring_l 120,6,4,3 8
-        ellipse ring_r 200,6,4,3 8
-        poly tear 90,40 100,44 112,41 124,45 138,41 150,44 164,41 178,45 192,41 206,44 218,41 230,44 230,40 mix:7,15@0.5
-        rect big 120,52,80,10 mix:4,15@0.35
-        rect - 120,68,56,6 mix:8,15@0.5
-        rect - 120,80,68,6 mix:8,15@0.5
-        rect - 120,92,44,6 mix:8,15@0.5
-        dots lines 100,106 110,106 120,106 130,106 140,106 150,106 160,106 170,106 180,106 190,106 200,106 210,106 c8
-        poly glue 90,40 230,40 230,44 90,42 mix:,15@0.5
-        rect stub 94,126,132,3 8
-      `,
-      cycles: [{ name: "the clock", areas: ["clock"], colors: [15, 14], style: "flicker", ms: [300, 900] }]
-    }
+    version: 1,
+    draw: `
+      rect wall 0,0,320,136 fade:6,0/0,0/0,136
+      ellipse clock 284,26,22,22 15 e0
+      line - 284,26 284,12 c0
+      line - 284,26 296,32 c0
+      rect pad 96,10,128,120 7 e0
+      rect sheet 90,6,140,118 15 e0
+      rect band 90,6,140,34 4
+      ellipse ring_l 120,6,4,3 8
+      ellipse ring_r 200,6,4,3 8
+      poly tear 90,40 100,44 112,41 124,45 138,41 150,44 164,41 178,45 192,41 206,44 218,41 230,44 230,40 mix:7,15@0.5
+      rect big 120,52,80,10 mix:4,15@0.35
+      rect - 120,68,56,6 mix:8,15@0.5
+      rect - 120,80,68,6 mix:8,15@0.5
+      rect - 120,92,44,6 mix:8,15@0.5
+      dots lines 100,106 110,106 120,106 130,106 140,106 150,106 160,106 170,106 180,106 190,106 200,106 210,106 c8
+      poly glue 90,40 230,40 230,44 90,42 mix:,15@0.5
+      rect stub 94,126,132,3 8
+    `,
+    cycles: [{ name: "the clock", areas: ["clock"], colors: [15, 14], style: "flicker", ms: [300, 900] }]
   },
   sunday: {
-    alt: "Far away across an empty plain, a small railway station and its clock tower stand under a pale, flat sky. Two rails run to it. Nothing moves. The clock's hands are stopped.",
-    picture: {
-      version: 1,
-      draw: `
-        rect sky 0,0,320,104 fade:11,7/0,0/0,104
-        ellipse cloud 230,26,50,6 mix:,15@0.5
-        ellipse cloud2 120,44,34,4 mix:,15@0.4
-        poly hills 0,104 50,94 110,100 190,96 250,102 320,98 320,104 mix:7,3@0.5
-        rect ground 0,104,320,32 mix:7,8@0.5
-        poly roof 36,82 76,70 116,82 8
-        rect station 42,82,68,22 8
-        rect door 70,92,10,12 0
-        rect tower 68,52,12,20 8
-        ellipse clock 74,58,6,6 15 e0
-        line hands 74,58 74,54 c0
-        line - 74,58 77,59 c0
-        line rail_a 0,132 112,105 c8
-        line rail_b 24,136 120,107 c8
-        dots - 200,60 210,66 c8
-      `
-    }
+    version: 1,
+    draw: `
+      rect sky 0,0,320,104 fade:11,7/0,0/0,104
+      ellipse cloud 230,26,50,6 mix:,15@0.5
+      ellipse cloud2 120,44,34,4 mix:,15@0.4
+      poly hills 0,104 50,94 110,100 190,96 250,102 320,98 320,104 mix:7,3@0.5
+      rect ground 0,104,320,32 mix:7,8@0.5
+      poly roof 36,82 76,70 116,82 8
+      rect station 42,82,68,22 8
+      rect door 70,92,10,12 0
+      rect tower 68,52,12,20 8
+      ellipse clock 74,58,6,6 15 e0
+      line hands 74,58 74,54 c0
+      line - 74,58 77,59 c0
+      line rail_a 0,132 112,105 c8
+      line rail_b 24,136 120,107 c8
+      dots - 200,60 210,66 c8
+    `
   },
   died: {
-    alt: "The railway track and the platform edge seen from far above: two rails across brown sleepers, a pale platform with a yellow line, a red signal lamp, and a tiny figure lying by the edge as bright lights come down the line from the top of the picture.",
-    picture: {
-      version: 1,
-      draw: `
-        rect ballast 0,0,320,136 mix:8,6@0.4
-        rect platform 0,0,100,136 mix:7,8@0.5
-        rect edge 94,0,6,136 14
-        rect - 120,6,100,5 6
-        rect - 120,20,100,5 6
-        rect - 120,34,100,5 6
-        rect - 120,48,100,5 6
-        rect - 120,62,100,5 6
-        rect - 120,76,100,5 6
-        rect - 120,90,100,5 6
-        rect - 120,104,100,5 6
-        rect - 120,118,100,5 6
-        rect rail_l 134,0,4,136 7
-        rect rail_r 196,0,4,136 7
-        poly cone 140,24 190,24 230,96 110,96 mix:,14@0.2
-        rect train 120,0,90,24 8 e0
-        ellipse lamp_l 140,20,5,3 14
-        ellipse lamp_r 188,20,5,3 14
-        ellipse signal 250,30,5,5 12
-        ellipse signal_glow 250,30,12,12 mix:,12@0.3
-        ellipse body 80,92,10,4 12
-        ellipse head 70,92,4,4 12
-      `,
-      cycles: [{ name: "signal", areas: ["signal", "signal_glow"], colors: [12, 4], style: "blink", ms: 800 }]
-    }
+    version: 1,
+    draw: `
+      rect ballast 0,0,320,136 mix:8,6@0.4
+      rect platform 0,0,100,136 mix:7,8@0.5
+      rect edge 94,0,6,136 14
+      rect - 120,6,100,5 6
+      rect - 120,20,100,5 6
+      rect - 120,34,100,5 6
+      rect - 120,48,100,5 6
+      rect - 120,62,100,5 6
+      rect - 120,76,100,5 6
+      rect - 120,90,100,5 6
+      rect - 120,104,100,5 6
+      rect - 120,118,100,5 6
+      rect rail_l 134,0,4,136 7
+      rect rail_r 196,0,4,136 7
+      poly cone 140,24 190,24 230,96 110,96 mix:,14@0.2
+      rect train 120,0,90,24 8 e0
+      ellipse lamp_l 140,20,5,3 14
+      ellipse lamp_r 188,20,5,3 14
+      ellipse signal 250,30,5,5 12
+      ellipse signal_glow 250,30,12,12 mix:,12@0.3
+      ellipse body 80,92,10,4 12
+      ellipse head 70,92,4,4 12
+    `,
+    cycles: [{ name: "signal", areas: ["signal", "signal_glow"], colors: [12, 4], style: "blink", ms: 800 }]
   }
 };

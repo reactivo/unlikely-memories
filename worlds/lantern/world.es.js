@@ -38,21 +38,6 @@ export const bible = {
   chaos: 0.2
 };
 
-// Lo que se ve de los objetos en las imágenes se describe también en español (las imágenes mismas son las de pictures.js).
-const overlayAlt = {
-  canary: "Un canario en una pequeña jaula de latón cuelga de un gancho del techo.",
-  egg_timer: "Un reloj de arena yace sobre el asiento.",
-  trumpet: "Una trompetilla de latón abollada yace en el suelo."
-};
-const roomPictures = Object.fromEntries(Object.entries(pictures).map(([id, p]) => [id, p.overlays
-  ? { ...p, overlays: p.overlays.map(o => ({ ...o, alt: overlayAlt[o.object] ?? o.alt })) } : p]));
-const endingAlt = {
-  truth: "Lantern Row desde muy arriba, al amanecer, sin niebla: tejados en filas, una línea de doce faroles encendidos a lo largo de la calle y el río curvándose, rosa con el cielo. Dos figuras pequeñas se alejan por la orilla, del brazo.",
-  relieved: "De cerca, la linterna del último farol, encendida: cuatro cristales de luz amarilla alrededor de una llama blanca, la tapa de hierro arriba y, abajo, junto a la llave del gas, el gancho de latón de una pértiga de farolero.",
-  blamed: "Desde muy arriba, un mar gris y liso de niebla sobre Londres, con las chimeneas asomando en filas y una pequeña luz blanca y dura donde debería estar Lantern Row.",
-  died: "De cerca, una pequeña jaula de latón en la niebla gris. El canario está en su percha con la cabeza bajo el ala, y la niebla se cuela entre los barrotes."
-};
-
 // Las cosas llevadas tienen sus sprites (sprites.js): el que se ve al examinarlas y el que se dibuja en el suelo.
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
@@ -61,6 +46,15 @@ const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"]
 const named = (names, opening = ["", "el ", "fue ", "fue el ", "ha sido ", "ha sido el ", "es ", "es el ", "lo hizo ", "lo hizo el ",
   "el culpable es ", "el culpable es el ", "culpable ", "culpable el ", "que fue ", "que fue el ", "que ha sido ", "que ha sido el ",
   "que es ", "que es el ", "que lo hizo ", "que lo hizo el ", "fue culpa de ", "fue culpa de el ", "es culpa de ", "es culpa de el "]) => [...new Set(opening.flatMap(a => names.map(n => a + n)))];
+
+// ---- Los dibujos de los finales ---------------------------------------------------------------------------------------------
+// Los dibujos no llevan lengua (pictures.js); lo que cada uno dice a un lector de pantalla (alt) se dice aquí, en español.
+const endingPictures = {
+  truth: { alt: "Lantern Row desde muy arriba, al amanecer, sin niebla: tejados en filas, una línea de doce faroles encendidos a lo largo de la calle y el río curvándose, rosa con el cielo. Dos figuras pequeñas se alejan por la orilla, del brazo.", picture: endings.truth },
+  relieved: { alt: "De cerca, la linterna del último farol, encendida: cuatro cristales de luz amarilla alrededor de una llama blanca, la tapa de hierro arriba y, abajo, junto a la llave del gas, el gancho de latón de una pértiga de farolero.", picture: endings.relieved },
+  blamed: { alt: "Desde muy arriba, un mar gris y liso de niebla sobre Londres, con las chimeneas asomando en filas y una pequeña luz blanca y dura donde debería estar Lantern Row.", picture: endings.blamed },
+  died: { alt: "De cerca, una pequeña jaula de latón en la niebla gris. El canario está en su percha con la cabeza bajo el ala, y la niebla se cuela entre los barrotes.", picture: endings.died }
+};
 
 // ---- Salas -------------------------------------------------------------------------------------------------------------
 // Zona "cab": la apertura, a la que no se vuelve. Zona "row" (la x crece al este, la y al sur): el tribunal al norte de la
@@ -87,7 +81,11 @@ const rooms = {
       "El canario se desplaza por su percha y mira las portezuelas.",
       "Una gota de niebla se forma en el cristal, y decide no resbalar."
     ], every: [25, 60] },
-    alt: "Desde el interior de un coche de punto oscuro, con felpa roja a ambos lados, mirando por sus portezuelas abiertas a una espesa niebla blanca. Las riendas cuelgan a través de la abertura; a lo lejos, entre la niebla, la mancha de un farol encendido."
+    alt: "Desde el interior de un coche de punto oscuro, con felpa roja a ambos lados, mirando por sus portezuelas abiertas a una espesa niebla blanca. Las riendas cuelgan a través de la abertura; a lo lejos, entre la niebla, la mancha de un farol encendido.",
+    overlayAlt: {
+      canary: "Un canario en una pequeña jaula de latón cuelga de un gancho del techo.",
+      egg_timer: "Un reloj de arena yace sobre el asiento."
+    }
   },
   row: {
     name: "LANTERN ROW", area: "row", at: [1, 0, 0],
@@ -211,7 +209,8 @@ const rooms = {
       { words: ["puerta", "caseta"], name: "la puerta", says: "La puerta de la caseta, abierta, y fuera, al oeste, el último farol.", leads: "w" }
     ],
     mentions: ["gorras", "clavos", "libro de registro", "estante", "puerta"],
-    alt: "Dentro de una caseta de madera diminuta, mirando a su pared del fondo: tres filas de gorras viejas en clavos, de un verde vivo arriba y más grises abajo, el último clavo vacío, y un estante con un libro de registro abierto y una lata roja."
+    alt: "Dentro de una caseta de madera diminuta, mirando a su pared del fondo: tres filas de gorras viejas en clavos, de un verde vivo arriba y más grises abajo, el último clavo vacío, y un estante con un libro de registro abierto y una lata roja.",
+    overlayAlt: { trumpet: "Una trompetilla de latón abollada yace en el suelo." }
   },
   substation: {
     name: "LA SUBESTACIÓN", area: "row", at: [0, 1, 0],
@@ -719,8 +718,8 @@ export default {
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e, alt: endingAlt[id] ?? e.alt })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: roomPictures[id] })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))
   ]

@@ -49,28 +49,6 @@ const tension = (n) => ({ set: "game.tension", add: n });
 // dibujo, una versión pequeña para el suelo (content/sample.sprites.js).
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
-// Lo que lleva lengua en pictures.js (las descripciones para lectores de pantalla) se escribe aquí, sin tocar ese archivo:
-// las cuatro imágenes de los finales y lo que dice cada objeto dibujado sobre una sala.
-const endingAlt = {
-  photograph: "Una oficina vista desde muy arriba: filas de mesas grises idénticas entre tabiques grises, y en una de ellas una figura diminuta, sentada, muy quieta.",
-  shell: "A lo lejos, sobre el agua negra de la noche, un faro en su roca lanza un ancho barrido de luz amarilla sobre el mar y el pueblo. En la playa oscura, cerca de la izquierda, donde había una puerta, solo hay un trozo de madera de deriva.",
-  drowned: "Visto desde debajo del agua, mirando hacia arriba: una luna pálida y quebrada en la superficie, muy lejos, y largos haces de luz que bajan hacia la oscuridad, donde flotan despacio un zapatito rojo y un guante gris.",
-  died: "Una mano, muy cerca de la cámara, yace abierta sobre la arena mojada, en el borde de la marea, alargada hacia el mar. Más allá, una franja delgada de agua gris bajo un cielo pálido de amanecer."
-};
-const overlayAlt = {
-  "corridor:stamp": "Un sello de goma yace en el linóleo, junto al charco.",
-  "corridor:suggestion_box": "Un pequeño buzón de sugerencias de madera cuelga de la pared, bajo el cartel.",
-  "tideline:shell": "Una caracola pálida yace cerca de la hoja.",
-  "pier_end:boat": "Una pequeña barca azul está atada al poste.",
-  "room11:letter": "Una carta yace sobre la almohada.",
-  "cafe:coffee": "Una taza de café humea sobre la mesa.",
-  "lighthouse_base:boat": "La barca está atada a la argolla de amarre."
-};
-const localized = (id) => {
-  const p = pictures[id];
-  return p.overlays ? { ...p, overlays: p.overlays.map(o => ({ ...o, alt: overlayAlt[id + ":" + o.object] ?? o.alt })) } : p;
-};
-
 // Textos de sala que los cambios ponen y quitan (la playa y la linterna). Un cambio reescribe todo el texto de una sala; cuando
 // dos cambios pueden tocar la misma sala, el posterior tiene en cuenta al anterior (GUIDE.md §6): encender la lámpara
 // cuando la puerta ya es madera de deriva usa los textos con los dos.
@@ -84,6 +62,15 @@ const lampLit = "Cristal por los cuatro costados y, tras el cristal, el mar por 
 const farDoor = "A lo lejos, la playa. La puerta verde es un cuadradito de luz en la arena.";
 const farSand = "A lo lejos, la playa. Donde estaba la puerta no hay más que arena oscura.";
 const down = "La escalera baja.";
+
+// ---- Los dibujos de los finales ---------------------------------------------------------------------------------------------
+// Los dibujos no llevan lengua (pictures.js); lo que cada uno dice a un lector de pantalla (alt) se dice aquí, en español.
+const endingPictures = {
+  photograph: { alt: "Una oficina vista desde muy arriba: filas de mesas grises idénticas entre tabiques grises, y en una de ellas una figura diminuta, sentada, muy quieta.", picture: endings.photograph },
+  shell: { alt: "A lo lejos, sobre el agua negra de la noche, un faro en su roca lanza un ancho barrido de luz amarilla sobre el mar y el pueblo. En la playa oscura, cerca de la izquierda, donde había una puerta, solo hay un trozo de madera de deriva.", picture: endings.shell },
+  drowned: { alt: "Visto desde debajo del agua, mirando hacia arriba: una luna pálida y quebrada en la superficie, muy lejos, y largos haces de luz que bajan hacia la oscuridad, donde flotan despacio un zapatito rojo y un guante gris.", picture: endings.drowned },
+  died: { alt: "Una mano, muy cerca de la cámara, yace abierta sobre la arena mojada, en el borde de la marea, alargada hacia el mar. Más allá, una franja delgada de agua gris bajo un cielo pálido de amanecer.", picture: endings.died }
+};
 
 // ---- Salas --------------------------------------------------------------------------------------------------------
 // area + at: dónde está (js/space.js). Costa: x crece hacia el este, y hacia el sur (el mar queda al norte). El faro es un
@@ -111,7 +98,11 @@ const rooms = {
       "«Estás conforme», murmura el {altavoz}. «Se ruega seguir así hasta nuevo aviso».",
       "«Aviso del Ministerio: cualquier otro lugar es un rumor».",
       "En algún punto del techo, el {altavoz} crepita. «El almuerzo será suficiente»."], every: [40, 90] },
-    alt: "Un largo pasillo gris iluminado por lámparas de techo. Un cartel con un ojo rojo cuelga de la pared izquierda; una cámara en la pared derecha mira hacia otro lado. En la parte baja de la pared derecha, una diminuta puerta verde deja escapar luz amarilla y agua sobre el suelo."
+    alt: "Un largo pasillo gris iluminado por lámparas de techo. Un cartel con un ojo rojo cuelga de la pared izquierda; una cámara en la pared derecha mira hacia otro lado. En la parte baja de la pared derecha, una diminuta puerta verde deja escapar luz amarilla y agua sobre el suelo.",
+    overlayAlt: {
+      stamp: "Un sello de goma yace en el linóleo, junto al charco.",
+      suggestion_box: "Un pequeño buzón de sugerencias de madera cuelga de la pared, bajo el cartel."
+    }
   },
   beach: {
     name: "LA PLAYA", area: "coast", at: [0, 0, 0],
@@ -136,6 +127,7 @@ const rooms = {
     ],
     exits: { e: "beach", s: "huts" },
     alt: "Arena mojada vista desde arriba. Una línea de algas la cruza, con un guante gris, un zapato rojo pequeño y una hoja mecanografiada empapada.",
+    overlayAlt: { shell: "Una caracola pálida yace cerca de la hoja." },
     scenery: [
       { words: ["algas", "alga", "linea", "marea"], name: "las algas" }, { words: ["arena", "playa"], name: "la arena" },
       { words: ["mar", "agua", "espuma", "olas"], name: "el mar" }, { words: ["casetas", "caseta"], name: "las casetas" }
@@ -180,6 +172,7 @@ const rooms = {
     ],
     exits: { s: "pier", n: true },
     alt: "El final de un muelle de noche. Al otro lado del agua, un faro blanco con una franja roja se alza sobre una roca, con la linterna apagada.",
+    overlayAlt: { boat: "Una pequeña barca azul está atada al poste." },
     scenery: [
       { words: ["poste", "argolla", "anilla", "muelle", "tablones"], name: "el poste" }, { words: ["mar", "agua"], name: "el mar" },
       { words: ["roca"], name: "la roca" }
@@ -291,6 +284,7 @@ const rooms = {
     ],
     exits: { e: { to: "hallway", out: true } },
     alt: "Una pequeña habitación de hotel de noche: una ventana al mar oscuro entre cortinas rojas, un abrigo azul sobre una silla, una cama hecha con una almohada blanca.",
+    overlayAlt: { letter: "Una carta yace sobre la almohada." },
     scenery: [
       { words: ["cama", "almohada", "colcha", "sabanas"], name: "la cama" }, { words: ["silla"], name: "la silla" },
       { words: ["cortinas", "cortina"], name: "las cortinas" }, { words: ["puerta", "habitacion"], name: "la puerta", leads: "e" },
@@ -335,6 +329,7 @@ const rooms = {
     ],
     exits: { w: { to: "square", out: true } },
     alt: "Un pequeño café cálido: una cafetera humeante sobre el mostrador, mesas redondas de mármol, un camarero con delantal blanco doblando una servilleta, una ventana a la plaza oscura.",
+    overlayAlt: { coffee: "Una taza de café humea sobre la mesa." },
     scenery: [
       { words: ["mesas", "mesa", "sillas", "silla"], name: "las mesas" }, { words: ["cafetera", "maquina", "vapor"], name: "la cafetera" },
       { words: ["servilleta"], name: "la servilleta" }, { words: ["ventana", "plaza"], name: "la ventana" },
@@ -363,6 +358,7 @@ const rooms = {
     ],
     exits: { u: "lantern", s: true },
     alt: "Un alto faro blanco con franjas rojas visto desde abajo, con la linterna oscura contra las estrellas. La espuma rompe en la roca de su pie; la puerta está abierta.",
+    overlayAlt: { boat: "La barca está atada a la argolla de amarre." },
     scenery: [
       { words: ["faro", "torre", "puerta", "escalera", "escaleras"], name: "el faro", leads: "u" },
       { words: ["roca", "argolla"], name: "la roca" }, { words: ["mar", "olas", "agua", "espuma"], name: "el mar" }
@@ -889,8 +885,8 @@ export default {
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
     // Salas, objetos y reglas
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e, alt: endingAlt[id] ?? e.alt })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: localized(id) })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),
 

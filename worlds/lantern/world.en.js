@@ -39,6 +39,15 @@ export const bible = {
 // Carried things get their sprites (sprites.js): the one shown when examined, and the one drawn on the floor.
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
+// ---- The ending pictures ----------------------------------------------------------------------------------------------------
+// The drawings are language-free (pictures.js); what each one says to a screen reader (alt) is said here, in this world's language.
+const endingPictures = {
+  truth: { alt: "Lantern Row from far above at dawn, the fog gone: rooftops in rows, a line of twelve lit lamps along the street, and the river curving past, pink with the sky. Two small figures walk away along the river, arm in arm.", picture: endings.truth },
+  relieved: { alt: "Close up, the lantern of the last lamp, lit: four panes of yellow light round a white flame, the iron cap above, and the brass hook of a lamplighter's pole at the tap below.", picture: endings.relieved },
+  blamed: { alt: "From far above, a flat grey sea of fog over London, chimney pots poking through it in rows, and one small hard white light where Lantern Row should be.", picture: endings.blamed },
+  died: { alt: "Close up, a small brass birdcage in grey fog. The canary sits on its perch with its head tucked under its wing, and the fog comes in between the bars.", picture: endings.died }
+};
+
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
 // Area "cab": the opening, never returned to. Area "row" (x grows east, y grows south): the court north of the Row,
 // the Bell west and the pie shop east of it; the last lamp south, with the substation west, the hut east and the river
@@ -64,7 +73,11 @@ const rooms = {
       "The canary shifts along its perch and looks at the doors.",
       "A drop of fog gathers on the window, and decides against running down."
     ], every: [25, 60] },
-    alt: "From inside a dark hansom cab, red plush on either side, looking out through its open folding doors at thick white fog. Reins hang down across the opening; far off in the fog, the smudge of one lit lamp."
+    alt: "From inside a dark hansom cab, red plush on either side, looking out through its open folding doors at thick white fog. Reins hang down across the opening; far off in the fog, the smudge of one lit lamp.",
+    overlayAlt: {
+      canary: "A canary in a small brass cage hangs from a hook in the roof.",
+      egg_timer: "An egg timer lies on the seat."
+    }
   },
   row: {
     name: "LANTERN ROW", area: "row", at: [1, 0, 0],
@@ -188,7 +201,8 @@ const rooms = {
       { words: ["door", "hut"], name: "the door", says: "The hut door, open, and the last lamp outside it, west.", leads: "w" }
     ],
     mentions: ["caps", "nails", "log book", "shelf", "door"],
-    alt: "Inside a tiny wooden hut, looking at its back wall: three rows of old caps on nails, bright green at the top and greyer lower down, the last nail empty, and a shelf with an open log book and a red tin."
+    alt: "Inside a tiny wooden hut, looking at its back wall: three rows of old caps on nails, bright green at the top and greyer lower down, the last nail empty, and a shelf with an open log book and a red tin.",
+    overlayAlt: { trumpet: "A dented brass ear trumpet lies on the floor." }
   },
   substation: {
     name: "THE SUBSTATION", area: "row", at: [0, 1, 0],
@@ -696,7 +710,7 @@ export default {
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
-    ...Object.entries(endings).map(([id, e]) => ({ add: "picture", id, ...e })),
+    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))

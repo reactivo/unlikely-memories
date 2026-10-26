@@ -13,7 +13,7 @@ import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
-const ROOM = ["name", "area", "at", "describe", "exits", "alt", "scenery", "mentions", "picture", "ambience", "waitFor", "placeholder", ...ANSWERED];
+const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "ambience", "waitFor", "placeholder", ...ANSWERED];
 const OBJECT = ["at", "portable", "container", "open", "locked", "scenery", "name", "note", "actions", "heldActions", "examine",
   "here", "words", "sprite", "floorSprite", "img", "alt", "use", "leads", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", ...ANSWERED];
