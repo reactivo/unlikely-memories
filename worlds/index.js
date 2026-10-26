@@ -10,13 +10,17 @@ import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js";
 import sea, { bible as seaBible } from "./sea/world.en.js";
 import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js";
 import lantern, { bible as lanternBible } from "./lantern/world.en.js";
+import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js";
+import seaEs, { bible as seaBibleEs } from "./sea/world.es.js";
+import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js";
+import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js";
 import { parseShapes } from "../js/picture.js";
 
 export const WORLDS = {
-  sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", text: { en: sea } },      // "The Sea Is a Rumour"
-  tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", text: { en: tuesday } },   // "The Train to Tuesday"
-  hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", text: { en: hartleys } },   // "Hartley's, After Hours"
-  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", text: { en: lantern } }      // "The Last Word on Lantern Row"
+  sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
+  tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", bible: { es: tuesdayBibleEs }, text: { en: tuesday, es: tuesdayEs } },   // "The Train to Tuesday"
+  hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
+  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } }      // "The Last Word on Lantern Row"
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).
@@ -28,7 +32,7 @@ export const worldFor = (lang, id = DEFAULT) => (Object.hasOwn(WORLDS, id) ? WOR
 // The worlds the landing page lists for a language: those written in it, newest first.
 export const listFor = (lang) => Object.entries(WORLDS).filter(([, w]) => w.text[lang])
   .sort(([, a], [, b]) => b.made.localeCompare(a.made))
-  .map(([id, w]) => ({ id, title: w.title, blurb: w.blurb, thumbnail: w.thumbnail }));
+  .map(([id, w]) => { const b = w.bible?.[lang] ?? w; return { id, title: b.title, blurb: b.blurb, thumbnail: w.thumbnail }; });
 
 // What a card's thumbnail is drawn from: the named room's drawing list (parsed if it is still the short notation), the room's
 // description for screen readers, and where the crop starts. null if the world or the room isn't there.
