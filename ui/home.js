@@ -1,5 +1,5 @@
 // Landing page: the list of games. One card per world (thumbnail, title, blurb, and buttons: NEW GAME, with LOAD GAME beside it when
-// the world has a saved game), under the title and ornament. Drawn from the list the controller hands it, not from the game's state.
+// the world has a saved game), under the logo. Drawn from the list the controller hands it, not from the game's state.
 // Never decides which games exist or what a saved game is (js/main.js, worlds/index.js, js/saves.js); LOAD GAME is the intent
 // on.play(id), NEW GAME on.play(id, true) when there is a saved game to ask about (else on.play(id)).
 

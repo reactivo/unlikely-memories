@@ -1,22 +1,19 @@
 /* The landing page (ui/home.js; INTERFACE.md §13): the list of games, the other view of the page. Shown instead of the game by
    css/layout.css (data-view), so this file never sets display on .home. The column is as wide as the game's at most (--column-max
-   in layout.css; on phones the whole width inside the page's padding) and the page scrolls. The ornament is pixel art (a 72 × 10
-   drawing), stretched to --ornament-width with its height following.
+   in layout.css; on phones the whole width inside the page's padding) and the page scrolls. The header is the logo, an
+   SVG file (img/logo-unlikely-memories.svg, Diego's, 27 Oct 2026) shown --logo-width wide.
    What changes on wider windows (the column's width, the card's two columns, the buttons' place) comes from variables set in
    layout.css; phone values here. The text styles are classes (css/typography.css): .text-ui on the page, and on the
    version, language switch, title, subtitle, cards and buttons in index.html and ui/home.js. */
 @layer ui {
   .home {
-    --ornament-width: 288px;   /* the ornament above and below the title (4px per pixel of its drawing) */
+    --logo-width: 288px;   /* the logo at the top: its own size (288 × 210) */
 
     /* Colours on the landing page, by meaning. */
     --version:        var(--color-text-dim);    /* v0.9.15, top left */
     --lang-on:        var(--color-text);        /* the switch, top right: the current language… */
     --lang-off:       var(--color-text-dim);    /* …and the other, until the pointer is on it */
-    --title:          var(--color-highlight);   /* UNLIKELY MEMORIES */
     --subtitle:       var(--color-text);
-    --flowers:        var(--color-decor-warm);  /* the ornament */
-    --vine:           var(--color-decor-cool);
     --card-line:      var(--color-surface);     /* a card's outline… */
     --card-line-on:   var(--color-highlight);   /* …with the pointer anywhere on the card, or the focus inside it */
     --card-bg:        var(--color-bg);
@@ -77,33 +74,16 @@
       text-align: center;
     }
 
-    & .ornament {
-      display: block;
-      shape-rendering: crispEdges;
-      width: var(--ornament-width);
-      height: auto;
-
-      & .warm {
-        fill: var(--flowers);
-      }
-
-      & .cool {
-        fill: var(--vine);
-      }
-
-      &.flip {
-        transform: rotate(180deg);
-      }
-    }
-
     & h1 {
       margin: 0;
-      color: var(--title);
-      padding-top: var(--space-s);
     }
 
-    & h1 span {
+    /* The logo keeps its own colours (they're in the file). */
+    & .logo {
       display: block;
+      width: var(--logo-width);
+      max-width: 100%;
+      height: auto;
     }
 
     & .subtitle {

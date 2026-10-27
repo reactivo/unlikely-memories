@@ -28,14 +28,12 @@
 <body>
 
 <!-- The landing page: the list of games, the other view of this page (css/layout.css shows one at a time; ui/home.js fills it in).
-     The ornament is pixel art on a 72 x 10 grid of 1-pixel cells in 2 x 2 blocks, drawn twice (the second is turned round by CSS). -->
+     The header is the logo (img/logo-unlikely-memories.svg: the title with its pixel-art vine above and below). -->
 <main class="home text-ui" id="home" aria-labelledby="home-title">
   <p class="version text-label" id="home-version"></p>
   <div class="lang text-label" role="group"><button type="button" data-lang="en">EN</button><span aria-hidden="true">·</span><button type="button" data-lang="es">ES</button></div>
   <header class="header">
-    <svg class="ornament" viewBox="0 0 72 10" aria-hidden="true" focusable="false"><path class="warm" d="M33 0h2v2h-2zM37 0h2v2h-2zM2 4h2v2h-2zM68 4h2v2h-2zM0 6h2v2h-2zM4 6h2v2h-2zM66 6h2v2h-2zM70 6h2v2h-2zM2 8h2v2h-2zM68 8h2v2h-2z"/><path class="cool" d="M31 2h2v2h-2zM35 2h2v2h-2zM39 2h2v2h-2zM6 4h2v2h-2zM14 4h2v2h-2zM22 4h2v2h-2zM33 4h6v2h-6zM52 4h2v2h-2zM60 4h2v2h-2zM8 6h2v2h-2zM12 6h2v2h-2zM16 6h2v2h-2zM20 6h2v2h-2zM24 6h24v2h-24zM50 6h2v2h-2zM54 6h2v2h-2zM58 6h2v2h-2zM62 6h2v2h-2zM10 8h2v2h-2zM18 8h2v2h-2zM48 8h2v2h-2zM56 8h2v2h-2zM64 8h2v2h-2z"/></svg>
-    <h1 class="text-title" id="home-title"><span>Unlikely</span> <span>Memories</span></h1>
-    <svg class="ornament flip" viewBox="0 0 72 10" aria-hidden="true" focusable="false"><path class="warm" d="M33 0h2v2h-2zM37 0h2v2h-2zM2 4h2v2h-2zM68 4h2v2h-2zM0 6h2v2h-2zM4 6h2v2h-2zM66 6h2v2h-2zM70 6h2v2h-2zM2 8h2v2h-2zM68 8h2v2h-2z"/><path class="cool" d="M31 2h2v2h-2zM35 2h2v2h-2zM39 2h2v2h-2zM6 4h2v2h-2zM14 4h2v2h-2zM22 4h2v2h-2zM33 4h6v2h-6zM52 4h2v2h-2zM60 4h2v2h-2zM8 6h2v2h-2zM12 6h2v2h-2zM16 6h2v2h-2zM20 6h2v2h-2zM24 6h24v2h-24zM50 6h2v2h-2zM54 6h2v2h-2zM58 6h2v2h-2zM62 6h2v2h-2zM10 8h2v2h-2zM18 8h2v2h-2zM48 8h2v2h-2zM56 8h2v2h-2zM64 8h2v2h-2z"/></svg>
+    <h1 id="home-title"><img class="logo" src="img/logo-unlikely-memories.svg" alt="Unlikely Memories" width="288" height="210"></h1>
     <p class="subtitle text-subtitle" id="home-subtitle"></p>
   </header>
   <div class="column"></div>

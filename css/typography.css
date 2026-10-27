@@ -96,13 +96,6 @@
     text-transform: uppercase;
   }
 
-  /* The landing page's title. */
-  .text-title {
-    font-size: var(--text-xl);
-    line-height: var(--line-s);
-    text-transform: uppercase;
-  }
-
   /* The landing page's subtitle. */
   .text-subtitle {
     font-size: var(--text-l);

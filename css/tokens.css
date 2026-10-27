@@ -42,10 +42,6 @@
     --palette-yellow-300: #f2d25c;   /* CGA-style yellow */
     --palette-red-400:    #e0645a;   /* soft red: bright enough on near black, not alarm red */
 
-    /* Two of the pictures' 16 EGA colours (content/art.js), for the landing page's ornament: pixel art, so the
-       one place the interface uses picture colours. */
-    --palette-ega-red:    #aa0000;   /* EGA 4 */
-    --palette-ega-green:  #00aa00;   /* EGA 2 */
 
 
     /* ---- Colour roles: what each colour is FOR, anywhere in the game. ----
@@ -63,8 +59,6 @@
     --color-highlight:     var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
     --color-hurt:          var(--palette-red-400);    /* harm: the line said when you lose health (the only red) */
-    --color-decor-warm:    var(--palette-ega-red);    /* pixel-art decoration: the ornament's flowers */
-    --color-decor-cool:    var(--palette-ega-green);  /* …and its vine */
 
 
     /* ---- Text sizes ----
