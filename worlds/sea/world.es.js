@@ -454,7 +454,7 @@ const objects = {
   // Las casetas
   hut: { at: "huts", scenery: true, container: true, locked: true, name: "Caseta 7", note: "Recién pintada, cerrada con llave.",
     lock: { key: "key", says: "El candado resiste. Es nuevo, y lo han puesto por algo.",
-            opens: "La llave gira como si lo hiciera cada mañana. La puerta se abre hacia fuera y los remos que estaban apoyados en ella resbalan despacio hasta la arena. Dentro, colgada de un clavo, una {fotografía|photograph}.",
+            opens: "La llave gira como si lo hiciera cada mañana. La puerta se abre hacia fuera y los {remos|oars} que estaban apoyados en ella resbalan despacio hasta la arena. Dentro, colgada de un clavo, una {fotografía|photograph}.",
             then: "open_hut" },
     enter: "Entras. Huele a cuerda y a veranos. No hay nada más aquí que lo que ya ves.",
     actions: ["Examinar caseta", "Abrir caseta"],

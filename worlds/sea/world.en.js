@@ -451,7 +451,7 @@ const objects = {
   // The huts
   hut: { at: "huts", scenery: true, container: true, locked: true, name: "Hut 7", note: "Freshly painted. Locked.",
     lock: { key: "key", says: "The padlock holds. It's new, and it was put there for a reason.",
-            opens: "The key turns as if it had done it every morning. The door swings out, and the oars that were leaning on it slide gently onto the sand. Inside, on a nail, hangs a {photograph}.",
+            opens: "The key turns as if it had done it every morning. The door swings out, and the {oars} that were leaning on it slide gently onto the sand. Inside, on a nail, hangs a {photograph}.",
             then: "open_hut" },
     enter: "You step inside. It smells of rope and of summers. There's nothing else here but what you can see.",
     actions: ["Examine hut", "Open hut"],
