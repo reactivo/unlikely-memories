@@ -91,10 +91,24 @@ export function mount(root, on, header) {
     header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)
   }
 
-  // When the window changes size (or the keyboard comes up: ui/page.js), the newest text stays in view if it was.
+  // When the window changes size (or the keyboard comes up: ui/page.js), the newest text stays in view if it was: if its last line
+  // has gone under the bottom, the page moves just enough to show it again, and never back up. (Not toEnd(): for an answer taller
+  // than the space, toEnd puts its command under the top, so on a phone, where the browser's bars change the window's height as
+  // soon as you scroll, it pulled you back to the start of a long room description. Diego, 27 Oct 2026.)
   let wasAtEnd = true;
   window.addEventListener("scroll", () => { wasAtEnd = atEnd(); }, { passive: true });
-  const stay = () => { if (wasAtEnd) toEnd(true); };
+  function keepEnd() {
+    const last = lastLine();
+    if (gliding || !last) return;
+    const end = last.getBoundingClientRect().bottom + (parseFloat(getComputedStyle(last).marginBottom) || 0);
+    const to = bottomEdge() - fade();
+    if (end > to) {
+      const target = window.scrollY + end - to;
+      window.scrollTo({ top: target, behavior: "instant" });
+      header.scrolling(target);
+    }
+  }
+  const stay = () => { if (wasAtEnd) keepEnd(); };
   window.addEventListener("resize", stay);
   window.visualViewport?.addEventListener("resize", stay);
   document.fonts?.ready.then(stay);   // the letters change size a little once the font has loaded
