@@ -1,7 +1,7 @@
 // Landing page: the list of games. One card per world (thumbnail, title, blurb, and buttons: NEW GAME, with LOAD GAME beside it when
 // the world has a saved game), under the logo. Drawn from the list the controller hands it, not from the game's state.
 // Never decides which games exist or what a saved game is (js/main.js, worlds/index.js, js/saves.js); LOAD GAME is the intent
-// on.play(id), NEW GAME on.play(id, true) when there is a saved game to ask about (else on.play(id)).
+// on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)).
 
 import art from "../content/art.js";
 import { VERSION } from "../js/version.js";
@@ -9,10 +9,11 @@ import { THUMB, thumbnailPixels } from "./draw.js";
 
 const RGB = art.palette.colors.map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
 
-// The buttons on a card, left to right: LOAD GAME (continues the saved game) when the world has one, then NEW GAME, which asks
-// first (ask: true) when there is a saved game to lose. pack: the language pack's home texts.
+// The buttons on a card, left to right: LOAD GAME (continues the saved game) when the world has one, then NEW GAME, which starts
+// from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
+// pack: the language pack's home texts.
 export function buttonsFor(saved, t) {
-  return saved ? [{ label: t.load, ask: false }, { label: t.newGame, ask: true }] : [{ label: t.newGame, ask: false }];
+  return saved ? [{ label: t.load, fresh: false }, { label: t.newGame, fresh: true }] : [{ label: t.newGame, fresh: false }];
 }
 
 // Set up the page on its element (.home). Returns update(data).
@@ -56,7 +57,7 @@ export function mount(root, on) {
       for (const w of worlds) {
         const card = el("li", "card"), tile = el("div", "tile"), body = el("div", "body");
         const buttons = el("div", "buttons text-button");
-        for (const b of buttonsFor(w.saved, t)) buttons.append(button(b.label, w.title, () => on.play(w.id, b.ask)));
+        for (const b of buttonsFor(w.saved, t)) buttons.append(button(b.label, w.title, () => on.play(w.id, b.fresh)));
         if (w.thumb) {
           const canvas = paintThumb(w.thumb);
           canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", w.thumb.alt || w.title); tile.append(canvas);

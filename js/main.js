@@ -63,7 +63,7 @@ let lastInput = null;                                    // the last command typ
 let lastUnknown = null;                                  // the unknown word in it, if any (for OOPS)
 let pendingWhich = null;                                 // "Which do you mean…?" is waiting: what the next input may answer (parse)
 let autosaving = null;                                   // the pending automatic save
-let askNewFor = null;                                    // a world to open and ask "Start a new game?" in, read once by route()
+let freshFor = null;                                     // a world to open with a new game (its saved game dropped), read once by route()
 let turnStart = null;                                    // this turn's first paragraph: { el, entry } (see enteredRoom)
 
 // What the pieces can ask the controller to do (clicks, Enter, settings…).
@@ -78,8 +78,8 @@ const on = {
   language: (l) => setLang(l),                           // a language was chosen in settings
   homeLanguage: (l) => setHomeLang(l),                   // EN · ES on the list of games
   quit: () => quit(),                                    // "Quit" in settings (or the QUIT command): back to the list of games
-  play: (id, askNew = false) => {                       // LOAD GAME / NEW GAME on a card: the address changes, route() follows
-    if (askNew) askNewFor = id;                          // (NEW GAME on a world with a saved game: open it and ask, once)
+  play: (id, fresh = false) => {                        // LOAD GAME / NEW GAME on a card: the address changes, route() follows
+    if (fresh) freshFor = id;                            // (NEW GAME on a world with a saved game: open it with a new game, once)
     location.hash = id;
   },
   newGame: () => confirm("@askNewGame", "newGame"),      // "New game" in settings: asks in the story first
@@ -465,11 +465,11 @@ function setLang(l) {
 // An id that is no world in this language gives the list, with the address replaced. Runs at start and when the address changes
 // (the back button).
 function route() {
-  const r = routeOf(location.hash, lang, askNewFor);
-  askNewFor = null;                                      // read once: a reload or the back button never asks again
+  const r = routeOf(location.hash, lang, freshFor);
+  freshFor = null;                                       // read once: a reload or the back button never starts afresh again
   if (r.replace) window.history.replaceState(null, "", location.pathname + location.search);   // (window.history: plain `history` is the undo list)
   if (r.view === "home") showHome();
-  else if (view !== "game" || openId !== r.id) openWorld(r.id, r.askNew);
+  else if (view !== "game" || openId !== r.id) openWorld(r.id, r.fresh);
 }
 
 // Leave the game view: the game is saved, its clock and timer stop, and a new game that was about to start doesn't.
@@ -502,17 +502,18 @@ function setHomeLang(l) {
   showHome();
 }
 
-// Show a world: its saved game continued if it has one, else a new game from its opening. askNew: ask "Start a new game?" in the
-// story once it is open, as New game in the settings does (only where there is a saved game to lose).
-async function openWorld(id, askNew = false) {
+// Show a world: its saved game continued if it has one, else a new game from its opening. fresh: a new game from its opening
+// whatever is saved (NEW GAME on its card), and the saved game is dropped.
+async function openWorld(id, fresh = false) {
   const mine = ++opening;
   leaveGame();
-  const r = await autoSaved(id);
+  if (fresh) await saves.discard(id).catch(() => {});
+  const r = fresh ? null : await autoSaved(id);
   if (mine !== opening) return;
   view = "game"; openId = id; shown = null;           // (shown = null: every piece draws itself afresh)
   ui.page.show("game", lang);
   clock.resume();
-  if (r) { restore(r); if (askNew) on.newGame(); }
+  if (r) restore(r);
   else { clock.reset(); showTime(); startStory(undefined, id); }
   ui.prompt.focus();
 }
