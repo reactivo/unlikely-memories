@@ -1,10 +1,11 @@
 // Tabs (phones only): DIRECTIONS and INVENTORY open their panels (popovers, index.html) just above themselves.
 // The browser opens and closes them (the tab again, Esc, a tap anywhere else); this adds the rest:
-//   - places an opening panel over its tab, lined up with it (one character of space around: tabs.css);
+//   - in browsers without CSS anchor positioning, places an opening panel over its tab (tabs.css anchors it everywhere else);
 //   - marks the open tab (aria-expanded, which also turns it yellow);
 //   - closes the panel when you pick something in it (an open exit, an item);
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
+const anchored = CSS.supports("anchor-name: --a");   // tabs.css hangs the panels from their tabs itself
 const wide = matchMedia("(min-width: 760px) and (min-height: 560px)");   // the strip layout (css/layout.css)
 
 // Set up the tabs on their element. Returns update().
@@ -14,7 +15,7 @@ export function mount(root) {
 
     panel.addEventListener("beforetoggle", (e) => {
       if (wide.matches) { e.preventDefault?.(); return; }            // never a popover beside the strip
-      if (e.newState === "open") place(panel, tab);
+      if (e.newState === "open" && !anchored) place(panel, tab);
     });
     panel.addEventListener("toggle", (e) => {
       tab.setAttribute("aria-expanded", e.newState === "open");
@@ -26,7 +27,12 @@ export function mount(root) {
       if (b && b.getAttribute("aria-disabled") !== "true" && panel.matches(":popover-open")) panel.hidePopover();
     });
     wide.addEventListener("change", () => { if (panel.matches(":popover-open")) panel.hidePopover(); });
-    window.addEventListener("resize", () => { if (panel.matches(":popover-open")) place(panel, tab); });
+    if (!anchored) {
+      const follow = () => { if (panel.matches(":popover-open")) place(panel, tab); };
+      window.addEventListener("resize", follow);
+      window.addEventListener("scroll", follow, { passive: true });
+      window.visualViewport?.addEventListener("resize", follow);
+    }
   }
 
   return {
@@ -39,7 +45,7 @@ export function mount(root) {
   };
 }
 
-// Put the panel just above its tab: the panel's content as wide as the tab, its padding around it.
+// Without anchors: put the panel just above its tab, measured now (again on every scroll and resize): the panel's content as wide as the tab, its padding around it.
 function place(panel, tab) {
   const r = tab.getBoundingClientRect(), pad = parseFloat(getComputedStyle(panel).paddingLeft) || 0;
   panel.style.left = (r.left - pad) + "px";

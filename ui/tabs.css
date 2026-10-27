@@ -31,6 +31,14 @@
       background: var(--tab-open);
     }
 
+    & #tab-exits {
+      anchor-name: --tab-exits;
+    }
+
+    & #tab-inventory {
+      anchor-name: --tab-inventory;
+    }
+
     & .tab:focus-visible {
       outline: 2px solid var(--color-focus);
       outline-offset: 2px;
@@ -49,5 +57,24 @@
     border: 0;
     padding: var(--panel-padding, var(--space-m));
     overflow: visible;
+  }
+
+  /* An open panel hangs from the top edge of its tab (CSS anchor positioning): wherever the tab goes, when the page
+     scrolls or Safari's toolbar moves the bottom bar, the panel goes with it. Lined up with the tab, its padding around it.
+     (Older browsers without anchors: tabs.js measures the tab instead.) */
+  @supports (anchor-name: --a) {
+    #exits-panel {
+      position-anchor: --tab-exits;
+    }
+
+    #inventory-panel {
+      position-anchor: --tab-inventory;
+    }
+
+    .panel:popover-open {
+      bottom: anchor(top);
+      left: calc(anchor(left) - var(--space-m));
+      width: calc(anchor-size(width) + 2 * var(--space-m));
+    }
   }
 }
