@@ -5,7 +5,7 @@
    in the script that makes it); the pieces (ui/*.css) never set a font size, line height or capitals themselves. */
 
 /* The game's font: m5x7 by Daniel Linssen (CC0), a proportional pixel font. The other pixel fonts in fonts/ are not
-   declared. Symbols are not text: the buttons and HELP's arrows are icons (img/icons/, .icon in utilities.css). */
+   declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
   src: url("../fonts/m5x7-patched.ttf") format("truetype");   /* m5x7 with its capital and x heights written in (FONTS.md, in the fonts folder at the top of the project) */
