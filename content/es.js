@@ -164,7 +164,7 @@ export default {
   panel: { title: "AJUSTES", language: "IDIOMA", languageNote: "Cambiar el idioma empieza una partida nueva.",
            game: "PARTIDA", newGame: "Partida nueva", quit: "Salir" },
   // La página de inicio (ui/home.js). El nombre del juego no se traduce. Los botones salen en mayúsculas (home.css).
-  home: { subtitle: "Motor de ficción artificial interactiva", newGame: "Partida nueva", load: "Cargar partida", version: "Versión",
+  home: { subtitle: "Ficción Artificial Interactiva", newGame: "Partida nueva", load: "Cargar partida", version: "Versión",
           language: (l) => `Idioma: ${{ en: "inglés", es: "español" }[l]}`,   // los botones del selector, arriba a la derecha
           none: "Todavía no hay juegos en español." },
   labels: { directions: "DIRECCIONES", inv: "INVENTARIO", day: "Día", map: "Mapa" },

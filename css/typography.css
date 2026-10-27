@@ -53,7 +53,7 @@
   /* Running text on the landing page (a card's blurb, "no games"). */
   .text-story {
     font-size: var(--text-m);
-    line-height: var(--line-m);
+    line-height: var(--line-xxs);
   }
 
   /* Interface text: the page's default, the title bar, the prompt, the settings panel, the map popup and the landing page. */
@@ -86,15 +86,14 @@
   /* A card's title on the landing page. */
   .text-heading {
     font-size: var(--text-m);
-    line-height: var(--line-m);
+    line-height: var(--line-xxs);
     text-transform: uppercase;
   }
 
   /* The landing page's subtitle. */
   .text-subtitle {
     font-size: var(--text-l);
-    line-height: var(--line-l);
-    text-transform: uppercase;
+    line-height: var(--line-xxs);
   }
 
   /* A <COMMAND> in the story or in the prompt's hint: capitals, at the size of the text around it. */

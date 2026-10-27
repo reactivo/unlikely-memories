@@ -5,7 +5,8 @@
 // in between because of the finger: the picture is open or folded, and --p goes between 0 and 1 with a short animation (css/layout.css).
 // The title bar above it (place, time) never changes.
 //
-//   Folds    after FOLD_AFTER pixels of scrolling up in a row (any scroll down starts the count again), and only if there is more
+//   Folds    after FOLD_AFTER pixels of the reader's scrolling, up or down, in one direction (a change of direction starts the count
+//            again; Diego, 27 Oct 2026: down too, not only up), and stays folded until tapped; only if there is more
 //            story than fits between the open picture and the prompt: with nothing more to read there is no reason to fold.
 //   Opens    on a new room (log.js calls room()), and when you tap it. Never because you scrolled down (slow scrolling down is
 //            what reading looks like, and an opening picture would cover the lines being read), nor at the end of the story,
@@ -22,8 +23,8 @@
 // Unlike the other pieces, nothing here is drawn from the game's state: log.js, which knows when the story is at the present,
 // is given this and calls it. Mounted on the top (index.html), given the log.
 
-// The scrolling up that folds the picture. Diego, 26 Oct 2026: 120 felt "more intentional" than 30 or 90, then 200 it is.
-const FOLD_AFTER = 200;   // px of scrolling up, in a row, that fold the picture
+// The scrolling that folds the picture. Diego, 26 Oct 2026: 120 felt "more intentional" than 30 or 90, then 200; then 120 and 90 once it folded both ways (27 Oct).
+const FOLD_AFTER = 90;    // px of scrolling in one direction, in a row, that fold the picture
 const OWN_SCROLL = 1200;  // ms after which a scroll the game started is taken to be over, even if it never arrived (the user took over)
 const TAP_MOVE = 8;       // px a finger may move and still be a tap
 const TAP_TIME = 350;     // ms a finger may stay down and still be a tap
@@ -35,7 +36,7 @@ export function mount(top, log) {
   const html = document.documentElement;
   let folded = false;   // the state: folded (the whole scene) or open (the crop)
   let pan = 0;          // where the open crop looks: -1 the left edge … 0 the middle … 1 the right edge
-  let intent = 0;       // how far you have scrolled up in a row
+  let intent = 0;       // how far you have scrolled in one direction, in a row (positive up, negative down)
   let lastY = scrollY;  // where the page was at the last scroll event
   let own = null;       // while the game scrolls the page itself (a room's glide, following new text): where to, so it is not counted
   let ownTimer = 0;
@@ -128,8 +129,9 @@ export function mount(top, log) {
       if (Math.abs(y - own) < 2) { own = null; clearTimeout(ownTimer); }
       return;
     }
-    if (d > 0) intent += d; else if (d < 0) intent = 0;
-    if (!folded && intent > FOLD_AFTER && storyOverflows()) { folded = true; intent = 0; show(); }
+    if (d && Math.sign(d) !== Math.sign(intent)) intent = 0;   // a change of direction starts the count again
+    intent += d;
+    if (!folded && Math.abs(intent) > FOLD_AFTER && storyOverflows()) { folded = true; intent = 0; show(); }
   }
   addEventListener("scroll", onScroll, { passive: true });
   addEventListener("resize", () => { if (!active()) reset(); });
