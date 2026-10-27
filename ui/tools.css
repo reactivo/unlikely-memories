@@ -1,11 +1,11 @@
-/* Tools: ♫ music on/off and ≡ settings, font characters on two tiles. At the top of the strip on wider windows (the
+/* Tools: ♫ music on/off and ≡ settings, two icons (img/icons/, through .icon in utilities.css) centred on two tiles. At the top of the strip on wider windows (the
    strip's width, one tile high); on phones, two square tiles beside the title bar (the size comes from layout.css;
    phone values here). The text style is .text-button (css/typography.css), put on the tools in index.html. */
 @layer ui {
   .tools {
     /* Colours of the tools, by meaning. */
     --tile-bg:           var(--color-surface);     /* the tile behind each */
-    --tool:              var(--color-text);        /* the character */
+    --tool:              var(--color-text);        /* the icon */
     --tool-off:          var(--color-text-faint);  /* ♫ while the music is off: faint, like a closed exit */
     --tool-hover:        var(--color-text);        /* under the pointer (♫ off brightens too)… */
     --tool-hover-border: var(--color-text);        /* …with a border inside the tile, like an inventory item */
@@ -22,6 +22,9 @@
       padding: 0;
       margin: 0;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: var(--tool-width, var(--tile-touch));     /* phones: squares, big enough for a finger */
       height: var(--tool-height, var(--tile-touch));
     }

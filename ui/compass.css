@@ -2,9 +2,9 @@
       →|  ▲  ⇧
        ◄  M  ►
       ←|  ▼  ⇩
-   An open exit is a bright arrow (click = go that way); the others are faint and inert. In and out (left) and up and
-   down (right) are in the corners (an arrow to a bar, drawn as small pictures) and only show when the room
-   has that exit: otherwise the corner is just an empty dark tile. M opens the map (map.css): bright like an open exit.
+   Every tile shows an icon (img/icons/, through .icon in utilities.css), centred. An open exit is a bright arrow (click = go that way); the
+   others are faint and inert. In and out (left) and up and down (right) are in the corners (an arrow to a bar) and only
+   show when the room has that exit: otherwise the corner is just an empty dark tile. M opens the map (map.css): bright like an open exit.
    The tiles are --tile square in the strip (a size that follows the window's height: layout.css), with --tile-gap
    between them; on phones they fill the panel's width (tabs.css).
    The text style is .text-button (css/typography.css), put on the compass in index.html. */
@@ -90,33 +90,6 @@
       }
     }
 
-    /* Corner icons and the turned triangles: em on purpose, so they are as big as the arrow glyphs beside them (the
-       triangles are CGA glyphs: square), whatever the text size is. Text colour. */
-    & .icon {
-      display: block;
-      width: 1em;
-      height: 1em;
-      fill: currentColor;
-      shape-rendering: crispEdges;
-    }
-
-    /* ▲ and ▼ are the same triangle as ► (◄), turned a quarter: the font's own ▲ ▼ are a different shape. The turn
-       happens around the triangle's own centre (it sits in pixels 0-6 of its 8x8 cell: 3.5/8 = 43.75%). */
-    & .up,
-    & .down {
-      display: block;
-      width: 1em;
-      height: 1em;
-      transform-origin: 43.75% 43.75%;
-    }
-
-    & .up {
-      transform: rotate(-90deg);
-    }
-
-    & .down {
-      transform: rotate(90deg);
-    }
   }
 
   @keyframes exit-change {

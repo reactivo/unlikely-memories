@@ -13,4 +13,16 @@
     white-space: nowrap;
     border: 0;
   }
+
+  /* An icon: an SVG file (img/icons/, named in index.html as the span's mask-image) used as a stencil, so it takes the text colour of
+     its button (open, faint, hover, blinking…); only the file's shape counts, not its colours. It fills its (flex)
+     button and shows the file at its own size, in the middle: replace the file and the icon changes, size and all. */
+  .icon {
+    flex: 1;
+    align-self: stretch;
+    background: currentColor;
+    mask-position: center;
+    mask-size: auto;
+    mask-repeat: no-repeat;
+  }
 }

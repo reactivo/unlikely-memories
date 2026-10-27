@@ -47,18 +47,20 @@
   <div class="top">
     <header class="titlebar"><h1 id="place">UNLIKELY MEMORIES</h1><p id="clock"><span id="l-day">Day</span> <span id="v-day">1</span> <span class="sep" aria-hidden="true">|</span> <time id="v-time" datetime="PT0H0M0S"><span id="v-hh">00</span><span class="colon">:</span><span id="v-mm">00</span><span class="colon">:</span><span id="v-ss">00</span></time></p></header>
     <div class="picture"><canvas width="320" height="136" role="img" aria-label=""></canvas></div>
+    <!-- The buttons' icons are the SVG files in img/icons/ (Diego's, from Figma): replace a file to change its icon.
+         Each shows at the file's own size, in its button's text colour (the .icon class, css/utilities.css). -->
     <!-- Directions and inventory: always shown in the strip on wide windows; on phones, panels (popovers) opened
          by the tabs below. -->
     <div class="strip">
       <div class="tools text-button">
-        <button type="button" class="tool" id="music" aria-pressed="false" aria-label="Music" title="Music: off">♫</button>
-        <button type="button" class="tool" id="settings" popovertarget="settings-panel" aria-label="Settings" title="Settings">≡</button>
+        <button type="button" class="tool" id="music" aria-pressed="false" aria-label="Music" title="Music: off"><span class="icon" style="mask-image: url(img/icons/icon-music.svg)"></span></button>
+        <button type="button" class="tool" id="settings" popovertarget="settings-panel" aria-label="Settings" title="Settings"><span class="icon" style="mask-image: url(img/icons/icon-menu.svg)"></span></button>
       </div>
       <section class="panel text-ui exits" id="exits-panel" popover aria-labelledby="tab-exits">
         <div class="compass text-button" role="group">
-          <button type="button" class="corner" data-dir="in" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M0 3h5v2h-5zM2 1h1v6h-1zM3 2h1v4h-1zM6 1h2v6h-2z"/></svg></button><button type="button" data-dir="n"><span class="up">►</span></button><button type="button" class="corner" data-dir="u" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M3 0h2v1h-2zM2 1h4v1h-4zM1 2h6v1h-6zM3 3h2v1h-2zM3 4h2v1h-2zM1 7h6v1h-6z"/></svg></button>
-          <button type="button" data-dir="w">◄</button><button type="button" class="map open" popovertarget="map-panel" aria-haspopup="dialog">M</button><button type="button" data-dir="e">►</button>
-          <button type="button" class="corner" data-dir="out" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M0 3h5v2h-5zM1 2h1v4h-1zM2 1h1v6h-1zM6 1h2v6h-2z"/></svg></button><button type="button" data-dir="s"><span class="down">►</span></button><button type="button" class="corner" data-dir="d" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M1 0h6v1h-6zM3 3h2v1h-2zM3 4h2v1h-2zM1 5h6v1h-6zM2 6h4v1h-4zM3 7h2v1h-2z"/></svg></button>
+          <button type="button" class="corner" data-dir="in" tabindex="-1" aria-hidden="true"><span class="icon" style="mask-image: url(img/icons/icon-in.svg)"></span></button><button type="button" data-dir="n"><span class="icon" style="mask-image: url(img/icons/icon-north.svg)"></span></button><button type="button" class="corner" data-dir="u" tabindex="-1" aria-hidden="true"><span class="icon" style="mask-image: url(img/icons/icon-up.svg)"></span></button>
+          <button type="button" data-dir="w"><span class="icon" style="mask-image: url(img/icons/icon-west.svg)"></span></button><button type="button" class="map open" popovertarget="map-panel" aria-haspopup="dialog"><span class="icon" style="mask-image: url(img/icons/icon-map.svg)"></span></button><button type="button" data-dir="e"><span class="icon" style="mask-image: url(img/icons/icon-east.svg)"></span></button>
+          <button type="button" class="corner" data-dir="out" tabindex="-1" aria-hidden="true"><span class="icon" style="mask-image: url(img/icons/icon-out.svg)"></span></button><button type="button" data-dir="s"><span class="icon" style="mask-image: url(img/icons/icon-south.svg)"></span></button><button type="button" class="corner" data-dir="d" tabindex="-1" aria-hidden="true"><span class="icon" style="mask-image: url(img/icons/icon-down.svg)"></span></button>
         </div>
       </section>
       <section class="panel text-ui inventory" id="inventory-panel" popover aria-labelledby="tab-inventory">
