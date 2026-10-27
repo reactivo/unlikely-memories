@@ -117,23 +117,6 @@
       margin-top: var(--space-l);
     }
 
-    /* ▲ ▼ in a text (HELP's directions): the compass's ► turned a quarter, so the two look the same (log.js;
-       the turn is around the triangle's own centre, as in compass.css). 1em on purpose: the triangle is a square CGA
-       glyph as big as the text it sits in. */
-    & .turn {
-      display: inline-block;
-      width: 1em;
-      transform-origin: 43.75% 43.75%;
-    }
-
-    & .turn.up {
-      transform: rotate(-90deg);
-    }
-
-    & .turn.down {
-      transform: rotate(90deg);
-    }
-
     /* Phrase fade-in: everything the game writes appears phrase by phrase (split at , ; : . ! ?), each phrase
        fading in after the one before, like narration. The player's own echoed command appears at once. Any key or
        click shows everything still pending. Off with reduced motion. Gaps between phrases: PHRASE_* in log.js. */

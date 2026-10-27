@@ -4,24 +4,18 @@
    --text-* and --line-* values in tokens.css. Each style is used by putting its class on the element (in index.html or
    in the script that makes it); the pieces (ui/*.css) never set a font size, line height or capitals themselves. */
 
-/* The game's fonts. m5x7 by Daniel Linssen (CC0) is the game's own font: a proportional pixel font, 7 pixels tall,
-   one pixel is 1/16 of the size. CGA is kept for the characters m5x7 lacks (► ◄ ▲ ▼ ○ ● → ← ⇧ ⇩ ♫ ≡ …): the
-   browser takes each one from the next font in the list. The other pixel fonts in fonts/ are not declared. */
+/* The game's font: m5x7 by Daniel Linssen (CC0), a proportional pixel font. The other pixel fonts in fonts/ are not
+   declared. Symbols are not text: the buttons and HELP's arrows are icons (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
-  src: url("../fonts/m5x7.ttf") format("truetype");
-}
-
-@font-face {
-  font-family: "CGA";
-  src: url("../fonts/WebPlus_IBM_CGA.woff") format("woff");
+  src: url("../fonts/m5x7-patched.ttf") format("truetype");   /* m5x7 with its capital and x heights written in (FONTS.md, in the fonts folder at the top of the project) */
 }
 
 @layer typography {
 
   /* ---- The font, and what goes with it ---- */
   :root {
-    --font-game: "m5x7", "CGA", ui-monospace, monospace;   /* the family list; the fallbacks show until the fonts have loaded */
+    --font-game: "m5x7", ui-monospace, monospace;   /* the family list; the fallbacks show until the fonts have loaded */
     --font-page: var(--font-game);                         /* what the page's body uses (read by base.css, which no layer can override) */
 
     --font-smoothing: none;   /* -webkit-font-smoothing, set once on the body: no anti-aliasing, so the pixel letters stay sharp */
@@ -120,10 +114,5 @@
     font-size: var(--map-text);
     line-height: var(--line-s);
     text-transform: uppercase;
-  }
-
-  /* A single symbol standing in a line of text (the ▲ ▼ in HELP): one line tall, at the size of the text around it. */
-  .text-glyph {
-    line-height: var(--line-xs);
   }
 }

@@ -25,4 +25,14 @@
     mask-size: auto;
     mask-repeat: no-repeat;
   }
+
+  /* An icon in a line of text (the arrows in HELP: ui/log.js): as tall and as wide as the capitals around it, sitting
+     on the line, the file's shape scaled to fit. */
+  .icon.in-text {
+    display: inline-block;
+    flex: none;
+    width: 1cap;
+    height: 1cap;
+    mask-size: contain;
+  }
 }

@@ -31,6 +31,8 @@ const PARAGRAPH_GAP = 150;       // extra ms between paragraphs
 const PHRASE_END = /[^,;:.!?…]*[,;:.!?…]+["»”]?\s*|[^,;:.!?…]+$/g;
 // Punctuation right after a marker ("tin of mints+,"): kept on the same line as it, never wrapped on its own.
 const GLUED = /^[,;:.!?…)\]"»”']+/;
+// The arrows a text may hold (HELP's directions) → the compass icon each one is drawn with (img/icons/icon-<name>.svg).
+const ARROWS = { "▲": "north", "▼": "south", "►": "east", "◄": "west" };
 
 // Set up the log on its element, with the folding picture (ui/fold.js) it tells when the story is at the present. Returns
 // update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), toEnd() and atEnd().
@@ -269,10 +271,11 @@ export function mount(root, on, header) {
           into.replaceChild(keep, marker); keep.append(marker, glued);
           part = part.slice(glued.length);
         }
-        // ▲ ▼ are drawn as the compass draws them: its ► turned a quarter (the font's own are another shape).
-        if (part) part.split(/([▲▼])/).forEach(bit => {
-          if (bit === "▲" || bit === "▼") {
-            const t = document.createElement("span"); t.className = bit === "▲" ? "turn up text-glyph" : "turn down text-glyph"; t.textContent = "►";
+        // ▲ ▼ ► ◄ in a text (HELP's directions) are the compass's own icons (img/icons/), not characters.
+        if (part) part.split(/([▲▼►◄])/).forEach(bit => {
+          if (ARROWS[bit]) {
+            const t = document.createElement("span"); t.className = "icon in-text";
+            t.style.maskImage = `url(img/icons/icon-${ARROWS[bit]}.svg)`;
             t.setAttribute("role", "img"); t.setAttribute("aria-label", bit);
             into.appendChild(t);
           } else if (bit) into.appendChild(document.createTextNode(bit));
