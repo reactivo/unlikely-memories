@@ -37,6 +37,7 @@ const GLUED = /^[,;:.!?…)\]"»”']+/;
 export function mount(root, on, header) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   let gliding = false;           // the page is gliding to a new visit: don't follow new text meanwhile
+  let unseen = null;             // the first paragraph added since the story was last followed (toEnd)
   const calm = matchMedia("(prefers-reduced-motion: reduce)");
   const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
 
@@ -80,7 +81,12 @@ export function mount(root, on, header) {
   function toEnd(instant) {
     const last = lastLine();
     if (gliding || !last) return;
-    const first = exchangeStart(root.lastElementChild);
+    // What to show: everything added since the last follow (your command and its answer, a line the world said, the game's own
+    // question), from its first paragraph. Not "from the last command": the settings' "Start a new game?" is no command, and
+    // following from the command before it, far up, showed that old command instead of the question (Diego, 27 Oct 2026).
+    // Nothing new (a restored game, the font loading): the last command and what came after it, as before.
+    const first = unseen && root.contains(unseen) ? unseen : exchangeStart(root.lastElementChild);
+    unseen = null;
     const a = first.getBoundingClientRect(), b = last.getBoundingClientRect();
     const from = topEdge(), to = bottomEdge() - fade();
     const end = b.bottom + (parseFloat(getComputedStyle(last).marginBottom) || 0);
@@ -113,6 +119,21 @@ export function mount(root, on, header) {
       header.scrolling(target);
     }
   }
+  // A new story starts at the top. Safari on an iPhone, coming from the list of games scrolled down to a card's button, kept some
+  // of that scroll after the game had gone to the top, so the opening started under the picture (Diego, 27 Oct 2026): so the
+  // top is asked for again a moment later, unless you have touched or scrolled the page by then.
+  let touched = false;
+  for (const kind of ["touchstart", "wheel", "keydown"]) window.addEventListener(kind, () => { touched = true; }, { passive: true });
+  function toTop() {
+    touched = false;
+    const again = () => { if (!touched && window.scrollY !== 0) { window.scrollTo(0, 0); header.scrolling(0); } };
+    window.scrollTo(0, 0);
+    header.scrolling(0);
+    placed = { y: 0, again };
+    requestAnimationFrame(again);
+    setTimeout(again, 300);
+  }
+
   window.visualViewport?.addEventListener("resize", () => requestAnimationFrame(() => {   // (after ui/page.js has marked it)
     if (document.documentElement.hasAttribute("data-keyboard") && wasAtEnd) keepEnd();
   }));
@@ -183,6 +204,7 @@ export function mount(root, on, header) {
       v.querySelectorAll("button").forEach(b => { b.disabled = true; });   // past text: nothing to click
     }
     header.room();                                                // a new room opens the picture, its crop in the middle
+    unseen = null;                                                // (the glide shows it, from its first line)
     if (instant) return;
     const target = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
     placed = {
@@ -217,7 +239,9 @@ export function mount(root, on, header) {
     }
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
-    return current().appendChild(p);
+    current().appendChild(p);
+    if (!instant && !(unseen && root.contains(unseen))) unseen = p;   // (restored text is not new: see toEnd)
+    return p;
   }
 
   // Build story text into an element: plain parts, `commands` (buttons that run them) and {objects} (buttons that
@@ -271,7 +295,7 @@ export function mount(root, on, header) {
     // How long until all of it has appeared (ms; 0 if nothing is fading in).
     busyFor() { return Math.max(0, revealAt - performance.now()); },
     // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.
-    clear() { root.innerHTML = ""; window.scrollTo(0, 0); header.room(); header.scrolling(0); },
+    clear() { root.innerHTML = ""; unseen = null; toTop(); header.room(); },
     // Bring the newest command and its answer into view (smoothly; instant = true: at once).
     toEnd,
     // Is the newest text in view? (Then text the world adds on its own is followed; otherwise the story stays put.)
