@@ -31,7 +31,7 @@ export function mount(root, on) {
   // One element with a class and text.
   function el(tag, cls, text) { const e = document.createElement(tag); e.className = cls; if (text !== undefined) e.textContent = text; return e; }
 
-  // A card's button: its label in capitals (home.css), named for the world, and what a click does.
+  // A card's button: its label in capitals (.text-button, typography.css), named for the world, and what a click does.
   function button(label, title, click) {
     const b = el("button", "play", label);
     b.type = "button"; b.setAttribute("aria-label", `${label}: ${title}`); b.addEventListener("click", click);
@@ -50,18 +50,18 @@ export function mount(root, on) {
       version.textContent = "v" + VERSION;
       version.setAttribute("aria-label", `${t.version} ${VERSION}`);
       subtitle.textContent = t.subtitle;
-      if (!worlds.length) { column.replaceChildren(el("p", "none", t.none)); return; }
+      if (!worlds.length) { column.replaceChildren(el("p", "none text-story", t.none)); return; }
       const list = el("ul", "list");
       list.setAttribute("role", "list");                           // (a list with no bullets loses its role in Safari)
       for (const w of worlds) {
         const card = el("li", "card"), tile = el("div", "tile"), body = el("div", "body");
-        const buttons = el("div", "buttons");
+        const buttons = el("div", "buttons text-button");
         for (const b of buttonsFor(w.saved, t)) buttons.append(button(b.label, w.title, () => on.play(w.id, b.ask)));
         if (w.thumb) {
           const canvas = paintThumb(w.thumb);
           canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", w.thumb.alt || w.title); tile.append(canvas);
         }
-        body.append(el("h2", "title", w.title), el("p", "blurb", w.blurb), buttons);
+        body.append(el("h2", "title text-heading", w.title), el("p", "blurb text-story", w.blurb), buttons);
         card.append(tile, body);
         list.append(card);
       }

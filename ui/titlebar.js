@@ -1,4 +1,4 @@
-// Title bar: the place name, and the world's time ("Day 1 │ 17:15:00": play time plus however far the story has
+// Title bar: the place name, and the world's time ("Day 1 | 17:15:00": play time plus however far the story has
 // moved it, js/time.js; a new day at midnight).
 
 import { placeOf } from "../js/narrator.js";

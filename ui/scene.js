@@ -3,7 +3,9 @@
 // has ended it shows the ending's own picture instead, reached by a transition from the room's (ui/transitions.js).
 // Transitions: ui/transitions.js. Palette cycles: ui/effects.js and content/art.js. Purely visual: never changes the game.
 // The canvas is the picture's own 320×136 pixels; CSS stretches it to the column's whole width with hard edges
-// (ui/scene.css), at every window size, so the browser does all the scaling.
+// (ui/scene.css), at every window size, so the browser does all the scaling. On an upright phone the picture's box is
+// taller than the scene (a crop of its middle, that folds to the whole scene when you read back: ui/fold.js): the canvas
+// is then wider than the box and CSS centres it, so nothing here changes.
 
 import art from "../content/art.js";
 import { paintPicture, compose, overlaysShown, overlayAlt } from "./draw.js";

@@ -1,7 +1,7 @@
 // Page-wide details that belong to no single piece: the page language, which view is shown (the list of games or the
 // game: css/layout.css reads data-view), whether the tab is visible (the game clock pauses while it's hidden), and when
-// the page is left (a waiting save is written), and, on phones, where the visible part of the screen is while the
-// on-screen keyboard is open (see followKeyboard).
+// the page is left (a waiting save is written), how much of the window the parts that stick take up (see followBars),
+// and, on phones, where the visible part of the screen is while the on-screen keyboard is open (see followKeyboard).
 
 // The keyboard is taken to be open when the visible area is at least this many pixels shorter than the window. (The
 // browser's own bars growing and shrinking change it by less; a phone's keyboard, even sideways, by more.)
@@ -11,29 +11,71 @@ const KEYBOARD_MIN = 100;
 // on-screen keyboard to make room for; on a computer none of this runs.
 const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 
-// While the on-screen keyboard is open, tell the layout where the visible part of the screen is, so the whole page fits
-// above the keyboard (css/layout.css), with the command line at the bottom edge of what you can see. Most phones
-// (iPhone Safari, Chrome on Android) slide the keyboard over the page without resizing it: the window stays the same
-// height and only the *visual viewport* (window.visualViewport) shrinks, and some pan it up besides. Nothing else
-// reports that, so this is the one place that reads it. JS only reports the numbers (the one exception to "JS sets
-// state, CSS decides the look": they are measured, not chosen); the layout decides what to do with them.
+// The page scrolls and two parts of it stick: the top (title bar and picture) and the bottom (prompt and tabs). How
+// tall they are depends on the window and the text, so the page measures them and reports them, as the one exception to
+// "JS sets state, CSS decides the look": these are measured, not chosen. The CSS uses them to keep the story clear of them
+// (a room's height: ui/log.css; where Tab scrolls to: css/base.css; the spacer under the fixed top on upright phones:
+// css/layout.css) and ui/log.js and ui/fold.js to bring text into view.
+//   --top-h      how much the top covers: its height while it sticks (windows at least 560px tall), else 0 (it scrolls away).
+//                On an upright phone the top is fixed and its picture folds (css/layout.css, ui/fold.js): then it is the
+//                height the top has when the picture is OPEN, whether or not it is open now, because that is where the
+//                story starts, and where a new room's first line goes.
+//   --bottom-h   the bottom's height
+function followBars(root) {   // returns update(): measure now
+  const html = root.documentElement, top = root.querySelector(".top"), bottom = root.querySelector(".bottom");
+  const picture = top.querySelector(".picture");
+  const shown = {};   // what was last written (the top changes size every frame while the picture folds: write only a change)
+  function put(name, px) {
+    const value = px + "px";
+    if (shown[name] !== value) html.style.setProperty(name, shown[name] = value);
+  }
+  // The top's height with the picture open: the top as it is, with the picture's box as tall as the crop makes it.
+  // (To a hundredth of a pixel: the sum of the folding top's parts differs in the last digits from one frame to the next.)
+  function openHeight() {
+    const t = top.getBoundingClientRect(), p = picture.getBoundingClientRect();
+    const crop = parseFloat(getComputedStyle(picture).getPropertyValue("--picture-crop")) || 320 / 136;   // (tokens.css)
+    return Math.round((t.height - p.height + p.width / crop) * 100) / 100;
+  }
+  function update() {
+    const position = getComputedStyle(top).position;   // (the CSS decides: no second copy of the breakpoints here)
+    put("--top-h", position === "fixed" ? openHeight() : position === "sticky" ? top.getBoundingClientRect().height : 0);
+    put("--bottom-h", bottom.getBoundingClientRect().height);
+  }
+  const watch = new ResizeObserver(update);   // (also when the game is shown: the page is not drawn while the list of games shows)
+  watch.observe(top);
+  watch.observe(bottom);
+  window.addEventListener("resize", update);  // (the top can start or stop sticking without its size changing)
+  root.fonts?.ready.then(update);
+  update();
+  return update;
+}
+
+// While the on-screen keyboard is open, tell the layout where the visible part of the screen is, so the prompt sits just
+// above the keyboard and the title bar and picture stay in view (css/layout.css). Most phones (iPhone Safari, Chrome on
+// Android) slide the keyboard over the page without resizing it: the window stays the same height and only the *visual
+// viewport* (window.visualViewport) shrinks, and some pan it up besides. Sticky parts are placed against the window, not
+// against that visual viewport, so nothing else would keep them in sight. Nothing else reports it, so this is the one place
+// that reads it. Like the bars above, the numbers are measured, not chosen; the layout decides what to do with them.
 //   data-keyboard on <html>   the keyboard is open
-//   --visible-height          the visible area's height; --visible-top  how far down from the top of the window it starts
-// Without the keyboard (or on a computer) nothing is set and the page is the whole window high, as ever.
+//   --visible-top             how far down from the top of the window the visible area starts (the top sticks this far down)
+//   --keyboard-h              how much of the window's bottom the keyboard (or the panned-away part) covers: the window's
+//                             height minus the visible area's height and its offset (the bottom sticks this far up)
+// Without the keyboard (or on a computer) nothing is set and the page is as ever.
 function followKeyboard(root) {
   const vv = window.visualViewport;
   if (!vv) return;
   const html = root.documentElement;
   let open = false;
   function update() {
+    const covered = window.innerHeight - vv.height - vv.offsetTop;
     const shown = touch.matches && vv.scale <= 1.01 && window.innerHeight - vv.height >= KEYBOARD_MIN;   // (not while pinch-zoomed)
     if (shown) {
-      html.style.setProperty("--visible-height", vv.height + "px");
       html.style.setProperty("--visible-top", vv.offsetTop + "px");
+      html.style.setProperty("--keyboard-h", Math.max(0, covered) + "px");
       if (!open) html.dataset.keyboard = "";
     } else if (open) {
-      html.style.removeProperty("--visible-height");
       html.style.removeProperty("--visible-top");
+      html.style.removeProperty("--keyboard-h");
       delete html.dataset.keyboard;
     }
     open = shown;
@@ -47,13 +89,16 @@ function followKeyboard(root) {
 export function mount(root, on) {
   root.addEventListener("visibilitychange", () => on.visible(!root.hidden));
   window.addEventListener("pagehide", () => on.leaving());     // reload, closed tab: save what's waiting
+  const measure = followBars(root);
   followKeyboard(root);
   return {
     // Show one view, "home" or "game", in a language: an open panel (map, settings) closes with the game.
     show(view, lang) {
       root.querySelectorAll(":popover-open").forEach(p => p.hidePopover());
+      if (root.documentElement.dataset.view !== view) window.scrollTo(0, 0);   // the two views are two pages: each starts at its top
       root.documentElement.dataset.view = view;
       root.documentElement.lang = lang;
+      measure();   // the page was not drawn a moment ago: measure it now, not when the observer next reports (a restored game scrolls at once)
     },
     // On a language change: <html lang> (for screen readers and hyphenation).
     update(prev, next) {

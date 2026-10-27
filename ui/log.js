@@ -1,9 +1,19 @@
 // Story log: adds paragraphs, turns story markup into clickable markers, and fades text in phrase by phrase.
 //
+// The story is ordinary page content: the page is the only thing that scrolls (css/layout.css), with the top (title bar
+// and picture) and the bottom (prompt) sticking over it. So this file scrolls the page, and works out where the story
+// shows from where those two are: the top's bottom edge, and the bottom's top edge (less the space left for the fade).
+//
 // Visits: the story is grouped by room, one <section class="visit"> for each time you enter a room (from the
-// command that took you there). Entering a room starts a new visit: the story glides up so it starts at the top,
+// command that took you there). Entering a room starts a new visit: the page glides so it starts just under the top,
 // and every earlier visit becomes past: grey, its pictures grey, nothing in it clickable (log.css). The current
-// visit is always at least as tall as the story area (log.css), so there's room to scroll its start to the top.
+// visit is always at least a screen of story high (log.css), so there's room to scroll its start up to there.
+//
+// Following new text: your own commands are always followed, and so is text the world adds on its own if you were
+// at the end (atEnd). Following is a short smooth scroll, worked out from where the command and its answer actually are.
+//
+// The picture on an upright phone folds when you scroll back and opens at "the present" (ui/fold.js). This file knows when
+// that is: following new text (toEnd) and entering a room (newVisit) open it, and it is told which scrolling is ours.
 //
 // Once the story has ended, the objects in it do nothing (the log gets the class "over", log.css); its commands still work,
 // so `Begin again` does.
@@ -19,21 +29,75 @@ const PHRASE_GAP_PER_CHAR = 4;   // …plus this many ms per character of the ph
 const PARAGRAPH_GAP = 150;       // extra ms between paragraphs
 // One phrase = text up to and including , ; : . ! ? … (and a closing quote), or the rest of the text.
 const PHRASE_END = /[^,;:.!?…]*[,;:.!?…]+["»”]?\s*|[^,;:.!?…]+$/g;
-// Punctuation right after a marker ("tin of mints⁺,"): kept on the same line as it, never wrapped on its own.
+// Punctuation right after a marker ("tin of mints+,"): kept on the same line as it, never wrapped on its own.
 const GLUED = /^[,;:.!?…)\]"»”']+/;
 
-// Set up the log on its element. Returns update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(),
-// toEnd() and atEnd().
-export function mount(root, on) {
+// Set up the log on its element, with the folding picture (ui/fold.js) it tells when the story is at the present. Returns
+// update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), toEnd() and atEnd().
+export function mount(root, on, header) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
-  let gliding = false;           // the story is gliding up to a new visit: don't jump to the end meanwhile
+  let gliding = false;           // the page is gliding to a new visit: don't follow new text meanwhile
+  const calm = matchMedia("(prefers-reduced-motion: reduce)");
+  const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
 
-  // The story scrolls on its own (log.css). When the window changes size, the newest text stays in view if it was.
-  const atEnd = () => root.scrollHeight - root.scrollTop - root.clientHeight < 2;
-  const toEnd = () => { if (!gliding) root.scrollTop = root.scrollHeight; };
+  // Where the story shows. Its top edge: under the top, if it sticks (ui/page.js reports --top-h as 0 when it scrolls
+  // away with the story). On an upright phone the top is fixed and its picture folds and opens; the story is brought into
+  // view as the picture will be when it gets there, open (new text and a new room open it), so that edge is below the OPEN
+  // top: its place plus --top-h, the height it has open. Its bottom edge: where the bottom begins, less the empty space kept
+  // after the newest text, so that text ends above the fade.
+  const topEdge = () => {
+    const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h"));
+    if (!(h > 0)) return 0;
+    return getComputedStyle(top).position === "fixed" ? top.getBoundingClientRect().top + h : top.getBoundingClientRect().bottom;
+  };
+  const bottomEdge = () => bottom.getBoundingClientRect().top;
+  const fade = () => parseFloat(getComputedStyle(root).paddingBottom) || 0;
+
+  // The newest line, and the first line of what is being followed: the last command and everything after it, or the run of
+  // things the world said on its own at the end (they are set apart from the command before them: .aside).
+  const lastLine = () => root.lastElementChild?.lastElementChild;
+  function exchangeStart(visit) {
+    for (let p = visit.lastElementChild; p; p = p.previousElementSibling) {
+      if (p.classList.contains("cmd")) return p;
+      if (p.classList.contains("aside") && !p.previousElementSibling?.classList.contains("aside")) return p;
+    }
+    return visit.firstElementChild;
+  }
+
+  // Is the newest text in view? (Then text the world adds on its own is followed; otherwise the story stays put.)
+  const atEnd = () => {
+    const last = lastLine();
+    if (!last) return true;
+    const end = last.getBoundingClientRect().bottom;
+    return end <= bottomEdge() + 2 && end > topEdge();
+  };
+
+  // Bring the newest command and its answer into view with a short smooth scroll, worked out from where they are (not
+  // "to the end of the page", which can stop short: a phone's browser bars change the page's height while it scrolls).
+  // If they fit between the top and the bottom, they end just above the fade; if they are taller, the command goes just
+  // under the top, so you read the answer from its start. instant: no scroll animation (a game being restored, a window
+  // changing size). The answer's whole height exists as soon as it is added (it only fades in), so this can measure at once.
+  function toEnd(instant) {
+    const last = lastLine();
+    if (gliding || !last) return;
+    const first = exchangeStart(root.lastElementChild);
+    const a = first.getBoundingClientRect(), b = last.getBoundingClientRect();
+    const from = topEdge(), to = bottomEdge() - fade();
+    const end = b.bottom + (parseFloat(getComputedStyle(last).marginBottom) || 0);
+    const target = end - a.top > to - from
+      ? window.scrollY + a.top - from
+      : Math.max(window.scrollY, window.scrollY + end - to);
+    window.scrollTo({ top: Math.max(0, target), behavior: instant || calm.matches ? "instant" : "smooth" });
+    header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)
+  }
+
+  // When the window changes size (or the keyboard comes up: ui/page.js), the newest text stays in view if it was.
   let wasAtEnd = true;
-  root.addEventListener("scroll", () => { wasAtEnd = atEnd(); });
-  new ResizeObserver(() => { if (wasAtEnd) toEnd(); }).observe(root);
+  window.addEventListener("scroll", () => { wasAtEnd = atEnd(); }, { passive: true });
+  const stay = () => { if (wasAtEnd) toEnd(true); };
+  window.addEventListener("resize", stay);
+  window.visualViewport?.addEventListener("resize", stay);
+  document.fonts?.ready.then(stay);   // the letters change size a little once the font has loaded
 
   // Cut a paragraph into phrases and give each a delayed fade-in, so they appear one after another.
   function phraseReveal(container, figure) {
@@ -83,8 +147,8 @@ export function mount(root, on) {
   }
 
   // A new visit starts at this paragraph (the command that took you to the room, or the first line said there):
-  // it and everything after it move into a new visit; all earlier ones become past. Then the story glides up so
-  // the new visit starts at the top (instant: no glide, for a restored game).
+  // it and everything after it move into a new visit; all earlier ones become past. Then the page glides so the new
+  // visit starts just under the top (instant: no glide, for a restored game).
   function newVisit(from, instant) {
     if (!from || !root.contains(from)) return;
     const before = from.parentElement, visit = document.createElement("section");
@@ -97,13 +161,15 @@ export function mount(root, on) {
       v.classList.add("past");
       v.querySelectorAll("button").forEach(b => { b.disabled = true; });   // past text: nothing to click
     }
+    header.room();                                                // a new room opens the picture, its crop in the middle
     if (instant) return;
-    const top = visit.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop;
+    const target = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
     gliding = true;
     const done = () => { gliding = false; };
-    root.addEventListener("scrollend", done, { once: true });
+    document.addEventListener("scrollend", done, { once: true });
     setTimeout(done, 1200);                                       // in case the browser has no scrollend
-    root.scrollTo({ top, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    window.scrollTo({ top: target, behavior: calm.matches ? "instant" : "smooth" });
+    header.scrolling(target);                                     // (the glide is not the reader scrolling: it never folds the picture)
   }
 
   // Add a paragraph to the story (to the current visit). Returns it.
@@ -132,7 +198,7 @@ export function mount(root, on) {
       if (part[0] === "`") {                                        // `Command` → <COMMAND> button
         const cmdText = part.slice(1, -1);
         const c = document.createElement("button");
-        c.type = "button"; c.className = "command"; c.textContent = cmdText;
+        c.type = "button"; c.className = "command text-command"; c.textContent = cmdText;
         c.addEventListener("click", () => on.useCommand(cmdText));
         into.appendChild(c);
       } else if (part[0] === "{") {                                 // {label|id} → object button
@@ -152,7 +218,7 @@ export function mount(root, on) {
         // ▲ ▼ are drawn as the compass draws them: its ► turned a quarter (the font's own are another shape).
         if (part) part.split(/([▲▼])/).forEach(bit => {
           if (bit === "▲" || bit === "▼") {
-            const t = document.createElement("span"); t.className = bit === "▲" ? "turn up" : "turn down"; t.textContent = "►";
+            const t = document.createElement("span"); t.className = bit === "▲" ? "turn up text-glyph" : "turn down text-glyph"; t.textContent = "►";
             t.setAttribute("role", "img"); t.setAttribute("aria-label", bit);
             into.appendChild(t);
           } else if (bit) into.appendChild(document.createTextNode(bit));
@@ -174,9 +240,9 @@ export function mount(root, on) {
     busy() { return revealAt > performance.now(); },
     // How long until all of it has appeared (ms; 0 if nothing is fading in).
     busyFor() { return Math.max(0, revealAt - performance.now()); },
-    // Empty the log (new story).
-    clear() { root.innerHTML = ""; root.scrollTop = 0; },
-    // Scroll to the newest text.
+    // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.
+    clear() { root.innerHTML = ""; window.scrollTo(0, 0); header.room(); header.scrolling(0); },
+    // Bring the newest command and its answer into view (smoothly; instant = true: at once).
     toEnd,
     // Is the newest text in view? (Then text the world adds on its own is followed; otherwise the story stays put.)
     atEnd,

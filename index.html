@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Unlikely Memories</title>
-<!-- Styles: tokens first (it declares the layer order), then base and layout, then one file per interface piece.
-     See ARCHITECTURE.md §7 "Styles". -->
+<!-- Styles: tokens first (it declares the layer order), then base, typography, layout and utilities, then one file per
+     interface piece. The text styles are the .text-* classes (css/typography.css). See ARCHITECTURE.md §7 "Styles". -->
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/typography.css">
 <link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/utilities.css">
 <link rel="stylesheet" href="ui/titlebar.css">
 <link rel="stylesheet" href="ui/scene.css">
 <link rel="stylesheet" href="ui/log.css">
@@ -27,59 +29,66 @@
 
 <!-- The landing page: the list of games, the other view of this page (css/layout.css shows one at a time; ui/home.js fills it in).
      The ornament is pixel art on a 72 x 10 grid of 1-pixel cells in 2 x 2 blocks, drawn twice (the second is turned round by CSS). -->
-<main class="home" id="home" aria-labelledby="home-title">
-  <p class="version" id="home-version"></p>
-  <div class="lang" role="group"><button type="button" data-lang="en">EN</button><span aria-hidden="true">·</span><button type="button" data-lang="es">ES</button></div>
+<main class="home text-ui" id="home" aria-labelledby="home-title">
+  <p class="version text-label" id="home-version"></p>
+  <div class="lang text-label" role="group"><button type="button" data-lang="en">EN</button><span aria-hidden="true">·</span><button type="button" data-lang="es">ES</button></div>
   <header class="header">
     <svg class="ornament" viewBox="0 0 72 10" aria-hidden="true" focusable="false"><path class="warm" d="M33 0h2v2h-2zM37 0h2v2h-2zM2 4h2v2h-2zM68 4h2v2h-2zM0 6h2v2h-2zM4 6h2v2h-2zM66 6h2v2h-2zM70 6h2v2h-2zM2 8h2v2h-2zM68 8h2v2h-2z"/><path class="cool" d="M31 2h2v2h-2zM35 2h2v2h-2zM39 2h2v2h-2zM6 4h2v2h-2zM14 4h2v2h-2zM22 4h2v2h-2zM33 4h6v2h-6zM52 4h2v2h-2zM60 4h2v2h-2zM8 6h2v2h-2zM12 6h2v2h-2zM16 6h2v2h-2zM20 6h2v2h-2zM24 6h24v2h-24zM50 6h2v2h-2zM54 6h2v2h-2zM58 6h2v2h-2zM62 6h2v2h-2zM10 8h2v2h-2zM18 8h2v2h-2zM48 8h2v2h-2zM56 8h2v2h-2zM64 8h2v2h-2z"/></svg>
-    <h1 id="home-title"><span>Unlikely</span> <span>Memories</span></h1>
+    <h1 class="text-title" id="home-title"><span>Unlikely</span> <span>Memories</span></h1>
     <svg class="ornament flip" viewBox="0 0 72 10" aria-hidden="true" focusable="false"><path class="warm" d="M33 0h2v2h-2zM37 0h2v2h-2zM2 4h2v2h-2zM68 4h2v2h-2zM0 6h2v2h-2zM4 6h2v2h-2zM66 6h2v2h-2zM70 6h2v2h-2zM2 8h2v2h-2zM68 8h2v2h-2z"/><path class="cool" d="M31 2h2v2h-2zM35 2h2v2h-2zM39 2h2v2h-2zM6 4h2v2h-2zM14 4h2v2h-2zM22 4h2v2h-2zM33 4h6v2h-6zM52 4h2v2h-2zM60 4h2v2h-2zM8 6h2v2h-2zM12 6h2v2h-2zM16 6h2v2h-2zM20 6h2v2h-2zM24 6h24v2h-24zM50 6h2v2h-2zM54 6h2v2h-2zM58 6h2v2h-2zM62 6h2v2h-2zM10 8h2v2h-2zM18 8h2v2h-2zM48 8h2v2h-2zM56 8h2v2h-2zM64 8h2v2h-2z"/></svg>
-    <p class="subtitle" id="home-subtitle"></p>
+    <p class="subtitle text-subtitle" id="home-subtitle"></p>
   </header>
   <div class="column"></div>
 </main>
 
 <!-- The page: markup only. Each piece's script (ui/*.js) is mounted on its element here, and fills in the texts.
-     One column: title bar, picture, then the story with a narrow strip beside it (♫ ≡, directions, inventory).
-     On phones the strip's directions and inventory become panels opened from two tabs at the bottom (layout.css). -->
-<main class="layout" id="screen">
-  <header class="titlebar"><h1 id="place">UNLIKELY MEMORIES</h1><p id="clock"><span id="l-day">Day</span> <span id="v-day">1</span> <span class="sep" aria-hidden="true">│</span> <time id="v-time" datetime="PT0H0M0S"><span id="v-hh">00</span><span class="colon">:</span><span id="v-mm">00</span><span class="colon">:</span><span id="v-ss">00</span></time></p></header>
-  <div class="picture"><canvas width="320" height="136" role="img" aria-label=""></canvas></div>
-  <div class="log" id="log" role="log" aria-label="Story"></div>
-  <form class="prompt" id="prompt" autocomplete="off">
-    <span class="mark" aria-hidden="true">&gt;</span><span class="line" aria-hidden="true"><span class="typed" id="typed"></span><span class="cursor"></span></span>
-    <input id="cmd" type="text" name="command" enterkeyhint="send" autocapitalize="none" spellcheck="false" aria-label="Type a command">
-    <span class="hint" id="prompt-hint" hidden></span>
-  </form>
-  <div class="tools">
-    <button type="button" class="tool" id="music" aria-pressed="false" aria-label="Music" title="Music: off">♫</button>
-    <button type="button" class="tool" id="settings" popovertarget="settings-panel" aria-label="Settings" title="Settings">≡</button>
-  </div>
-  <!-- Directions and inventory: always shown in the strip on wider windows; on phones, panels (popovers) opened
-       by the tabs below. -->
-  <section class="panel exits" id="exits-panel" popover aria-labelledby="tab-exits">
-    <div class="compass" role="group">
-      <button type="button" class="corner" data-dir="in" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M0 3h5v2h-5zM2 1h1v6h-1zM3 2h1v4h-1zM6 1h2v6h-2z"/></svg></button><button type="button" data-dir="n"><span class="up">►</span></button><button type="button" class="corner" data-dir="u" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M3 0h2v1h-2zM2 1h4v1h-4zM1 2h6v1h-6zM3 3h2v1h-2zM3 4h2v1h-2zM1 7h6v1h-6z"/></svg></button>
-      <button type="button" data-dir="w">◄</button><button type="button" class="map open" popovertarget="map-panel" aria-haspopup="dialog">M</button><button type="button" data-dir="e">►</button>
-      <button type="button" class="corner" data-dir="out" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M0 3h5v2h-5zM1 2h1v4h-1zM2 1h1v6h-1zM6 1h2v6h-2z"/></svg></button><button type="button" data-dir="s"><span class="down">►</span></button><button type="button" class="corner" data-dir="d" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M1 0h6v1h-6zM3 3h2v1h-2zM3 4h2v1h-2zM1 5h6v1h-6zM2 6h4v1h-4zM3 7h2v1h-2z"/></svg></button>
+     Three parts in a column, and the page scrolls (css/layout.css): the top (title bar and picture, with the strip hanging
+     from it: ♫ ≡, directions, inventory; on phones ♫ ≡ sit beside the title bar and directions and inventory become
+     panels opened from two tabs), the story, and the bottom (prompt, tabs). The top and the bottom stick. -->
+<main class="layout text-ui" id="screen">
+  <div class="top">
+    <header class="titlebar"><h1 id="place">UNLIKELY MEMORIES</h1><p id="clock"><span id="l-day">Day</span> <span id="v-day">1</span> <span class="sep" aria-hidden="true">|</span> <time id="v-time" datetime="PT0H0M0S"><span id="v-hh">00</span><span class="colon">:</span><span id="v-mm">00</span><span class="colon">:</span><span id="v-ss">00</span></time></p></header>
+    <div class="picture"><canvas width="320" height="136" role="img" aria-label=""></canvas></div>
+    <!-- Directions and inventory: always shown in the strip on wide windows; on phones, panels (popovers) opened
+         by the tabs below. -->
+    <div class="strip">
+      <div class="tools text-button">
+        <button type="button" class="tool" id="music" aria-pressed="false" aria-label="Music" title="Music: off">♫</button>
+        <button type="button" class="tool" id="settings" popovertarget="settings-panel" aria-label="Settings" title="Settings">≡</button>
+      </div>
+      <section class="panel text-ui exits" id="exits-panel" popover aria-labelledby="tab-exits">
+        <div class="compass text-button" role="group">
+          <button type="button" class="corner" data-dir="in" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M0 3h5v2h-5zM2 1h1v6h-1zM3 2h1v4h-1zM6 1h2v6h-2z"/></svg></button><button type="button" data-dir="n"><span class="up">►</span></button><button type="button" class="corner" data-dir="u" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M3 0h2v1h-2zM2 1h4v1h-4zM1 2h6v1h-6zM3 3h2v1h-2zM3 4h2v1h-2zM1 7h6v1h-6z"/></svg></button>
+          <button type="button" data-dir="w">◄</button><button type="button" class="map open" popovertarget="map-panel" aria-haspopup="dialog">M</button><button type="button" data-dir="e">►</button>
+          <button type="button" class="corner" data-dir="out" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M0 3h5v2h-5zM1 2h1v4h-1zM2 1h1v6h-1zM6 1h2v6h-2z"/></svg></button><button type="button" data-dir="s"><span class="down">►</span></button><button type="button" class="corner" data-dir="d" tabindex="-1" aria-hidden="true"><svg class="icon" viewBox="0 0 8 8" aria-hidden="true"><path d="M1 0h6v1h-6zM3 3h2v1h-2zM3 4h2v1h-2zM1 5h6v1h-6zM2 6h4v1h-4zM3 7h2v1h-2z"/></svg></button>
+        </div>
+      </section>
+      <section class="panel text-ui inventory" id="inventory-panel" popover aria-labelledby="tab-inventory">
+        <ul class="slots">
+          <li class="slot"></li><li class="slot"></li><li class="slot"></li>
+          <li class="slot"></li><li class="slot"></li><li class="slot"></li>
+          <li class="slot"></li><li class="slot"></li><li class="slot"></li>
+        </ul>
+      </section>
     </div>
-  </section>
-  <section class="panel inventory" id="inventory-panel" popover aria-labelledby="tab-inventory">
-    <ul class="slots">
-      <li class="slot"></li><li class="slot"></li><li class="slot"></li>
-      <li class="slot"></li><li class="slot"></li><li class="slot"></li>
-      <li class="slot"></li><li class="slot"></li><li class="slot"></li>
-    </ul>
-  </section>
-  <nav class="tabs">
-    <button type="button" class="tab" id="tab-exits" popovertarget="exits-panel" aria-expanded="false">DIRECTIONS</button>
-    <button type="button" class="tab" id="tab-inventory" popovertarget="inventory-panel" aria-expanded="false">INVENTORY</button>
-  </nav>
+  </div>
+  <div class="log text-log" id="log" role="log" aria-label="Story"></div>
+  <div class="bottom">
+    <form class="prompt text-ui" id="prompt" autocomplete="off">
+      <span class="mark" aria-hidden="true">&gt;</span><span class="line" aria-hidden="true"><span class="typed" id="typed"></span><span class="cursor"></span></span>
+      <input id="cmd" type="text" name="command" enterkeyhint="send" autocapitalize="none" spellcheck="false" aria-label="Type a command">
+      <span class="hint" id="prompt-hint" hidden></span>
+    </form>
+    <nav class="tabs text-button">
+      <button type="button" class="tab" id="tab-exits" popovertarget="exits-panel" aria-expanded="false">DIRECTIONS</button>
+      <button type="button" class="tab" id="tab-inventory" popovertarget="inventory-panel" aria-expanded="false">INVENTORY</button>
+    </nav>
+  </div>
 </main>
 
 <!-- Settings: a popover (HTML popover API) opened by the ≡ button. Non-modal: it closes with Esc, by clicking
      outside, or with the button again; it sits in the browser's top layer, above everything else. -->
-<div id="settings-panel" class="settings" popover role="dialog" aria-labelledby="settings-title">
+<div id="settings-panel" class="settings text-ui" popover role="dialog" aria-labelledby="settings-title">
   <h2 id="settings-title">SETTINGS</h2>
   <fieldset class="choice">
     <legend id="l-language">LANGUAGE</legend>
@@ -100,13 +109,13 @@
      the settings: it closes with Esc, by clicking outside it, or with the × (ui/map.js). data-state says "open" or "closed",
      a hook for a later animation (ui/map.css). The rooms are drawn in .world and hidden from screen readers; the list
      beside them says the same in words. -->
-<div id="map-panel" class="mapview" popover role="dialog" aria-labelledby="map-title" tabindex="-1" data-state="closed">
-  <h2 id="map-title" class="sr">Map</h2>
-  <button type="button" class="close" aria-label="Close the map">×</button>
+<div id="map-panel" class="mapview text-ui" popover role="dialog" aria-labelledby="map-title" tabindex="-1" data-state="closed">
+  <h2 id="map-title" class="visually-hidden">Map</h2>
+  <button type="button" class="close text-label" aria-label="Close the map">×</button>
   <div class="area"><div class="world"></div></div>
-  <h3 id="map-rooms" class="sr">Rooms on this level</h3>
-  <ul class="places sr" aria-labelledby="map-rooms"></ul>
-  <footer class="where"><p class="level"></p><p class="hint"></p></footer>
+  <h3 id="map-rooms" class="visually-hidden">Rooms on this level</h3>
+  <ul class="places visually-hidden" aria-labelledby="map-rooms"></ul>
+  <footer class="where"><p class="level text-level"></p><p class="hint text-hint"></p></footer>
 </div>
 </body>
 </html>

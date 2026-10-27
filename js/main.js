@@ -21,6 +21,7 @@ import { load, store } from "./prefs.js";
 import { objectImage } from "../ui/sprite.js";
 import * as titlebar from "../ui/titlebar.js";
 import * as scene from "../ui/scene.js";
+import * as fold from "../ui/fold.js";
 import * as log from "../ui/log.js";
 import * as prompt from "../ui/prompt.js";
 import * as compass from "../ui/compass.js";
@@ -93,11 +94,12 @@ const on = {
 
 // Set up each piece once, on its element in index.html.
 const $ = (sel) => document.querySelector(sel);
+const header = fold.mount($(".top"), $(".log"));        // the folding picture on upright phones: not drawn from the state; the log tells it when to open
 const ui = {
   page: page.mount(document, on),
   titlebar: titlebar.mount($(".titlebar")),
   scene: scene.mount($(".picture")),
-  log: log.mount($(".log"), on),
+  log: log.mount($(".log"), on, header),
   prompt: prompt.mount($(".prompt"), on),
   compass: compass.mount($(".compass"), on),
   inventory: inventory.mount($(".inventory"), on),
@@ -367,7 +369,7 @@ function restore(r) {
     keep(p);
     if (p.visit) ui.log.newVisit(el, true);               // a room entered here: earlier text is past
   }
-  ui.log.toEnd();
+  ui.log.toEnd(true);                                     // (the page jumps there: no scroll animation for a restored game)
   redraw("restore");
   schedule();
 }

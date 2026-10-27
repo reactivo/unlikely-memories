@@ -1,55 +1,49 @@
-/* Base: the fonts and the page itself.
+/* BASE: the page itself (colour, background, margins, side padding).
 
-   NOT in a layer, on purpose: the published artifact wraps the page in its own unlayered styles (white
-   background, black text on html/body), and unlayered styles always beat layered ones. These few page-level rules
-   stay unlayered (and load after the wrapper's), so they win; nothing else here, so the layers still decide
-   everything else. */
+   NOT in a layer, on purpose: the published artifact wraps the page in its own unlayered styles (white background,
+   black text, its own font on html/body), and unlayered styles always beat layered ones. These few page rules stay
+   unlayered (and load after the wrapper's) so they win. Keep this file to the page; the layers decide everything else. */
 
-/* FONT PROFILE, the part in this file: tuned for the CGA font. Replace or delete this block (and the one in tokens.css)
-   when changing fonts; nothing else depends on the font.
-
-   Only CGA is used; the others are declared so they can be tried (see fonts/FONTS.md). A declared font is only
-   downloaded when something uses it. */
-@font-face { font-family: "VGA";      src: url("../fonts/WebPlus_IBM_VGA_8x16.woff") format("woff"); }
-@font-face { font-family: "EGA";      src: url("../fonts/WebPlus_IBM_EGA_8x14.woff") format("woff"); }
-@font-face { font-family: "CGA";      src: url("../fonts/WebPlus_IBM_CGA.woff") format("woff"); }
-@font-face { font-family: "Amstrad";  src: url("../fonts/WebPlus_Amstrad_PC.woff") format("woff"); }
-@font-face { font-family: "Toshiba";  src: url("../fonts/WebPlus_ToshibaSat_8x14.woff") format("woff"); }
-@font-face { font-family: "C64";      src: url("../fonts/C64_Pro_Mono-STYLE.woff2") format("woff2"); }
-@font-face { font-family: "Atari8";   src: url("../fonts/EightBit_Atari-Regular.ttf") format("truetype"); }
-@font-face { font-family: "AtariST";  src: url("../fonts/Atari_ST_High_Res.ttf") format("truetype"); }
-@font-face { font-family: "PerfDOS";  src: url("../fonts/Perfect_DOS_VGA_437_Win.ttf") format("truetype"); }
-
-/* "CGA Story": CGA for the story text, with smaller capitals — the same step down as the <COMMANDS> (87.5%), so
-   capitals sit with the lower-case letters around them. Two faces of the same font: the browser takes each
-   capital from the second (the last declared wins where both cover a letter), everything else from the first.
-   Keep size-adjust equal to the step in --command-step (tokens.css). */
-@font-face { font-family: "CGA Story"; src: url("../fonts/WebPlus_IBM_CGA.woff") format("woff"); }
-@font-face { font-family: "CGA Story"; src: url("../fonts/WebPlus_IBM_CGA.woff") format("woff");
-             unicode-range: U+0041-005A, U+00C0-00D6, U+00D8-00DE;   /* A–Z, and accented capitals (Á, Ñ, Ü…) */
-             size-adjust: 87.5%; }
-/* (end of the font profile) */
-
-/* The root font size: the page's one size, which every rem in the CSS is a multiple of (tokens.css, "Sizing"). Fluid, no
-   rounding. Written in plain numbers (--column-rem, --screen-rem) because "rem" in this very property still means the
-   browser's own 16px. Phones: the width alone decides; from 760px up the window's height also has to hold the whole screen. */
-html {
-  font-size: clamp(12px, calc((100vw - 2 * var(--gutter)) / var(--column-rem)), 24px);
-  @media (min-width: 760px) {
-    font-size: clamp(12px, min(calc((100vw - 2 * var(--gutter)) / var(--column-rem)), calc(100dvh / var(--screen-rem))), 24px);
-  }
+:root {
+  color-scheme: dark;
+  padding: 0;   /* the wrapper pads the page for the iPhone's notch; the layout does that itself (layout.css) */
 }
 
-:root { color-scheme: dark; padding: 0; }   /* padding: the wrapper pads the page for the iPhone's notch; the
-                                             layout does that itself (layout.css), so the screen fits exactly */
-html { background: var(--color-bg); }
+html {
+  background: var(--color-bg);
+
+  /* The page is the one thing that scrolls. Jumping to something (a button reached with Tab) leaves room for what sticks
+     at the top and at the bottom, whose heights ui/page.js measures. Here, not in a layer: the artifact's wrapper sets
+     scroll-padding-top on html too. */
+  scroll-padding-top: var(--top-h, 0px);
+  scroll-padding-bottom: var(--bottom-h, 0px);
+
+  /* No scrollbar: it would break the old-screen look (the wheel, a finger or the keys still scroll the page). The story hid
+     its own scrollbar for this reason when it was a scroll box; now the page scrolls, so the page hides its. */
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Never sideways: nothing on the page is meant to be wider than the window (the picture's canvas is, but its box clips
+     it). iPhone Safari still let the page slide sideways a little, which also fought the picture's sideways drag. Clip,
+     not hidden, so the page doesn't become a second scroll box (the sticky parts stick to the window). */
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
 body {
   margin: 0;
+  overflow-x: clip;   /* (see html above) */
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--ui);
-  -webkit-font-smoothing: var(--font-smoothing);   /* inherited by the whole page, popovers included (tokens.css, font profile) */
-  /* Side gutters only: the layout is the whole window high and pads itself top and bottom (layout.css). */
+
+  /* The font can't be set from typography.css (a layer loses to this file), so typography.css sets --font-page
+     and the body reads it. Without it, the page falls back to the browser's own font. */
+  font-family: var(--font-page, system-ui, sans-serif);
+
+  /* Side gutters only: the layout pads itself top and bottom (layout.css). */
   padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
   padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }

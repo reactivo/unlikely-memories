@@ -14,9 +14,15 @@ export function mount(panel, on) {
   // Place the panel under the ≡ button, right edges lined up.
   function place() {
     const r = button.getBoundingClientRect();
-    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;   // the root font size, in px
-    panel.style.top = (r.bottom + rem * 0.5) + "px";
+    const gap = parseFloat(getComputedStyle(panel).getPropertyValue("--space-s")) || 8;   // the space under the button (tokens.css)
+    panel.style.top = (r.bottom + gap) + "px";
     panel.style.right = Math.max(8, document.documentElement.clientWidth - r.right) + "px";
+  }
+  // On a low window the panel can reach below the screen: lift it until its bottom edge is in view (it then covers the button).
+  function keepOnScreen() {
+    const r = panel.getBoundingClientRect(), gap = parseFloat(getComputedStyle(panel).getPropertyValue("--space-s")) || 8;
+    const over = r.bottom + gap - document.documentElement.clientHeight;
+    if (over > 0) panel.style.top = Math.max(gap, r.top - over) + "px";
   }
   // If a different language is selected, switch to it (this restarts the game).
   function applyChosen() {
@@ -27,7 +33,7 @@ export function mount(panel, on) {
   // Opening: position it, focus the current choice. Closing: apply the choice, focus the command line.
   panel.addEventListener("beforetoggle", (e) => { if (e.newState === "open") place(); });
   panel.addEventListener("toggle", (e) => {
-    if (e.newState === "open") (panel.querySelector("input:checked") || panel.querySelector("input")).focus();
+    if (e.newState === "open") { keepOnScreen(); (panel.querySelector("input:checked") || panel.querySelector("input")).focus(); }
     else { applyChosen(); on.focus(); }
   });
   // New game: close the panel; the question is asked in the story.

@@ -1,145 +1,255 @@
 /* Story log: everything the game writes, and the player's echoed commands. Inside it, two kinds of markers
-   (made by log.js from the story markup): commands <LIKE THIS> and objects, marked with a small ⁺. */
+   (made by log.js from the story markup): commands <LIKE THIS> and objects, marked with a small +.
+   The text style is the .text-log class (css/typography.css), put on the log in index.html. */
 @layer ui {
+
   /* The look of a <COMMAND>, wherever story text appears: the story itself, and the hint beside the prompt. */
-  .log, .prompt .hint {
-    --command-text: var(--color-text);      /* a <COMMAND> */
-    --command-mark: var(--color-mark);      /* its brackets */
-    --command-hover: var(--color-highlight); /* the whole command, brackets too, under the pointer */
-    --command-bg:   transparent;            /* optional background behind the whole command */
-    --command-open:  "<";                   /* character(s) before a command */
-    --command-close: ">";                   /* character(s) after a command */
-    --command-size: var(--size-command);    /* a little smaller than the story text, so its capitals fit in (tokens.css) */
+  .log,
+  .prompt .hint {
+    --command-text:  var(--color-text);        /* a <COMMAND> */
+    --command-mark:  var(--color-mark);        /* its brackets */
+    --command-hover: var(--color-highlight);   /* the whole command, brackets too, under the pointer */
+    --command-bg:    transparent;              /* optional background behind the whole command */
+    --command-open:  "<";                      /* character(s) before a command */
+    --command-close: ">";                      /* character(s) after a command */
   }
 
-  /* Story text: a little more open than the interface (--line-height-story, tokens.css). */
   .log {
     /* Colours and marks in the story, by meaning (the command and object markers below inherit these). */
-    --echo:         var(--color-text-dim);  /* your own command, repeated as typed */
-    --hint:         var(--color-text-dim);  /* dim lines: the help hint, suggestions, the prototype's end */
-    --hurt:         var(--color-hurt);      /* the line said when you lose health */
-    --figure-bg:    var(--color-surface);   /* the square behind an object's picture */
-    --object:       var(--color-text);      /* an object's name: looks like the story text… */
-    --object-mark:  var(--color-highlight); /* …with a small mark after it, in this colour… */
-    --object-sign:  "⁺";                    /* …this character (the CGA font has it)… */
-    /* …spaced to sit snugly after the word (--object-sign-gap and --object-sign-trim: the font profile, tokens.css). */
-    --object-hover: var(--color-highlight); /* the name under the pointer */
-    --past:         var(--color-text-dim);  /* everything in rooms you've left: one grey, like your echoed commands */
+    --echo:         var(--color-text-dim);    /* your own command, repeated as typed */
+    --hint:         var(--color-text-dim);    /* dim lines: the help hint, suggestions, the prototype's end */
+    --hurt:         var(--color-hurt);        /* the line said when you lose health */
+    --figure-bg:    var(--color-surface);     /* the square behind an object's picture */
+    --object:       var(--color-text);        /* an object's name: looks like the story text… */
+    --object-mark:  var(--color-highlight);   /* …with a small mark after it, in this colour… */
+    --object-sign:  "+";                      /* …this character (m5x7's own plus)… */
+    /* …spaced to sit snugly after the word (--object-sign-gap and --object-sign-trim: typography.css). */
+    --object-hover: var(--color-highlight);   /* the name under the pointer */
+    --past:         var(--color-text-dim);    /* everything in rooms you've left: one grey, like your echoed commands */
 
-    --fade: calc(var(--size-text) * var(--line-height-story) * var(--fade-lines));   /* the fade above the prompt: two lines */
+    --figure: 144px;   /* the box of an object's picture */
 
-    min-width: 0; white-space: pre-wrap; overflow-wrap: break-word;
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
     text-wrap: pretty;   /* never a single word alone on a paragraph's last line (browsers without it: as before) */
-    font-family: var(--story); font-size: var(--size-text); line-height: var(--line-height-story);
 
-    /* The story scrolls on its own, between the picture and the prompt (log.js keeps the newest text in view).
-       No scrollbar: it would break the old-screen look (the wheel, a finger or the keys still scroll it).
-       Its last two lines fade out above the prompt; the same space is left empty after the newest text, so what
-       you've just read is never faded, only text further down when you've scrolled back up. */
-    overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
+    /* The story is ordinary page content: the page scrolls (layout.css; log.js keeps the newest text in view). The two
+       lines above the prompt fade out (layout.css draws that), and the same space is left empty after the newest
+       text, so what you've just read is never faded, only text further down when you've scrolled back up. */
     padding-bottom: var(--fade);
-    mask-image: linear-gradient(to top, transparent, #000 var(--fade));
-    container-type: size;   /* so a visit can measure the story area (100cqh, below) */
 
-    /* Visits (log.js): the story of each time you enter a room. The current one is at least as tall as the story
-       area, so its start can always scroll up to the top, however little has been said there yet; until the room
-       fills it, the space is simply empty above the prompt. */
-    & .visit:last-child { min-height: 100cqh; }
+    /* Visits (log.js): the story of each time you enter a room. The current one is as tall as what shows between the
+       top and the bottom of the page (their heights are measured by ui/page.js) less the space kept after it, at least,
+       so its start can always scroll up to just under the picture, however little has been said there yet, and a story
+       that is still short does not make the page scroll; until the room fills it, the space is simply empty above
+       the prompt. */
+    & .visit:last-child {
+      min-height: calc(100dvh - var(--top-h, 0px) - var(--bottom-h, 0px) - var(--fade));
+    }
 
     /* Rooms you've left: all one grey, pictures without colour, and nothing reacts (the buttons are disabled by
-       log.js; here they lose their hover and pointer). Commands keep their brackets and objects their ⁺. */
+       log.js; here they lose their hover and pointer). Commands keep their brackets and objects their +. */
     & .past {
       color: var(--past);
-      --echo: var(--past); --hint: var(--past); --hurt: var(--past);
-      --command-text: var(--past); --command-mark: var(--past); --command-hover: var(--past);
-      --object: var(--past); --object-mark: var(--past); --object-hover: var(--past);
-      & .command, & .object { cursor: default; }
-      & .figure { filter: grayscale(1); }
+      --echo: var(--past);
+      --hint: var(--past);
+      --hurt: var(--past);
+      --command-text: var(--past);
+      --command-mark: var(--past);
+      --command-hover: var(--past);
+      --object: var(--past);
+      --object-mark: var(--past);
+      --object-hover: var(--past);
+
+      & .command,
+      & .object {
+        cursor: default;
+      }
+
+      & .figure {
+        filter: grayscale(1);
+      }
     }
 
     /* The story is over (log.js adds "over"): its objects do nothing any more, so they lose their hover and pointer.
        Commands (`Begin again`) keep working. */
-    &.over .object { --object-hover: var(--object); cursor: default; }
+    &.over .object {
+      --object-hover: var(--object);
+      cursor: default;
+    }
 
-    & p { margin: 0 0 var(--space-4); }
-    & .cmd { color: var(--echo); margin-bottom: var(--space-1); }
+    & p {
+      margin: 0 0 var(--space-m);
+    }
+
     /* Each of your commands starts a new block: two lines of space above it (the paragraph before it has one; the
-       two margins overlap, so the gap is exactly 2rem), so the story reads as command → answer, command → answer. */
-    & .cmd { margin-top: var(--space-8); }
-    & .visit:first-child > .cmd:first-child { margin-top: 0; }   /* …except at the very top of the story */
-    & .sys { color: var(--hint); }
-    & .hurt { color: var(--hurt); }
-    & .keep { white-space: nowrap; }
+       two margins overlap, so the gap is exactly --space-l), so the story reads as command → answer, command → answer. */
+    & .cmd {
+      color: var(--echo);
+      margin-top: var(--space-l);
+      margin-bottom: var(--space-xs);
+    }
+
+    & .visit:first-child > .cmd:first-child {
+      margin-top: 0;   /* …except at the very top of the story */
+    }
+
+    & .sys {
+      color: var(--hint);
+    }
+
+    & .hurt {
+      color: var(--hurt);
+    }
+
+    & .keep {
+      white-space: nowrap;   /* a marker and the punctuation right after it, on one line (log.js) */
+    }
+
     /* What the world says on its own, nobody having asked (a timed line: js/main.js, tick): set apart like a stage
-       direction, indented 2rem, with the same space above as a command (decided 24 October 2026). */
-    & .aside { margin-left: var(--space-8); }
-    & :not(.aside) + .aside { margin-top: var(--space-8); }
+       direction, indented --space-l, with the same space above as a command (decided 24 October 2026). */
+    & .aside {
+      margin-left: var(--space-l);
+    }
+
+    & :not(.aside) + .aside {
+      margin-top: var(--space-l);
+    }
+
     /* ▲ ▼ in a text (HELP's directions): the compass's ► turned a quarter, so the two look the same (log.js;
-       the turn is around the triangle's own centre, as in compass.css). 1ch on purpose: it is the width of a glyph of the
-       text it sits in. */
-    & .turn { display: inline-block; width: 1ch; line-height: 1; transform-origin: 43.75% 43.75%; }
-    & .turn.up   { transform: rotate(-90deg); }
-    & .turn.down { transform: rotate(90deg); }   /* a marker and the punctuation right after it, on one line (log.js) */
+       the turn is around the triangle's own centre, as in compass.css). 1em on purpose: the triangle is a square CGA
+       glyph as big as the text it sits in. */
+    & .turn {
+      display: inline-block;
+      width: 1em;
+      transform-origin: 43.75% 43.75%;
+    }
+
+    & .turn.up {
+      transform: rotate(-90deg);
+    }
+
+    & .turn.down {
+      transform: rotate(90deg);
+    }
 
     /* Phrase fade-in: everything the game writes appears phrase by phrase (split at , ; : . ! ?), each phrase
        fading in after the one before, like narration. The player's own echoed command appears at once. Any key or
        click shows everything still pending. Off with reduced motion. Gaps between phrases: PHRASE_* in log.js. */
-    & .ph { animation: phrase-in var(--duration-phrase) ease-out both; }
-    @media (prefers-reduced-motion: reduce) { & .ph { animation: none; } }
+    & .ph {
+      animation: phrase-in var(--duration-phrase) ease-out both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      & .ph {
+        animation: none;
+      }
+    }
 
     /* A description with the object's image beside it: the image on the left in a surface-coloured square
-       (9rem wide: the picture itself 8rem, with half a rem of square around it), the text flowing on
-       the right. Phones (below 760px): a column instead, the image first, left-aligned at the same size, then the
-       whole text under it, with the same gap. */
+       (--figure wide, with --space-s of square around the picture), the text flowing on the right. Phones: a column
+       instead, the image first, left-aligned at the same size, then the whole text under it, with the same gap
+       (the direction comes from layout.css). */
     & p.with-image {
-      display: flex; gap: var(--space-4); align-items: flex-start;
-      @media (max-width: 759px) { flex-direction: column; }
+      display: flex;
+      flex-direction: var(--figure-direction, column);
+      gap: var(--space-m);
+      align-items: flex-start;
     }
+
     & .figure {
-      flex: none; width: 9rem; aspect-ratio: 1; padding: var(--space-2); box-sizing: border-box;
-      background: var(--figure-bg); margin-top: var(--figure-nudge);
+      flex: none;
+      width: var(--figure);
+      aspect-ratio: 1;
+      padding: var(--space-s);
+      box-sizing: border-box;
+      background: var(--figure-bg);
+      margin-top: var(--figure-nudge);
     }
-    & .figure svg { display: block; width: 100%; height: 100%; }
-    & p.with-image .text { min-width: 0; }
+
+    & .figure svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    & p.with-image .text {
+      min-width: 0;
+    }
   }
-  @keyframes phrase-in { from { opacity: 0; } }
+
+  @keyframes phrase-in {
+    from {
+      opacity: 0;
+    }
+  }
 
   /* Command marker: a typeable command mentioned in the story, shown as <COMMAND>.
      Change the look with the --command-* variables at the top of this file. The brackets are drawn by CSS, so
      the text itself stays just the command. Each marker is a button: clicking it runs the command at once, echoed
-     in sentence case ("> Examinar puerta"), as if typed. */
+     in sentence case ("> Examinar puerta"), as if typed. Commands are written in sentence case and shown in
+     capitals (.text-command, typography.css). */
   .command {
-    font: inherit; line-height: inherit; letter-spacing: inherit;
-    font-family: var(--game);       /* the game's lettering, not the story's: its capitals are already made smaller by --command-size */
-    font-size: var(--command-size);
     color: var(--command-text);
     background: var(--command-bg);
-    border: 0; padding: 0; margin: 0; border-radius: 0;
-    text-transform: uppercase;      /* commands are written in sentence case and shown in capitals */
-    white-space: nowrap;            /* never split a command across two lines */
+    border: 0;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    white-space: nowrap;   /* never split a command across two lines */
     cursor: pointer;
 
-    &::before { content: var(--command-open);  color: var(--command-mark); }
-    &::after  { content: var(--command-close); color: var(--command-mark); }
-    &:hover, &:hover::before, &:hover::after { color: var(--command-hover); }
-    &:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+    &::before {
+      content: var(--command-open);
+      color: var(--command-mark);
+    }
+
+    &::after {
+      content: var(--command-close);
+      color: var(--command-mark);
+    }
+
+    &:hover,
+    &:hover::before,
+    &:hover::after {
+      color: var(--command-hover);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
   }
 
-  /* Object marker: the object's name looks like normal text, followed by a small ⁺ (--object-sign); on hover the
+  /* Object marker: the object's name looks like normal text, followed by a small + (--object-sign); on hover the
      name takes the mark's colour (with a pointer cursor). A button: clicking examines the object (as if you'd typed
      "Examine …"), then suggests what else you could do with it. Change the look with the --object-* variables at the top of .log. */
   .object {
-    font: inherit; line-height: inherit; letter-spacing: inherit; color: var(--object);
-    background: none; border: 0; padding: 0; margin: 0; border-radius: 0;
-    white-space: nowrap; cursor: pointer;
+    color: var(--object);
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    white-space: nowrap;
+    cursor: pointer;
 
-    &:hover { color: var(--object-hover); }
-    &:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-    /* Spacing that follows the text's own size (em; values in the font profile, tokens.css). */
+    &:hover {
+      color: var(--object-hover);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+
+    /* Spacing that follows the text's own size (em; values in typography.css). */
     &::after {
-      content: var(--object-sign); color: var(--object-mark);
-      padding-left: var(--object-sign-gap); margin-right: var(--object-sign-trim);
+      content: var(--object-sign);
+      color: var(--object-mark);
+      padding-left: var(--object-sign-gap);
+      margin-right: var(--object-sign-trim);
     }
   }
 }

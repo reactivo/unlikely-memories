@@ -90,7 +90,7 @@ export default {
   yesNo: "`Yes` / `No`",
   confirmNo: "All right.",
   // HELP: how the game works, and the commands that work anywhere. (Hints come from the thing that listens.)
-  help: "Type what you want to do in a few words, like \"open the door\" or \"take the lamp\". Click any object⁺ to examine it, or any command in capitals to do it at once.\n\nCommon actions: `Look`, `Examine`, `Take`, `Drop`, `Open`, `Inventory`, `Time`, `Status`, `Talk to`, `Wait`.\n\nDirections: `N` ▲, `S` ▼, `E` ►, `W` ◄, `Up`, `Down`, `In`, `Out`. `Map` (or the M on the compass) shows where you've been, and a click on a room there walks you to it.\n\nGame: `Undo`, `Save`, `Load`, `Quit` (back to the list of games).",
+  help: "Type what you want to do in a few words, like \"open the door\" or \"take the lamp\". Click any object+ to examine it, or any command in capitals to do it at once.\n\nCommon actions: `Look`, `Examine`, `Take`, `Drop`, `Open`, `Inventory`, `Time`, `Status`, `Talk to`, `Wait`.\n\nDirections: `N` ▲, `S` ▼, `E` ►, `W` ◄, `Up`, `Down`, `In`, `Out`. `Map` (or the M on the compass) shows where you've been, and a click on a room there walks you to it.\n\nGame: `Undo`, `Save`, `Load`, `Quit` (back to the list of games).",
   // HINT: never a hint itself, only where to listen (n = the opening's listening thing, named).
   hintCarried: (n) => `Something you carry might know more. Try \`Listen to ${n}\`.`,
   hintHere: (n) => `Something here might know more. Try \`Listen to ${n}\`.`,

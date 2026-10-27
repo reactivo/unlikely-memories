@@ -1,24 +1,43 @@
 /* Tools: ♫ music on/off and ≡ settings, font characters on two tiles. At the top of the strip on wider windows (the
-   strip's width, one tile high); on phones, two square tiles beside the title bar. */
+   strip's width, one tile high); on phones, two square tiles beside the title bar (the size comes from layout.css;
+   phone values here). The text style is .text-button (css/typography.css), put on the tools in index.html. */
 @layer ui {
   .tools {
     /* Colours of the tools, by meaning. */
-    --tile:        var(--color-surface);    /* the tile behind each */
-    --tool:        var(--color-text);       /* the character */
-    --tool-off:    var(--color-text-faint); /* ♫ while the music is off: faint, like a closed exit */
-    --tool-hover:  var(--color-text);       /* under the pointer (♫ off brightens too)… */
-    --tool-hover-border: var(--color-text); /* …with a border inside the tile, like an inventory item */
+    --tile-bg:           var(--color-surface);     /* the tile behind each */
+    --tool:              var(--color-text);        /* the character */
+    --tool-off:          var(--color-text-faint);  /* ♫ while the music is off: faint, like a closed exit */
+    --tool-hover:        var(--color-text);        /* under the pointer (♫ off brightens too)… */
+    --tool-hover-border: var(--color-text);        /* …with a border inside the tile, like an inventory item */
 
-    display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); align-self: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--tile-gap);
+    align-self: center;
 
     & .tool {
-      font: inherit; line-height: var(--line-height-tight); color: var(--tool);
-      background: var(--tile); border: 0; padding: 0; margin: 0; cursor: pointer;
-      height: 3rem;                                   /* as high as a compass tile */
-      @media (max-width: 759.98px) { width: 4rem; height: 4rem; }   /* phones: squares, big enough for a finger */
+      color: var(--tool);
+      background: var(--tile-bg);
+      border: 0;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      width: var(--tool-width, var(--tile-touch));     /* phones: squares, big enough for a finger */
+      height: var(--tool-height, var(--tile-touch));
     }
-    & .tool[aria-pressed="false"] { color: var(--tool-off); }
-    & .tool:hover { color: var(--tool-hover); box-shadow: inset 0 0 0 2px var(--tool-hover-border); }
-    & .tool:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+    & .tool[aria-pressed="false"] {
+      color: var(--tool-off);
+    }
+
+    & .tool:hover {
+      color: var(--tool-hover);
+      box-shadow: inset 0 0 0 2px var(--tool-hover-border);
+    }
+
+    & .tool:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
   }
 }

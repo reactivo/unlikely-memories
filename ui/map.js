@@ -18,7 +18,7 @@ export function mount(panel, on) {
   let drag = null;                          // a press in progress: where it began, whether it has become a drag
   let here = null;                          // the room the map was last centred on (a new room centres it again)
   let base = { x: 0, y: 0 };                // where the drawing's origin (your room) sits from the middle of the area: 0 on a phone
-  const wide = matchMedia("(min-width: 760px)");   // a desktop window: the middle of the whole map is the middle of the area
+  const wide = matchMedia("(min-width: 760px) and (min-height: 560px)");   // a desktop window (the strip layout, css/layout.css): the middle of the whole map is the middle of the area
 
   const isOpen = () => panel.matches(":popover-open");
   // A size from tokens.css in integer pixels (even ones, so the middle of a room falls on a pixel too): measured on a hidden
@@ -76,7 +76,7 @@ export function mount(panel, on) {
                : piece("i", "stub v", { left: x, top: y + H / 2, height: S }));
     }
     for (const r of m.rooms) {
-      const box = piece("div", "room" + (r.current ? " current" : ""), { left: cx(r) - W / 2, top: cy(r) - H / 2, width: W, height: H });
+      const box = piece("div", "room text-room" + (r.current ? " current" : ""), { left: cx(r) - W / 2, top: cy(r) - H / 2, width: W, height: H });
       box.dataset.room = r.id;
       box.setAttribute("aria-hidden", "true");                    // the list below says it for screen readers
       const name = document.createElement("span");

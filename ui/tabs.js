@@ -5,7 +5,7 @@
 //   - closes the panel when you pick something in it (an open exit, an item);
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
-const wide = matchMedia("(min-width: 760px)");
+const wide = matchMedia("(min-width: 760px) and (min-height: 560px)");   // the strip layout (css/layout.css)
 
 // Set up the tabs on their element. Returns update().
 export function mount(root) {

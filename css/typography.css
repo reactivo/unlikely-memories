@@ -1,0 +1,136 @@
+/* TYPOGRAPHY: everything about type. The game's fonts, the tweaks that go with them, and the text styles (.text-*).
+
+   To change how one kind of text looks, edit its .text-* class below. To change a size step for all text, edit the
+   --text-* and --line-* values in tokens.css. Each style is used by putting its class on the element (in index.html or
+   in the script that makes it); the pieces (ui/*.css) never set a font size, line height or capitals themselves. */
+
+/* The game's fonts. m5x7 by Daniel Linssen (CC0) is the game's own font: a proportional pixel font, 7 pixels tall,
+   one pixel is 1/16 of the size. CGA is kept for the characters m5x7 lacks (► ◄ ▲ ▼ ○ ● → ← ⇧ ⇩ ♫ ≡ …): the
+   browser takes each one from the next font in the list. The other pixel fonts in fonts/ are not declared. */
+@font-face {
+  font-family: "m5x7";
+  src: url("../fonts/m5x7.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "CGA";
+  src: url("../fonts/WebPlus_IBM_CGA.woff") format("woff");
+}
+
+@layer typography {
+
+  /* ---- The font, and what goes with it ---- */
+  :root {
+    --font-game: "m5x7", "CGA", ui-monospace, monospace;   /* the family list; the fallbacks show until the fonts have loaded */
+    --font-page: var(--font-game);                         /* what the page's body uses (read by base.css, which no layer can override) */
+
+    --font-smoothing: none;   /* -webkit-font-smoothing, set once on the body: no anti-aliasing, so the pixel letters stay sharp */
+
+    /* The object marker + (ui/log.css): space before it, and space taken back after it. Em, because they follow the
+       text they are in. Tune by eye. */
+    --object-sign-gap:  0;
+    --object-sign-trim: 0;
+
+    /* How far the picture of an object (ui/log.css) moves down, so its top lines up with the top of the capitals
+       beside it: the space m5x7 leaves above its capitals on a story line. */
+    --figure-nudge: 0.5em;
+  }
+
+  body {
+    -webkit-font-smoothing: var(--font-smoothing);   /* inherited by the whole page, popovers included */
+  }
+
+  /* Buttons, fields and headings start with the browser's own font and capitals; make them use the text around them. */
+  :where(button, input, h1, h2, h3) {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+  }
+
+
+  /* ---- Text styles. Size and line height come from tokens.css. ---- */
+
+  /* The story log: everything the game writes and your echoed commands (ui/log.css). Tight lines. */
+  .text-log {
+    font-size: var(--text-m);
+    line-height: var(--line-xxs);
+  }
+
+  /* Running text on the landing page (a card's blurb, "no games"). */
+  .text-story {
+    font-size: var(--text-m);
+    line-height: var(--line-m);
+  }
+
+  /* Interface text: the page's default, the title bar, the prompt, the settings panel, the map popup and the landing page. */
+  .text-ui {
+    font-size: var(--text-m);
+    line-height: var(--line-s);
+  }
+
+  /* One-line boxes you click, in capitals: the tools ♫ ≡, the compass, the tabs, the landing page's buttons. In the
+     strip layout the tools and the compass follow their tiles (layout.css sets --button-text there). */
+  .text-button {
+    font-size: var(--button-text, var(--text-m));
+    line-height: var(--line-xs);
+    text-transform: uppercase;
+  }
+
+  /* Small labels: the landing page's version and language switch, the map's ×. */
+  .text-label {
+    font-size: var(--text-s);
+    line-height: var(--line-xs);
+  }
+
+  /* The map's hint under the popup (how to move the map). */
+  .text-hint {
+    font-size: var(--text-xs);
+    line-height: var(--line-s);
+    text-transform: uppercase;
+  }
+
+  /* A card's title on the landing page. */
+  .text-heading {
+    font-size: var(--text-m);
+    line-height: var(--line-m);
+    text-transform: uppercase;
+  }
+
+  /* The landing page's title. */
+  .text-title {
+    font-size: var(--text-xl);
+    line-height: var(--line-s);
+    text-transform: uppercase;
+  }
+
+  /* The landing page's subtitle. */
+  .text-subtitle {
+    font-size: var(--text-l);
+    line-height: var(--line-l);
+    text-transform: uppercase;
+  }
+
+  /* A <COMMAND> in the story or in the prompt's hint: capitals, at the size of the text around it. */
+  .text-command {
+    text-transform: uppercase;
+  }
+
+  /* A room's name in the map: one line, in capitals, at the map's text size (tokens.css, --map-text). */
+  .text-room {
+    font-size: var(--map-text);
+    line-height: var(--line-xs);
+    text-transform: uppercase;
+  }
+
+  /* The level's name in the map's location bar: the same capitals as a room, with the line height of interface text. */
+  .text-level {
+    font-size: var(--map-text);
+    line-height: var(--line-s);
+    text-transform: uppercase;
+  }
+
+  /* A single symbol standing in a line of text (the ▲ ▼ in HELP): one line tall, at the size of the text around it. */
+  .text-glyph {
+    line-height: var(--line-xs);
+  }
+}

@@ -1,85 +1,367 @@
-/* Page layout: where each piece sits on the screen. The pieces themselves (ui/*.css) never position themselves on
-   the page; this file does. Breakpoint and sizing: tokens.css.
+/* LAYOUT: the shape of the page, and the one place the breakpoints live (with tokens.css, for the text sizes).
 
-   One column, centred, always the whole window high: the title bar and the picture on top, the prompt at the
-   bottom, and the story in between, scrolling on its own (log.css), so nothing ever moves off screen.
-   The column is 75rem wide at most (--column, tokens.css), narrower when the window is, and, on a low window where the
-   font is at its smallest, narrower so the whole screen still fits the height (--column-fit); smoothly, in all cases. The
-   picture is stretched to the column's whole width, so it and everything under it are exactly as wide as each other.
-   On phones the column is simply the page's width inside the side padding.
+   The numbers that shape the page are in the first blocks below. Then the page itself. Then, last, the pieces that look
+   different on phones and on bigger windows: this file sets a few variables on them, and each piece's own CSS
+   (ui/*.css) uses them. A piece never positions itself on the page and never has its own media query. */
+/* How folded the picture is on an upright phone: 0 open … 1 folded (ui/fold.js sets it on .top; the picture's shape follows it,
+   below). Registered as a number so that it can be animated: @property is global, so it lives outside the layers. */
+@property --p {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
 
-   Wider windows (760px and up): the strip sits beside the story, top edges aligned.
-       ┌──────────────────────────┐
-       │ PLACE          Day 1 │ … │
-       │ picture                  │
-       │ story ……………………  ♫ ≡    │
-       │ story ……………………  compass │
-       │ story ……………………  items   │
-       │ > _             hint →   │
-       └──────────────────────────┘
-   Phones: ♫ ≡ go up beside the title bar; directions and inventory become panels opened from two tabs under the
-   prompt (ui/tabs.css).
-
-   Phones with the on-screen keyboard open (ui/page.js sets data-keyboard on <html>, and --visible-height and
-   --visible-top, measured): the page is only as high as the part of the screen you can see, and sits where that part
-   is, so it fits above the keyboard. The story is the one row that gives way, so the picture, the title bar, ♫ ≡, the
-   prompt and the tabs stay as they are, and the prompt lies just above the keyboard. The home indicator's padding goes
-   (the keyboard is under it). Closing the keyboard puts everything back. */
 @layer layout {
-  /* Two views of one page (INTERFACE.md §13): the controller sets data-view on the page ("home", the list of games, or "game")
-     and only that one shows. Before it sets one, the list's page shows. */
-  :root:not([data-view="game"]) .layout { display: none; }
-  :root[data-view="game"] .home { display: none; }
+  :root {
+    /* The page's side padding. */
+    --gutter: var(--space-m);
 
-  .layout {
-    font-family: var(--game);
-    font-size: 1rem;
-    line-height: var(--line-height);
-    cursor: text;
+    /* The page's rows, top to bottom: the title bar, the picture, the story, the prompt (and the tabs on phones). */
+    --page-top:    max(var(--space-m), env(safe-area-inset-top, 0px));       /* above the title bar (the notch, if any) */
+    --row-gap:     var(--space-s);                                           /* between the rows */
+    --page-bottom: max(var(--space-l), env(safe-area-inset-bottom, 0px));    /* below the prompt (the home indicator, if any) */
 
-    width: 100%; margin-inline: auto;
-    @media (min-width: 760px) { max-width: min(var(--column), var(--column-fit)); }   /* phones: the page's width */
-    height: var(--visible-height, 100dvh); box-sizing: border-box;
-    padding-block: max(var(--space-8), env(safe-area-inset-top, 0px)) max(var(--space-8), env(safe-area-inset-bottom, 0px));
+    /* The column: title bar, picture, story and prompt are all this wide. */
+    --column-max: 1200px;                       /* widest: the game's column and the landing page's */
+    --column:     100%;                         /* phones: the whole width inside the side padding */
 
-    display: grid; gap: var(--space-4);
-    grid-template-columns: minmax(0, 1fr) auto;
-    /* The story's row takes the room left over, but never fewer than 4 lines: on a very low window the page
-       scrolls instead. */
-    grid-template-rows: auto auto minmax(calc(var(--size-text) * 1.5 * 4), 1fr) auto auto;
-    grid-template-areas:
-      "title   tools"
-      "picture picture"
-      "log     log"
-      "prompt  prompt"
-      "tabs    tabs";
+    /* The tiles (♫ ≡, compass, inventory) and the gap between them. On phones the panels keep these sizes. */
+    --tile:     var(--tile-max);                /* phones: full size */
+    --tile-gap: var(--space-s);                 /* phones: 8px */
 
-    @media (min-width: 760px) {
-      column-gap: var(--space-16);
-      grid-template-columns: minmax(0, 1fr) var(--strip);
-      grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
-      grid-template-areas:
-        "title   title"
-        "picture picture"
-        "log     tools"
-        "log     exits"
-        "log     inventory"
-        "log     ."
-        "prompt  prompt";   /* the command line spans the whole column, under the strip too */
+    /* The top and the bottom cover the story with the page's colour; a few pixels more at each side, because the column's
+       edges fall between pixels and the story's first letters would show through there. */
+    --edges: calc(-1 * var(--space-xs)) 0 0 var(--color-bg), var(--space-xs) 0 0 var(--color-bg);
+
+    /* The two lines of fade above the prompt, and the same space left empty after the newest text. */
+    --fade: calc(var(--text-m) * var(--line-xxs) * 2);
+
+    /* The three breakpoints, always written exactly like this (CSS variables can't be used inside media queries), only in
+       this file and tokens.css; the scripts ui/map.js and ui/tabs.js ask the same question as the second:
+         (min-height: 560px)                         the title bar and the picture stick at the top of the window; below
+                                                     that (a phone turned sideways) they scroll away with the story.
+                                                     The prompt (and the tabs) always stick at the bottom.
+         (min-width: 760px) and (min-height: 560px)  the strip layout: the strip (♫ ≡, directions, inventory) sits beside
+                                                     the story, no tabs, bigger text (tokens.css). Anything smaller,
+                                                     a phone turned sideways too, gets the phone layout.
+         (width < 760px) and (height >= 560px)       an upright phone: the phone layout with a picture that sticks (the
+                                                     first one, without the second), and there it also folds (the third
+                                                     block below; ui/fold.js asks the CSS whether it does, it has no copy).
+       Everything is written for phones first; the bigger layout overrides it.
+         phones   the story takes the whole width; ♫ ≡ go beside the title bar; directions and inventory open from two
+                  tabs at the bottom; text is smaller. */
+  }
+
+  /* When the picture sticks (windows at least 560px tall): it takes at most 40% of the window's height, and the column
+     narrows to match (320 × 136 is the picture's shape). A phone upright is limited by its width, so this only bites on
+     wide-ish, low windows. */
+  @media (min-height: 560px) {
+    :root {
+      --column: min(100%, calc(40dvh * 320 / 136));
     }
   }
 
-  :root[data-keyboard] .layout {
-    translate: 0 var(--visible-top, 0px);
-    padding-bottom: var(--space-8);
+  /* The strip layout. The window's height is shared out and the widths follow:
+       1. the strip gets a share of the height; its tiles are whatever fits in it;
+       2. the picture gets the height that is left after the strip and the fixed rows;
+       3. the column is as wide as that picture (320 × 136), up to --column-max. */
+  @media (min-width: 760px) and (min-height: 560px) {
+    :root {
+      --strip-height: 40dvh;                                                  /* the strip's share of the window's height */
+      --tile: min(var(--tile-max), calc(var(--strip-height) / 8.333));        /* what fits: 7 tiles high plus gaps adding up to 1⅓ tiles */
+      --tile-gap: calc(var(--tile) / 6);                                      /* between tiles: 8px at full size */
+      --block-gap: calc(var(--tile) / 3);                                     /* between the strip's blocks (♫ ≡, compass, inventory): 16px at full size */
+      --strip: calc(3 * var(--tile) + 2 * var(--tile-gap));                   /* the strip's width: three tiles and their two gaps */
+      --strip-gap: calc(var(--tile) * 4 / 3);                                 /* between the story and the strip: 64px at full size */
+
+      /* The rows that are not the picture, added up from what they are made of (at full size: 16 + 40 + 3 × 8 + 40 + 32). */
+      --fixed-rows: calc(
+        var(--page-top)                          /* the padding above the title bar */
+        + var(--text-m) * var(--line-s)          /* the title bar: one line of interface text */
+        + 3 * var(--row-gap)                     /* title bar → picture, picture → story, story → prompt */
+        + var(--text-m) * var(--line-s)          /* the prompt: one line of interface text */
+        + var(--page-bottom)                     /* the padding below the prompt */
+      );
+      --picture-height: calc(100dvh - var(--strip-height) - var(--fixed-rows));   /* what is left for the picture */
+      --column: min(var(--column-max), calc(var(--picture-height) * 320 / 136));   /* as wide as a picture that high */
+    }
   }
 
-  .titlebar  { grid-area: title; }
-  .picture   { grid-area: picture; }
-  .log       { grid-area: log; }
-  .prompt    { grid-area: prompt; }
-  .tools     { grid-area: tools; }
-  .tabs      { grid-area: tabs; }
-  .exits     { grid-area: exits; }
-  .inventory { grid-area: inventory; }
+
+  /* ---- The page ----
+
+     The page is the only thing that scrolls. The story is ordinary page content, and three parts stick:
+       the top      the title bar and the picture; sticks to the top of any window at least 560px tall, in the page's colour
+                    so the story slides under it. (On shorter windows it scrolls away with the story.)
+       the strip    in the strip layout, hangs from the top's bottom edge, so it sticks with it, beside the story.
+       the bottom   the prompt (and the tabs on phones), always: the command line is always in reach. The two lines of
+                    story just above it fade out (the gradient on ::before).
+     One column, centred; the picture is stretched to the column's whole width, so everything is exactly as wide as
+     the picture. On phones the column is the page's width inside the side padding.
+
+     The strip layout (760px wide and 560px tall and up):
+         ┌──────────────────────────┐ ┐
+         │ PLACE          Day 1 │ … │ │ the top: sticks
+         │ picture                  │ │
+         ├──────────────────────────┤ ┘
+         │ story ……………………  ♫ ≡    │ ┐
+         │ story ……………………  compass │ │ the page scrolls under the top;
+         │ story ……………………  items   │ │ the strip sticks with it
+         │ ░ the two faded lines ░  │ ┘
+         │ > _             hint →   │   the bottom: sticks
+         └──────────────────────────┘
+     Phones: ♫ ≡ sit beside the title bar, inside the top; directions and inventory become panels opened from two tabs
+     under the prompt, inside the bottom (ui/tabs.css).
+
+     Upright phones (under 760px wide, at least 560px tall) fold the picture. The picture is tall there, a crop of the
+     middle of the scene (--picture-crop, tokens.css); reading back, it folds to the whole scene (ui/fold.js decides when,
+     CSS does the shape). For that the top is fixed, not sticky: its height changes without moving the text, and the story
+     starts under a spacer as tall as the top is when open (--top-h, measured by ui/page.js).
+
+     Phones with the on-screen keyboard open (ui/page.js sets data-keyboard on <html>, and --visible-top and
+     --keyboard-h, measured): the keyboard slides over the page without resizing it, so the top sticks to the top of
+     what you can see (--visible-top) and the bottom to just above the keyboard (--keyboard-h), and the page is that much
+     longer, so the newest text can still scroll up out from under the bottom. The home indicator's padding goes (the
+     keyboard is under it). Closing the keyboard puts everything back. */
+
+  /* Two views of one page (INTERFACE.md §13): the controller sets data-view on the page ("home", the list of games, or
+     "game") and only that one shows. Before it sets one, the list's page shows. */
+  :root:not([data-view="game"]) .layout {
+    display: none;
+  }
+
+  :root[data-view="game"] .home {
+    display: none;
+  }
+
+  /* A column of three: the top, the story, the bottom. At least the window high, so the bottom is at the window's bottom
+     even before there is much story. (Not a grid: some browsers keep a sticky part of a grid inside its own row.) */
+  .layout {
+    cursor: text;
+
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--column);
+    min-height: 100dvh;
+    margin-inline: auto;
+    box-sizing: border-box;
+    padding-bottom: var(--keyboard-h, 0px);
+  }
+
+  /* The top. Phones: the title bar with ♫ ≡ beside it, then the picture. (.strip is only a wrapper here.) */
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "title   tools"
+      "picture picture";
+    gap: var(--row-gap) var(--space-m);
+    padding-top: var(--page-top);
+    padding-bottom: var(--row-gap);   /* the gap between the picture and the story */
+    background: var(--color-bg);
+    box-shadow: var(--edges);
+  }
+
+  .strip {
+    display: contents;
+  }
+
+  .titlebar {
+    grid-area: title;
+  }
+
+  .tools {
+    grid-area: tools;
+  }
+
+  .picture {
+    grid-area: picture;
+  }
+
+  /* Windows at least 560px tall: the top sticks (above the bottom's fade, so the strip hanging from it is not faded). */
+  @media (min-height: 560px) {
+    .top {
+      position: sticky;
+      top: var(--visible-top, 0px);
+      z-index: 3;
+    }
+  }
+
+  /* Upright phones: the folding picture. The top is FIXED, so its height can change (the picture folds and opens) without
+     moving the text, and the story starts below it, under a spacer as tall as the top is when OPEN (--top-h: ui/page.js
+     measures it; it is the same whether the picture is open or folded, so nothing under it ever shifts). The top is as wide
+     as the column and centred, as it was in the page's flow. The title bar and ♫ ≡ do not change, only the picture does.
+     --p (0 open … 1 folded, set on the top by ui/fold.js) gives the picture its shape, a blend of the crop and the whole
+     scene, and animates (--duration-fold), so the picture's shape, the crop's sideways offset (ui/scene.css) and the space it
+     leaves are always worked out from the same moving number. Reduced motion: it snaps. */
+  @media (width < 760px) and (height >= 560px) {
+    /* The picture takes at most 40% of the window's height (as above), now counted open, the taller shape: the column narrows
+       to match. A phone is limited by its width, so this only bites on low windows (a tablet's 700 × 600). */
+    :root {
+      --column: min(100%, calc(40dvh * var(--picture-crop)));
+    }
+
+    .top {
+      position: fixed;
+      top: var(--visible-top, 0px);
+      left: 0;
+      right: 0;
+      margin-inline: auto;   /* centred with margins, not shifted by half its width: iPhone Safari counted the shift as overflow */
+      box-sizing: border-box;
+      /* (A fixed box measures a percentage against the window, not the page's padding: so the padding is taken off by hand.) */
+      width: min(var(--column), 100vw - max(var(--gutter), env(safe-area-inset-left, 0px)) - max(var(--gutter), env(safe-area-inset-right, 0px)));
+      transition: --p var(--duration-fold) ease-out;
+    }
+
+    .log {
+      padding-top: var(--top-h, 0px);
+    }
+
+    /* The picture (ui/scene.css reads these): the box's shape, and a sideways drag of the open picture that shows what the
+       crop hides (ui/fold.js; up and down still scroll the page). */
+    .picture {
+      --picture-ratio: calc(var(--picture-crop) + (320 / 136 - var(--picture-crop)) * var(--p));
+      /* Open: the picture takes the whole finger (none), so a sideways drag is never taken over halfway by the page's
+         vertical scrolling; up and down are scrolled from the story, as under a toolbar. Folded there's nothing to drag,
+         so a swipe on it scrolls the page (pan-y). (ui/fold.js marks the top data-folded.) */
+      --picture-touch: none;
+      --picture-cursor: grab;
+    }
+
+    .top[data-folded] .picture {
+      --picture-touch: pan-y;
+      --picture-cursor: inherit;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .top {
+        transition: none;
+      }
+    }
+  }
+
+  /* The story takes the height that is left. */
+  .log {
+    flex: 1 0 auto;
+  }
+
+  /* The bottom: the prompt, and the tabs on phones. Sticks to the bottom of the window (or just above the keyboard). The
+     fade is a gradient from the page's colour to nothing, over the story just above it. */
+  .bottom {
+    position: sticky;
+    bottom: var(--keyboard-h, 0px);
+    z-index: 2;
+    display: grid;
+    gap: var(--space-m);
+    padding-top: var(--row-gap);   /* the gap between the story and the prompt */
+    padding-bottom: var(--page-bottom);
+    background: var(--color-bg);
+    box-shadow: var(--edges);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: auto calc(-1 * var(--space-xs)) 100% calc(-1 * var(--space-xs));
+      height: var(--fade);
+      background: linear-gradient(to top, var(--color-bg), transparent);
+      pointer-events: none;   /* the story under it can still be clicked and selected */
+    }
+  }
+
+  :root[data-keyboard] .bottom {
+    padding-bottom: var(--space-l);
+  }
+
+  /* The strip layout: the strip hangs from the bottom edge of the top (so it sticks with it) and the story leaves room
+     for it. Its height is --strip-height (the tiles and gaps add up to it exactly). */
+  @media (min-width: 760px) and (min-height: 560px) {
+    .top {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        "title"
+        "picture";
+    }
+
+    .strip {
+      display: grid;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: var(--strip);
+      gap: var(--block-gap);
+    }
+
+    .tools {
+      grid-area: auto;   /* (a row of the strip, not the phone's place beside the title bar) */
+    }
+
+    .log {
+      margin-right: calc(var(--strip) + var(--strip-gap));
+    }
+  }
+
+
+  /* ---- Pieces that change at the breakpoint ----
+
+     The strip layout only (760px wide and 560px tall and up). Each line sets a variable that the piece's own CSS reads;
+     the phone value is the fallback written in the piece (var(--name, phone value)). */
+  @media (min-width: 760px) and (min-height: 560px) {
+
+    /* Title bar (ui/titlebar.css): the place name and the clock in one row, not one above the other. */
+    .titlebar {
+      --titlebar-direction: row;
+      --titlebar-justify: space-between;
+      --titlebar-gap: var(--space-m);
+    }
+
+    /* Tools ♫ ≡ (ui/tools.css): in the strip, as wide as their half of it and as high as a compass tile. */
+    .tools {
+      --tool-width: auto;
+      --tool-height: var(--tile);
+    }
+
+    /* The characters on the tools and the compass follow their tiles (at full size, the text size). */
+    .tools,
+    .compass {
+      --button-text: calc(var(--tile) * 2 / 3);
+    }
+
+    /* Tabs (ui/tabs.css): gone, the strip shows directions and inventory. */
+    .tabs {
+      --tabs-display: none;
+    }
+
+    /* Directions and inventory panels (ui/tabs.css): not popovers any more, ordinary sections of the strip. */
+    .panel {
+      display: block;
+      --panel-position: static;
+      --panel-padding: 0;
+      --panel-width: auto;
+      --panel-background: none;
+    }
+
+    /* Story (ui/log.css): an object's picture beside its description, not above it. */
+    .log {
+      --figure-direction: row;
+    }
+
+    /* Landing page (ui/home.css): the column as wide as the game's at most; each card's picture on the left (3/7) and
+       its text on the right (4/7); the buttons at the bottom of the card. */
+    .home {
+      --home-column-max: var(--column-max);
+      --card-columns: minmax(0, 3fr) minmax(0, 4fr);
+      --card-column-gap: var(--space-l);
+      --buttons-margin-top: auto;
+    }
+
+    /* Map popup (ui/map.css): lower, with less kept free around it; the location bar in one row. */
+    .mapview {
+      --map-h: 656px;
+      --map-margin: 128px;
+      --where-direction: row;
+      --where-align: baseline;
+      --where-gap: var(--space-l);
+    }
+  }
 }

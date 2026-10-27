@@ -1,79 +1,182 @@
 /* Map popup, opened from M on the compass or by MAP (ui/map.js). A popover in the browser's top layer: centred, over the
    game, which the backdrop dims. Inside: the map area (rooms, lines and stubs, moved by dragging) with the × at its
    top left, and the location bar below it (the level's name, and how to move the map). A room's size is built from its text size
-   (tokens.css, --map-*), so it grows with it; the popup is as wide as the design's, narrower on a phone. It sits outside .layout, so it
-   sets its own font. Root class `mapview`, not `map`: the compass's M button already has that one. */
+   (tokens.css, --map-*), so it grows with it; the popup is --map-w wide at most, and fits a narrow window. It sits outside .layout, so its
+   text style is a class of its own: .text-ui (css/typography.css), put on it in index.html; the room names, the level and the
+   hint have theirs too. Root class `mapview`, not `map`: the compass's M button already has that one. */
 @layer ui {
   .mapview {
+    --map-w: 912px;   /* the popup's widest. Its height and the space kept free above and below it (so the game shows around it)
+                         are --map-h and --map-margin: phone values below, wider windows in layout.css */
+
     /* Colours in the map, by meaning. */
-    --frame:        var(--color-surface);     /* the popup's edge and the line above the location bar */
-    --room-border:  var(--color-text-faint);  /* a room at rest… */
-    --room-hover:   var(--color-text);        /* …under the pointer */
-    --room-name:    var(--color-text);        /* its name */
-    --here:         var(--color-highlight);   /* the room you are in: border and name (also under the pointer) */
-    --way:          var(--color-text-faint);  /* lines between rooms, and stubs */
-    --close:        var(--color-text-dim);    /* the × … */
-    --close-hover:  var(--color-text);        /* …under the pointer */
-    --level:        var(--color-text);        /* the level's name */
-    --note:         var(--color-text-dim);    /* how to move the map */
-    --veil:         color-mix(in srgb, var(--color-bg) 72%, transparent);   /* the game behind, dimmed */
+    --frame:       var(--color-surface);      /* the popup's edge and the line above the location bar */
+    --room-border: var(--color-text-faint);   /* a room at rest… */
+    --room-hover:  var(--color-text);         /* …under the pointer */
+    --room-name:   var(--color-text);         /* its name */
+    --here:        var(--color-highlight);    /* the room you are in: border and name (also under the pointer) */
+    --way:         var(--color-text-faint);   /* lines between rooms, and stubs */
+    --close:       var(--color-text-dim);     /* the × … */
+    --close-hover: var(--color-text);         /* …under the pointer */
+    --level:       var(--color-text);         /* the level's name */
+    --note:        var(--color-text-dim);     /* how to move the map */
+    --veil:        color-mix(in srgb, var(--color-bg) 72%, transparent);   /* the game behind, dimmed */
 
+    box-sizing: border-box;
+    margin: auto;
+    inset: 0;
+    position: fixed;
+    padding: 0;
+    overflow: hidden;
+    width: min(var(--map-w), calc(100vw - var(--space-xl)));
+    height: min(var(--map-h, 704px), calc(100dvh - var(--map-margin, 192px)));
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid var(--frame);
 
-    box-sizing: border-box; margin: auto; inset: 0; position: fixed; padding: 0; overflow: hidden;
-    width: min(57rem, calc(100vw - 4rem)); height: min(41rem, calc(100dvh - 8rem));
-    font-family: var(--game); font-size: 1rem; line-height: var(--line-height);
-    color: var(--color-text); background: var(--color-bg); border: 1px solid var(--frame);
-    @media (max-width: 759px) { height: min(44rem, calc(100dvh - 12rem)); }
+    &:popover-open {
+      display: flex;
+      flex-direction: column;
+    }
 
-    &:popover-open { display: flex; flex-direction: column; }
-    &::backdrop { background: var(--veil); }
-    &:focus { outline: none; }                /* it takes the focus so the arrow keys work; the ring is for the controls */
+    &::backdrop {
+      background: var(--veil);
+    }
+
+    &:focus {
+      outline: none;   /* it takes the focus so the arrow keys work; the ring is for the controls */
+    }
 
     /* A hook for an animation later: map.js sets data-state to "open" or "closed" as the popup opens and closes. To fade it
        in, add here:   &[data-state="open"] { transition: opacity 200ms; @starting-style { opacity: 0; } }   */
 
-    /* For screen readers only: the heading, and the list of rooms (the drawing is hidden from them). */
-    & .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-
     /* The map area: fills what the location bar leaves, moved by dragging. The drawing's origin (the middle of your room) is
        put in the middle of the area by map.js, and --pan-x / --pan-y move it from there. */
-    & .area { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; cursor: grab; touch-action: none; user-select: none; }
-    & .area.dragging { cursor: grabbing; }
-    & .world { position: absolute; width: 0; height: 0; transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)); }
+    & .area {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
 
-    /* A room: a box with its name in capitals on one line, cut with … when it doesn't fit. map.js also sets its width and
+    & .area.dragging {
+      cursor: grabbing;
+    }
+
+    & .world {
+      position: absolute;
+      width: 0;
+      height: 0;
+      transform: translate(var(--pan-x, 0px), var(--pan-y, 0px));
+    }
+
+    /* A room: a box with its name on one line, cut with … when it doesn't fit (.text-room). map.js also sets its width and
        height in integer pixels, so the lines between rooms meet its edges (the sizes here are what it measures). */
     & .room {
-      position: absolute; box-sizing: border-box; width: var(--map-room-w); height: var(--map-room-h);
-      display: flex; align-items: center; justify-content: center; padding-inline: var(--map-text);   /* as much as the name's text size */
-      font-size: var(--map-text); line-height: 1; text-transform: uppercase;
-      color: var(--room-name); border: 1px solid var(--room-border); cursor: pointer;
+      position: absolute;
+      box-sizing: border-box;
+      width: var(--map-room-w);
+      height: var(--map-room-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-inline: var(--map-text);   /* as much as the name's text size */
+      color: var(--room-name);
+      border: 1px solid var(--room-border);
+      cursor: pointer;
     }
-    & .room > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    & .room:hover { border-color: var(--room-hover); }
-    & .room.current, & .room.current:hover { border-color: var(--here); color: var(--here); }
-    &.over .room { cursor: default; }         /* the story is over: nowhere to walk to */
+
+    & .room > span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    & .room:hover {
+      border-color: var(--room-hover);
+    }
+
+    & .room.current,
+    & .room.current:hover {
+      border-color: var(--here);
+      color: var(--here);
+    }
+
+    &.over .room {
+      cursor: default;   /* the story is over: nowhere to walk to */
+    }
+
     /* Lines join neighbouring rooms across the gap; a stub is a way not taken, a short line out of its room. */
-    & .line, & .stub { position: absolute; background: var(--way); pointer-events: none; }
-    & .h { height: 1px; }
-    & .v { width: 1px; }
+    & .line,
+    & .stub {
+      position: absolute;
+      background: var(--way);
+      pointer-events: none;
+    }
+
+    & .h {
+      height: 1px;
+    }
+
+    & .v {
+      width: 1px;
+    }
 
     /* The × at the top left. */
     & .close {
-      position: absolute; z-index: 1; top: var(--space-2); left: var(--space-2); width: calc(var(--map-level-text) * 2); height: calc(var(--map-level-text) * 2);
-      display: flex; align-items: center; justify-content: center;
-      font: inherit; font-size: var(--map-level-text); line-height: 1; color: var(--close); background: none; border: 0; padding: 0; cursor: pointer;
+      position: absolute;
+      z-index: 1;
+      top: var(--space-s);
+      left: var(--space-s);
+      width: var(--tile-max);
+      height: var(--tile-max);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--close);
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
     }
-    & .close:hover { color: var(--close-hover); }
-    & .close:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
-    /* The location bar: the level you are on at the left, how to move the map at the right. On a phone, one above the other. */
-    & .where { flex: none; margin: 0; padding: var(--space-4) var(--space-8); border-top: 1px solid var(--frame);
-      display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-8);
-      @media (max-width: 759px) { display: block; } }
-    & .where p { margin: 0; line-height: 1.25; }
-    & .level { font-size: var(--map-level-text); color: var(--level); text-transform: uppercase; }
-    & .where .hint { font-size: var(--map-note-text); color: var(--note); text-transform: uppercase;
-      @media (max-width: 759px) { margin-top: var(--space-4); } }
+    & .close:hover {
+      color: var(--close-hover);
+    }
+
+    & .close:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+
+    /* The location bar: the level you are on at the left, how to move the map at the right. On a phone, one above the
+       other (the direction, alignment and gap come from layout.css; phone values here). */
+    & .where {
+      flex: none;
+      margin: 0;
+      padding: var(--space-m) var(--space-l);
+      border-top: 1px solid var(--frame);
+      display: flex;
+      flex-direction: var(--where-direction, column);
+      justify-content: space-between;
+      align-items: var(--where-align, stretch);
+      gap: var(--where-gap, var(--space-m));
+    }
+
+    & .where p {
+      margin: 0;
+    }
+
+    & .level {
+      color: var(--level);
+    }
+
+    & .where .hint {
+      color: var(--note);
+    }
   }
 }
