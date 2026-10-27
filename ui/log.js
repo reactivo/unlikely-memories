@@ -31,8 +31,9 @@ const PARAGRAPH_GAP = 150;       // extra ms between paragraphs
 const PHRASE_END = /[^,;:.!?…]*[,;:.!?…]+["»”]?\s*|[^,;:.!?…]+$/g;
 // Punctuation right after a marker ("tin of mints+,"): kept on the same line as it, never wrapped on its own.
 const GLUED = /^[,;:.!?…)\]"»”']+/;
-// The arrows a text may hold (HELP's directions) → the compass icon each one is drawn with (img/icons/icon-<name>.svg).
-const ARROWS = { "▲": "north", "▼": "south", "►": "east", "◄": "west" };
+// The symbols a text may hold (HELP's directions) → the compass icon each one is drawn with (img/icons/icon-<name>.svg).
+const ICONS = { "▲": "north", "▼": "south", "►": "east", "◄": "west", "⇧": "up", "⇩": "down", "⇥": "in", "⇤": "out", "▦": "map" };
+const ICON_SPLIT = new RegExp("([" + Object.keys(ICONS).join("") + "])");
 
 // Set up the log on its element, with the folding picture (ui/fold.js) it tells when the story is at the present. Returns
 // update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), toEnd() and atEnd().
@@ -271,12 +272,13 @@ export function mount(root, on, header) {
           into.replaceChild(keep, marker); keep.append(marker, glued);
           part = part.slice(glued.length);
         }
-        // ▲ ▼ ► ◄ in a text (HELP's directions) are the compass's own icons (img/icons/), not characters.
-        if (part) part.split(/([▲▼►◄])/).forEach(bit => {
-          if (ARROWS[bit]) {
+        // The symbols in ICONS (HELP's directions) are the compass's own icons (img/icons/), not characters. Each stands
+        // beside the command it shows, so screen readers skip it.
+        if (part) part.split(ICON_SPLIT).forEach(bit => {
+          if (ICONS[bit]) {
             const t = document.createElement("span"); t.className = "icon in-text";
-            t.style.maskImage = `url(img/icons/icon-${ARROWS[bit]}.svg)`;
-            t.setAttribute("role", "img"); t.setAttribute("aria-label", bit);
+            t.style.maskImage = `url(img/icons/icon-${ICONS[bit]}.svg)`;
+            t.setAttribute("aria-hidden", "true");
             into.appendChild(t);
           } else if (bit) into.appendChild(document.createTextNode(bit));
         });

@@ -92,7 +92,7 @@ export default {
   saveFailed: "No se ha podido guardar la partida aquí (el navegador está bloqueando el almacenamiento).",
   yesNo: "`Sí` / `No`",
   confirmNo: "De acuerdo.",
-  help: "Escribe lo que quieres hacer en pocas palabras, como «abre la puerta» o «coge la lámpara». Haz clic en un objeto+ para examinarlo, o en una orden en mayúsculas para hacerla al momento.\n\nAcciones comunes: `Mirar`, `Examinar`, `Coger`, `Dejar`, `Abrir`, `Inventario`, `Hora`, `Estado`, `Hablar con`, `Esperar`.\n\nDirecciones: `N` ▲, `S` ▼, `E` ►, `O` ◄, `Arriba`, `Abajo`, `Dentro`, `Fuera`. `Mapa` (o la M de la brújula) muestra por dónde has estado, y un clic en una sala te lleva hasta ella.\n\nPartida: `Deshacer`, `Grabar`, `Cargar`, `Salir` (vuelve a la lista de juegos).",
+  help: "Escribe lo que quieres hacer en pocas palabras, como «abre la puerta» o «coge la lámpara». Haz clic en un objeto+ para examinarlo, o en una orden en mayúsculas para hacerla al momento.\n\nAcciones comunes: `Mirar`, `Examinar`, `Coger`, `Dejar`, `Abrir`, `Inventario`, `Hora`, `Estado`, `Hablar con`, `Esperar`.\n\nDirecciones: `N` ▲, `S` ▼, `E` ►, `O` ◄, `Arriba` ⇧, `Abajo` ⇩, `Dentro` ⇥, `Fuera` ⇤. `Mapa` ▦ muestra por dónde has estado, y un clic en una sala te lleva hasta ella.\n\nPartida: `Deshacer`, `Grabar`, `Cargar`, `Salir` (vuelve a la lista de juegos).",
   hintCarried: (n) => `Algo que llevas quizá sepa más. Prueba \`Escuchar ${n}\`.`,
   hintHere: (n) => `Algo de aquí quizá sepa más. Prueba \`Escuchar ${n}\`.`,
   hintAway: "En algún sitio dejaste algo que escucha. Quizá sepa más.",
