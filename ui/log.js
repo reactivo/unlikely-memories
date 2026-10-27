@@ -89,13 +89,18 @@ export function mount(root, on, header) {
       : Math.max(window.scrollY, window.scrollY + end - to);
     window.scrollTo({ top: Math.max(0, target), behavior: instant || calm.matches ? "instant" : "smooth" });
     header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)
+    placed = { y: Math.max(0, target), again: () => toEnd(true) };
   }
 
-  // When the window changes size (or the keyboard comes up: ui/page.js), the newest text stays in view if it was: if its last line
-  // has gone under the bottom, the page moves just enough to show it again, and never back up. (Not toEnd(): for an answer taller
-  // than the space, toEnd puts its command under the top, so on a phone, where the browser's bars change the window's height as
-  // soon as you scroll, it pulled you back to the start of a long room description. Diego, 27 Oct 2026.)
+  // A change in the window's size does NOT move the page: the browser keeps the text where it was. (On a phone the browser's
+  // bars grow and shrink as soon as you scroll, which is a size change: anything done here then showed as jumps, pulling you
+  // back to the start of a long answer, or the first lines under the picture. Diego, 27 Oct 2026.) Two exceptions:
+  //   - the on-screen keyboard (ui/page.js marks <html data-keyboard>): it covers the bottom of the screen, so if the newest
+  //     text was in view, the page moves just enough to show its last line above the prompt again (never back up);
+  //   - the font finishing loading: the letters change size a little, so where the game last put the page (following new
+  //     text, gliding to a room) is redone, but only if you haven't scrolled since.
   let wasAtEnd = true;
+  let placed = null;             // where the game itself last put the page, and how to do it again: { y, again }
   window.addEventListener("scroll", () => { wasAtEnd = atEnd(); }, { passive: true });
   function keepEnd() {
     const last = lastLine();
@@ -108,10 +113,12 @@ export function mount(root, on, header) {
       header.scrolling(target);
     }
   }
-  const stay = () => { if (wasAtEnd) keepEnd(); };
-  window.addEventListener("resize", stay);
-  window.visualViewport?.addEventListener("resize", stay);
-  document.fonts?.ready.then(stay);   // the letters change size a little once the font has loaded
+  window.visualViewport?.addEventListener("resize", () => requestAnimationFrame(() => {   // (after ui/page.js has marked it)
+    if (document.documentElement.hasAttribute("data-keyboard") && wasAtEnd) keepEnd();
+  }));
+  document.fonts?.ready.then(() => {
+    if (placed && !gliding && Math.abs(window.scrollY - placed.y) < 2) placed.again();
+  });
 
   // Cut a paragraph into phrases and give each a delayed fade-in, so they appear one after another.
   function phraseReveal(container, figure) {
@@ -178,6 +185,15 @@ export function mount(root, on, header) {
     header.room();                                                // a new room opens the picture, its crop in the middle
     if (instant) return;
     const target = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
+    placed = {
+      y: target,
+      again: () => {
+        const y = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
+        window.scrollTo({ top: y, behavior: "instant" });
+        header.scrolling(y);
+        placed.y = y;
+      }
+    };
     gliding = true;
     const done = () => { gliding = false; };
     document.addEventListener("scrollend", done, { once: true });
