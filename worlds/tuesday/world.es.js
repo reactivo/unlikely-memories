@@ -634,7 +634,7 @@ const rules = [
   { id: "cafe_closes", when: "at", at: "22:00", if: [at("cafe")],
     do: [{ say: "Inés apaga la radio en mitad del vals. «Cerramos», dice, y te encuentras en la plaza." }, { travel: "square" }, { describe: "$here" }] },
   { id: "order_coffee", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }, { "coffee.at": null }, { "coffee.day": { "!=": "$time.day" } }],
-    do: [{ say: "Inés deja ante ti un café pequeño y negro sin decir palabra. «Invita la casa», dice. «Los domingos siempre invita.»" }, { move: "coffee", to: "cafe" }, { set: "coffee.day", to: "$time.day" }] },
+    do: [{ say: "Inés deja ante ti un {café|coffee} pequeño y negro sin decir palabra. «Invita la casa», dice. «Los domingos siempre invita.»" }, { move: "coffee", to: "cafe" }, { set: "coffee.day", to: "$time.day" }] },
   { id: "coffee_served", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "coffee.at": "cafe" }, { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Primero ese», dice Inés." }] },
   { id: "coffee_done", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Uno al día», dice Inés. «Con más empezarías a esperar cosas.»" }] },
   { id: "drink_coffee", match: { verb: "drink", obj: "coffee" }, if: [{ "coffee.at": "cafe" }],

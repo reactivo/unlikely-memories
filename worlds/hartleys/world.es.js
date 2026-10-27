@@ -523,7 +523,7 @@ const rules = [
 
   // El té: una vez, y te serena.
   { id: "order_tea", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }, { "tea.at": null }], once: true,
-    do: [{ say: "Dot sirve, sin preguntar, en una taza con una rosa, y la pone delante de ti. «Invita la casa», dice. «El té siempre invita. Lo que sale caro es la casa»." }, { move: "tea", to: "tea_room" }] },
+    do: [{ say: "Dot sirve, sin preguntar, en una {taza|tea} con una rosa, y la pone delante de ti. «Invita la casa», dice. «El té siempre invita. Lo que sale caro es la casa»." }, { move: "tea", to: "tea_room" }] },
   { id: "tea_once", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }],
     do: [{ say: "«Una tetera por persona», dice Dot. «Con más, dejarías de notar el té»." }] },
   { id: "drink_tea", match: { verb: "drink", obj: "tea" }, if: [{ "tea.at": "tea_room" }],

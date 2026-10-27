@@ -521,7 +521,7 @@ const rules = [
 
   // Tea: once, and it steadies you.
   { id: "order_tea", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }, { "tea.at": null }], once: true,
-    do: [{ say: "Dot pours, without asking, into a cup with a rose on it, and sets it in front of you. \"On the house,\" she says. \"Tea always is. It's the house that costs.\"" }, { move: "tea", to: "tea_room" }] },
+    do: [{ say: "Dot pours, without asking, into a {cup|tea} with a rose on it, and sets it in front of you. \"On the house,\" she says. \"Tea always is. It's the house that costs.\"" }, { move: "tea", to: "tea_room" }] },
   { id: "tea_once", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }],
     do: [{ say: "\"One pot each,\" says Dot. \"Any more and you'd stop noticing it.\"" }] },
   { id: "drink_tea", match: { verb: "drink", obj: "tea" }, if: [{ "tea.at": "tea_room" }],

@@ -197,6 +197,31 @@ export function check(state, pack, bible) {
   for (const [id, o] of Object.entries(arrived.world.objects))
     if (o.here && arrived.world.rooms[placeOf(arrived, id)]) clicks(placeOf(arrived, id), [o.here]);
 
+  // An object a text brings into view is marked in that text, so it can be clicked at once. An event (a rule, or a named
+  // change with the lock that runs it) that moves an object into a room and names it in what it says must mark it there:
+  // "the oars … slide gently onto the sand" left the oars as plain words until you looked again (the sea, Diego, 27 Oct 2026).
+  // (Not in what someone says: "Tea always is", in quotes, is a word in a sentence, not the cup on the table.)
+  const plain = (line) => String(read(line) ?? "").replace(/\{[^}]*\}|`[^`]*`|"[^"]*"|«[^»]*»|“[^”]*”/g, " ").toLowerCase();
+  const named = (line, word) => new RegExp(`(^|[^\\p{L}\\p{N}])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}\\p{N}])`, "u").test(plain(line));
+  const saysOf = (effects) => effects.flatMap(e => [].concat(e?.say ?? [])).filter(x => typeof x === "string");
+  const events = [
+    ...state.rules.map(r => ({ id: r.id, effects: (r.do || []).flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]) })),
+    ...Object.entries(state.changes || {}).map(([name, effects]) => ({ id: "change " + name, effects,
+      texts: Object.entries(state.world.objects).filter(([, o]) => o.lock?.then === name && o.lock.opens).map(([, o]) => o.lock.opens) }))
+  ];
+  for (const ev of events) {
+    const texts = [...saysOf(ev.effects), ...(ev.texts || [])];
+    for (const e of ev.effects) {
+      if (!e || typeof e.move !== "string" || !state.world.rooms[e.to]) continue;
+      const nouns = state.world.objects[e.move]?.words?.nouns || [];
+      for (const line of texts) {
+        if (marked(line).some(([, oid]) => oid === e.move)) continue;
+        const word = nouns.find(n => named(line, n.toLowerCase()));
+        if (word) warnings.push(`${ev.id}: names "${word}" as ${e.move} comes into view, but doesn't mark it ({${word}|${e.move}}): it can't be clicked there`);
+      }
+    }
+  }
+
   // Topics offered after talking (js/view.js): each label, clicked, asks that very topic; each idea something brings
   // up (an `opens` or a `know` somewhere), or the topic could never be offered.
   const askAbout = (label) => (typeof pack.askAbout === "function" ? pack.askAbout(label) : "ask about " + label);
