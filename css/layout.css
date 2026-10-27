@@ -19,7 +19,7 @@
     /* The page's rows, top to bottom: the title bar, the picture, the story, the prompt (and the tabs on phones). */
     --page-top:    max(var(--space-m), env(safe-area-inset-top, 0px));       /* above the title bar (the notch, if any) */
     --row-gap:     var(--space-s);                                           /* between the rows */
-    --page-bottom: max(var(--space-l), env(safe-area-inset-bottom, 0px));    /* below the prompt (the home indicator, if any) */
+    --page-bottom: max(var(--gutter), env(safe-area-inset-bottom, 0px));     /* below the tabs (phones: the gutter, or the home indicator if more) */
 
     /* The column: title bar, picture, story and prompt are all this wide. */
     --column-max: 960px;                       /* widest: the game's column and the landing page's */
@@ -67,6 +67,7 @@
        3. the column is as wide as that picture (320 × 136), up to --column-max. */
   @media (min-width: 760px) and (min-height: 560px) {
     :root {
+      --page-bottom: max(var(--space-l), env(safe-area-inset-bottom, 0px));  /* below the prompt (the home indicator, if any) */
       --strip-height: 40dvh;                                                  /* the strip's share of the window's height */
       --tile: min(var(--tile-max), calc(var(--strip-height) / 8.333));        /* what fits: 7 tiles high plus gaps adding up to 1⅓ tiles */
       --tile-gap: calc(var(--tile) / 6);                                      /* between tiles: 8px at full size */
