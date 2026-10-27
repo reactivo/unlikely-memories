@@ -20,10 +20,10 @@
 
     --font-smoothing: none;   /* -webkit-font-smoothing, set once on the body: no anti-aliasing, so the pixel letters stay sharp */
 
-    /* The object marker + (ui/log.css): space before it, and space taken back after it. Em, because they follow the
+    /* The object marker + (ui/log.css): space top and left. Em, because they follow the
        text they are in. Tune by eye. */
-    --object-sign-gap:  0;
-    --object-sign-trim: 0;
+    --object-sign-top:  -.1em;
+    --object-sign-left: .1em;
 
     /* How far the picture of an object (ui/log.css) moves down, so its top lines up with the top of the capitals
        beside it: the space m5x7 leaves above its capitals on a story line. */

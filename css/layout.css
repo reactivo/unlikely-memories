@@ -22,7 +22,7 @@
     --page-bottom: max(var(--space-l), env(safe-area-inset-bottom, 0px));    /* below the prompt (the home indicator, if any) */
 
     /* The column: title bar, picture, story and prompt are all this wide. */
-    --column-max: 1200px;                       /* widest: the game's column and the landing page's */
+    --column-max: 960px;                       /* widest: the game's column and the landing page's */
     --column:     100%;                         /* phones: the whole width inside the side padding */
 
     /* The tiles (♫ ≡, compass, inventory) and the gap between them. On phones the panels keep these sizes. */

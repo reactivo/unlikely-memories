@@ -22,7 +22,7 @@
       background: var(--tab);
       border: 0;
       margin: 0;
-      padding: var(--space-m) var(--space-s);
+      padding: var(--space-s) var(--space-s);
       cursor: pointer;
     }
 

@@ -91,7 +91,7 @@
 
     /* ---- Fixed sizes shared by several pieces. ---- */
     --tile-max:   48px;   /* the square tiles in the strip, at their biggest (css/layout.css makes them smaller on low windows) */
-    --tile-touch: 64px;   /* tiles on phones: big enough for a finger */
+    --tile-touch: 44px;   /* tiles on phones: big enough for a finger */
 
     /* The open picture on an upright phone (css/layout.css): a crop of the middle of the scene, this shape (width / height).
        5:3 (Diego, 26 Oct 2026; 16:9 left little to pan, 3:2 less text). Folded, the picture is the whole scene, 320 / 136. */

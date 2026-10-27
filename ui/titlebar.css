@@ -10,8 +10,10 @@
     display: flex;
     flex-direction: var(--titlebar-direction, column);
     justify-content: var(--titlebar-justify, center);
-    gap: var(--titlebar-gap, var(--space-s));
+    gap: 0;
     color: var(--clock);
+
+    line-height: .9;
 
     & h1,
     & p {

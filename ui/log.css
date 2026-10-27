@@ -34,6 +34,8 @@
     overflow-wrap: break-word;
     text-wrap: pretty;   /* never a single word alone on a paragraph's last line (browsers without it: as before) */
 
+    letter-spacing: .01em;
+
     /* The story is ordinary page content: the page scrolls (layout.css; log.js keeps the newest text in view). The two
        lines above the prompt fade out (layout.css draws that), and the same space is left empty after the newest
        text, so what you've just read is never faded, only text further down when you've scrolled back up. */
@@ -229,10 +231,11 @@
 
     /* Spacing that follows the text's own size (em; values in typography.css). */
     &::after {
+      position:relative;
       content: var(--object-sign);
       color: var(--object-mark);
-      padding-left: var(--object-sign-gap);
-      margin-right: var(--object-sign-trim);
+      top: var(--object-sign-top);
+      left: var(--object-sign-left);
     }
   }
 }
