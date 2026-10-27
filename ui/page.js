@@ -87,6 +87,10 @@ function followKeyboard(root) {
 
 // Set up on the document. Returns update() and show().
 export function mount(root, on) {
+  // The game puts the page where it should be itself (ui/log.js: a room's first line under the picture, the newest text). The
+  // browser must not put it back where it was before a reload: Safari did, after the game had placed it, so the opening's first
+  // lines started under the picture on an iPhone (Diego, 27 Oct 2026).
+  if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
   root.addEventListener("visibilitychange", () => on.visible(!root.hidden));
   window.addEventListener("pagehide", () => on.leaving());     // reload, closed tab: save what's waiting
   const measure = followBars(root);
