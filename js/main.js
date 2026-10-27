@@ -438,6 +438,7 @@ function startStory(health, id) {
   history = []; transcript = [];
   ui.log.clear();
   show(describe(state, state.player.at, packOf(state)));
+  ui.log.seen();                                         // (the opening is shown from the top: what's followed next is only what comes after it)
   ui.prompt.hint(ui.log.markup(packOf(state).hint), ui.log.busyFor());   // beside the prompt, once the room is told
   redraw("restore");
   schedule(); autosave(true);

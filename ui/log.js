@@ -296,6 +296,8 @@ export function mount(root, on, header) {
     busyFor() { return Math.max(0, revealAt - performance.now()); },
     // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.
     clear() { root.innerHTML = ""; unseen = null; toTop(); header.room(); },
+    // What is in the story now counts as seen (a new story, shown from the top: the next follow shows only what comes after it).
+    seen() { unseen = null; },
     // Bring the newest command and its answer into view (smoothly; instant = true: at once).
     toEnd,
     // Is the newest text in view? (Then text the world adds on its own is followed; otherwise the story stays put.)
