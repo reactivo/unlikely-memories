@@ -38,18 +38,20 @@ export function mount(root, on, header) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   let gliding = false;           // the page is gliding to a new visit: don't follow new text meanwhile
   let unseen = null;             // the first paragraph added since the story was last followed (toEnd)
+  let followed = null;           // the first paragraph the last toEnd showed (a suggestion after an answer is shown from it too)
   const calm = matchMedia("(prefers-reduced-motion: reduce)");
   const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
 
   // Where the story shows. Its top edge: under the top, if it sticks (ui/page.js reports --top-h as 0 when it scrolls
-  // away with the story). On an upright phone the top is fixed and its picture folds and opens; the story is brought into
-  // view as the picture will be when it gets there, open (new text and a new room open it), so that edge is below the OPEN
-  // top: its place plus --top-h, the height it has open. Its bottom edge: where the bottom begins, less the empty space kept
-  // after the newest text, so that text ends above the fade.
+  // away with the story). On an upright phone the top is fixed and its picture folds and opens: open, the edge is below the
+  // OPEN top, its place plus --top-h (the height it has open, even while it is still opening: a new room opens it); folded,
+  // it is under the folded top as it is (new text doesn't open it). Its bottom edge: where the bottom begins, less the
+  // empty space kept after the newest text, so that text ends above the fade.
   const topEdge = () => {
     const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h"));
     if (!(h > 0)) return 0;
-    return getComputedStyle(top).position === "fixed" ? top.getBoundingClientRect().top + h : top.getBoundingClientRect().bottom;
+    const r = top.getBoundingClientRect();
+    return getComputedStyle(top).position === "fixed" && !top.hasAttribute("data-folded") ? r.top + h : r.bottom;
   };
   const bottomEdge = () => bottom.getBoundingClientRect().top;
   const fade = () => parseFloat(getComputedStyle(root).paddingBottom) || 0;
@@ -87,6 +89,7 @@ export function mount(root, on, header) {
     // Nothing new (a restored game, the font loading): the last command and what came after it, as before.
     const first = unseen && root.contains(unseen) ? unseen : exchangeStart(root.lastElementChild);
     unseen = null;
+    followed = first;
     const a = first.getBoundingClientRect(), b = last.getBoundingClientRect();
     const from = topEdge(), to = bottomEdge() - fade();
     const end = b.bottom + (parseFloat(getComputedStyle(last).marginBottom) || 0);
@@ -299,6 +302,9 @@ export function mount(root, on, header) {
     suggest(text) {
       const last = root.lastElementChild?.lastElementChild;
       if (last && last.dataset.suggest === text) return;
+      // It belongs to the answer just shown: following it shows that answer again from its start, not from the suggestion
+      // (which scrolled the command and the object's picture under the folded picture: Diego, 27 Oct 2026).
+      if (followed && root.contains(followed)) unseen = followed;
       say(text, "sys suggest").dataset.suggest = text;
     }
   };
