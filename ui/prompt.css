@@ -72,14 +72,25 @@
       }
     }
 
+    /* Invisible by its colours, not by opacity: iOS does not scroll to a focused input whose opacity is 0, so the keyboard
+       came up over the command line until you typed (Diego's iPhone, 28 Oct 2026). Its text is the line's size: iOS zooms
+       the page in on any input under 16px. */
     & #cmd {
       position: absolute;
       inset: 0;
-      opacity: 0;
       border: 0;
+      padding: 0;
       background: transparent;
       color: transparent;
+      -webkit-text-fill-color: transparent;
+      caret-color: transparent;
+      font: inherit;
+      outline: none;
       width: 100%;
+
+      &::selection {
+        background: transparent;
+      }
     }
   }
 

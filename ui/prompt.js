@@ -57,7 +57,7 @@ export function mount(root, on) {
   // A tap on the hint's <HELP> button runs the command and leaves the keyboard shut.
   root.addEventListener("click", (e) => {
     if (!touch.matches || e.target.closest("button, a")) return;
-    cmd.focus({ preventScroll: true });
+    cmd.focus();   // (letting the browser scroll it into view, above the keyboard)
   });
   document.addEventListener("keydown", (e) => {
     if (e.target === cmd || e.metaKey || e.ctrlKey || e.altKey) return;
