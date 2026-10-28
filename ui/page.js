@@ -86,7 +86,8 @@ function followKeyboard(root) {
 }
 
 // TEMPORARY (keyboard testing on real phones, 28 Oct 2026; remove once the keyboard is settled): a small box in the top left
-// corner with the numbers the keyboard handling goes by. Phones only.
+// corner with the numbers the keyboard handling goes by, just above the prompt while you type (the frame's top is hidden then),
+// and whether the game's own page is at its top. Phones only.
 function keyboardReadout(root) {
   if (!touch.matches) return () => {};
   const box = root.createElement("pre");
@@ -94,8 +95,12 @@ function keyboardReadout(root) {
     "color:#fff;background:rgba(170,0,0,.85);pointer-events:none;white-space:pre";
   root.body.append(box);
   return (vv, shown) => {
-    box.textContent = `win ${window.innerWidth}×${window.innerHeight}  vv ${Math.round(vv.width)}×${Math.round(vv.height)}\n` +
-      `vv.top ${Math.round(vv.offsetTop)}  scroll ${Math.round(window.scrollY)}  zoom ${vv.scale.toFixed(2)}\n` +
+    box.style.top = shown ? "auto" : "0";
+    box.style.bottom = shown ? "calc(var(--bottom-h, 0px) + 8px)" : "auto";
+    const y = Math.round(window.scrollY);
+    box.textContent = `GAME ${y <= 0 ? "AT ITS TOP" : "not at top"}\n` +
+      `win ${window.innerWidth}×${window.innerHeight}  vv ${Math.round(vv.width)}×${Math.round(vv.height)}\n` +
+      `vv.top ${Math.round(vv.offsetTop)}  scroll ${y}  zoom ${vv.scale.toFixed(2)}\n` +
       `keyboard ${shown ? "OPEN" : "no"}  covered ${Math.round(window.innerHeight - vv.height - vv.offsetTop)}`;
   };
 }
