@@ -119,11 +119,12 @@
      CSS does the shape). For that the top is fixed, not sticky: its height changes without moving the text, and the story
      starts under a spacer as tall as the top is when open (--top-h, measured by ui/page.js).
 
-     Phones with the on-screen keyboard open (ui/page.js sets data-keyboard on <html>, and --visible-top and
-     --keyboard-h, measured): the keyboard slides over the page without resizing it, so the top sticks to the top of
-     what you can see (--visible-top) and the bottom to just above the keyboard (--keyboard-h), and the page is that much
-     longer, so the newest text can still scroll up out from under the bottom. The home indicator's padding goes (the
-     keyboard is under it). Closing the keyboard puts everything back. */
+     Phones with the on-screen keyboard open (ui/page.js sets data-keyboard on <html>, and --keyboard-h, measured): the
+     keyboard pushes the page up. It slides over the page without resizing it, so the bottom sticks just above it
+     (--keyboard-h) and the page is that much longer, so the newest text can still scroll up out from under the bottom.
+     Only the prompt stays pinned: the top lets go and scrolls away with the story (there isn't the height for both: on a
+     390 × 664 iPhone about 330px are left, and the top and the bottom together need about 430), and the tabs hide.
+     Closing the keyboard puts everything back, the picture folded or open as it was. */
 
   /* Two views of one page (INTERFACE.md §13): the controller sets data-view on the page ("home", the list of games, or
      "game") and only that one shows. Before it sets one, the list's page shows. */
@@ -184,7 +185,7 @@
   @media (min-height: 560px) {
     .top {
       position: sticky;
-      top: var(--visible-top, 0px);
+      top: 0;
       z-index: 3;
     }
   }
@@ -205,7 +206,7 @@
 
     .top {
       position: fixed;
-      top: var(--visible-top, 0px);
+      top: 0;
       left: 0;
       right: 0;
       margin-inline: auto;   /* centred with margins, not shifted by half its width: iPhone Safari counted the shift as overflow */
@@ -270,8 +271,28 @@
     }
   }
 
-  :root[data-keyboard] .bottom {
-    padding-bottom: var(--space-l);
+  /* The on-screen keyboard is open (ui/page.js): only the prompt stays pinned, just above the keyboard. The top lets go and
+     scrolls with the story: where it sticks, it simply stops sticking; on an upright phone, where it is fixed over a spacer
+     as tall as it is open, it is placed where it sits at the top of the page, so nothing moves (ui/page.js and ui/fold.js
+     treat it as the fixed top). The tabs hide, and the home indicator's padding goes (the keyboard is under it). */
+  :root[data-keyboard] {
+    & .top {
+      position: relative;
+    }
+
+    & .tabs {
+      --tabs-display: none;
+    }
+
+    & .bottom {
+      padding-bottom: var(--row-gap);
+    }
+
+    @media (width < 760px) and (height >= 560px) {
+      & .top {
+        position: absolute;
+      }
+    }
   }
 
   /* The strip layout: the strip hangs from the bottom edge of the top (so it sticks with it) and the story leaves room

@@ -43,14 +43,16 @@ export function mount(root, on, header) {
   const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
 
   // Where the story shows. Its top edge: under the top, if it sticks (ui/page.js reports --top-h as 0 when it scrolls
-  // away with the story). On an upright phone the top is fixed and its picture folds and opens: open, the edge is below the
-  // OPEN top, its place plus --top-h (the height it has open, even while it is still opening: a new room opens it); folded,
+  // away with the story). While the on-screen keyboard is open the top scrolls away too, so the edge is the top's bottom
+  // edge or, once it has gone, the top of what you can see (which the browser may have panned down: visualViewport).
+  // On an upright phone the top is fixed and its picture folds and opens: open, the edge is below the OPEN top, its place plus --top-h (the height it has open, even while it is still opening: a new room opens it); folded,
   // it is under the folded top as it is (new text doesn't open it). Its bottom edge: where the bottom begins, less the
   // empty space kept after the newest text, so that text ends above the fade.
   const topEdge = () => {
+    const r = top.getBoundingClientRect();
+    if (document.documentElement.hasAttribute("data-keyboard")) return Math.max(window.visualViewport?.offsetTop || 0, r.bottom);
     const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h"));
     if (!(h > 0)) return 0;
-    const r = top.getBoundingClientRect();
     return getComputedStyle(top).position === "fixed" && !top.hasAttribute("data-folded") ? r.top + h : r.bottom;
   };
   const bottomEdge = () => bottom.getBoundingClientRect().top;

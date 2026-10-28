@@ -41,9 +41,10 @@ export function mount(top, log) {
   let own = null;       // while the game scrolls the page itself (a room's glide, following new text): where to, so it is not counted
   let ownTimer = 0;
 
-  // Does the CSS fold the picture now? (Only an upright phone: the top is fixed there. Not while the list of games shows:
-  // the page is not drawn then, and there is no picture to fold.)
-  const active = () => getComputedStyle(top).position === "fixed" && top.getClientRects().length > 0;
+  // Does the CSS fold the picture now? (Only an upright phone: the top is fixed there, or absolute while the on-screen keyboard
+  // is open and it scrolls away with the story: still the same picture, kept as it is. Not while the list of games shows: the
+  // page is not drawn then, and there is no picture to fold.)
+  const active = () => ["fixed", "absolute"].includes(getComputedStyle(top).position) && top.getClientRects().length > 0;
 
   // How tall the top is when open (ui/page.js measures it).
   const openH = () => parseFloat(getComputedStyle(html).getPropertyValue("--top-h")) || 0;
@@ -125,6 +126,7 @@ export function mount(top, log) {
     const d = lastY - y;                             // positive when scrolling up
     lastY = y;
     if (!active()) return;
+    if (html.hasAttribute("data-keyboard")) return;  // typing (ui/page.js): the browser's and the game's scrolling, not the reader's
     if (own !== null) {                              // the game's own scrolling: not counted
       if (Math.abs(y - own) < 2) { own = null; clearTimeout(ownTimer); }
       return;

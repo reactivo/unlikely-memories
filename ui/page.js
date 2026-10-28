@@ -1,7 +1,7 @@
 // Page-wide details that belong to no single piece: the page language, which view is shown (the list of games or the
 // game: css/layout.css reads data-view), whether the tab is visible (the game clock pauses while it's hidden), and when
 // the page is left (a waiting save is written), how much of the window the parts that stick take up (see followBars),
-// and, on phones, where the visible part of the screen is while the on-screen keyboard is open (see followKeyboard).
+// and, on phones, whether the on-screen keyboard is open and how much of the window it covers (see followKeyboard).
 
 // The keyboard is taken to be open when the visible area is at least this many pixels shorter than the window. (The
 // browser's own bars growing and shrinking change it by less; a phone's keyboard, even sideways, by more.)
@@ -19,7 +19,8 @@ const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 //   --top-h      how much the top covers: its height while it sticks (windows at least 560px tall), else 0 (it scrolls away).
 //                On an upright phone the top is fixed and its picture folds (css/layout.css, ui/fold.js): then it is the
 //                height the top has when the picture is OPEN, whether or not it is open now, because that is where the
-//                story starts, and where a new room's first line goes.
+//                story starts, and where a new room's first line goes. (With the keyboard open that top lets go and scrolls with
+//                the story, absolute instead of fixed, over the same spacer: still measured the same way, so nothing moves.)
 //   --bottom-h   the bottom's height
 function followBars(root) {   // returns update(): measure now
   const html = root.documentElement, top = root.querySelector(".top"), bottom = root.querySelector(".bottom");
@@ -38,7 +39,7 @@ function followBars(root) {   // returns update(): measure now
   }
   function update() {
     const position = getComputedStyle(top).position;   // (the CSS decides: no second copy of the breakpoints here)
-    put("--top-h", position === "fixed" ? openHeight() : position === "sticky" ? top.getBoundingClientRect().height : 0);
+    put("--top-h", position === "fixed" || position === "absolute" ? openHeight() : position === "sticky" ? top.getBoundingClientRect().height : 0);
     put("--bottom-h", bottom.getBoundingClientRect().height);
   }
   const watch = new ResizeObserver(update);   // (also when the game is shown: the page is not drawn while the list of games shows)
@@ -50,14 +51,13 @@ function followBars(root) {   // returns update(): measure now
   return update;
 }
 
-// While the on-screen keyboard is open, tell the layout where the visible part of the screen is, so the prompt sits just
-// above the keyboard and the title bar and picture stay in view (css/layout.css). Most phones (iPhone Safari, Chrome on
+// While the on-screen keyboard is open, tell the layout, so the keyboard pushes the page up: the prompt sits just above it,
+// and the top lets go and scrolls away with the story (css/layout.css). Phones (iPhone Safari, Chrome and Firefox on
 // Android) slide the keyboard over the page without resizing it: the window stays the same height and only the *visual
 // viewport* (window.visualViewport) shrinks, and some pan it up besides. Sticky parts are placed against the window, not
-// against that visual viewport, so nothing else would keep them in sight. Nothing else reports it, so this is the one place
-// that reads it. Like the bars above, the numbers are measured, not chosen; the layout decides what to do with them.
+// against that visual viewport, and no CSS knows the keyboard's height on an iPhone, so this is the one place that reads it.
+// Like the bars above, the number is measured, not chosen; the layout decides what to do with it.
 //   data-keyboard on <html>   the keyboard is open
-//   --visible-top             how far down from the top of the window the visible area starts (the top sticks this far down)
 //   --keyboard-h              how much of the window's bottom the keyboard (or the panned-away part) covers: the window's
 //                             height minus the visible area's height and its offset (the bottom sticks this far up)
 // Without the keyboard (or on a computer) nothing is set and the page is as ever.
@@ -66,23 +66,39 @@ function followKeyboard(root) {
   if (!vv) return;
   const html = root.documentElement;
   let open = false;
+  const readout = keyboardReadout(root);
   function update() {
     const covered = window.innerHeight - vv.height - vv.offsetTop;
     const shown = touch.matches && vv.scale <= 1.01 && window.innerHeight - vv.height >= KEYBOARD_MIN;   // (not while pinch-zoomed)
     if (shown) {
-      html.style.setProperty("--visible-top", vv.offsetTop + "px");
       html.style.setProperty("--keyboard-h", Math.max(0, covered) + "px");
       if (!open) html.dataset.keyboard = "";
     } else if (open) {
-      html.style.removeProperty("--visible-top");
       html.style.removeProperty("--keyboard-h");
       delete html.dataset.keyboard;
     }
     open = shown;
+    readout(vv, shown);
   }
   vv.addEventListener("resize", update);
   vv.addEventListener("scroll", update);   // the browser panning the visible area up or back down
+  window.addEventListener("scroll", () => readout(vv, open), { passive: true });
   update();
+}
+
+// TEMPORARY (keyboard testing on real phones, 28 Oct 2026; remove once the keyboard is settled): a small box in the top left
+// corner with the numbers the keyboard handling goes by. Phones only.
+function keyboardReadout(root) {
+  if (!touch.matches) return () => {};
+  const box = root.createElement("pre");
+  box.style.cssText = "position:fixed;left:0;top:0;z-index:99;margin:0;padding:2px 4px;font:10px/1.3 monospace;" +
+    "color:#fff;background:rgba(170,0,0,.85);pointer-events:none;white-space:pre";
+  root.body.append(box);
+  return (vv, shown) => {
+    box.textContent = `win ${window.innerWidth}×${window.innerHeight}  vv ${Math.round(vv.width)}×${Math.round(vv.height)}\n` +
+      `vv.top ${Math.round(vv.offsetTop)}  scroll ${Math.round(window.scrollY)}  zoom ${vv.scale.toFixed(2)}\n` +
+      `keyboard ${shown ? "OPEN" : "no"}  covered ${Math.round(window.innerHeight - vv.height - vv.offsetTop)}`;
+  };
 }
 
 // Set up on the document. Returns update() and show().
