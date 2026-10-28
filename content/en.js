@@ -113,14 +113,16 @@ export default {
     if (!ways.length) return "There's no way out from here.";
     return "You can go " + (ways.length > 1 ? ways.slice(0, -1).join(", ") + this.or + ways.at(-1) : ways[0]) + ".";
   },
-  // Gaining health (js/engine.js, `heal`): the world's own line is said as it is; this one only when it has none and you are better.
-  healed: "You feel a little better.",
-  // Losing health (js/engine.js, `hurt`): always a red line, the cause's own words first (s) if it has some, then how
-  // hurt you are now; `last`: one more hit like this one would be the end.
+  // Echoes (INTERFACE.md §6c): one short line under the story text after a change to your mood or health, for the step
+  // you land on (tension 0–5, health 5–0), shown in capitals in the colour of its kind. js/engine.js picks them.
+  echo: {
+    uneasy: [null, "You feel slightly uneasy", "You feel uneasy", "You feel very uneasy", "You feel close to breaking", "You can't bear it any longer"],
+    calmer: ["You're at ease", "You feel almost at ease", "You feel much calmer", "You feel calmer", "You feel a little calmer", null],
+    hurt:   [null, "You're severely hurt", "You're badly hurt", "You're hurt", "You're slightly hurt", null],
+    healed: [null, "You feel a little better", "You feel better", "You feel much better", "You feel almost yourself again", "You feel well"]
+  },
+  // Losing the last of your health (js/engine.js, `hurt`): the cause's own words first (s) if it has some.
   hurt: {
-    hurt: (s) => (s ? s + " " : "") + "You're hurt.",
-    bad: (s) => (s ? s + " " : "") + "You're badly hurt.",
-    last: (s) => (s ? s + " " : "") + "You're badly hurt: one more like that and you won't get up.",
     // The end: one of these, picked at random.
     dead: [
       (s) => (s ? s + " " : "") + "This is the end, you think, briefly, before fading away for good.",

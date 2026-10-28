@@ -111,14 +111,16 @@ export default {
     if (!ways.length) return "No hay por dónde salir.";
     return "Puedes ir: " + (ways.length > 1 ? ways.slice(0, -1).join(", ") + this.or + ways.at(-1) : ways[0]) + ".";
   },
-  // Ganar salud (js/engine.js, `heal`): la línea propia del mundo se dice tal cual; esta solo si no tiene y te sientes mejor.
-  healed: "Te sientes un poco mejor.",
-  // Perder salud (js/engine.js, `hurt`): siempre una línea en rojo, primero las palabras de lo que te ha herido (s)
-  // si las tiene, luego cómo estás; `last`: otro golpe como este sería el final.
+  // Ecos (INTERFACE.md §6c): una línea corta bajo el texto tras un cambio en tu ánimo o tu salud, para el paso al que
+  // llegas (tensión 0–5, salud 5–0), en mayúsculas y del color de su clase. Los elige js/engine.js.
+  echo: {
+    uneasy: [null, "Te sientes algo nervioso", "Te sientes nervioso", "Te sientes muy nervioso", "Estás a punto de derrumbarte", "No lo soportas más"],
+    calmer: ["Estás tranquilo", "Te sientes casi tranquilo", "Te sientes mucho más tranquilo", "Te sientes más tranquilo", "Te sientes un poco más tranquilo", null],
+    hurt:   [null, "Estás gravemente herido", "Estás malherido", "Estás herido", "Estás levemente herido", null],
+    healed: [null, "Te sientes un poco mejor", "Te sientes mejor", "Te sientes mucho mejor", "Vuelves a ser casi tú mismo", "Te sientes bien"]
+  },
+  // Perder lo último de tu salud (js/engine.js, `hurt`): primero las palabras de lo que te ha herido (s), si las tiene.
   hurt: {
-    hurt: (s) => (s ? s + " " : "") + "Te has hecho daño.",
-    bad: (s) => (s ? s + " " : "") + "Te has hecho mucho daño.",
-    last: (s) => (s ? s + " " : "") + "Te has hecho mucho daño: otro golpe así y no te levantarás.",
     // El final: una de estas, al azar.
     dead: [
       (s) => (s ? s + " " : "") + "Este es el final, piensas un instante, antes de desvanecerte para siempre.",

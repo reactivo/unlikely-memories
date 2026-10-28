@@ -43,7 +43,7 @@ export const bible = {
 const at = (room) => ({ "player.at": room });
 const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };                 // sin preguntar por nada (entonces contestan sus temas)
-const tension = (n) => ({ set: "game.tension", add: n });
+const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 
 // Cada objeto que se puede llevar trae su sprite (16 × 16, números de la paleta en hexadecimal) y, si puede quedar en un
 // dibujo, una versión pequeña para el suelo (content/sample.sprites.js).
@@ -626,14 +626,12 @@ const changes = {
     { say: "Remas de vuelta. El pueblo sale de la oscuridad a tu encuentro, exactamente como lo dejaste." },
     { travel: "pier_end" }, { describe: "$here" }],
   // Los dos finales en la lámpara.
-  end_photograph: [{ remove: "object", id: "photograph" }, { set: "game.tension", to: 0 },
-    { change: "lamp_lit" },
+  end_photograph: [{ remove: "object", id: "photograph" }, { change: "lamp_lit" },
     { set: "beach.describe", to: [doorStands, seaLit, sand] }, { set: "lantern.describe", to: [lampLit, farDoor, down] },
     { say: "La fotografía se enrosca en la copa de latón y prende. La luz es enorme. Sale por encima del agua y barre el pueblo, cada ventana, cada caseta, la cara que hay en cada una. Cuando ha pasado, no recuerdas qué buscabas." },
     { say: "Estás en tu mesa, planta menos cuatro. El pasillo es gris, el linóleo es gris, la luz es gris. El altavoz murmura que estás conforme. Descubres que casi lo estás." },
     { end: true, picture: "photograph" }],
-  end_shell: [{ remove: "object", id: "shell" }, { set: "game.tension", to: 0 },
-    { change: "lamp_lit" },
+  end_shell: [{ remove: "object", id: "shell" }, { change: "lamp_lit" },
     { set: "beach.describe", to: [doorGone, seaLit, sand] }, { set: "lantern.describe", to: [lampLit, farSand, down] },
     { say: "La caracola arde con una llama azul y pequeña, y el altavoz que lleva dentro dice «Estás» y nada más. La luz sale por encima del agua. En la playa, la puerta verde se cierra y es un trozo de madera de deriva." },
     { say: "En el pueblo, el reloj se mueve: las cinco y cuarto, las cinco y veinte. Se acerca el lunes, y nadie aquí sabe qué pasa los lunes. Al otro lado del agua, desde algún lugar cerca de la puerta, tu nombre vuelve a ti." },
@@ -673,17 +671,17 @@ const rules = [
 
   // -- Nadar: primero un aviso, luego el frío ----------------------------------------------------------------------
   { id: "swim_drown", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } },
-      { "player.waded": true }, { "player.health": { "<=": 50 } }],
+      { "player.waded": true }, { "player.health": { "<=": 2 } }],
     do: [{ say: "El frío se cierra sobre ti, con suavidad, como se cierra sobre todo. El mar te recibe. A su tiempo, te devolverá." },
-         { hurt: 100, says: "El frío se lleva lo último de ti." }, { end: true, picture: "drowned" }] },
-  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 80 } }],
+         { hurt: 5, says: "El frío se lleva lo último de ti." }, { end: true, picture: "drowned" }] },
+  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 4 } }],
     do: [tension(10),
          { say: "Vuelves a entrar. Esta vez lo que hay debajo tarda más en soltarte. Sales a rastras a la arena sabiendo, como sabes tu propia letra, que la próxima vez no lo hará." },
-         { hurt: 30, says: "Esta vez ha tardado más en soltarte." }] },
+         { hurt: 2, says: "Esta vez ha tardado más en soltarte." }] },
   { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }],
     do: [tension(10),
          { say: "Entras. El frío es total. Algo, debajo, te agarra el tobillo, te considera y te suelta. Sales a la arena tosiendo, temblando, y con menos de lo que eras." },
-         { hurt: 30, says: "Su presa te ha dejado una marca." }] },
+         { hurt: 2, says: "Su presa te ha dejado una marca." }] },
   { id: "swim_wade", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
     do: [{ set: "player.waded", to: true }, tension(5),
          { say: "Entras hasta las rodillas y te detienes. El agua es negra y muy fría, y más allá el mar tira, paciente, como algo que tiene todo el tiempo del mundo." }] },
@@ -792,11 +790,11 @@ const rules = [
   { id: "burn_nothing", match: { verb: "burn" }, do: [{ say: "No tienes con qué quemarlo." }] },
 
   // -- Tensión: sube despacio una vez cruzada la puerta; la puerta avisa, luego se cierra ---------------------------
-  { id: "tension_creep", when: "every", every: { seconds: [45, 90] },
-    do: [tension(3)] },
-  { id: "door_warning", when: "every", every: { seconds: [40, 80] }, if: [{ "game.tension": { ">=": 60 } }, { "beach_door.shut": { "!=": true } }],
+  { id: "tension_creep", when: "every", every: { turns: [10, 10] },
+    do: [{ unsettle: 1 }] },
+  { id: "door_warning", when: "every", every: { seconds: [40, 80] }, if: [{ "game.tension": { ">=": 3 } }, { "beach_door.shut": { "!=": true } }],
     do: [{ say: ["A lo lejos, en la playa, algo toma aire, lento y superficial. La puerta respira menos que antes.", "Piensas en [way]. No recuerdas con seguridad en qué dirección estaba.", "La luz de la puerta, en algún lugar a tu espalda, es un poco más tenue. Un poco más pequeña."] }] },
-  { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 95 } }, { "beach_door.shut": { "!=": true } }],
+  { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 5 } }, { "beach_door.shut": { "!=": true } }],
     do: [{ change: "driftwood" },
          { say: "A lo lejos, [way] se cierra, con un sonido como de un aliento contenido que se suelta. Lo notas en el pecho, como un escalón que falta. El camino de vuelta ha desaparecido." }] }
 ];
@@ -868,8 +866,8 @@ export default {
     ] },
     // El humor del mundo, según la tensión
     { set: "game.moods", to: [
-      { below: 20, text: "Suficientemente conforme" }, { below: 40, text: "Algo añorante" }, { below: 60, text: "En vilo" },
-      { below: 80, text: "Sin aliento" }, { below: 101, text: "A punto de quedarte sin domingo" }
+      { below: 1, text: "Suficientemente conforme" }, { below: 2, text: "Algo añorante" }, { below: 3, text: "En vilo" },
+      { below: 4, text: "Sin aliento" }, { below: 6, text: "A punto de quedarte sin domingo" }
     ] },
     // Verbos que solo necesita este mundo
     { add: "word", verb: "row", words: ["remar", "rema", "reme", "bogar", "boga", "remar hacia", "rema hacia", "remar hasta", "rema hasta", "remar de vuelta", "rema de vuelta"] },

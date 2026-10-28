@@ -260,23 +260,25 @@ export function check(state, pack, bible) {
     if (o.use !== undefined && (typeof o.use !== "string" || o.use === "use" || !verbs.has(o.use)))
       problems.push(`${id}: use must be the verb USE alone stands for (an action or a word this world adds, not "use"), not ${JSON.stringify(o.use)}`);
 
-  // Harm is fair (GUIDE.md §3): health is lost with `hurt` and the rule's own red line (`says`), never by setting
-  // it; and no single hit is big enough to end the story without the "one more like that" warning first (health starts
-  // at 100, so a hit is 30 at most), unless the rule is itself an ending.
+  // Harm is fair (GUIDE.md §3): health (5 to 0) is lost with `hurt` and the rule's own line (`says`), then the game's
+  // echo, never by setting it; and a hit is 1, or 2 for something serious (the engine never lets one of those end you
+  // from above 1), unless the rule is itself an ending. Your mood (tension 0 to 5) moves with `calm` and `unsettle`.
   const changes = Object.entries(state.changes || {}).map(([name, effects]) => ({ id: "change " + name, do: effects, named: true }));
   for (const r of [...state.rules, ...changes]) {
     if (!r || !Array.isArray(r.do)) continue;
     const id = r.id ?? "a change";
     for (const e of r.do) {
       if (e?.set === "player.health" && ((typeof e.add === "number" && e.add < 0) || typeof e.to === "number"))
-        warnings.push(`${id}: changes health directly; use { hurt: n, says: "…" } so the loss is said, in red`);
+        warnings.push(`${id}: changes health directly; use { hurt: n, says: "…" } so the loss is said, with its echo`);
       else if (e?.set === "player.health" && typeof e.add === "number" && e.add > 0)
-        warnings.push(`${id}: raises health directly; use { heal: n, says: "…" } so it is capped at 100 and said`);
+        warnings.push(`${id}: raises health directly; use { heal: n, says: "…" } so it is capped at full and said, with its echo`);
+      if (e?.set === "game.tension")
+        warnings.push(`${id}: changes tension directly; use { calm: 1, says: "…" } or { unsettle: 1, says: "…" }, one step at a time`);
       if (e && "heal" in e) healProblems(r, e, id, state, problems, warnings);
       if (!e || !("hurt" in e)) continue;
-      if (!e.says) warnings.push(`${id}: hurts with no line of its own (says): only "You're hurt." is shown`);
-      if (typeof e.hurt === "number" && e.hurt > 30 && !r.do.some(x => x?.end))
-        warnings.push(`${id}: a hit of ${e.hurt} is too big outside an ending; a hit is 30 at most, so the warning before the end always comes`);
+      if (!e.says) warnings.push(`${id}: hurts with no line of its own (says): only the echo ("You're hurt") is shown`);
+      if (typeof e.hurt === "number" && e.hurt > 2 && !r.do.some(x => x?.end))
+        warnings.push(`${id}: a hit of ${e.hurt} is too big outside an ending; a hit is 1, or 2 for something serious (health is 5 to 0)`);
     }
   }
 
@@ -385,7 +387,7 @@ function pictureProblems(state) {
       if (typeof e.picture !== "string") problems.push(`${where}: ends the story without naming its picture (end: true, picture: "…")`);
       else if (!pictures[e.picture]) problems.push(`${where}: ends the story with picture "${e.picture}", which the world doesn't have`);
     }
-    const lowers = typeof e.set === "string" && e.set === "player.health" && ((typeof e.add === "number" && e.add < 0) || (typeof e.to === "number" && e.to < 100));
+    const lowers = typeof e.set === "string" && e.set === "player.health" && ((typeof e.add === "number" && e.add < 0) || (typeof e.to === "number" && e.to < 5));
     if ((typeof e.hurt === "number" || typeof e.hurt === "string") || lowers) hurts ??= where;
   }
   if (hurts && !pictures.died) problems.push(`${hurts} can hurt the player, so the world needs a "died" picture (the ending when health runs out)`);
@@ -429,7 +431,7 @@ function drawingProblems(picture) {
 function healProblems(r, e, id, state, problems, warnings) {
   const named = typeof e.heal === "string" && e.heal.startsWith("$");           // a value the player's words fill in
   if (!named && (typeof e.heal !== "number" || !(e.heal > 0))) problems.push(`${id}: heal is a number above 0, not ${JSON.stringify(e.heal)}`);
-  if (!e.says) warnings.push(`${id}: heals with no line of its own (says): only "You feel a little better." is shown, and nothing at all at full health`);
+  if (!e.says) warnings.push(`${id}: heals with no line of its own (says): only the echo is shown, and nothing at all at full health`);
   if (!Array.isArray(r.do) || r.once === true || r.when === "at" || r.named) return;   // (a named change is judged in the rules that run it)
   const all = r.do.flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]);
   const sets = new Set(all.filter(x => x && typeof x.set === "string").map(x => x.set));

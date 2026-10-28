@@ -37,7 +37,7 @@ const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };
 const hours = (from, to) => ({ "time.hour": { between: [from, to] } });
 const notHours = (from, to) => ({ "time.hour": { between: [to, from] } });   // the other hours of the day
-const tension = (n) => ({ set: "game.tension", add: n });
+const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- Texts that change ---------------------------------------------------------------------------------------------
@@ -589,7 +589,7 @@ const changes = {
   ],
   yesterday: [
     { say: "You turn the key. The hands hurry backwards, the clocks on the walls fall silent one by one, and the light in the window goes the wrong way across the floor. It is yesterday. Whatever you did in it, you did." },
-    { time: "-1d" }, { set: "game.tension", add: -20 }
+    { time: "-1d" }, { calm: 2 }
   ],
   // The endings
   tuesday_ending: [
@@ -691,7 +691,7 @@ const rules = [
     do: [{ say: "You step down onto the rails. The hum gets into your teeth. Somewhere inside, the dark leans towards you. You climb back up. Next time you might not." }, tension(10)] },
   { id: "tunnel_hurt", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }],
     do: [{ say: "You walk in. The warm air thickens until it is like pushing through a crowd. Something passes very close, at speed, and is gone. You come out on your hands and knees, missing some of the evening." },
-         { hurt: 30, says: "Something caught you as it passed." }, tension(15)] },
+         { hurt: 2, says: "Something caught you as it passed." }, tension(15)] },
 
   // The town hall keeps office hours (nine to five); you can wait on its steps, or sleep at the hotel.
   { id: "hall_closes", when: "at", at: "17:00", if: [at("town_hall", "archive")],
@@ -736,13 +736,13 @@ const rules = [
     do: [{ say: "The key turns and stops. \"Not yet,\" says the clockmaker. \"There's no yesterday here yet. Not one you were in.\"" }] },
 
   // Tension: the longer you stay, the harder it is to leave; warned, then the door closes.
-  { id: "tension_rises", when: "every", every: { seconds: [90, 150] },
-    do: [tension(2)] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 70 } }], once: true,
+  { id: "tension_rises", when: "every", every: { turns: [10, 10] },
+    do: [{ unsettle: 1 }] },
+  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
     do: [{ say: "Somewhere behind you, [way] breathes out, long and slow, as if it were getting ready to stop." }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 90 } }, { "game.wayLastWarned": { "!=": true } }],
+  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.wayLastWarned": { "!=": true } }],
     do: [{ say: "You think of [way], the way you came. You are not sure you could still find it. A coffee, a sleep, anything that stops the waiting, might help." }, { set: "game.wayLastWarned", to: true }] },
-  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 100 } }, { "game.wayLastWarned": true }],
+  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.wayLastWarned": true }],
     do: [{ change: "sunday_ending" }] }
 ];
 
@@ -799,8 +799,8 @@ export default {
       { say: "Somewhere a clock strikes half past seven, in the evening, on a Sunday." }
     ] },
     { set: "game.moods", to: [
-      { below: 20, text: "Adequately content" }, { below: 40, text: "Restless" }, { below: 60, text: "Waiting" },
-      { below: 80, text: "Overdue" }, { below: 101, text: "Last call" }
+      { below: 1, text: "Adequately content" }, { below: 2, text: "Restless" }, { below: 3, text: "Waiting" },
+      { below: 4, text: "Overdue" }, { below: 6, text: "Last call" }
     ] },
     // Verbs this world needs
     { add: "word", verb: "buy", words: ["buy", "purchase", "pay for"], absent: true },

@@ -10,16 +10,16 @@ import { newSeed } from "./random.js";
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
 // 11: `fired`, the `once` rules that have had their one time. 12: every key starts in blank(). 13: `pictures` (pictures that
 // aren't a room's) and `ending` (the one the story ended with).)
-export const FORMAT = 13;
+export const FORMAT = 14;   // 14: tension 0–5 and health 5–0 (saves from before start afresh: their rules count to 100)
 
-// Health: a new game, and beginning again, start at full health, 100. A hit is 30 at most outside an ending (the checker
-// warns), so the "one more like that" warning always comes before the end.
+// Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit is 2 at most outside an
+// ending (the checker warns), so the end never comes without being "severely hurt" first.
 // A fresh game in a language: the world that plays (the one named by `id`; worlds/index.js's DEFAULT when none is), if it's
 // written in this language (only English worlds so far), built from its change set, opening and all (ARCHITECTURE.md
 // §3, "The opening"). Health can be carried over (changing language keeps it). sequel: a change set = that world
 // instead (tests); false = no world. A language with no world gets a placeholder room, so there is somewhere to be.
 // protect: false leaves the opening open to change (only for tests that use it as a scratch room).
-export function newState({ lang, health = 100, seed = newSeed(), sequel = true, protect = true, id = DEFAULT }) {
+export function newState({ lang, health = 5, seed = newSeed(), sequel = true, protect = true, id = DEFAULT }) {
   const state = blank({ lang, health, seed });
   const world = sequel === true ? worldFor(lang, id) : sequel || null;
   if (world) {
@@ -52,7 +52,7 @@ function blank({ lang, health, seed }) {
     player: {
       at: null,                    // the room you're in
       carrying: [],                // item ids, in inventory slot order
-      health                       // percent
+      health                       // 5 (well) to 0 (the end): INTERFACE.md §6c
     },
     world: {                       // rooms (description, exits) and objects (where they are, their properties)
       rooms: {},
@@ -72,7 +72,7 @@ function blank({ lang, health, seed }) {
     },
     hinted: {},                    // how many hints each puzzle has given
     fired: {},                     // the rules with `once: true` that have fired: id → true (they never fire again)
-    tension: 0,                    // how much danger has been stirred up, 0–100 (overview: Game design)
+    tension: 0,                    // how much danger has been stirred up, 0–5 (INTERFACE.md §6c)
     moods: null,                   // the mood shown for each band of tension: [{ below: 20, text }, …]
     recent: {},                    // the last phrasing picked for each varied line, so it isn't repeated
     lastObj: null,                 // the last thing your commands mentioned: what "it" / "lo" means

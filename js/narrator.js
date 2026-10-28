@@ -20,6 +20,8 @@ export function tell(applied, state, pack) {
       String(said).split(/\n\s*\n/).forEach((part, i) =>
         out.push(clean({ text: part, style: e.style, img: i === 0 ? e.img : undefined })));
     }
+    // An echo of what just happened to you (INTERFACE.md §6c): its own short line, styled by its kind.
+    if (e.echo) out.push({ text: timed(text(e.echo, pack), state, pack, e.at), style: "echo text-echo echo-" + e.kind });
     if (e.hint) out.push({ text: timed(pack.framed(text(e.hint, pack), hintText(e, pack)), state, pack) });   // the world's frame, then the hint
     if (e.describe === "inventory") out.push({ text: inventory(state, pack) });
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
@@ -82,7 +84,7 @@ export function timeNow(state, pack, at = worldTime(state)) {
 // STATUS: your mood (the world's phrase for its tension, or the pack's) and your health, in four bands.
 export function statusNow(state, pack) {
   const h = state.player.health;
-  const health = h >= 80 ? "good" : h >= 50 ? "scratched" : h >= 25 ? "hurt" : "badly";
+  const health = h >= 5 ? "good" : h >= 4 ? "scratched" : h >= 3 ? "hurt" : "badly";   // (health 5 to 0)
   const mood = String(moodOf(state, pack) ?? "");
   return text("@statusNow", pack, { mood: mood.charAt(0).toLowerCase() + mood.slice(1), health });
 }

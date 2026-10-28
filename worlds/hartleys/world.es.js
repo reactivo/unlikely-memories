@@ -36,7 +36,7 @@ export const bible = {
 // ---- Ayudas (se leen como las palabras de las reglas) ----------------------------------------------------------------------
 const at = (...rooms) => ({ "player.at": rooms.length > 1 ? { in: rooms } : rooms[0] });
 const holding = (id) => ({ [id + ".at"]: "player" });
-const tension = (n) => ({ set: "game.tension", add: n });
+const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- Los dibujos de los finales ---------------------------------------------------------------------------------------------
@@ -475,7 +475,7 @@ const rules = [
   { id: "tubes_warn", match: { verb: ["enter", "touch", "climb"], obj: "tubes" }, once: true,
     do: [{ say: "Alzas la mano hacia el tubo. Aspira y te agarra la manga, con fuerza, como un niño que quiere enseñarte algo. La señorita Thimble golpea el mostrador. «Con las manos no, cielo. Se lleva los dedos». Recuperas la manga." }, tension(10)] },
   { id: "tubes_hurt", match: { verb: ["enter", "touch", "climb"], obj: "tubes" },
-    do: [{ say: "Metes la mano en el tubo. Se lleva el brazo entero, hasta el hombro, y luego se lo piensa mejor y te suelta." }, { hurt: 30, says: "El tubo tuvo tu brazo un momento." }, tension(15)] },
+    do: [{ say: "Metes la mano en el tubo. Se lleva el brazo entero, hasta el hombro, y luego se lo piensa mejor y te suelta." }, { hurt: 2, says: "El tubo tuvo tu brazo un momento." }, tension(15)] },
 
   // El guante: un apretón de manos, y la llave de la azotea.
   { id: "shake_glove", match: { verb: ["shake", "touch"], obj: "glove" }, if: [{ "roof_key.at": null }], once: true,
@@ -534,12 +534,12 @@ const rules = [
     do: [{ say: "Una campana suena tres veces, en algún lugar de las paredes. «Hartley's cierra sus puertas», dice una voz desde todos los techos. «Se ruega a los clientes que se dirijan a la salida». Nadie lo hace." }, tension(10)] },
 
   // La tensión: cuanto más te quedas, más perteneces a la tienda; dos avisos, y luego el escaparate.
-  { id: "tension_rises", when: "every", every: { seconds: [90, 150] }, do: [tension(2)] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 70 } }], once: true,
+  { id: "tension_rises", when: "every", every: { turns: [10, 10] }, do: [{ unsettle: 1 }] },
+  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
     do: [{ say: "En algún lugar, por encima de ti, se apagan las luces de una planta. La voz del señor Gage, muy cerca: «Los clientes que se quedan se colocan donde son útiles»." }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 90 } }, { "game.storeLastWarned": { "!=": true } }],
+  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.storeLastWarned": { "!=": true } }],
     do: [{ say: "Te sorprendes de pie, sin moverte, como están los maniquíes. Una taza de té, sentarte un rato, cualquier cosa que no sea esperar, ayudaría." }, { set: "game.storeLastWarned", to: true }] },
-  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 100 } }, { "game.storeLastWarned": true }],
+  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.storeLastWarned": true }],
     do: [{ change: "window_ending" }] }
 ];
 
@@ -599,8 +599,8 @@ export default {
       { say: "Una voz desde el techo, amable y muy cansada, dice que Hartley's cerrará a las seis." }
     ] },
     { set: "game.moods", to: [
-      { below: 20, text: "Mirando sin compromiso" }, { below: 40, text: "Esperando turno" }, { below: 60, text: "Dudando" },
-      { below: 80, text: "Fuera de hora" }, { below: 101, text: "En el escaparate" }
+      { below: 1, text: "Mirando sin compromiso" }, { below: 2, text: "Esperando turno" }, { below: 3, text: "Dudando" },
+      { below: 4, text: "Fuera de hora" }, { below: 6, text: "En el escaparate" }
     ] },
     // Verbos que necesita este mundo
     { add: "word", verb: "shake", words: ["estrechar la mano a", "estrecha la mano a", "estrechar la mano de", "estrecha la mano de", "estrechar la mano", "estrecha la mano", "dar la mano a", "da la mano a", "dale la mano a", "darle la mano a", "dar la mano", "da la mano", "darse la mano con", "estrechale la mano a", "estrechale la mano", "estrechar", "estrecha"] },

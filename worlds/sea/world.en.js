@@ -40,7 +40,7 @@ export const bible = {
 const at = (room) => ({ "player.at": room });
 const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };                 // not asking about something (then their topics answer)
-const tension = (n) => ({ set: "game.tension", add: n });
+const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 
 // Each portable object carries its sprite (16 × 16, hex palette numbers) and, if it can lie in a picture, a small
 // floor version (content/sample.sprites.js).
@@ -623,14 +623,12 @@ const changes = {
     { say: "You row back. The town comes up out of the dark to meet you, exactly as you left it." },
     { travel: "pier_end" }, { describe: "$here" }],
   // The two endings at the lamp.
-  end_photograph: [{ remove: "object", id: "photograph" }, { set: "game.tension", to: 0 },
-    { change: "lamp_lit" },
+  end_photograph: [{ remove: "object", id: "photograph" }, { change: "lamp_lit" },
     { set: "beach.describe", to: [doorStands, seaLit, sand] }, { set: "lantern.describe", to: [lampLit, farDoor, down] },
     { say: "The photograph curls in the brass cup and catches. The light is enormous. It goes out over the water and sweeps the town, every window, every hut, the face in each one. When it has passed, you can't remember what you were looking for." },
     { say: "You are at your desk, level minus four. The corridor is grey, the lino is grey, the light is grey. The loudspeaker murmurs that you are content. You find that you very nearly are." },
     { end: true, picture: "photograph" }],
-  end_shell: [{ remove: "object", id: "shell" }, { set: "game.tension", to: 0 },
-    { change: "lamp_lit" },
+  end_shell: [{ remove: "object", id: "shell" }, { change: "lamp_lit" },
     { set: "beach.describe", to: [doorGone, seaLit, sand] }, { set: "lantern.describe", to: [lampLit, farSand, down] },
     { say: "The shell burns with a small blue flame, and the loudspeaker in it says \"You are\" and nothing else. The light goes out over the water. On the beach, the green door closes, and is a piece of driftwood." },
     { say: "In the town, the clock moves: a quarter past five, twenty past. Monday is coming, and nobody here knows what happens on Monday. Across the water, from somewhere near the door, your name comes back to you." },
@@ -670,17 +668,17 @@ const rules = [
 
   // -- Swimming: a warning first, then the cold ---------------------------------------------------------------------
   { id: "swim_drown", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } },
-      { "player.waded": true }, { "player.health": { "<=": 50 } }],
+      { "player.waded": true }, { "player.health": { "<=": 2 } }],
     do: [{ say: "The cold closes over you, gently, the way it closes over everything. The sea takes you in. In its own time, it will give you back." },
-         { hurt: 100, says: "The cold takes the last of you." }, { end: true, picture: "drowned" }] },
-  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 80 } }],
+         { hurt: 5, says: "The cold takes the last of you." }, { end: true, picture: "drowned" }] },
+  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 4 } }],
     do: [tension(10),
          { say: "You go in again. This time the thing underneath holds on longer before it lets go. You crawl out onto the sand knowing, the way you know your own handwriting, that next time it won't." },
-         { hurt: 30, says: "It held on longer this time." }] },
+         { hurt: 2, says: "It held on longer this time." }] },
   { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }],
     do: [tension(10),
          { say: "You go in. The cold is total. Something underneath takes your ankle, considers you, and lets go. You come out on the sand, coughing, and shaking, and less than you were." },
-         { hurt: 30, says: "Its grip has left a mark." }] },
+         { hurt: 2, says: "Its grip has left a mark." }] },
   { id: "swim_wade", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
     do: [{ set: "player.waded", to: true }, tension(5),
          { say: "You wade in to your knees and stop. The water is black and very cold, and further out the sea pulls, patiently, like something that has all the time in the world." }] },
@@ -789,11 +787,11 @@ const rules = [
   { id: "burn_nothing", match: { verb: "burn" }, do: [{ say: "You have nothing to burn it with." }] },
 
   // -- Tension: rises slowly once you're through the door; the door warns, then closes ----------------------------
-  { id: "tension_creep", when: "every", every: { seconds: [45, 90] },
-    do: [tension(3)] },
-  { id: "door_warning", when: "every", every: { seconds: [40, 80] }, if: [{ "game.tension": { ">=": 60 } }, { "beach_door.shut": { "!=": true } }],
+  { id: "tension_creep", when: "every", every: { turns: [10, 10] },
+    do: [{ unsettle: 1 }] },
+  { id: "door_warning", when: "every", every: { seconds: [40, 80] }, if: [{ "game.tension": { ">=": 3 } }, { "beach_door.shut": { "!=": true } }],
     do: [{ say: ["Far off, on the beach, something takes a slow, shallow breath. The door is breathing less than it was.", "You think of [way]. You're not sure you remember which way it was.", "The light from the door, somewhere behind you, is a little dimmer. A little smaller."] }] },
-  { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 95 } }, { "beach_door.shut": { "!=": true } }],
+  { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 5 } }, { "beach_door.shut": { "!=": true } }],
     do: [{ change: "driftwood" },
          { say: "Far off, [way] closes, with a sound like a held breath let go. You feel it in your chest, like a missed step. The way back is gone." }] }
 ];
@@ -865,8 +863,8 @@ export default {
     ] },
     // The world's mood, by tension
     { set: "game.moods", to: [
-      { below: 20, text: "Adequately content" }, { below: 40, text: "Faintly homesick" }, { below: 60, text: "Uneasy" },
-      { below: 80, text: "Short of breath" }, { below: 101, text: "Running out of Sunday" }
+      { below: 1, text: "Adequately content" }, { below: 2, text: "Faintly homesick" }, { below: 3, text: "Uneasy" },
+      { below: 4, text: "Short of breath" }, { below: 6, text: "Running out of Sunday" }
     ] },
     // Verbs only this world needs
     { add: "word", verb: "row", words: ["row", "scull", "row to", "row back"] },

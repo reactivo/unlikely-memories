@@ -35,7 +35,7 @@ export const bible = {
 // ---- Helpers (they read like the rules' own words) -----------------------------------------------------------------
 const at = (...rooms) => ({ "player.at": rooms.length > 1 ? { in: rooms } : rooms[0] });
 const holding = (id) => ({ [id + ".at"]: "player" });
-const tension = (n) => ({ set: "game.tension", add: n });
+const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- The ending pictures ----------------------------------------------------------------------------------------------------
@@ -473,7 +473,7 @@ const rules = [
   { id: "tubes_warn", match: { verb: ["enter", "touch", "climb"], obj: "tubes" }, once: true,
     do: [{ say: "You reach up to the tube. It breathes in and takes hold of your sleeve like a child wanting to show you something, hard. Miss Thimble raps the counter. \"Not with your hands, dear. It takes fingers.\" You get your sleeve back." }, tension(10)] },
   { id: "tubes_hurt", match: { verb: ["enter", "touch", "climb"], obj: "tubes" },
-    do: [{ say: "You put your hand up the tube. It takes the whole arm, to the shoulder, and then thinks better of it and lets go." }, { hurt: 30, says: "The tube had your arm for a moment." }, tension(15)] },
+    do: [{ say: "You put your hand up the tube. It takes the whole arm, to the shoulder, and then thinks better of it and lets go." }, { hurt: 2, says: "The tube had your arm for a moment." }, tension(15)] },
 
   // The glove: a handshake, and the roof key.
   { id: "shake_glove", match: { verb: ["shake", "touch"], obj: "glove" }, if: [{ "roof_key.at": null }], once: true,
@@ -532,12 +532,12 @@ const rules = [
     do: [{ say: "A bell rings three times, somewhere in the walls. \"Hartley's is now closed,\" says a voice from every ceiling. \"Customers are asked to make their way to the doors.\" Nobody does." }, tension(10)] },
 
   // Tension: the longer you stay, the more you belong to the store; warned twice, then the window.
-  { id: "tension_rises", when: "every", every: { seconds: [90, 150] }, do: [tension(2)] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 70 } }], once: true,
+  { id: "tension_rises", when: "every", every: { turns: [10, 10] }, do: [{ unsettle: 1 }] },
+  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
     do: [{ say: "Somewhere above you, the lights on a floor go out. Mr Gage's voice, quite close: \"Customers who stay on are put somewhere useful.\"" }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 90 } }, { "game.storeLastWarned": { "!=": true } }],
+  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.storeLastWarned": { "!=": true } }],
     do: [{ say: "You catch yourself standing very still, the way the mannequins do. A cup of tea, a sit down, anything that isn't waiting, might help." }, { set: "game.storeLastWarned", to: true }] },
-  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 100 } }, { "game.storeLastWarned": true }],
+  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.storeLastWarned": true }],
     do: [{ change: "window_ending" }] }
 ];
 
@@ -597,8 +597,8 @@ export default {
       { say: "A voice from the ceiling, kind and very tired, says that Hartley's will be closing at six." }
     ] },
     { set: "game.moods", to: [
-      { below: 20, text: "Just browsing" }, { below: 40, text: "Being served" }, { below: 60, text: "Undecided" },
-      { below: 80, text: "Overstaying" }, { below: 101, text: "On display" }
+      { below: 1, text: "Just browsing" }, { below: 2, text: "Being served" }, { below: 3, text: "Undecided" },
+      { below: 4, text: "Overstaying" }, { below: 6, text: "On display" }
     ] },
     // Verbs this world needs
     { add: "word", verb: "shake", words: ["shake", "shake hands with", "hold hands with"] },

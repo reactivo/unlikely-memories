@@ -514,7 +514,7 @@ const rules = [
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "last_words.at": null }],
     do: [{ say: "Acercas la trompetilla a la niebla y escuchas. Casi todo lo que guarda la niebla es tiempo. Luego, cerca del farol, grave: una voz de mujer, cálida, con harina encima. «Déjalo, Albert. Siéntate un momento. Nadie echará de menos un farol»." },
          { say: "Las palabras bajan de la niebla y se posan en tus manos juntas, ligeras como una polilla, todavía algo tibias." },
-         { move: "last_words", to: "player" }, { set: "game.tension", add: 5 }] },
+         { move: "last_words", to: "player" }, { unsettle: 1 }] },
   { id: "heard_already", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }],
     do: [{ say: "La niebla no tiene nada más que decir aquí. Ya ha dicho bastante." }] },
@@ -589,17 +589,17 @@ const rules = [
 
   // Maneras de aliviar la espera, una cada una: una copa junto al fuego, un pastel, un respiro de aire más claro.
   { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }], once: true,
-    do: [{ say: "El señor Cotter te sirve media pinta de porter sin preguntar cuál. Te la bebes junto al fuego. La niebla del pecho se va a sentarse a otro sitio un rato." }, { set: "game.tension", add: -15 }] },
+    do: [{ heal: 1, says: "El señor Cotter te sirve media pinta de porter sin preguntar cuál. Te la bebes junto al fuego. La niebla del pecho se va a sentarse a otro sitio un rato." }, { calm: 1 }] },
   { id: "porter_again", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
     do: [{ say: "«Una», dice el señor Cotter. «Ya lo he dicho. Esto no es una casa de socorro»." }] },
   { id: "order_pie", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }], once: true,
-    do: [{ say: "La señora Halloran envuelve un pastel en papel y te lo da caliente. Te lo comes de pie. Sabe a que te esperan." }, { set: "game.tension", add: -15 }] },
+    do: [{ heal: 1, says: "La señora Halloran envuelve un pastel en papel y te lo da caliente. Te lo comes de pie. Sabe a que te esperan." }, { calm: 1 }] },
   { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
     do: [{ say: "«Con uno basta», dice la señora Halloran. «Él solo tomaba uno»." }] },
   { id: "order_elsewhere", match: { verb: "order" },
     do: [{ say: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." }] },
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
-    do: [{ say: "Respiras. Aquí fuera el aire es solo medio niebla; la otra mitad es el río que pasa. Por un momento, el pecho es tuyo." }, { set: "game.tension", add: -10 }] },
+    do: [{ say: "Respiras. Aquí fuera el aire es solo medio niebla; la otra mitad es el río que pasa. Por un momento, el pecho es tuyo." }, { calm: 1 }] },
   { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
     do: [{ say: "Respiras. Ayuda menos la segunda vez. Sigue siendo niebla, solo que más fina." }] },
   { id: "breathe_elsewhere", match: { verb: "breathe" },
@@ -610,14 +610,14 @@ const rules = [
     do: [{ say: ["Te unes al coro. A nadie le importa. Entre todos casi os sabéis la letra.", "Cantas el estribillo con los hombres de la barra, un poco por detrás del anterior, como es costumbre."] }] },
   { id: "shout_fog", match: { verb: ["shout", "sing"] }, if: [{ "player.at": { in: ["row", "last_lamp", "river_steps", "bridge", "court"] } }],
     do: [{ say: ["Tus palabras salen a la niebla y se detienen un poco más allá, colgadas, avergonzadas. Alguien las oirá hasta el final algún día.",
-                 "La niebla coge lo que dijiste y lo guarda, un poco por encima de tu cabeza, donde no puedes recuperarlo."] }, { set: "game.tension", add: 3 }] },
+                 "La niebla coge lo que dijiste y lo guarda, un poco por encima de tu cabeza, donde no puedes recuperarlo."] }, { unsettle: 1 }] },
 
   // El río: aviso primero, luego te agarra.
   { id: "river_warn", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }], once: true,
-    do: [{ say: "Bajas hasta el último escalón. El río te agarra el tobillo, con bastante suavidad, como si te conociera. «No», dice Pip, y subes. La próxima vez quizá no te suelte." }, { set: "game.tension", add: 10 }] },
+    do: [{ say: "Bajas hasta el último escalón. El río te agarra el tobillo, con bastante suavidad, como si te conociera. «No», dice Pip, y subes. La próxima vez quizá no te suelte." }, { unsettle: 1 }] },
   { id: "river_hurt", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }],
     do: [{ say: "Bajas al río. Está más frío de lo que nada tiene derecho a estar, y te tiene por las piernas, y luego, como si hubiera cambiado de idea, te suelta. Subes a gatas la escalera." },
-         { hurt: 30, says: "El río te tuvo un momento, y se quedó con parte de ti." }, { set: "game.tension", add: 15 }] },
+         { hurt: 2, says: "El río te tuvo un momento, y se quedó con parte de ti." }, { unsettle: 1 }] },
 
   // The Bell cierra a las once; el tribunal se reúne a medianoche y se levanta a las seis.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
@@ -638,13 +638,13 @@ const rules = [
          { travel: "row" }, { describe: "$here" }] },
 
   // La espera: la niebla se te mete dentro; dos avisos, en tiempo de juego, y luego hace daño.
-  { id: "fog_creeps", when: "every", every: { seconds: [90, 150] }, do: [{ set: "game.tension", add: 2 }] },
-  { id: "fog_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 60 } }], once: true,
+  { id: "fog_creeps", when: "every", every: { turns: [8, 8] }, do: [{ unsettle: 1 }] },
+  { id: "fog_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
     do: [{ say: "La niebla está ya en tu abrigo, y en tus mangas. Entra con cada aliento y no sale con él." }] },
-  { id: "fog_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 80 } }, { "game.fogWarned": false }],
+  { id: "fog_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.fogWarned": false }],
     do: [{ say: "Tienes el pecho lleno de niebla. Algo cálido ayudaría: una copa en The Bell, un pastel, un respiro fuera, en el puente. Cualquier cosa menos esperar." }, { set: "game.fogWarned", to: true }] },
-  { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 80 } }, { "game.fogWarned": true }],
-    do: [{ hurt: 20, says: "La niebla se te mete en los pulmones y se sienta, como si pensara quedarse." }] }
+  { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 5 } }, { "game.fogWarned": true }],
+    do: [{ hurt: 1, says: "La niebla se te mete en los pulmones y se sienta, como si pensara quedarse." }] }
 ];
 
 // ---- Rompecabezas (para el verificador y las pistas; GUIDE.md §3). Los finales, en el orden en que las pistas deben alcanzarlos. ----
@@ -706,8 +706,8 @@ export default {
       { say: "En algún lugar por encima de la niebla un reloj de iglesia da las diez y media, y no suena muy seguro." }
     ] },
     { set: "game.moods", to: [
-      { below: 20, text: "Tomando el aire" }, { below: 40, text: "Calándote de humedad" }, { below: 60, text: "Entre la niebla" },
-      { below: 80, text: "Sin aliento" }, { below: 101, text: "Perdiéndote en la niebla" }
+      { below: 1, text: "Tomando el aire" }, { below: 2, text: "Calándote de humedad" }, { below: 3, text: "Entre la niebla" },
+      { below: 4, text: "Sin aliento" }, { below: 6, text: "Perdiéndote en la niebla" }
     ] },
     // Verbos que este mundo necesita
     { add: "word", verb: "accuse", words: ["acusar", "acusa", "acuse", "acuso", "culpar", "culpa", "inculpar", "inculpa", "denunciar", "denuncia", "nombrar", "nombra"], absent: true },

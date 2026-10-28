@@ -16,9 +16,13 @@
 
   .log {
     /* Colours and marks in the story, by meaning (the command and object markers below inherit these). */
-    --echo:         var(--color-text-dim);    /* your own command, repeated as typed */
+    --typed:        var(--color-text-dim);    /* your own command, repeated as typed */
     --hint:         var(--color-text-dim);    /* dim lines: the help hint, suggestions, the prototype's end */
-    --hurt:         var(--color-hurt);        /* the line said when you lose health */
+    /* Echoes (INTERFACE.md §6c): the short line under the story text after a change to your mood or health. */
+    --echo-uneasy:  var(--color-uneasy);      /* your mood got worse */
+    --echo-calmer:  var(--color-calmer);      /* your mood got better */
+    --echo-hurt:    var(--color-hurt);        /* you lost health */
+    --echo-healed:  var(--color-healed);      /* you got some back */
     --figure-bg:    var(--color-surface);     /* the square behind an object's picture */
     --object:       var(--color-text);        /* an object's name: looks like the story text… */
     --object-mark:  var(--color-highlight);   /* …with a small mark after it, in this colour… */
@@ -54,9 +58,12 @@
        log.js; here they lose their hover and pointer). Commands keep their brackets and objects their +. */
     & .past {
       color: var(--past);
-      --echo: var(--past);
+      --typed: var(--past);
       --hint: var(--past);
-      --hurt: var(--past);
+      --echo-uneasy: var(--past);
+      --echo-calmer: var(--past);
+      --echo-hurt: var(--past);
+      --echo-healed: var(--past);
       --command-text: var(--past);
       --command-mark: var(--past);
       --command-hover: var(--past);
@@ -88,7 +95,7 @@
     /* Each of your commands starts a new block: two lines of space above it (the paragraph before it has one; the
        two margins overlap, so the gap is exactly --space-l), so the story reads as command → answer, command → answer. */
     & .cmd {
-      color: var(--echo);
+      color: var(--typed);
       margin-top: var(--space-l);
       margin-bottom: var(--space-xs);
     }
@@ -101,8 +108,27 @@
       color: var(--hint);
     }
 
-    & .hurt {
-      color: var(--hurt);
+    /* An echo (js/narrator.js gives it "echo text-echo echo-<kind>"): a short line in capitals, close under the story
+       line it follows, in the colour of its kind. A kind with no colour of its own is dim. */
+    & .echo {
+      color: var(--hint);
+      margin-top: calc(var(--space-xs) - var(--space-m));   /* close under the line before it: --space-xs between them */
+    }
+
+    & .echo-uneasy {
+      color: var(--echo-uneasy);
+    }
+
+    & .echo-calmer {
+      color: var(--echo-calmer);
+    }
+
+    & .echo-hurt {
+      color: var(--echo-hurt);
+    }
+
+    & .echo-healed {
+      color: var(--echo-healed);
     }
 
     & .keep {

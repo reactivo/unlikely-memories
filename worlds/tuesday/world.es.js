@@ -39,7 +39,7 @@ const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };
 const hours = (from, to) => ({ "time.hour": { between: [from, to] } });
 const notHours = (from, to) => ({ "time.hour": { between: [to, from] } });   // las demás horas del día
-const tension = (n) => ({ set: "game.tension", add: n });
+const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- Textos que cambian -------------------------------------------------------------------------------------------------
@@ -591,7 +591,7 @@ const changes = {
   ],
   yesterday: [
     { say: "Giras la llave. Las manecillas corren hacia atrás, los relojes de las paredes se callan uno a uno, y la luz de la ventana cruza el suelo en sentido contrario. Es ayer. Lo que hicieras en él, lo hiciste." },
-    { time: "-1d" }, { set: "game.tension", add: -20 }
+    { time: "-1d" }, { calm: 2 }
   ],
   // Los finales
   tuesday_ending: [
@@ -699,7 +699,7 @@ const rules = [
     do: [{ say: "Bajas a los raíles. El zumbido se te mete en los dientes. Dentro, la oscuridad se inclina hacia ti. Subes de nuevo. La próxima vez quizá no puedas." }, tension(10)] },
   { id: "tunnel_hurt", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }],
     do: [{ say: "Entras. El aire tibio se espesa hasta que es como abrirse paso entre una multitud. Algo pasa muy cerca, a toda velocidad, y desaparece. Sales a gatas, sin una parte de la tarde." },
-         { hurt: 30, says: "Algo te ha alcanzado al pasar." }, tension(15)] },
+         { hurt: 2, says: "Algo te ha alcanzado al pasar." }, tension(15)] },
 
   // El ayuntamiento tiene horario de oficina (de nueve a cinco); puedes esperar en sus escalones, o dormir en el hotel.
   { id: "hall_closes", when: "at", at: "17:00", if: [at("town_hall", "archive")],
@@ -748,13 +748,13 @@ const rules = [
     do: [{ say: "La llave gira y se detiene. «Todavía no», dice el relojero. «Aquí aún no hay ayer. Al menos, no uno en el que estuvieras.»" }] },
 
   // Tensión: cuanto más te quedas, más cuesta irse; primero el aviso, luego la puerta se cierra.
-  { id: "tension_rises", when: "every", every: { seconds: [90, 150] },
-    do: [tension(2)] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 70 } }], once: true,
+  { id: "tension_rises", when: "every", every: { turns: [10, 10] },
+    do: [{ unsettle: 1 }] },
+  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
     do: [{ say: "En algún lugar a tus espaldas, [way] suelta el aire, largo y lento, como si se preparase para detenerse." }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 90 } }, { "game.wayLastWarned": { "!=": true } }],
+  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.wayLastWarned": { "!=": true } }],
     do: [{ say: "Piensas en [way], por donde viniste. No sabes si aún podrías encontrarla. Un café, un sueño, cualquier cosa que detenga la espera, quizá ayude." }, { set: "game.wayLastWarned", to: true }] },
-  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 100 } }, { "game.wayLastWarned": true }],
+  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.wayLastWarned": true }],
     do: [{ change: "sunday_ending" }] }
 ];
 
@@ -812,8 +812,8 @@ export default {
       { say: "En algún sitio un reloj da las siete y media, de la tarde, un domingo." }
     ] },
     { set: "game.moods", to: [
-      { below: 20, text: "bastante a gusto" }, { below: 40, text: "con ganas de moverte" }, { below: 60, text: "esperando" },
-      { below: 80, text: "con retraso" }, { below: 101, text: "en la última llamada" }
+      { below: 1, text: "bastante a gusto" }, { below: 2, text: "con ganas de moverte" }, { below: 3, text: "esperando" },
+      { below: 4, text: "con retraso" }, { below: 6, text: "en la última llamada" }
     ] },
     // Verbos que este mundo necesita
     { add: "word", verb: "buy", words: ["comprar", "compra", "compre", "compro", "adquirir", "adquiere", "pagar", "paga", "pague", "pago", "sacar billete", "saca billete", "saque billete", "saco billete", "sacar billetes", "sacar un billete", "saca un billete", "saque un billete", "saco un billete", "sacar el billete", "saca el billete"], absent: true },

@@ -506,7 +506,7 @@ const rules = [
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "last_words.at": null }],
     do: [{ say: "You hold the trumpet to the fog and listen. Most of what the fog holds is weather. Then, close by the lamp, low: a woman's voice, warm, with flour on it. \"Leave it, Albert. Sit down a minute. Nobody will miss one lamp.\"" },
          { say: "The words come down out of the fog and settle in your cupped hands, light as a moth, still a little warm." },
-         { move: "last_words", to: "player" }, { set: "game.tension", add: 5 }] },
+         { move: "last_words", to: "player" }, { unsettle: 1 }] },
   { id: "heard_already", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }],
     do: [{ say: "The fog has nothing more to say here. It has said enough." }] },
@@ -581,17 +581,17 @@ const rules = [
 
   // Ways to lower the waiting, one each: a drink by the fire, a pie, a breath of clearer air.
   { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }], once: true,
-    do: [{ say: "Mr Cotter pulls you a half of porter without asking which. You drink it by the fire. The fog in your chest goes and sits somewhere else for a while." }, { set: "game.tension", add: -15 }] },
+    do: [{ heal: 1, says: "Mr Cotter pulls you a half of porter without asking which. You drink it by the fire. The fog in your chest goes and sits somewhere else for a while." }, { calm: 1 }] },
   { id: "porter_again", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
     do: [{ say: "\"One,\" says Mr Cotter. \"I said. I'm not running a hospital.\"" }] },
   { id: "order_pie", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }], once: true,
-    do: [{ say: "Mrs Halloran wraps a pie in paper and gives it to you hot. You eat it standing up. It tastes of being expected." }, { set: "game.tension", add: -15 }] },
+    do: [{ heal: 1, says: "Mrs Halloran wraps a pie in paper and gives it to you hot. You eat it standing up. It tastes of being expected." }, { calm: 1 }] },
   { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
     do: [{ say: "\"One's plenty,\" says Mrs Halloran. \"He only ever had the one.\"" }] },
   { id: "order_elsewhere", match: { verb: "order" },
     do: [{ say: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." }] },
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
-    do: [{ say: "You breathe. The air out here is only half fog; the other half is the river going by. For a moment your chest is your own." }, { set: "game.tension", add: -10 }] },
+    do: [{ say: "You breathe. The air out here is only half fog; the other half is the river going by. For a moment your chest is your own." }, { calm: 1 }] },
   { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
     do: [{ say: "You breathe. It helps less the second time. It is still fog, only thinner." }] },
   { id: "breathe_elsewhere", match: { verb: "breathe" },
@@ -602,14 +602,14 @@ const rules = [
     do: [{ say: ["You join in. Nobody minds. Between all of you, you nearly know the words.", "You sing the chorus with the men at the bar, a little behind the one before you, as is the custom."] }] },
   { id: "shout_fog", match: { verb: ["shout", "sing"] }, if: [{ "player.at": { in: ["row", "last_lamp", "river_steps", "bridge", "court"] } }],
     do: [{ say: ["Your words go out into the fog and stop a little way off, hanging there, embarrassed. Somebody will hear them out one day.",
-                 "The fog takes what you said and keeps it, a little above your head, where you can't get it back."] }, { set: "game.tension", add: 3 }] },
+                 "The fog takes what you said and keeps it, a little above your head, where you can't get it back."] }, { unsettle: 1 }] },
 
   // The river: warned, then it takes hold.
   { id: "river_warn", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }], once: true,
-    do: [{ say: "You go down to the last step. The river takes hold of your ankle, quite gently, as if it knew you. \"Don't,\" says Pip, and you come back up. Next time it might not let go." }, { set: "game.tension", add: 10 }] },
+    do: [{ say: "You go down to the last step. The river takes hold of your ankle, quite gently, as if it knew you. \"Don't,\" says Pip, and you come back up. Next time it might not let go." }, { unsettle: 1 }] },
   { id: "river_hurt", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }],
     do: [{ say: "You go down into the river. It is colder than anything has a right to be, and it has you by the legs, and then, as if it had changed its mind, it lets go. You crawl back up the steps." },
-         { hurt: 30, says: "The river had you for a moment, and kept some of you." }, { set: "game.tension", add: 15 }] },
+         { hurt: 2, says: "The river had you for a moment, and kept some of you." }, { unsettle: 1 }] },
 
   // The Bell shuts at eleven; the court sits at midnight and rises at six.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
@@ -630,13 +630,13 @@ const rules = [
          { travel: "row" }, { describe: "$here" }] },
 
   // The waiting: the fog creeps into you; warned twice, in play time, then it hurts.
-  { id: "fog_creeps", when: "every", every: { seconds: [90, 150] }, do: [{ set: "game.tension", add: 2 }] },
-  { id: "fog_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 60 } }], once: true,
+  { id: "fog_creeps", when: "every", every: { turns: [8, 8] }, do: [{ unsettle: 1 }] },
+  { id: "fog_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
     do: [{ say: "The fog is in your coat now, and in your sleeves. It comes in with every breath and doesn't go out with it." }] },
-  { id: "fog_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 80 } }, { "game.fogWarned": false }],
+  { id: "fog_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.fogWarned": false }],
     do: [{ say: "Your chest is full of fog. Something warm would help: a drink at the Bell, a pie, a breath out on the bridge. Anything but waiting." }, { set: "game.fogWarned", to: true }] },
-  { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 80 } }, { "game.fogWarned": true }],
-    do: [{ hurt: 20, says: "The fog gets into your lungs and sits down, as if it meant to stay." }] }
+  { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 5 } }, { "game.fogWarned": true }],
+    do: [{ hurt: 1, says: "The fog gets into your lungs and sits down, as if it meant to stay." }] }
 ];
 
 // ---- Puzzles (for the checker and the hints; GUIDE.md §3). The endings in the order the hints should reach them. ----
@@ -698,8 +698,8 @@ export default {
       { say: "Somewhere above the fog a church clock strikes half past ten, and doesn't sound sure of it." }
     ] },
     { set: "game.moods", to: [
-      { below: 20, text: "Taking the air" }, { below: 40, text: "Damp at the collar" }, { below: 60, text: "Fogbound" },
-      { below: 80, text: "Short of breath" }, { below: 101, text: "Lost in it" }
+      { below: 1, text: "Taking the air" }, { below: 2, text: "Damp at the collar" }, { below: 3, text: "Fogbound" },
+      { below: 4, text: "Short of breath" }, { below: 6, text: "Lost in it" }
     ] },
     // Verbs this world needs
     { add: "word", verb: "accuse", words: ["accuse", "blame", "name", "charge", "denounce"], absent: true },

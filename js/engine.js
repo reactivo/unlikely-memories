@@ -67,14 +67,20 @@ export function step(state, input) {
   const n0 = out.applied.length;
   runScheduled(g, out);                                         // what's scheduled up to the world's time now
   runTimed(g, at, out, out.applied.slice(n0).some(e => "say" in e));   // timed rules that are now due (a scheduled line holds ambience back)
+  // An echo (INTERFACE.md §6c) is the last word on what just happened to you: after the story lines of your command, and
+  // after those of what the world did on its own, however the rule ordered its effects.
+  out.applied = [...echoesLast(out.applied.slice(0, n0)), ...echoesLast(out.applied.slice(n0))];
   seeHere(g);                                                   // what's in the room has now been seen
   if (g.player.health <= 0 && !g.ended) {                        // out of health: the story ends, whatever the world
-    if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its red line was said when the health went)
-      apply(g, { say: "@hurt.dead", style: "hurt", vary: true }, {}, out, "died");
+    if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its line was said when the health went)
+      apply(g, { say: "@hurt.dead", vary: true }, {}, out, "died");
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
   return { next: g, ...out };
 }
+
+// The same effects with the echoes moved after everything else, each group in its own order.
+const echoesLast = (list) => [...list.filter(e => !("echo" in e)), ...list.filter(e => "echo" in e)];
 
 // Ask the player something for the controller (undo, load…): a `confirm` effect applied now, outside any turn.
 // Returns { next, applied, refused }, like step().
@@ -424,7 +430,7 @@ function runTimed(g, at, out, scheduledSpoke = false) {
 
 // Does a list of effects say something (directly, or through a named change)? Those are what calm holds back.
 function speaks(g, effects, depth = 0) {
-  return effects.some(e => "say" in e || "hurt" in e || "heal" in e || "describe" in e
+  return effects.some(e => "say" in e || "hurt" in e || "heal" in e || "calm" in e || "unsettle" in e || "echo" in e || "describe" in e
     || ("change" in e && depth < 5 && speaks(g, g.changes[e.change] || [], depth + 1)));
 }
 
@@ -533,22 +539,40 @@ function apply(g, e, action, out, key) {
     const was = target[prop];
     target[prop] = value;
     done({ set: e.set, to: value });
-    if (e.set === "player.health" && typeof was === "number" && value < was) hurtLine(g, was - value, null, done);
-  } else if ("hurt" in e) {                          // hurt the player: { hurt: 30, says: "Something caught you." }
+    if (e.set === "player.health" && typeof was === "number" && value < was) hurtLine(g, null, done);
+    else if (e.set === "player.health" && typeof was === "number" && value > was) echo(done, g, "healed", value);
+    else if (e.set === "game.tension" && typeof was === "number" && value !== was) echo(done, g, value > was ? "uneasy" : "calmer", value);
+  } else if ("hurt" in e) {                          // hurt the player: { hurt: 1, says: "Something caught you." } (2 for something serious)
     const n = fill(g, e.hurt, action);
     if (typeof n !== "number" || !(n > 0)) return refuse("hurt by how much? " + e.hurt);
-    g.player.health = Math.max(0, g.player.health - n);
+    const [lo] = RANGES["player.health"], was = g.player.health;
+    g.player.health = Math.max(lo, was - n);
+    // An ordinary hit (1 or 2) never ends you from above 1: you are severely hurt first (INTERFACE.md §6c). A bigger one
+    // is an ending's (drowning) and does.
+    if (n <= 2 && was > 1 && g.player.health < 1) g.player.health = 1;
     done({ set: "player.health", to: g.player.health });
-    hurtLine(g, n, fill(g, e.says, action), done);
-  } else if ("heal" in e) {                          // heal the player: { heal: 20, says: "The tea is hot and sweet." }
+    hurtLine(g, fill(g, e.says, action), done);
+  } else if ("heal" in e) {                          // heal the player: { heal: 1, says: "The tea is hot and sweet." }
     const n = fill(g, e.heal, action);
     if (typeof n !== "number" || !(n > 0)) return refuse("heal by how much? " + e.heal);
-    const was = g.player.health;
-    g.player.health = Math.min(100, was + n);        // never above 100; at 100 only the line plays and nothing else changes
+    const was = g.player.health, [, hi] = RANGES["player.health"];
+    g.player.health = Math.min(hi, was + n);         // never above full; at full only the line plays and nothing else changes
     if (g.player.health !== was) done({ set: "player.health", to: g.player.health });
-    // The world's own line, always; with none, the pack's, but only when you really are better.
+    if (e.says !== undefined) apply(g, { say: e.says }, action, out, key + ":says");   // the world's own line, always
+    if (g.player.health !== was) echo(done, g, "healed", g.player.health);           // then the echo, if you are better
+  } else if ("calm" in e || "unsettle" in e) {       // your mood, one step at a time: { calm: 1, says? }, { unsettle: 1, says? }
+    const up = "unsettle" in e, n = fill(g, up ? e.unsettle : e.calm, action) ?? 1;
+    if (typeof n !== "number" || !(n > 0)) return refuse((up ? "unsettle" : "calm") + " by how much? " + (up ? e.unsettle : e.calm));
+    const was = g.tension, [lo, hi] = RANGES["game.tension"];
+    g.tension = Math.min(hi, Math.max(lo, was + (up ? n : -n)));
+    if (g.tension !== was) done({ set: "game.tension", to: g.tension });
     if (e.says !== undefined) apply(g, { say: e.says }, action, out, key + ":says");
-    else if (g.player.health !== was) apply(g, { say: "@healed" }, action, out, key + ":says");
+    if (g.tension !== was) echo(done, g, up ? "uneasy" : "calmer", g.tension);
+  } else if ("echo" in e) {                          // an echo of something that happened to you: { echo: "…", kind: "noted" }
+    const said = fill(g, e.echo, action);
+    if (typeof said !== "string" || !said.trim()) return refuse("echo says what? " + e.echo);
+    if (typeof e.kind !== "string" || !/^[a-z]+$/.test(e.kind)) return refuse("echo of what kind? " + e.kind);
+    done({ echo: said, kind: e.kind, at: worldTime(g) });
   } else if ("travel" in e) {                        // move the player to a room
     const room = fill(g, e.travel, action);
     if (!g.world.rooms[room]) return refuse("no such room: " + room);
@@ -663,14 +687,19 @@ function apply(g, e, action, out, key) {
   } else refuse("unknown effect");
 }
 
-// Losing health always says so, in red (style "hurt"): the cause's own words, if any, then how hurt you are now
-// (the pack's hurt.hurt / bad / last / dead), warning when one more hit like this one would be the end; at 0, the
-// end of your strength (and step() ends the story). n: the health just lost.
-function hurtLine(g, n, says, done) {
-  const h = g.player.health;
-  const level = h <= 0 ? "dead" : h <= n ? "last" : h < 50 ? "bad" : "hurt";
-  done(clean({ say: "@hurt." + level, arg: typeof says === "string" ? says : null, style: "hurt", at: worldTime(g),
-               pick: level === "dead" ? roll(g) : null }));                // the end: one of several, at random
+// Losing health always says so: the cause's own words, if any, as story text, then the echo of how hurt you are now
+// (red: INTERFACE.md §6c); at 0, the end of your strength instead (and step() ends the story).
+function hurtLine(g, says, done) {
+  const h = g.player.health, cause = typeof says === "string" ? says : null;
+  if (h <= 0) return done(clean({ say: "@hurt.dead", arg: cause, at: worldTime(g), pick: roll(g) }));   // the end: one of several, at random
+  if (cause) done({ say: cause, at: worldTime(g) });
+  echo(done, g, "hurt", h);
+}
+
+// The echo of a change to your mood or health (INTERFACE.md §6c): one short line from the language pack for where you
+// landed, in the colour of its kind. kind: "uneasy" | "calmer" (tension), "hurt" | "healed" (health); level: the new step.
+function echo(done, g, kind, level) {
+  done({ echo: `@echo.${kind}.${level}`, kind, at: worldTime(g) });
 }
 
 // What part of the opening an effect would change, if any (for effects from a world: they may not).

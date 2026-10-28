@@ -41,6 +41,9 @@
     --palette-amber-300:  #e8c46a;   /* soft amber */
     --palette-yellow-300: #f2d25c;
     --palette-red-400:    #e0645a;   /* soft red: bright enough on near black, not alarm red */
+    --palette-amber-400:  #d99a52;   /* warm amber, browner than the focus ring's */
+    --palette-green-400:  #8cc97a;   /* soft green */
+    --palette-green-200:  #b8d98e;   /* light green */
 
 
 
@@ -58,7 +61,10 @@
     --color-mark:          var(--palette-stone-600);  /* small marks around or between things: brackets, the compass dot */
     --color-highlight:     var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
-    --color-hurt:          var(--palette-red-400);    /* harm: the line said when you lose health (the only red) */
+    --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health (the only red) */
+    --color-healed:        var(--palette-green-400);  /* the echo when you get health back */
+    --color-uneasy:        var(--palette-amber-400);  /* the echo when your mood gets worse */
+    --color-calmer:        var(--palette-green-200);  /* the echo when your mood gets better */
 
 
     /* ---- Text sizes ----
