@@ -130,9 +130,6 @@ export function mount(root, on, header) {
   // top is asked for again a moment later, unless you have touched or scrolled the page by then.
   let touched = false;
   for (const kind of ["touchstart", "wheel", "keydown"]) window.addEventListener(kind, () => { touched = true; }, { passive: true });
-  let finger = false;            // a finger is on the screen (dragging the page closes the keyboard: ui/prompt.js)
-  window.addEventListener("touchstart", () => { finger = true; }, { passive: true });
-  for (const kind of ["touchend", "touchcancel"]) window.addEventListener(kind, (e) => { finger = e.touches.length > 0; }, { passive: true });
   function toTop() {
     touched = false;
     const again = () => { if (!touched && window.scrollY !== 0) { window.scrollTo(0, 0); header.scrolling(0); } };
@@ -151,7 +148,7 @@ export function mount(root, on, header) {
   // of the end it did so a little with every letter (Diego's iPhone, 28 Oct 2026); at the end there is nothing left to scroll.
   // Typing ends: the tabs come back, so the newest text, if it was in view, stays above them.
   new MutationObserver(() => requestAnimationFrame(() => {
-    if (!document.documentElement.hasAttribute("data-keyboard")) { if (wasAtEnd && !finger) keepEnd(); return; }   // (not under a dragging finger)
+    if (!document.documentElement.hasAttribute("data-keyboard")) { if (wasAtEnd) keepEnd(); return; }
     const end = document.documentElement.scrollHeight - window.innerHeight;
     window.scrollTo({ top: end, behavior: "instant" });
     header.scrolling(end);

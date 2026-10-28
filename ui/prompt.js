@@ -7,7 +7,6 @@
 import { makeHistory } from "./history.js";
 
 const IDLE_HINT = 120000;   // ms with no command and nothing typed before the hint comes back
-const DRAG_CLOSES = 10;     // px a finger drags the page, while you type on a touch screen, before the keyboard closes
 
 // Earlier commands (↑ / ↓): the commands run, typed or clicked (js/main.js runCommand calls remember()), kept for this visit to the page (ui/history.js). This module
 // is created once, so they carry across a new game and a language change; they are never saved.
@@ -60,18 +59,9 @@ export function mount(root, on) {
     if (!touch.matches || e.target.closest("button, a")) return;
     cmd.focus();   // (letting the browser scroll it into view, above the keyboard)
   });
-  // While you type on a touch screen, like a phone's chat apps:
-  //   - dragging the page closes the keyboard. In the claude.ai frame the keyboard slides the whole page around the game up,
-  //     so there were two things to scroll, the game and that page, and each gesture bounced at one's edge (Diego's iPhone,
-  //     28 Oct 2026). Closed, there is one again. What you typed stays on the line.
-  //   - a tap on a button in the story or on the line (<HELP>) keeps the keyboard open: the tap would take focus from the line,
-  //     the keyboard closing changed the page under the finger, and iOS then dropped the click.
-  let dragFrom = null;
-  document.addEventListener("touchstart", (e) => { dragFrom = e.touches.length === 1 ? e.touches[0].clientY : null; }, { passive: true });
-  document.addEventListener("touchmove", (e) => {
-    if (dragFrom === null || document.activeElement !== cmd || !touch.matches) return;
-    if (Math.abs(e.touches[0].clientY - dragFrom) > DRAG_CLOSES) { dragFrom = null; cmd.blur(); }
-  }, { passive: true });
+  // While you type on a touch screen, a tap on a button in the story or on the line (<HELP>) keeps the keyboard open: the tap
+  // would take focus from the line, the keyboard closing changed the page under the finger, and the click was lost (Diego's
+  // iPhone, 28 Oct 2026).
   document.addEventListener("mousedown", (e) => {
     if (touch.matches && document.activeElement === cmd && e.target.closest(".log button, .prompt button")) e.preventDefault();
   });
