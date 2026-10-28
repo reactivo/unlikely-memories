@@ -149,7 +149,9 @@ export function mount(root, on, header) {
   const typing = () => document.documentElement.hasAttribute("data-keyboard");
   let lineAt = null;             // while you type: where the prompt goes back to after the new text (say)
   let home = null;               // while you type: where the browser put the prompt, its top on screen, last time it was known
-  const lineTop = () => bottom.getBoundingClientRect().top;
+  // (On screen: Safari, with its keyboard up, moves its view of the page as well as the page when you scroll, so where its
+  // view starts, the visual viewport's offset, counts too; elsewhere it is 0.)
+  const lineTop = () => bottom.getBoundingClientRect().top - (window.visualViewport?.offsetTop || 0);
   bottom.addEventListener("input", () => { home = lineTop(); });   // (you are typing on it: it is in view)
   bottom.addEventListener("focusin", () => setTimeout(() => { if (typing() && home === null) home = lineTop(); }, 600));   // (once the browser has brought it up)
   function keepLine() {
