@@ -94,15 +94,29 @@ function keyboardReadout(root) {
   box.style.cssText = "position:fixed;left:0;top:0;z-index:99;margin:0;padding:2px 4px;font:10px/1.3 monospace;" +
     "color:#fff;background:rgba(170,0,0,.85);pointer-events:none;white-space:pre";
   root.body.append(box);
-  return (vv, shown) => {
+  // How much of the window is on screen, as the browser reports it to a page in a frame (the claude.ai page around the game
+  // may be slid up by the keyboard): a window-sized box that is never seen, watched by an IntersectionObserver.
+  const frame = root.createElement("div");
+  frame.style.cssText = "position:fixed;inset:0;pointer-events:none;visibility:hidden";
+  root.body.append(frame);
+  let seen = "?";
+  new IntersectionObserver(([e]) => {
+    seen = `${Math.round(e.intersectionRect.top - e.boundingClientRect.top)} hidden at top, ${Math.round(e.intersectionRect.height)} seen`;
+    last && paint(...last);
+  }, { threshold: Array.from({ length: 201 }, (_, i) => i / 200) }).observe(frame);
+  let last = null;
+  const paint = (vv, shown) => {
+    last = [vv, shown];
     box.style.top = shown ? "auto" : "0";
     box.style.bottom = shown ? "calc(var(--bottom-h, 0px) + 8px)" : "auto";
     const y = Math.round(window.scrollY);
     box.textContent = `GAME ${y <= 0 ? "AT ITS TOP" : "not at top"}\n` +
       `win ${window.innerWidth}×${window.innerHeight}  vv ${Math.round(vv.width)}×${Math.round(vv.height)}\n` +
       `vv.top ${Math.round(vv.offsetTop)}  scroll ${y}  zoom ${vv.scale.toFixed(2)}\n` +
-      `keyboard ${shown ? "OPEN" : "no"}  covered ${Math.round(window.innerHeight - vv.height - vv.offsetTop)}`;
+      `keyboard ${shown ? "OPEN" : "no"}  covered ${Math.round(window.innerHeight - vv.height - vv.offsetTop)}\n` +
+      `frame: ${seen}`;
   };
+  return paint;
 }
 
 // Set up on the document. Returns update() and show().
