@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Unlikely Memories</title>
+<!-- The icons load with the page: a mask-image file is only fetched when its element is first drawn, and on phones the
+     directions panel is a closed popover until opened. `crossorigin` is needed (mask images are fetched in CORS mode;
+     without it the preload isn't reused and the file is fetched twice). Add a line here for every file in img/icons/. -->
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-music.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-menu.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-north.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-south.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-east.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-west.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-map.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-in.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-out.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-up.svg" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-down.svg" crossorigin>
 <!-- Styles: tokens first (it declares the layer order), then base, typography, layout and utilities, then one file per
      interface piece. The text styles are the .text-* classes (css/typography.css). See ARCHITECTURE.md §7 "Styles". -->
 <link rel="stylesheet" href="css/tokens.css">
