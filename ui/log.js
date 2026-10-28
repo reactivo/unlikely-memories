@@ -106,8 +106,9 @@ export function mount(root, on, header) {
   // A change in the window's size does NOT move the page: the browser keeps the text where it was. (On a phone the browser's
   // bars grow and shrink as soon as you scroll, which is a size change: anything done here then showed as jumps, pulling you
   // back to the start of a long answer, or the first lines under the picture. Diego, 27 Oct 2026.) Two exceptions:
-  //   - the on-screen keyboard (ui/page.js marks <html data-keyboard>): it covers the bottom of the screen, so if the newest
-  //     text was in view, the page moves just enough to show its last line above the prompt again (never back up);
+  //   - the on-screen keyboard (ui/page.js marks <html data-keyboard>): it covers the bottom of the screen, and the tabs come
+  //     back when it closes, so if the newest text was in view, the page moves just enough to show its last line above the
+  //     prompt again (never back up);
   //   - the font finishing loading: the letters change size a little, so where the game last put the page (following new
   //     text, gliding to a room) is redone, but only if you haven't scrolled since.
   let wasAtEnd = true;
@@ -142,6 +143,9 @@ export function mount(root, on, header) {
   window.visualViewport?.addEventListener("resize", () => requestAnimationFrame(() => {   // (after ui/page.js has marked it)
     if (document.documentElement.hasAttribute("data-keyboard") && wasAtEnd) keepEnd();
   }));
+  // Typing starts or ends (ui/page.js): the tabs hide or come back, so the newest text, if it was in view, stays above them.
+  new MutationObserver(() => requestAnimationFrame(() => { if (wasAtEnd) keepEnd(); }))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-keyboard"] });
   document.fonts?.ready.then(() => {
     if (placed && !gliding && Math.abs(window.scrollY - placed.y) < 2) placed.again();
   });

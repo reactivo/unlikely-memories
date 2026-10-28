@@ -3,7 +3,7 @@
 // the page is left (a waiting save is written), how much of the window the parts that stick take up (see followBars),
 // and, on phones, whether the on-screen keyboard is open and how much of the window it covers (see followKeyboard).
 
-// The keyboard is taken to be open when the visible area is at least this many pixels shorter than the window. (The
+// The keyboard is measured as up when the visible area is at least this many pixels shorter than the window. (The
 // browser's own bars growing and shrinking change it by less; a phone's keyboard, even sideways, by more.)
 const KEYBOARD_MIN = 100;
 
@@ -52,37 +52,36 @@ function followBars(root) {   // returns update(): measure now
 }
 
 // While the on-screen keyboard is open, tell the layout, so the keyboard pushes the page up: the prompt sits just above it,
-// and the top lets go and scrolls away with the story (css/layout.css). Phones (iPhone Safari, Chrome and Firefox on
-// Android) slide the keyboard over the page without resizing it: the window stays the same height and only the *visual
-// viewport* (window.visualViewport) shrinks, and some pan it up besides. Sticky parts are placed against the window, not
-// against that visual viewport, and no CSS knows the keyboard's height on an iPhone, so this is the one place that reads it.
-// Like the bars above, the number is measured, not chosen; the layout decides what to do with it.
-//   data-keyboard on <html>   the keyboard is open
-//   --keyboard-h              how much of the window's bottom the keyboard (or the panned-away part) covers: the window's
-//                             height minus the visible area's height and its offset (the bottom sticks this far up)
+// and the top lets go and scrolls away with the story (css/layout.css).
+//   data-keyboard on <html>   you are typing on a touch screen: the command line has focus there, so the keyboard is up. (Its
+//                             size can't tell: inside the Claude app's viewer the iPhone reports no keyboard at all, it slides
+//                             the whole page up itself. On Android the back button closes the keyboard and leaves the line
+//                             focused: a keyboard measured and then gone counts as closed.)
+//   --keyboard-h              how much of the window's bottom the keyboard (or the panned-away part) covers, where the browser
+//                             reports it: the window's height minus the visual viewport's height and offset (the bottom sticks
+//                             this far up). Browsers slide the keyboard over the page without resizing it, and only the *visual
+//                             viewport* (window.visualViewport) shrinks; no CSS knows that size on an iPhone, so this is the one
+//                             place that reads it. Like the bars above, measured, not chosen.
 // Without the keyboard (or on a computer) nothing is set and the page is as ever.
 function followKeyboard(root) {
-  const vv = window.visualViewport;
-  if (!vv) return;
-  const html = root.documentElement;
-  let open = false;
+  const vv = window.visualViewport, html = root.documentElement, cmd = root.querySelector("#cmd");
+  let shrank = false;   // the keyboard was measured while the line had focus
   const readout = keyboardReadout(root);
   function update() {
-    const covered = window.innerHeight - vv.height - vv.offsetTop;
-    const shown = touch.matches && vv.scale <= 1.01 && window.innerHeight - vv.height >= KEYBOARD_MIN;   // (not while pinch-zoomed)
-    if (shown) {
-      html.style.setProperty("--keyboard-h", Math.max(0, covered) + "px");
-      if (!open) html.dataset.keyboard = "";
-    } else if (open) {
-      html.style.removeProperty("--keyboard-h");
-      delete html.dataset.keyboard;
-    }
-    open = shown;
-    readout(vv, shown);
+    const focused = touch.matches && root.activeElement === cmd;
+    const short = !!vv && vv.scale <= 1.01 && window.innerHeight - vv.height >= KEYBOARD_MIN;   // (not while pinch-zoomed)
+    if (!focused) shrank = false; else if (short) shrank = true;
+    const open = focused && (short || !shrank);
+    html.toggleAttribute("data-keyboard", open);
+    if (open && short) html.style.setProperty("--keyboard-h", Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + "px");
+    else html.style.removeProperty("--keyboard-h");
+    if (vv) readout(vv, open);
   }
-  vv.addEventListener("resize", update);
-  vv.addEventListener("scroll", update);   // the browser panning the visible area up or back down
-  window.addEventListener("scroll", () => readout(vv, open), { passive: true });
+  cmd.addEventListener("focus", update);
+  cmd.addEventListener("blur", update);
+  vv?.addEventListener("resize", update);
+  vv?.addEventListener("scroll", update);   // the browser panning the visible area up or back down
+  if (vv) window.addEventListener("scroll", () => readout(vv, html.hasAttribute("data-keyboard")), { passive: true });
   update();
 }
 
