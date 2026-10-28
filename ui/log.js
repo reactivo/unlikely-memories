@@ -143,9 +143,16 @@ export function mount(root, on, header) {
   window.visualViewport?.addEventListener("resize", () => requestAnimationFrame(() => {   // (after ui/page.js has marked it)
     if (document.documentElement.hasAttribute("data-keyboard") && wasAtEnd) keepEnd();
   }));
-  // Typing starts or ends (ui/page.js): the tabs hide or come back, so the newest text, if it was in view, stays above them.
-  new MutationObserver(() => requestAnimationFrame(() => { if (wasAtEnd) keepEnd(); }))
-    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-keyboard"] });
+  // Typing starts (ui/page.js): the page goes to its end at once, where the newest text sits just above the prompt (while you
+  // type the story has no empty space after it: css/layout.css). iOS keeps the caret in view by scrolling the page, and short
+  // of the end it did so a little with every letter (Diego's iPhone, 28 Oct 2026); at the end there is nothing left to scroll.
+  // Typing ends: the tabs come back, so the newest text, if it was in view, stays above them.
+  new MutationObserver(() => requestAnimationFrame(() => {
+    if (!document.documentElement.hasAttribute("data-keyboard")) { if (wasAtEnd) keepEnd(); return; }
+    const end = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({ top: end, behavior: "instant" });
+    header.scrolling(end);
+  })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-keyboard"] });
   document.fonts?.ready.then(() => {
     if (placed && !gliding && Math.abs(window.scrollY - placed.y) < 2) placed.again();
   });
