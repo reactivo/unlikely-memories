@@ -120,10 +120,10 @@
      starts under a spacer as tall as the top is when open (--top-h, measured by ui/page.js).
 
      Phones while you type (ui/page.js sets data-keyboard on <html> while the command line has focus on a touch screen):
-     nothing is pinned. Title bar, picture, story and prompt are one ordinary page in its normal flow, the prompt right
-     after the newest text, and the browser brings the prompt up above its own keyboard and bars, as on any web form;
-     nothing is measured (following the browsers' numbers fought their own scrolling). The tabs hide. When you stop
-     typing everything is pinned again, the picture folded or open as it was. */
+     nothing is pinned, and nothing else changes. Title bar, picture, story and prompt are one ordinary page in its normal
+     flow, and the browser brings the prompt up above its own keyboard and bars, as on any web form; nothing is measured
+     (following the browsers' numbers fought their own scrolling). When you stop typing everything is pinned again, the
+     picture folded or open as it was. */
 
   /* Two views of one page (INTERFACE.md §13): the controller sets data-view on the page ("home", the list of games, or
      "game") and only that one shows. Before it sets one, the list's page shows. */
@@ -269,31 +269,20 @@
     }
   }
 
-  /* Typing on a touch screen (ui/page.js): the page's normal flow, nothing pinned, nothing measured. The top lets go and
-     scrolls with the story: where it sticks, it simply stops sticking; on an upright phone, where it is fixed over a spacer
-     as tall as it is open, it is placed where it sits at the top of the page, so nothing moves (ui/page.js and ui/fold.js
-     treat it as the fixed top). The prompt sits right after the story (no empty space after it, ui/log.css, and the page
-     need not fill the window), and the browser brings it up above the keyboard. The tabs hide. */
+  /* Typing on a touch screen (ui/page.js): the page's normal flow, nothing pinned, nothing measured, and nothing else about
+     the page changes (the browser decides where to scroll as you tap: a page that changed shape then landed it in the wrong
+     place, Diego's iPhone, 28 Oct 2026). The top and the bottom only stop sticking, where they are: the top, where it sticks,
+     simply stops sticking; on an upright phone, where it is fixed over a spacer as tall as it is open, it is placed where it
+     sits at the top of the page (ui/page.js and ui/fold.js treat it as the fixed top). The bottom stays at the end of the
+     page, after the room's space (ui/log.css), and the browser brings the prompt up above its keyboard; the tabs under it
+     go behind the keyboard. */
   :root[data-keyboard] {
     & .top {
       position: relative;
     }
 
-    & .tabs {
-      --tabs-display: none;
-    }
-
-    & .layout {
-      min-height: 0;
-    }
-
-    & .log {
-      --visit-min: 0px;
-    }
-
     & .bottom {
       position: relative;   /* (in the flow, not sticking; still holding its fade above it) */
-      padding-bottom: var(--row-gap);
     }
 
     @media (width < 760px) and (height >= 560px) {

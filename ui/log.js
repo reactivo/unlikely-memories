@@ -143,16 +143,18 @@ export function mount(root, on, header) {
   // While you type on a phone (ui/page.js) the page is in its normal flow and the browser has brought the prompt up above its
   // keyboard; the game can't see where that is (browsers report it differently, or not at all inside the claude.ai frame). So
   // new text doesn't scroll to a target: the page moves by as much as the text grew, so the prompt stays exactly where it
-  // was, and the new text appears just above it, pushing older text up, as in a chat (Diego's iPhone, 28 Oct 2026).
+  // was, and the new text appears just above it, pushing older text up. A new room keeps its space after its text (ui/log.css),
+  // about as tall as what shows above the keyboard, so the page glides to show it from its first line (Diego's iPhone,
+  // 28 Oct 2026).
   const typing = () => document.documentElement.hasAttribute("data-keyboard");
   let lineAt = null;             // while you type: where the prompt was on screen before the new text (say)
   function keepLine() {
     if (lineAt === null) return;
     const grew = bottom.getBoundingClientRect().top - lineAt;
     lineAt = null;
-    if (grew) window.scrollTo({ top: window.scrollY + grew, behavior: "instant" });
+    if (grew) window.scrollTo({ top: window.scrollY + grew, behavior: calm.matches ? "instant" : "smooth" });
   }
-  // Typing ends (ui/page.js): the prompt sticks again, with the tabs, so the newest text, if it was in view, stays above them.
+  // Typing ends (ui/page.js): the prompt sticks again, so the newest text, if it was in view, stays above it and the tabs.
   // (While you type nothing is done: the page is in its normal flow and the browser brings the prompt into view.)
   new MutationObserver(() => requestAnimationFrame(() => {
     if (typing()) return;

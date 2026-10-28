@@ -51,7 +51,7 @@
        that is still short does not make the page scroll; until the room fills it, the space is simply empty above
        the prompt. */
     & .visit:last-child {
-      min-height: var(--visit-min, calc(100dvh - var(--top-h, 0px) - var(--bottom-h, 0px) - var(--fade)));
+      min-height: calc(100dvh - var(--top-h, 0px) - var(--bottom-h, 0px) - var(--fade));
     }
 
     /* Rooms you've left: all one grey, pictures without colour, and nothing reacts (the buttons are disabled by
