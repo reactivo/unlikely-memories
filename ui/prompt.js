@@ -11,7 +11,7 @@ const IDLE_HINT = 120000;   // ms with no command and nothing typed before the h
 // Earlier commands (↑ / ↓): the commands run, typed or clicked (js/main.js runCommand calls remember()), kept for this visit to the page (ui/history.js). This module
 // is created once, so they carry across a new game and a language change; they are never saved.
 
-// Set up the command line on its <form>. Returns update(), focus(), remember(), typing(), hint() and clearHint().
+// Set up the command line on its <form>. Returns update(), focus(), remember(), typing(), hint(), clearHint() and clear().
 export function mount(root, on) {
   const cmd = root.querySelector("#cmd"), typed = root.querySelector("#typed"), hint = root.querySelector("#prompt-hint");
   let hinting = false;                                             // a hint is showing, until your next command
@@ -115,6 +115,8 @@ export function mount(root, on) {
       rest();
     },
     // The hint steps aside (a command, a loaded game), and the idle count starts again.
-    clearHint() { hinting = false; showHint(); rest(); }
+    clearHint() { hinting = false; showHint(); rest(); },
+    // A game starts or is loaded: nothing typed is left on the line.
+    clear() { cmd.value = ""; typed.textContent = ""; showHint(); }
   };
 }

@@ -126,12 +126,16 @@ export function mount(root, on, header) {
   }
   // A new story starts at the top. Safari on an iPhone, coming from the list of games scrolled down to a card's button, kept some
   // of that scroll after the game had gone to the top, so the opening started under the picture (Diego, 27 Oct 2026): so the
-  // top is asked for again a moment later, unless you have touched or scrolled the page by then.
+  // top is asked for again a moment later, unless you have touched or scrolled the page by then, or the game has put it
+  // somewhere else meanwhile (a loaded game goes to its newest text: it was sent back to the top. Diego, 28 Oct 2026).
   let touched = false;
   for (const kind of ["touchstart", "wheel", "keydown"]) window.addEventListener(kind, () => { touched = true; }, { passive: true });
   function toTop() {
     touched = false;
-    const again = () => { if (!touched && window.scrollY !== 0) { window.scrollTo(0, 0); header.scrolling(0); } };
+    const again = () => {
+      if (touched || placed?.again !== again || window.scrollY === 0) return;
+      window.scrollTo(0, 0); header.scrolling(0);
+    };
     window.scrollTo(0, 0);
     header.scrolling(0);
     placed = { y: 0, again };

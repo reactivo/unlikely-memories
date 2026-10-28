@@ -362,7 +362,7 @@ function restore(r) {
   state = r.state; lang = state.lang;
   history = [];
   clock.reset(r.played ?? state.clock); showTime();   // play time as it was when saved
-  ui.log.clear(); transcript = [];
+  ui.log.clear(); transcript = []; ui.prompt.clear();
   ui.prompt.hint(ui.log.markup(packOf(state).hint), 0, false);   // not shown; it comes back if you're idle
   for (const p of r.transcript || []) {
     const el = ui.log.say(p.text, p.style || "", p.img ? objectImage(p.img, state) : undefined, true);
@@ -435,7 +435,7 @@ function startStory(health, id) {
   state = newState({ lang, health, id });
   state = step(state, { tick: true, at: clock.now() }).next;   // wake the world: timed rules start counting
   history = []; transcript = [];
-  ui.log.clear();
+  ui.log.clear(); ui.prompt.clear();
   show(describe(state, state.player.at, packOf(state)));
   ui.log.seen();                                         // (the opening is shown from the top: what's followed next is only what comes after it)
   ui.prompt.hint(ui.log.markup(packOf(state).hint), ui.log.busyFor());   // beside the prompt, once the room is told
