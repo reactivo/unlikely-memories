@@ -119,7 +119,7 @@
      CSS does the shape). For that the top is fixed, not sticky: its height changes without moving the text, and the story
      starts under a spacer as tall as the top is when open (--top-h, measured by ui/page.js).
 
-     Phones while you type (ui/page.js sets data-keyboard on <html> while the command line has focus on a touch screen):
+     Phones while you type (ui/page.js sets data-typing on <html> while the command line has focus on a touch screen):
      nothing is pinned, and nothing else changes. Title bar, picture, story and prompt are one ordinary page in its normal
      flow, and the browser brings the prompt up above its own keyboard and bars, as on any web form; nothing is measured
      (following the browsers' numbers fought their own scrolling). When you stop typing everything is pinned again, the
@@ -269,14 +269,12 @@
     }
   }
 
-  /* Typing on a touch screen (ui/page.js): the page's normal flow, nothing pinned, nothing measured, and nothing else about
-     the page changes (the browser decides where to scroll as you tap: a page that changed shape then landed it in the wrong
-     place, Diego's iPhone, 28 Oct 2026). The top and the bottom only stop sticking, where they are: the top, where it sticks,
-     simply stops sticking; on an upright phone, where it is fixed over a spacer as tall as it is open, it is placed where it
-     sits at the top of the page (ui/page.js and ui/fold.js treat it as the fixed top). The bottom stays at the end of the
-     page, after the room's space (ui/log.css), and the browser brings the prompt up above its keyboard; the tabs under it
-     go behind the keyboard. */
-  :root[data-keyboard] {
+  /* Typing on a phone (see "Phones while you type" above): the top and the bottom only stop sticking, where they are, and
+     nothing else changes (the browser decides where to scroll as you tap: a page changing shape then landed it in the wrong
+     place, Diego's iPhone, 28 Oct 2026). On an upright phone the fixed top is placed where it sits at the top of the page,
+     over its spacer (ui/page.js and ui/fold.js treat it as the fixed top). The bottom stays at the end of the page, after
+     the room's space, and its tabs go behind the keyboard. */
+  :root[data-typing] {
     & .top {
       position: relative;
     }

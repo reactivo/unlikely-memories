@@ -43,16 +43,14 @@ export function mount(root, on, header) {
   const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
 
   // Where the story shows. Its top edge: under the top, if it sticks (ui/page.js reports --top-h as 0 when it scrolls
-  // away with the story). While you type on a phone the top scrolls away too: the edge is its bottom edge, or once it has
-  // gone, the window's top.
-  // On an upright phone the top is fixed and its picture folds and opens: open, the edge is below the OPEN top, its place plus --top-h (the height it has open, even while it is still opening: a new room opens it); folded,
-  // it is under the folded top as it is (new text doesn't open it). Its bottom edge: where the bottom begins, less the
+  // away with the story). On an upright phone the top is fixed and its picture folds and opens: open, the edge is below the
+  // OPEN top, its place plus --top-h (the height it has open, even while it is still opening: a new room opens it); folded,
+  // it is under the folded top as it is (new text doesn't open it). (Not used while you type: keepLine.) Its bottom edge: where the bottom begins, less the
   // empty space kept after the newest text, so that text ends above the fade.
   const topEdge = () => {
-    const r = top.getBoundingClientRect();
-    if (document.documentElement.hasAttribute("data-keyboard")) return Math.max(0, r.bottom);
     const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h"));
     if (!(h > 0)) return 0;
+    const r = top.getBoundingClientRect();
     return getComputedStyle(top).position === "fixed" && !top.hasAttribute("data-folded") ? r.top + h : r.bottom;
   };
   const bottomEdge = () => bottom.getBoundingClientRect().top;
@@ -108,7 +106,7 @@ export function mount(root, on, header) {
   // A change in the window's size does NOT move the page: the browser keeps the text where it was. (On a phone the browser's
   // bars grow and shrink as soon as you scroll, which is a size change: anything done here then showed as jumps, pulling you
   // back to the start of a long answer, or the first lines under the picture. Diego, 27 Oct 2026.) Two exceptions:
-  //   - you stop typing on a phone (ui/page.js marks <html data-keyboard> while you type): the prompt and the tabs stick again,
+  //   - you stop typing on a phone (ui/page.js marks <html data-typing> while you do): the prompt and the tabs stick again,
   //     so if the newest text was in view, the page moves just enough to show its last line above them (never back up);
   //   - the font finishing loading: the letters change size a little, so where the game last put the page (following new
   //     text, gliding to a room) is redone, but only if you haven't scrolled since.
@@ -148,7 +146,7 @@ export function mount(root, on, header) {
   // prompt (the browser puts it above its keyboard, the exchange just above it); if it is taller, your command at the top, and
   // you read the answer from its start (as when you don't type: toEnd). Clicking something after scrolling back to read does
   // the same. (Entering a room closes the keyboard instead: newVisit.)
-  const typing = () => document.documentElement.hasAttribute("data-keyboard");
+  const typing = () => document.documentElement.hasAttribute("data-typing");
   const prompt = bottom.querySelector(".prompt");
   // What shows on screen, in the page's coordinates for getBoundingClientRect (the window, or the browser's view above its
   // keyboard where it reports one: visualViewport).
@@ -163,11 +161,7 @@ export function mount(root, on, header) {
     (tall ? first : prompt).scrollIntoView({ block: tall ? "start" : "end", behavior });
   }
   // Typing ends (ui/page.js): the prompt sticks again, so the newest text, if it was in view, stays above it and the tabs.
-  // (While you type nothing is done: the page is in its normal flow and the browser brings the prompt into view.)
-  new MutationObserver(() => requestAnimationFrame(() => {
-    if (typing()) return;
-    if (wasAtEnd) keepEnd();
-  })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-keyboard"] });
+  new MutationObserver(() => requestAnimationFrame(() => { if (!typing() && wasAtEnd) keepEnd(); })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-typing"] });
   document.fonts?.ready.then(() => {
     if (placed && !gliding && Math.abs(window.scrollY - placed.y) < 2) placed.again();
   });

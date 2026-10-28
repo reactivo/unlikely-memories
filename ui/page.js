@@ -35,7 +35,9 @@ function followBars(root) {   // returns update(): measure now
   }
   function update() {
     const position = getComputedStyle(top).position;   // (the CSS decides: no second copy of the breakpoints here)
-    put("--top-h", position === "fixed" || position === "absolute" ? openHeight() : position === "sticky" ? top.getBoundingClientRect().height : 0);
+    const height = position === "fixed" || position === "absolute" ? openHeight()   // (absolute: the fixed top while you type)
+                 : position === "sticky" ? top.getBoundingClientRect().height : 0;
+    put("--top-h", height);
     put("--bottom-h", bottom.getBoundingClientRect().height);
   }
   const watch = new ResizeObserver(update);   // (also when the game is shown: the page is not drawn while the list of games shows)
@@ -47,14 +49,14 @@ function followBars(root) {   // returns update(): measure now
   return update;
 }
 
-// While you type on a phone, tell the layout: data-keyboard on <html> while the command line has focus on a touch screen (the
+// While you type on a phone, tell the layout: data-typing on <html> while the command line has focus on a touch screen (its
 // keyboard is up then). The layout then pins nothing: the page is in its normal flow and the browser itself brings the command
 // line up above its keyboard, as on any web form (css/layout.css). Nothing is measured: browsers on phones slide the keyboard
 // over the page and report it differently or not at all (not inside the claude.ai frame), and following their numbers fought
 // their own scrolling (Diego's iPhone, 28 Oct 2026).
 function followTyping(root) {
   const html = root.documentElement, cmd = root.querySelector("#cmd");
-  const update = () => html.toggleAttribute("data-keyboard", touch.matches && root.activeElement === cmd);
+  const update = () => html.toggleAttribute("data-typing", touch.matches && root.activeElement === cmd);
   cmd.addEventListener("focus", update);
   cmd.addEventListener("blur", update);
   update();
