@@ -69,7 +69,9 @@ export function step(state, input) {
   runTimed(g, at, out, out.applied.slice(n0).some(e => "say" in e));   // timed rules that are now due (a scheduled line holds ambience back)
   // An echo (INTERFACE.md §6c) is the last word on what just happened to you: after the story lines of your command, and
   // after those of what the world did on its own, however the rule ordered its effects.
-  out.applied = [...echoesLast(out.applied.slice(0, n0)), ...echoesLast(out.applied.slice(n0))];
+  // What the world did on its own (scheduled and timed rules) is marked `aside`: shown set apart, like a stage direction
+  // (ui/log.css), even when it falls due during your command, and its echoes with it.
+  out.applied = [...echoesLast(out.applied.slice(0, n0)), ...echoesLast(out.applied.slice(n0)).map(e => ({ ...e, aside: true }))];
   seeHere(g);                                                   // what's in the room has now been seen
   if (g.player.health <= 0 && !g.ended) {                        // out of health: the story ends, whatever the world
     if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its line was said when the health went)

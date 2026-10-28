@@ -629,12 +629,15 @@ const rules = [
     do: [{ say: "Morning, somewhere above the fog. Dr Mabbott closes his book. \"The court will sit again at midnight,\" he says, and you are shown out." },
          { travel: "row" }, { describe: "$here" }] },
 
-  // The waiting: the fog creeps into you; warned twice, in play time, then it hurts.
-  { id: "fog_creeps", when: "every", every: { turns: [8, 8] }, do: [{ unsettle: 1 }] },
-  { id: "fog_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
-    do: [{ say: "The fog is in your coat now, and in your sleeves. It comes in with every breath and doesn't go out with it." }] },
-  { id: "fog_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.fogWarned": false }],
-    do: [{ say: "Your chest is full of fog. Something warm would help: a drink at the Bell, a pie, a breath out on the bridge. Anything but waiting." }, { set: "game.fogWarned", to: true }] },
+  // The waiting: the fog creeps into you, a step about every two minutes of play, one rule per step, each said by the fog
+  // before its echo (INTERFACE.md §6c): at 3 it is in your coat, at 4 it says what would help, at 5 it starts to hurt.
+  { id: "fog_creeps_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }], do: [{ say: "The fog has found your collar. It sits there, cold, like a hand that hasn't made up its mind." }, { unsettle: 1 }] },
+  { id: "fog_creeps_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }], do: [{ say: "You can't see the end of the Row any more. You're not sure it has one." }, { unsettle: 1 }] },
+  { id: "fog_creeps_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }], do: [{ say: "The fog is in your coat now, and in your sleeves. It comes in with every breath and doesn't go out with it." }, { unsettle: 1 }] },
+  { id: "fog_creeps_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "Your chest is full of fog. Something warm would help: a drink at the Bell, a pie, a breath out on the bridge. Anything but waiting." }, { set: "game.fogWarned", to: true }, { unsettle: 1 }] },
+  { id: "fog_creeps_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "The fog closes over you like water over a stone. You are no longer sure which way the Row goes." }, { set: "game.fogWarned", to: true }, { unsettle: 1 }] },
   { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 5 } }, { "game.fogWarned": true }],
     do: [{ hurt: 1, says: "The fog gets into your lungs and sits down, as if it meant to stay." }] }
 ];

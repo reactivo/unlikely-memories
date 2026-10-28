@@ -787,10 +787,16 @@ const rules = [
   { id: "burn_nothing", match: { verb: "burn" }, do: [{ say: "You have nothing to burn it with." }] },
 
   // -- Tension: rises slowly once you're through the door; the door warns, then closes ----------------------------
-  { id: "tension_creep", when: "every", every: { turns: [10, 10] },
-    do: [{ unsettle: 1 }] },
-  { id: "door_warning", when: "every", every: { seconds: [40, 80] }, if: [{ "game.tension": { ">=": 3 } }, { "beach_door.shut": { "!=": true } }],
-    do: [{ say: ["Far off, on the beach, something takes a slow, shallow breath. The door is breathing less than it was.", "You think of [way]. You're not sure you remember which way it was.", "The light from the door, somewhere behind you, is a little dimmer. A little smaller."] }] },
+  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
+    do: [{ say: "The tune from the carousel comes over the roofs. Somewhere a radio plays a song you used to know all the words to; you find you only know the tune." }, { unsettle: 1 }] },
+  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
+    do: [{ say: "The town has gone very quiet, the way a room goes quiet when someone has just left it." }, { unsettle: 1 }] },
+  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
+    do: [{ say: "Far off, on the beach, something takes a slow, shallow breath. The door is breathing less than it was." }, { unsettle: 1 }] },
+  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "You think of [way]. You're not sure you remember which way it was." }, { unsettle: 1 }] },
+  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "The light from the door, somewhere behind you, is a little dimmer. A little smaller." }, { unsettle: 1 }] },
   { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 5 } }, { "beach_door.shut": { "!=": true } }],
     do: [{ change: "driftwood" },
          { say: "Far off, [way] closes, with a sound like a held breath let go. You feel it in your chest, like a missed step. The way back is gone." }] }

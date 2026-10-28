@@ -736,12 +736,16 @@ const rules = [
     do: [{ say: "The key turns and stops. \"Not yet,\" says the clockmaker. \"There's no yesterday here yet. Not one you were in.\"" }] },
 
   // Tension: the longer you stay, the harder it is to leave; warned, then the door closes.
-  { id: "tension_rises", when: "every", every: { turns: [10, 10] },
-    do: [{ unsettle: 1 }] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
-    do: [{ say: "Somewhere behind you, [way] breathes out, long and slow, as if it were getting ready to stop." }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.wayLastWarned": { "!=": true } }],
-    do: [{ say: "You think of [way], the way you came. You are not sure you could still find it. A coffee, a sleep, anything that stops the waiting, might help." }, { set: "game.wayLastWarned", to: true }] },
+  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
+    do: [{ say: "A clock somewhere strikes the hour. You count the strokes and lose your place." }, { unsettle: 1 }] },
+  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
+    do: [{ say: "It occurs to you that you can't quite remember what day it was yesterday." }, { unsettle: 1 }] },
+  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
+    do: [{ say: "Somewhere behind you, [way] breathes out, long and slow, as if it were getting ready to stop." }, { unsettle: 1 }] },
+  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "You think of [way], the way you came. You are not sure you could still find it. A coffee, a sleep, anything that stops the waiting, might help." }, { set: "game.wayLastWarned", to: true }, { unsettle: 1 }] },
+  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "The waiting has got into your shoes, and your shoes have stopped wanting to go anywhere." }, { set: "game.wayLastWarned", to: true }, { unsettle: 1 }] },
   { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.wayLastWarned": true }],
     do: [{ change: "sunday_ending" }] }
 ];

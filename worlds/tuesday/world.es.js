@@ -748,12 +748,16 @@ const rules = [
     do: [{ say: "La llave gira y se detiene. «Todavía no», dice el relojero. «Aquí aún no hay ayer. Al menos, no uno en el que estuvieras.»" }] },
 
   // Tensión: cuanto más te quedas, más cuesta irse; primero el aviso, luego la puerta se cierra.
-  { id: "tension_rises", when: "every", every: { turns: [10, 10] },
-    do: [{ unsettle: 1 }] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
-    do: [{ say: "En algún lugar a tus espaldas, [way] suelta el aire, largo y lento, como si se preparase para detenerse." }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.wayLastWarned": { "!=": true } }],
-    do: [{ say: "Piensas en [way], por donde viniste. No sabes si aún podrías encontrarla. Un café, un sueño, cualquier cosa que detenga la espera, quizá ayude." }, { set: "game.wayLastWarned", to: true }] },
+  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
+    do: [{ say: "En algún sitio un reloj da la hora. Cuentas las campanadas y te pierdes." }, { unsettle: 1 }] },
+  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
+    do: [{ say: "Se te ocurre que no recuerdas bien qué día fue ayer." }, { unsettle: 1 }] },
+  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
+    do: [{ say: "En algún lugar a tus espaldas, [way] suelta el aire, largo y lento, como si se preparase para detenerse." }, { unsettle: 1 }] },
+  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "Piensas en [way], por donde viniste. No sabes si aún podrías encontrarla. Un café, un sueño, cualquier cosa que detenga la espera, quizá ayude." }, { set: "game.wayLastWarned", to: true }, { unsettle: 1 }] },
+  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "La espera se te ha metido en los zapatos, y los zapatos ya no quieren ir a ninguna parte." }, { set: "game.wayLastWarned", to: true }, { unsettle: 1 }] },
   { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.wayLastWarned": true }],
     do: [{ change: "sunday_ending" }] }
 ];

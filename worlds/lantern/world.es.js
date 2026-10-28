@@ -637,12 +637,15 @@ const rules = [
     do: [{ say: "Amanece, en algún lugar por encima de la niebla. El doctor Mabbott cierra su libro. «El tribunal volverá a reunirse a medianoche», dice, y te acompañan a la salida." },
          { travel: "row" }, { describe: "$here" }] },
 
-  // La espera: la niebla se te mete dentro; dos avisos, en tiempo de juego, y luego hace daño.
-  { id: "fog_creeps", when: "every", every: { turns: [8, 8] }, do: [{ unsettle: 1 }] },
-  { id: "fog_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
-    do: [{ say: "La niebla está ya en tu abrigo, y en tus mangas. Entra con cada aliento y no sale con él." }] },
-  { id: "fog_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.fogWarned": false }],
-    do: [{ say: "Tienes el pecho lleno de niebla. Algo cálido ayudaría: una copa en The Bell, un pastel, un respiro fuera, en el puente. Cualquier cosa menos esperar." }, { set: "game.fogWarned", to: true }] },
+  // La espera: la niebla se te mete dentro, un paso cada dos minutos de juego más o menos, una regla por paso, y cada uno
+  // lo dice la niebla antes de su eco (INTERFACE.md §6c): en 3 está en tu abrigo, en 4 dice qué ayudaría, en 5 hace daño.
+  { id: "fog_creeps_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }], do: [{ say: "La niebla te ha encontrado el cuello. Se queda ahí, fría, como una mano que no acaba de decidirse." }, { unsettle: 1 }] },
+  { id: "fog_creeps_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }], do: [{ say: "Ya no ves el final de la calle. No estás seguro de que lo tenga." }, { unsettle: 1 }] },
+  { id: "fog_creeps_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }], do: [{ say: "La niebla está ya en tu abrigo, y en tus mangas. Entra con cada aliento y no sale con él." }, { unsettle: 1 }] },
+  { id: "fog_creeps_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "Tienes el pecho lleno de niebla. Algo cálido ayudaría: una copa en The Bell, un pastel, un respiro fuera, en el puente. Cualquier cosa menos esperar." }, { set: "game.fogWarned", to: true }, { unsettle: 1 }] },
+  { id: "fog_creeps_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "La niebla se cierra sobre ti como el agua sobre una piedra. Ya no sabes hacia dónde va la calle." }, { set: "game.fogWarned", to: true }, { unsettle: 1 }] },
   { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 5 } }, { "game.fogWarned": true }],
     do: [{ hurt: 1, says: "La niebla se te mete en los pulmones y se sienta, como si pensara quedarse." }] }
 ];

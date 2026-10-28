@@ -790,10 +790,16 @@ const rules = [
   { id: "burn_nothing", match: { verb: "burn" }, do: [{ say: "No tienes con qué quemarlo." }] },
 
   // -- Tensión: sube despacio una vez cruzada la puerta; la puerta avisa, luego se cierra ---------------------------
-  { id: "tension_creep", when: "every", every: { turns: [10, 10] },
-    do: [{ unsettle: 1 }] },
-  { id: "door_warning", when: "every", every: { seconds: [40, 80] }, if: [{ "game.tension": { ">=": 3 } }, { "beach_door.shut": { "!=": true } }],
-    do: [{ say: ["A lo lejos, en la playa, algo toma aire, lento y superficial. La puerta respira menos que antes.", "Piensas en [way]. No recuerdas con seguridad en qué dirección estaba.", "La luz de la puerta, en algún lugar a tu espalda, es un poco más tenue. Un poco más pequeña."] }] },
+  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
+    do: [{ say: "La música del tiovivo llega por encima de los tejados. En algún sitio una radio pone una canción que antes te sabías entera; descubres que solo te sabes la música." }, { unsettle: 1 }] },
+  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
+    do: [{ say: "El pueblo se ha quedado muy callado, como se queda una habitación cuando alguien acaba de salir de ella." }, { unsettle: 1 }] },
+  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
+    do: [{ say: "A lo lejos, en la playa, algo toma aire, lento y superficial. La puerta respira menos que antes." }, { unsettle: 1 }] },
+  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "Piensas en [way]. No recuerdas con seguridad en qué dirección estaba." }, { unsettle: 1 }] },
+  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "La luz de la puerta, en algún lugar a tu espalda, es un poco más tenue. Un poco más pequeña." }, { unsettle: 1 }] },
   { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 5 } }, { "beach_door.shut": { "!=": true } }],
     do: [{ change: "driftwood" },
          { say: "A lo lejos, [way] se cierra, con un sonido como de un aliento contenido que se suelta. Lo notas en el pecho, como un escalón que falta. El camino de vuelta ha desaparecido." }] }

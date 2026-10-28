@@ -532,11 +532,16 @@ const rules = [
     do: [{ say: "A bell rings three times, somewhere in the walls. \"Hartley's is now closed,\" says a voice from every ceiling. \"Customers are asked to make their way to the doors.\" Nobody does." }, tension(10)] },
 
   // Tension: the longer you stay, the more you belong to the store; warned twice, then the window.
-  { id: "tension_rises", when: "every", every: { turns: [10, 10] }, do: [{ unsettle: 1 }] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
-    do: [{ say: "Somewhere above you, the lights on a floor go out. Mr Gage's voice, quite close: \"Customers who stay on are put somewhere useful.\"" }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.storeLastWarned": { "!=": true } }],
-    do: [{ say: "You catch yourself standing very still, the way the mannequins do. A cup of tea, a sit down, anything that isn't waiting, might help." }, { set: "game.storeLastWarned", to: true }] },
+  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
+    do: [{ say: "A shop assistant you didn't see arrive asks if you're being served. You say you are." }, { unsettle: 1 }] },
+  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
+    do: [{ say: "You pick up a glove and put it down again. You've done that before, you think, today." }, { unsettle: 1 }] },
+  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
+    do: [{ say: "Somewhere above you, the lights on a floor go out. Mr Gage's voice, quite close: \"Customers who stay on are put somewhere useful.\"" }, { unsettle: 1 }] },
+  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "You catch yourself standing very still, the way the mannequins do. A cup of tea, a sit down, anything that isn't waiting, might help." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
+  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "A price tag has found its way onto your sleeve. You don't remember anyone putting it there." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
   { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.storeLastWarned": true }],
     do: [{ change: "window_ending" }] }
 ];

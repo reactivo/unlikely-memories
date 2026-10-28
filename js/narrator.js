@@ -10,6 +10,7 @@ import { PROPERTY_WORD, propertyText } from "./fields.js";
 export function tell(applied, state, pack) {
   const out = [];
   for (const e of applied) {
+    const from = out.length;
     if (e.say) {
       // name: a thing, named in this language; things: several, with their gender and number, in order
       const arg = e.things ? e.things.map(id => listName(id, state, pack)) : e.name ? listName(e.name, state, pack) : e.arg;
@@ -27,9 +28,13 @@ export function tell(applied, state, pack) {
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
     else if (e.describe === "status") out.push({ text: statusNow(state, pack) });
     else if (e.describe) out.push(...describe(state, e.describe, pack));
+    if (e.aside) for (let i = from; i < out.length; i++) out[i] = { ...out[i], style: styled(out[i].style) };   // the world's own: set apart
   }
   return out;
 }
+
+// A paragraph's style with "aside" added: what the world said on its own (js/engine.js marks those effects).
+const styled = (style) => [style, "aside"].filter(Boolean).join(" ");
 
 // A thing's gender and number as the pack wants them (Spanish agreement): { g, pl } from its `words`, or nothing.
 function whoOf(o) {

@@ -534,11 +534,16 @@ const rules = [
     do: [{ say: "Una campana suena tres veces, en algún lugar de las paredes. «Hartley's cierra sus puertas», dice una voz desde todos los techos. «Se ruega a los clientes que se dirijan a la salida». Nadie lo hace." }, tension(10)] },
 
   // La tensión: cuanto más te quedas, más perteneces a la tienda; dos avisos, y luego el escaparate.
-  { id: "tension_rises", when: "every", every: { turns: [10, 10] }, do: [{ unsettle: 1 }] },
-  { id: "tension_warn", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 3 } }], once: true,
-    do: [{ say: "En algún lugar, por encima de ti, se apagan las luces de una planta. La voz del señor Gage, muy cerca: «Los clientes que se quedan se colocan donde son útiles»." }] },
-  { id: "tension_last", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 4 } }, { "game.storeLastWarned": { "!=": true } }],
-    do: [{ say: "Te sorprendes de pie, sin moverte, como están los maniquíes. Una taza de té, sentarte un rato, cualquier cosa que no sea esperar, ayudaría." }, { set: "game.storeLastWarned", to: true }] },
+  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
+    do: [{ say: "Una dependienta a la que no has visto llegar te pregunta si ya te atienden. Le dices que sí." }, { unsettle: 1 }] },
+  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
+    do: [{ say: "Coges un guante y vuelves a dejarlo. Ya lo has hecho antes, piensas, hoy." }, { unsettle: 1 }] },
+  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
+    do: [{ say: "En algún lugar, por encima de ti, se apagan las luces de una planta. La voz del señor Gage, muy cerca: «Los clientes que se quedan se colocan donde son útiles»." }, { unsettle: 1 }] },
+  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
+    do: [{ say: "Te sorprendes de pie, sin moverte, como están los maniquíes. Una taza de té, sentarte un rato, cualquier cosa que no sea esperar, ayudaría." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
+  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
+    do: [{ say: "Una etiqueta con el precio ha acabado en tu manga. No recuerdas que nadie te la pusiera." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
   { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.storeLastWarned": true }],
     do: [{ change: "window_ending" }] }
 ];

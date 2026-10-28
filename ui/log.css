@@ -135,8 +135,9 @@
       white-space: nowrap;   /* a marker and the punctuation right after it, on one line (log.js) */
     }
 
-    /* What the world says on its own, nobody having asked (a timed line: js/main.js, tick): set apart like a stage
-       direction, indented --space-l, with the same space above as a command (decided 24 October 2026). */
+    /* What the world says on its own, nobody having asked (a timed or scheduled rule; js/engine.js marks it, even when it
+       falls due during your command): set apart like a stage direction, indented --space-l, with the same space above
+       as a command (decided 24 October 2026), and its echoes with it. */
     & .aside {
       margin-left: var(--space-l);
     }

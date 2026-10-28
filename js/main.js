@@ -392,8 +392,7 @@ function tick() {
   turnStart = null;
   const { next, applied } = step(state, { tick: true, at: clock.now() });
   state = next;
-  // What the world says on its own is set apart, like a stage direction ("aside": ui/log.css).
-  show(tell(applied, state, packOf(state)).map(p => ({ ...p, style: ((p.style || "") + " aside").trim() })));
+  show(tell(applied, state, packOf(state)));             // (all of it the world's own: set apart, "aside", by the engine's mark)
   redraw("tick");
   enteredRoom(from);
   if (follow) ui.log.toEnd();
