@@ -18,6 +18,13 @@ html {
   scroll-padding-top: var(--top-h, 0px);
   scroll-padding-bottom: var(--bottom-h, 0px);
 
+  /* While you type on a phone nothing sticks (css/layout.css): no room to leave for it either, or the browser keeps the
+     command line and the page's end that far above its keyboard (Diego's iPhone, 28 Oct 2026). */
+  &[data-keyboard] {
+    scroll-padding-top: 0;
+    scroll-padding-bottom: 0;
+  }
+
   /* No scrollbar: it would break the old-screen look (the wheel, a finger or the keys still scroll the page). The story hid
      its own scrollbar for this reason when it was a scroll box; now the page scrolls, so the page hides its. */
   scrollbar-width: none;
