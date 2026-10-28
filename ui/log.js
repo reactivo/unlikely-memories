@@ -85,7 +85,7 @@ export function mount(root, on, header) {
   function toEnd(instant) {
     const last = lastLine();
     if (gliding || !last) return;
-    if (typing()) { keepLine(); unseen = null; return; }
+    if (typing()) { followed = unseen && root.contains(unseen) ? unseen : null; keepLine(followed); unseen = null; return; }
     // What to show: everything added since the last follow (your command and its answer, a line the world said, the game's own
     // question), from its first paragraph. Not "from the last command": the settings' "Start a new game?" is no command, and
     // following from the command before it, far up, showed that old command instead of the question (Diego, 27 Oct 2026).
@@ -154,12 +154,17 @@ export function mount(root, on, header) {
   const lineTop = () => bottom.getBoundingClientRect().top - (window.visualViewport?.offsetTop || 0);
   bottom.addEventListener("input", () => { home = lineTop(); });   // (you are typing on it: it is in view)
   bottom.addEventListener("focusin", () => setTimeout(() => { if (typing() && home === null) home = lineTop(); }, 600));   // (once the browser has brought it up)
-  function keepLine() {
+  // first: where the new text starts (your command). If the text from it to the prompt is taller than the room above the
+  // prompt, the page goes so that it is at the top of the screen instead, and you read the answer from its start (as when you
+  // don't type: toEnd).
+  function keepLine(first) {
     if (lineAt === null) return;
-    const grew = lineTop() - lineAt;
+    const view = window.visualViewport?.offsetTop || 0;
+    const start = first ? first.getBoundingClientRect().top - view : -Infinity;
+    const by = lineTop() - start > lineAt ? start : lineTop() - lineAt;
     home = lineAt;
     lineAt = null;
-    if (grew) window.scrollTo({ top: window.scrollY + grew, behavior: calm.matches ? "instant" : "smooth" });
+    if (by) window.scrollTo({ top: window.scrollY + by, behavior: calm.matches ? "instant" : "smooth" });
   }
   // Typing ends (ui/page.js): the prompt sticks again, so the newest text, if it was in view, stays above it and the tabs.
   // (While you type nothing is done: the page is in its normal flow and the browser brings the prompt into view.)
@@ -272,10 +277,9 @@ export function mount(root, on, header) {
     }
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
-    const fresh = !instant && !(unseen && root.contains(unseen));   // the first paragraph since the last follow (restored text is not new: see toEnd)
-    if (fresh && typing()) lineAt = home ?? lineTop();           // (where the prompt goes back to: keepLine)
+    if (!instant && typing() && lineAt === null) lineAt = home ?? lineTop();   // (where the prompt goes back to: keepLine)
     current().appendChild(p);
-    if (fresh) unseen = p;
+    if (!instant && !(unseen && root.contains(unseen))) unseen = p;   // (restored text is not new: see toEnd)
     return p;
   }
 
