@@ -74,7 +74,7 @@ export function mount(root, on, header) {
     const last = lastLine();
     if (!last) return true;
     const end = last.getBoundingClientRect().bottom;
-    if (typing()) return home === null || end - view() <= home + 2;   // (while you type: at or above where the browser put the prompt)
+    if (typing()) return end <= seen().bottom + 2;                 // (while you type: on screen, above the keyboard)
     return end <= bottomEdge() + 2 && end > topEdge();
   };
 
@@ -141,33 +141,31 @@ export function mount(root, on, header) {
     setTimeout(again, 300);
   }
 
-  // While you type on a phone (ui/page.js) the page is in its normal flow and the browser has brought the prompt up above its
-  // keyboard; the game can't see where the keyboard is (browsers report it differently, or not at all inside the claude.ai
-  // frame), only where the browser put the prompt (home, taken while you type on it). New text is shown from that, worked out
-  // afresh each time and nothing else kept (a position kept from one step to the next went stale: Diego's iPhone, 28 Oct
-  // 2026): if the exchange, from your command to the prompt, fits above that, the prompt goes back there, with it just above;
-  // if it is taller, your command goes to the top of the screen and you read the answer from its start (as when you don't
-  // type: toEnd). Clicking something after scrolling back to read does the same. (Entering a room closes the keyboard
-  // instead: newVisit.)
+  // While you type on a phone (ui/page.js) the page is in its normal flow, and only the browser knows where its keyboard and
+  // its view of the page are (with the keyboard up, Safari shows the page through a view of its own, which the page's own
+  // scrolling can't move past the page's end: moving the page by an amount stopped short, Diego's iPhone, 28 Oct 2026). So new
+  // text is shown by asking the browser to show things: if the exchange, from your command to the prompt, fits on screen, the
+  // prompt (the browser puts it above its keyboard, the exchange just above it); if it is taller, your command at the top, and
+  // you read the answer from its start (as when you don't type: toEnd). Clicking something after scrolling back to read does
+  // the same. (Entering a room closes the keyboard instead: newVisit.)
   const typing = () => document.documentElement.hasAttribute("data-keyboard");
-  // On screen: Safari, with its keyboard up, moves its view of the page as well as the page when you scroll, so where its view
-  // starts, the visual viewport's offset, counts too; elsewhere it is 0.
-  const view = () => window.visualViewport?.offsetTop || 0;
-  const lineTop = () => bottom.getBoundingClientRect().top - view();
-  let home = null;               // while you type: where the browser put the prompt, its top on screen
-  bottom.addEventListener("input", () => { home = lineTop(); });                               // (you are typing on it: it is in view)
-  bottom.addEventListener("focusin", () => setTimeout(() => { if (typing()) home = lineTop(); }, 600));   // (once the browser has brought it up)
+  const prompt = bottom.querySelector(".prompt");
+  // What shows on screen, in the page's coordinates for getBoundingClientRect (the window, or the browser's view above its
+  // keyboard where it reports one: visualViewport).
+  const seen = () => {
+    const vv = window.visualViewport;
+    return vv ? { top: vv.offsetTop, bottom: vv.offsetTop + vv.height } : { top: 0, bottom: innerHeight };
+  };
   function keepLine(first) {
-    if (home === null || !first) return;
-    const start = first.getBoundingClientRect().top - view();
-    const by = lineTop() - start > home ? start : lineTop() - home;
-    if (Math.abs(by) > 1) window.scrollTo({ top: window.scrollY + by, behavior: calm.matches ? "instant" : "smooth" });
+    if (!first) return;
+    const view = seen(), behavior = calm.matches ? "instant" : "smooth";
+    const tall = prompt.getBoundingClientRect().bottom - first.getBoundingClientRect().top > view.bottom - view.top;
+    (tall ? first : prompt).scrollIntoView({ block: tall ? "start" : "end", behavior });
   }
   // Typing ends (ui/page.js): the prompt sticks again, so the newest text, if it was in view, stays above it and the tabs.
   // (While you type nothing is done: the page is in its normal flow and the browser brings the prompt into view.)
   new MutationObserver(() => requestAnimationFrame(() => {
     if (typing()) return;
-    home = null;
     if (wasAtEnd) keepEnd();
   })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-keyboard"] });
   document.fonts?.ready.then(() => {
