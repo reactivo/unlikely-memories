@@ -143,14 +143,19 @@ export function mount(root, on, header) {
   // While you type on a phone (ui/page.js) the page is in its normal flow and the browser has brought the prompt up above its
   // keyboard; the game can't see where that is (browsers report it differently, or not at all inside the claude.ai frame). So
   // new text doesn't scroll to a target: the page moves by as much as the text grew, so the prompt stays exactly where it
-  // was, and the new text appears just above it, pushing older text up. A new room keeps its space after its text (ui/log.css),
-  // about as tall as what shows above the keyboard, so the page glides to show it from its first line (Diego's iPhone,
-  // 28 Oct 2026).
+  // was, and the new text appears just above it, pushing older text up. If you had scrolled back to read and clicked something
+  // there, the prompt goes back to where the browser had put it, the new text above it. (Entering a room closes the keyboard
+  // instead: newVisit. Diego's iPhone, 28 Oct 2026.)
   const typing = () => document.documentElement.hasAttribute("data-keyboard");
-  let lineAt = null;             // while you type: where the prompt was on screen before the new text (say)
+  let lineAt = null;             // while you type: where the prompt goes back to after the new text (say)
+  let home = null;               // while you type: where the browser put the prompt, its top on screen, last time it was known
+  const lineTop = () => bottom.getBoundingClientRect().top;
+  bottom.addEventListener("input", () => { home = lineTop(); });   // (you are typing on it: it is in view)
+  bottom.addEventListener("focusin", () => setTimeout(() => { if (typing() && home === null) home = lineTop(); }, 600));   // (once the browser has brought it up)
   function keepLine() {
     if (lineAt === null) return;
-    const grew = bottom.getBoundingClientRect().top - lineAt;
+    const grew = lineTop() - lineAt;
+    home = lineAt;
     lineAt = null;
     if (grew) window.scrollTo({ top: window.scrollY + grew, behavior: calm.matches ? "instant" : "smooth" });
   }
@@ -158,7 +163,7 @@ export function mount(root, on, header) {
   // (While you type nothing is done: the page is in its normal flow and the browser brings the prompt into view.)
   new MutationObserver(() => requestAnimationFrame(() => {
     if (typing()) return;
-    lineAt = null;
+    lineAt = home = null;
     if (wasAtEnd) keepEnd();
   })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-keyboard"] });
   document.fonts?.ready.then(() => {
@@ -227,9 +232,10 @@ export function mount(root, on, header) {
       v.classList.add("past");
       v.querySelectorAll("button").forEach(b => { b.disabled = true; });   // past text: nothing to click
     }
+    // Typing on a phone: the keyboard closes, so the room starts as a new page, with its picture (Diego, 28 Oct 2026).
+    if (typing()) { lineAt = null; document.activeElement?.blur(); }
     header.room();                                                // a new room opens the picture, its crop in the middle
     unseen = null;                                                // (the glide shows it, from its first line)
-    if (typing()) return keepLine();                              // (no glide while you type: see keepLine)
     if (instant) return;
     const target = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
     placed = {
@@ -265,7 +271,7 @@ export function mount(root, on, header) {
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
     const fresh = !instant && !(unseen && root.contains(unseen));   // the first paragraph since the last follow (restored text is not new: see toEnd)
-    if (fresh && typing()) lineAt = bottom.getBoundingClientRect().top;   // (where the prompt is before it: keepLine)
+    if (fresh && typing()) lineAt = home ?? lineTop();           // (where the prompt goes back to: keepLine)
     current().appendChild(p);
     if (fresh) unseen = p;
     return p;
