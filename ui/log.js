@@ -43,14 +43,14 @@ export function mount(root, on, header) {
   const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
 
   // Where the story shows. Its top edge: under the top, if it sticks (ui/page.js reports --top-h as 0 when it scrolls
-  // away with the story). While the on-screen keyboard is open the top scrolls away too, so the edge is the top's bottom
-  // edge or, once it has gone, the top of what you can see (which the browser may have panned down: visualViewport).
+  // away with the story). While you type on a phone the top scrolls away too: the edge is its bottom edge, or once it has
+  // gone, the window's top.
   // On an upright phone the top is fixed and its picture folds and opens: open, the edge is below the OPEN top, its place plus --top-h (the height it has open, even while it is still opening: a new room opens it); folded,
   // it is under the folded top as it is (new text doesn't open it). Its bottom edge: where the bottom begins, less the
   // empty space kept after the newest text, so that text ends above the fade.
   const topEdge = () => {
     const r = top.getBoundingClientRect();
-    if (document.documentElement.hasAttribute("data-keyboard")) return Math.max(window.visualViewport?.offsetTop || 0, r.bottom);
+    if (document.documentElement.hasAttribute("data-keyboard")) return Math.max(0, r.bottom);
     const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h"));
     if (!(h > 0)) return 0;
     return getComputedStyle(top).position === "fixed" && !top.hasAttribute("data-folded") ? r.top + h : r.bottom;
@@ -74,7 +74,7 @@ export function mount(root, on, header) {
     const last = lastLine();
     if (!last) return true;
     const end = last.getBoundingClientRect().bottom;
-    return end <= bottomEdge() + 2 && end > topEdge();
+    return end <= bottomEdge() + 2 && end <= innerHeight && end > topEdge();   // (while you type the prompt is in the flow: it can be out of view too)
   };
 
   // Bring the newest command and its answer into view with a short smooth scroll, worked out from where they are (not
@@ -85,6 +85,7 @@ export function mount(root, on, header) {
   function toEnd(instant) {
     const last = lastLine();
     if (gliding || !last) return;
+    if (typing()) { keepLine(); unseen = null; return; }
     // What to show: everything added since the last follow (your command and its answer, a line the world said, the game's own
     // question), from its first paragraph. Not "from the last command": the settings' "Start a new game?" is no command, and
     // following from the command before it, far up, showed that old command instead of the question (Diego, 27 Oct 2026).
@@ -106,9 +107,8 @@ export function mount(root, on, header) {
   // A change in the window's size does NOT move the page: the browser keeps the text where it was. (On a phone the browser's
   // bars grow and shrink as soon as you scroll, which is a size change: anything done here then showed as jumps, pulling you
   // back to the start of a long answer, or the first lines under the picture. Diego, 27 Oct 2026.) Two exceptions:
-  //   - the on-screen keyboard (ui/page.js marks <html data-keyboard>): it covers the bottom of the screen, and the tabs come
-  //     back when it closes, so if the newest text was in view, the page moves just enough to show its last line above the
-  //     prompt again (never back up);
+  //   - you stop typing on a phone (ui/page.js marks <html data-keyboard> while you type): the prompt and the tabs stick again,
+  //     so if the newest text was in view, the page moves just enough to show its last line above them (never back up);
   //   - the font finishing loading: the letters change size a little, so where the game last put the page (following new
   //     text, gliding to a room) is redone, but only if you haven't scrolled since.
   let wasAtEnd = true;
@@ -140,18 +140,24 @@ export function mount(root, on, header) {
     setTimeout(again, 300);
   }
 
-  window.visualViewport?.addEventListener("resize", () => requestAnimationFrame(() => {   // (after ui/page.js has marked it)
-    if (document.documentElement.hasAttribute("data-keyboard") && wasAtEnd) keepEnd();
-  }));
-  // Typing starts (ui/page.js): the page goes to its end at once, where the newest text sits just above the prompt (while you
-  // type the story has no empty space after it: css/layout.css). iOS keeps the caret in view by scrolling the page, and short
-  // of the end it did so a little with every letter (Diego's iPhone, 28 Oct 2026); at the end there is nothing left to scroll.
-  // Typing ends: the tabs come back, so the newest text, if it was in view, stays above them.
+  // While you type on a phone (ui/page.js) the page is in its normal flow and the browser has brought the prompt up above its
+  // keyboard; the game can't see where that is (browsers report it differently, or not at all inside the claude.ai frame). So
+  // new text doesn't scroll to a target: the page moves by as much as the text grew, so the prompt stays exactly where it
+  // was, and the new text appears just above it, pushing older text up, as in a chat (Diego's iPhone, 28 Oct 2026).
+  const typing = () => document.documentElement.hasAttribute("data-keyboard");
+  let lineAt = null;             // while you type: where the prompt was on screen before the new text (say)
+  function keepLine() {
+    if (lineAt === null) return;
+    const grew = bottom.getBoundingClientRect().top - lineAt;
+    lineAt = null;
+    if (grew) window.scrollTo({ top: window.scrollY + grew, behavior: "instant" });
+  }
+  // Typing ends (ui/page.js): the prompt sticks again, with the tabs, so the newest text, if it was in view, stays above them.
+  // (While you type nothing is done: the page is in its normal flow and the browser brings the prompt into view.)
   new MutationObserver(() => requestAnimationFrame(() => {
-    if (!document.documentElement.hasAttribute("data-keyboard")) { if (wasAtEnd) keepEnd(); return; }
-    const end = document.documentElement.scrollHeight - window.innerHeight;
-    window.scrollTo({ top: end, behavior: "instant" });
-    header.scrolling(end);
+    if (typing()) return;
+    lineAt = null;
+    if (wasAtEnd) keepEnd();
   })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-keyboard"] });
   document.fonts?.ready.then(() => {
     if (placed && !gliding && Math.abs(window.scrollY - placed.y) < 2) placed.again();
@@ -221,6 +227,7 @@ export function mount(root, on, header) {
     }
     header.room();                                                // a new room opens the picture, its crop in the middle
     unseen = null;                                                // (the glide shows it, from its first line)
+    if (typing()) return keepLine();                              // (no glide while you type: see keepLine)
     if (instant) return;
     const target = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
     placed = {
@@ -255,8 +262,10 @@ export function mount(root, on, header) {
     }
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
+    const fresh = !instant && !(unseen && root.contains(unseen));   // the first paragraph since the last follow (restored text is not new: see toEnd)
+    if (fresh && typing()) lineAt = bottom.getBoundingClientRect().top;   // (where the prompt is before it: keepLine)
     current().appendChild(p);
-    if (!instant && !(unseen && root.contains(unseen))) unseen = p;   // (restored text is not new: see toEnd)
+    if (fresh) unseen = p;
     return p;
   }
 

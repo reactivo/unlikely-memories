@@ -1,14 +1,10 @@
 // Page-wide details that belong to no single piece: the page language, which view is shown (the list of games or the
 // game: css/layout.css reads data-view), whether the tab is visible (the game clock pauses while it's hidden), and when
 // the page is left (a waiting save is written), how much of the window the parts that stick take up (see followBars),
-// and, on phones, whether the on-screen keyboard is open and how much of the window it covers (see followKeyboard).
-
-// The keyboard is measured as up when the visible area is at least this many pixels shorter than the window. (The
-// browser's own bars growing and shrinking change it by less; a phone's keyboard, even sideways, by more.)
-const KEYBOARD_MIN = 100;
+// and, on phones, whether you are typing (see followTyping).
 
 // Phones and tablets (no hover, a coarse pointer: asked of the device, not of the window's width). Only they have an
-// on-screen keyboard to make room for; on a computer none of this runs.
+// on-screen keyboard; on a computer followTyping does nothing.
 const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 
 // The page scrolls and two parts of it stick: the top (title bar and picture) and the bottom (prompt and tabs). How
@@ -19,8 +15,8 @@ const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 //   --top-h      how much the top covers: its height while it sticks (windows at least 560px tall), else 0 (it scrolls away).
 //                On an upright phone the top is fixed and its picture folds (css/layout.css, ui/fold.js): then it is the
 //                height the top has when the picture is OPEN, whether or not it is open now, because that is where the
-//                story starts, and where a new room's first line goes. (With the keyboard open that top lets go and scrolls with
-//                the story, absolute instead of fixed, over the same spacer: still measured the same way, so nothing moves.)
+//                story starts, and where a new room's first line goes. (While you type that top lets go and scrolls with the
+//                story, absolute instead of fixed, over the same spacer: still measured the same way, so nothing moves.)
 //   --bottom-h   the bottom's height
 function followBars(root) {   // returns update(): measure now
   const html = root.documentElement, top = root.querySelector(".top"), bottom = root.querySelector(".bottom");
@@ -51,72 +47,17 @@ function followBars(root) {   // returns update(): measure now
   return update;
 }
 
-// While the on-screen keyboard is open, tell the layout, so the keyboard pushes the page up: the prompt sits just above it,
-// and the top lets go and scrolls away with the story (css/layout.css).
-//   data-keyboard on <html>   you are typing on a touch screen: the command line has focus there, so the keyboard is up. (Its
-//                             size can't tell: inside the Claude app's viewer the iPhone reports no keyboard at all, it slides
-//                             the whole page up itself. On Android the back button closes the keyboard and leaves the line
-//                             focused: a keyboard measured and then gone counts as closed.)
-//   --keyboard-h              how much of the window's bottom the keyboard (or the panned-away part) covers, where the browser
-//                             reports it: the window's height minus the visual viewport's height and offset (the bottom sticks
-//                             this far up). Browsers slide the keyboard over the page without resizing it, and only the *visual
-//                             viewport* (window.visualViewport) shrinks; no CSS knows that size on an iPhone, so this is the one
-//                             place that reads it. Like the bars above, measured, not chosen.
-// Without the keyboard (or on a computer) nothing is set and the page is as ever.
-function followKeyboard(root) {
-  const vv = window.visualViewport, html = root.documentElement, cmd = root.querySelector("#cmd");
-  let shrank = false;   // the keyboard was measured while the line had focus
-  const readout = keyboardReadout(root);
-  function update() {
-    const focused = touch.matches && root.activeElement === cmd;
-    const short = !!vv && vv.scale <= 1.01 && window.innerHeight - vv.height >= KEYBOARD_MIN;   // (not while pinch-zoomed)
-    if (!focused) shrank = false; else if (short) shrank = true;
-    const open = focused && (short || !shrank);
-    html.toggleAttribute("data-keyboard", open);
-    if (open && short) html.style.setProperty("--keyboard-h", Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + "px");
-    else html.style.removeProperty("--keyboard-h");
-    if (vv) readout(vv, open);
-  }
+// While you type on a phone, tell the layout: data-keyboard on <html> while the command line has focus on a touch screen (the
+// keyboard is up then). The layout then pins nothing: the page is in its normal flow and the browser itself brings the command
+// line up above its keyboard, as on any web form (css/layout.css). Nothing is measured: browsers on phones slide the keyboard
+// over the page and report it differently or not at all (not inside the claude.ai frame), and following their numbers fought
+// their own scrolling (Diego's iPhone, 28 Oct 2026).
+function followTyping(root) {
+  const html = root.documentElement, cmd = root.querySelector("#cmd");
+  const update = () => html.toggleAttribute("data-keyboard", touch.matches && root.activeElement === cmd);
   cmd.addEventListener("focus", update);
   cmd.addEventListener("blur", update);
-  vv?.addEventListener("resize", update);
-  vv?.addEventListener("scroll", update);   // the browser panning the visible area up or back down
-  if (vv) window.addEventListener("scroll", () => readout(vv, html.hasAttribute("data-keyboard")), { passive: true });
   update();
-}
-
-// TEMPORARY (keyboard testing on real phones, 28 Oct 2026; remove once the keyboard is settled): a small box in the top left
-// corner with the numbers the keyboard handling goes by, just above the prompt while you type (the frame's top is hidden then),
-// and whether the game's own page is at its top. Phones only.
-function keyboardReadout(root) {
-  if (!touch.matches) return () => {};
-  const box = root.createElement("pre");
-  box.style.cssText = "position:fixed;left:0;top:0;z-index:99;margin:0;padding:2px 4px;font:10px/1.3 monospace;" +
-    "color:#fff;background:rgba(170,0,0,.85);pointer-events:none;white-space:pre";
-  root.body.append(box);
-  // How much of the window is on screen, as the browser reports it to a page in a frame (the claude.ai page around the game
-  // may be slid up by the keyboard): a window-sized box that is never seen, watched by an IntersectionObserver.
-  const frame = root.createElement("div");
-  frame.style.cssText = "position:fixed;inset:0;pointer-events:none;visibility:hidden";
-  root.body.append(frame);
-  let seen = "?";
-  new IntersectionObserver(([e]) => {
-    seen = `${Math.round(e.intersectionRect.top - e.boundingClientRect.top)} hidden at top, ${Math.round(e.intersectionRect.height)} seen`;
-    last && paint(...last);
-  }, { threshold: Array.from({ length: 201 }, (_, i) => i / 200) }).observe(frame);
-  let last = null;
-  const paint = (vv, shown) => {
-    last = [vv, shown];
-    box.style.top = shown ? "auto" : "0";
-    box.style.bottom = shown ? "calc(var(--bottom-h, 0px) + 8px)" : "auto";
-    const y = Math.round(window.scrollY);
-    box.textContent = `GAME ${y <= 0 ? "AT ITS TOP" : "not at top"}\n` +
-      `win ${window.innerWidth}×${window.innerHeight}  vv ${Math.round(vv.width)}×${Math.round(vv.height)}\n` +
-      `vv.top ${Math.round(vv.offsetTop)}  scroll ${y}  zoom ${vv.scale.toFixed(2)}\n` +
-      `keyboard ${shown ? "OPEN" : "no"}  covered ${Math.round(window.innerHeight - vv.height - vv.offsetTop)}\n` +
-      `frame: ${seen}`;
-  };
-  return paint;
 }
 
 // Set up on the document. Returns update() and show().
@@ -128,7 +69,7 @@ export function mount(root, on) {
   root.addEventListener("visibilitychange", () => on.visible(!root.hidden));
   window.addEventListener("pagehide", () => on.leaving());     // reload, closed tab: save what's waiting
   const measure = followBars(root);
-  followKeyboard(root);
+  followTyping(root);
   return {
     // Show one view, "home" or "game", in a language: an open panel (map, settings) closes with the game.
     show(view, lang) {
