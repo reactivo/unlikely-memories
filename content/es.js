@@ -62,10 +62,10 @@ export default {
     const day = d.day <= 3 ? `el ${["primer", "segundo", "tercer"][d.day - 1]} día` : `el día ${d.day}`;
     return d.weekday ? `Hoy es ${d.weekday}, ${d.time}, ${day} de tu aventura.` : `Son las ${d.time}, ${day} de tu aventura.`;
   },
-  statusNow(d) {
-    const health = { good: "con buena salud", scratched: "con algún rasguño", hurt: "con heridas", badly: "con heridas graves" }[d.health];
-    return `Estás ${health}.`;
-  },
+  // Una frase por paso de salud (índice 1 a 5), común a STATUS y a los ecos (INTERFACE.md §6c). Ninguna nombra una causa.
+  health: [null, "Apenas te tienes en pie", "Te sientes fatal", "Te encuentras mal", "No estás del todo bien", "Te sientes bien"],
+  // STATUS: d = { health: el paso, de 5 a 1 }.
+  statusNow(d) { return this.health[d.health] + "."; },
   weekdays: { mon: "lunes", tue: "martes", wed: "miércoles", thu: "jueves", fri: "viernes", sat: "sábado", sun: "domingo" },
   onlyMentioned: () => "No hay nada más que hacer con eso.",   // nombrado en el texto, sin más que contar
   noIt: "No sé muy bien a qué te refieres.",
@@ -114,8 +114,7 @@ export default {
   // Ecos (INTERFACE.md §6c): una línea corta bajo el texto tras un cambio en tu salud, para el paso al que
   // llegas (salud 5–0), en mayúsculas y del color de su clase. Los elige js/engine.js.
   echo: {
-    hurt:   [null, "Estás gravemente herido", "Estás malherido", "Estás herido", "Estás levemente herido", null],
-    healed: [null, "Te sientes un poco mejor", "Te sientes mejor", "Te sientes mucho mejor", "Vuelves a ser casi tú mismo", "Te sientes bien"]
+    healed: [null, "Te sientes un poco mejor", "Te sientes mejor", "Te sientes mucho mejor", "Casi vuelves a ser tú", "Te sientes bien"]
   },
   // Perder lo último de tu salud (js/engine.js, `hurt`): primero las palabras de lo que te ha herido (s), si las tiene.
   hurt: {

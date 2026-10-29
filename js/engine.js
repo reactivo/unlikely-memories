@@ -557,10 +557,12 @@ function apply(g, e, action, out, key) {
     const n = fill(g, e.heal, action);
     if (typeof n !== "number" || !(n > 0)) return refuse("heal by how much? " + e.heal);
     const was = g.player.health, [, hi] = RANGES["player.health"];
-    g.player.health = Math.min(hi, was + n);         // never above full; at full only the line plays and nothing else changes
+    g.player.health = Math.min(hi, was + n);         // never above full
     if (g.player.health !== was) done({ set: "player.health", to: g.player.health });
     if (e.says !== undefined) apply(g, { say: e.says }, action, out, key + ":says");   // the world's own line, always
-    if (g.player.health !== was) echo(done, g, "healed", g.player.health);           // then the echo, if you are better
+    // then the echo, always: where you land if you are better; at full health nothing changes and it says so (the state phrase)
+    if (g.player.health !== was) echo(done, g, "healed", g.player.health);
+    else done({ echo: "@health." + g.player.health, kind: "healed", at: worldTime(g) });
   } else if ("echo" in e) {                          // an echo of something that happened to you: { echo: "…", kind: "noted" }
     const said = fill(g, e.echo, action);
     if (typeof said !== "string" || !said.trim()) return refuse("echo says what? " + e.echo);
@@ -692,7 +694,7 @@ function hurtLine(g, says, done) {
 // The echo of a change to your health (INTERFACE.md §6c): one short line from the language pack for where you
 // landed, in the colour of its kind. kind: "hurt" | "healed"; level: the new step.
 function echo(done, g, kind, level) {
-  done({ echo: `@echo.${kind}.${level}`, kind, at: worldTime(g) });
+  done({ echo: kind === "hurt" ? "@health." + level : `@echo.${kind}.${level}`, kind, at: worldTime(g) });   // a hurt says the state phrase
 }
 
 // What part of the opening an effect would change, if any (for effects from a world: they may not).

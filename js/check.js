@@ -274,7 +274,7 @@ export function check(state, pack, bible) {
         warnings.push(`${id}: raises health directly; use { heal: n, says: "…" } so it is capped at full and said, with its echo`);
       if (e && "heal" in e) healProblems(r, e, id, state, problems, warnings);
       if (!e || !("hurt" in e)) continue;
-      if (!e.says) warnings.push(`${id}: hurts with no line of its own (says): only the echo ("You're hurt") is shown`);
+      if (!e.says) warnings.push(`${id}: hurts with no line of its own (says): only the echo ("You feel unwell") is shown`);
       if (typeof e.hurt === "number" && e.hurt > 2 && !r.do.some(x => x?.end))
         warnings.push(`${id}: a hit of ${e.hurt} is too big outside an ending; a hit is 1, or 2 for something serious (health is 5 to 0)`);
     }
@@ -429,7 +429,7 @@ function drawingProblems(picture) {
 function healProblems(r, e, id, state, problems, warnings) {
   const named = typeof e.heal === "string" && e.heal.startsWith("$");           // a value the player's words fill in
   if (!named && (typeof e.heal !== "number" || !(e.heal > 0))) problems.push(`${id}: heal is a number above 0, not ${JSON.stringify(e.heal)}`);
-  if (!e.says) warnings.push(`${id}: heals with no line of its own (says): only the echo is shown, and nothing at all at full health`);
+  if (!e.says) warnings.push(`${id}: heals with no line of its own (says): only the echo is shown`);
   if (!Array.isArray(r.do) || r.once === true || r.when === "at" || r.named) return;   // (a named change is judged in the rules that run it)
   const all = r.do.flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]);
   const sets = new Set(all.filter(x => x && typeof x.set === "string").map(x => x.set));

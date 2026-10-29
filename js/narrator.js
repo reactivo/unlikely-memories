@@ -86,10 +86,9 @@ export function timeNow(state, pack, at = worldTime(state)) {
   return text("@timeNow", pack, { weekday: p.weekday ? pack.weekdays[p.weekday] : null, time: pad(p.hour) + ":" + pad(p.minute), day: p.day });
 }
 
-// STATUS: your health, in four bands.
+// STATUS: your health, one sentence per step (5 to 1; the pack has the words).
 export function statusNow(state, pack) {
-  const h = state.player.health;
-  const health = h >= 5 ? "good" : h >= 4 ? "scratched" : h >= 3 ? "hurt" : "badly";   // (health 5 to 0)
+  const health = Math.min(5, Math.max(1, Math.round(state.player.health)));
   return text("@statusNow", pack, { health });
 }
 

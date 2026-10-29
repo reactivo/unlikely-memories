@@ -54,11 +54,10 @@ export default {
     const day = d.day <= 3 ? `the ${["first", "second", "third"][d.day - 1]} day` : `day ${d.day}`;
     return d.weekday ? `Today is ${d.weekday}, ${d.time}, ${day} of your adventure.` : `It's ${d.time}, on ${day} of your adventure.`;
   },
-  // STATUS: d = { health: "good" | "scratched" | "hurt" | "badly" }.
-  statusNow(d) {
-    const health = { good: "in good health", scratched: "a little hurt", hurt: "hurt", badly: "badly hurt" }[d.health];
-    return `You are ${health}.`;
-  },
+  // One phrase per health step (index 1 to 5), shared by STATUS and the echoes (INTERFACE.md §6c). None names a cause.
+  health: [null, "You can barely stand", "You feel awful", "You feel unwell", "You feel a little off", "You're in good health"],
+  // STATUS: d = { health: the step, 5 to 1 }.
+  statusNow(d) { return this.health[d.health] + "."; },
   weekdays: { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday" },
   onlyMentioned: (w) => `There's nothing more to the ${w} than that.`,   // named in the text, nothing to answer
   noIt: "I'm not sure what \"it\" means here.",
@@ -116,7 +115,6 @@ export default {
   // Echoes (INTERFACE.md §6c): one short line under the story text after a change to your health, for the step
   // you land on (health 5–0), shown in capitals in the colour of its kind. js/engine.js picks them.
   echo: {
-    hurt:   [null, "You're severely hurt", "You're badly hurt", "You're hurt", "You're slightly hurt", null],
     healed: [null, "You feel a little better", "You feel better", "You feel much better", "You feel almost yourself again", "You feel well"]
   },
   // Losing the last of your health (js/engine.js, `hurt`): the cause's own words first (s) if it has some.
