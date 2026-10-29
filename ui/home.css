@@ -238,19 +238,19 @@
   /* The logo's letters (above): lit, then dim for a moment at the end of each period (about a tenth of a second). */
   @keyframes logo-flicker {
     0% { opacity: 1; }
-    99% { opacity: var(--logo-dim, .35); }
+    99.4% { opacity: var(--logo-dim, .35); }
   }
 
   /* A rose's petals (above): in the plus, then one square on (the diagonal) for about a quarter of a second, then the plus again. */
   @keyframes logo-rose {
     0% { translate: 0 0; }
-    99.2% { translate: var(--step-x, 0) var(--step-y, 0); }
+    99.1% { translate: var(--step-x, 0) var(--step-y, 0); }
   }
 
   @keyframes logo-flicker-twice {
     0% { opacity: 1; }
-    98% { opacity: var(--logo-dim, .35); }
-    98.7% { opacity: 1; }
-    99.2% { opacity: var(--logo-dim, .35); }
+    98.8% { opacity: var(--logo-dim, .35); }
+    99.25% { opacity: 1; }
+    99.6% { opacity: var(--logo-dim, .35); }
   }
 }
