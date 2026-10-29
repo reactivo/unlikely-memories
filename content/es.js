@@ -163,7 +163,7 @@ export default {
   a11y: { story: "Historia", command: "Escribe una orden" },
   panel: { title: "OPCIONES", restart: "Reiniciar partida", quit: "Salir" },
   // La página de inicio (ui/home.js). El nombre del juego no se traduce. Los botones salen en mayúsculas (home.css).
-  home: { subtitle: "Ficción Artificial Interactiva", newGame: "Partida nueva", resume: "Continuar", version: "Versión",
+  home: { subtitle: "Ficción Artificial Interactiva", newGame: "Nueva partida", resume: "Continuar", version: "Versión",
           language: (l) => `Idioma: ${{ en: "inglés", es: "español" }[l]}`,   // los botones del selector, arriba a la derecha
           none: "Todavía no hay juegos en español." },
   labels: { directions: "DIRECCIONES", inv: "INVENTARIO", day: "Día", map: "Mapa" },
