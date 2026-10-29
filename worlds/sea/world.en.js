@@ -108,7 +108,7 @@ const rooms = {
                 if: [{ "beach_door.shut": { "!=": true } }] },
     alt: "A beach at night under a full moon. A small green door stands upright in the sand, light leaking from its edges. A pier runs out to sea on the left; far off, a dark lighthouse on a rock. Black rocks and a cave mouth on the right.",
     scenery: [
-      { words: ["sand", "beach"], name: "the sand" }, { words: ["sea", "water", "waves", "ocean"], name: "the sea" },
+      { words: ["sand", "beach"], name: "the sand" }, { words: ["sea", "water", "waves", "ocean"], name: "the sea", says: "Black, and very cold to look at. Further out it pulls, patiently, like something that has all the time in the world." },
       { words: ["moon", "sky", "stars"], name: "the sky" }, { words: ["pier", "jetty"], name: "the pier" },
       { words: ["rocks", "rock", "cave", "mouth"], name: "the rocks", leads: "e" }, { words: ["dunes", "dune"], name: "the dunes" }
     ]
@@ -124,7 +124,7 @@ const rooms = {
     overlayAlt: { shell: "A pale shell lies near the page." },
     scenery: [
       { words: ["weed", "seaweed", "line", "tide"], name: "the weed" }, { words: ["sand", "beach"], name: "the sand" },
-      { words: ["sea", "water", "foam", "waves"], name: "the sea" }, { words: ["huts"], name: "the huts" }
+      { words: ["sea", "water", "foam", "waves"], name: "the sea", says: "Black, and very cold to look at. Further out it pulls, patiently, like something that has all the time in the world." }, { words: ["huts"], name: "the huts" }
     ]
   },
   cave: {
@@ -153,7 +153,7 @@ const rooms = {
     exits: { s: "beach", n: "pier_end" },
     alt: "A wooden pier stretching away from you into the night sea, with rope rails and a red and white lifebuoy on the nearest post.",
     scenery: [
-      { words: ["boards", "planks", "pier", "gaps", "deck"], name: "the boards" }, { words: ["sea", "water"], name: "the sea" },
+      { words: ["boards", "planks", "pier", "gaps", "deck"], name: "the boards" }, { words: ["sea", "water"], name: "the sea", says: "Black, and very cold to look at. Further out it pulls, patiently, like something that has all the time in the world." },
       { words: ["post", "posts", "rope", "rail", "rails"], name: "the posts" }, { words: ["lighthouse"], name: "the lighthouse" }
     ]
   },
@@ -168,7 +168,7 @@ const rooms = {
     alt: "The end of a pier at night. Across the water, a white lighthouse with a red band stands on a rock, its lantern dark.",
     overlayAlt: { boat: "A small blue rowing boat is tied to the post." },
     scenery: [
-      { words: ["post", "ring", "pier", "boards"], name: "the post" }, { words: ["sea", "water"], name: "the sea" },
+      { words: ["post", "ring", "pier", "boards"], name: "the post" }, { words: ["sea", "water"], name: "the sea", says: "Black, and very cold to look at. Further out it pulls, patiently, like something that has all the time in the world." },
       { words: ["rock"], name: "the rock" }
     ]
   },
@@ -355,7 +355,7 @@ const rooms = {
     overlayAlt: { boat: "The rowing boat is tied to the mooring ring." },
     scenery: [
       { words: ["lighthouse", "tower", "door", "staircase", "stairs"], name: "the lighthouse", leads: "u" },
-      { words: ["rock", "ring"], name: "the rock" }, { words: ["sea", "waves", "water", "foam"], name: "the sea" }
+      { words: ["rock", "ring"], name: "the rock" }, { words: ["sea", "waves", "water", "foam"], name: "the sea", says: "Black, and very cold to look at. Further out it pulls, patiently, like something that has all the time in the world." }
     ]
   },
   lantern: {
@@ -657,20 +657,17 @@ const rules = [
 
   // -- The pier --------------------------------------------------------------------------------------------------
 
-  // -- Swimming: a warning first, then the cold ---------------------------------------------------------------------
+  // -- Swimming: the cold takes hold at once, holds on longer each time, and the last time keeps you ---------------------------------------------------------------------
   { id: "swim_drown", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } },
-      { "player.waded": true }, { "player.health": { "<=": 2 } }],
+      { "player.health": { "<=": 2 } }],
     do: [{ say: "The cold closes over you, gently, the way it closes over everything. The sea takes you in. In its own time, it will give you back." },
          { hurt: 5, says: "The cold takes the last of you." }, { end: true, picture: "drowned" }] },
-  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 4 } }],
+  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.health": { "<=": 4 } }],
     do: [{ say: "You go in again. This time the thing underneath holds on longer before it lets go. You crawl out onto the sand knowing, the way you know your own handwriting, that next time it won't." },
          { hurt: 2, says: "It held on longer this time." }] },
-  { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }],
+  { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
     do: [{ say: "You go in. The cold is total. Something underneath takes your ankle, considers you, and lets go. You come out on the sand, coughing, and shaking, and less than you were." },
          { hurt: 2, says: "Its grip has left a mark." }] },
-  { id: "swim_wade", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
-    do: [{ set: "player.waded", to: true },
-         { say: "You wade in to your knees and stop. The water is black and very cold, and further out the sea pulls, patiently, like something that has all the time in the world." }] },
   { id: "swim_dry", match: { verb: "swim" }, do: [{ say: "There's no water here to swim in." }] },
 
   // -- The huts: the key from the parcel opens hut 7 -----------------------------------------------------------
@@ -816,7 +813,6 @@ export default {
     "coffee.had": { type: "boolean", start: false },        // the one coffee has been drunk
     "horse.rode": { type: "boolean", start: false },        // the one ride has been taken
     "beach_door.shut": { type: "boolean", start: false },   // the green door has turned to driftwood
-    "player.waded": { type: "boolean", start: false },   // you have waded into the sea
     "player.seated": { type: "boolean", start: false },   // you are sitting at the dining table
     "postmaster.gave": { type: "boolean", start: false }   // the postmaster has handed over the parcel
   },

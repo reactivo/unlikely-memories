@@ -339,7 +339,7 @@ const objects = {
     } },
   tubes: { at: "haberdashery", scenery: true, name: "Tubes", note: "The cash railway.", actions: ["Examine tubes"],
     words: { nouns: ["tubes", "tube", "railway", "pipes"], adj: ["brass", "cash", "pneumatic"] },
-    examine: "Brass tubes, polished by the air rushing through them. Every now and then one breathes in, hard, and the whole floor hears it." },
+    examine: "Brass tubes, polished by the air rushing through them. Every now and then one breathes in, hard, and the whole floor hears it. They take what is offered: a sleeve, a glove, fingers. Miss Thimble says it takes fingers, and does not look as though she were joking." },
   canister: { at: "haberdashery", scenery: true, container: true, open: true, name: "Canister", note: "In its cradle.", actions: ["Examine canister", "Pull handle"],
     words: { nouns: ["canister", "cylinder", "cradle", "carrier"], adj: ["brass", "cash"] },
     examine: "A brass canister with felt at each end, open, waiting for something to carry. It has been to the cash office and back more times than anyone has been anywhere." },
@@ -456,9 +456,7 @@ const rules = [
   { id: "send_away", match: { verb: "send" },
     do: [{ say: "Payments go by tube, from the canister in haberdashery." }] },
 
-  // The tubes: warned, then hurt.
-  { id: "tubes_warn", match: { verb: ["enter", "touch", "climb"], obj: "tubes" }, once: true,
-    do: [{ say: "You reach up to the tube. It breathes in and takes hold of your sleeve like a child wanting to show you something, hard. Miss Thimble raps the counter. \"Not with your hands, dear. It takes fingers.\" You get your sleeve back." }] },
+  // The tubes: the first touch hurts. (Their danger is in the tubes' own text and Miss Thimble's.)
   { id: "tubes_hurt", match: { verb: ["enter", "touch", "climb"], obj: "tubes" },
     do: [{ say: "You put your hand up the tube. It takes the whole arm, to the shoulder, and then thinks better of it and lets go." }, { hurt: 2, says: "The tube had your arm for a moment." }] },
 

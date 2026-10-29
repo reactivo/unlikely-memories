@@ -226,7 +226,7 @@ const rooms = {
     name: "THE RIVER STEPS", area: "row", at: [1, 2, 0],
     describe: [
       "Stone steps go down from the river wall to a strip of mud, and below it the Thames goes by, brown and in no hurry. You hear it better than you see it.",
-      "At the bottom {Pip|pip}, a mudlark, turns things over with a stick and keeps the good ones in a bucket. The {river} slaps the last step. The bridge is east; the last lamp, back up north."
+      "At the bottom {Pip|pip}, a mudlark, turns things over with a stick and keeps the good ones in a bucket. The {river} slaps the last step, as if it wanted the next one. The bridge is east; the last lamp, back up north."
     ],
     exits: { n: "last_lamp", e: "bridge" },
     scenery: [
@@ -442,7 +442,7 @@ const objects = {
     } },
   river: { at: "river_steps", scenery: true, name: "River", note: "Brown, in no hurry.", actions: ["Examine river"],
     words: { nouns: ["river", "thames", "water"], adj: ["brown", "cold"] },
-    examine: "Brown water, moving fast under its own calm, with the fog lying on it like a lid. It doesn't give things back, Pip says." },
+    examine: "Brown water, moving fast under its own calm, with the fog lying on it like a lid. It looks cold, and hungry, and the last step is dark where it has already reached for you. It doesn't give things back, Pip says." },
 
   // The bridge
   parapet: { at: "bridge", scenery: true, name: "Parapet", note: "Cold stone.", actions: ["Examine parapet"],
@@ -599,9 +599,7 @@ const rules = [
     do: [{ say: ["Your words go out into the fog and stop a little way off, hanging there, embarrassed. Somebody will hear them out one day.",
                  "The fog takes what you said and keeps it, a little above your head, where you can't get it back."] }] },
 
-  // The river: warned, then it takes hold.
-  { id: "river_warn", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }], once: true,
-    do: [{ say: "You go down to the last step. The river takes hold of your ankle, quite gently, as if it knew you. \"Don't,\" says Pip, and you come back up. Next time it might not let go." }] },
+  // The river: it takes hold, the first time. (Its danger is in the room and in the river's own text; Pip says it too.)
   { id: "river_hurt", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }],
     do: [{ say: "You go down into the river. It is colder than anything has a right to be, and it has you by the legs, and then, as if it had changed its mind, it lets go. You crawl back up the steps." },
          { hurt: 2, says: "The river had you for a moment, and kept some of you." }] },

@@ -136,7 +136,7 @@ const rooms = {
   platform_end: {
     name: "PLATFORM END", area: "town", at: [2, -1, 0],
     describe: [
-      "The platform ends in a slope and a sign with a man crossing out a man. The rails go on, east, into the {tunnel}. Warm air comes out of it, and a hum.",
+      "The platform ends in a slope and a sign with a man crossing out a man. The rails go on, east, into the {tunnel}. Warm air comes out of it, and a hum that leans towards you.",
       "The platform is west."
     ],
     exits: { w: "platform", e: true },
@@ -422,7 +422,7 @@ const objects = {
   // Platform end
   tunnel: { at: "platform_end", scenery: true, name: "Tunnel", note: "Warm. Humming.", actions: ["Listen to tunnel"],
     words: { nouns: ["tunnel", "mouth", "dark"], adj: ["warm"] },
-    examine: "Brick, and then nothing. The warm air smells of soot and something sweet, like a day you've been looking forward to.",
+    examine: "Brick, and then nothing. The warm air smells of soot and something sweet, like a day you've been looking forward to. The dark inside leans towards you, and the hum gets into your teeth.",
     listen: "A hum, low, patient. It sounds like a crowd saying a word it hasn't learned yet." },
 
   // Signal box
@@ -674,9 +674,7 @@ const rules = [
   { id: "wait_train", match: { verb: "wait" }, if: [at("platform"), { "train.at": "platform" }, { "$text": { "!=": null } }],
     do: [{ say: "The train is here. It won't wait much longer than you do." }] },
 
-  // The tunnel: warned, then hurt.
-  { id: "tunnel_warn", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }], once: true,
-    do: [{ say: "You step down onto the rails. The hum gets into your teeth. Somewhere inside, the dark leans towards you. You climb back up. Next time you might not." }] },
+  // The tunnel: the first step in hurts. (Its danger is in the platform end's text and the tunnel's own.)
   { id: "tunnel_hurt", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }],
     do: [{ say: "You walk in. The warm air thickens until it is like pushing through a crowd. Something passes very close, at speed, and is gone. You come out on your hands and knees, missing some of the evening." },
          { hurt: 2, says: "Something caught you as it passed." }] },

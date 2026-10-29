@@ -211,7 +211,7 @@ export function checkSet(state, set) {
     }
   };
 
-  // A property used by a path ("dog.anger", "$obj.talk", "player.waded"): the engine's own, or declared.
+  // A property used by a path ("dog.anger", "$obj.talk", "player.health"): the engine's own, or declared.
   const reference = (piece, raw, effect, plain) => {
     if (typeof raw !== "string" || !(plain || raw.startsWith("$"))) return;
     const m = /^(\$?)([A-Za-z_][\w-]*)\.([A-Za-z_][\w-]*)(?:\.[\w$-]+)*$/.exec(raw);

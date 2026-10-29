@@ -111,7 +111,7 @@ const rooms = {
                 if: [{ "beach_door.shut": { "!=": true } }] },
     alt: "Una playa de noche bajo la luna llena. Una pequeña puerta verde se alza en la arena, con luz que se escapa por sus bordes. A la izquierda, un muelle se adentra en el mar; a lo lejos, un faro apagado sobre una roca. A la derecha, rocas negras y la boca de una cueva.",
     scenery: [
-      { words: ["arena", "playa"], name: "la arena" }, { words: ["mar", "agua", "olas", "ola", "oceano"], name: "el mar" },
+      { words: ["arena", "playa"], name: "la arena" }, { words: ["mar", "agua", "olas", "ola", "oceano"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." },
       { words: ["luna", "cielo", "estrellas"], name: "el cielo" }, { words: ["muelle", "embarcadero"], name: "el muelle" },
       { words: ["rocas", "roca", "cueva", "boca"], name: "las rocas", leads: "e" }, { words: ["dunas", "duna"], name: "las dunas" }
     ]
@@ -127,7 +127,7 @@ const rooms = {
     overlayAlt: { shell: "Una caracola pálida yace cerca de la hoja." },
     scenery: [
       { words: ["algas", "alga", "linea", "marea"], name: "las algas" }, { words: ["arena", "playa"], name: "la arena" },
-      { words: ["mar", "agua", "espuma", "olas"], name: "el mar" }, { words: ["casetas", "caseta"], name: "las casetas" }
+      { words: ["mar", "agua", "espuma", "olas"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." }, { words: ["casetas", "caseta"], name: "las casetas" }
     ]
   },
   cave: {
@@ -156,7 +156,7 @@ const rooms = {
     exits: { s: "beach", n: "pier_end" },
     alt: "Un muelle de madera que se aleja de ti hacia el mar nocturno, con barandas de cuerda y un salvavidas rojo y blanco en el poste más cercano.",
     scenery: [
-      { words: ["tablones", "tablon", "tablas", "muelle", "huecos"], name: "los tablones" }, { words: ["mar", "agua"], name: "el mar" },
+      { words: ["tablones", "tablon", "tablas", "muelle", "huecos"], name: "los tablones" }, { words: ["mar", "agua"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." },
       { words: ["poste", "postes", "cuerda", "cuerdas", "baranda", "barandas"], name: "los postes" }, { words: ["faro"], name: "el faro" }
     ]
   },
@@ -171,7 +171,7 @@ const rooms = {
     alt: "El final de un muelle de noche. Al otro lado del agua, un faro blanco con una franja roja se alza sobre una roca, con la linterna apagada.",
     overlayAlt: { boat: "Una pequeña barca azul está atada al poste." },
     scenery: [
-      { words: ["poste", "argolla", "anilla", "muelle", "tablones"], name: "el poste" }, { words: ["mar", "agua"], name: "el mar" },
+      { words: ["poste", "argolla", "anilla", "muelle", "tablones"], name: "el poste" }, { words: ["mar", "agua"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." },
       { words: ["roca"], name: "la roca" }
     ]
   },
@@ -358,7 +358,7 @@ const rooms = {
     overlayAlt: { boat: "La barca está atada a la argolla de amarre." },
     scenery: [
       { words: ["faro", "torre", "puerta", "escalera", "escaleras"], name: "el faro", leads: "u" },
-      { words: ["roca", "argolla"], name: "la roca" }, { words: ["mar", "olas", "agua", "espuma"], name: "el mar" }
+      { words: ["roca", "argolla"], name: "la roca" }, { words: ["mar", "olas", "agua", "espuma"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." }
     ]
   },
   lantern: {
@@ -660,20 +660,17 @@ const rules = [
 
   // -- El muelle -------------------------------------------------------------------------------------------------
 
-  // -- Nadar: primero un aviso, luego el frío ----------------------------------------------------------------------
+  // -- Nadar: el frío te agarra a la primera, cada vez te sujeta más, y a la última te queda ----------------------------------------------------------------------
   { id: "swim_drown", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } },
-      { "player.waded": true }, { "player.health": { "<=": 2 } }],
+      { "player.health": { "<=": 2 } }],
     do: [{ say: "El frío se cierra sobre ti, con suavidad, como se cierra sobre todo. El mar te recibe. A su tiempo, te devolverá." },
          { hurt: 5, says: "El frío se lleva lo último de ti." }, { end: true, picture: "drowned" }] },
-  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 4 } }],
+  { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.health": { "<=": 4 } }],
     do: [{ say: "Vuelves a entrar. Esta vez lo que hay debajo tarda más en soltarte. Sales a rastras a la arena sabiendo, como sabes tu propia letra, que la próxima vez no lo hará." },
          { hurt: 2, says: "Esta vez ha tardado más en soltarte." }] },
-  { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }],
+  { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
     do: [{ say: "Entras. El frío es total. Algo, debajo, te agarra el tobillo, te considera y te suelta. Sales a la arena tosiendo, temblando, y con menos de lo que eras." },
          { hurt: 2, says: "Su presa te ha dejado una marca." }] },
-  { id: "swim_wade", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
-    do: [{ set: "player.waded", to: true },
-         { say: "Entras hasta las rodillas y te detienes. El agua es negra y muy fría, y más allá el mar tira, paciente, como algo que tiene todo el tiempo del mundo." }] },
   { id: "swim_dry", match: { verb: "swim" }, do: [{ say: "Aquí no hay agua en la que nadar." }] },
 
   // -- Las casetas: la llave del paquete abre la caseta 7 ----------------------------------------------------------
@@ -819,7 +816,6 @@ export default {
     "coffee.had": { type: "boolean", start: false },        // ya se ha tomado el único café
     "horse.rode": { type: "boolean", start: false },        // ya se ha dado la única vuelta
     "beach_door.shut": { type: "boolean", start: false },   // la puerta verde se ha vuelto madera de deriva
-    "player.waded": { type: "boolean", start: false },   // has entrado en el mar
     "player.seated": { type: "boolean", start: false },   // estás sentado a la mesa del comedor
     "postmaster.gave": { type: "boolean", start: false }   // el administrador ha entregado el paquete
   },

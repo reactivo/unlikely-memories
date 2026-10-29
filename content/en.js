@@ -54,8 +54,8 @@ export default {
     const day = d.day <= 3 ? `the ${["first", "second", "third"][d.day - 1]} day` : `day ${d.day}`;
     return d.weekday ? `Today is ${d.weekday}, ${d.time}, ${day} of your adventure.` : `It's ${d.time}, on ${day} of your adventure.`;
   },
-  // One phrase per health step (index 1 to 5), shared by STATUS and the echoes (INTERFACE.md §6c). None names a cause.
-  health: [null, "You can barely stand", "You feel awful", "You feel unwell", "You feel a little off", "You're in good health"],
+  // One phrase per health step (index 1 to 5), shared by STATUS and the echoes (INTERFACE.md §6c). None names a cause. [0] is the echo of a death (STATUS never shows it).
+  health: ["You're dead", "You can barely stand", "You feel awful", "You feel unwell", "You feel a little off", "You're in good health"],
   // STATUS: d = { health: the step, 5 to 1 }.
   statusNow(d) { return this.health[d.health] + "."; },
   weekdays: { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday" },

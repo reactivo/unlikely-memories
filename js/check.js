@@ -261,8 +261,8 @@ export function check(state, pack, bible) {
       problems.push(`${id}: use must be the verb USE alone stands for (an action or a word this world adds, not "use"), not ${JSON.stringify(o.use)}`);
 
   // Harm is fair (GUIDE.md §3): health (5 to 0) is lost with `hurt` and the rule's own line (`says`), then the game's
-  // echo, never by setting it; and a hit is 1, or 2 for something serious (the engine never lets one of those end you
-  // from above 1), unless the rule is itself an ending.
+  // echo, never by setting it; and a hit is a whole number from 1 to 5 (1 ordinary, 2–3 serious, 4 very rare, 5 an instant
+  // death, which comes with an `end` in the same rule). A hit is never held back: there is no warning turn.
   const changes = Object.entries(state.changes || {}).map(([name, effects]) => ({ id: "change " + name, do: effects, named: true }));
   for (const r of [...state.rules, ...changes]) {
     if (!r || !Array.isArray(r.do)) continue;
@@ -275,8 +275,14 @@ export function check(state, pack, bible) {
       if (e && "heal" in e) healProblems(r, e, id, state, problems, warnings);
       if (!e || !("hurt" in e)) continue;
       if (!e.says) warnings.push(`${id}: hurts with no line of its own (says): only the echo ("You feel unwell") is shown`);
-      if (typeof e.hurt === "number" && e.hurt > 2 && !r.do.some(x => x?.end))
-        warnings.push(`${id}: a hit of ${e.hurt} is too big outside an ending; a hit is 1, or 2 for something serious (health is 5 to 0)`);
+      if (typeof e.hurt === "number") {
+        if (!Number.isInteger(e.hurt) || e.hurt < 1 || e.hurt > 5)
+          problems.push(`${id}: hurts by ${e.hurt}; a hit is a whole number from 1 to 5 (1 ordinary, 2–3 serious, 4 very rare, 5 an instant death)`);
+        else if (e.hurt === 5 && !r.do.some(x => x?.end))
+          warnings.push(`${id}: a hit of 5 is an instant death, so the same rule needs an end (end: true, with the ending's picture)`);
+        else if (e.hurt === 4)
+          warnings.push(`${id}: a hit of 4 should be very rare (1 ordinary, 2–3 serious); is it earned and visible in the fiction?`);
+      }
     }
   }
 

@@ -258,7 +258,7 @@ export function mount(root, on, header) {
   // Add a paragraph to the story (to the current visit). Returns it.
   // cls: "cmd" = an echoed command (appears at once), "sys" = dim text. art: optional SVG shown on the left.
   // instant: show it at once, no fading in (a restored game's earlier text).
-  // level: a health line (an echo, STATUS) gets the five health bars before it, the first `level` filled (1 to 5).
+  // level: a health line (an echo, STATUS) gets the five health bars before it, the first `level` filled (0 to 5; 0 is all empty).
   function say(text, cls, art, instant, level) {
     const p = document.createElement("p");
     if (cls) p.className = cls;
@@ -269,7 +269,7 @@ export function mount(root, on, header) {
       into = document.createElement("span"); into.className = "text";
       p.append(fig, into);
     }
-    if (level >= 1 && level <= 5) into.appendChild(bars(level));    // (older saves have no level: plain text)
+    if (level >= 0 && level <= 5) into.appendChild(bars(level));    // (older saves have no level: plain text)
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
     current().appendChild(p);

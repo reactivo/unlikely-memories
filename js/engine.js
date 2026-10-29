@@ -76,13 +76,16 @@ export function step(state, input) {
   if (g.player.health <= 0 && !g.ended) {                        // out of health: the story ends, whatever the world
     if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its line was said when the health went)
       apply(g, { say: "@hurt.dead", vary: true }, {}, out, "died");
+    if (!out.applied.some(dying)) out.applied.push({ echo: "@health.0", kind: "hurt", level: 0, at: worldTime(g) });   // (and the echo of it)
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
   return { next: g, ...out };
 }
 
-// The same effects with the echoes moved after everything else, each group in its own order.
-const echoesLast = (list) => [...list.filter(e => !("echo" in e)), ...list.filter(e => "echo" in e)];
+// The same effects with the echoes moved after everything else, each group in its own order. The echo of a death (level 0)
+// stays where it is, right after the death's lines and so before the end's own text.
+const dying = (e) => e.echo === "@health.0";
+const echoesLast = (list) => [...list.filter(e => !("echo" in e) || dying(e)), ...list.filter(e => "echo" in e && !dying(e))];
 
 // Ask the player something for the controller (undo, load…): a `confirm` effect applied now, outside any turn.
 // Returns { next, applied, refused }, like step().
@@ -548,9 +551,7 @@ function apply(g, e, action, out, key) {
     if (typeof n !== "number" || !(n > 0)) return refuse("hurt by how much? " + e.hurt);
     const [lo] = RANGES["player.health"], was = g.player.health;
     g.player.health = Math.max(lo, was - n);
-    // An ordinary hit (1 or 2) never ends you from above 1: you are severely hurt first (INTERFACE.md §6c). A bigger one
-    // is an ending's (drowning) and does.
-    if (n <= 2 && was > 1 && g.player.health < 1) g.player.health = 1;
+    // A hit takes what it takes, with no warning first (GUIDE.md §3): at 0 the story ends.
     done({ set: "player.health", to: g.player.health });
     hurtLine(g, fill(g, e.says, action), done);
   } else if ("heal" in e) {                          // heal the player: { heal: 1, says: "The tea is hot and sweet." }
@@ -683,10 +684,13 @@ function apply(g, e, action, out, key) {
 }
 
 // Losing health always says so: the cause's own words, if any, as story text, then the echo of how hurt you are now
-// (red: INTERFACE.md §6c); at 0, the end of your strength instead (and step() ends the story).
+// (red: INTERFACE.md §6c); at 0, the end of your strength, then the echo at level 0 (and step() ends the story).
 function hurtLine(g, says, done) {
   const h = g.player.health, cause = typeof says === "string" ? says : null;
-  if (h <= 0) return done(clean({ say: "@hurt.dead", arg: cause, at: worldTime(g), pick: roll(g) }));   // the end: one of several, at random
+  if (h <= 0) {                                                       // the end: one of several, at random, then the echo at level 0
+    done(clean({ say: "@hurt.dead", arg: cause, at: worldTime(g), pick: roll(g) }));
+    return echo(done, g, "hurt", 0);
+  }
   if (cause) done({ say: cause, at: worldTime(g) });
   echo(done, g, "hurt", h);
 }

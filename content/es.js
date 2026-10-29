@@ -63,7 +63,7 @@ export default {
     return d.weekday ? `Hoy es ${d.weekday}, ${d.time}, ${day} de tu aventura.` : `Son las ${d.time}, ${day} de tu aventura.`;
   },
   // Una frase por paso de salud (índice 1 a 5), común a STATUS y a los ecos (INTERFACE.md §6c). Ninguna nombra una causa.
-  health: [null, "Apenas te tienes en pie", "Te sientes fatal", "Te encuentras mal", "No estás del todo bien", "Te sientes muy bien"],
+  health: ["Estás muerto", "Apenas te tienes en pie", "Te sientes fatal", "Te encuentras mal", "No estás del todo bien", "Te sientes muy bien"],
   // STATUS: d = { health: el paso, de 5 a 1 }.
   statusNow(d) { return this.health[d.health] + "."; },
   weekdays: { mon: "lunes", tue: "martes", wed: "miércoles", thu: "jueves", fri: "viernes", sat: "sábado", sun: "domingo" },

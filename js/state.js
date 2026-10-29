@@ -12,8 +12,8 @@ import { newSeed } from "./random.js";
 // aren't a room's) and `ending` (the one the story ended with).)
 export const FORMAT = 16;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh)
 
-// Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit is 2 at most outside an
-// ending (the checker warns), so the end never comes without being "severely hurt" first.
+// Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit takes what it takes (1 to 5,
+// the checker holds worlds to the scale: GUIDE.md §3), with no warning turn; at 0 the story ends.
 // A fresh game in a language: the world that plays (the one named by `id`; worlds/index.js's DEFAULT when none is), if it's
 // written in this language (only English worlds so far), built from its change set, opening and all (ARCHITECTURE.md
 // §3, "The opening"). Health can be carried over (changing language keeps it). sequel: a change set = that world

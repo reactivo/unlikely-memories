@@ -341,7 +341,7 @@ const objects = {
     } },
   tubes: { at: "haberdashery", scenery: true, name: "Tubos", note: "El correo neumático.", actions: ["Examinar tubos"],
     words: { nouns: ["tubos", "tubo", "correo", "tuberías", "tuberia", "tuberias"], adj: ["latón", "laton", "caja", "neumático", "neumatico", "de"], g: "m", pl: true },
-    examine: "Tubos de latón, pulidos por el aire que corre dentro. De vez en cuando uno aspira, con fuerza, y toda la planta lo oye." },
+    examine: "Tubos de latón, pulidos por el aire que corre dentro. De vez en cuando uno aspira, con fuerza, y toda la planta lo oye. Se llevan lo que se les ofrece: una manga, un guante, los dedos. La señorita Thimble dice que se lleva los dedos, y no parece que bromee." },
   canister: { at: "haberdashery", scenery: true, container: true, open: true, name: "Cápsula", note: "En su soporte.", actions: ["Examinar cápsula", "Tirar del tirador"],
     words: { nouns: ["cápsula", "capsula", "cilindro", "soporte", "cartucho"], adj: ["latón", "laton", "caja", "de"], g: "f" },
     examine: "Una cápsula de latón con fieltro en cada extremo, abierta, esperando algo que llevar. Ha ido a la caja y ha vuelto más veces de las que nadie ha ido a ninguna parte." },
@@ -458,9 +458,7 @@ const rules = [
   { id: "send_away", match: { verb: "send" },
     do: [{ say: "Los pagos van por tubo, desde la cápsula de mercería." }] },
 
-  // Los tubos: primero el aviso, luego el daño.
-  { id: "tubes_warn", match: { verb: ["enter", "touch", "climb"], obj: "tubes" }, once: true,
-    do: [{ say: "Alzas la mano hacia el tubo. Aspira y te agarra la manga, con fuerza, como un niño que quiere enseñarte algo. La señorita Thimble golpea el mostrador. «Con las manos no, cielo. Se lleva los dedos». Recuperas la manga." }] },
+  // Los tubos: el primer contacto hace daño. (Su peligro está en el texto de los tubos y en el de la señorita Thimble.)
   { id: "tubes_hurt", match: { verb: ["enter", "touch", "climb"], obj: "tubes" },
     do: [{ say: "Metes la mano en el tubo. Se lleva el brazo entero, hasta el hombro, y luego se lo piensa mejor y te suelta." }, { hurt: 2, says: "El tubo tuvo tu brazo un momento." }] },
 

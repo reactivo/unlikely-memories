@@ -234,7 +234,7 @@ const rooms = {
     name: "LA ESCALERA DEL RÍO", area: "row", at: [1, 2, 0],
     describe: [
       "Una escalera de piedra baja desde el muro del río hasta una franja de barro, y más abajo el Támesis pasa, pardo y sin prisa. Lo oyes mejor que lo ves.",
-      "Al pie, {Pip|pip}, una niña que rebusca en el fango, remueve las cosas con un palo y guarda las buenas en un cubo. El {río|river} lame el último escalón. El puente queda al este; el último farol, arriba, al norte."
+      "Al pie, {Pip|pip}, una niña que rebusca en el fango, remueve las cosas con un palo y guarda las buenas en un cubo. El {río|river} lame el último escalón, como si quisiera el siguiente. El puente queda al este; el último farol, arriba, al norte."
     ],
     exits: { n: "last_lamp", e: "bridge" },
     scenery: [
@@ -450,7 +450,7 @@ const objects = {
     } },
   river: { at: "river_steps", scenery: true, name: "Río", note: "Pardo, sin prisa.", actions: ["Examinar río"],
     words: { nouns: ["rio", "tamesis", "agua"], adj: ["pardo", "frio"], g: "m" },
-    examine: "Agua parda, que corre deprisa bajo su propia calma, con la niebla tendida encima como una tapa. No devuelve nada, dice Pip." },
+    examine: "Agua parda, que corre deprisa bajo su propia calma, con la niebla tendida encima como una tapa. Parece frío y hambriento, y el último escalón está oscuro donde ya ha alargado la mano hacia ti. No devuelve nada, dice Pip." },
 
   // El puente
   parapet: { at: "bridge", scenery: true, name: "Parapeto", note: "Piedra fría.", actions: ["Examinar parapeto"],
@@ -607,9 +607,7 @@ const rules = [
     do: [{ say: ["Tus palabras salen a la niebla y se detienen un poco más allá, colgadas, avergonzadas. Alguien las oirá hasta el final algún día.",
                  "La niebla coge lo que dijiste y lo guarda, un poco por encima de tu cabeza, donde no puedes recuperarlo."] }] },
 
-  // El río: aviso primero, luego te agarra.
-  { id: "river_warn", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }], once: true,
-    do: [{ say: "Bajas hasta el último escalón. El río te agarra el tobillo, con bastante suavidad, como si te conociera. «No», dice Pip, y subes. La próxima vez quizá no te suelte." }] },
+  // El río: te agarra, a la primera. (Su peligro está en la sala y en el texto del río; Pip también lo dice.)
   { id: "river_hurt", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }],
     do: [{ say: "Bajas al río. Está más frío de lo que nada tiene derecho a estar, y te tiene por las piernas, y luego, como si hubiera cambiado de idea, te suelta. Subes a gatas la escalera." },
          { hurt: 2, says: "El río te tuvo un momento, y se quedó con parte de ti." }] },

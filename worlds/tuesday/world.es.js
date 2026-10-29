@@ -138,7 +138,7 @@ const rooms = {
   platform_end: {
     name: "FINAL DEL ANDÉN", area: "town", at: [2, -1, 0],
     describe: [
-      "El andén termina en una rampa y un cartel con un hombre tachando a otro hombre. Los raíles siguen al este, hacia el {túnel|tunnel}. De él sale un aire tibio, y un zumbido.",
+      "El andén termina en una rampa y un cartel con un hombre tachando a otro hombre. Los raíles siguen al este, hacia el {túnel|tunnel}. De él sale un aire tibio, y un zumbido que se inclina hacia ti.",
       "El andén queda al oeste."
     ],
     exits: { w: "platform", e: true },
@@ -424,7 +424,7 @@ const objects = {
   // Final del andén
   tunnel: { at: "platform_end", scenery: true, name: "Túnel", note: "Tibio. Zumbando.", actions: ["Escuchar túnel"],
     words: { nouns: ["túnel", "tunel", "boca", "oscuridad"], adj: ["tibio", "cálido", "calido"], g: "m" },
-    examine: "Ladrillo, y luego nada. El aire tibio huele a hollín y a algo dulce, como un día que has estado esperando.",
+    examine: "Ladrillo, y luego nada. El aire tibio huele a hollín y a algo dulce, como un día que has estado esperando. La oscuridad de dentro se inclina hacia ti, y el zumbido se te mete en los dientes.",
     listen: "Un zumbido bajo y paciente. Suena como una multitud diciendo una palabra que aún no ha aprendido." },
 
   // Caseta de señales
@@ -682,9 +682,7 @@ const rules = [
   { id: "wait_train", match: { verb: "wait" }, if: [at("platform"), { "train.at": "platform" }, { "$text": { "!=": null } }],
     do: [{ say: "El tren está aquí. No esperará mucho más que tú." }] },
 
-  // El túnel: primero la advertencia, luego el daño.
-  { id: "tunnel_warn", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }], once: true,
-    do: [{ say: "Bajas a los raíles. El zumbido se te mete en los dientes. Dentro, la oscuridad se inclina hacia ti. Subes de nuevo. La próxima vez quizá no puedas." }] },
+  // El túnel: el primer paso dentro hace daño. (Su peligro está en el texto del final del andén y en el del túnel.)
   { id: "tunnel_hurt", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }],
     do: [{ say: "Entras. El aire tibio se espesa hasta que es como abrirse paso entre una multitud. Algo pasa muy cerca, a toda velocidad, y desaparece. Sales a gatas, sin una parte de la tarde." },
          { hurt: 2, says: "Algo te ha alcanzado al pasar." }] },
