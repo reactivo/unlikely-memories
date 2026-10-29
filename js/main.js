@@ -26,7 +26,7 @@ import * as log from "../ui/log.js";
 import * as prompt from "../ui/prompt.js";
 import * as compass from "../ui/compass.js";
 import * as inventory from "../ui/inventory.js";
-import * as settings from "../ui/settings.js";
+import * as options from "../ui/options.js";
 import * as map from "../ui/map.js";
 import * as page from "../ui/page.js";
 import * as tools from "../ui/tools.js";
@@ -63,10 +63,10 @@ let lastInput = null;                                    // the last command typ
 let lastUnknown = null;                                  // the unknown word in it, if any (for OOPS)
 let pendingWhich = null;                                 // "Which do you mean…?" is waiting: what the next input may answer (parse)
 let autosaving = null;                                   // the pending automatic save
-let freshFor = null;                                     // a world to open with a new game (its saved game dropped), read once by route()
+let freshFor = null;                                     // a world to open with a new game, read once by route()
 let turnStart = null;                                    // this turn's first paragraph: { el, entry } (see enteredRoom)
 
-// What the pieces can ask the controller to do (clicks, Enter, settings…).
+// What the pieces can ask the controller to do (clicks, Enter, options…).
 const on = {
   submit: (raw) => runCommand(raw),                      // Enter on the command line
   canSend: () => !restarting,                            // no input while a new game is starting
@@ -75,14 +75,13 @@ const on = {
   showObject: (id, label) => examineObject(id, label),   // an object in the story was clicked: examine it
   showItem: (id) => examineObject(id, listName(id, state, packOf(state)), true),   // an inventory item was clicked: the same
   music: () => { musicOn = !musicOn; store("parser-music", musicOn ? "on" : "off"); redraw(); },
-  language: (l) => setLang(l),                           // a language was chosen in settings
   homeLanguage: (l) => setHomeLang(l),                   // EN · ES on the list of games
-  quit: () => quit(),                                    // "Quit" in settings (or the QUIT command): back to the list of games
+  quit: () => quit(),                                    // "Quit" in options (or the QUIT command): back to the list of games
   play: (id, fresh = false) => {                        // LOAD GAME / NEW GAME on a card: the address changes, route() follows
-    if (fresh) freshFor = id;                            // (NEW GAME on a world with a saved game: open it with a new game, once)
+    if (fresh) freshFor = id;                            // (NEW GAME on a world with a saved game: open it with a new game, once; its kept game stays)
     location.hash = id;
   },
-  newGame: () => confirm("@askNewGame", "newGame"),      // "New game" in settings: asks in the story first
+  restart: () => restart({ ask: true }),                 // "Restart game" in options (and Esc): asks in the story first, unless the story is over
   travel: (room) => travel(room),                        // a room was clicked on the map: walk there
   focus: () => { if (view === "game") ui.prompt.focus(); },   // give the command line the focus back
   visible: (shown) => {                                  // the tab was hidden or shown: pause or resume the world
@@ -106,14 +105,14 @@ const ui = {
   tools: tools.mount($(".tools"), on),
   tabs: tabs.mount($(".tabs")),
   keys: keys.mount(document),
-  settings: settings.mount($(".settings"), on),
+  options: options.mount($(".options"), on),
   map: map.mount($("#map-panel"), on)
 };
 const landing = home.mount($(".home"), on);              // the list of games: not drawn from the game's state, so apart from ui
 
 // Keyboard shortcuts (ui/keys.js). The arrow keys stay the command line's own (the cursor, and earlier commands: ui/prompt.js).
-// Esc: a new game (it asks first, in the story).
-ui.keys.add({ key: "Escape", when: () => view === "game" && !restarting, release: () => on.newGame() });   // (not on the list of games)
+// Esc: restart the game (it asks first, in the story).
+ui.keys.add({ key: "Escape", when: () => view === "game" && !restarting, release: () => on.restart() });   // (not on the list of games)
 
 // Redraw the screen: each piece gets the state (plus the texts and settings) and updates what changed since
 // last time. reason: "turn" (a command), "tick" (the world on its own), "restore" (new game, language change:
@@ -199,28 +198,26 @@ function play(raw) {
   // Answering one of the session's own questions (undo, load…) isn't a move to take back.
   const q = state.pending.question, answering = parsed.actions[0]?.verb === "answer" && q?.yes?.some(e => e.session);
   if (!answering) { history.push(state); if (history.length > UNDO_STEPS) history.shift(); }
-  let restart = false, then = null;
+  let again = false, then = null;
   for (const action of parsed.actions) {
     const { next, applied, refused } = step(state, { ...action, at: clock.now() });
     if (refused.length) console.warn("Effects refused by the engine:", refused);   // a rule asked for something impossible
     state = next;
     show(story(applied, state, pack));                   // (USE alone also says what you could do with the thing)
     then = applied.find(e => e.session)?.session ?? then; // a question answered yes: something for the session
-    if (applied.some(e => e.restart)) { restart = true; break; }   // beginning again was chosen
+    if (applied.some(e => e.restart)) { again = true; break; }   // beginning again was chosen
     if (state.pending.question) break;                   // a question was asked: the rest waits for the answer
   }
   redraw("turn");
   if (then) return confirmed(then);
   // After someone answers (talking, asking, saying something to them): what you could ask them about next.
   const talked = parsed.actions.findLast(a => ["talk", "ask", "say"].includes(a.verb) && a.obj);
-  if (talked && !restart && !state.ended && !state.pending.question && state.talkingTo === talked.obj && inScope(state, talked.obj)) {
+  if (talked && !again && !state.ended && !state.pending.question && state.talkingTo === talked.obj && inScope(state, talked.obj)) {
     const line = topicsLine(state, pack, talked.obj);
     if (line) suggest(line);
   }
-  if (restart) {
-    restarting = true; clearTimeout(timer);
-    restartTimer = setTimeout(() => { restarting = false; newGame(); }, RESTART_DELAY);
-  } else { schedule(); autosave(); }
+  if (again) restart({ said: true });                  // (BEGIN AGAIN: the engine has said againYes)
+  else { schedule(); autosave(); }
 }
 
 // Nothing to do with the words (not a turn): a reply in the world's voice, varied ("You're not sure how to do
@@ -312,7 +309,7 @@ async function confirmed(kind) {
       restore(r);
       say(text("@loaded", packOf(state)), "sys");
     } catch (e) { say(text("@saveFailed", pack), "sys"); }
-  } else if (kind === "newGame") newGame(true);
+  } else if (kind === "restart") restart();
   ui.log.toEnd();
 }
 
@@ -443,22 +440,27 @@ function startStory(health, id) {
   schedule(); autosave(true);
 }
 
-// Start a whole new game: clock back to zero, story from the top.
-// Either way the same world, from its opening. fresh: a whole new game (settings): the world's kept game goes with it;
-// else (beginning again) it stays.
-function newGame(fresh = false) {
-  if (fresh && state.worldId) saves.discard(state.worldId).catch(() => {});
-  clock.reset(); showTime();
-  startStory(undefined, state.worldId ?? undefined);
-  ui.prompt.focus();
+// Restart: a whole new game of the same world, from its opening (clock back to zero, story from the top). The ONE way a new game
+// starts, whatever asked for it. It never touches the world's kept game (SAVE / LOAD: saves.GAME): LOAD can always go back to it.
+// The automatic save is simply replaced by the new game's first one.
+//   ask:  the question comes first, in the story (the options' Restart game, Esc), unless the story is over: the end needs no question.
+//   said: againYes was already said (the engine's BEGIN AGAIN effect); else it is said here when the story is over (the menu after the end).
+//   id:   a world to begin (NEW GAME on a card: choosing was the answer, so no question and no pause), else this game's world.
+// After the end the new game starts after a pause (RESTART_DELAY), with input closed meanwhile.
+function restart({ ask = false, said = false, id } = {}) {
+  if (id !== undefined) return begin(id);
+  if (view !== "game" || restarting) return;
+  if (state.ended || said) {
+    if (!said) say(text("@againYes", packOf(state)), "sys");
+    restarting = true; clearTimeout(timer);
+    restartTimer = setTimeout(() => { restarting = false; begin(state.worldId ?? undefined); }, RESTART_DELAY);
+  } else if (ask) confirm("@askRestart", "restart");
+  else begin(state.worldId ?? undefined);
 }
-
-// Switch language: remember it and start the story again in it (one language per game; health is kept).
-function setLang(l) {
-  if (state.worldId) saves.discard(state.worldId).catch(() => {});   // a game in another language: a different game (this world's)
-  lang = l;
-  store("parser-lang", l);
-  startStory(state.player.health, state.worldId ?? undefined);
+function begin(id) {
+  clock.reset(); showTime();
+  startStory(undefined, id);
+  ui.prompt.focus();
 }
 
 // Which view: the address says (js/route.js). No hash: the list of games; #<id>: that world, continuing its saved game if it has one.
@@ -493,7 +495,7 @@ async function showHome() {
   ui.page.show("home", lang);
 }
 
-// The language chosen on the list of games: remembered like the settings' choice, and the list drawn again in it. No game is being
+// The language chosen on the list of games (the only place it is chosen): remembered, and the list drawn again in it. No game is being
 // played here, so no saved game is touched.
 function setHomeLang(l) {
   if (!LANGS.includes(l) || l === lang) return;
@@ -503,22 +505,20 @@ function setHomeLang(l) {
 }
 
 // Show a world: its saved game continued if it has one, else a new game from its opening. fresh: a new game from its opening
-// whatever is saved (NEW GAME on its card), and the saved game is dropped.
+// whatever is saved (NEW GAME on its card: restart(), which keeps the world's kept game).
 async function openWorld(id, fresh = false) {
   const mine = ++opening;
   leaveGame();
-  if (fresh) await saves.discard(id).catch(() => {});
   const r = fresh ? null : await autoSaved(id);
   if (mine !== opening) return;
   view = "game"; openId = id; shown = null;           // (shown = null: every piece draws itself afresh)
   ui.page.show("game", lang);
   clock.resume();
   if (r) restore(r);
-  else { clock.reset(); showTime(); startStory(undefined, id); }
-  ui.prompt.focus();
+  else restart({ id });
 }
 
-// QUIT, EXIT, or the settings' Quit: the address goes back to none (a new entry, so back returns to the game) and the list shows.
+// QUIT, EXIT, or the options' Quit: the address goes back to none (a new entry, so back returns to the game) and the list shows.
 function quit() {
   if (view !== "game") return;
   window.history.pushState(null, "", location.pathname + location.search);

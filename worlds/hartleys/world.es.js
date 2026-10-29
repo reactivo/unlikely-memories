@@ -17,7 +17,7 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Modales de grandes almacenes: caoba, latón, jefes de planta, el correo neumático de la caja, " +
     "un comercio que nunca ha logrado cerrar del todo.",
   start: "Sábado, 17:10, en la planta baja.",
-  opening: "El pasaje de atrás de los almacenes, a las cinco menos diez: una bolsa de caramelos de menta (para empezar de nuevo), una " +
+  opening: "El pasaje de atrás de los almacenes, a las cinco menos diez: una " +
     "radio (pistas), una lista de la compra que ya llevas (por qué viniste). La puerta giratoria es la entrada.",
   rules: [
     "Todo en Hartley's tiene un precio, y el precio es un recuerdo.",
@@ -59,7 +59,7 @@ const rooms = {
     exits: { n: true },
     scenery: [
       { words: ["escaparate", "escaparates", "cristal", "cristales", "vitrina", "vitrinas", "vestidos", "vestido"], name: "los escaparates", says: "Vestidos sobre sus bustos, de colores de antes de que nacieras, cada uno vuelto unos grados hacia ti. Los del fondo, unos grados más." },
-      { words: ["repisa", "repisas", "borde", "saliente", "alféizar", "alfeizar"], name: "la repisa", says: "Una repisa de piedra, lo bastante ancha para una bolsa de caramelos, pulida por gente que se paró a mirar vestidos y ya no se marchó." },
+      { words: ["repisa", "repisas", "borde", "saliente", "alféizar", "alfeizar"], name: "la repisa", says: "Una repisa de piedra, lo bastante ancha para dejar un paquete, pulida por gente que se paró a mirar vestidos y ya no se marchó." },
       { words: ["pasaje", "galería", "galeria", "techo", "baldosas", "baldosa", "suelo", "persiana", "calle"], name: "el pasaje", says: "Baldosas mojadas, aunque no ha llovido, y un techo de cristal con los últimos restos de luz. La persiana a tu espalda no tiene tirador, y la calle de más allá es el sábado de otro." }
     ],
     mentions: ["escaparates", "vestidos", "repisa", "puerta giratoria"],
@@ -67,7 +67,6 @@ const rooms = {
     alt: "Un pasaje cubierto, con techo de cristal, al anochecer, visto desde el suelo y cerrado por los dos extremos: escaparates iluminados y llenos de vestidos a lo largo de las dos paredes, una puerta giratoria en el muro ciego del fondo y una lámpara a su lado.",
     overlayAlt: {
       wireless: "Una pequeña radio color crema en la repisa.",
-      mints: "Una bolsa de papel con caramelos de menta en la repisa."
     }
   },
   front_hall: {
@@ -248,14 +247,10 @@ const rooms = {
 
 // ---- Cosas -----------------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: las dos cosas que se cogen, la que ya llevas y el camino hacia dentro (BRIEF.md §3).
-  mints: { at: "pavement", portable: true, name: "Bolsa de caramelos", note: "Toma uno para volver a empezar.", actions: ["Coger bolsa", "Comer caramelo"], heldActions: ["Comer caramelo", "Examinar bolsa"],
-    words: { nouns: ["bolsa", "caramelos", "caramelo", "mentas", "menta", "bolsita", "dulces", "dulce"], adj: ["papel", "rayada", "de"], g: "f" }, ...item("mints"),
-    here: "En la repisa del escaparate más cercano hay una {bolsa|mints} de papel, llena de caramelos de menta.",
-    examine: "Una bolsa de papel rayada, retorcida por arriba. Dentro, caramelos de menta, cada uno en su envoltorio, cada uno todavía tibio de una mano. La bolsa nunca pesa menos." },
+  // La apertura: la cosa que se coge, la que ya llevas y el camino hacia dentro (BRIEF.md §3).
   wireless: { at: "pavement", portable: true, name: "Radio", note: "Anunciando las secciones.", actions: ["Coger radio", "Escuchar radio"], heldActions: ["Escuchar radio", "Examinar radio"],
     words: { nouns: ["radio", "transistor", "aparato", "receptor", "emisora"], adj: ["crema", "pequeña", "pequena", "vieja"], g: "f" }, ...item("wireless"),
-    here: "A su lado, una {radio|wireless} pequeña murmura para sí.",
+    here: "En la repisa del escaparate más cercano, una {radio|wireless} pequeña murmura para sí.",
     examine: "Una radio color crema, del tamaño de una hogaza, sintonizada entre dos emisoras. Una voz de mujer anuncia las secciones de Hartley's, planta por planta, y vuelve a empezar por arriba." },
   shopping_list: { at: "player", portable: true, name: "Lista de la compra", note: "Casi borrada.", actions: ["Leer lista"], heldActions: ["Leer lista"],
     words: { nouns: ["lista", "papelito", "apunte"], adj: ["compra", "lapiz", "doblada"], g: "f" }, ...item("shopping_list"),
@@ -546,17 +541,12 @@ const puzzles = {
 };
 
 // ---- El conjunto de cambios ------------------------------------------------------------------------------------------------------------
-// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y sus cuatro cosas, y las líneas que dice ----------------------------------
+// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y sus tres cosas, y las líneas que dice ----------------------------------
 const opening = {
-  room: "pavement", restart: "mints", hints: "wireless", intro: "shopping_list", way: "street_door",
+  room: "pavement", hints: "wireless", intro: "shopping_list", way: "street_door",
   lines: {
-    notYet: "La puerta pasa de largo sin dejar ningún hueco. Se ruega a los clientes con las manos vacías que aguarden, y en la repisa hay una bolsa y una radio.",
-    notYetRestart: "La puerta pasa de largo sin dejar ningún hueco. No tienes nada con lo que volver a empezar, y en la repisa hay una bolsa de caramelos de menta.",
-    notYetHints: "La puerta pasa de largo sin dejar ningún hueco. No tienes nada que escuchar, y en la repisa hay una radio.",
+    notYet: "La puerta pasa de largo sin dejar ningún hueco. Se ruega a los clientes que no entren sin nada que escuchar, y en la repisa hay una radio.",
     through: "La hoja siguiente llega con un hueco, y te metes en el hueco, y das la vuelta con ella, y sales a la tienda. A tu espalda el pasaje sigue siendo un sábado.",
-    askRestart: "¿Te pones un caramelo de menta en la boca y empiezas de nuevo?",
-    restartYes: "Desenvuelves un caramelo y te lo pones en la lengua. Sabe a todas las veces que te dieron uno. Los escaparates se van apagando, uno a uno, y…",
-    restartNo: "Retuerces la bolsa para cerrarla y te la quedas. Todavía no.",
     hintFrame: "La radio se queda callada entre dos secciones, y una voz, con bastante amabilidad, dice:",
     farewell: "Doblas la lista una vez, y sigue doblándose, cada vez más pequeña, hasta que no sostienes nada, con mucho cuidado."
   }

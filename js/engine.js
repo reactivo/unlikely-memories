@@ -120,7 +120,7 @@ export function applyChangeSet(state, set, { protect = true, fields = null } = {
 // that isn't declared (a set may declare a new one itself, in its `properties`).
 export const applyProposal = (state, set) => applyChangeSet(state, set, { fields: "refuse" });
 
-// Build a world's opening from its declaration: the player starts in its room carrying the intro, the three things
+// Build a world's opening from its declaration: the player starts in its room carrying the intro, the hints thing
 // and the way on get their mechanics (rules and puzzles, js/opening.js) and the room and everything in it become
 // `fixed`: no later effect from a world may change, move, draw, connect, remove or add to them.
 function buildOpening(g, d, out, protect) {

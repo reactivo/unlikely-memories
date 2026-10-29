@@ -52,8 +52,7 @@ export default {
     `,
     cycles: [{ name: "the far lamp", areas: ["lamp_glow", "lamp"], colors: [14, 6], style: "pingpong", ms: 2600 }],
     overlays: [
-      { object: "canary", at: [96, 6] },
-      { object: "egg_timer", at: [236, 108] }
+      { object: "canary", at: [96, 6] }
     ]
   },
 

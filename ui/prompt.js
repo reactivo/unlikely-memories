@@ -76,7 +76,7 @@ export function mount(root, on) {
   // ↑ / ↓ step through earlier commands. These are handled here and not in ui/keys.js on purpose: that table acts
   // once on key release and ignores held keys, but stepping back quickly by holding ↑ is normal, so each press and
   // each repeat acts at once. Still the command line's own keys: never with Cmd/Ctrl/Alt/Shift, nor while a panel or
-  // the settings are open. (Phones have no arrow keys; nothing is drawn for them.)
+  // the options are open. (Phones have no arrow keys; nothing is drawn for them.)
   const earlier = makeHistory();
   cmd.addEventListener("keydown", (e) => {
     if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;

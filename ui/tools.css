@@ -1,4 +1,4 @@
-/* Tools: ♫ music on/off and ≡ settings, two icons (img/icons/, through .icon in utilities.css) centred on two tiles. At the top of the strip on wider windows (the
+/* Tools: ♫ music on/off and ≡ options, two icons (img/icons/, through .icon in utilities.css) centred on two tiles. At the top of the strip on wider windows (the
    strip's width, one tile high); on phones, two square tiles beside the title bar (the size comes from layout.css;
    phone values here). The text style is .text-button (css/typography.css), put on the tools in index.html. */
 @layer ui {

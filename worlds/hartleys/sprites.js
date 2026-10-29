@@ -58,36 +58,6 @@ export default {
     "................"
   ],
 
-  // A paper bag of peppermints, crimped at the top (the opening's restart thing).
-  mints: [
-    "................",
-    "................",
-    "....ff.cc.......",
-    "...0ff00cc0.....",
-    "...0000000000...",
-    "..0e6e6e6e6e60..",
-    "..0666666666660.",
-    "..06666ff666660.",
-    "..0666fccf66660.",
-    "..06666ff666660.",
-    "..0666666666660.",
-    "..0666666666660.",
-    "..0666666666660.",
-    "..0e66666666e60.",
-    "...00000000000..",
-    "................"
-  ],
-
-  // The bag on the window sill, small.
-  mints_floor: [
-    "..cc....",
-    "0f00ff0.",
-    "0666660.",
-    "066ff60.",
-    "0666660.",
-    "0000000."
-  ],
-
   // A small cream wireless set (the opening's hints thing).
   wireless: [
     "................",

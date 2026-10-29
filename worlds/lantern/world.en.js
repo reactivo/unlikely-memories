@@ -17,7 +17,7 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Fog-bound London of gas lamps, pie shops and inquests; police manners; a murder with no " +
     "mark on the body. Tender: the killing is a kindness said at the wrong moment.",
   start: "Thursday, 22:30, on Lantern Row (the opening, in the cab, at 22:20).",
-  opening: "Inside a hansom cab stopped in the fog: an egg timer (to begin again), a canary in a cage (hints), a " +
+  opening: "Inside a hansom cab stopped in the fog: a canary in a cage (hints), a " +
     "summons you already carry (why you came). The fog outside the folding doors is the way on.",
   rules: [
     "Words said in the fog hang where they were said until someone hears them out.",
@@ -75,8 +75,7 @@ const rooms = {
     ], every: [25, 60] },
     alt: "From inside a dark hansom cab, red plush on either side, looking out through its open folding doors at thick white fog. Reins hang down across the opening; far off in the fog, the smudge of one lit lamp.",
     overlayAlt: {
-      canary: "A canary in a small brass cage hangs from a hook in the roof.",
-      egg_timer: "An egg timer lies on the seat."
+      canary: "A canary in a small brass cage hangs from a hook in the roof."
     }
   },
   row: {
@@ -262,11 +261,7 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the two things to take, the one you carry, and the way on (BRIEF.md §3).
-  egg_timer: { at: "cab", portable: true, name: "Egg timer", note: "Turn it over to begin again.", actions: ["Take timer", "Turn timer"], heldActions: ["Turn timer", "Examine timer"],
-    words: { nouns: ["timer", "hourglass"], adj: ["egg", "wooden", "little"] }, ...item("egg_timer"),
-    here: "On the seat beside you lies an {egg timer|egg_timer}, run out.",
-    examine: "An egg timer in a little wooden frame, all its sand run down. Three minutes, it says on the frame, though it has the look of something that has measured a good deal longer." },
+  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
   canary: { at: "cab", portable: true, name: "Canary", note: "Watching the fog for you.", actions: ["Take canary", "Listen to canary"], heldActions: ["Listen to canary", "Examine canary"],
     words: { nouns: ["canary", "bird", "cage"], adj: ["yellow", "brass", "small", "little"] }, ...item("canary"),
     here: "From a hook in the roof hangs a {canary} in a small brass cage, watching the fog for you.",
@@ -652,17 +647,12 @@ const puzzles = {
     hints: ["Dr Mabbott wants a name, and Mr Voss expects it to be his.", "In the court, accuse Mr Voss, and say yes."] }
 };
 
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and four things, and the lines it says ----------------
+// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says ----------------
 const opening = {
-  room: "cab", restart: "egg_timer", hints: "canary", intro: "summons", way: "cab_fog",
+  room: "cab", hints: "canary", intro: "summons", way: "cab_fog",
   lines: {
-    notYet: "You put a foot on the step, and the fog puts it back, politely, the way a doorman would. Not with empty hands: there is an egg timer on the seat, and a canary on the hook.",
-    notYetRestart: "The fog puts your foot back on the floor of the cab. You have nothing to begin again with; the egg timer is still on the seat.",
-    notYetHints: "The fog puts your foot back on the floor of the cab. You have nothing to listen to; the canary is still on its hook.",
+    notYet: "You put a foot on the step, and the fog puts it back, politely, the way a doorman would. Not yet: the canary is still on its hook, and nobody goes out into a fog like this without one.",
     through: "You step down into the fog. It closes over the cab behind you like water over a dropped coin, and the cobbles come up to meet your feet.",
-    askRestart: "Turn the egg timer over and begin again?",
-    restartYes: "You turn it over. The sand starts to run, the cab rocks on its springs, and somewhere a horse that isn't there sets off backwards, and…",
-    restartNo: "You set the timer down on its side, where the sand can't decide. Not yet.",
     hintFrame: "The canary puts its head on one side and sings, in a voice like a very small police constable:",
     farewell: "The fog leans in through the doors and reads the summons over your shoulder. When it has finished, it takes it, and you let it."
   }

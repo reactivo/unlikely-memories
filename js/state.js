@@ -10,7 +10,7 @@ import { newSeed } from "./random.js";
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
 // 11: `fired`, the `once` rules that have had their one time. 12: every key starts in blank(). 13: `pictures` (pictures that
 // aren't a room's) and `ending` (the one the story ended with).)
-export const FORMAT = 15;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh)
+export const FORMAT = 16;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh)
 
 // Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit is 2 at most outside an
 // ending (the checker warns), so the end never comes without being "severely hurt" first.
@@ -35,7 +35,7 @@ export function newState({ lang, health = 5, seed = newSeed(), sequel = true, pr
 function blank({ lang, health, seed }) {
   return {
     worldId: null,                 // which world of worlds/index.js this game plays (beginning again keeps it)
-    opening: null,                 // the world's opening, as it declared it (js/opening.js): room, restart, hints, intro, way, lines
+    opening: null,                 // the world's opening, as it declared it (js/opening.js): room, hints, intro, way, lines
     entrance: null,                // where the opening's way on leads: the world's first room (the world sets it)
     format: FORMAT,                // the state's shape (see FORMAT)
     properties: {},                // the properties the world declared: "thing.name" → { type, min?, max?, start? } (js/fields.js)

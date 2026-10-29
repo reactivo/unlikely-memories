@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="ui/inventory.css">
 <link rel="stylesheet" href="ui/tools.css">
 <link rel="stylesheet" href="ui/tabs.css">
-<link rel="stylesheet" href="ui/settings.css">
+<link rel="stylesheet" href="ui/options.css">
 <link rel="stylesheet" href="ui/map.css">
 <link rel="stylesheet" href="ui/home.css">
 <script type="module" src="js/main.js"></script>
@@ -68,7 +68,7 @@
     <div class="strip">
       <div class="tools text-button">
         <button type="button" class="tool" id="music" aria-pressed="false" aria-label="Music" title="Music: off"><span class="icon" style="mask-image: url(img/icons/icon-music.svg)"></span></button>
-        <button type="button" class="tool" id="settings" popovertarget="settings-panel" aria-label="Settings" title="Settings"><span class="icon" style="mask-image: url(img/icons/icon-menu.svg)"></span></button>
+        <button type="button" class="tool" id="options" popovertarget="options-panel" aria-label="Options" title="Options"><span class="icon" style="mask-image: url(img/icons/icon-menu.svg)"></span></button>
       </div>
       <section class="panel text-ui exits" id="exits-panel" popover aria-labelledby="tab-exits">
         <div class="compass text-button" role="group">
@@ -100,27 +100,18 @@
   </div>
 </main>
 
-<!-- Settings: a popover (HTML popover API) opened by the ≡ button. Non-modal: it closes with Esc, by clicking
+<!-- Options: a popover (HTML popover API) opened by the ≡ button. Non-modal: it closes with Esc, by clicking
      outside, or with the button again; it sits in the browser's top layer, above everything else. -->
-<div id="settings-panel" class="settings text-ui" popover role="dialog" aria-labelledby="settings-title">
-  <h2 id="settings-title">SETTINGS</h2>
-  <fieldset class="choice">
-    <legend id="l-language">LANGUAGE</legend>
-    <label><input type="radio" name="lang" value="en"><span>English</span></label>
-    <label><input type="radio" name="lang" value="es"><span>Español</span></label>
-  </fieldset>
-  <p class="note" id="l-language-note">Changing the language starts a new game.</p>
-  <section class="game" aria-labelledby="l-game">
-    <h3 id="l-game">GAME</h3>
-    <div class="actions">
-      <button type="button" class="action" id="new-game">New game</button>
-      <button type="button" class="action" id="quit-game">Quit</button>
-    </div>
-  </section>
+<div id="options-panel" class="options text-ui" popover role="dialog" aria-labelledby="options-title">
+  <h2 id="options-title">OPTIONS</h2>
+  <div class="actions">
+    <button type="button" class="action" id="restart-game">Restart game</button>
+    <button type="button" class="action" id="quit-game">Quit</button>
+  </div>
 </div>
 
 <!-- The map: a popover (HTML popover API) opened by the M in the middle of the compass, or by the MAP command. Non-modal like
-     the settings: it closes with Esc, by clicking outside it, or with the × (ui/map.js). data-state says "open" or "closed",
+     the options: it closes with Esc, by clicking outside it, or with the × (ui/map.js). data-state says "open" or "closed",
      a hook for a later animation (ui/map.css). The rooms are drawn in .world and hidden from screen readers; the list
      beside them says the same in words. -->
 <div id="map-panel" class="mapview text-ui" popover role="dialog" aria-labelledby="map-title" tabindex="-1" data-state="closed">

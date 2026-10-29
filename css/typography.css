@@ -56,7 +56,7 @@
     line-height: var(--line-xxs);
   }
 
-  /* Interface text: the page's default, the title bar, the prompt, the settings panel, the map popup and the landing page. */
+  /* Interface text: the page's default, the title bar, the prompt, the options panel, the map popup and the landing page. */
   .text-ui {
     font-size: var(--text-m);
     line-height: var(--line-s);

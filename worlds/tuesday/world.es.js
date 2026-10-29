@@ -16,7 +16,7 @@ export const bible = {
     "ayuntamiento, alguien ha guardado el último lunes, por si acaso.",
   tone: "WRITING-DIRECTION.md. Melancolía de pueblo ferroviario: horarios, cosas perdidas, un decreto enmarcado en la estación.",
   start: "Domingo, 19:30, en la oficina de objetos perdidos de la estación.",
-  opening: "Un apeadero de vía secundaria, un domingo por la tarde: un despertador de viaje (para empezar de nuevo), una lata de " +
+  opening: "Un apeadero de vía secundaria, un domingo por la tarde: una lata de " +
     "cacao con un cordel (las pistas), una página de agenda que ya llevas encima (por qué has venido). La puerta abierta del " +
     "único vagón es el camino.",
   rules: [
@@ -81,7 +81,6 @@ const rooms = {
     ambience: { lines: ["La farola sobre el banco zumba una nota y la sostiene.", "Un hilo del telégrafo hace tic, una sola vez, como un reloj que se lo está pensando.", "Muy lejos, línea abajo, algo que no es un tren hace sonar su silbato y se arrepiente.", "El cartel con el nombre gira un poco con el viento, y vuelve a su sitio."], every: [30, 70] },
     alt: "Un pequeño apeadero al anochecer: un andén con un banco y una farola, un cartel con el nombre y, al fondo, un único vagón iluminado con la puerta abierta.",
     overlayAlt: {
-      alarm: "Un despertador de latón sobre el banco.",
       tin: "Una lata de cacao sobre el banco, con un cordel que sale de ella por el borde del andén."
     }
   },
@@ -320,14 +319,10 @@ const rooms = {
 
 // ---- Objetos ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: las dos cosas que se cogen, la que llevas, y el camino (BRIEF.md §3).
-  alarm: { at: "halt", portable: true, name: "Despertador de viaje", note: "Dale cuerda para empezar de nuevo.", actions: ["Coger despertador", "Dar cuerda al despertador"], heldActions: ["Dar cuerda al despertador", "Examinar despertador"],
-    words: { nouns: ["despertador", "campanillas", "alarma"], adj: ["latón", "laton", "viaje", "pequeño", "pequeno", "reloj"], g: "m" }, ...item("alarm"),
-    here: "Sobre el banco hay un {despertador|alarm} de latón, con la alarma puesta para mañana.",
-    examine: "Un despertador de viaje, de latón, con dos campanillas arriba y una llave detrás. Está puesto para mañana por la mañana, y lleva ya algún tiempo siendo mañana por la mañana." },
+  // La apertura: la cosa que se coge, la que llevas, y el camino (BRIEF.md §3).
   tin: { at: "halt", portable: true, name: "Lata de cacao", note: "Alguien al otro lado.", actions: ["Coger lata", "Escuchar lata"], heldActions: ["Escuchar lata", "Examinar lata"],
     words: { nouns: ["lata", "cordel", "cuerda", "cacao", "bote"], adj: ["cacao", "fría", "fria", "larga"], g: "f" }, ...item("tin"),
-    here: "Al lado, una {lata|tin} de cacao tiende su cordel más allá del borde del andén.",
+    here: "Sobre el banco, una {lata|tin} de cacao tiende su cordel más allá del borde del andén.",
     examine: "Una lata de cacao con un agujero en el fondo y un cordel que sale de él, a lo largo del andén y por el borde hacia la oscuridad. El cordel está tenso, como si hubiera algo en el otro extremo." },
   diary_leaf: { at: "player", portable: true, name: "Página de agenda", note: "Rayada para una semana.", actions: ["Leer página"], heldActions: ["Leer página"],
     words: { nouns: ["página", "pagina", "agenda", "diario"], adj: ["hoja", "doblada", "amarilla", "rayada"], g: "f" }, ...item("diary_leaf"),
@@ -757,17 +752,12 @@ const puzzles = {
 };
 
 // ---- El conjunto de cambios ---------------------------------------------------------------------------------------------------
-// ---- La apertura, declarada (BRIEF.md §3): las ids de su sala y de sus cuatro cosas, y las líneas que dice ---------------------
+// ---- La apertura, declarada (BRIEF.md §3): las ids de su sala y de sus tres cosas, y las líneas que dice ---------------------
 const opening = {
-  room: "halt", restart: "alarm", hints: "tin", intro: "diary_leaf", way: "carriage_door",
+  room: "halt", hints: "tin", intro: "diary_leaf", way: "carriage_door",
   lines: {
-    notYet: "El vagón se aparta de tu pie, con cortesía, un palmo. Se ruega a los pasajeros que traigan algo con que empezar de nuevo y algo que escuchar.",
-    notYetRestart: "El vagón se aparta de tu pie, un palmo. No tienes con qué empezar de nuevo, y hay un despertador en el banco.",
-    notYetHints: "El vagón se aparta de tu pie, un palmo. No tienes nada que escuchar, y hay una lata en el banco.",
+    notYet: "El vagón se aparta de tu pie, con cortesía, un palmo. Se ruega a los pasajeros que traigan algo que escuchar, y en el banco hay una lata.",
     through: "Subes, y la puerta se cierra tras de ti con un ruidito, como un billete al picarse, y la farola del andén se apaga. Cuando vuelve a abrirse estás entre estanterías.",
-    askRestart: "¿Das cuerda al despertador hasta el principio del día y empiezas de nuevo?",
-    restartYes: "Das cuerda hasta que ya no gira más. El andén corre hacia atrás bajo tus pies, la farola, el banco, la tarde, y…",
-    restartNo: "Sueltas la llave. El despertador sigue su marcha, y todavía es mañana.",
     hintFrame: "Te acercas la lata al oído. Por el cordel, alguien con la paciencia de un jefe de estación dice:",
     farewell: "Alzas la página hacia la farola. La semana se deshace por sus líneas, y desaparece, el domingo primero."
   }

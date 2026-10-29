@@ -1,6 +1,6 @@
 // Saved games, kept in this browser (IndexedDB: plenty of room, unlike localStorage's ~5 MB). Per world, two saves: "auto", the
 // automatic save after every turn, so leaving and coming back continues the game; and "game", the one you keep yourself
-// (SAVE / LOAD), which goes when a whole new game of that world starts (discard()). A record is { state, transcript, savedAt };
+// (SAVE / LOAD), which nothing removes: a new game of that world (js/main.js restart()) only replaces the automatic one. A record is { state, transcript, savedAt };
 // its key is "<world id>/<kind>". Every call takes the world's id. Storage can be blocked (private windows, previews): every
 // call can fail, and the game carries on without it.
 
@@ -58,15 +58,6 @@ export async function get(id, kind) {
   let saved;
   try { saved = await backend.get(key(id, kind)); } catch (e) { saved = undefined; }
   return newer(saved, backup(key(id, kind)));
-}
-
-// Forget a world's saves but its automatic one (a whole new game of that world, or the same game in another language: a
-// different game). Other worlds' saves are untouched.
-export async function discard(id) {
-  const mine = (k) => k.startsWith(id + "/") && k !== key(id, AUTO);
-  try { for (const k of Object.keys(localStorage)) if (k.startsWith(BACKUP) && mine(k.slice(BACKUP.length))) localStorage.removeItem(k); }
-  catch (e) { /* blocked */ }
-  for (const k of await backend.keys()) if (typeof k === "string" && mine(k)) await backend.del(k);
 }
 
 // Before there were several worlds there was one automatic save and one kept save, named "auto" and "game": each becomes its

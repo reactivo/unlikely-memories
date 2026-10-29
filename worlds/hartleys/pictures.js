@@ -61,8 +61,7 @@ export default {
       { name: "the door turning", areas: ["door_glass"], colors: [11, 3], style: "pingpong", ms: 1600 }
     ],
     overlays: [
-      { object: "wireless", at: [46, 88] },
-      { object: "mints", at: [30, 89] }
+      { object: "wireless", at: [46, 88] }
     ]
   },
 

@@ -17,7 +17,7 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Londres en la niebla, de faroles de gas, tiendas de pasteles e investigaciones; modales " +
     "de policía; una muerte sin una sola marca en el cuerpo. Tierno: el crimen es una bondad dicha a destiempo.",
   start: "Jueves, 22:30, en Lantern Row (la apertura, en el coche, a las 22:20).",
-  opening: "Dentro de un coche de punto detenido en la niebla: un reloj de arena (para empezar de nuevo), un canario en " +
+  opening: "Dentro de un coche de punto detenido en la niebla: un canario en " +
     "una jaula (pistas), una citación que ya llevas (por qué has venido). La niebla al otro lado de las portezuelas " +
     "plegables es el camino.",
   rules: [
@@ -84,7 +84,6 @@ const rooms = {
     alt: "Desde el interior de un coche de punto oscuro, con felpa roja a ambos lados, mirando por sus portezuelas abiertas a una espesa niebla blanca. Las riendas cuelgan a través de la abertura; a lo lejos, entre la niebla, la mancha de un farol encendido.",
     overlayAlt: {
       canary: "Un canario en una pequeña jaula de latón cuelga de un gancho del techo.",
-      egg_timer: "Un reloj de arena yace sobre el asiento."
     }
   },
   row: {
@@ -270,11 +269,7 @@ const rooms = {
 
 // ---- Objetos -----------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: las dos cosas que coger, la que ya llevas y el camino (BRIEF.md §3).
-  egg_timer: { at: "cab", portable: true, name: "Reloj de arena", note: "Dale la vuelta para empezar de nuevo.", actions: ["Coger reloj", "Girar reloj"], heldActions: ["Girar reloj", "Examinar reloj"],
-    words: { nouns: ["reloj", "ampolleta", "temporizador", "cronometro"], adj: ["arena", "de", "madera", "huevos", "huevo", "cocina", "pequeno", "pequeño"], g: "m" }, ...item("egg_timer"),
-    here: "Sobre el asiento, a tu lado, hay un {reloj de arena|egg_timer}, ya vacío.",
-    examine: "Un reloj de arena de los de cocer huevos, en un marco de madera, con toda la arena ya abajo. Tres minutos, dice el marco, aunque tiene aspecto de haber medido mucho más tiempo." },
+  // La apertura: la cosa que coger, la que ya llevas y el camino (BRIEF.md §3).
   canary: { at: "cab", portable: true, name: "Canario", note: "Vigilando la niebla por ti.", actions: ["Coger canario", "Escuchar canario"], heldActions: ["Escuchar canario", "Examinar canario"],
     words: { nouns: ["canario", "pajaro", "ave", "jaula", "pajarito"], adj: ["amarillo", "laton", "pequeno", "pequeño", "dorado"], g: "m" }, ...item("canary"),
     here: "De un gancho del techo cuelga un {canario|canary} en una pequeña jaula de latón, vigilando la niebla por ti.",
@@ -660,17 +655,12 @@ const puzzles = {
     hints: ["El doctor Mabbott quiere un nombre, y el señor Voss espera que sea el suyo.", "En el tribunal, acusa al señor Voss, y di que sí."] }
 };
 
-// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y sus cuatro cosas, y las líneas que dice ------------------
+// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y sus tres cosas, y las líneas que dice ------------------
 const opening = {
-  room: "cab", restart: "egg_timer", hints: "canary", intro: "summons", way: "cab_fog",
+  room: "cab", hints: "canary", intro: "summons", way: "cab_fog",
   lines: {
-    notYet: "Pones un pie en el estribo, y la niebla te lo devuelve, con educación, como lo haría un portero. Con las manos vacías no: hay un reloj de arena sobre el asiento y un canario en el gancho.",
-    notYetRestart: "La niebla te devuelve el pie al suelo del coche. No tienes con qué empezar de nuevo; el reloj de arena sigue sobre el asiento.",
-    notYetHints: "La niebla te devuelve el pie al suelo del coche. No tienes nada que escuchar; el canario sigue en su gancho.",
+    notYet: "Pones un pie en el estribo, y la niebla te lo devuelve, con educación, como lo haría un portero. Todavía no: el canario sigue en su gancho, y a una niebla así no se sale sin canario.",
     through: "Bajas a la niebla. Se cierra sobre el coche a tus espaldas como el agua sobre una moneda que cae, y los adoquines suben a encontrar tus pies.",
-    askRestart: "¿Dar la vuelta al reloj de arena y empezar de nuevo?",
-    restartYes: "Le das la vuelta. La arena empieza a correr, el coche se mece sobre sus ballestas, y en algún lugar un caballo que no está echa a andar hacia atrás, y…",
-    restartNo: "Dejas el reloj tumbado, donde la arena no puede decidirse. Todavía no.",
     hintFrame: "El canario ladea la cabeza y canta, con una voz de agente de policía muy pequeño:",
     farewell: "La niebla se asoma por las portezuelas y lee la citación por encima de tu hombro. Cuando termina, se la lleva, y la dejas."
   }

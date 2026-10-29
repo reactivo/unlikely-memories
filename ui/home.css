@@ -20,7 +20,7 @@
     --tile-bg:        var(--color-surface);     /* behind a thumbnail */
     --card-title:     var(--color-text);
     --card-blurb:     var(--color-text-soft);
-    --button:         var(--color-surface);     /* LOAD GAME / NEW GAME */
+    --button:         var(--color-surface);     /* CONTINUE / NEW GAME */
     --button-text:    var(--color-text);
     --button-on:      var(--color-highlight);   /* the button under the pointer… */
     --button-on-text: var(--color-bg);          /* …and its text */
@@ -164,7 +164,7 @@
       color: var(--card-blurb);
     }
 
-    /* One button (NEW GAME), or two side by side that together fill the width (LOAD GAME, NEW GAME). */
+    /* One button (NEW GAME), or two side by side that together fill the width (CONTINUE, NEW GAME). */
     & .buttons {
       display: flex;
       gap: var(--space-s);

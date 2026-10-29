@@ -1,0 +1,53 @@
+/* Options popover, opened from ≡ (ui/tools.css). Placed under the button, right edges aligned (options.js).
+   Framed with a line in the surface colour. It lives in the browser's top layer, outside .layout, so its text style
+   is a class of its own: .text-ui (css/typography.css), put on it in index.html. */
+@layer ui {
+  .options {
+    /* Colours in the options panel, by meaning. */
+    --frame:        var(--color-surface);     /* the border */
+    --heading:      var(--color-text-dim);    /* OPTIONS */
+    --choice:       var(--color-text-faint);  /* a button */
+    --choice-hover: var(--color-text);        /* …under the pointer */
+
+    margin: 0;
+    inset: auto;
+    position: fixed;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 2px solid var(--frame);
+    padding: var(--space-m);
+    width: 448px;
+    max-width: calc(100vw - 2 * var(--gutter));   /* phones: never off screen */
+    box-sizing: border-box;
+
+    & h2 {
+      margin: 0 0 var(--space-m);
+      color: var(--heading);
+    }
+
+    /* "Restart game" (it asks in the story, like every yes/no question) and "Quit" (back to the list of games), each on its
+       own line. Buttons are plain text, brighter under the pointer. */
+    & .actions {
+      display: grid;
+      justify-items: start;
+      gap: var(--space-s);
+    }
+
+    & .action {
+      color: var(--choice);
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    & .action:hover {
+      color: var(--choice-hover);
+    }
+
+    & .action:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+  }
+}

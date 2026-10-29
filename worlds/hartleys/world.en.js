@@ -16,7 +16,7 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Department-store manners: mahogany, brass, floorwalkers, cash railways, a store that " +
     "has never quite managed to close.",
   start: "Saturday, 17:10, on the ground floor.",
-  opening: "The arcade behind the store, at ten to five: a bag of peppermints (to begin again), a wireless (hints), a " +
+  opening: "The arcade behind the store, at ten to five: a wireless (hints), a " +
     "shopping list you already carry (why you came). The revolving door is the way in.",
   rules: [
     "Everything at Hartley's has a price, and the price is a memory.",
@@ -58,15 +58,14 @@ const rooms = {
     exits: { n: true },
     scenery: [
       { words: ["window", "windows", "glass", "display", "dresses", "dress"], name: "the windows", says: "Dresses on stands, in colours from before you were born, each turned a few degrees towards you. The ones at the back are turned a few degrees more." },
-      { words: ["sill", "sills", "ledge"], name: "the sill", says: "A stone sill, wide enough for a bag of peppermints, worn smooth by people who stopped to look at dresses and then didn't leave." },
+      { words: ["sill", "sills", "ledge"], name: "the sill", says: "A stone sill, wide enough to set a parcel down on, worn smooth by people who stopped to look at dresses and then didn't leave." },
       { words: ["arcade", "passage", "roof", "tiles", "floor", "shutter", "street"], name: "the arcade", says: "Wet tiles, though it hasn't rained, and a glass roof with the last of the light in it. The shutter behind you has no handle, and the street beyond it is somebody else's Saturday." }
     ],
     mentions: ["windows", "dresses", "sill", "revolving door"],
     ambience: { lines: ["In the nearest window a dress has changed its hands, and is looking at the glass as if it hadn't.", "Something heavy is wheeled past on the far side of the shutter, and nobody apologises.", "Somewhere inside, someone laughs at a price.", "The wireless on the sill finds a station, loses it, and apologises."], every: [30, 70] },
     alt: "A glass-roofed arcade at dusk, seen from its floor and shut at both ends: lit windows full of dresses along both walls, a revolving door in the blind end wall, a lamp beside it.",
     overlayAlt: {
-      wireless: "A small cream wireless sits on the sill.",
-      mints: "A paper bag of peppermints sits on the sill."
+      wireless: "A small cream wireless sits on the sill."
     }
   },
   front_hall: {
@@ -247,14 +246,10 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the two things to take, the one you carry, and the way in (BRIEF.md §3).
-  mints: { at: "pavement", portable: true, name: "Bag of peppermints", note: "Take one to begin again.", actions: ["Take peppermints", "Eat peppermint"], heldActions: ["Eat peppermint", "Examine peppermints"],
-    words: { nouns: ["peppermints", "peppermint", "mints", "mint", "bag", "sweets"], adj: ["paper", "striped"] }, ...item("mints"),
-    here: "On the sill of the nearest window sits a paper bag of {peppermints|mints}.",
-    examine: "A striped paper bag, twisted shut at the top. Inside, peppermints, each in its own wrapper, each still warm from a hand. The bag is never lighter." },
+  // The opening: the thing to take, the one you carry, and the way in (BRIEF.md §3).
   wireless: { at: "pavement", portable: true, name: "Wireless", note: "Reading out the departments.", actions: ["Take wireless", "Listen to wireless"], heldActions: ["Listen to wireless", "Examine wireless"],
     words: { nouns: ["wireless", "radio"], adj: ["cream", "small"] }, ...item("wireless"),
-    here: "Beside it a small {wireless} murmurs to itself.",
+    here: "On the sill of the nearest window a small {wireless} murmurs to itself.",
     examine: "A cream wireless the size of a loaf, tuned between two stations. A woman's voice reads out the departments of Hartley's, one floor at a time, and starts again at the top." },
   shopping_list: { at: "player", portable: true, name: "Shopping list", note: "Mostly rubbed out.", actions: ["Read list"], heldActions: ["Read list"],
     words: { nouns: ["list"], adj: ["shopping", "pencil", "folded"] }, ...item("shopping_list"),
@@ -544,17 +539,12 @@ const puzzles = {
 };
 
 // ---- The change set -----------------------------------------------------------------------------------------------------
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and four things, and the lines it says --------------------
+// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says --------------------
 const opening = {
-  room: "pavement", restart: "mints", hints: "wireless", intro: "shopping_list", way: "street_door",
+  room: "pavement", hints: "wireless", intro: "shopping_list", way: "street_door",
   lines: {
-    notYet: "The door turns past you without a gap in it. Customers with empty hands are asked to wait, and there is a bag and a wireless on the sill.",
-    notYetRestart: "The door turns past you without a gap in it. You have nothing to begin again with, and there is a bag of peppermints on the sill.",
-    notYetHints: "The door turns past you without a gap in it. You have nothing to listen to, and there is a wireless on the sill.",
+    notYet: "The door turns past you without a gap in it. Customers are asked not to come in with nothing to listen to, and there is a wireless on the sill.",
     through: "The next pane comes round with a gap in it, and you step into the gap, and ride it round, and step out into the store. Behind you the arcade goes on being a Saturday.",
-    askRestart: "Put a peppermint in your mouth and begin again?",
-    restartYes: "You unwrap a peppermint and put it on your tongue. It tastes of every time you were handed one. The windows go dark, one by one, and…",
-    restartNo: "You twist the bag shut and keep it. Not yet.",
     hintFrame: "The wireless goes quiet between two departments, and a voice, quite kindly, says:",
     farewell: "You fold the list once, and it keeps folding, smaller, until you are holding nothing, carefully."
   }

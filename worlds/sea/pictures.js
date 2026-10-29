@@ -82,7 +82,6 @@ export default {
       { name: "camera", areas: ["camera_light"], colors: [12, 8], style: "blink", ms: 700 }
     ],
     overlays: [
-      { object: "stamp", at: [222, 112] },
       { object: "suggestion_box", at: [72, 84] }
     ]
   },

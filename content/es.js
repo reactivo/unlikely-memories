@@ -88,7 +88,7 @@ export default {
     const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     return diff === 0 ? "hoy a las " + hm : diff === 1 ? "ayer a las " + hm : `el ${t.getDate()} de ${months[t.getMonth()]} a las ${hm}`;
   },
-  askNewGame: "¿Empezar una partida nueva? Esta se perderá, y su partida grabada también.",
+  askRestart: "¿Reiniciar la partida? Volverás a empezar desde el principio. Una partida que hayas grabado se puede seguir cargando.",
   saveFailed: "No se ha podido guardar la partida aquí (el navegador está bloqueando el almacenamiento).",
   yesNo: "`Sí` / `No`",
   confirmNo: "De acuerdo.",
@@ -156,15 +156,14 @@ export default {
   the: (name, o) => (o?.words?.g === "f" ? "la " : "el ") + name,
   // Un idioma sin mundo todavía: una sola sala, para que la partida tenga dónde estar.
   noWorld: { place: "NINGUNA PARTE", alt: "Un dibujo en blanco.",
-             text: "Todavía no hay ningún mundo que jugar en este idioma. Elige otro idioma en los ajustes." },
+             text: "Todavía no hay ningún mundo que jugar en este idioma. Vuelve a la lista de juegos y elige otro idioma." },
 
   // Interface
-  music: "Música", on: "activada", off: "desactivada", settings: "Ajustes",
+  music: "Música", on: "activada", off: "desactivada", options: "Opciones",
   a11y: { story: "Historia", command: "Escribe una orden" },
-  panel: { title: "AJUSTES", language: "IDIOMA", languageNote: "Cambiar el idioma empieza una partida nueva.",
-           game: "PARTIDA", newGame: "Partida nueva", quit: "Salir" },
+  panel: { title: "OPCIONES", restart: "Reiniciar partida", quit: "Salir" },
   // La página de inicio (ui/home.js). El nombre del juego no se traduce. Los botones salen en mayúsculas (home.css).
-  home: { subtitle: "Ficción Artificial Interactiva", newGame: "Partida nueva", load: "Cargar partida", version: "Versión",
+  home: { subtitle: "Ficción Artificial Interactiva", newGame: "Partida nueva", resume: "Continuar", version: "Versión",
           language: (l) => `Idioma: ${{ en: "inglés", es: "español" }[l]}`,   // los botones del selector, arriba a la derecha
           none: "Todavía no hay juegos en español." },
   labels: { directions: "DIRECCIONES", inv: "INVENTARIO", day: "Día", map: "Mapa" },

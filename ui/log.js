@@ -86,7 +86,7 @@ export function mount(root, on, header) {
     if (gliding || !last) return;
     if (typing()) { followed = exchangeStart(root.lastElementChild); keepLine(followed); unseen = null; return; }
     // What to show: everything added since the last follow (your command and its answer, a line the world said, the game's own
-    // question), from its first paragraph. Not "from the last command": the settings' "Start a new game?" is no command, and
+    // question), from its first paragraph. Not "from the last command": the options' "Restart the game?" is no command, and
     // following from the command before it, far up, showed that old command instead of the question (Diego, 27 Oct 2026).
     // Nothing new (a restored game, the font loading): the last command and what came after it, as before.
     const first = unseen && root.contains(unseen) ? unseen : exchangeStart(root.lastElementChild);

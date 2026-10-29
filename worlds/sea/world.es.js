@@ -21,7 +21,7 @@ export const bible = {
     "habitación de hotel con su abrigo, una carta con su letra, una caseta de baño con su número. Al otro lado del agua, " +
     "un faro apagado solo quema lo que alguien acepta olvidar.",
   tone: "WRITING-DIRECTION.md: lo cotidiano, ligeramente torcido; sereno, conciso, con ecos de lo que pudo ser.",
-  opening: "Pasillo 7-B del Ministerio, una mañana de lunes: un sello de goma (para empezar de nuevo), un buzón de " +
+  opening: "Pasillo 7-B del Ministerio, una mañana de lunes: un buzón de " +
     "sugerencias (las pistas), un memorando que ya llevas encima (por qué has venido). La puertecita verde que respira " +
     "es el camino.",
   rules: [
@@ -98,7 +98,6 @@ const rooms = {
       "En algún punto del techo, el {altavoz} crepita. «El almuerzo será suficiente»."], every: [40, 90] },
     alt: "Un largo pasillo gris iluminado por lámparas de techo. Un cartel con un ojo rojo cuelga de la pared izquierda; una cámara en la pared derecha mira hacia otro lado. En la parte baja de la pared derecha, una diminuta puerta verde deja escapar luz amarilla y agua sobre el suelo.",
     overlayAlt: {
-      stamp: "Un sello de goma yace en el linóleo, junto al charco.",
       suggestion_box: "Un pequeño buzón de sugerencias de madera cuelga de la pared, bajo el cartel."
     }
   },
@@ -382,11 +381,7 @@ const rooms = {
 // (El café empieza fuera de juego; el verbo "pedir" puede nombrarlo igualmente, ARCHITECTURE.md §3.)
 
 const objects = {
-  // La apertura: las dos cosas que coger, la que llevas y el camino (BRIEF.md §3).
-  stamp: { at: "corridor", portable: true, name: "Sello de goma", note: "Apriétalo para empezar de nuevo.", actions: ["Coger sello", "Apretar sello"], heldActions: ["Apretar sello", "Examinar sello"],
-    words: { nouns: ["sello", "tampon", "almohadilla"], adj: ["goma", "caucho", "laton", "tinta"], g: "m" }, ...item("stamp"),
-    here: "En el linóleo, junto al charco, hay un {sello|stamp} de goma, con la almohadilla todavía húmeda.",
-    examine: "Un sello de goma con mango de latón y una almohadilla de tinta verde, ambos húmedos. El cuño dice, del revés: «Volver a presentar». Lo han usado incontables veces y la almohadilla nunca está seca." },
+  // La apertura: la cosa que coger, la que llevas y el camino (BRIEF.md §3).
   suggestion_box: { at: "corridor", portable: true, name: "Buzón de sugerencias", note: "Alguien lee en voz alta.", actions: ["Coger buzón", "Escuchar buzón"], heldActions: ["Escuchar buzón", "Examinar buzón"],
     words: { nouns: ["buzon", "ranura"], adj: ["sugerencias", "madera", "laton"], g: "m" }, ...item("suggestion_box"),
     here: "Bajo el cartel, un {buzón de sugerencias|suggestion_box} cuelga de un solo tornillo.",
@@ -804,17 +799,12 @@ const puzzles = {
                 hints: ["A la lámpara le da igual qué sea, con tal de que elijas. Una de las cosas que llevas es el mar hablando por ti, y el Ministerio todavía dentro.", "En la linterna, quema la caracola de la línea de la marea, y deja que el Ministerio te olvide."] }
 };
 
-// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y de sus cuatro cosas, y las líneas que dice --------------------
+// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y de sus tres cosas, y las líneas que dice --------------------
 const opening = {
-  room: "corridor", restart: "stamp", hints: "suggestion_box", intro: "memo", way: "green_door",
+  room: "corridor", hints: "suggestion_box", intro: "memo", way: "green_door",
   lines: {
-    notYet: "La respiración se detiene. Desde muy lejos, una voz dice: «Con las manos vacías no. Algo con lo que empezar de nuevo y algo a lo que escuchar».",
-    notYetRestart: "La respiración se detiene. «Se te ha olvidado algo», dice la voz lejana. «Algo con lo que empezar de nuevo. Está en el suelo».",
-    notYetHints: "La respiración se detiene. «Te hará falta alguien con quien hablar», dice la voz lejana. «El buzón de sugerencias todavía escucha».",
+    notYet: "La respiración se detiene. «Te hará falta alguien con quien hablar», dice una voz desde muy lejos. «El buzón de sugerencias todavía escucha».",
     through: "Te arrodillas y llamas tres veces. La respiración cesa. Desde muy lejos, una voz pregunta: «¿Cómo te llamas?». Se lo dices, y se queda con él. La placa de latón se ablanda y gotea sobre el linóleo, y la puerta se abre hacia dentro. Es muy pequeña, y luego ya no lo es.",
-    askRestart: "¿Apretar el sello contra tu palma y empezar de nuevo?",
-    restartYes: "El sello baja: «Volver a presentar», en verde, sobre tu piel. El pasillo se pliega por sus dobleces como un formulario, y…",
-    restartNo: "Apartas el sello. La tinta no te ha tocado. Todavía no.",
     hintFrame: "Pegas la oreja a la ranura. En otro punto del Ministerio, alguien lee en voz alta una sugerencia:",
     farewell: "El memorando se arruga por sus pliegues, uno a uno, como si lo archivaran, y ya no está en tu mano."
   }

@@ -84,7 +84,7 @@ export default {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     return diff === 0 ? "today at " + hm : diff === 1 ? "yesterday at " + hm : `on ${t.getDate()} ${months[t.getMonth()]} at ${hm}`;
   },
-  askNewGame: "Start a new game? This one will be lost, and its saved game too.",
+  askRestart: "Restart the game? You'll begin again from the start. A game you saved can still be loaded.",
   saveFailed: "The game couldn't be saved here (this browser is blocking storage).",
   // Every yes/no question ends with these (js/narrator.js); "no" to a question with nothing of its own to say.
   yesNo: "`Yes` / `No`",
@@ -156,15 +156,14 @@ export default {
   the: (name) => "the " + name,
   // A language with no world yet: a single room, so the game still has somewhere to be.
   noWorld: { place: "NOWHERE", alt: "A blank picture.",
-             text: "There is no world to play in this language yet. Choose another language in the settings." },
+             text: "There is no world to play in this language yet. Go back to the list of games and choose another language." },
 
   // Interface
-  music: "Music", on: "on", off: "off", settings: "Settings",
+  music: "Music", on: "on", off: "off", options: "Options",
   a11y: { story: "Story", command: "Type a command" },
-  panel: { title: "SETTINGS", language: "LANGUAGE", languageNote: "Changing the language starts a new game.",
-           game: "GAME", newGame: "New game", quit: "Quit" },
-  // The landing page (ui/home.js). The game's name is not translated. The buttons show in capitals (home.css): LOAD GAME on a world with a saved game, NEW GAME always.
-  home: { subtitle: "Artificial Interactive Fiction", newGame: "New game", load: "Load game", version: "Version",
+  panel: { title: "OPTIONS", restart: "Restart game", quit: "Quit" },
+  // The landing page (ui/home.js). The game's name is not translated. The buttons show in capitals (home.css): CONTINUE on a world with a saved game, NEW GAME always.
+  home: { subtitle: "Artificial Interactive Fiction", newGame: "New game", resume: "Continue", version: "Version",
           language: (l) => `Language: ${{ en: "English", es: "Spanish" }[l]}`,   // the switch's buttons, top right
           none: "There are no games in English yet." },
   labels: { directions: "DIRECTIONS", inv: "INVENTORY", day: "Day", map: "Map" },

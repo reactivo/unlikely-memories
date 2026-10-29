@@ -6,7 +6,7 @@
 //   release() done when the key is let go: the action happens on release, like a button
 //   cancel() the press is dropped without acting (the window lost focus while the key was down)
 // Held keys don't repeat, and a key with Cmd, Ctrl or Alt is never a shortcut (the browser's own stay free).
-// Nothing applies while a panel or the settings are open (Esc closes those itself), or while focus is on a button.
+// Nothing applies while a panel or the options are open (Esc closes those itself), or while focus is on a button.
 // The command line has the focus nearly always, so letter keys are typing and the arrows move its cursor: never
 // shortcuts. What else the command line may do with keys one day (earlier commands, completing a word) is in
 // INTERFACE.md §6b. Now: Esc, a new game (js/main.js).

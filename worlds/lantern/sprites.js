@@ -1,25 +1,6 @@
 // Sprites for "The Last Word on Lantern Row": 16 × 16, rows of palette numbers in hex (0–f, ART-DIRECTION.md §3),
 // "." clear, outlined in black so they read on the dark inventory slot.
 export default {
-  // An egg timer in a wooden frame, its sand all run down to the bottom.
-  egg_timer: [
-    "................",
-    "..000000000000..",
-    "..066666666660..",
-    "..000000000000..",
-    "...06ffffff60...",
-    "...06f7..7f60...",
-    "....06f77f60....",
-    ".....06ff60.....",
-    ".....06ff60.....",
-    "....06f..f60....",
-    "...06feeeef60...",
-    "...06eeeeee60...",
-    "..000000000000..",
-    "..066666666660..",
-    "..000000000000..",
-    "................"
-  ],
   // A yellow canary on its perch in a small brass cage.
   canary: [
     ".......00.......",

@@ -22,7 +22,7 @@ const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues"
 export const FIELDS = {
   changeSet: ["because", "facts", "effects", "opening", "properties"],
   opening: [...PARTS, "lines"],
-  openingLines: [...LINES, "restartYes", "restartNo"],
+  openingLines: [...LINES],
   property: ["type", "min", "max", "start"],
   room: ROOM,
   object: OBJECT,

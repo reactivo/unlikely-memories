@@ -109,36 +109,6 @@ export default {
     "................"
   ],
 
-  // A brass travel alarm with two bells (the opening's restart thing).
-  alarm: [
-    "................",
-    "...0e0....0e0...",
-    "..0eee0..0eee0..",
-    "..0e0e000000e0..",
-    "...00ee0ee0e0...",
-    "...0e66666660...",
-    ".0e6ffffff6660..",
-    ".0e6f8888f6e60..",
-    ".0e6f8e88f6e60..",
-    ".0e6f8888f6e60..",
-    ".0e6ffffff6e60..",
-    "..0e66666666e0..",
-    "...0eeeeeeee0...",
-    "...00.0000.00...",
-    "................",
-    "................"
-  ],
-
-  // The alarm on the bench, small.
-  alarm_floor: [
-    "0e0.0e0.",
-    "00000000",
-    "0e6ff6e0",
-    "0e6f8fe0",
-    "0e6666e0",
-    ".000000."
-  ],
-
   // A cocoa tin with a string coming out of it (the opening's hints thing).
   tin: [
     "................",

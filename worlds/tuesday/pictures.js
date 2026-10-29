@@ -55,7 +55,6 @@ export default {
       { name: "the carriage light", areas: ["door_glow", "spill"], colors: [14, 6], style: "pingpong", ms: 1400 }
     ],
     overlays: [
-      { object: "alarm", at: [26, 76] },
       { object: "tin", at: [42, 76] }
     ]
   },

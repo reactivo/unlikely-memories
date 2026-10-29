@@ -15,7 +15,7 @@ export const bible = {
     "back. Upstairs at the town hall, someone has kept the last Monday, in case.",
   tone: "WRITING-DIRECTION.md. Railway-town melancholy: timetables, lost things, a decree framed in the station.",
   start: "Sunday, 19:30, in the station's lost property office.",
-  opening: "A halt on a branch line, Sunday evening: a travel alarm (to begin again), a cocoa tin on a string (hints), a " +
+  opening: "A halt on a branch line, Sunday evening: a cocoa tin on a string (hints), a " +
     "diary leaf you already carry (why you came). The one carriage's open door is the way on.",
   rules: [
     "Monday was abolished by decree. The town goes from Sunday night to Tuesday by train.",
@@ -79,7 +79,6 @@ const rooms = {
     ambience: { lines: ["The lamp over the bench hums a note and holds it.", "A telegraph wire ticks, once, like a clock deciding.", "Very far down the line, something that is not a train sounds its whistle and thinks better of it.", "The name board turns a little in the wind, and turns back."], every: [30, 70] },
     alt: "A small railway halt at dusk: a platform with a bench and a lamp, a name board, and a single lit carriage at the end with its door open.",
     overlayAlt: {
-      alarm: "A brass travel alarm sits on the bench.",
       tin: "A cocoa tin sits on the bench, a string running from it off the platform."
     }
   },
@@ -318,14 +317,10 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the two things to take, the one you carry, and the way on (BRIEF.md §3).
-  alarm: { at: "halt", portable: true, name: "Travel alarm", note: "Wind it to begin again.", actions: ["Take alarm", "Wind alarm"], heldActions: ["Wind alarm", "Examine alarm"],
-    words: { nouns: ["alarm", "bells"], adj: ["brass", "travel", "little"] }, ...item("alarm"),
-    here: "On the bench sits a brass {travel alarm|alarm}, set for tomorrow.",
-    examine: "A brass travel alarm, two small bells on top, a key at the back. It is set for tomorrow morning, and it has been tomorrow morning for some time." },
+  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
   tin: { at: "halt", portable: true, name: "Cocoa tin", note: "Someone at the other end.", actions: ["Take tin", "Listen to tin"], heldActions: ["Listen to tin", "Examine tin"],
     words: { nouns: ["tin", "string", "cocoa"], adj: ["cocoa", "cold", "long"] }, ...item("tin"),
-    here: "Beside it a cocoa {tin} sends its string off the end of the platform.",
+    here: "On the bench a cocoa {tin} sends its string off the end of the platform.",
     examine: "A cocoa tin with a hole punched in the base and a length of string running out of it, along the platform and over the edge into the dark. The string is taut, as if something were on the other end." },
   diary_leaf: { at: "player", portable: true, name: "Diary leaf", note: "Ruled for a week.", actions: ["Read leaf"], heldActions: ["Read leaf"],
     words: { nouns: ["leaf", "diary"], adj: ["folded", "yellow", "ruled", "diary"] }, ...item("diary_leaf"),
@@ -744,17 +739,12 @@ const puzzles = {
 };
 
 // ---- The change set -----------------------------------------------------------------------------------------------------
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and four things, and the lines it says --------------------
+// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says --------------------
 const opening = {
-  room: "halt", restart: "alarm", hints: "tin", intro: "diary_leaf", way: "carriage_door",
+  room: "halt", hints: "tin", intro: "diary_leaf", way: "carriage_door",
   lines: {
-    notYet: "The carriage shifts away from your foot, politely, an inch. Passengers are asked to bring something to begin again with, and something to listen to.",
-    notYetRestart: "The carriage shifts away from your foot, an inch. You have nothing to begin again with, and there is an alarm on the bench.",
-    notYetHints: "The carriage shifts away from your foot, an inch. You have nothing to listen to, and there is a tin on the bench.",
+    notYet: "The carriage shifts away from your foot, politely, an inch. Passengers are asked to bring something to listen to, and there is a tin on the bench.",
     through: "You step up, and the door closes behind you with a small sound, like a ticket being punched, and the lamp on the platform goes out. When it opens again you are standing among shelves.",
-    askRestart: "Wind the alarm back to the start of the day and begin again?",
-    restartYes: "You wind the key until it will go no further. The platform runs backwards under your feet, the lamp, the bench, the evening, and…",
-    restartNo: "You let the key go. The alarm ticks on, and it is still tomorrow.",
     hintFrame: "You put the tin to your ear. Down the string, someone with a stationmaster's patience says:",
     farewell: "You hold the leaf up to the lamp. The week comes apart along its ruled lines, and is gone, Sunday first."
   }

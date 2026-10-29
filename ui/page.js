@@ -73,7 +73,7 @@ export function mount(root, on) {
   const measure = followBars(root);
   followTyping(root);
   return {
-    // Show one view, "home" or "game", in a language: an open panel (map, settings) closes with the game.
+    // Show one view, "home" or "game", in a language: an open panel (map, options) closes with the game.
     show(view, lang) {
       root.querySelectorAll(":popover-open").forEach(p => p.hidePopover());
       if (root.documentElement.dataset.view !== view) window.scrollTo(0, 0);   // the two views are two pages: each starts at its top

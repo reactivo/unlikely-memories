@@ -19,7 +19,7 @@ export const bible = {
     "with their coat, a letter in their handwriting, a bathing hut with their number. Across the water, a dark " +
     "lighthouse burns only what you are willing to forget.",
   tone: "WRITING-DIRECTION.md: the everyday, slightly wrong; calm, concise, with echoes of what could have been.",
-  opening: "Corridor 7-B at the Ministry, a Monday morning: a rubber stamp (to begin again), a suggestion box (hints), a " +
+  opening: "Corridor 7-B at the Ministry, a Monday morning: a suggestion box (hints), a " +
     "memo you already carry (why you came). The small green door that breathes is the way on.",
   rules: [
     "Once given, your name stays with the door. Nobody here can give it back.",
@@ -95,7 +95,6 @@ const rooms = {
       "Somewhere above, the {loudspeaker} crackles. \"Lunch will be adequate.\""], every: [40, 90] },
     alt: "A long grey corridor lit by ceiling lamps. A poster with a red eye hangs on the left wall; a camera on the right wall faces away. Low on the right wall, a tiny green door leaks yellow light and water onto the floor.",
     overlayAlt: {
-      stamp: "A rubber stamp lies on the lino by the puddle.",
       suggestion_box: "A small wooden suggestion box hangs on the wall under the poster."
     }
   },
@@ -379,11 +378,7 @@ const rooms = {
 // "order" verb can name it anyway, ARCHITECTURE.md §3.)
 
 const objects = {
-  // The opening: the two things to take, the one you carry, and the way on (BRIEF.md §3).
-  stamp: { at: "corridor", portable: true, name: "Rubber stamp", note: "Press it to begin again.", actions: ["Take stamp", "Press stamp"], heldActions: ["Press stamp", "Examine stamp"],
-    words: { nouns: ["stamp", "pad"], adj: ["rubber", "brass", "ink"] }, ...item("stamp"),
-    here: "On the lino by the puddle lies a rubber {stamp}, its pad still wet.",
-    examine: "A rubber stamp with a brass handle and a green ink pad, both damp. The die reads, backwards: \"Please resubmit.\" It has been used a great many times, and the pad is never dry." },
+  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
   suggestion_box: { at: "corridor", portable: true, name: "Suggestion box", note: "Someone is reading it aloud.", actions: ["Take box", "Listen to box"], heldActions: ["Listen to box", "Examine box"],
     words: { nouns: ["box", "slot"], adj: ["suggestion", "wooden", "brass"] }, ...item("suggestion_box"),
     here: "Under the poster, a {suggestion box|suggestion_box} hangs by one screw.",
@@ -801,17 +796,12 @@ const puzzles = {
                 hints: ["The lamp is not particular, only that you choose. One thing you carry is the sea speaking for you, and the Ministry still inside it.", "In the lantern room, burn the shell from the tide line, and let the Ministry forget you."] }
 };
 
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and four things, and the lines it says --------------------
+// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says --------------------
 const opening = {
-  room: "corridor", restart: "stamp", hints: "suggestion_box", intro: "memo", way: "green_door",
+  room: "corridor", hints: "suggestion_box", intro: "memo", way: "green_door",
   lines: {
-    notYet: "The breathing pauses. From very far away a voice says: \"Not empty-handed. Something to begin again with, and something to listen to.\"",
-    notYetRestart: "The breathing pauses. \"You've forgotten something,\" says the far-off voice. \"Something to begin again with. It's on the floor.\"",
-    notYetHints: "The breathing pauses. \"You'll want someone to talk to,\" says the far-off voice. \"The suggestion box still listens.\"",
+    notYet: "The breathing pauses. \"You'll want someone to talk to,\" says a voice from very far away. \"The suggestion box still listens.\"",
     through: "You kneel and knock three times. The breathing stops. From very far away a voice asks: \"What is your name?\" You tell it, and it keeps the name. The brass plaque softens and drips onto the lino, and the door swings inward. It is very small, and then it isn't.",
-    askRestart: "Press the stamp to your palm and begin again?",
-    restartYes: "The stamp comes down: \"Please resubmit,\" in green, on your skin. The corridor folds along its creases like a form, and…",
-    restartNo: "You lift the stamp away. The ink has not touched you. Not yet.",
     hintFrame: "You put your ear to the slot. Someone elsewhere in the Ministry reads out a suggestion:",
     farewell: "The memo creases along its folds, one by one, as if being filed, and is not in your hand."
   }

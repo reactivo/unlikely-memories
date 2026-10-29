@@ -983,12 +983,12 @@ function wordWarnings(state, pack) {
 
 // The opening's contract (BRIEF.md §3), checked from its start: what the engine needs to build it (js/opening.js), and
 // what only play shows: the way on held back with each thing missing and leading into the world with both, by words
-// and by going that way; the restart thing asking; the hints thing framing its hint; the intro saying its text and
-// its farewell and leaving; none of the three dropped. Returns the problems found.
+// and by going that way; the hints thing framing its hint; the intro saying its text and
+// its farewell and leaving; neither of the two dropped. Returns the problems found.
 function checkOpening(state, pack) {
   const d = state.opening, why = opening.problems(state, d);
   if (why.length) return why;
-  const problems = [], { restart: R, hints: H, intro: I, way: W, room: roomId, lines } = d;
+  const problems = [], { hints: H, intro: I, way: W, room: roomId, lines } = d;
   const objects = state.world.objects, rooms = state.world.rooms, room = rooms[roomId];
   const noun = (id) => objects[id].words.nouns[0];
 
@@ -1011,8 +1011,8 @@ function checkOpening(state, pack) {
   for (const x of room.scenery || [])
     if (x.leads && x.leads !== onDir) problems.push(`the opening room's scenery "${x.name ?? x.words?.[0]}" leads ${x.leads}: a second way out of a closed place (BRIEF.md §3)`);
   for (const [id, o] of Object.entries(objects))
-    if ((o.at === roomId || o.at === "player") && o.portable && ![R, H, I].includes(id))
-      problems.push(`"${id}" can be taken in the opening: only the restart and hints things can be (the intro is carried)`);
+    if ((o.at === roomId || o.at === "player") && o.portable && ![H, I].includes(id))
+      problems.push(`"${id}" can be taken in the opening: only the hints thing can be (the intro is carried)`);
   if (!state.puzzles.opening_way) problems.push("the opening's own steps aren't among the puzzles");
 
   // Every thing in the opening has its own nouns (BRIEF.md §3): a word that names two things there is a clash, and so is a word of
@@ -1027,7 +1027,7 @@ function checkOpening(state, pack) {
       .flatMap(([oid, o]) => (o.parts || []).map(x => ({ id: null, owner: oid, label: `the part "${x.name ?? x.words?.[0]}" of "${oid}" (part)`, words: fold(x.words) }))),
     ...Object.entries(rooms).filter(([rid]) => !only || rid === roomId)
       .flatMap(([rid, r]) => (r.scenery || []).map(x => ({ id: null, owner: rid, label: `the scenery "${x.name ?? x.words?.[0]}" of room "${rid}" (scenery)`, words: fold(x.words) })))];
-  const MAIN = [["restart", R], ["hints", H], ["intro", I], ["way", W]], clash = new Set();
+  const MAIN = [["hints", H], ["intro", I], ["way", W]], clash = new Set();
   const name = (id) => `the ${MAIN.find(([, x]) => x === id)[0]} thing "${id}" (${kindOf(id)})`;
   const report = (w, x, y, text) => {
     const key = [w, x, y].sort().join("|");
@@ -1050,27 +1050,25 @@ function checkOpening(state, pack) {
   const said = (r) => r.applied.filter(e => e.say).map(e => e.say);
   const holding = (...ids) => { const s = structuredClone(state); for (const id of ids) { s.world.objects[id].at = "player"; s.player.carrying.push(id); } return s; };
   for (const command of [solveCommand("{enter+} " + noun(W), pack), v.go[0] + " " + pack.words.dirs[dir][0]]) {   // (the hint's own words)
-    for (const [have, line, label] of [[[], "notYet", "with neither thing"], [[R], "notYetHints", "without the hints thing"], [[H], "notYetRestart", "without the restart thing"]]) {
-      const r = type(holding(...have), command);
-      if (!said(r).includes(lines[line])) problems.push(`"${command}" ${label} doesn't say the "${line}" line${r.error ? ` (not understood: ${r.error})` : ""}`);
+    {
+      const r = type(holding(), command);
+      if (!said(r).includes(lines.notYet)) problems.push(`"${command}" without the hints thing doesn't say the "notYet" line${r.error ? ` (not understood: ${r.error})` : ""}`);
     }
-    const r = type(holding(R, H), command);
-    if (r.refused.length) problems.push(`"${command}" with both things: the engine refused ${r.refused[0].reason}`);
-    else if (r.next.player.at !== state.entrance) problems.push(`"${command}" with both things doesn't lead to ${state.entrance}${r.error ? ` (not understood: ${r.error})` : ""}`);
+    const r = type(holding(H), command);
+    if (r.refused.length) problems.push(`"${command}" with the hints thing: the engine refused ${r.refused[0].reason}`);
+    else if (r.next.player.at !== state.entrance) problems.push(`"${command}" with the hints thing doesn't lead to ${state.entrance}${r.error ? ` (not understood: ${r.error})` : ""}`);
     else {
-      if (!said(r).includes(lines.through)) problems.push(`"${command}" with both things doesn't say the "through" line`);
+      if (!said(r).includes(lines.through)) problems.push(`"${command}" with the hints thing doesn't say the "through" line`);
       if (r.next.world.rooms[roomId].exits[dir] !== false) problems.push("the way on doesn't close behind you");
     }
   }
-  let r = type(holding(R), v.use[0] + " " + noun(R));
-  if (!r.next.pending.question || !r.applied.some(e => e.confirm && e.say === lines.askRestart)) problems.push(`using the restart thing doesn't ask "${lines.askRestart}"`);
-  r = type(state, v.listen[0] + " " + noun(H));
+  let r = type(state, v.listen[0] + " " + noun(H));
   if (!r.applied.some(e => e.hint === lines.hintFrame && (e.text || e.commands))) problems.push("listening to the hints thing doesn't give a hint in the world's frame");
   r = type(state, v.read[0] + " " + noun(I));
   if (!said(r).includes(objects[I].examine) || !said(r).includes(lines.farewell) || r.next.world.objects[I].at !== null)
     problems.push("reading the intro doesn't say its text, then its farewell, and take it out of play");
-  for (const id of [R, H, I]) {
-    r = type(holding(R, H), v.drop[0] + " " + noun(id));
+  for (const id of [H, I]) {
+    r = type(holding(H), v.drop[0] + " " + noun(id));
     if (!said(r).includes("@cantDrop")) problems.push(`"${noun(id)}" can be dropped`);
   }
   return problems;
