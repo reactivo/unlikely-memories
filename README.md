@@ -13,7 +13,7 @@ leads somewhere and every danger is warned about. In English and Spanish.
 
 - Click anything marked **+** to examine it, and any command shown in the story to run it.
 - Type short commands: `look`, `examine door`, `take lamp`, `north` (or just `n`), `talk to the porter`.
-- `help` explains the rest. `hint` points you to whatever in the world can help.
+- `help` explains the rest.
 - The game saves itself after every move. `save` keeps a game you can always `load` again.
 
 ## Status
