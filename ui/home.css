@@ -10,7 +10,7 @@
     --logo-width: 288px;   /* the logo at the top: its own size (288 × 210) */
 
     /* Colours on the landing page, by meaning. */
-    --version:        var(--color-text-dim);    /* the version, left in the bar */
+    --version:        var(--color-text-dim);    /* the version, left in the bar (the text colour under the pointer, like the switch) */
     --lang-on:        var(--color-text);        /* the switch, right in the bar: the current language… */
     --lang-off:       var(--color-text-dim);    /* …and the other, until the pointer is on it */
     --subtitle:       var(--color-text);
@@ -28,7 +28,7 @@
 
     box-sizing: border-box;
     color: var(--color-text);
-    padding-block: max(var(--space-l), env(safe-area-inset-top, 0px)) max(var(--space-xl), env(safe-area-inset-bottom, 0px));
+    padding-block: max(var(--space-s), env(safe-area-inset-top, 0px)) max(var(--space-xl), env(safe-area-inset-bottom, 0px));
 
     /* The bar at the top: the version on the left, the language switch on the right, as wide as the cards' column (the
        page's own side padding, and the same maximum width), so its edges line up with the cards'. */
@@ -42,9 +42,20 @@
       margin: 0 auto var(--space-l);
     }
 
+    /* The version links to the game's public repository on GitHub. */
     & .version {
       margin: 0;
       color: var(--version);
+      text-decoration: none;
+    }
+
+    & .version:hover {
+      color: var(--lang-on);
+    }
+
+    & .version:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
     }
 
     & .lang {
