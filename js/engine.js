@@ -283,7 +283,7 @@ export function exitNow(g, roomId, dir, action = {}) {
   return { go: open ? to : false, seen: !!to, closed: open ? null : (raw.closed ?? null) };
 }
 
-// Read a value by path (in conditions; in values with a "$" in front): "player.at", "game.ended", "game.tension", "door.open", "dining.visited", "$obj.at" (the action's object), "$exit".
+// Read a value by path (in conditions; in values with a "$" in front): "player.at", "game.ended", "player.health", "door.open", "dining.visited", "$obj.at" (the action's object), "$exit".
 // "<id>.place" is where it really is: its room, or "player", even inside something else (a mint in the tin).
 // "<id>.chain" is a list: the thing, what it is in, what that is in… ("$obj2.chain" { has: "$obj" }: the action's
 // object is, or holds, its second object). "$obj2" is the action's second object ("put X in Y": Y).
@@ -432,7 +432,7 @@ function runTimed(g, at, out, scheduledSpoke = false) {
 
 // Does a list of effects say something (directly, or through a named change)? Those are what calm holds back.
 function speaks(g, effects, depth = 0) {
-  return effects.some(e => "say" in e || "hurt" in e || "heal" in e || "calm" in e || "unsettle" in e || "echo" in e || "describe" in e
+  return effects.some(e => "say" in e || "hurt" in e || "heal" in e || "echo" in e || "describe" in e
     || ("change" in e && depth < 5 && speaks(g, g.changes[e.change] || [], depth + 1)));
 }
 
@@ -531,7 +531,7 @@ function apply(g, e, action, out, key) {
     const decl = path.length === 1 ? g.properties?.[e.set] : undefined;   // a declared property: its start and its range
     let value = "add" in e ? (target[prop] ?? DEFAULTS[prop] ?? decl?.start ?? 0) + e.add : fill(g, e.to, action);
     if (typeof value === "number") {
-      const own = RANGES[e.set];                     // the engine's own numbers keep to their own range (tension, health)
+      const own = RANGES[e.set];                     // the engine's own numbers keep to their own range (health)
       if (own) value = Math.min(own[1], Math.max(own[0], value));
       if (decl?.type === "number") {                 // a declared range always holds
         if (Number.isFinite(decl.min)) value = Math.max(decl.min, value);
@@ -543,7 +543,6 @@ function apply(g, e, action, out, key) {
     done({ set: e.set, to: value });
     if (e.set === "player.health" && typeof was === "number" && value < was) hurtLine(g, null, done);
     else if (e.set === "player.health" && typeof was === "number" && value > was) echo(done, g, "healed", value);
-    else if (e.set === "game.tension" && typeof was === "number" && value !== was) echo(done, g, value > was ? "uneasy" : "calmer", value);
   } else if ("hurt" in e) {                          // hurt the player: { hurt: 1, says: "Something caught you." } (2 for something serious)
     const n = fill(g, e.hurt, action);
     if (typeof n !== "number" || !(n > 0)) return refuse("hurt by how much? " + e.hurt);
@@ -562,14 +561,6 @@ function apply(g, e, action, out, key) {
     if (g.player.health !== was) done({ set: "player.health", to: g.player.health });
     if (e.says !== undefined) apply(g, { say: e.says }, action, out, key + ":says");   // the world's own line, always
     if (g.player.health !== was) echo(done, g, "healed", g.player.health);           // then the echo, if you are better
-  } else if ("calm" in e || "unsettle" in e) {       // your mood, one step at a time: { calm: 1, says? }, { unsettle: 1, says? }
-    const up = "unsettle" in e, n = fill(g, up ? e.unsettle : e.calm, action) ?? 1;
-    if (typeof n !== "number" || !(n > 0)) return refuse((up ? "unsettle" : "calm") + " by how much? " + (up ? e.unsettle : e.calm));
-    const was = g.tension, [lo, hi] = RANGES["game.tension"];
-    g.tension = Math.min(hi, Math.max(lo, was + (up ? n : -n)));
-    if (g.tension !== was) done({ set: "game.tension", to: g.tension });
-    if (e.says !== undefined) apply(g, { say: e.says }, action, out, key + ":says");
-    if (g.tension !== was) echo(done, g, up ? "uneasy" : "calmer", g.tension);
   } else if ("echo" in e) {                          // an echo of something that happened to you: { echo: "…", kind: "noted" }
     const said = fill(g, e.echo, action);
     if (typeof said !== "string" || !said.trim()) return refuse("echo says what? " + e.echo);
@@ -698,8 +689,8 @@ function hurtLine(g, says, done) {
   echo(done, g, "hurt", h);
 }
 
-// The echo of a change to your mood or health (INTERFACE.md §6c): one short line from the language pack for where you
-// landed, in the colour of its kind. kind: "uneasy" | "calmer" (tension), "hurt" | "healed" (health); level: the new step.
+// The echo of a change to your health (INTERFACE.md §6c): one short line from the language pack for where you
+// landed, in the colour of its kind. kind: "hurt" | "healed"; level: the new step.
 function echo(done, g, kind, level) {
   done({ echo: `@echo.${kind}.${level}`, kind, at: worldTime(g) });
 }

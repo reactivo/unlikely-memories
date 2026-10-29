@@ -578,26 +578,6 @@ export const endings = {
     `,
     cycles: [{ name: "the clock", areas: ["clock"], colors: [15, 14], style: "flicker", ms: [300, 900] }]
   },
-  sunday: {
-    version: 1,
-    draw: `
-      rect sky 0,0,320,104 fade:11,7/0,0/0,104
-      ellipse cloud 230,26,50,6 mix:,15@0.5
-      ellipse cloud2 120,44,34,4 mix:,15@0.4
-      poly hills 0,104 50,94 110,100 190,96 250,102 320,98 320,104 mix:7,3@0.5
-      rect ground 0,104,320,32 mix:7,8@0.5
-      poly roof 36,82 76,70 116,82 8
-      rect station 42,82,68,22 8
-      rect door 70,92,10,12 0
-      rect tower 68,52,12,20 8
-      ellipse clock 74,58,6,6 15 e0
-      line hands 74,58 74,54 c0
-      line - 74,58 77,59 c0
-      line rail_a 0,132 112,105 c8
-      line rail_b 24,136 120,107 c8
-      dots - 200,60 210,66 c8
-    `
-  },
   died: {
     version: 1,
     draw: `

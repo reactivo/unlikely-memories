@@ -30,7 +30,6 @@ export const bible = {
   endings: [
     "Burn the photograph: forget the life that could have been; wake at your desk, level minus four, content.",
     "Burn the shell: let the Ministry forget you; the door closes, the clocks start, Monday comes.",
-    "Stay too long: the door closes on its own. If you're in the corridor when it does, you stay there.",
     "Drown: the sea takes you, and gives you back, in its own time."
   ],
   chaos: 0.3
@@ -40,7 +39,6 @@ export const bible = {
 const at = (room) => ({ "player.at": room });
 const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };                 // not asking about something (then their topics answer)
-const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 
 // Each portable object carries its sprite (16 × 16, hex palette numbers) and, if it can lie in a picture, a small
 // floor version (content/sample.sprites.js).
@@ -642,8 +640,6 @@ const oarsReady = { "oars.at": { in: ["player", "boat"] } };
 
 const rules = [
   // -- Going through the door, both ways -----------------------------------------------------------------------
-  { id: "beach_door_shut", match: { verb: ["enter", "go", "open", "knock", "push", "pull"], obj: "beach_door" }, if: [{ "beach_door.shut": true }],
-    do: [{ say: "It's driftwood now. Whatever it opened onto has closed." }] },
   { id: "beach_door_knock", match: { verb: "knock", obj: "beach_door" },
     do: [{ say: "You knock. From the other side, after a while, three knocks come back." }] },
   { id: "beach_through", match: { verb: ["enter", "go", "open", "push"], obj: "beach_door" },
@@ -662,7 +658,7 @@ const rules = [
       "From the dark, late, and in your own voice: \"It burns what you are willing to forget.\"",
       "The cave repeats what you said, and then something you didn't say, very quietly: \"Hut 7.\"",
       "The echo comes back as laughter. Somebody else's, on a beach, in daylight."
-    ] }, tension(5)] },
+    ] }] },
 
   // -- The pier --------------------------------------------------------------------------------------------------
 
@@ -672,15 +668,13 @@ const rules = [
     do: [{ say: "The cold closes over you, gently, the way it closes over everything. The sea takes you in. In its own time, it will give you back." },
          { hurt: 5, says: "The cold takes the last of you." }, { end: true, picture: "drowned" }] },
   { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 4 } }],
-    do: [tension(10),
-         { say: "You go in again. This time the thing underneath holds on longer before it lets go. You crawl out onto the sand knowing, the way you know your own handwriting, that next time it won't." },
+    do: [{ say: "You go in again. This time the thing underneath holds on longer before it lets go. You crawl out onto the sand knowing, the way you know your own handwriting, that next time it won't." },
          { hurt: 2, says: "It held on longer this time." }] },
   { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }],
-    do: [tension(10),
-         { say: "You go in. The cold is total. Something underneath takes your ankle, considers you, and lets go. You come out on the sand, coughing, and shaking, and less than you were." },
+    do: [{ say: "You go in. The cold is total. Something underneath takes your ankle, considers you, and lets go. You come out on the sand, coughing, and shaking, and less than you were." },
          { hurt: 2, says: "Its grip has left a mark." }] },
   { id: "swim_wade", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
-    do: [{ set: "player.waded", to: true }, tension(5),
+    do: [{ set: "player.waded", to: true },
          { say: "You wade in to your knees and stop. The water is black and very cold, and further out the sea pulls, patiently, like something that has all the time in the world." }] },
   { id: "swim_dry", match: { verb: "swim" }, do: [{ say: "There's no water here to swim in." }] },
 
@@ -715,9 +709,9 @@ const rules = [
 
   // -- The dunes -------------------------------------------------------------------------------------------------
 
-  // -- The carousel: a ride calms you ------------------------------------------------------------------------
+  // -- The carousel: one ride ------------------------------------------------------------------------
   { id: "ride", match: { verb: ["ride", "climb", "sit", "enter"], obj: [null, "horse"] }, if: [at("carousel"), { "horse.rode": { "!=": true } }],
-    do: [tension(-10), { set: "horse.rode", to: true }, { say: [
+    do: [{ set: "horse.rode", to: true }, { say: [
       "You ride once round. Each time you pass the promenade, a different window of the hotel is lit, and in each one, someone who looks like you is looking out.",
       "You ride. The tune slows almost to a stop and starts again. For a whole turn you are a child, and someone is waving.",
       "Round you go. The lighthouse, the hotel, the sea; the lighthouse, the hotel, the sea. It's very calming, for a carousel nobody is on."
@@ -727,19 +721,17 @@ const rules = [
     do: [{ say: "You ride again. It is only a carousel now, and it goes round." }] },
 
   // -- The hotel ------------------------------------------------------------------------------------------------
-  { id: "dining_first", match: { verb: "go", dir: "w" }, if: [at("lobby")], once: true,
-    do: [tension(3)], then: "default" },
   { id: "dining_stuck", match: { verb: ["go", "exit", "enter"] }, if: [{ "player.seated": true }],
     do: [{ say: "You can't think of a polite way to leave while you're sitting down. The conversation has turned warmly towards you." }] },
   { id: "dining_sit", match: { verb: ["sit", "enter"], obj: [null, "chair"] }, if: [at("dining"), { "player.seated": { "!=": true } }],
-    do: [{ set: "player.seated", to: true }, tension(10),
+    do: [{ set: "player.seated", to: true },
          { say: "You sit. Someone passes you the salt. The conversation turns towards you, and it is warm, and it is very hard to think of a reason to get up." }] },
   { id: "dining_stand", match: { verb: ["stand", "exit"] }, if: [{ "player.seated": true }],
     do: [{ set: "player.seated", to: false }, { say: "You stand. Nobody minds. Nobody notices. It is surprisingly easy, which is somehow worse." }] },
   { id: "hallway_door", match: { verb: ["enter", "go", "open", "push"], obj: "door11" },
     do: [{ travel: "room11" }, { describe: "$here" }] },
   { id: "letter_read", match: { verb: ["read", "examine"], obj: "letter" }, once: true,
-    do: [tension(-5), { say: "$obj.examine" }] },
+    do: [{ say: "$obj.examine" }] },
 
   // -- The post office: no name, no post; the shell vouches for you ---------------------------------------------
   { id: "post_shell", match: { verb: ["give", "show"], obj: "shell" }, if: [at("post_office"), holding("shell"), { "postmaster.gave": { "!=": true } }],
@@ -757,11 +749,11 @@ const rules = [
     do: [{ remove: "object", id: "parcel" }, { move: "key", to: "player" },
          { say: "Inside, wrapped in a page of the Ministry newsletter, is a small brass {key} on a tag. On the tag, in your handwriting: 7." }] },
 
-  // -- The café: coffee calms you ----------------------------------------------------------------------------
+  // -- The café: the coffee ----------------------------------------------------------------------------
   { id: "cafe_order", match: { verb: ["talk", "ask", "order", "say", "drink"], obj: [null, "waiter", "coffee"] }, if: [at("cafe"), { "coffee.at": { "!=": "cafe" } }, { "coffee.had": { "!=": true } }, notAsking],
     do: [{ move: "coffee", to: "cafe" }, { say: "Before you can say anything, he puts a {cup of coffee|coffee} on the table. \"The usual,\" he says. You have never been here before." }] },
   { id: "coffee_drink", match: { verb: ["drink", "eat", "take", "taste"], obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ move: "coffee", to: null }, { set: "coffee.had", to: true }, tension(-15), { say: "It tastes of a morning you didn't have. Your hands stop shaking. You hadn't noticed they were shaking." }] },
+    do: [{ move: "coffee", to: null }, { set: "coffee.had", to: true }, { say: "It tastes of a morning you didn't have. Your hands stop shaking. You hadn't noticed they were shaking." }] },
 
   { id: "cafe_again", match: { verb: ["order", "ask"], obj: ["waiter", "coffee"] }, if: [at("cafe"), { "coffee.had": true }, { "coffee.at": null }],
     do: [{ say: "\"The usual,\" he says, and looks at the napkin. \"You've had it. It's all there is, on a Sunday.\"" }] },
@@ -775,31 +767,14 @@ const rules = [
   // -- The lantern room: what you are willing to forget ----------------------------------------------------------
   { id: "burn_photograph", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "photograph", obj2: [null, "lamp"] }, if: [at("lantern"), holding("photograph")], do: [{ change: "end_photograph" }] },
   { id: "light_photograph", match: { verb: "switch_on", obj: "lamp", obj2: "photograph" }, if: [at("lantern"), holding("photograph")], do: [{ change: "end_photograph" }] },
-  // (The door turns to driftwood with the shell, unless the tension has closed it already: the change would then refuse.)
-  { id: "burn_shell", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "shell", obj2: [null, "lamp"] }, if: [at("lantern"), holding("shell"), { "beach_door.shut": { "!=": true } }], do: [{ change: "driftwood" }, { change: "end_shell" }] },
-  { id: "burn_shell_late", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "shell", obj2: [null, "lamp"] }, if: [at("lantern"), holding("shell")], do: [{ change: "end_shell" }] },
-  { id: "light_shell", match: { verb: "switch_on", obj: "lamp", obj2: "shell" }, if: [at("lantern"), holding("shell"), { "beach_door.shut": { "!=": true } }], do: [{ change: "driftwood" }, { change: "end_shell" }] },
-  { id: "light_shell_late", match: { verb: "switch_on", obj: "lamp", obj2: "shell" }, if: [at("lantern"), holding("shell")], do: [{ change: "end_shell" }] },
+  { id: "burn_shell", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "shell", obj2: [null, "lamp"] }, if: [at("lantern"), holding("shell")], do: [{ change: "driftwood" }, { change: "end_shell" }] },
+  { id: "light_shell", match: { verb: "switch_on", obj: "lamp", obj2: "shell" }, if: [at("lantern"), holding("shell")], do: [{ change: "driftwood" }, { change: "end_shell" }] },
   { id: "burn_other", match: { verb: ["put", "burn", "throw", "give"], obj2: "lamp" }, if: [at("lantern")],
     do: [{ say: ["The lamp won't take it. That isn't something you could forget.", "The wick stays dry. Not that. Something you would miss."] }] },
   { id: "burn_any", match: { verb: "burn" }, if: [at("lantern")],
     do: [{ say: "The lamp burns only what you are willing to forget. You have to choose it, and put it in." }] },
   { id: "burn_nothing", match: { verb: "burn" }, do: [{ say: "You have nothing to burn it with." }] },
 
-  // -- Tension: rises slowly once you're through the door; the door warns, then closes ----------------------------
-  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
-    do: [{ say: "The tune from the carousel comes over the roofs. Somewhere a radio plays a song you used to know all the words to; you find you only know the tune." }, { unsettle: 1 }] },
-  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
-    do: [{ say: "The town has gone very quiet, the way a room goes quiet when someone has just left it." }, { unsettle: 1 }] },
-  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
-    do: [{ say: "Far off, on the beach, something takes a slow, shallow breath. The door is breathing less than it was." }, { unsettle: 1 }] },
-  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
-    do: [{ say: "You think of [way]. You're not sure you remember which way it was." }, { unsettle: 1 }] },
-  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
-    do: [{ say: "The light from the door, somewhere behind you, is a little dimmer. A little smaller." }, { unsettle: 1 }] },
-  { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 5 } }, { "beach_door.shut": { "!=": true } }],
-    do: [{ change: "driftwood" },
-         { say: "Far off, [way] closes, with a sound like a held breath let go. You feel it in your chest, like a missed step. The way back is gone." }] }
 ];
 
 // ---- Puzzles, described as data (GUIDE.md §3) --------------------------------------------------------------
@@ -849,8 +824,8 @@ export default {
   // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
   properties: {
     "coffee.had": { type: "boolean", start: false },        // the one coffee has been drunk
-    "horse.rode": { type: "boolean", start: false },        // the one ride that calms you has been taken
-    "beach_door.shut": { type: "boolean", start: false },   // the beach door has closed behind you
+    "horse.rode": { type: "boolean", start: false },        // the one ride has been taken
+    "beach_door.shut": { type: "boolean", start: false },   // the green door has turned to driftwood
     "player.waded": { type: "boolean", start: false },   // you have waded into the sea
     "player.seated": { type: "boolean", start: false },   // you are sitting at the dining table
     "postmaster.gave": { type: "boolean", start: false }   // the postmaster has handed over the parcel
@@ -866,11 +841,6 @@ export default {
     { add: "change", id: "arrival", effects: [
       { time: "day 1 17:15", weekday: "sun" },
       { say: "The air is salt. Somewhere a clock says [time], and it is Sunday, and nobody minds." }
-    ] },
-    // The world's mood, by tension
-    { set: "game.moods", to: [
-      { below: 1, text: "Adequately content" }, { below: 2, text: "Faintly homesick" }, { below: 3, text: "Uneasy" },
-      { below: 4, text: "Short of breath" }, { below: 6, text: "Running out of Sunday" }
     ] },
     // Verbs only this world needs
     { add: "word", verb: "row", words: ["row", "scull", "row to", "row back"] },

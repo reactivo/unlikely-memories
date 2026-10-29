@@ -31,7 +31,7 @@ export const bible = {
     "The truth: bring the last words heard at the lamp to the inquest; they go home to whoever said them, and the fog lifts.",
     "Relieved: light the last lamp yourself and take the lamplighter's post.",
     "The wrong name: name Mr Voss at the inquest. The fog keeps it, and never lifts.",
-    "Died: let the waiting grow too long, and the fog gets into your lungs (warned first)."
+    "Died: the river takes you, if you go down into it again after its warning."
   ],
   chaos: 0.2
 };
@@ -506,7 +506,7 @@ const rules = [
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "last_words.at": null }],
     do: [{ say: "You hold the trumpet to the fog and listen. Most of what the fog holds is weather. Then, close by the lamp, low: a woman's voice, warm, with flour on it. \"Leave it, Albert. Sit down a minute. Nobody will miss one lamp.\"" },
          { say: "The words come down out of the fog and settle in your cupped hands, light as a moth, still a little warm." },
-         { move: "last_words", to: "player" }, { unsettle: 1 }] },
+         { move: "last_words", to: "player" }] },
   { id: "heard_already", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }],
     do: [{ say: "The fog has nothing more to say here. It has said enough." }] },
@@ -579,19 +579,19 @@ const rules = [
   { id: "light_elsewhere", match: { verb: ["switch_on", "use"], obj: "pole", obj2: [null] }, if: [{ "pole.at": "player" }],
     do: [{ say: "Every lamp here is lit already. Only the last one, at the bottom of the Row, is waiting." }] },
 
-  // Ways to lower the waiting, one each: a drink by the fire, a pie, a breath of clearer air.
+  // A drink by the fire, a pie, a breath of clearer air: one each.
   { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }], once: true,
-    do: [{ heal: 1, says: "Mr Cotter pulls you a half of porter without asking which. You drink it by the fire. The fog in your chest goes and sits somewhere else for a while." }, { calm: 1 }] },
+    do: [{ heal: 1, says: "Mr Cotter pulls you a half of porter without asking which. You drink it by the fire. The fog in your chest goes and sits somewhere else for a while." }] },
   { id: "porter_again", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
     do: [{ say: "\"One,\" says Mr Cotter. \"I said. I'm not running a hospital.\"" }] },
   { id: "order_pie", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }], once: true,
-    do: [{ heal: 1, says: "Mrs Halloran wraps a pie in paper and gives it to you hot. You eat it standing up. It tastes of being expected." }, { calm: 1 }] },
+    do: [{ heal: 1, says: "Mrs Halloran wraps a pie in paper and gives it to you hot. You eat it standing up. It tastes of being expected." }] },
   { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
     do: [{ say: "\"One's plenty,\" says Mrs Halloran. \"He only ever had the one.\"" }] },
   { id: "order_elsewhere", match: { verb: "order" },
     do: [{ say: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." }] },
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
-    do: [{ say: "You breathe. The air out here is only half fog; the other half is the river going by. For a moment your chest is your own." }, { calm: 1 }] },
+    do: [{ say: "You breathe. The air out here is only half fog; the other half is the river going by. For a moment your chest is your own." }] },
   { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
     do: [{ say: "You breathe. It helps less the second time. It is still fog, only thinner." }] },
   { id: "breathe_elsewhere", match: { verb: "breathe" },
@@ -602,14 +602,14 @@ const rules = [
     do: [{ say: ["You join in. Nobody minds. Between all of you, you nearly know the words.", "You sing the chorus with the men at the bar, a little behind the one before you, as is the custom."] }] },
   { id: "shout_fog", match: { verb: ["shout", "sing"] }, if: [{ "player.at": { in: ["row", "last_lamp", "river_steps", "bridge", "court"] } }],
     do: [{ say: ["Your words go out into the fog and stop a little way off, hanging there, embarrassed. Somebody will hear them out one day.",
-                 "The fog takes what you said and keeps it, a little above your head, where you can't get it back."] }, { unsettle: 1 }] },
+                 "The fog takes what you said and keeps it, a little above your head, where you can't get it back."] }] },
 
   // The river: warned, then it takes hold.
   { id: "river_warn", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }], once: true,
-    do: [{ say: "You go down to the last step. The river takes hold of your ankle, quite gently, as if it knew you. \"Don't,\" says Pip, and you come back up. Next time it might not let go." }, { unsettle: 1 }] },
+    do: [{ say: "You go down to the last step. The river takes hold of your ankle, quite gently, as if it knew you. \"Don't,\" says Pip, and you come back up. Next time it might not let go." }] },
   { id: "river_hurt", match: { verb: ["enter", "swim"], obj: [null, "river"] }, if: [{ "player.at": "river_steps" }],
     do: [{ say: "You go down into the river. It is colder than anything has a right to be, and it has you by the legs, and then, as if it had changed its mind, it lets go. You crawl back up the steps." },
-         { hurt: 2, says: "The river had you for a moment, and kept some of you." }, { unsettle: 1 }] },
+         { hurt: 2, says: "The river had you for a moment, and kept some of you." }] },
 
   // The Bell shuts at eleven; the court sits at midnight and rises at six.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
@@ -629,17 +629,6 @@ const rules = [
     do: [{ say: "Morning, somewhere above the fog. Dr Mabbott closes his book. \"The court will sit again at midnight,\" he says, and you are shown out." },
          { travel: "row" }, { describe: "$here" }] },
 
-  // The waiting: the fog creeps into you, a step about every two minutes of play, one rule per step, each said by the fog
-  // before its echo (INTERFACE.md §6c): at 3 it is in your coat, at 4 it says what would help, at 5 it starts to hurt.
-  { id: "fog_creeps_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }], do: [{ say: "The fog has found your collar. It sits there, cold, like a hand that hasn't made up its mind." }, { unsettle: 1 }] },
-  { id: "fog_creeps_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }], do: [{ say: "You can't see the end of the Row any more. You're not sure it has one." }, { unsettle: 1 }] },
-  { id: "fog_creeps_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }], do: [{ say: "The fog is in your coat now, and in your sleeves. It comes in with every breath and doesn't go out with it." }, { unsettle: 1 }] },
-  { id: "fog_creeps_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
-    do: [{ say: "Your chest is full of fog. Something warm would help: a drink at the Bell, a pie, a breath out on the bridge. Anything but waiting." }, { set: "game.fogWarned", to: true }, { unsettle: 1 }] },
-  { id: "fog_creeps_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
-    do: [{ say: "The fog closes over you like water over a stone. You are no longer sure which way the Row goes." }, { set: "game.fogWarned", to: true }, { unsettle: 1 }] },
-  { id: "fog_hurts", when: "every", every: { seconds: [60, 90] }, if: [{ "game.tension": { ">=": 5 } }, { "game.fogWarned": true }],
-    do: [{ hurt: 1, says: "The fog gets into your lungs and sits down, as if it meant to stay." }] }
 ];
 
 // ---- Puzzles (for the checker and the hints; GUIDE.md §3). The endings in the order the hints should reach them. ----
@@ -683,10 +672,6 @@ const opening = {
 export default {
   because: "After the opening: a fog-bound street on the night of a lamplighter's inquest.",
   opening,
-  // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
-  properties: {
-    "game.fogWarned": { type: "boolean", start: false }    // the last warning about the fog: the harm waits for it
-  },
   facts: [
     "The player arrives on Lantern Row, London, in thick fog, on a Thursday at half past ten at night.",
     "Albert Fenn, lamplighter, died this evening under the one lamp he didn't light, and sits there still, dead, until relieved.",
@@ -699,10 +684,6 @@ export default {
     { add: "change", id: "arrival", effects: [
       { time: "day 1 22:30", weekday: "thu" },
       { say: "Somewhere above the fog a church clock strikes half past ten, and doesn't sound sure of it." }
-    ] },
-    { set: "game.moods", to: [
-      { below: 1, text: "Taking the air" }, { below: 2, text: "Damp at the collar" }, { below: 3, text: "Fogbound" },
-      { below: 4, text: "Short of breath" }, { below: 6, text: "Lost in it" }
     ] },
     // Verbs this world needs
     { add: "word", verb: "accuse", words: ["accuse", "blame", "name", "charge", "denounce"], absent: true },

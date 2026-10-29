@@ -262,7 +262,7 @@ export function check(state, pack, bible) {
 
   // Harm is fair (GUIDE.md §3): health (5 to 0) is lost with `hurt` and the rule's own line (`says`), then the game's
   // echo, never by setting it; and a hit is 1, or 2 for something serious (the engine never lets one of those end you
-  // from above 1), unless the rule is itself an ending. Your mood (tension 0 to 5) moves with `calm` and `unsettle`.
+  // from above 1), unless the rule is itself an ending.
   const changes = Object.entries(state.changes || {}).map(([name, effects]) => ({ id: "change " + name, do: effects, named: true }));
   for (const r of [...state.rules, ...changes]) {
     if (!r || !Array.isArray(r.do)) continue;
@@ -272,8 +272,6 @@ export function check(state, pack, bible) {
         warnings.push(`${id}: changes health directly; use { hurt: n, says: "…" } so the loss is said, with its echo`);
       else if (e?.set === "player.health" && typeof e.add === "number" && e.add > 0)
         warnings.push(`${id}: raises health directly; use { heal: n, says: "…" } so it is capped at full and said, with its echo`);
-      if (e?.set === "game.tension")
-        warnings.push(`${id}: changes tension directly; use { calm: 1, says: "…" } or { unsettle: 1, says: "…" }, one step at a time`);
       if (e && "heal" in e) healProblems(r, e, id, state, problems, warnings);
       if (!e || !("hurt" in e)) continue;
       if (!e.says) warnings.push(`${id}: hurts with no line of its own (says): only the echo ("You're hurt") is shown`);
@@ -1015,7 +1013,6 @@ function checkOpening(state, pack) {
   for (const [id, o] of Object.entries(objects))
     if ((o.at === roomId || o.at === "player") && o.portable && ![R, H, I].includes(id))
       problems.push(`"${id}" can be taken in the opening: only the restart and hints things can be (the intro is carried)`);
-  if (state.tension !== 0) problems.push("the opening has no tension");
   if (!state.puzzles.opening_way) problems.push("the opening's own steps aren't among the puzzles");
 
   // Every thing in the opening has its own nouns (BRIEF.md §3): a word that names two things there is a clash, and so is a word of
@@ -1103,7 +1100,7 @@ class Run {
     const result = (action) => {
       const r = step(this.state, { ...action, at: this.clock + 1000 }), n = r.next;
       return { refused: r.refused.length, said: r.applied.filter(e => e.say).map(e => String(e.say)),
-               digest: JSON.stringify([n.world, n.player, n.ended, n.tension, n.time?.shift, n.pending.question && true]) };
+               digest: JSON.stringify([n.world, n.player, n.ended, n.time?.shift, n.pending.question && true]) };
     };
     const typed = result(a);
     for (const [x, y] of [[a.obj, a.obj2], [a.obj2, a.obj]]) {

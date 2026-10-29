@@ -22,12 +22,11 @@ export const bible = {
     "Everything at Hartley's has a price, and the price is a memory.",
     "Payment goes to the cash office by tube, and only by tube.",
     "The mannequins move only while nobody is looking at them.",
-    "Hartley's closes at six and never empties: a customer who stays too long becomes part of the display."
+    "Hartley's closes at six and never empties."
   ],
   endings: [
     "The afternoon: pay with a memory you have and try on the afternoon you missed. You go into it, and the one you had is gone.",
-    "Kept: take the memory up to the roof garden and let it out. Hartley's has nothing to sell you after that.",
-    "The window: stay too long (tension). In the morning you're in the front window, with a price on your sleeve."
+    "Kept: take the memory up to the roof garden and let it out. Hartley's has nothing to sell you after that."
   ],
   chaos: 0.3
 };
@@ -35,7 +34,6 @@ export const bible = {
 // ---- Helpers (they read like the rules' own words) -----------------------------------------------------------------
 const at = (...rooms) => ({ "player.at": rooms.length > 1 ? { in: rooms } : rooms[0] });
 const holding = (id) => ({ [id + ".at"]: "player" });
-const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- The ending pictures ----------------------------------------------------------------------------------------------------
@@ -43,7 +41,6 @@ const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"]
 const endingPictures = {
   afternoon: { alt: "Through the window of a bus, wound down: a bright sea along the horizon, a green verge going by, and an elbow resting on the sill.", picture: endings.afternoon },
   kept: { alt: "A roof garden at dusk, seen from low down among the chimneys. A small bottle stands open, and a tall pale-gold column of light rises from it far above the roofs.", picture: endings.kept },
-  window: { alt: "The front window of a department store at first light, seen from the pavement. Three figures stand in it, still: two mannequins, and between them you, in a coat a little warmer than yours, with a small red price tag on the sleeve.", picture: endings.window },
   died: { alt: "The ceiling of the store, seen from the floor: a bundle of pneumatic tubes running away to a single yellow lamp, and the edge of your shoes at the bottom of the picture.", picture: endings.died }
 };
 
@@ -285,7 +282,7 @@ const objects = {
       fourth: { label: "the fourth floor", words: ["fourth", "afternoons", "appointment", "appointments"], says: "\"Lost afternoons. By appointment. The cash office issues appointments; payment by tube, from haberdashery.\"" },
       roof: { about: "roof_door", label: "the roof garden", words: ["roof", "garden", "winter"], says: "\"Closed for the winter. The key went to Gloves to be mended and never came back. Gloves keep things.\"" },
       price: { label: "prices", words: ["price", "prices", "pay", "money", "memory", "memories"], says: "\"Before six, the usual. After six, a memory.\" He consults his watch. \"Near enough six.\"" },
-      closing: { open: true, label: "closing time", words: ["closing", "close", "six", "time", "leave", "leaving"], says: "\"Six o'clock. Customers who stay on are put somewhere useful. The windows, mostly.\"" },
+      closing: { open: true, label: "closing time", words: ["closing", "close", "six", "time", "leave", "leaving"], says: "\"Six o'clock. We close, and nobody leaves. It is very restful.\"" },
       default: "\"I'm sure I couldn't say,\" he says, \"and I'm sure it's in stock.\""
     } },
 
@@ -436,11 +433,6 @@ const changes = {
     { say: "Below you the store goes on selling. It has nothing to sell you now. Somewhere far behind you, [way] opens again, and you find you know the way." },
     { end: true, picture: "kept" }
   ],
-  window_ending: [
-    { say: "The lights go out floor by floor, from the top, like a building closing its eyes. Mr Gage comes round with his book. He counts the mannequins. He counts you." },
-    { say: "In the morning the window dressers find you standing in the front window, between two mannequins, in a coat a little warmer than yours, with a price on your sleeve. People stop to look. Somewhere far behind you, [way] closes, softly." },
-    { end: true, picture: "window" }
-  ]
 };
 
 // ---- Rules -----------------------------------------------------------------------------------------------------------
@@ -453,7 +445,7 @@ const rules = [
   { id: "smell_tester", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] }, if: [{ "memory.at": null }], once: true,
     do: [{ say: "You press the bulb. Rain on a kitchen window. Toast. A radio in the next room, and someone you loved asleep in a chair, on an afternoon you had forgotten you had." },
          { say: "Madame Corre holds a little bottle under your nose, and the afternoon goes into it. She corks it and gives it to you. \"Payment,\" she says. \"Or not. That is up to you.\"" },
-         { move: "memory", to: "player" }, tension(-5)] },
+         { move: "memory", to: "player" }] },
   { id: "smell_tester_again", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] },
     do: [{ say: "Madame Corre caps the tester with one gloved finger. \"One each,\" she says. \"Memories are not samples.\"" }] },
 
@@ -471,14 +463,14 @@ const rules = [
 
   // The tubes: warned, then hurt.
   { id: "tubes_warn", match: { verb: ["enter", "touch", "climb"], obj: "tubes" }, once: true,
-    do: [{ say: "You reach up to the tube. It breathes in and takes hold of your sleeve like a child wanting to show you something, hard. Miss Thimble raps the counter. \"Not with your hands, dear. It takes fingers.\" You get your sleeve back." }, tension(10)] },
+    do: [{ say: "You reach up to the tube. It breathes in and takes hold of your sleeve like a child wanting to show you something, hard. Miss Thimble raps the counter. \"Not with your hands, dear. It takes fingers.\" You get your sleeve back." }] },
   { id: "tubes_hurt", match: { verb: ["enter", "touch", "climb"], obj: "tubes" },
-    do: [{ say: "You put your hand up the tube. It takes the whole arm, to the shoulder, and then thinks better of it and lets go." }, { hurt: 2, says: "The tube had your arm for a moment." }, tension(15)] },
+    do: [{ say: "You put your hand up the tube. It takes the whole arm, to the shoulder, and then thinks better of it and lets go." }, { hurt: 2, says: "The tube had your arm for a moment." }] },
 
   // The glove: a handshake, and the roof key.
   { id: "shake_glove", match: { verb: ["shake", "touch"], obj: "glove" }, if: [{ "roof_key.at": null }], once: true,
     do: [{ say: "You take the glove's hand. It holds on, warm, for a long moment, the way someone does at a station. Then its fingers open, and there is a long brass key in your palm." },
-         { move: "roof_key", to: "player" }, tension(-5)] },
+         { move: "roof_key", to: "player" }] },
   { id: "shake_glove_again", match: { verb: ["shake", "touch"], obj: "glove" },
     do: [{ say: "The glove holds your hand a little longer than it needs to, then lets go." }] },
 
@@ -519,31 +511,18 @@ const rules = [
                  "You wind the bear. It nods three times and says: \"Afternoons on the fourth. Pay by tube. Everybody pays with the one they liked.\"",
                  "You wind the bear. \"The roof,\" it says. \"Somewhere high. Things let out up there stay out.\" It sits down, pleased."] }] },
 
-  // Tea: once, and it steadies you.
+  // Tea: once.
   { id: "order_tea", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }, { "tea.at": null }], once: true,
     do: [{ say: "Dot pours, without asking, into a {cup|tea} with a rose on it, and sets it in front of you. \"On the house,\" she says. \"Tea always is. It's the house that costs.\"" }, { move: "tea", to: "tea_room" }] },
   { id: "tea_once", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }],
     do: [{ say: "\"One pot each,\" says Dot. \"Any more and you'd stop noticing it.\"" }] },
   { id: "drink_tea", match: { verb: "drink", obj: "tea" }, if: [{ "tea.at": "tea_room" }],
-    do: [{ say: "It is exactly as strong as you like it, which nobody has known for years. The store goes quiet around the cup." }, { move: "tea", to: null }, tension(-15)] },
+    do: [{ say: "It is exactly as strong as you like it, which nobody has known for years. The store goes quiet around the cup." }, { move: "tea", to: null }] },
 
-  // Closing time, at six: said everywhere, and the waiting gets heavier.
+  // Closing time, at six: said everywhere.
   { id: "closing_bell", when: "at", at: "18:00",
-    do: [{ say: "A bell rings three times, somewhere in the walls. \"Hartley's is now closed,\" says a voice from every ceiling. \"Customers are asked to make their way to the doors.\" Nobody does." }, tension(10)] },
+    do: [{ say: "A bell rings three times, somewhere in the walls. \"Hartley's is now closed,\" says a voice from every ceiling. \"Customers are asked to make their way to the doors.\" Nobody does." }] },
 
-  // Tension: the longer you stay, the more you belong to the store; warned twice, then the window.
-  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
-    do: [{ say: "A shop assistant you didn't see arrive asks if you're being served. You say you are." }, { unsettle: 1 }] },
-  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
-    do: [{ say: "You pick up a glove and put it down again. You've done that before, you think, today." }, { unsettle: 1 }] },
-  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
-    do: [{ say: "Somewhere above you, the lights on a floor go out. Mr Gage's voice, quite close: \"Customers who stay on are put somewhere useful.\"" }, { unsettle: 1 }] },
-  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
-    do: [{ say: "You catch yourself standing very still, the way the mannequins do. A cup of tea, a sit down, anything that isn't waiting, might help." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
-  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
-    do: [{ say: "A price tag has found its way onto your sleeve. You don't remember anyone putting it there." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
-  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.storeLastWarned": true }],
-    do: [{ change: "window_ending" }] }
 ];
 
 // ---- Puzzles (for the checker; GUIDE.md §3) ---------------------------------------------------------------------------
@@ -584,10 +563,6 @@ const opening = {
 export default {
   because: "After the opening: a department store at closing time.",
   opening,
-  // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
-  properties: {
-    "game.storeLastWarned": { type: "boolean", start: false }   // the last warning from the store: the end waits for it
-  },
   facts: [
     "The player arrives in Hartley's department store on a Saturday, a little before it closes at six.",
     "At Hartley's the price of everything is a memory, paid by tube to the cash office.",
@@ -600,10 +575,6 @@ export default {
     { add: "change", id: "arrival", effects: [
       { time: "day 1 17:10", weekday: "sat" },
       { say: "A voice from the ceiling, kind and very tired, says that Hartley's will be closing at six." }
-    ] },
-    { set: "game.moods", to: [
-      { below: 1, text: "Just browsing" }, { below: 2, text: "Being served" }, { below: 3, text: "Undecided" },
-      { below: 4, text: "Overstaying" }, { below: 6, text: "On display" }
     ] },
     // Verbs this world needs
     { add: "word", verb: "shake", words: ["shake", "shake hands with", "hold hands with"] },

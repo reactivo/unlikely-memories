@@ -543,31 +543,6 @@ export const endings = {
     `,
     cycles: [{ name: "the afternoon", areas: ["plume", "haze_in"], colors: [14, 15], style: "pingpong", ms: 2400 }]
   },
-  window: {
-    version: 1,
-    draw: `
-      rect wall 0,0,320,136 mix:6,0@0.35
-      rect window 18,12,284,88 fade:14,6/0,12/0,100
-      rect floor 18,88,284,12 mix:6,0@0.5
-      ellipse head_l 98,36,7,8 7
-      poly mannequin_l 88,46 108,46 112,90 84,90 1
-      ellipse head_r 266,36,7,8 7
-      poly mannequin_r 256,46 276,46 280,90 252,90 1
-      ellipse head 188,32,8,9 12
-      poly you 174,42 202,42 208,90 168,90 6
-      line - 174,44 164,76 c6
-      line - 202,44 214,76 c6
-      rect tag 210,70,6,5 4
-      line - 213,66 213,70 c7
-      poly glare 30,12 80,12 46,100 18,100 mix:,15@0.12
-      poly glare2 100,12 120,12 86,100 66,100 mix:,15@0.1
-      rect sign 18,2,284,8 0
-      rect pavement 0,100,320,36 mix:8,0@0.5
-      line - 0,104 320,104 c7
-      poly passer 258,136 262,108 274,102 292,108 296,136 0
-      ellipse - 278,98,7,8 0
-    `
-  },
   died: {
     version: 1,
     draw: `

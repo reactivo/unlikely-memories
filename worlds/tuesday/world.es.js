@@ -27,8 +27,7 @@ export const bible = {
   ],
   endings: [
     "Martes: tomas el tren de las 23:40 con un billete comprado con una moneda antigua. Te saltas tu lunes, y todos los lunes que vengan.",
-    "Lunes: das a la archivera algo que perdiste en tu último lunes; devuelves el lunes al calendario de la estación. El pueblo despierta en lunes, y tú también, en tu mesa.",
-    "Domingo: dejas que la espera se alargue demasiado (tensión). El camino por el que viniste se cierra y sigue siendo domingo, para ti, para siempre."
+    "Lunes: das a la archivera algo que perdiste en tu último lunes; devuelves el lunes al calendario de la estación. El pueblo despierta en lunes, y tú también, en tu mesa."
   ],
   chaos: 0.3
 };
@@ -39,7 +38,6 @@ const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };
 const hours = (from, to) => ({ "time.hour": { between: [from, to] } });
 const notHours = (from, to) => ({ "time.hour": { between: [to, from] } });   // las demás horas del día
-const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- Textos que cambian -------------------------------------------------------------------------------------------------
@@ -61,7 +59,6 @@ const squareDay = [
 const endingPictures = {
   tuesday: { alt: "Por la ventanilla de un tren: un túnel oscuro que pasa a toda velocidad en anillos y, al fondo, una luz blanca y amarilla que crece. En el cristal, tenue, tu propia cara.", picture: endings.tuesday },
   monday: { alt: "Primer plano de un calendario de hojas sobre una pared marrón. La hoja de arriba tiene una ancha franja roja y el borde inferior rasgado, con unas pocas líneas grises de letra impresa. Junto al borde derecho del calendario, la esfera redonda de un reloj.", picture: endings.monday },
-  sunday: { alt: "A lo lejos, en una llanura vacía, una pequeña estación de ferrocarril y su torre del reloj bajo un cielo pálido y plano. Dos raíles llegan hasta ella. Nada se mueve. Las agujas del reloj están paradas.", picture: endings.sunday },
   died: { alt: "La vía y el borde del andén vistos desde muy arriba: dos raíles sobre traviesas marrones, un andén pálido con una línea amarilla, una luz roja de señal y una figura diminuta tendida junto al borde mientras unas luces brillantes bajan por la vía desde lo alto de la imagen.", picture: endings.died }
 };
 
@@ -591,7 +588,7 @@ const changes = {
   ],
   yesterday: [
     { say: "Giras la llave. Las manecillas corren hacia atrás, los relojes de las paredes se callan uno a uno, y la luz de la ventana cruza el suelo en sentido contrario. Es ayer. Lo que hicieras en él, lo hiciste." },
-    { time: "-1d" }, { calm: 2 }
+    { time: "-1d" }
   ],
   // Los finales
   tuesday_ending: [
@@ -604,10 +601,6 @@ const changes = {
     { say: "En algún lugar a tus espaldas, [way] se abre de nuevo. Vuelves por donde viniste, a través de objetos perdidos, y al otro lado es lunes por la mañana. Es tuyo, todo entero, y está por hacer." },
     { end: true, picture: "monday" }
   ],
-  sunday_ending: [
-    { say: "En algún lugar a tus espaldas, [way] se cierra, con suavidad, como se cierra un libro. En objetos perdidos, el señor Ambrose escribe algo en el libro de registro. El reloj de la estación no da la hora. Es domingo, y va a seguir siendo domingo, y al cabo de un rato dejas de darle importancia, que es lo peor." },
-    { end: true, picture: "sunday" }
-  ]
 };
 
 // ---- Reglas ----------------------------------------------------------------------------------------------------------------
@@ -621,16 +614,16 @@ const rules = [
   // Objetos perdidos: el paraguas, cuando lo pides.
   { id: "claim_umbrella", match: { verb: "ask", obj: "ambrose", topic: "umbrella" }, if: [{ "umbrella.at": "lost_property" }],
     do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo.»" },
-         { set: "umbrella.portable", to: true }, { move: "umbrella", to: "player" }, tension(-5)] },
+         { set: "umbrella.portable", to: true }, { move: "umbrella", to: "player" }] },
   { id: "claim_umbrella_order", match: { verb: "order", obj: "umbrella" }, if: [at("lost_property"), { "umbrella.at": "lost_property" }],
     do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo.»" },
-         { set: "umbrella.portable", to: true }, { move: "umbrella", to: "player" }, tension(-5)] },
+         { set: "umbrella.portable", to: true }, { move: "umbrella", to: "player" }] },
   { id: "take_umbrella_early", match: { verb: "take", obj: "umbrella" }, if: [{ "umbrella.portable": false }],
     do: [{ say: "Está detrás del mostrador. El señor Ambrose no entrega nada a quien no lo ha pedido." }] },
   { id: "claim_umbrella_say", match: { verb: "say", obj: [null, "ambrose"] }, if: [at("lost_property"), { "umbrella.at": "lost_property" }],
     do: [{ say: "«Si es algo que perdiste», dice el señor Ambrose, «pídemelo por su nombre. Así se hace: pidiéndolo.»" }] },
 
-  // El café: abierto de siete de la mañana a diez de la noche; el café te serena.
+  // El café: abierto de siete de la mañana a diez de la noche.
   { id: "cafe_closes", when: "at", at: "22:00", if: [at("cafe")],
     do: [{ say: "Inés apaga la radio en mitad del vals. «Cerramos», dice, y te encuentras en la plaza." }, { travel: "square" }, { describe: "$here" }] },
   { id: "order_coffee", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }, { "coffee.at": null }, { "coffee.day": { "!=": "$time.day" } }],
@@ -638,7 +631,7 @@ const rules = [
   { id: "coffee_served", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "coffee.at": "cafe" }, { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Primero ese», dice Inés." }] },
   { id: "coffee_done", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Uno al día», dice Inés. «Con más empezarías a esperar cosas.»" }] },
   { id: "drink_coffee", match: { verb: "drink", obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ say: "Está muy bueno. Por un momento no recuerdas nada a lo que hayas llegado tarde." }, { move: "coffee", to: null }, tension(-15)] },
+    do: [{ say: "Está muy bueno. Por un momento no recuerdas nada a lo que hayas llegado tarde." }, { move: "coffee", to: null }] },
 
   // La ventanilla de billetes tiene su horario (de nueve de la noche a seis de la mañana).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
@@ -696,10 +689,10 @@ const rules = [
 
   // El túnel: primero la advertencia, luego el daño.
   { id: "tunnel_warn", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }], once: true,
-    do: [{ say: "Bajas a los raíles. El zumbido se te mete en los dientes. Dentro, la oscuridad se inclina hacia ti. Subes de nuevo. La próxima vez quizá no puedas." }, tension(10)] },
+    do: [{ say: "Bajas a los raíles. El zumbido se te mete en los dientes. Dentro, la oscuridad se inclina hacia ti. Subes de nuevo. La próxima vez quizá no puedas." }] },
   { id: "tunnel_hurt", match: { verb: ["go", "enter"], obj: [null, "tunnel"] }, if: [at("platform_end"), { "$exit": { in: [true, null] } }],
     do: [{ say: "Entras. El aire tibio se espesa hasta que es como abrirse paso entre una multitud. Algo pasa muy cerca, a toda velocidad, y desaparece. Sales a gatas, sin una parte de la tarde." },
-         { hurt: 2, says: "Algo te ha alcanzado al pasar." }, tension(15)] },
+         { hurt: 2, says: "Algo te ha alcanzado al pasar." }] },
 
   // El ayuntamiento tiene horario de oficina (de nueve a cinco); puedes esperar en sus escalones, o dormir en el hotel.
   { id: "hall_closes", when: "at", at: "17:00", if: [at("town_hall", "archive")],
@@ -708,7 +701,7 @@ const rules = [
   // La archivera: el último lunes, por algo que perdiste en el tuyo.
   { id: "give_umbrella", match: { verb: ["give", "show"], obj: "umbrella", obj2: "archivist" }, if: [holding("umbrella")],
     do: [{ say: "La archivera da la vuelta al paraguas y lee la etiqueta. Lo abre un poco, y unas gotas de la lluvia de un lunes caen sobre su mesa. «Sí», dice. Saca una hoja de un cajón y te la da. «Devuélvela al lugar de donde salió.»" },
-         { move: "umbrella", to: null }, { move: "monday_page", to: "player" }, tension(-10)] },
+         { move: "umbrella", to: null }, { move: "monday_page", to: "player" }] },
   { id: "give_other_archivist", match: { verb: ["give", "show"], obj2: "archivist" }, do: [{ say: "«Eso no es de un lunes», dice, amable, y te lo devuelve." }] },
 
   // Devolver el lunes a su sitio.
@@ -727,14 +720,14 @@ const rules = [
   { id: "order_room", match: { verb: "order", obj: ["room_key", "porter"] }, if: [at("hotel"), { "room_key.at": null }],
     do: [{ say: "«La cuatro», dice, y deja una llave sobre el mostrador sin levantar la vista. «El desayuno es los martes.»" }, { move: "room_key", to: "player" }] },
   { id: "sleep", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room"), { "bed.slept": { "!=": "$time.day" } }],
-    do: [{ say: "Te tumbas. La cama te recibe como si te hubiera estado esperando. Pasan trenes que no oyes. Cuando despiertas es de mañana, y la habitación huele a la tostada de otro." }, { time: "next 07:30" }, tension(-15), { set: "bed.slept", to: "$time.day" }] },
+    do: [{ say: "Te tumbas. La cama te recibe como si te hubiera estado esperando. Pasan trenes que no oyes. Cuando despiertas es de mañana, y la habitación huele a la tostada de otro." }, { time: "next 07:30" }, { set: "bed.slept", to: "$time.day" }] },
   { id: "sleep_again", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room")],
     do: [{ say: "No tienes sueño. En esa cama ya se ha dormido hoy, y has sido tú." }] },
   { id: "sleep_elsewhere", match: { verb: "sleep" }, do: [{ say: "Aquí no. Hay un hotel en la plaza." }] },
 
   // El fotomatón: la fotografía de mañana, una vez.
   { id: "photo", match: { verb: ["push", "use"], obj: ["button", "booth"], obj2: [null] }, if: [{ "player.in": "booth" }, { "photograph.at": null }],
-    do: [{ say: "El flash se dispara cuatro veces. Esperas. Una tira cae en la ranura de fuera, y vas a buscarla, todavía mojada." }, { move: "photograph", to: "player" }, tension(-5)] },
+    do: [{ say: "El flash se dispara cuatro veces. Esperas. Una tira cae en la ranura de fuera, y vas a buscarla, todavía mojada." }, { move: "photograph", to: "player" }] },
   { id: "photo_again", match: { verb: ["push", "use"], obj: ["button", "booth"], obj2: [null] }, if: [{ "player.in": "booth" }],
     do: [{ say: "El fotomatón zumba y no devuelve nada. NO SE ADMITEN DEVOLUCIONES, dice el cartel. El mañana solo ocurre una vez." }] },
   { id: "photo_outside", match: { verb: "push", obj: "button" }, if: [{ "player.in": { "!=": "booth" } }],
@@ -747,19 +740,6 @@ const rules = [
   { id: "wind_back_first", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock" },
     do: [{ say: "La llave gira y se detiene. «Todavía no», dice el relojero. «Aquí aún no hay ayer. Al menos, no uno en el que estuvieras.»" }] },
 
-  // Tensión: cuanto más te quedas, más cuesta irse; primero el aviso, luego la puerta se cierra.
-  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
-    do: [{ say: "En algún sitio un reloj da la hora. Cuentas las campanadas y te pierdes." }, { unsettle: 1 }] },
-  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
-    do: [{ say: "Se te ocurre que no recuerdas bien qué día fue ayer." }, { unsettle: 1 }] },
-  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
-    do: [{ say: "En algún lugar a tus espaldas, [way] suelta el aire, largo y lento, como si se preparase para detenerse." }, { unsettle: 1 }] },
-  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
-    do: [{ say: "Piensas en [way], por donde viniste. No sabes si aún podrías encontrarla. Un café, un sueño, cualquier cosa que detenga la espera, quizá ayude." }, { set: "game.wayLastWarned", to: true }, { unsettle: 1 }] },
-  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
-    do: [{ say: "La espera se te ha metido en los zapatos, y los zapatos ya no quieren ir a ninguna parte." }, { set: "game.wayLastWarned", to: true }, { unsettle: 1 }] },
-  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.wayLastWarned": true }],
-    do: [{ change: "sunday_ending" }] }
 ];
 
 // ---- Enigmas (para el verificador; GUIDE.md §3) -----------------------------------------------------------------------------
@@ -799,8 +779,7 @@ export default {
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, «Fields and properties»); las del motor no se declaran.
   properties: {
     "bed.slept": { type: "number" },    // el día en que se durmió por última vez en la cama
-    "coffee.day": { type: "number" },   // el día en que se sirvió por última vez el café
-    "game.wayLastWarned": { type: "boolean", start: false }   // el último aviso sobre el camino por el que viniste: el final espera a que se dé
+    "coffee.day": { type: "number" }   // el día en que se sirvió por última vez el café
   },
   facts: [
     "El jugador llega un domingo por la tarde a un pueblo que abolió los lunes.",
@@ -814,10 +793,6 @@ export default {
     { add: "change", id: "arrival", effects: [
       { time: "day 1 19:30", weekday: "sun" },
       { say: "En algún sitio un reloj da las siete y media, de la tarde, un domingo." }
-    ] },
-    { set: "game.moods", to: [
-      { below: 1, text: "bastante a gusto" }, { below: 2, text: "con ganas de moverte" }, { below: 3, text: "esperando" },
-      { below: 4, text: "con retraso" }, { below: 6, text: "en la última llamada" }
     ] },
     // Verbos que este mundo necesita
     { add: "word", verb: "buy", words: ["comprar", "compra", "compre", "compro", "adquirir", "adquiere", "pagar", "paga", "pague", "pago", "sacar billete", "saca billete", "saque billete", "saco billete", "sacar billetes", "sacar un billete", "saca un billete", "saque un billete", "saco un billete", "sacar el billete", "saca el billete"], absent: true },

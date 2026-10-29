@@ -23,12 +23,11 @@ export const bible = {
     "Todo en Hartley's tiene un precio, y el precio es un recuerdo.",
     "Los pagos van a la caja por tubo, y solo por tubo.",
     "Los maniquíes solo se mueven mientras nadie los mira.",
-    "Hartley's cierra a las seis y nunca se vacía: el cliente que se queda demasiado se convierte en parte del escaparate."
+    "Hartley's cierra a las seis y nunca se vacía."
   ],
   endings: [
     "La tarde: paga con un recuerdo que tengas y pruébate la tarde que dejaste pasar. Entras en ella, y la que tenías desaparece.",
-    "Tuyo: sube el recuerdo a la azotea y suéltalo. Hartley's ya no tiene nada que venderte.",
-    "El escaparate: quédate demasiado (tensión). Por la mañana estás en el escaparate principal, con un precio en la manga."
+    "Tuyo: sube el recuerdo a la azotea y suéltalo. Hartley's ya no tiene nada que venderte."
   ],
   chaos: 0.3
 };
@@ -36,7 +35,6 @@ export const bible = {
 // ---- Ayudas (se leen como las palabras de las reglas) ----------------------------------------------------------------------
 const at = (...rooms) => ({ "player.at": rooms.length > 1 ? { in: rooms } : rooms[0] });
 const holding = (id) => ({ [id + ".at"]: "player" });
-const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- Los dibujos de los finales ---------------------------------------------------------------------------------------------
@@ -44,7 +42,6 @@ const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"]
 const endingPictures = {
   afternoon: { alt: "A través de la ventanilla bajada de un autobús: un mar brillante a lo largo del horizonte, un talud verde que pasa y un codo apoyado en el marco.", picture: endings.afternoon },
   kept: { alt: "Una azotea al atardecer, vista desde abajo, entre las chimeneas. Un frasquito abierto, y de él sube una columna alta de luz dorada y pálida, muy por encima de los tejados.", picture: endings.kept },
-  window: { alt: "El escaparate principal de unos grandes almacenes al amanecer, visto desde la acera. Tres figuras inmóviles dentro: dos maniquíes y, entre ellos, tú, con un abrigo algo más cálido que el tuyo y una pequeña etiqueta roja con el precio en la manga.", picture: endings.window },
   died: { alt: "El techo de la tienda, visto desde el suelo: un haz de tubos neumáticos que se alejan hacia una sola lámpara amarilla y, abajo, la punta de tus zapatos.", picture: endings.died }
 };
 
@@ -286,7 +283,7 @@ const objects = {
       fourth: { label: "la cuarta planta", words: ["cuarta", "planta", "tardes", "cita", "citas"], says: "«Tardes perdidas. Con cita previa. La caja expide las citas; el pago, por tubo, desde mercería»." },
       roof: { about: "roof_door", label: "la azotea", words: ["azotea", "jardín", "jardin", "invierno"], says: "«Cerrada por invierno. La llave fue a Guantería a que la arreglaran y no ha vuelto. Los guantes guardan lo que les dan»." },
       price: { label: "los precios", words: ["precio", "precios", "pagar", "pago", "dinero", "recuerdo", "recuerdos"], says: "«Antes de las seis, lo de siempre. Después de las seis, un recuerdo». Consulta su reloj. «Más o menos las seis»." },
-      closing: { open: true, label: "el cierre", words: ["cierre", "cerrar", "cerramos", "seis", "hora", "salir", "marcharse"], says: "«Las seis en punto. Los clientes que se quedan se colocan donde son útiles. En los escaparates, casi siempre»." },
+      closing: { open: true, label: "el cierre", words: ["cierre", "cerrar", "cerramos", "seis", "hora", "salir", "marcharse"], says: "«Las seis en punto. Cerramos, y nadie se va. Es muy relajante»." },
       default: "«No sabría decírselo», dice, «y estoy seguro de que lo tenemos en existencias»."
     } },
 
@@ -438,11 +435,6 @@ const changes = {
     { say: "Debajo de ti la tienda sigue vendiendo. Ya no tiene nada que venderte. En algún lugar, muy a tu espalda, [way] vuelve a abrirse, y descubres que conoces el camino." },
     { end: true, picture: "kept" }
   ],
-  window_ending: [
-    { say: "Las luces se apagan planta por planta, de arriba abajo, como un edificio que cerrara los ojos. El señor Gage hace la ronda con su libro. Cuenta los maniquíes. Te cuenta a ti." },
-    { say: "Por la mañana los escaparatistas te encuentran de pie en el escaparate principal, entre dos maniquíes, con un abrigo algo más cálido que el tuyo y un precio en la manga. La gente se para a mirar. En algún lugar, muy a tu espalda, [way] se cierra, sin ruido." },
-    { end: true, picture: "window" }
-  ]
 };
 
 // ---- Reglas ------------------------------------------------------------------------------------------------------------------
@@ -455,7 +447,7 @@ const rules = [
   { id: "smell_tester", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] }, if: [{ "memory.at": null }], once: true,
     do: [{ say: "Aprietas la pera. Lluvia en la ventana de una cocina. Tostadas. Una radio en la habitación de al lado y alguien a quien querías, dormido en una butaca, en una tarde que habías olvidado tener." },
          { say: "Madame Corre acerca a tu nariz un frasquito, y la tarde entra en él. Lo tapona con un corcho y te lo da. «Su pago», dice. «O no. Eso lo decide usted»." },
-         { move: "memory", to: "player" }, tension(-5)] },
+         { move: "memory", to: "player" }] },
   { id: "smell_tester_again", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] },
     do: [{ say: "Madame Corre tapa la muestra con un dedo enguantado. «Una por cabeza», dice. «Los recuerdos no son muestras»." }] },
 
@@ -473,14 +465,14 @@ const rules = [
 
   // Los tubos: primero el aviso, luego el daño.
   { id: "tubes_warn", match: { verb: ["enter", "touch", "climb"], obj: "tubes" }, once: true,
-    do: [{ say: "Alzas la mano hacia el tubo. Aspira y te agarra la manga, con fuerza, como un niño que quiere enseñarte algo. La señorita Thimble golpea el mostrador. «Con las manos no, cielo. Se lleva los dedos». Recuperas la manga." }, tension(10)] },
+    do: [{ say: "Alzas la mano hacia el tubo. Aspira y te agarra la manga, con fuerza, como un niño que quiere enseñarte algo. La señorita Thimble golpea el mostrador. «Con las manos no, cielo. Se lleva los dedos». Recuperas la manga." }] },
   { id: "tubes_hurt", match: { verb: ["enter", "touch", "climb"], obj: "tubes" },
-    do: [{ say: "Metes la mano en el tubo. Se lleva el brazo entero, hasta el hombro, y luego se lo piensa mejor y te suelta." }, { hurt: 2, says: "El tubo tuvo tu brazo un momento." }, tension(15)] },
+    do: [{ say: "Metes la mano en el tubo. Se lleva el brazo entero, hasta el hombro, y luego se lo piensa mejor y te suelta." }, { hurt: 2, says: "El tubo tuvo tu brazo un momento." }] },
 
   // El guante: un apretón de manos, y la llave de la azotea.
   { id: "shake_glove", match: { verb: ["shake", "touch"], obj: "glove" }, if: [{ "roof_key.at": null }], once: true,
     do: [{ say: "Tomas la mano del guante. Se aferra a la tuya, tibio, un largo momento, como se aferra alguien en una estación. Luego los dedos se abren y en tu palma hay una llave larga de latón." },
-         { move: "roof_key", to: "player" }, tension(-5)] },
+         { move: "roof_key", to: "player" }] },
   { id: "shake_glove_again", match: { verb: ["shake", "touch"], obj: "glove" },
     do: [{ say: "El guante te sostiene la mano un poco más de lo necesario y luego te suelta." }] },
 
@@ -521,31 +513,18 @@ const rules = [
                  "Das cuerda al oso. Asiente tres veces y dice: «Tardes, en la cuarta. Se paga por tubo. Todos pagan con la que más les gustó».",
                  "Das cuerda al oso. «La azotea», dice. «Un sitio alto. Lo que se suelta allí arriba se queda suelto». Se sienta, satisfecho."] }] },
 
-  // El té: una vez, y te serena.
+  // El té: una vez.
   { id: "order_tea", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }, { "tea.at": null }], once: true,
     do: [{ say: "Dot sirve, sin preguntar, en una {taza|tea} con una rosa, y la pone delante de ti. «Invita la casa», dice. «El té siempre invita. Lo que sale caro es la casa»." }, { move: "tea", to: "tea_room" }] },
   { id: "tea_once", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }],
     do: [{ say: "«Una tetera por persona», dice Dot. «Con más, dejarías de notar el té»." }] },
   { id: "drink_tea", match: { verb: "drink", obj: "tea" }, if: [{ "tea.at": "tea_room" }],
-    do: [{ say: "Está exactamente tan fuerte como te gusta, algo que nadie sabía desde hace años. La tienda se queda en silencio alrededor de la taza." }, { move: "tea", to: null }, tension(-15)] },
+    do: [{ say: "Está exactamente tan fuerte como te gusta, algo que nadie sabía desde hace años. La tienda se queda en silencio alrededor de la taza." }, { move: "tea", to: null }] },
 
-  // La hora de cierre, a las seis: se dice en todas partes, y la espera pesa más.
+  // La hora de cierre, a las seis: se dice en todas partes.
   { id: "closing_bell", when: "at", at: "18:00",
-    do: [{ say: "Una campana suena tres veces, en algún lugar de las paredes. «Hartley's cierra sus puertas», dice una voz desde todos los techos. «Se ruega a los clientes que se dirijan a la salida». Nadie lo hace." }, tension(10)] },
+    do: [{ say: "Una campana suena tres veces, en algún lugar de las paredes. «Hartley's cierra sus puertas», dice una voz desde todos los techos. «Se ruega a los clientes que se dirijan a la salida». Nadie lo hace." }] },
 
-  // La tensión: cuanto más te quedas, más perteneces a la tienda; dos avisos, y luego el escaparate.
-  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
-    do: [{ say: "Una dependienta a la que no has visto llegar te pregunta si ya te atienden. Le dices que sí." }, { unsettle: 1 }] },
-  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
-    do: [{ say: "Coges un guante y vuelves a dejarlo. Ya lo has hecho antes, piensas, hoy." }, { unsettle: 1 }] },
-  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
-    do: [{ say: "En algún lugar, por encima de ti, se apagan las luces de una planta. La voz del señor Gage, muy cerca: «Los clientes que se quedan se colocan donde son útiles»." }, { unsettle: 1 }] },
-  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
-    do: [{ say: "Te sorprendes de pie, sin moverte, como están los maniquíes. Una taza de té, sentarte un rato, cualquier cosa que no sea esperar, ayudaría." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
-  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
-    do: [{ say: "Una etiqueta con el precio ha acabado en tu manga. No recuerdas que nadie te la pusiera." }, { set: "game.storeLastWarned", to: true }, { unsettle: 1 }] },
-  { id: "tension_end", when: "every", every: { seconds: [5, 5] }, if: [{ "game.tension": { ">=": 5 } }, { "game.storeLastWarned": true }],
-    do: [{ change: "window_ending" }] }
 ];
 
 // ---- Puzles (para el verificador; GUIDE.md §3) -------------------------------------------------------------------------------------
@@ -586,10 +565,6 @@ const opening = {
 export default {
   because: "Después de la apertura: unos grandes almacenes a la hora de cierre.",
   opening,
-  // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, "Fields and properties"); las del motor no se declaran.
-  properties: {
-    "game.storeLastWarned": { type: "boolean", start: false }   // el último aviso de la tienda: el final lo espera
-  },
   facts: [
     "El jugador llega a los grandes almacenes Hartley's un sábado, poco antes de la hora de cierre, a las seis.",
     "En Hartley's el precio de todo es un recuerdo, que se paga por tubo en la caja.",
@@ -602,10 +577,6 @@ export default {
     { add: "change", id: "arrival", effects: [
       { time: "day 1 17:10", weekday: "sat" },
       { say: "Una voz desde el techo, amable y muy cansada, dice que Hartley's cerrará a las seis." }
-    ] },
-    { set: "game.moods", to: [
-      { below: 1, text: "Mirando sin compromiso" }, { below: 2, text: "Esperando turno" }, { below: 3, text: "Dudando" },
-      { below: 4, text: "Fuera de hora" }, { below: 6, text: "En el escaparate" }
     ] },
     // Verbos que necesita este mundo
     { add: "word", verb: "shake", words: ["estrechar la mano a", "estrecha la mano a", "estrechar la mano de", "estrecha la mano de", "estrechar la mano", "estrecha la mano", "dar la mano a", "da la mano a", "dale la mano a", "darle la mano a", "dar la mano", "da la mano", "darse la mano con", "estrechale la mano a", "estrechale la mano", "estrechar", "estrecha"] },

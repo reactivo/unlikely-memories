@@ -63,9 +63,6 @@
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
     --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health (the only red) */
     --color-healed:        var(--palette-green-400);  /* the echo when you get health back */
-    --color-uneasy:        var(--palette-amber-400);  /* the echo when your mood gets worse */
-    --color-calmer:        var(--palette-green-200);  /* the echo when your mood gets better */
-
 
     /* ---- Text sizes ----
        Phones first, windows big enough for the strip further down. Plain pixels; browser zoom still scales them.

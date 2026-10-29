@@ -64,7 +64,7 @@ export default {
   },
   statusNow(d) {
     const health = { good: "con buena salud", scratched: "con algún rasguño", hurt: "con heridas", badly: "con heridas graves" }[d.health];
-    return d.mood ? `Estás ${d.mood}, ${health}.` : `Estás ${health}.`;
+    return `Estás ${health}.`;
   },
   weekdays: { mon: "lunes", tue: "martes", wed: "miércoles", thu: "jueves", fri: "viernes", sat: "sábado", sun: "domingo" },
   onlyMentioned: () => "No hay nada más que hacer con eso.",   // nombrado en el texto, sin más que contar
@@ -111,11 +111,9 @@ export default {
     if (!ways.length) return "No hay por dónde salir.";
     return "Puedes ir: " + (ways.length > 1 ? ways.slice(0, -1).join(", ") + this.or + ways.at(-1) : ways[0]) + ".";
   },
-  // Ecos (INTERFACE.md §6c): una línea corta bajo el texto tras un cambio en tu ánimo o tu salud, para el paso al que
-  // llegas (tensión 0–5, salud 5–0), en mayúsculas y del color de su clase. Los elige js/engine.js.
+  // Ecos (INTERFACE.md §6c): una línea corta bajo el texto tras un cambio en tu salud, para el paso al que
+  // llegas (salud 5–0), en mayúsculas y del color de su clase. Los elige js/engine.js.
   echo: {
-    uneasy: [null, "Te sientes algo nervioso", "Te sientes nervioso", "Te sientes muy nervioso", "Estás a punto de derrumbarte", "No lo soportas más"],
-    calmer: ["Estás tranquilo", "Te sientes casi tranquilo", "Te sientes mucho más tranquilo", "Te sientes más tranquilo", "Te sientes un poco más tranquilo", null],
     hurt:   [null, "Estás gravemente herido", "Estás malherido", "Estás herido", "Estás levemente herido", null],
     healed: [null, "Te sientes un poco mejor", "Te sientes mejor", "Te sientes mucho mejor", "Vuelves a ser casi tú mismo", "Te sientes bien"]
   },

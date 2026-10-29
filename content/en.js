@@ -54,10 +54,10 @@ export default {
     const day = d.day <= 3 ? `the ${["first", "second", "third"][d.day - 1]} day` : `day ${d.day}`;
     return d.weekday ? `Today is ${d.weekday}, ${d.time}, ${day} of your adventure.` : `It's ${d.time}, on ${day} of your adventure.`;
   },
-  // STATUS: d = { mood: "adequately content", health: "good" | "scratched" | "hurt" | "badly" }.
+  // STATUS: d = { health: "good" | "scratched" | "hurt" | "badly" }.
   statusNow(d) {
     const health = { good: "in good health", scratched: "a little hurt", hurt: "hurt", badly: "badly hurt" }[d.health];
-    return d.mood ? `You are ${d.mood}, and ${health}.` : `You are ${health}.`;
+    return `You are ${health}.`;
   },
   weekdays: { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday" },
   onlyMentioned: (w) => `There's nothing more to the ${w} than that.`,   // named in the text, nothing to answer
@@ -113,11 +113,9 @@ export default {
     if (!ways.length) return "There's no way out from here.";
     return "You can go " + (ways.length > 1 ? ways.slice(0, -1).join(", ") + this.or + ways.at(-1) : ways[0]) + ".";
   },
-  // Echoes (INTERFACE.md §6c): one short line under the story text after a change to your mood or health, for the step
-  // you land on (tension 0–5, health 5–0), shown in capitals in the colour of its kind. js/engine.js picks them.
+  // Echoes (INTERFACE.md §6c): one short line under the story text after a change to your health, for the step
+  // you land on (health 5–0), shown in capitals in the colour of its kind. js/engine.js picks them.
   echo: {
-    uneasy: [null, "You feel slightly uneasy", "You feel uneasy", "You feel very uneasy", "You feel close to breaking", "You can't bear it any longer"],
-    calmer: ["You're at ease", "You feel almost at ease", "You feel much calmer", "You feel calmer", "You feel a little calmer", null],
     hurt:   [null, "You're severely hurt", "You're badly hurt", "You're hurt", "You're slightly hurt", null],
     healed: [null, "You feel a little better", "You feel better", "You feel much better", "You feel almost yourself again", "You feel well"]
   },

@@ -86,12 +86,11 @@ export function timeNow(state, pack, at = worldTime(state)) {
   return text("@timeNow", pack, { weekday: p.weekday ? pack.weekdays[p.weekday] : null, time: pad(p.hour) + ":" + pad(p.minute), day: p.day });
 }
 
-// STATUS: your mood (the world's phrase for its tension, or the pack's) and your health, in four bands.
+// STATUS: your health, in four bands.
 export function statusNow(state, pack) {
   const h = state.player.health;
   const health = h >= 5 ? "good" : h >= 4 ? "scratched" : h >= 3 ? "hurt" : "badly";   // (health 5 to 0)
-  const mood = String(moodOf(state, pack) ?? "");
-  return text("@statusNow", pack, { mood: mood.charAt(0).toLowerCase() + mood.slice(1), health });
+  return text("@statusNow", pack, { health });
 }
 
 // An object's name: the pack's, else the world's own (literal text, or an "@key").
@@ -128,13 +127,6 @@ function wayName(state, pack) {
 export function nameOf(id, state, pack) {
   const p = pack.items?.[id] || pack.objects?.[id], o = state.world.objects[id];
   return p?.name ?? (o?.name ? text(o.name, pack) : id);
-}
-
-// The mood: the world's phrase for the current band of tension, else the pack's fixed one. Not shown on screen
-// (24 October 2026): the story carries it, and STATUS says it (statusNow).
-export function moodOf(state, pack) {
-  const band = (state.moods || []).find(m => state.tension < m.below) || (state.moods || []).at(-1);
-  return band ? text(band.text, pack) : pack.mood;
 }
 
 // A room's name for the title bar: its own, else the pack's.

@@ -28,7 +28,7 @@ export const ACTIONS = {
   inventory: { object: "none" },
   // You and your days
   time:      { object: "none" },                   // the world's day and time ("date" too)
-  status:    { object: "none" },                   // how you are: your mood and your health
+  status:    { object: "none" },                   // how you are: your health
   // Handling things
   open:      { object: "required" },
   close:     { object: "required" },

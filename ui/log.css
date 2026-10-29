@@ -18,9 +18,7 @@
     /* Colours and marks in the story, by meaning (the command and object markers below inherit these). */
     --typed:        var(--color-text-dim);    /* your own command, repeated as typed */
     --hint:         var(--color-text-dim);    /* dim lines: the help hint, suggestions, the prototype's end */
-    /* Echoes (INTERFACE.md §6c): the short line under the story text after a change to your mood or health. */
-    --echo-uneasy:  var(--color-uneasy);      /* your mood got worse */
-    --echo-calmer:  var(--color-calmer);      /* your mood got better */
+    /* Echoes (INTERFACE.md §6c): the short line under the story text after a change to your health. */
     --echo-hurt:    var(--color-hurt);        /* you lost health */
     --echo-healed:  var(--color-healed);      /* you got some back */
     --figure-bg:    var(--color-surface);     /* the square behind an object's picture */
@@ -60,8 +58,6 @@
       color: var(--past);
       --typed: var(--past);
       --hint: var(--past);
-      --echo-uneasy: var(--past);
-      --echo-calmer: var(--past);
       --echo-hurt: var(--past);
       --echo-healed: var(--past);
       --command-text: var(--past);
@@ -113,14 +109,6 @@
     & .echo {
       color: var(--hint);
       margin-top: calc(var(--space-xs) - var(--space-m));   /* close under the line before it: --space-xs between them */
-    }
-
-    & .echo-uneasy {
-      color: var(--echo-uneasy);
-    }
-
-    & .echo-calmer {
-      color: var(--echo-calmer);
     }
 
     & .echo-hurt {

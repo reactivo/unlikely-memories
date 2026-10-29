@@ -10,7 +10,7 @@ import { newSeed } from "./random.js";
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
 // 11: `fired`, the `once` rules that have had their one time. 12: every key starts in blank(). 13: `pictures` (pictures that
 // aren't a room's) and `ending` (the one the story ended with).)
-export const FORMAT = 14;   // 14: tension 0–5 and health 5–0 (saves from before start afresh: their rules count to 100)
+export const FORMAT = 15;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh)
 
 // Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit is 2 at most outside an
 // ending (the checker warns), so the end never comes without being "severely hurt" first.
@@ -72,8 +72,6 @@ function blank({ lang, health, seed }) {
     },
     hinted: {},                    // how many hints each puzzle has given
     fired: {},                     // the rules with `once: true` that have fired: id → true (they never fire again)
-    tension: 0,                    // how much danger has been stirred up, 0–5 (INTERFACE.md §6c)
-    moods: null,                   // the mood shown for each band of tension: [{ below: 20, text }, …]
     recent: {},                    // the last phrasing picked for each varied line, so it isn't repeated
     lastObj: null,                 // the last thing your commands mentioned: what "it" / "lo" means
     mentioned: [],                 // the things mentioned lately, newest first: "la" finds the latest feminine one

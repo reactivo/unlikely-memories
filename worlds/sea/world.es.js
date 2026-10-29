@@ -33,7 +33,6 @@ export const bible = {
   endings: [
     "Quemar la fotografía: olvidar la vida que pudo ser; despertar en tu mesa, planta menos cuatro, conforme.",
     "Quemar la caracola: que el Ministerio te olvide; la puerta se cierra, los relojes echan a andar, llega el lunes.",
-    "Quedarte demasiado: la puerta se cierra sola. Si estás en el pasillo cuando ocurre, ahí te quedas.",
     "Ahogarte: el mar te lleva, y te devuelve, a su tiempo."
   ],
   chaos: 0.3
@@ -43,7 +42,6 @@ export const bible = {
 const at = (room) => ({ "player.at": room });
 const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };                 // sin preguntar por nada (entonces contestan sus temas)
-const tension = (n) => (n > 0 ? { unsettle: 1 } : { calm: 1 });   // one step of your mood (tension 0–5: INTERFACE.md §6c)
 
 // Cada objeto que se puede llevar trae su sprite (16 × 16, números de la paleta en hexadecimal) y, si puede quedar en un
 // dibujo, una versión pequeña para el suelo (content/sample.sprites.js).
@@ -645,8 +643,6 @@ const oarsReady = { "oars.at": { in: ["player", "boat"] } };
 
 const rules = [
   // -- Atravesar la puerta, en los dos sentidos ----------------------------------------------------------------
-  { id: "beach_door_shut", match: { verb: ["enter", "go", "open", "knock", "push", "pull"], obj: "beach_door" }, if: [{ "beach_door.shut": true }],
-    do: [{ say: "Ahora es madera de deriva. Lo que se abría tras ella se ha cerrado." }] },
   { id: "beach_door_knock", match: { verb: "knock", obj: "beach_door" },
     do: [{ say: "Llamas. Del otro lado, al cabo de un rato, responden tres golpes." }] },
   { id: "beach_through", match: { verb: ["enter", "go", "open", "push"], obj: "beach_door" },
@@ -665,7 +661,7 @@ const rules = [
       "Desde la oscuridad, tarde y con tu propia voz: «Quema lo que aceptes olvidar».",
       "La cueva repite lo que has dicho y luego algo que no dijiste, muy bajito: «Caseta 7».",
       "El eco vuelve convertido en risa. La de otra persona, en una playa, a plena luz del día."
-    ] }, tension(5)] },
+    ] }] },
 
   // -- El muelle -------------------------------------------------------------------------------------------------
 
@@ -675,15 +671,13 @@ const rules = [
     do: [{ say: "El frío se cierra sobre ti, con suavidad, como se cierra sobre todo. El mar te recibe. A su tiempo, te devolverá." },
          { hurt: 5, says: "El frío se lleva lo último de ti." }, { end: true, picture: "drowned" }] },
   { id: "swim_hurt_last", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }, { "player.health": { "<=": 4 } }],
-    do: [tension(10),
-         { say: "Vuelves a entrar. Esta vez lo que hay debajo tarda más en soltarte. Sales a rastras a la arena sabiendo, como sabes tu propia letra, que la próxima vez no lo hará." },
+    do: [{ say: "Vuelves a entrar. Esta vez lo que hay debajo tarda más en soltarte. Sales a rastras a la arena sabiendo, como sabes tu propia letra, que la próxima vez no lo hará." },
          { hurt: 2, says: "Esta vez ha tardado más en soltarte." }] },
   { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }, { "player.waded": true }],
-    do: [tension(10),
-         { say: "Entras. El frío es total. Algo, debajo, te agarra el tobillo, te considera y te suelta. Sales a la arena tosiendo, temblando, y con menos de lo que eras." },
+    do: [{ say: "Entras. El frío es total. Algo, debajo, te agarra el tobillo, te considera y te suelta. Sales a la arena tosiendo, temblando, y con menos de lo que eras." },
          { hurt: 2, says: "Su presa te ha dejado una marca." }] },
   { id: "swim_wade", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
-    do: [{ set: "player.waded", to: true }, tension(5),
+    do: [{ set: "player.waded", to: true },
          { say: "Entras hasta las rodillas y te detienes. El agua es negra y muy fría, y más allá el mar tira, paciente, como algo que tiene todo el tiempo del mundo." }] },
   { id: "swim_dry", match: { verb: "swim" }, do: [{ say: "Aquí no hay agua en la que nadar." }] },
 
@@ -718,9 +712,9 @@ const rules = [
 
   // -- Las dunas -------------------------------------------------------------------------------------------------
 
-  // -- El tiovivo: una vuelta te calma -----------------------------------------------------------------------
+  // -- El tiovivo: una vuelta -----------------------------------------------------------------------
   { id: "ride", match: { verb: ["ride", "climb", "sit", "enter"], obj: [null, "horse"] }, if: [at("carousel"), { "horse.rode": { "!=": true } }],
-    do: [tension(-10), { set: "horse.rode", to: true }, { say: [
+    do: [{ set: "horse.rode", to: true }, { say: [
       "Das una vuelta. Cada vez que pasas frente al paseo marítimo, se enciende una ventana distinta del hotel y en cada una hay alguien que se te parece, asomado.",
       "Montas. La melodía casi se detiene y vuelve a empezar. Durante una vuelta entera tienes cinco años, y alguien te saluda con la mano.",
       "Vas dando vueltas. El faro, el hotel, el mar; el faro, el hotel, el mar. Es muy tranquilizador, para un tiovivo sin nadie encima."
@@ -730,19 +724,17 @@ const rules = [
     do: [{ say: "Vuelves a montar. Ahora es solo un tiovivo, y gira." }] },
 
   // -- El hotel ------------------------------------------------------------------------------------------------
-  { id: "dining_first", match: { verb: "go", dir: "w" }, if: [at("lobby")], once: true,
-    do: [tension(3)], then: "default" },
   { id: "dining_stuck", match: { verb: ["go", "exit", "enter"] }, if: [{ "player.seated": true }],
     do: [{ say: "No se te ocurre una forma educada de marcharte mientras sigues en la silla. La conversación se ha vuelto, cálida, hacia ti." }] },
   { id: "dining_sit", match: { verb: ["sit", "enter"], obj: [null, "chair"] }, if: [at("dining"), { "player.seated": { "!=": true } }],
-    do: [{ set: "player.seated", to: true }, tension(10),
+    do: [{ set: "player.seated", to: true },
          { say: "Te sientas. Alguien te pasa la sal. La conversación se vuelve hacia ti, y es cálida, y cuesta mucho encontrar una razón para levantarse." }] },
   { id: "dining_stand", match: { verb: ["stand", "exit"] }, if: [{ "player.seated": true }],
     do: [{ set: "player.seated", to: false }, { say: "Te levantas. Nadie se opone. Nadie lo nota. Es sorprendentemente fácil, lo cual, de algún modo, es peor." }] },
   { id: "hallway_door", match: { verb: ["enter", "go", "open", "push"], obj: "door11" },
     do: [{ travel: "room11" }, { describe: "$here" }] },
   { id: "letter_read", match: { verb: ["read", "examine"], obj: "letter" }, once: true,
-    do: [tension(-5), { say: "$obj.examine" }] },
+    do: [{ say: "$obj.examine" }] },
 
   // -- Correos: sin nombre no hay correo; la caracola responde por ti -----------------------------------------------
   { id: "post_shell", match: { verb: ["give", "show"], obj: "shell" }, if: [at("post_office"), holding("shell"), { "postmaster.gave": { "!=": true } }],
@@ -760,11 +752,11 @@ const rules = [
     do: [{ remove: "object", id: "parcel" }, { move: "key", to: "player" },
          { say: "Dentro, envuelta en una hoja del boletín del Ministerio, hay una {llave|key} de latón con una etiqueta. En la etiqueta, con tu letra: 7." }] },
 
-  // -- El café: el café te calma ----------------------------------------------------------------------------
+  // -- El café: el café ----------------------------------------------------------------------------
   { id: "cafe_order", match: { verb: ["talk", "ask", "order", "say", "drink"], obj: [null, "waiter", "coffee"] }, if: [at("cafe"), { "coffee.at": { "!=": "cafe" } }, { "coffee.had": { "!=": true } }, notAsking],
     do: [{ move: "coffee", to: "cafe" }, { say: "Antes de que digas nada, te pone una {taza de café|coffee} en la mesa. «Lo de siempre», dice. Nunca has estado aquí." }] },
   { id: "coffee_drink", match: { verb: ["drink", "eat", "take", "taste"], obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ move: "coffee", to: null }, { set: "coffee.had", to: true }, tension(-15), { say: "Sabe a una mañana que no tuviste. Las manos dejan de temblarte. No habías notado que temblaban." }] },
+    do: [{ move: "coffee", to: null }, { set: "coffee.had", to: true }, { say: "Sabe a una mañana que no tuviste. Las manos dejan de temblarte. No habías notado que temblaban." }] },
 
   { id: "cafe_again", match: { verb: ["order", "ask"], obj: ["waiter", "coffee"] }, if: [at("cafe"), { "coffee.had": true }, { "coffee.at": null }],
     do: [{ say: "«Lo de siempre», dice, y mira la servilleta. «Ya lo tomaste. Es lo único que hay, los domingos»." }] },
@@ -778,31 +770,14 @@ const rules = [
   // -- La linterna: lo que aceptas olvidar -----------------------------------------------------------------------
   { id: "burn_photograph", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "photograph", obj2: [null, "lamp"] }, if: [at("lantern"), holding("photograph")], do: [{ change: "end_photograph" }] },
   { id: "light_photograph", match: { verb: "switch_on", obj: "lamp", obj2: "photograph" }, if: [at("lantern"), holding("photograph")], do: [{ change: "end_photograph" }] },
-  // (La puerta se vuelve madera de deriva con la caracola, a menos que la tensión ya la haya cerrado: el cambio se negaría.)
-  { id: "burn_shell", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "shell", obj2: [null, "lamp"] }, if: [at("lantern"), holding("shell"), { "beach_door.shut": { "!=": true } }], do: [{ change: "driftwood" }, { change: "end_shell" }] },
-  { id: "burn_shell_late", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "shell", obj2: [null, "lamp"] }, if: [at("lantern"), holding("shell")], do: [{ change: "end_shell" }] },
-  { id: "light_shell", match: { verb: "switch_on", obj: "lamp", obj2: "shell" }, if: [at("lantern"), holding("shell"), { "beach_door.shut": { "!=": true } }], do: [{ change: "driftwood" }, { change: "end_shell" }] },
-  { id: "light_shell_late", match: { verb: "switch_on", obj: "lamp", obj2: "shell" }, if: [at("lantern"), holding("shell")], do: [{ change: "end_shell" }] },
+  { id: "burn_shell", match: { verb: ["put", "burn", "throw", "give", "use"], obj: "shell", obj2: [null, "lamp"] }, if: [at("lantern"), holding("shell")], do: [{ change: "driftwood" }, { change: "end_shell" }] },
+  { id: "light_shell", match: { verb: "switch_on", obj: "lamp", obj2: "shell" }, if: [at("lantern"), holding("shell")], do: [{ change: "driftwood" }, { change: "end_shell" }] },
   { id: "burn_other", match: { verb: ["put", "burn", "throw", "give"], obj2: "lamp" }, if: [at("lantern")],
     do: [{ say: ["La lámpara no lo acepta. Eso no es algo que pudieras olvidar.", "La mecha sigue seca. Eso no. Algo que echarías de menos."] }] },
   { id: "burn_any", match: { verb: "burn" }, if: [at("lantern")],
     do: [{ say: "La lámpara solo quema lo que aceptes olvidar. Tienes que elegirlo, y ponerlo dentro." }] },
   { id: "burn_nothing", match: { verb: "burn" }, do: [{ say: "No tienes con qué quemarlo." }] },
 
-  // -- Tensión: sube despacio una vez cruzada la puerta; la puerta avisa, luego se cierra ---------------------------
-  { id: "creep_0", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 0 }],
-    do: [{ say: "La música del tiovivo llega por encima de los tejados. En algún sitio una radio pone una canción que antes te sabías entera; descubres que solo te sabes la música." }, { unsettle: 1 }] },
-  { id: "creep_1", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 1 }],
-    do: [{ say: "El pueblo se ha quedado muy callado, como se queda una habitación cuando alguien acaba de salir de ella." }, { unsettle: 1 }] },
-  { id: "creep_2", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 2 }],
-    do: [{ say: "A lo lejos, en la playa, algo toma aire, lento y superficial. La puerta respira menos que antes." }, { unsettle: 1 }] },
-  { id: "creep_3", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 3 }],
-    do: [{ say: "Piensas en [way]. No recuerdas con seguridad en qué dirección estaba." }, { unsettle: 1 }] },
-  { id: "creep_4", when: "every", every: { seconds: [100, 140] }, if: [{ "game.tension": 4 }],
-    do: [{ say: "La luz de la puerta, en algún lugar a tu espalda, es un poco más tenue. Un poco más pequeña." }, { unsettle: 1 }] },
-  { id: "door_closes", when: "every", every: { turns: [1, 1] }, if: [{ "game.tension": { ">=": 5 } }, { "beach_door.shut": { "!=": true } }],
-    do: [{ change: "driftwood" },
-         { say: "A lo lejos, [way] se cierra, con un sonido como de un aliento contenido que se suelta. Lo notas en el pecho, como un escalón que falta. El camino de vuelta ha desaparecido." }] }
 ];
 
 // ---- Puzles, descritos como datos (GUIDE.md §3) --------------------------------------------------------------
@@ -852,8 +827,8 @@ export default {
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, "Fields and properties"); las del motor no se declaran.
   properties: {
     "coffee.had": { type: "boolean", start: false },        // ya se ha tomado el único café
-    "horse.rode": { type: "boolean", start: false },        // ya se ha dado la única vuelta que calma
-    "beach_door.shut": { type: "boolean", start: false },   // la puerta de la playa se ha cerrado a tu espalda
+    "horse.rode": { type: "boolean", start: false },        // ya se ha dado la única vuelta
+    "beach_door.shut": { type: "boolean", start: false },   // la puerta verde se ha vuelto madera de deriva
     "player.waded": { type: "boolean", start: false },   // has entrado en el mar
     "player.seated": { type: "boolean", start: false },   // estás sentado a la mesa del comedor
     "postmaster.gave": { type: "boolean", start: false }   // el administrador ha entregado el paquete
@@ -869,11 +844,6 @@ export default {
     { add: "change", id: "arrival", effects: [
       { time: "day 1 17:15", weekday: "sun" },
       { say: "El aire es salado. En algún sitio un reloj marca [time], y es domingo, y a nadie le importa." }
-    ] },
-    // El humor del mundo, según la tensión
-    { set: "game.moods", to: [
-      { below: 1, text: "Suficientemente conforme" }, { below: 2, text: "Algo añorante" }, { below: 3, text: "En vilo" },
-      { below: 4, text: "Sin aliento" }, { below: 6, text: "A punto de quedarte sin domingo" }
     ] },
     // Verbos que solo necesita este mundo
     { add: "word", verb: "row", words: ["remar", "rema", "reme", "bogar", "boga", "remar hacia", "rema hacia", "remar hasta", "rema hasta", "remar de vuelta", "rema de vuelta"] },

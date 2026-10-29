@@ -47,7 +47,6 @@ export const FIELDS = {
     set: ["set", "to", "add"],
     hurt: ["hurt", "says"],
     heal: ["heal", "says"],
-    calm: ["calm", "says"], unsettle: ["unsettle", "says"],   // your mood one step down or up (tension 0–5)
     echo: ["echo", "kind"],                                    // a short line about what just happened to you
     travel: ["travel"],
     connect: ["connect", "dir", "to", "passage", ...CONNECT_FIELDS],   // and the exit's own: in, out (marks), if, closed
@@ -70,16 +69,16 @@ export const FIELDS = {
     "remove object": ["remove", "id"],
     "remove rule": ["remove", "id"]
   },
-  // The engine's own values that rules read and set by path: "player.health", "game.tension", "time.hour".
+  // The engine's own values that rules read and set by path: "player.health", "time.hour".
   player: ["at", "in", "carrying", "health"],
-  game: ["ended", "ending", "tension", "entrance", "moods", "turn", "clock"],
+  game: ["ended", "ending", "entrance", "turn", "clock"],
   time: ["hour", "minute", "second", "day", "weekday"],
   any: ["place", "chain"]                  // read on any thing: where it really is, and what it is in
 };
 
 // The engine's own numbers keep to their own ranges, whatever sets them (the same clamp a declared property's range gets).
-// The engine's own numbers (INTERFACE.md §6c): tension 0 (at ease) to 5 (the world's danger), health 5 (well) to 0 (the end).
-export const RANGES = { "game.tension": [0, 5], "player.health": [0, 5] };
+// The engine's own numbers (INTERFACE.md §6c): health, 5 (well) to 0 (the end).
+export const RANGES = { "player.health": [0, 5] };
 
 export const PROPERTY_TYPES = ["number", "boolean", "string"];
 
@@ -114,7 +113,7 @@ export function propertyWords(state, text) {
 }
 
 // The main key of an effect (the order the engine reads them in), as a name from FIELDS.effect, or null.
-const KINDS = ["say", "describe", "move", "set", "hurt", "heal", "calm", "unsettle", "echo", "travel", "connect", "disconnect", "unlock", "change", "draw", "time",
+const KINDS = ["say", "describe", "move", "set", "hurt", "heal", "echo", "travel", "connect", "disconnect", "unlock", "change", "draw", "time",
   "confirm", "ask", "end", "know", "hint", "restart", "session", "useAs", "useHow", "listenFor"];
 export function effectKind(e) {
   if (typeof e.add === "string" && !("draw" in e)) return "add " + e.add;
