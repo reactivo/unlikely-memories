@@ -20,6 +20,8 @@
 
     --font-smoothing: none;   /* -webkit-font-smoothing, set once on the body: no anti-aliasing, so the pixel letters stay sharp */
 
+    --letter-spacing: .01em;  /* set once on the body: the same for all text (story, landing page, interface). Em, so it follows the text size. Tune by eye */
+
     /* The object marker + (ui/log.css): space top and left. Em, because they follow the
        text they are in. Tune by eye. */
     --object-sign-top:  -.1em;
@@ -32,6 +34,7 @@
 
   body {
     -webkit-font-smoothing: var(--font-smoothing);   /* inherited by the whole page, popovers included */
+    letter-spacing: var(--letter-spacing);            /* the same */
   }
 
   /* Buttons, fields and headings start with the browser's own font and capitals; make them use the text around them. */
@@ -48,14 +51,12 @@
   .text-log {
     font-size: var(--text-m);
     line-height: var(--line-xxs);
-    letter-spacing: .01em;
   }
 
   /* Running text on the landing page (a card's blurb, "no games"). */
   .text-story {
     font-size: var(--text-m);
     line-height: var(--line-xxs);
-    letter-spacing: .01em;   /* the story's (.text-log) */
   }
 
   /* Interface text: the page's default, the title bar, the prompt, the options panel, the map popup and the landing page. */

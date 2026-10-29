@@ -169,7 +169,6 @@
       display: flex;
       gap: var(--space-s);
       margin-top: var(--buttons-margin-top, var(--space-s));
-      letter-spacing: .01em;   /* the story's (.text-log, typography.css), like the card's text */
     }
 
     & .play {
