@@ -44,8 +44,11 @@
 <!-- The landing page: the list of games, the other view of this page (css/layout.css shows one at a time; ui/home.js fills it in).
      The header is the logo (img/logo-unlikely-memories.svg: the title with its pixel-art vine above and below). -->
 <main class="home text-ui" id="home" aria-labelledby="home-title">
-  <p class="version text-label" id="home-version"></p>
-  <div class="lang text-label" role="group"><button type="button" data-lang="en">EN</button><span aria-hidden="true">·</span><button type="button" data-lang="es">ES</button></div>
+  <!-- The bar at the top: the version left, the language switch right, as wide as the cards' column. -->
+  <div class="bar">
+    <p class="version text-label" id="home-version"></p>
+    <div class="lang text-label" role="group"><button type="button" data-lang="en">EN</button><span aria-hidden="true">·</span><button type="button" data-lang="es">ES</button></div>
+  </div>
   <header class="header">
     <h1 id="home-title"><img class="logo" src="img/logo-unlikely-memories.svg" alt="Unlikely Memories" width="288" height="210"></h1>
     <p class="subtitle text-subtitle" id="home-subtitle"></p>

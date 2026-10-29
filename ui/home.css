@@ -10,8 +10,8 @@
     --logo-width: 288px;   /* the logo at the top: its own size (288 × 210) */
 
     /* Colours on the landing page, by meaning. */
-    --version:        var(--color-text-dim);    /* v0.9.15, top left */
-    --lang-on:        var(--color-text);        /* the switch, top right: the current language… */
+    --version:        var(--color-text-dim);    /* the version, left in the bar */
+    --lang-on:        var(--color-text);        /* the switch, right in the bar: the current language… */
     --lang-off:       var(--color-text-dim);    /* …and the other, until the pointer is on it */
     --subtitle:       var(--color-text);
     --card-line:      var(--color-surface);     /* a card's outline… */
@@ -28,21 +28,26 @@
 
     box-sizing: border-box;
     color: var(--color-text);
-    padding-block: max(var(--space-xl), env(safe-area-inset-top, 0px)) max(var(--space-xl), env(safe-area-inset-bottom, 0px));
+    padding-block: max(var(--space-l), env(safe-area-inset-top, 0px)) max(var(--space-xl), env(safe-area-inset-bottom, 0px));
 
-    /* Positioned against the page, not the column: the corner of the window. */
+    /* The bar at the top: the version on the left, the language switch on the right, as wide as the cards' column (the
+       page's own side padding, and the same maximum width), so its edges line up with the cards'. */
+    & .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-m);
+      width: 100%;
+      max-width: var(--home-column-max, none);   /* phones: the whole width inside the page's padding */
+      margin: 0 auto var(--space-l);
+    }
+
     & .version {
-      position: absolute;
-      top: max(var(--space-l), env(safe-area-inset-top, 0px));
-      left: max(var(--space-l), env(safe-area-inset-left, 0px));
       margin: 0;
       color: var(--version);
     }
 
     & .lang {
-      position: absolute;
-      top: max(var(--space-l), env(safe-area-inset-top, 0px));
-      right: max(var(--space-l), env(safe-area-inset-right, 0px));
       display: flex;
       gap: var(--space-s);
       color: var(--lang-off);
