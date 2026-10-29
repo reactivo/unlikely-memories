@@ -17,7 +17,7 @@
     border: 2px solid var(--frame);
     padding: var(--space-m);
     width: max-content;                           /* as wide as its content, right edge under ≡ (options.js) */
-    max-width: calc(100vw - 2 * var(--gutter));   /* phones: never off screen */
+    max-width: 80vw;                              /* never wider than 80% of the window (so never off screen on a phone) */
     box-sizing: border-box;
 
     & h2 {
