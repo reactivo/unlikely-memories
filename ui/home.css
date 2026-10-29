@@ -114,8 +114,16 @@
       animation-name: logo-flicker-twice;
     }
 
+    /* Now and then a corner rose spins a quarter turn in two steps: each petal moves one square clockwise (--step-x, --step-y on
+       it in index.html), holds for a moment, and snaps back, which looks the same as the next arm of the plus. Each rose has its
+       own period and start (--rose-ms, --rose-delay), much rarer than the letters' flicker. */
+    & .logo .rose rect {
+      animation: logo-rose var(--rose-ms, 32s) steps(1, end) var(--rose-delay, 0s) infinite;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      & .logo .letter {
+      & .logo .letter,
+      & .logo .rose rect {
         animation: none;
       }
     }
@@ -231,6 +239,12 @@
   @keyframes logo-flicker {
     0% { opacity: 1; }
     99% { opacity: var(--logo-dim, .35); }
+  }
+
+  /* A rose's petals (above): in the plus, then one square on (the diagonal) for about a quarter of a second, then the plus again. */
+  @keyframes logo-rose {
+    0% { translate: 0 0; }
+    99.2% { translate: var(--step-x, 0) var(--step-y, 0); }
   }
 
   @keyframes logo-flicker-twice {
