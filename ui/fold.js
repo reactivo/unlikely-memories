@@ -8,6 +8,9 @@
 //   Folds    after FOLD_AFTER pixels of the reader's scrolling, up or down, in one direction (a change of direction starts the count
 //            again; Diego, 27 Oct 2026: down too, not only up), and stays folded until tapped; only if there is more
 //            story than fits between the open picture and the prompt: with nothing more to read there is no reason to fold.
+//            Only scrolling that follows a touch, a wheel or a key press since the story started or the room changed counts: a scroll
+//            nobody asked for (Safari keeping part of the list's scroll when a game starts) is the browser's, not the reader's, and
+//            never folds the picture (Diego, 29 Oct 2026: a new game always starts open).
 //   Opens    on a new room (log.js calls room()), and when you tap it. Never because you scrolled down (slow scrolling down is
 //            what reading looks like, and an opening picture would cover the lines being read), nor at the end of the story,
 //            nor for new text, nor at the top (Diego, 27 Oct 2026: only a room and a tap open it).
@@ -40,6 +43,7 @@ export function mount(top, log) {
   let lastY = scrollY;  // where the page was at the last scroll event
   let own = null;       // while the game scrolls the page itself (a room's glide, following new text): where to, so it is not counted
   let ownTimer = 0;
+  let armed = false;    // has the reader touched, wheeled or pressed a key since the picture last opened for a new room or story? Only then does scrolling count towards folding
 
   // Does the CSS fold the picture now? (Only an upright phone: the top is fixed there, or absolute while you type and it
   // scrolls away with the story: still the same picture, kept as it is. Not while the list of games shows: the page is not
@@ -73,7 +77,7 @@ export function mount(top, log) {
   };
   // Not an upright phone (any more): back to an open picture, the crop centred, ready for when it is one again.
   function reset() {
-    folded = false; intent = 0; pan = 0;
+    folded = false; intent = 0; pan = 0; armed = false;
     top.style.removeProperty("--p");
     top.removeAttribute("data-folded");
     picture.style.removeProperty("--pan");
@@ -96,7 +100,7 @@ export function mount(top, log) {
   // A new room (log.js): open, and the crop starts in the middle.
   function room() {
     if (!active()) return reset();
-    intent = 0;
+    intent = 0; armed = false;
     setPan(0);
     folded = false;
     show();
@@ -131,10 +135,12 @@ export function mount(top, log) {
       if (Math.abs(y - own) < 2) { own = null; clearTimeout(ownTimer); }
       return;
     }
+    if (!armed) { intent = 0; return; }              // nobody has touched the page since it started: the browser moved it, not the reader
     if (d && Math.sign(d) !== Math.sign(intent)) intent = 0;   // a change of direction starts the count again
     intent += d;
     if (!folded && Math.abs(intent) > FOLD_AFTER && storyOverflows()) { folded = true; intent = 0; show(); }
   }
+  for (const kind of ["touchstart", "pointerdown", "wheel", "keydown"]) addEventListener(kind, () => { armed = true; }, { passive: true, capture: true });
   addEventListener("scroll", onScroll, { passive: true });
   addEventListener("resize", () => { if (!active()) reset(); });
 
