@@ -29,7 +29,7 @@
 
     /* How far the picture of an object (ui/log.css) moves down, so its top lines up with the top of the capitals
        beside it: the space m5x7 leaves above its capitals on a story line. */
-    --figure-nudge: 0.5em;
+    --figure-nudge: 0.2em;
   }
 
   body {

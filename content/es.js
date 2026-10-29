@@ -171,6 +171,8 @@ export default {
   map: { title: "Mapa", close: "Cerrar el mapa", hint: "Arrastra para mover el mapa", ground: "Planta baja",
          level: (n) => `Planta ${n < 0 ? "−" : ""}${Math.abs(n)}`, rooms: "Salas de esta planta", here: "estás aquí" },
   dirs: { n: "Norte", s: "Sur", e: "Este", w: "Oeste", u: "Arriba", d: "Abajo", in: "Dentro", out: "Fuera" }, noExit: "sin salida",
+  // Los nombres de los botones de la brújula: su tooltip, lo que dice el lector de pantalla y lo que escribe un clic (el mapa camina con dirs, arriba).
+  dirTips: { n: "Norte", s: "Sur", e: "Este", w: "Oeste", u: "Subir", d: "Bajar", in: "Entrar", out: "Salir" },
 
   objects: {},
   items: {},

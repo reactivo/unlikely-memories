@@ -16,8 +16,9 @@ export function mount(root, on) {
   const buttons = root.querySelectorAll("button[data-dir]");
   let current = null;   // what was drawn last (needed when a button is clicked)
 
-  // Go that way, if there's a way: it sends its direction ("North"); with no way, nothing.
-  const go = (d) => { if (current && !current.state.ended && exitsOf(current.state)[d]) on.command(current.pack.dirs[d]); };
+  // Go that way, if there's a way: it sends the button's name as a command ("North", "Salir": the pack's dirTips, which the parser
+  // reads as that direction); with no way, nothing.
+  const go = (d) => { if (current && !current.state.ended && exitsOf(current.state)[d]) on.command(current.pack.dirTips[d]); };
   buttons.forEach(b => b.addEventListener("click", () => { go(b.dataset.dir); on.focus(); }));
 
   return {
@@ -30,6 +31,7 @@ export function mount(root, on) {
       const t = next.pack;
       const m = root.querySelector(".map");              // M: the map, while the story goes on
       m.setAttribute("aria-label", t.labels.map);
+      if (over) m.removeAttribute("title"); else m.title = t.labels.map;   // the tooltip, like ♫ ≡ (ui/tools.js)
       m.setAttribute("aria-disabled", over ? "true" : "false");
       m.tabIndex = over ? -1 : 0;
       buttons.forEach(b => {
@@ -37,12 +39,13 @@ export function mount(root, on) {
         b.classList.toggle("open", open);
         if (CORNERS.includes(d)) {                  // a corner is invisible and unreachable while its exit is closed
           b.setAttribute("aria-hidden", open ? "false" : "true");
-          if (open) b.setAttribute("aria-label", t.dirs[d]); else b.removeAttribute("aria-label");
+          if (open) b.setAttribute("aria-label", t.dirTips[d]); else b.removeAttribute("aria-label");
         } else {
           b.setAttribute("aria-disabled", open && !over ? "false" : "true");
-          b.setAttribute("aria-label", t.dirs[d] + (open ? "" : " (" + t.noExit + ")"));
+          b.setAttribute("aria-label", t.dirTips[d] + (open ? "" : " (" + t.noExit + ")"));
         }
         b.tabIndex = open && !over ? 0 : -1;        // closed exits (and all, once it is over) are skipped by Tab
+        if (open && !over) b.title = t.dirTips[d]; else b.removeAttribute("title");   // the tooltip: only on a way you can take
         const opened = open && !(prev && exitsOf(prev.state)[d]);
         // It just changed: blink (compass.css). A corner that closes just disappears.
         if (prev && reason !== "restore" && (CORNERS.includes(d) ? opened : !!exitsOf(prev.state)[d] !== open)) {

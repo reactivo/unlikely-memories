@@ -171,6 +171,8 @@ export default {
   map: { title: "Map", close: "Close the map", hint: "Drag to move the map", ground: "Ground level",
          level: (n) => `Level ${n < 0 ? "−" : ""}${Math.abs(n)}`, rooms: "Rooms on this level", here: "you are here" },
   dirs: { n: "North", s: "South", e: "East", w: "West", u: "Up", d: "Down", in: "In", out: "Out" }, noExit: "no exit",
+  // The compass buttons' names: their tooltip, what a screen reader says and what a click types (the map walks with dirs above).
+  dirTips: { n: "North", s: "South", e: "East", w: "West", u: "Up", d: "Down", in: "In", out: "Out" },
 
   // Clicking an object in the story or an inventory item examines it, then shows these actions (except Examine)
   // (placeholder: what objects show is still to be decided).
