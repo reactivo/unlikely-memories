@@ -190,7 +190,7 @@
     & .play {
       flex: 1 1 0;
       min-width: 0;
-      padding: var(--space-s) var(--space-m);
+      padding: var(--space-m);   /* around the capitals: the label's box is trimmed to them (typography.css) */
       border: 0;
       white-space: nowrap;
       color: var(--button-text);

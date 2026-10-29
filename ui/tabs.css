@@ -22,7 +22,7 @@
       background: var(--tab);
       border: 0;
       margin: 0;
-      padding: var(--space-s) var(--space-s);
+      padding: var(--space-m) var(--space-s);   /* above and below the capitals: the label's box is trimmed to them (typography.css) */
       cursor: pointer;
     }
 
