@@ -73,6 +73,13 @@
     text-transform: uppercase;
   }
 
+  /* Its buttons' labels: the space m5x7 leaves above its letters trimmed, so a label sits in the middle of its button (tried
+     in the browser on the landing page's buttons, 29 Oct 2026: trim-start centres them, trim-both does not). On the buttons
+     themselves: text-box-trim is not inherited from .text-button, which is on their container. */
+  .text-button button {
+    text-box-trim: trim-start;
+  }
+
   /* Small labels: the landing page's version and language switch, the map's ×. */
   .text-label {
     font-size: var(--text-s);
