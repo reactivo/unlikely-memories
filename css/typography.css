@@ -48,12 +48,14 @@
   .text-log {
     font-size: var(--text-m);
     line-height: var(--line-xxs);
+    letter-spacing: .01em;
   }
 
   /* Running text on the landing page (a card's blurb, "no games"). */
   .text-story {
     font-size: var(--text-m);
     line-height: var(--line-xxs);
+    letter-spacing: .01em;   /* the story's (.text-log) */
   }
 
   /* Interface text: the page's default, the title bar, the prompt, the options panel, the map popup and the landing page. */
