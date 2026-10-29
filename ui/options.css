@@ -6,8 +6,8 @@
     /* Colours in the options panel, by meaning. */
     --frame:        var(--color-surface);     /* the border */
     --heading:      var(--color-text-dim);    /* OPTIONS */
-    --choice:       var(--color-text-faint);  /* a button */
-    --choice-hover: var(--color-text);        /* …under the pointer */
+    --choice:       var(--color-text);        /* a button: the off-white text */
+    --choice-hover: var(--color-highlight);   /* …under the pointer: yellow */
 
     margin: 0;
     inset: auto;
@@ -26,7 +26,7 @@
     }
 
     /* "Restart game" (it asks in the story, like every yes/no question) and "Quit" (back to the list of games), each on its
-       own line. Buttons are plain text, brighter under the pointer. */
+       own line. Buttons are plain text, yellow under the pointer. */
     & .actions {
       display: grid;
       justify-items: start;
