@@ -16,7 +16,7 @@
     background: var(--color-bg);
     border: 2px solid var(--frame);
     padding: var(--space-m);
-    width: 448px;
+    width: max-content;                           /* as wide as its content, right edge under ≡ (options.js) */
     max-width: calc(100vw - 2 * var(--gutter));   /* phones: never off screen */
     box-sizing: border-box;
 
