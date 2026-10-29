@@ -244,7 +244,7 @@
   /* A rose's petals (above): in the plus, then one square on (the diagonal) for about a quarter of a second, then the plus again. */
   @keyframes logo-rose {
     0% { translate: 0 0; }
-    99.1% { translate: var(--step-x, 0) var(--step-y, 0); }
+    98.7% { translate: var(--step-x, 0) var(--step-y, 0); }
   }
 
   @keyframes logo-flicker-twice {
