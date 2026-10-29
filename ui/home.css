@@ -184,7 +184,7 @@
     & .buttons {
       display: flex;
       gap: var(--space-s);
-      margin-top: var(--buttons-margin-top, var(--space-s));
+      margin-top: var(--buttons-margin-top, var(--space-m));   /* phones: M above the buttons; wider windows: layout.css */
     }
 
     & .play {
