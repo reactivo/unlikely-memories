@@ -94,12 +94,30 @@
       margin: 0;
     }
 
-    /* The logo keeps its own colours (they're in the file). */
+    /* The logo keeps its own colours (they're in its markup, index.html, inline so its letters can flicker). */
     & .logo {
       display: block;
       width: var(--logo-width);
       max-width: 100%;
       height: auto;
+    }
+
+    /* Each letter flickers now and then, like the gas lamps in Lantern Row (a cycle's "flicker", ART-DIRECTION.md §6.1): lit
+       nearly all the time, then dim for a moment, no fade (the 8-bit feel). Each letter has its own period and start
+       (--blink-ms, --blink-delay on it in index.html), so together they look random; .flicker-twice dims twice in a row.
+       The keyframes are at the end of this file. */
+    & .logo .letter {
+      animation: logo-flicker var(--blink-ms, 11s) steps(1, end) var(--blink-delay, 0s) infinite;
+    }
+
+    & .logo .letter.flicker-twice {
+      animation-name: logo-flicker-twice;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      & .logo .letter {
+        animation: none;
+      }
     }
 
     & .subtitle {
@@ -207,5 +225,18 @@
       outline: 2px solid var(--color-focus);
       outline-offset: 2px;
     }
+  }
+
+  /* The logo's letters (above): lit, then dim for a moment at the end of each period (about a tenth of a second). */
+  @keyframes logo-flicker {
+    0% { opacity: 1; }
+    99% { opacity: var(--logo-dim, .35); }
+  }
+
+  @keyframes logo-flicker-twice {
+    0% { opacity: 1; }
+    98% { opacity: var(--logo-dim, .35); }
+    98.7% { opacity: 1; }
+    99.2% { opacity: var(--logo-dim, .35); }
   }
 }
