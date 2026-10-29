@@ -21,6 +21,7 @@
     /* Echoes (INTERFACE.md §6c): the short line under the story text after a change to your health. */
     --echo-hurt:    var(--color-hurt);        /* you lost health */
     --echo-healed:  var(--color-healed);      /* you got some back */
+    --bar-empty:    var(--color-text-faint);  /* the empty health bars before an echo or STATUS (the filled ones take the line's colour) */
     --figure-bg:    var(--color-surface);     /* the square behind an object's picture */
     --object:       var(--color-text);        /* an object's name: looks like the story text… */
     --object-mark:  var(--color-highlight);   /* …with a small mark after it, in this colour… */
@@ -103,8 +104,9 @@
       color: var(--hint);
     }
 
-    /* An echo (js/narrator.js gives it "echo text-echo echo-<kind>"): a short line in capitals, close under the story
-       line it follows, in the colour of its kind. A kind with no colour of its own is dim. */
+    /* An echo (js/narrator.js gives it "echo text-echo echo-<kind>"): a short line at the story's size, close under the
+       story line it follows, in the colour of its kind. A kind with no colour of its own is dim. A health echo and STATUS
+       have the five health bars before the phrase (log.js, `.bars`; below). */
     & .echo {
       color: var(--hint);
       margin-top: calc(var(--space-xs) - var(--space-m));   /* close under the line before it: --space-xs between them */
@@ -116,6 +118,37 @@
 
     & .echo-healed {
       color: var(--echo-healed);
+    }
+
+    /* STATUS (js/narrator.js gives it "status status-<healed|hurt>"): the sentence in the colour of how you are, 5 and 4
+       green, 3 to 1 red; its own paragraph, like any story line. */
+    & .status-healed {
+      color: var(--echo-healed);
+    }
+
+    & .status-hurt {
+      color: var(--echo-hurt);
+    }
+
+    /* The five health bars before a health line, on m5x7's pixel grid (one font pixel = 1/16 em): each bar 2 × 7 font pixels,
+       2 apart, 5 before the phrase, standing on the baseline. The first `level` are filled in the line's colour, the rest
+       faint. In em, so they follow the text size. Rooms you've left: the line's colour is grey, so the filled bars are too. */
+    & .bars {
+      display: inline-flex;
+      gap: 0.125em;
+      margin-right: 0.3125em;
+      vertical-align: baseline;
+    }
+
+    & .bars i {
+      display: block;
+      width: 0.125em;
+      height: 0.4375em;
+      background: var(--bar-empty);
+    }
+
+    & .bars i.on {
+      background: currentColor;
     }
 
     & .keep {

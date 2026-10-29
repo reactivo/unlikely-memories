@@ -22,11 +22,12 @@ export function tell(applied, state, pack) {
         out.push(clean({ text: part, style: e.style, img: i === 0 ? e.img : undefined })));
     }
     // An echo of what just happened to you (INTERFACE.md §6c): its own short line, styled by its kind.
-    if (e.echo) out.push({ text: timed(text(e.echo, pack), state, pack, e.at), style: "echo text-echo echo-" + e.kind });
+    // A health echo (e.level) also carries the level its line describes, for the bars before it.
+    if (e.echo) out.push(clean({ text: timed(text(echoPhrase(e, pack), pack), state, pack, e.at), style: "echo text-echo echo-" + e.kind, level: e.level }));
     if (e.hint) out.push({ text: timed(pack.framed(text(e.hint, pack), hintText(e, pack)), state, pack) });   // the world's frame, then the hint
     if (e.describe === "inventory") out.push({ text: inventory(state, pack) });
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
-    else if (e.describe === "status") out.push({ text: statusNow(state, pack) });
+    else if (e.describe === "status") out.push(statusLine(state, pack));
     else if (e.describe) out.push(...describe(state, e.describe, pack));
     if (e.aside) for (let i = from; i < out.length; i++) out[i] = { ...out[i], style: styled(out[i].style) };   // the world's own: set apart
   }
@@ -86,10 +87,23 @@ export function timeNow(state, pack, at = worldTime(state)) {
   return text("@timeNow", pack, { weekday: p.weekday ? pack.weekdays[p.weekday] : null, time: pad(p.hour) + ":" + pad(p.minute), day: p.day });
 }
 
+// The phrase of a health echo: a hurt says the pack's own phrase for that step (echo.hurt), if it has one, else the state
+// phrase the engine named (one rule, here); anything else says what the engine named.
+function echoPhrase(e, pack) {
+  return e.kind === "hurt" && e.level && pack.echo?.hurt?.[e.level] ? "@echo.hurt." + e.level : e.echo;
+}
+
 // STATUS: your health, one sentence per step (5 to 1; the pack has the words).
 export function statusNow(state, pack) {
-  const health = Math.min(5, Math.max(1, Math.round(state.player.health)));
-  return text("@statusNow", pack, { health });
+  return text("@statusNow", pack, { health: statusHealth(state) });
+}
+const statusHealth = (state) => Math.min(5, Math.max(1, Math.round(state.player.health)));
+
+// STATUS as a paragraph: the sentence, the health it describes (for the bars) and its colour: 5 and 4 the healed
+// colour, 3 to 1 the hurt colour (log.css).
+export function statusLine(state, pack) {
+  const level = statusHealth(state);
+  return { text: statusNow(state, pack), style: "status " + (level >= 4 ? "status-healed" : "status-hurt"), level };
 }
 
 // An object's name: the pack's, else the world's own (literal text, or an "@key").

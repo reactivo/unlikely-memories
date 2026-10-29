@@ -258,7 +258,8 @@ export function mount(root, on, header) {
   // Add a paragraph to the story (to the current visit). Returns it.
   // cls: "cmd" = an echoed command (appears at once), "sys" = dim text. art: optional SVG shown on the left.
   // instant: show it at once, no fading in (a restored game's earlier text).
-  function say(text, cls, art, instant) {
+  // level: a health line (an echo, STATUS) gets the five health bars before it, the first `level` filled (1 to 5).
+  function say(text, cls, art, instant, level) {
     const p = document.createElement("p");
     if (cls) p.className = cls;
     let into = p;                                                   // where the text goes
@@ -268,11 +269,21 @@ export function mount(root, on, header) {
       into = document.createElement("span"); into.className = "text";
       p.append(fig, into);
     }
+    if (level >= 1 && level <= 5) into.appendChild(bars(level));    // (older saves have no level: plain text)
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
     current().appendChild(p);
     if (!instant && !(unseen && root.contains(unseen))) unseen = p;   // (restored text is not new: see toEnd)
     return p;
+  }
+
+  // The five health bars before a health line (log.css): one shared piece for echoes and STATUS. Decoration only: the
+  // phrase says it, so it is hidden from screen readers.
+  function bars(level) {
+    const b = document.createElement("span");
+    b.className = "bars"; b.setAttribute("aria-hidden", "true");
+    for (let i = 1; i <= 5; i++) { const bar = document.createElement("i"); if (i <= level) bar.className = "on"; b.appendChild(bar); }
+    return b;
   }
 
   // Build story text into an element: plain parts, `commands` (buttons that run them) and {objects} (buttons that

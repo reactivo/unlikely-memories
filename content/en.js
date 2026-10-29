@@ -113,9 +113,11 @@ export default {
     return "You can go " + (ways.length > 1 ? ways.slice(0, -1).join(", ") + this.or + ways.at(-1) : ways[0]) + ".";
   },
   // Echoes (INTERFACE.md §6c): one short line under the story text after a change to your health, for the step
-  // you land on (health 5–0), shown in capitals in the colour of its kind. js/engine.js picks them.
+  // you land on (health 5–0), in the colour of its kind, with the five health bars before it. js/narrator.js picks them.
+  // hurt: a phrase of its own for a step when you get hurt (null: the `health` one). English has none.
   echo: {
-    healed: [null, "You feel a little better", "You feel better", "You feel much better", "You feel almost yourself again", "You feel well"]
+    healed: [null, "You feel a little better", "You feel better", "You feel much better", "You feel almost yourself again", "You feel well"],
+    hurt: [null, null, null, null, null, null]
   },
   // Losing the last of your health (js/engine.js, `hurt`): the cause's own words first (s) if it has some.
   hurt: {

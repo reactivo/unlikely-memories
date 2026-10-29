@@ -562,7 +562,7 @@ function apply(g, e, action, out, key) {
     if (e.says !== undefined) apply(g, { say: e.says }, action, out, key + ":says");   // the world's own line, always
     // then the echo, always: where you land if you are better; at full health nothing changes and it says so (the state phrase)
     if (g.player.health !== was) echo(done, g, "healed", g.player.health);
-    else done({ echo: "@health." + g.player.health, kind: "healed", at: worldTime(g) });
+    else done({ echo: "@health." + g.player.health, kind: "healed", level: g.player.health, at: worldTime(g) });
   } else if ("echo" in e) {                          // an echo of something that happened to you: { echo: "…", kind: "noted" }
     const said = fill(g, e.echo, action);
     if (typeof said !== "string" || !said.trim()) return refuse("echo says what? " + e.echo);
@@ -692,9 +692,11 @@ function hurtLine(g, says, done) {
 }
 
 // The echo of a change to your health (INTERFACE.md §6c): one short line from the language pack for where you
-// landed, in the colour of its kind. kind: "hurt" | "healed"; level: the new step.
+// landed, in the colour of its kind, with the level it describes (the narrator draws the bars from it). kind: "hurt" |
+// "healed"; level: the new step. A hurt says the state phrase; the narrator swaps in the pack's own hurt phrase for
+// that step, if it has one (echo.hurt).
 function echo(done, g, kind, level) {
-  done({ echo: kind === "hurt" ? "@health." + level : `@echo.${kind}.${level}`, kind, at: worldTime(g) });   // a hurt says the state phrase
+  done({ echo: kind === "hurt" ? "@health." + level : `@echo.${kind}.${level}`, kind, level, at: worldTime(g) });
 }
 
 // What part of the opening an effect would change, if any (for effects from a world: they may not).

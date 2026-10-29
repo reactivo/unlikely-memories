@@ -362,7 +362,7 @@ function restore(r) {
   ui.log.clear(); transcript = []; ui.prompt.clear();
   ui.prompt.hint(ui.log.markup(packOf(state).hint), 0, false);   // not shown; it comes back if you're idle
   for (const p of r.transcript || []) {
-    const el = ui.log.say(p.text, p.style || "", p.img ? objectImage(p.img, state) : undefined, true);
+    const el = ui.log.say(p.text, p.style || "", p.img ? objectImage(p.img, state) : undefined, true, p.level);
     keep(p);
     if (p.visit) ui.log.newVisit(el, true);               // a room entered here: earlier text is past
   }
@@ -398,7 +398,7 @@ function tick() {
 
 // Add story paragraphs to the log ({ text, style, img }; img = an object's picture shown beside the text).
 function show(paragraphs) {
-  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? objectImage(p.img, state) : undefined), p);
+  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? objectImage(p.img, state) : undefined, false, p.level), p);
 }
 // One line of text (a reply, a note) and an echoed command, kept in the transcript too.
 function say(t, style = "") { show([{ text: t, style }]); }

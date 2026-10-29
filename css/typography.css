@@ -87,11 +87,10 @@
     line-height: var(--line-xs);
   }
 
-  /* An echo under the story text (INTERFACE.md §6c): small capitals, one line tall. */
+  /* An echo under the story text (INTERFACE.md §6c): the story's own size and line height, in sentence case. */
   .text-echo {
-    font-size: var(--text-s);
-    line-height: var(--line-xs);
-    text-transform: uppercase;
+    font-size: var(--text-m);
+    line-height: var(--line-xxs);
   }
 
   /* The map's hint under the popup (how to move the map). */
