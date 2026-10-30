@@ -9,7 +9,8 @@
 
 import art from "../content/art.js";
 import { paintPicture, compose, overlaysShown, overlayAlt, RGB } from "./draw.js";
-import { CYCLES } from "./effects.js";
+import { CYCLES, FILTERS, MOVING } from "./effects.js";
+import { parseFilter, inOrder } from "../js/filters.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
 
 const W = art.picture.width, H = art.picture.height;
@@ -29,6 +30,9 @@ export function mount(root) {
   let drawnKey = null;           // what's drawn: room, version and overlays
   let loop = 0;                  // the animation frame request, while something moves
   let lastSteps = "";            // the cycles' steps last drawn (redraw only when one moves)
+  let filters = [];              // the picture filters on (state.filters: js/filters.js), in the order they are drawn
+  const since = new Map();       // when each filter on came on (its moving forms run from then)
+  let shakeAt = null;            // when the jolt now running (`shake`, a moment: state.shakes counts them) began
 
   const calm = () => art.effects.respectReducedMotion && reducedMotion.matches;
 
@@ -57,7 +61,7 @@ export function mount(root) {
 
   // Draw one frame: the picture (mid-transition if one is running), with the cycles' colours at these steps.
   function render(now, steps = stepsAt(now)) {
-    const out = frame.slice();
+    let out = frame.slice();
     if (change) {
       const p = Math.min(1, (now - change.start) / change.ms);
       for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (!change.shows(x, y, p, H)) out[y * W + x] = from[y * W + x];
@@ -68,8 +72,16 @@ export function mount(root) {
       if (step) cy.pixels.forEach((k, i) => { if (out[k] === cy.c.colors[cy.start[i]]) out[k] = cy.c.colors[(cy.start[i] + step) % n]; });
     });
     lastSteps = steps.join();
+    // The picture filters, in their order (content/art.js), on the picture's own pixels; a tint swaps the colours.
+    let pic = { px: out, w: W, h: H, rgb: RGB };
+    for (const f of inOrder(shakeAt === null ? filters : [...filters, "shake"])) {
+      const { name, param } = parseFilter(f);
+      if (FILTERS[name]) pic = FILTERS[name](pic, art.effects.filters[name], now - (f === "shake" ? shakeAt : since.get(f) ?? now), calm(), param);
+    }
+    if (shakeAt !== null && (calm() || now - shakeAt >= art.effects.filters.shake.ms)) shakeAt = null;   // the jolt is over (this frame shows it still)
+    out = pic.px;
     for (let k = 0; k < out.length; k++) {
-      const [r, g, b] = RGB[out[k]];
+      const [r, g, b] = pic.rgb[out[k]];
       image.data[k * 4] = r; image.data[k * 4 + 1] = g; image.data[k * 4 + 2] = b; image.data[k * 4 + 3] = 255;
     }
     ctx.putImageData(image, 0, 0);
@@ -79,8 +91,9 @@ export function mount(root) {
   // pauses animation frames by itself).
   function tick(now) {
     const steps = stepsAt(now);
-    if (change || steps.join() !== lastSteps) render(now, steps);   // nothing moved: leave the canvas as it is
-    loop = (change || (cycles.length && !calm())) ? requestAnimationFrame(tick) : 0;
+    const moving = shakeAt !== null || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
+    if (change || steps.join() !== lastSteps || moving) render(now, steps);   // nothing moved: leave the canvas as it is
+    loop = (change || moving || (cycles.length && !calm())) ? requestAnimationFrame(tick) : 0;
   }
   const animate = () => { if (!loop) loop = requestAnimationFrame(tick); };
   reducedMotion.addEventListener("change", () => { if (frame) { render(performance.now()); animate(); } });
@@ -97,8 +110,15 @@ export function mount(root) {
       const shown = overlaysShown(picture, s, roomId);
       // The description for screen readers: the room's or the ending's, plus a line for each overlay drawn (the room's `overlayAlt`).
       canvas.setAttribute("aria-label", [end ? end.alt : room.alt, ...shown.map(o => overlayAlt(room, o))].filter(Boolean).map(t => text(t, next.pack)).join(" "));
-      const key = where + "#" + picture.version + "|" + shown.map(o => o.object).join(",");
-      if (key === drawnKey) return;
+      // The picture filters on (none on an ending's picture: it is a shot of its own), and a new jolt (`shake`) to play, unless
+      // this is a restore (undo, load: a jolt already seen) or motion is reduced.
+      const on = end ? [] : inOrder((s.filters || []).filter(f => FILTERS[parseFilter(f).name]));
+      const key = where + "#" + picture.version + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
+      if (!end && reason !== "restore" && !calm() && (s.shakes ?? 0) > (prev?.state?.shakes ?? 0)) shakeAt = performance.now();
+      if (key === drawnKey) return shakeAt !== null ? animate() : undefined;
+      for (const f of [...since.keys()]) if (!on.includes(f)) since.delete(f);
+      for (const f of on) if (!since.has(f)) since.set(f, performance.now());
+      filters = on;
       const { px, areas } = base(where, picture);
       const old = frame;
       frame = compose(px, picture, s, roomId, W, H);

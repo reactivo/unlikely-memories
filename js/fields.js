@@ -10,6 +10,7 @@
 import { ANSWERED } from "./verbs.js";
 import { PARTS, LINES } from "./opening.js";
 import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
@@ -40,6 +41,10 @@ export const FIELDS = {
   every: ["seconds", "turns"],
   match: ["verb", "obj", "obj2", "dir", "prep", "topic", "text", "scenery", "absent", "question", "value", "blank"],
   puzzle: PUZZLE,
+  // A condition the player can be in (js/conditions.js), and its parts: how long it lasts, and each modifier kind.
+  condition: CONDITION_FIELDS,
+  lasts: ["turns", "seconds"],
+  ...MODIFIERS,
   // Each effect, by its main key, with the other fields it may carry, in the order the engine reads the keys (effectKind
   // relies on it). `add` and `remove` carry the new thing's own fields.
   effect: {
@@ -50,6 +55,8 @@ export const FIELDS = {
     hurt: ["hurt", "says"],
     heal: ["heal", "says"],
     echo: ["echo", "kind"],                                    // a short line about what just happened to you
+    start: ["start"], stop: ["stop"],                          // a condition starts, a condition stops (js/conditions.js)
+    filter: ["filter"], unfilter: ["unfilter"],                // a picture filter on, off; shake: a jolt, once (js/filters.js)
     travel: ["travel"],
     connect: ["connect", "dir", "to", "passage", ...CONNECT_FIELDS],   // and the exit's own: in, out (marks), if, closed
     disconnect: ["disconnect", "dir"],
@@ -68,11 +75,12 @@ export const FIELDS = {
     "add puzzle": ["add", "id", ...PUZZLE],
     "add picture": ["add", "id", "picture", "alt"],
     "add word": ["add", "verb", "words", "object", "absent", "speech"],
+    "add condition": ["add", "id", ...CONDITION_FIELDS],
     "remove object": ["remove", "id"],
     "remove rule": ["remove", "id"]
   },
   // The engine's own values that rules read and set by path: "player.health", "time.hour".
-  player: ["at", "in", "carrying", "health", "answers"],   // answers: what was typed to each `ask`, by its key (player.answers.name)
+  player: ["at", "in", "carrying", "health", "answers", "conditions"],   // answers: what was typed to each `ask`, by its key (player.answers.name); conditions: the ids of those you're in
   game: ["ended", "ending", "entrance", "turn", "clock"],
   time: ["hour", "minute", "second", "day", "weekday"],
   any: ["place", "chain"]                  // read on any thing: where it really is, and what it is in
@@ -284,7 +292,7 @@ export function checkSet(state, set) {
     if (!kind) return note(piece, `an effect with no known kind (${Object.keys(e).join(", ") || "empty"})`, e);
     if (!(kind in FIELDS.effect)) return note(piece, `can't ${kind}`, e);
     if (ENGINE_ONLY.includes(kind)) return note(piece, `"${kind}" is one of the engine's own effects: only the game itself writes it`, e, true);
-    const named = { "add room": "rooms/", "add object": "objects/", "add rule": "rules/", "add change": "changes/", "add puzzle": "puzzles/", "add word": "words/", "add picture": "pictures/" }[kind];
+    const named = { "add room": "rooms/", "add object": "objects/", "add rule": "rules/", "add change": "changes/", "add puzzle": "puzzles/", "add word": "words/", "add picture": "pictures/", "add condition": "conditions/" }[kind];
     if (named) piece = named + (kind === "add rule" ? e.rule?.id : kind === "add word" ? e.verb : e.id);
     if (["add room", "add object", "add puzzle"].includes(kind)) claim(piece, kind.slice(4), e);
     if (kind === "remove object" && typeof e.id === "string") taken.delete(e.id);
@@ -297,6 +305,13 @@ export function checkSet(state, set) {
     if (kind === "add change") return list(piece, e.effects);
     if (kind === "add picture") return fields(piece, e.picture, FIELDS.picture, "picture", null, e);
     if (kind === "add puzzle" || kind === "add word") return;
+    if (kind === "add condition") {                             // its parts, and what its `until` reads
+      fields(piece, e.lasts, FIELDS.lasts, "lasts", null, e);
+      for (const k of Object.keys(MODIFIERS)) fields(piece, e[k], FIELDS[k], k, null, e);
+      fields(piece, e.health?.every, FIELDS.every, "health: every", null, e);
+      wellFormed(piece, e.until, e, "until");
+      return conditions(piece, e.until, e);
+    }
     if (kind === "connect") {                                   // the exit it writes: marks, and a condition as an exit's own
       marks(piece, `connect ${e.dir}`, e.dir, e, e);
       if (typeof e.if !== "boolean") wellFormed(piece, exitConditions(e) ?? [], e, `connect ${e.dir}: if`);

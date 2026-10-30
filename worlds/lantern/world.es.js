@@ -31,7 +31,7 @@ export const bible = {
     "Pip, una niña que rebusca en el fango"],
   endings: [
     "La verdad: lleva a la investigación las últimas palabras oídas junto al farol; vuelven con quien las dijo, y la niebla se levanta.",
-    "Relevado: enciende tú mismo el último farol y ocupa el puesto del farolero.",
+    "Relevado: enciende tú el último farol y ocupa el puesto del farolero.",
     "El nombre equivocado: nombra al señor Voss ante el tribunal. La niebla lo guarda, y no se levanta nunca.",
     "Muerto: el río se te lleva, si vuelves a bajar a él después de su aviso."
   ],
@@ -295,7 +295,7 @@ const objects = {
     words: { nouns: ["pye", "agente", "policia", "guardia", "bobby"], adj: ["agente", "policia"], g: "m" },
     examine: "Un agente joven y alto, con capa, con un farol propio y una {libreta|notebook} que sostiene como un devocionario. En la copa del casco se le ha juntado un poco de niebla.",
     parts: [{ words: ["casco", "capa"], name: "su casco", says: "La niebla se ha estancado en la copa. Él no se ha dado cuenta, o es demasiado educado para decirlo." }], mentions: ["libreta", "casco", "capa"],
-    talk: "«Buenas noches», dice el agente Pye. «Tú serás el testigo. La investigación es a medianoche, en el tribunal. Tengo apuntados a los presentes, si los quieres».",
+    talk: "«Buenas noches», dice el agente Pye. «A ti te toca declarar. La investigación es a medianoche, en el tribunal. Tengo apuntados a los presentes, si los quieres».",
     topics: {
       present: { open: true, label: "los presentes", words: ["presentes", "presente", "personas", "lista", "sospechosos", "gente", "libreta"], says: "«Presentes junto al último farol esta noche», lee. «El señor Voss, de la Compañía. La señora Halloran, de los pasteles. El difunto. Es todo lo que la niebla me ha dejado ver»." },
       fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "voces", "voz"], says: "«Las palabras se quedan colgadas en esta niebla hasta que alguien las oye hasta el final. Es sabido. Para eso hace falta la trompetilla de un farolero, y silencio. En la calle nunca hay silencio hasta que cierra The Bell, a las once»." },
@@ -318,7 +318,7 @@ const objects = {
     examine: "Un hombre ancho en mangas de camisa y chaleco, que ha oído cada canción de The Bell cantada mal y no ha perdonado ninguna.",
     talk: "«¿Qué te pongo?», dice el señor Cotter. «Cerramos a las once. Después, la calle queda tan quieta que se oye caer una palabra».",
     topics: {
-      porter: { open: true, label: "una cerveza", words: ["porter", "cerveza", "pinta", "media", "bebida", "trago", "copa", "jarra"], says: "«Una», dice el señor Cotter. «Ya lo he dicho. Esto no es una casa de socorro»." },
+      porter: { open: true, label: "una cerveza", words: ["porter", "cerveza", "pinta", "media", "bebida", "trago", "copa", "jarra"], says: "«Porter», dice el señor Cotter. «Dos medias le sientan bien a cualquiera. De la tercera en adelante, le sientan de otra manera»." },
       closing: { open: true, label: "la hora de cerrar", words: ["cierre", "cerrar", "cierran", "once", "hora", "silencio", "quietud"], says: "«A las once en punto. La calle se queda callada. Fenn decía que era la única hora en que se oye pensar al gas»." },
       fenn: { label: "Fenn", words: ["fenn", "albert", "farolero"], says: "«Nunca puso un pie aquí. Abstemio, cuarenta años. Cenaba su pastel en casa de Halloran, todas las noches, puntual como los faroles»." },
       voss: { label: "Voss", words: ["voss", "compania", "electrica"], says: "«Estuvo aquí antes, cacareando. Le dijo a Fenn que sus faroles estaban acabados, dijo, y Fenn le dio las gracias y se fue a encender el siguiente. A Voss no le gustó»." },
@@ -358,7 +358,7 @@ const objects = {
     words: { nouns: ["mabbott", "forense", "doctor", "juez"], adj: ["doctor", "dr"], g: "m" },
     examine: "Un hombre delgado con abrigo negro, con una pluma detrás de cada oreja y una tercera en la mano. Ha presidido la investigación de cada muerte de la calle desde los tiempos de la vieja Reina, y ha estado de acuerdo con casi todas.",
     parts: [{ words: ["pluma", "plumas", "tinta", "plumilla"], name: "su pluma", says: "De plumilla de acero, y seca. Espera un nombre." }], mentions: ["pluma"],
-    talk: "«Ah, el testigo», dice el doctor Mabbott. «Tómate tu tiempo. El tribunal oye palabras, y el tribunal oye nombres. Lo que aquí se dice, aquí se queda dicho».",
+    talk: "«Ah, vienes a declarar», dice el doctor Mabbott. «Tómate tu tiempo. El tribunal oye palabras, y el tribunal oye nombres. Lo que aquí se dice, aquí se queda dicho».",
     topics: {
       words: { open: true, label: "las pruebas", words: ["pruebas", "prueba", "palabras", "palabra", "testimonio", "testigo", "evidencias"], says: "«Palabras, si las tienes», dice. «La niebla habrá guardado las últimas que se dijeron junto al farol. Tráelas, y el tribunal las oirá hasta el final»." },
       names: { open: true, label: "el culpable", words: ["culpable", "nombre", "nombres", "nombrar", "acusar", "culpar", "quien"], says: "«Un nombre dicho en este tribunal es la verdad desde ese momento. La niebla se encarga de ello. Puedes nombrar a una persona presente junto al farol; el agente tiene la lista. Elige con cuidado. No se puede desdecir»." },
@@ -492,7 +492,7 @@ const changes = {
   ],
   relieved_ending: [
     { say: "Alzas la pértiga hasta el último farol y abres la llave. El gas respira, prende, y el farol se enciende, amarillo, el duodécimo de doce." },
-    { say: "El señor Fenn se levanta del bordillo. Te pone la gorra en la cabeza, asiente una vez y se va calle arriba sin mirar atrás, un hombre que no tiene que estar en ninguna parte. La niebla se cierra tras él. Ahora eres el farolero de Lantern Row. Cada noche enciendes doce faroles, el último al final, y nadie te ha pedido nunca que te quedes." },
+    { say: "El señor Fenn se levanta del bordillo. Te pone la gorra en la cabeza, asiente una vez y se va calle arriba sin mirar atrás, un hombre que no tiene que estar en ninguna parte. La niebla se cierra tras él. Ahora el puesto es tuyo. Cada noche enciendes doce faroles, el último al final, y nadie te ha pedido nunca que te quedes." },
     { end: true, picture: "relieved" }
   ],
   blamed_ending: [
@@ -617,19 +617,25 @@ const rules = [
   { id: "light_elsewhere", match: { verb: ["switch_on", "use"], obj: "pole", obj2: [null] }, if: [{ "pole.at": "player" }],
     do: [{ say: "Todos los faroles de aquí están ya encendidos. Solo el último, al final de la calle, espera." }] },
 
-  // Una copa junto al fuego, un pastel, un respiro de aire más claro: una cada una.
-  { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }], once: true,
-    do: [{ heal: 1, says: "El señor Cotter te sirve media pinta de porter sin preguntar cuál. Te la bebes junto al fuego. La niebla del pecho se va a sentarse a otro sitio un rato." }] },
-  { id: "porter_again", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
-    do: [{ say: "«Una», dice el señor Cotter. «Ya lo he dicho. Esto no es una casa de socorro»." }] },
+  // La porter de The Bell: las dos primeras medias te sientan bien; la tercera, y las siguientes, te emborrachan (el estado de
+  // más abajo). Un pastel te despeja; el tiempo, también. Un pastel, un respiro de aire más claro: uno cada uno.
+  { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 0 }],
+    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "El señor Cotter te sirve media pinta de porter sin preguntar cuál. Te la bebes junto al fuego. La niebla del pecho se va a sentarse a otro sitio un rato." }] },
+  { id: "porter_second", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 1 }],
+    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "El señor Cotter te sirve otra media. «Esta es la buena», dice. «La tercera es la que habla por ti». Te la bebes junto al fuego, y la niebla del pecho se aleja un poco más." }] },
+  { id: "porter_drunk", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
+    do: [{ set: "cotter.poured", add: 1 },
+         { say: ["El señor Cotter te sirve otra media y te mira bebértela como quien vigila un cazo al fuego. La lumbre se arrima un poco. La canción de la barra empieza a tener sentido.",
+                 "El señor Cotter te sirve otra sin decir nada, que es peor. Los hombres de la barra te hacen sitio en el estribillo."] },
+         { start: "drunk" }] },
   { id: "order_pie", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }], once: true,
-    do: [{ heal: 1, says: "La señora Halloran envuelve un pastel en papel y te lo da caliente. Te lo comes de pie. Sabe a que te esperan." }] },
+    do: [{ heal: 1, says: "La señora Halloran envuelve un pastel en papel y te lo da caliente. Te lo comes de pie. Sabe a que te esperan." }, { stop: "drunk" }] },
   { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
     do: [{ say: "«Con uno basta», dice la señora Halloran. «Él solo tomaba uno»." }] },
   { id: "order_elsewhere", match: { verb: "order" },
     do: [{ say: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." }] },
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
-    do: [{ say: "Respiras. Aquí fuera el aire es solo medio niebla; la otra mitad es el río que pasa. Por un momento, el pecho es tuyo." }] },
+    do: [{ heal: 1, says: "Respiras. Aquí fuera el aire es solo medio niebla; la otra mitad es el río que pasa. Por un momento, el pecho es tuyo." }] },
   { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
     do: [{ say: "Respiras. Ayuda menos la segunda vez. Sigue siendo niebla, solo que más fina." }] },
   { id: "breathe_elsewhere", match: { verb: "breathe" },
@@ -703,6 +709,9 @@ const opening = {
 export default {
   because: "Después de la apertura: una calle envuelta en niebla, la noche de la investigación de un farolero.",
   opening,
+  properties: {
+    "cotter.poured": { type: "number", min: 0, max: 9, start: 0 }       // las medias de porter que te ha servido el señor Cotter
+  },
   facts: [
     "El jugador llega a Lantern Row, en Londres, en una niebla espesa, un jueves a las diez y media de la noche.",
     "Albert Fenn, farolero, murió esta noche bajo el único farol que no encendió, y sigue allí sentado, muerto, hasta que lo releven.",
@@ -726,6 +735,11 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    // Borracho de porter (la tercera media en The Bell, y las siguientes): la calle se mece y se ve doble, las palabras salen trabadas y, al
+    // salir de un sitio, a veces tomas otro camino. Se pasa solo; un pastel lo pasa antes.
+    { add: "condition", id: "drunk", lasts: { turns: [8, 12] }, starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera",
+      status: "La cerveza se te ha subido a la cabeza", filters: ["sway", "ghost"], speech: { slur: true },
+      movement: { chance: 0.3, says: ["Los pies te llevan por otro camino del que querías.", "Echas a andar hacia un lado, y la niebla te da la vuelta."] } },
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))

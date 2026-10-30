@@ -57,6 +57,10 @@ export default {
   health: ["You're dead", "You can barely stand", "You feel awful", "You feel unwell", "You feel a little off", "You're in good health"],
   // STATUS: d = { health: the step, 5 to 1 }.
   statusNow(d) { return this.health[d.health] + "."; },
+  // STATUS, under the health line: the conditions you are in (js/conditions.js), each its world's own `status` phrase.
+  statusConditions(list) { return list.map(s => s + ".").join(" "); },
+  // Words said while a condition slurs them (js/speech.js): how they came out, t.
+  slurred: (t) => `It comes out as "${t}".`,
   weekdays: { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday" },
   onlyMentioned: (w) => `There's nothing more to the ${w} than that.`,   // named in the text, nothing to answer
   noIt: "I'm not sure what \"it\" means here.",

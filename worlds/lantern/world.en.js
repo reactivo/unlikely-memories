@@ -308,7 +308,7 @@ const objects = {
     examine: "A broad man in shirtsleeves and a waistcoat, who has heard every song in the Bell sung wrong and forgiven none of them.",
     talk: "\"What'll it be?\" says Mr Cotter. \"We shut at eleven. After that the Row's so quiet you could hear a word drop.\"",
     topics: {
-      porter: { open: true, label: "a drink", words: ["porter", "drink", "half", "pint", "beer", "ale"], says: "\"One,\" says Mr Cotter. \"I said. I'm not running a hospital.\"" },
+      porter: { open: true, label: "a drink", words: ["porter", "drink", "half", "pint", "beer", "ale"], says: "\"Porter,\" says Mr Cotter. \"Two halves does a body good. After the second it does a body something else.\"" },
       closing: { open: true, label: "closing time", words: ["closing", "close", "eleven", "shut", "time", "quiet"], says: "\"Eleven sharp. The Row goes quiet then. Fenn used to say it was the only hour you could hear the gas think.\"" },
       fenn: { label: "Mr Fenn", words: ["fenn", "albert", "lamplighter"], says: "\"Never set foot in here. Teetotal, forty years. Had his pie at Halloran's instead, every night, regular as the lamps.\"" },
       voss: { label: "Mr Voss", words: ["voss", "company", "electric"], says: "\"In here earlier, crowing. Told Fenn his lamps were finished, he said, and Fenn said thank you and went and lit the next one. Voss didn't care for that.\"" },
@@ -607,19 +607,25 @@ const rules = [
   { id: "light_elsewhere", match: { verb: ["switch_on", "use"], obj: "pole", obj2: [null] }, if: [{ "pole.at": "player" }],
     do: [{ say: "Every lamp here is lit already. Only the last one, at the bottom of the Row, is waiting." }] },
 
-  // A drink by the fire, a pie, a breath of clearer air: one each.
-  { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }], once: true,
-    do: [{ heal: 1, says: "Mr Cotter pulls you a half of porter without asking which. You drink it by the fire. The fog in your chest goes and sits somewhere else for a while." }] },
-  { id: "porter_again", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
-    do: [{ say: "\"One,\" says Mr Cotter. \"I said. I'm not running a hospital.\"" }] },
+  // Porter at the Bell: the first two halves do you good, the third and after make you drunk (the condition below). A pie
+  // sobers you; so does time. A pie, a breath of clearer air: one each.
+  { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 0 }],
+    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "Mr Cotter pulls you a half of porter without asking which. You drink it by the fire. The fog in your chest goes and sits somewhere else for a while." }] },
+  { id: "porter_second", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 1 }],
+    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "Mr Cotter pulls you a second half. \"That's the good one,\" he says. \"The third does the talking.\" You drink it by the fire, and the fog in your chest goes a little further off." }] },
+  { id: "porter_drunk", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
+    do: [{ set: "cotter.poured", add: 1 },
+         { say: ["Mr Cotter pulls you another half and watches you drink it, the way a man watches a kettle. The fire leans in. The singing at the bar starts to make sense.",
+                 "Mr Cotter pulls you another and says nothing, which is worse. The men at the bar make room for you in the chorus."] },
+         { start: "drunk" }] },
   { id: "order_pie", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }], once: true,
-    do: [{ heal: 1, says: "Mrs Halloran wraps a pie in paper and gives it to you hot. You eat it standing up. It tastes of being expected." }] },
+    do: [{ heal: 1, says: "Mrs Halloran wraps a pie in paper and gives it to you hot. You eat it standing up. It tastes of being expected." }, { stop: "drunk" }] },
   { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
     do: [{ say: "\"One's plenty,\" says Mrs Halloran. \"He only ever had the one.\"" }] },
   { id: "order_elsewhere", match: { verb: "order" },
     do: [{ say: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." }] },
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
-    do: [{ say: "You breathe. The air out here is only half fog; the other half is the river going by. For a moment your chest is your own." }] },
+    do: [{ heal: 1, says: "You breathe. The air out here is only half fog; the other half is the river going by. For a moment your chest is your own." }] },
   { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
     do: [{ say: "You breathe. It helps less the second time. It is still fog, only thinner." }] },
   { id: "breathe_elsewhere", match: { verb: "breathe" },
@@ -693,6 +699,9 @@ const opening = {
 export default {
   because: "After the opening: a fog-bound street on the night of a lamplighter's inquest.",
   opening,
+  properties: {
+    "cotter.poured": { type: "number", min: 0, max: 9, start: 0 }       // the halves of porter Mr Cotter has pulled you
+  },
   facts: [
     "The player arrives on Lantern Row, London, in thick fog, on a Thursday at half past ten at night.",
     "Albert Fenn, lamplighter, died this evening under the one lamp he didn't light, and sits there still, dead, until relieved.",
@@ -716,6 +725,11 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    // Drunk on porter (the third half at the Bell, and after): the Row sways and doubles, words come out slurred, and leaving a place you
+    // sometimes take another way out. It wears off; a pie sobers you sooner.
+    { add: "condition", id: "drunk", lasts: { turns: [8, 12] }, starts: "You're drunk", ends: "You're sober again", status: "You're drunk on beer",
+      filters: ["sway", "ghost"], speech: { slur: true },
+      movement: { chance: 0.3, says: ["Your feet take you another way than the one you meant.", "You set off one way, and the fog turns you round."] } },
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))

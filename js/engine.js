@@ -11,6 +11,10 @@ import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDA
 import * as opening from "./opening.js";
 import { translate as translateUse, placeOf, chainOf, shut, isAction } from "./use.js";
 import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer } from "./fields.js";
+import { activeIds, keptFilters, declarationProblems } from "./conditions.js";
+import { filterProblem, parseFilter, switched, MOMENTS } from "./filters.js";
+import { spoken, slurring, slur, answerLine } from "./speech.js";
+import { movementNow, stray } from "./movement.js";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -65,6 +69,7 @@ export function step(state, input) {
       }
     }
     if (action.obj) g.lastObj = action.obj;                      // what "it" means next time
+    if (!isFixed(g, g.player.at)) heldBy(g, action, out);        // a condition's hold on your tongue or your feet (not in the opening)
     // Talking to someone: they're who "ask about…" goes to next; a question asked is remembered for this visit (it's
     // no longer offered after they answer, until you come back to the room).
     if (["talk", "ask", "say"].includes(action.verb) && g.world.objects[action.obj]?.topics) g.talkingTo = action.obj;
@@ -80,6 +85,7 @@ export function step(state, input) {
   const n0 = out.applied.length;
   runScheduled(g, out);                                         // what's scheduled up to the world's time now
   runTimed(g, at, out, out.applied.slice(n0).some(e => "say" in e));   // timed rules that are now due (a scheduled line holds ambience back)
+  runConditions(g, at, out);                                    // the conditions you are in: their ticks, and the ones that end now
   // An echo (INTERFACE.md §6c) is the last word on what just happened to you: after the story lines of your command, and
   // after those of what the world did on its own, however the rule ordered its effects.
   // What the world did on its own (scheduled and timed rules) is marked `aside`: shown set apart, like a stage direction
@@ -198,6 +204,8 @@ export function nextDue(state) {
     if (t !== undefined && r.ambient) t = Math.max(t, quietEnd);   // ambience waits out the quiet
     if (t !== undefined && (due === null || t < due)) due = Math.max(0, t);
   }
+  for (const c of Object.values(state.player.conditions || {}))              // a condition timed in seconds: its tick, its end
+    for (const t of [c.at, c.tickAt]) if (t !== undefined && (due === null || t < due)) due = Math.max(0, t);
   return due;
 }
 
@@ -329,6 +337,7 @@ export function exitNow(g, roomId, dir, action = {}) {
 function read(g, path, action) {
   if (path === "$exit") return exitNow(g, g.player.at, action.dir, action).go;     // "$exit.closed": the line of a shut way
   if (path === "$exit.closed") return exitNow(g, g.player.at, action.dir, action).closed;
+  if (path === "$speech.answer") return answerLine(g);                       // what people answer while a condition holds your tongue (js/speech.js)
   if (/^\$\w+$/.test(path) && path !== "$obj" && path !== "$here" && Object.hasOwn(action, path.slice(1))) return action[path.slice(1)] ?? null;   // "$topic"
   path = path.replace(/\.\$(\w+)/g, (_, k) => "." + (action[k] ?? ""));      // "$obj.topics.$topic.says": the action's topic
   if (/^\$here\./.test(path)) path = g.player.at + path.slice(5);           // "$here.visited": your room's
@@ -338,6 +347,7 @@ function read(g, path, action) {
   else if (path.startsWith("$")) path = path.slice(1);                      // "$letter.examine": a named thing's
   const [id, ...rest] = path.split(".");
   const prop = rest.join(".");
+  if (id === "player" && prop === "conditions") return activeIds(g);   // "player.conditions": the ids of the conditions you're in ({ has: "drunk" })
   if (id === "player" && rest[0] === "answers") return rest.length === 2 ? g.player.answers?.[rest[1]] ?? null : null;   // "player.answers.name": what was typed
   if (id === "player") return g.player[prop] ?? startOf(g, id, prop);
   if (id === "game") return g[prop] ?? startOf(g, id, prop);
@@ -469,7 +479,7 @@ function runTimed(g, at, out, scheduledSpoke = false) {
 
 // Does a list of effects say something (directly, or through a named change)? Those are what calm holds back.
 function speaks(g, effects, depth = 0) {
-  return effects.some(e => "say" in e || "hurt" in e || "heal" in e || "echo" in e || "describe" in e
+  return effects.some(e => "say" in e || "hurt" in e || "heal" in e || "echo" in e || "describe" in e || "start" in e || "stop" in e
     || ("change" in e && depth < 5 && speaks(g, g.changes[e.change] || [], depth + 1)));
 }
 
@@ -497,6 +507,78 @@ function schedule(g, r, at) {
 // Random numbers from the state's own generator (so replays repeat exactly).
 function roll(g) { const [v, next] = random(g.rng); g.rng = next; return v; }
 function rollBetween(g, min, max) { const [v, next] = between(g.rng, min, max); g.rng = next; return v; }
+
+// ---- Conditions -------------------------------------------------------------------------------------------
+
+// The conditions you are in (js/conditions.js), after everything else in a step: each one's health tick, when it is due
+// (the engine's own hurt or heal, so its echo, the bars, a death and UNDO work as for any other), then its end, when its
+// time is up (`lasts`) or its `until` holds. Nothing runs after the end of the story, nor in the opening.
+function runConditions(g, at, out) {
+  if (g.ended || !g.player.conditions || isFixed(g, g.player.at)) return;
+  for (const id of activeIds(g)) {
+    const d = g.conditions?.[id], c = g.player.conditions?.[id];
+    if (!d || !c) continue;
+    if (d.health && due(g, at, c.tickTurn, c.tickAt)) {
+      const h = d.health, says = Array.isArray(h.says) ? pickVariant(g, h.says, "condition:" + id) : h.says;
+      apply(g, "hurt" in h ? { hurt: h.hurt, says } : { heal: h.heal, says }, {}, out, "condition:" + id);
+      delete c.tickTurn; delete c.tickAt;
+      Object.assign(c, nextTick(g, h.every));
+      if (g.player.health <= 0) return;                         // the tick was the end of you: step() ends the story
+    }
+    if (due(g, at, c.turn, c.at) || (Array.isArray(d.until) && holds(g, d.until))) endCondition(g, id, {}, out, "condition:" + id);
+  }
+}
+// Has a turn number or a game time been reached (either may be missing)?
+const due = (g, at, turn, ms) => (turn !== undefined && g.turn >= turn) || (ms !== undefined && at >= ms);
+// When a condition that starts now ends by itself: a random gap within its `lasts`, in turns or seconds; nothing if it has none.
+function lasting(g, d) {
+  if (!d.lasts) return {};
+  const [min, max] = d.lasts.turns || d.lasts.seconds, n = rollBetween(g, min, max);
+  return d.lasts.turns ? { turn: g.turn + n } : { at: g.clock + n * 1000 };
+}
+// When a condition's health tick is next due, from now.
+function nextTick(g, every) {
+  const [min, max] = every.turns || every.seconds, n = rollBetween(g, min, max);
+  return every.turns ? { tickTurn: g.turn + n } : { tickAt: g.clock + n * 1000 };
+}
+// A condition ends: it is gone from the player, its `ends` line is said (the echo), and its filters go off, unless another
+// condition you are still in keeps them.
+function endCondition(g, id, action, out, key) {
+  const d = g.conditions[id], kept = keptFilters(g, id);
+  delete g.player.conditions[id];
+  if (!Object.keys(g.player.conditions).length) delete g.player.conditions;   // (none left: no key, as before conditions)
+  out.applied.push({ stop: id });
+  out.applied.push({ echo: d.ends, kind: "condition", at: worldTime(g) });
+  for (const f of d.filters || []) if (!kept.has(f)) apply(g, { unfilter: f }, action, out, key + ":unfilter");
+}
+
+// A condition's hold on you as you act, before the action runs: words said come out slurred (js/speech.js) and are read so
+// by the rules; leaving a room, you may take another way (js/movement.js). Each says so in a line of its own first.
+function heldBy(g, action, out) {
+  if (spoken(g, action) && slurring(g)) {
+    const [said, rng] = slur(action.text, g.rng);
+    g.rng = rng;
+    apply(g, { say: "@slurred", arg: said }, action, out, "slurred");
+    action.text = said;
+  }
+  const m = movementNow(g);
+  if (m && action.verb === "go" && action.dir) {
+    const [dir, rng] = stray(m, strayWays(g, action), g.rng);
+    g.rng = rng;
+    if (dir) { apply(g, { say: m.says }, action, out, "movement"); action.dir = dir; }
+  }
+}
+// The other ways you could take by mistake, leaving a room the way you meant: only when that way is open and plain (it leads
+// to a room, and no rule of the world answers it), and only ways just as plain that lead to another room you have already
+// been to (never shut or locked, never somewhere you couldn't have seen, never the opening).
+function strayWays(g, action) {
+  const here = g.player.at, room = g.world.rooms[here];
+  const to = (dir) => exitNow(g, here, dir, { ...action, dir }).go;
+  const plain = (dir) => typeof to(dir) === "string" && !!g.world.rooms[to(dir)] && !g.world.rooms[to(dir)].fixed
+    && !activeRules(g).some(r => isAction(r) && fits(g, r, { ...action, dir }));
+  if (!plain(action.dir)) return [];
+  return Object.keys(room?.exits || {}).filter(d => d !== action.dir && plain(d) && to(d) !== to(action.dir) && g.seen.visited.includes(to(d)));
+}
 
 // ---- Effects ----------------------------------------------------------------------------------------------
 
@@ -603,6 +685,33 @@ function apply(g, e, action, out, key) {
     if (typeof said !== "string" || !said.trim()) return refuse("echo says what? " + e.echo);
     if (typeof e.kind !== "string" || !/^[a-z]+$/.test(e.kind)) return refuse("echo of what kind? " + e.kind);
     done({ echo: said, kind: e.kind, at: worldTime(g) });
+  } else if ("start" in e) {                         // start a condition: { start: "drunk" } (js/conditions.js); again: it starts afresh
+    const id = fill(g, e.start, action), d = g.conditions?.[id];
+    if (!d) return refuse("no such condition: " + id);
+    const active = (g.player.conditions ??= {}), again = !!active[id];
+    active[id] = { ...(again ? active[id] : {}), ...lasting(g, d) };   // its time runs from now; its ticks keep their pace
+    if (!again && d.health) Object.assign(active[id], nextTick(g, d.health.every));
+    done(again ? { start: id, again: true } : { start: id });
+    if (again) return;                                // already in it: nothing new to say (the rule's own line tells it)
+    done({ echo: d.starts, kind: "condition", at: worldTime(g) });
+    for (const f of d.filters || []) apply(g, { filter: f }, action, out, key + ":filter");
+  } else if ("stop" in e) {                          // end a condition: { stop: "drunk" }; nothing happens if you're not in it
+    const id = fill(g, e.stop, action);
+    if (!g.conditions?.[id]) return refuse("no such condition: " + id);
+    if (g.player.conditions?.[id]) endCondition(g, id, action, out, key);
+  } else if ("filter" in e || "unfilter" in e) {     // a picture filter on, or off: { filter: "sway" }, { filter: "tint:cold" } (js/filters.js)
+    const on = "filter" in e, name = fill(g, on ? e.filter : e.unfilter, action);
+    const why = filterProblem(name, { off: !on });
+    if (why) return refuse(why);
+    if (MOMENTS.includes(parseFilter(name).name)) {  // a moment (shake): counted, never kept on; the scene plays each new one once
+      g.shakes = (g.shakes ?? 0) + 1;
+      return done({ filter: name });
+    }
+    const now = g.filters || [], next = switched(now, name, on);
+    if (next.length === now.length && next.every((f, i) => f === now[i])) return;   // already as asked: nothing changes
+    g.filters = next;
+    if (!g.filters.length) delete g.filters;         // (none on: no key, as in a game saved before filters)
+    done(on ? { filter: name } : { unfilter: name });
   } else if ("travel" in e) {                        // move the player to a room
     const room = fill(g, e.travel, action);
     if (!g.world.rooms[room]) return refuse("no such room: " + room);
@@ -821,6 +930,13 @@ function addThing(g, e, refuse, done) {
     const clash = idTaken(g, "puzzle", id);
     if (clash) return refuse(clash);
     g.puzzles[id] = structuredClone(props);
+  } else if (e.add === "condition") {              // a condition the player can be in (js/conditions.js): { id, starts, ends, status, … }
+    const { add, id, ...props } = e;
+    if (typeof id !== "string" || !id) return refuse("a condition needs an id");
+    if (g.conditions?.[id]) return refuse("condition already exists: " + id);
+    const why = declarationProblems(props);
+    if (why.length) return refuse(`condition ${id}: ${why.join("; ")}`);
+    (g.conditions ??= {})[id] = structuredClone(props);   // (made with the first: a game saved before conditions loads unchanged)
   } else if (e.add === "word") {                   // a verb only this world needs: { verb: "row", words: [...] }
     if (!e.verb || !Array.isArray(e.words) || !e.words.length) return refuse("a word needs a verb and words");
     g.vocab[e.verb] = { words: e.words, object: e.object || "optional", ...(e.absent ? { absent: true } : {}), ...(e.speech ? { speech: true } : {}) };

@@ -48,6 +48,7 @@ import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
 import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf } from "./fields.js";
 import art from "../content/art.js";
+import { filterProblem } from "./filters.js";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -270,7 +271,7 @@ export function check(state, pack, bible) {
     if (o.use !== undefined && (typeof o.use !== "string" || o.use === "use" || !verbs.has(o.use)))
       problems.push(`${id}: use must be the verb USE alone stands for (an action or a word this world adds, not "use"), not ${JSON.stringify(o.use)}`);
 
-  // Harm is fair (GUIDE.md §3): health (5 to 0) is lost with `hurt` and the rule's own line (`says`), then the game's
+  // Harm is fair (GUIDE.md §3, §4): health (5 to 0) is lost with `hurt` and the rule's own line (`says`), then the game's
   // echo, never by setting it; and a hit is a whole number from 1 to 5 (1 ordinary, 2–3 serious, 4 very rare, 5 an instant
   // death, which comes with an `end` in the same rule). A hit is never held back: there is no warning turn.
   const changes = Object.entries(state.changes || {}).map(([name, effects]) => ({ id: "change " + name, do: effects, named: true }));
@@ -331,6 +332,7 @@ export function check(state, pack, bible) {
   if (pack.words.regional) warnings.push(...regionalWarnings(state, pack, bible));
   warnings.push(...wordWarnings(state, pack));
   warnings.push(...answerWarnings(state, pack));
+  conditionChecks(state, arrived, problems, warnings);
   const never = neverHolds(state, arrived);
   warnings.push(...neverOpen(never, arrived, badExits));
   warnings.push(...neverWaits(never, arrived));
@@ -421,6 +423,7 @@ function pictureProblems(state) {
     const lowers = typeof e.set === "string" && e.set === "player.health" && ((typeof e.add === "number" && e.add < 0) || (typeof e.to === "number" && e.to < 5));
     if ((typeof e.hurt === "number" || typeof e.hurt === "string") || lowers) hurts ??= where;
   }
+  for (const [id, c] of Object.entries(state.conditions || {})) if (c?.health && "hurt" in c.health) hurts ??= "condition " + id;
   if (hurts && !pictures.died) problems.push(`${hurts} can hurt the player, so the world needs a "died" picture (the ending when health runs out)`);
   for (const [id, p] of Object.entries(pictures)) {
     if (!described(p?.alt)) problems.push(`pictures/${id}: has no alt, the description of the picture for screen readers; give its add picture an alt in ${file}`);
@@ -455,7 +458,7 @@ function drawingProblems(picture) {
   return why;
 }
 
-// Healing is fair too (GUIDE.md §3): a positive amount, a line of its own, and not something the player can repeat for ever
+// Healing is fair too (GUIDE.md §4): a positive amount, a line of its own, and not something the player can repeat for ever
 // to undo every danger. `heal` is limited when its rule fires once, or when it asks about something it itself uses up (a
 // condition on a path the rule sets) or takes away (the rule removes or moves a thing). A rule that happens each day at
 // a time (`when: "at"`) is limited by the day. A named change the rule runs counts as part of the rule.
@@ -463,13 +466,19 @@ function healProblems(r, e, id, state, problems, warnings) {
   const named = typeof e.heal === "string" && e.heal.startsWith("$");           // a value the player's words fill in
   if (!named && (typeof e.heal !== "number" || !(e.heal > 0))) problems.push(`${id}: heal is a number above 0, not ${JSON.stringify(e.heal)}`);
   if (!e.says) warnings.push(`${id}: heals with no line of its own (says): only the echo is shown`);
-  if (!Array.isArray(r.do) || r.once === true || r.when === "at" || r.named) return;   // (a named change is judged in the rules that run it)
+  if (!Array.isArray(r.do) || r.named || limited(r, state)) return;   // (a named change is judged in the rules that run it)
+  warnings.push(`${id}: heals every time it fires, so the player can undo any harm by repeating it; make it once, or have it use something up (a condition on something it sets, or a thing it removes)`);
+}
+
+// Can a rule only fire a limited number of times (so what it gives can't be had for ever)? When it is `once`, happens at a
+// time of day, or uses something up: a condition on a path it sets itself (a count), or a thing it removes or moves.
+function limited(r, state) {
+  if (r.once === true || r.when === "at") return true;
   const all = withChanges(state, r.do);
   const sets = new Set(all.filter(x => x && typeof x.set === "string").map(x => x.set));
   const takes = all.some(x => x && (typeof x.remove === "string" || "move" in x));
   const asks = (Array.isArray(r.if) ? r.if : r.if ? [r.if] : []).flatMap(c => c && typeof c === "object" ? Object.keys(c) : []);
-  if (takes || asks.some(k => sets.has(k))) return;
-  warnings.push(`${id}: heals every time it fires, so the player can undo any harm by repeating it; make it once, or have it use something up (a condition on something it sets, or a thing it removes)`);
+  return takes || asks.some(k => sets.has(k));
 }
 
 // ---- Exits that wait, and exits that can never open -----------------------------------------------------------------
@@ -679,7 +688,8 @@ export function clockMentions(raw) {
 }
 
 // Every player-facing text of a world: [{ where, field, text }]. Not pictures or their descriptions (`alt`).
-const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines"]);
+const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines",
+  "starts", "ends", "status", "answer"]);   // (the last four: a condition's lines)
 const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "words", "mentions", "if", "match", "id", "name", "label"]);
 function worldTexts(state, pack) {
   const out = [];
@@ -688,6 +698,7 @@ function worldTexts(state, pack) {
   for (const r of state.rules) collectTexts(r, r.id, pack, out);
   for (const [name, effects] of Object.entries(state.changes || {})) collectTexts(effects, "change " + name, pack, out);
   for (const [id, p] of Object.entries(state.puzzles || {})) collectTexts(p, id, pack, out);
+  for (const [id, c] of Object.entries(state.conditions || {})) collectTexts(c, "condition " + id, pack, out);
   return out;
 }
 
@@ -1036,6 +1047,67 @@ function answerWarnings(state, pack) {
   return out;
 }
 
+// ---- Conditions ---------------------------------------------------------------------------------------------------
+// The conditions a world declares (`add condition`: js/conditions.js; BRIEF.md §8, "Conditions the player is in"):
+//   - every `start`, `stop` and `player.conditions` names a declared one (refused in play otherwise: a problem);
+//   - every one can end: it `lasts`, has an `until`, or some rule or change stops it (a problem otherwise);
+//   - one that hurts as it ticks and could take all your health before it ends by itself must leave time to reach its
+//     cure (a rule that stops it): best effort, in turns only. From full health it kills in (5 / hurt, rounded up) ticks, at
+//     the shortest gap; the cure is reached from the room of the rule that starts it (its `player.at`) by the shortest walk
+//     to the room of a rule that stops it, plus one command. Fewer turns than that, or no cure at all, is a problem; a cure whose room the checker
+//     can't tell, or a condition timed in seconds, is not judged (the limit: it doesn't play the way there, nor count health
+//     already lost);
+//   - one declared and never started (no `start` of it anywhere) is warned of.
+// And every picture filter a rule turns on or off is one there is, written as js/filters.js says (refused in play otherwise).
+function conditionChecks(state, arrived, problems, warnings) {
+  const declared = state.conditions || {}, started = new Map(), stopped = new Map();
+  for (const { effect: e, where } of effectsOf(state)) for (const [k, seen] of [["start", started], ["stop", stopped]]) {
+    if (!(k in e) || typeof e[k] !== "string" || e[k].startsWith("$")) continue;
+    if (!declared[e[k]]) problems.push(`${where}: ${k}s "${e[k]}", which isn't a condition the world declares${suggest(e[k], Object.keys(declared))}`);
+    else (seen.get(e[k]) ?? seen.set(e[k], []).get(e[k])).push(where);
+  }
+  for (const { effect: e, where } of effectsOf(state)) for (const k of ["filter", "unfilter"]) {
+    if (!(k in e) || (typeof e[k] === "string" && e[k].startsWith("$"))) continue;
+    const why = filterProblem(e[k], { off: k === "unfilter" });
+    if (why) problems.push(`${where}: ${k}: ${why}`);
+  }
+  const readers = [...state.rules.map(r => [r.id, r]), ...Object.entries(state.changes || {}).map(([id, x]) => ["change " + id, x]),
+                   ...Object.entries(state.world.rooms), ...Object.entries(declared).map(([id, c]) => ["condition " + id, c])];
+  for (const [where, piece] of readers)
+    for (const m of JSON.stringify(piece ?? null).matchAll(/"player\.conditions":\{"(?:has|=|!=)":"([^"]*)"\}/g))
+      if (!declared[m[1]]) problems.push(`${where}: asks about the condition "${m[1]}", which the world doesn't declare${suggest(m[1], Object.keys(declared))}`);
+  // The room a rule (or a change, through the rules that run it) acts in, when its `if` names one.
+  const roomOf = (where) => {
+    const r = state.rules.find(x => x.id === where), name = String(where).replace(/^change /, "");
+    const at = r ? (r.if || []).find(c => typeof c?.["player.at"] === "string")?.["player.at"] : undefined;
+    if (at && state.world.rooms[at]) return at;
+    if (!r && state.changes?.[name]) for (const x of state.rules) if (JSON.stringify(x.do).includes(`"change":"${name}"`)) { const a = roomOf(x.id); if (a) return a; }
+    return null;
+  };
+  for (const [id, c] of Object.entries(declared)) {
+    const cures = stopped.get(id) || [];
+    if (!c.lasts && !Array.isArray(c.until) && !cures.length) problems.push(`condition ${id}: nothing ends it: give it lasts (turns or seconds), an until, or a rule that stops it ({ "stop": "${id}" })`);
+    if (!started.has(id)) warnings.push(`condition ${id}: declared, but nothing starts it ({ "start": "${id}" })`);
+    const h = c.health;
+    // A condition that heals as it ticks heals as often as it can be started: like a heal, it is limited (BRIEF.md §5).
+    if (h && "heal" in h) for (const where of started.get(id) || []) {
+      const r = state.rules.find(x => x.id === where);
+      if (r && !limited(r, state)) warnings.push(`condition ${id}: it heals as it ticks, and ${where} can start it again and again, so the player can heal for ever; make the rule once, or have it use something up`);
+    }
+    if (!h || !("hurt" in h) || !h.every?.turns || !Number.isInteger(h.hurt) || h.hurt < 1) continue;
+    const ticks = Math.ceil(5 / h.hurt), kills = ticks * h.every.turns[0];   // the fewest turns in which it can take all of you
+    if (c.lasts?.turns && Math.floor(c.lasts.turns[1] / h.every.turns[0]) < ticks) continue;   // it ends by itself first
+    if (!cures.length && !Array.isArray(c.until)) { problems.push(`condition ${id}: it hurts as it ticks and can take all your health in ${kills} turns, and nothing stops it in time`); continue; }
+    const to = cures.map(roomOf).filter(Boolean);
+    for (const where of started.get(id) || []) {
+      const from = roomOf(where);
+      if (!from || !to.length) continue;
+      const walk = Math.min(...to.map(t => (t === from ? [] : route(arrived, from, t))?.length ?? Infinity));
+      if (walk + 1 >= kills) problems.push(`condition ${id}: started by ${where} in ${from}, it can take all your health in ${kills} turns, but its cure is ${walk === Infinity ? "out of reach" : walk + 1 + " turns away"}`);
+    }
+  }
+}
+
 // The opening's contract (BRIEF.md §3), checked from its start: what the engine needs to build it (js/opening.js), and
 // what only play shows: the way on held back with each thing missing and leading into the world with both, by words
 // and by going that way; the hints thing framing its hint; the intro saying its text and
@@ -1233,8 +1305,11 @@ class Run {
       if (this.problem) return;
       path = route(this.state, this.state.player.at, room);
     }
-    for (const dir of path) {
-      const here = this.state.player.at, raw = this.state.world.rooms[here].exits[dir];
+    // One step at a time: a condition may turn you the wrong way (js/movement.js), and then the walk goes on from wherever you
+    // are (a wrong turn only ever leads to a room you have been to, so there is always a way back).
+    for (let steps = 0; path?.length && !this.problem; steps++) {
+      if (steps > 60) return this.fail(`can't get from ${this.state.player.at} to ${room}: the walk keeps going astray`);
+      const dir = path[0], here = this.state.player.at, raw = this.state.world.rooms[here].exits[dir];
       if (isExitObject(raw) && !exitNow(this.state, here, dir).go) {     // shut: wait for its hour (the clock moves, as a puzzle's `time` does)
         const later = opensByWaiting(this.state, here, dir);
         if (!later) return this.fail(`${dir} from ${here} is shut, and waiting doesn't open it`);
@@ -1242,6 +1317,11 @@ class Run {
       }
       this.type(this.pack.words.dirs[dir][0]);
       if (isExitObject(raw) && !this.problem && this.state.player.at === here) return this.fail(`${dir} from ${here}: the way stays shut`);
+      if (this.problem || this.state.ended) return;
+      const at = this.state.player.at;
+      if (at === exitTo(raw) || at === here) { path = path.slice(1); continue; }   // as planned (or held here: on with the walk as written)
+      path = route(this.state, at, room);                                          // astray: the way from here
+      if (!path) return this.fail(`can't get from ${at} to ${room}`);
     }
   }
 }

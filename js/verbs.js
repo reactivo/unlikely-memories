@@ -68,6 +68,9 @@ const rules = [
   // Asking someone about a topic: their line for it; a topic they don't have: their `default`, or a neutral reply.
   { id: "std_ask_topic", match: { verb: "ask" }, if: [{ "$topic": { "!=": null } }, { "$obj.topics.$topic.says": { "!=": null } }],
     do: [{ say: "$obj.topics.$topic.says" }, { know: "$obj.topics.$topic.opens" }] },
+  // A condition that holds your tongue (js/speech.js, `answer`): what anyone answers to what they have no answer for.
+  { id: "std_ask_condition", match: { verb: "ask" }, if: [{ "$topic": { "!=": null } }, { "$obj.topics": { "!=": null } }, { "$speech.answer": { "!=": null } }],
+    do: [{ say: "$speech.answer" }] },
   { id: "std_ask_default", match: { verb: "ask" }, if: [{ "$topic": { "!=": null } }, { "$obj.topics.default": { "!=": null } }],
     do: [{ say: "$obj.topics.default" }] },
   { id: "std_ask_unknown", match: { verb: "ask" }, if: [{ "$topic": { "!=": null } }], do: [{ say: "@noTopic", vary: true }] },

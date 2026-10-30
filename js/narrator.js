@@ -28,7 +28,7 @@ export function tell(applied, state, pack) {
     if (e.hint) out.push({ text: timed(pack.framed(text(e.hint, pack), hintText(e, pack)), state, pack) });   // the world's frame, then the hint
     if (e.describe === "inventory") out.push({ text: inventory(state, pack) });
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
-    else if (e.describe === "status") out.push(statusLine(state, pack));
+    else if (e.describe === "status") out.push(statusLine(state, pack), ...conditionsLine(state, pack));
     else if (e.describe) out.push(...describe(state, e.describe, pack));
     if (e.aside) for (let i = from; i < out.length; i++) out[i] = { ...out[i], style: styled(out[i].style) };   // the world's own: set apart
   }
@@ -107,6 +107,13 @@ const statusHealth = (state) => Math.min(5, Math.max(1, Math.round(state.player.
 export function statusLine(state, pack) {
   const level = statusHealth(state);
   return { text: statusNow(state, pack), style: "status " + (level >= 4 ? "status-healed" : "status-hurt"), level };
+}
+
+// STATUS, under the health line: the conditions you are in, each its world's own `status` phrase, framed by the pack
+// (statusConditions), in the dim echo style, close under the line before it. Nothing when you are in none.
+export function conditionsLine(state, pack) {
+  const list = Object.keys(state.player.conditions || {}).map(id => state.conditions?.[id]?.status).filter(x => typeof x === "string");
+  return list.length ? [{ text: timed(text("@statusConditions", pack, list.map(x => text(x, pack))), state, pack), style: "echo text-echo echo-condition" }] : [];
 }
 
 // A thing's name inside a sentence ("You are carrying: tin of mints."): lower case first letter only if the language does

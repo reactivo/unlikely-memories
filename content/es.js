@@ -62,9 +62,13 @@ export default {
     return d.weekday ? `Hoy es ${d.weekday}, ${d.time}, ${day} de tu aventura.` : `Son las ${d.time}, ${day} de tu aventura.`;
   },
   // Una frase por paso de salud (índice 1 a 5), común a STATUS y a los ecos (INTERFACE.md §6c). Ninguna nombra una causa.
-  health: ["Estás muerto", "Apenas te tienes en pie", "Te sientes fatal", "Te encuentras mal", "No estás del todo bien", "Te sientes muy bien"],
+  health: ["Has muerto", "Apenas te tienes en pie", "Te sientes fatal", "Te encuentras mal", "No estás del todo bien", "Te sientes muy bien"],
   // STATUS: d = { health: el paso, de 5 a 1 }.
   statusNow(d) { return this.health[d.health] + "."; },
+  // STATUS, bajo la línea de la salud: los estados en que estás (js/conditions.js), cada uno con su frase `status` del mundo.
+  statusConditions(list) { return list.map(s => s + ".").join(" "); },
+  // Lo que dices mientras un estado te traba la lengua (js/speech.js): cómo te sale, t.
+  slurred: (t) => `Te sale así: «${t}».`,
   weekdays: { mon: "lunes", tue: "martes", wed: "miércoles", thu: "jueves", fri: "viernes", sat: "sábado", sun: "domingo" },
   onlyMentioned: () => "No hay nada más que hacer con eso.",   // nombrado en el texto, sin más que contar
   noIt: "No sé muy bien a qué te refieres.",
@@ -214,7 +218,7 @@ export default {
     lie: ["No es sitio para tumbarse.", "Prefieres seguir de pie."],
     stand: ["Ya estás de pie.", "Estás de pie."],
     sleep: ["No tienes sueño.", "No es momento de dormir.", "Cierras los ojos un momento. Nada cambia."],
-    wake: ["Ya estás despierto.", "Aquí no duerme nadie."],
+    wake: ["Ya tienes los ojos bien abiertos.", "Aquí no duerme nadie."],
     wait: ["Pasa el tiempo.", "Esperas.", "Pasa un momento."],
     talk: ["No hay nadie con quien hablar.", "Nadie contesta.", "Silencio."],
     ask: ["No hay nadie a quien preguntar.", "Nadie contesta.", "Ninguna respuesta."],
