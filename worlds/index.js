@@ -14,13 +14,15 @@ import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js";
 import seaEs, { bible as seaBibleEs } from "./sea/world.es.js";
 import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js";
 import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js";
+import meridian, { bible as meridianBible } from "./meridian/world.en.js";
 import { parseShapes } from "../js/picture.js";
 
 export const WORLDS = {
   sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
   tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", bible: { es: tuesdayBibleEs }, text: { en: tuesday, es: tuesdayEs } },   // "The Train to Tuesday"
   hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
-  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } }      // "The Last Word on Lantern Row"
+  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } },      // "The Last Word on Lantern Row"
+  meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", text: { en: meridian } }      // "Please Remain Present"
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).
