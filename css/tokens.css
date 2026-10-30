@@ -61,7 +61,7 @@
     --color-mark:          var(--palette-stone-600);  /* small marks around or between things: brackets, the compass dot */
     --color-highlight:     var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
-    --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health (the only red) */
+    --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health, and the death lines */
     --color-healed:        var(--palette-green-400);  /* the echo when you get health back */
 
     /* ---- Text sizes ----

@@ -15,11 +15,12 @@ export function tell(applied, state, pack) {
       // name: a thing, named in this language; things: several, with their gender and number, in order
       const arg = e.things ? e.things.map(id => listName(id, state, pack)) : e.name ? listName(e.name, state, pack) : e.arg;
       const who = e.things ? e.things.map(id => whoOf(state.world.objects[id])) : e.who;
+      // The death lines (the cause's words and one of the pack's lines, one paragraph) have their own style: red (log.css).
       let said = timed(text(e.say, pack, arg, e.pick, e.prev, who), state, pack, e.at, e.vals);
       if (e.confirm) said += " " + text("@yesNo", pack);                  // a question: "… <YES> / <NO>", always
       // A blank line in a text starts a new paragraph (HELP's groups, LOAD's details), spaced like any other.
       String(said).split(/\n\s*\n/).forEach((part, i) =>
-        out.push(clean({ text: part, style: e.style, img: i === 0 ? e.img : undefined })));
+        out.push(clean({ text: part, style: e.say === "@hurt.dead" ? "death" : e.style, img: i === 0 ? e.img : undefined })));
     }
     // An echo of what just happened to you (INTERFACE.md §6c): its own short line, styled by its kind.
     // A health echo (e.level) also carries the level its line describes, for the bars before it.

@@ -116,6 +116,11 @@
       color: var(--echo-hurt);
     }
 
+    /* The death lines (js/narrator.js gives that paragraph "death"): in the hurt colour, the cause's words included. */
+    & .death {
+      color: var(--echo-hurt);
+    }
+
     & .echo-healed {
       color: var(--echo-healed);
     }
