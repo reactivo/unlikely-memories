@@ -1,6 +1,6 @@
 // Inventory: fills the slots in order with what you carry. Clicking an item examines it, then suggests actions.
 // After a turn, a new item drops into its slot and one that leaves sinks away (the look: inventory.css; the
-// timing: tokens.css). A restore (new game, language change) shows the inventory at once. Once the story has ended the
+// timing: tokens.css). A restore (new game, undo, a loaded game) shows the inventory at once. Once the story has ended the
 // items are dim and don't respond (the game is locked).
 
 import { itemSVG } from "./sprite.js";
@@ -16,7 +16,7 @@ export function mount(root, on) {
     slots.forEach((slot, i) => {
       slot.innerHTML = "";
       const id = carrying[i], obj = state.world.objects[id];
-      const name = pack.items[id]?.name ?? (obj?.name ? text(obj.name, pack) : null);   // the pack's, or the world's
+      const name = obj?.name ? text(obj.name, pack) : null;   // the world's own name
       if (!id || !name) return;                             // empty slot
       const b = document.createElement("button");           // the item: a button with its sprite
       b.type = "button"; b.className = "item";
@@ -42,7 +42,7 @@ export function mount(root, on) {
       if (!langChanged && before.join() === carrying.join()) return;
       const moving = prev && reason !== "restore";
       const arrived = moving ? carrying.filter(id => !before.includes(id)) : [];
-      const leaving = moving ? [...root.querySelectorAll(".item")].filter((b, i) => !carrying.includes(before[i])) : [];
+      const leaving = moving ? [...root.querySelectorAll(".item")].filter((_, i) => !carrying.includes(before[i])) : [];
       drawn = { carrying, pack: next.pack };
       if (!leaving.length) return fill(carrying, next.pack, arrived, next.state);
       // Let leaving items sink away first (no animation with reduced motion: then straight on).

@@ -17,7 +17,7 @@
   .log {
     /* Colours and marks in the story, by meaning (the command and object markers below inherit these). */
     --typed:        var(--color-text-dim);    /* your own command, repeated as typed */
-    --hint:         var(--color-text-dim);    /* dim lines: the help hint, suggestions, the prototype's end */
+    --hint:         var(--color-text-dim);    /* dim lines: the game's own (help, the end's note, questions), suggestions */
     /* Echoes (INTERFACE.md §6c): the short line under the story text after a change to your health. */
     --echo-hurt:    var(--color-hurt);        /* you lost health */
     --echo-healed:  var(--color-healed);      /* you got some back */
@@ -26,7 +26,7 @@
     --object:       var(--color-text);        /* an object's name: looks like the story text… */
     --object-mark:  var(--color-highlight);   /* …with a small mark after it, in this colour… */
     --object-sign:  "+";                      /* …this character (m5x7's own plus)… */
-    /* …spaced to sit snugly after the word (--object-sign-gap and --object-sign-trim: typography.css). */
+    /* …nudged to sit snugly after the word (--object-sign-top and --object-sign-left: typography.css). */
     --object-hover: var(--color-highlight);   /* the name under the pointer */
     --past:         var(--color-text-dim);    /* everything in rooms you've left: one grey, like your echoed commands */
 
@@ -283,7 +283,7 @@
 
     /* Spacing that follows the text's own size (em; values in typography.css). */
     &::after {
-      position:relative;
+      position: relative;
       content: var(--object-sign);
       color: var(--object-mark);
       top: var(--object-sign-top);

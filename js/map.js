@@ -86,7 +86,7 @@ function layout(state) {
 }
 
 // A room's name on the map: its own (in the pack's words if it is a key), else the pack's, else its id.
-const nameOf = (room, id, pack) => (room?.name ? text(room.name, pack) : pack?.place ?? id);
+const roomName = (room, id, pack) => (room?.name ? text(room.name, pack) : pack?.place ?? id);
 
 // The map of the room you are in:
 //   { level, opening, rooms: [{ id, name, x, y, current }], lines: [[a, b]], stubs: [{ room, dir }] }
@@ -97,7 +97,7 @@ const nameOf = (room, id, pack) => (room?.name ? text(room.name, pack) : pack?.p
 // names are the world's own text.
 export function mapOf(state, pack) {
   const L = layout(state), rooms = state.world.rooms, here = state.player.at;
-  const list = [...L.placed].map(([id, p]) => ({ id, name: nameOf(rooms[id], id, pack), x: p.x, y: p.y, current: id === here }))
+  const list = [...L.placed].map(([id, p]) => ({ id, name: roomName(rooms[id], id, pack), x: p.x, y: p.y, current: id === here }))
     .sort((a, b) => a.y - b.y || a.x - b.x || (a.id < b.id ? -1 : 1));
   const lines = [], seen = new Set();
   for (const { from, to } of L.edges) {

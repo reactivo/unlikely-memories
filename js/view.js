@@ -1,17 +1,22 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
-import { carries } from "./state.js";
-import { text, tell, listName } from "./narrator.js";
+import { text, tell, listName, nameOf, joined } from "./narrator.js";
 import { parse, inScope } from "./parser.js";
 import { answers } from "./engine.js";
 import { carried, within, receives } from "./use.js";
 
 // Is this command worth offering now: would it be read, accepted, and answered by a rule or the thing itself (not a
 // verb's stock reply)? A command that names someone who isn't here, or does nothing, isn't shown.
-export function worthOffering(command, state, t) {
+function worthOffering(command, state, t) {
   const r = parse(command, state, t);
   if (r.error?.scenery) return true;
   return !!r.actions && answers(state, r.actions).meaningful;
+}
+
+// Everything you've come across: held, seen, visited, or an idea brought up (a topic about it can be offered).
+function known(state) {
+  const s = state.seen || {};
+  return new Set([...(s.held || []), ...(s.things || []), ...(s.visited || []), ...(s.ideas || [])]);
 }
 
 // The topics someone offers to talk about: their own (those they have an answer for), about things you've come
@@ -21,10 +26,9 @@ export function worthOffering(command, state, t) {
 export function offeredTopics(state, id) {
   const topics = state.world.objects[id]?.topics;
   if (!topics) return [];
-  const s = state.seen || {}, known = new Set([...(s.held || []), ...(s.things || []), ...(s.visited || []), ...(s.ideas || [])]);
-  const asked = new Set(state.asked?.[id] || []);
+  const seen = known(state), asked = new Set(state.asked?.[id] || []);
   return Object.entries(topics)
-    .filter(([k, t]) => k !== "default" && t && typeof t === "object" && !asked.has(k) && (t.open || known.has(t.about ?? k)))
+    .filter(([k, t]) => k !== "default" && t && typeof t === "object" && !asked.has(k) && (t.open || seen.has(t.about ?? k)))
     .map(([k, t]) => ({ key: k, label: t.label ?? t.words?.[0] ?? k }));
 }
 
@@ -37,25 +41,24 @@ export function topicsLine(state, t, id) {
   const topics = state.world.objects[id]?.topics;
   if (!topics) return null;
   const offered = offeredTopics(state, id).filter(x => worthOffering(text("@askAbout", t, x.label), state, t)).slice(0, 5);
-  const own = state.world.objects[id];
-  const name = t.objects[id]?.name ?? (own?.name ? text(own.name, t) : id);
+  const name = nameOf(id, state, t);
   if (!offered.length) {
-    const s = state.seen || {}, known = new Set([...(s.held || []), ...(s.things || []), ...(s.visited || []), ...(s.ideas || [])]);
-    const hidden = Object.entries(topics).some(([k, x]) => k !== "default" && x && typeof x === "object" && !x.open && !known.has(x.about ?? k));
+    const seen = known(state);
+    const hidden = Object.entries(topics).some(([k, x]) => k !== "default" && x && typeof x === "object" && !x.open && !seen.has(x.about ?? k));
     return text("@talkedOut", t, { name, forNow: hidden });
   }
-  const a = offered.map(x => "`" + text("@askAbout", t, x.label) + "`");
-  const list = a.length > 1 ? a.slice(0, -1).join(", ") + t.or + a.at(-1) : a[0];
-  return name + ": " + list + ".";
+  return name + ": " + joined(offered.map(x => "`" + text("@askAbout", t, x.label) + "`"), t.or) + ".";
 }
 
-// What a thing shows about itself: its inventory side (when carried: `heldActions`) and its room side, from the pack
-// (`items`, `objects`) or the world's own fields.
+// Is it in your hands (in the inventory's slots, not inside something you carry)?
+const carries = (state, id) => state.player.carrying.includes(id);
+
+// What a thing shows about itself, from its own fields: its inventory side (when carried: `heldActions`) and its room side.
 function sources(state, t, id) {
   const own = state.world.objects[id];
-  const worldItem = own && own.name && { name: text(own.name, t), actions: own.heldActions || own.actions || [] };
-  const worldObj = own && own.name && { name: text(own.name, t), note: own.note && text(own.note, t), actions: own.actions || [] };
-  return { item: t.items[id] || worldItem, obj: t.objects[id] || worldObj };
+  const item = own && own.name && { name: text(own.name, t), actions: own.heldActions || own.actions || [] };
+  const obj = own && own.name && { name: text(own.name, t), note: own.note && text(own.note, t), actions: own.actions || [] };
+  return { item, obj };
 }
 
 // The line shown when an object or item is clicked: "Name: note. <ACTION>, <ACTION> or <ACTION>."
@@ -79,8 +82,7 @@ export function suggestion(state, t, id, fromInventory, examined = false) {
   if (examined) note = null;
   const a = actions.map(x => "`" + x + "`");                                    // each action as a <COMMAND>
   if (!a.length) return src.name + (note ? ": " + note.replace(/\.$/, "") : "") + ".";   // nothing to suggest
-  const list = a.length > 1 ? a.slice(0, -1).join(", ") + t.or + a[a.length - 1] : a[0];   // "A, B or C"
-  return src.name + ": " + (note ? note + " " : "") + list + ".";
+  return src.name + ": " + (note ? note + " " : "") + joined(a, t.or) + ".";   // "A, B or C"
 }
 
 // ---- USE on its own ----------------------------------------------------------------------------------------------------
@@ -94,7 +96,7 @@ export function suggestion(state, t, id, fromInventory, examined = false) {
 export function useLine(state, t, id) {
   const objects = state.world.objects, own = objects[id];
   if (!own || !t.useWith) return null;
-  const noun = (x) => t.names?.[x]?.nouns?.[0] ?? objects[x]?.words?.nouns?.[0];
+  const noun = (x) => objects[x]?.words?.nouns?.[0];
   const here = Object.keys(objects).filter(x => x !== id && inScope(state, x));
   const pairs = [];                                   // { command, verb, a, b }: the action, with its two things
   const offer = (verb, a, b) => { if (noun(a) && noun(b)) pairs.push({ command: t.useWith[verb](noun(a), noun(b)), verb, a, b }); };
@@ -114,8 +116,7 @@ export function useLine(state, t, id) {
   const commands = [...pairs.filter(worth).map(p => p.command), ...(src?.actions || []).filter(x => worthOffering(x, state, t))];
   const list = [...new Set(commands)].slice(0, 5).map(x => "`" + x + "`");
   if (!list.length) return null;
-  const said = list.length > 1 ? list.slice(0, -1).join(", ") + t.or + list.at(-1) : list[0];
-  return text("@useHow", t, { name: listName(id, state, t), list: said }, undefined, undefined, own.words);
+  return text("@useHow", t, { name: listName(id, state, t), list: joined(list, t.or) }, undefined, undefined, own.words);
 }
 
 // What a turn said, as story paragraphs: the narrator's, and for USE alone (the engine's `useHow`) what you could do with the

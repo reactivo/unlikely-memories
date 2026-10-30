@@ -7,8 +7,8 @@
 // compass, M included, is dim and ignores clicks and Tab (the game is locked).
 
 import { exitTo } from "../js/exits.js";
+import { DIRECTIONS } from "../js/space.js";
 
-const DIRS = ["n", "s", "e", "w", "u", "d", "in", "out"];
 const CORNERS = ["in", "out", "u", "d"];
 
 // Set up the compass on its element. Returns update().
@@ -61,4 +61,4 @@ export function mount(root, on) {
 // The exits of the room you're in: where each leads (a conditional exit as the room it leads to, shut or not).
 const exitsOf = (state) => Object.fromEntries(Object.entries(state.world.rooms[state.player.at].exits || {}).map(([d, x]) => [d, exitTo(x)]));
 // Are the same exits open in a and b?
-const sameExits = (a, b) => DIRS.every(d => !!a[d] === !!b[d]);
+const sameExits = (a, b) => DIRECTIONS.every(d => !!a[d] === !!b[d]);

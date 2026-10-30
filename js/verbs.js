@@ -8,6 +8,10 @@ import { ACTIONS, BUILT_IN } from "./actions.js";
 
 const reachable = { "$obj.place": { in: ["$here", "player"] } };   // in the room or carried (or inside those)
 const reachable2 = { "$obj2.place": { in: ["$here", "player"] } };  // the same for the action's second object
+// What examining a thing says: its `examine` (and picture), and the ideas it brings up (`opens`: the decree → "monday", so
+// characters can be asked about them). Reading and searching say the same when nothing else answers them.
+const examined = [{ say: "$obj.examine", img: "$obj.img" }, { know: "$obj.opens" }];
+const describes = [reachable, { "$obj.examine": { "!=": null } }];   // in reach, with an `examine` of its own
 
 // Actions a thing can answer with a property of the same name ({ take: "It's tied to the post." }, { talk: [ … ] }).
 // Not these: `open` is a state, and the others are handled in full below.
@@ -80,9 +84,7 @@ const rules = [
   { id: "std_status", match: { verb: "status" }, do: [{ describe: "status" }] },
 
   // Examine: the object's own description (and picture), or "nothing special".
-  // (`opens`: ideas the description brings up, so characters can be asked about them: the decree → "monday".)
-  { id: "std_examine", match: { verb: "examine" }, if: [reachable, { "$obj.examine": { "!=": null } }],
-    do: [{ say: "$obj.examine", img: "$obj.img" }, { know: "$obj.opens" }] },
+  { id: "std_examine", match: { verb: "examine" }, if: describes, do: examined },
   { id: "std_examine_plain", match: { verb: "examine" }, if: [reachable], do: [{ say: "@nothingSpecial" }] },
 
   // Take: already carried; portable and here (or in something here); or fixed in place.
@@ -119,8 +121,7 @@ const rules = [
   { id: "std_use_with", match: { verb: "use" }, do: [{ useAs: "pair" }] },
 
   // Read: like examining, unless a game rule says what's written.
-  { id: "std_read", match: { verb: "read" }, if: [reachable, { "$obj.examine": { "!=": null } }],
-    do: [{ say: "$obj.examine", img: "$obj.img" }, { know: "$obj.opens" }] },
+  { id: "std_read", match: { verb: "read" }, if: describes, do: examined },
 
   // Go: through an exit that leads to a room; a closed or missing exit is wall. A shut way with a line of its own
   // (an exit `{ to, if, closed }`) says it; one without gets the standard "no way".
@@ -129,11 +130,15 @@ const rules = [
   { id: "std_go", match: { verb: "go" }, do: [{ travel: "$exit" }, { describe: "$here" }] },
 
   // Searching or looking in something with no answer of its own: what you see when you examine it.
-  { id: "std_search", match: { verb: "search" }, if: [reachable, { "$obj.examine": { "!=": null } }], do: [{ say: "$obj.examine", img: "$obj.img" }, { know: "$obj.opens" }] },
+  { id: "std_search", match: { verb: "search" }, if: describes, do: examined },
 
   // Every other action: its standard reply (and read, when there's nothing to read).
   ...Object.keys(ACTIONS).filter(a => !BUILT_IN.has(a) || a === "read")
     .map(a => ({ id: "std_reply_" + a, match: { verb: a }, do: [{ say: "@replies." + a, vary: true }] })),
+
+  // An answer to a question for words (`ask`) that no rule of the world catches: a plain reply. (A yes/no question's
+  // answer never gets here: the engine runs it first.)
+  { id: "std_unheard", match: { verb: "answer" }, do: [{ say: "@answerUnheard" }] },
 
   // Anything else.
   { id: "std_unknown", match: {}, do: [{ say: "@unsure", vary: true }] }
@@ -143,5 +148,5 @@ const rules = [
 // by one of these isn't worth offering ("Did you mean…?", suggestion lines): nothing in the world answers it.
 const GENERIC = new Set(["std_in_already", "std_not_in", "std_locked_plain", "std_wait_nothing", "std_ask_unknown",
   "std_examine_plain", "std_take_not_in", "std_take_have", "std_take_fixed", "std_drop_not", "std_go_blocked", "std_unknown",
-  "std_put_not_carried", "std_put_inside", "std_put_closed", "std_use_alone"]);
+  "std_put_not_carried", "std_put_inside", "std_put_closed", "std_use_alone", "std_unheard"]);
 export default rules.map(r => (GENERIC.has(r.id) || r.id.startsWith("std_reply_") ? { ...r, generic: true } : r));

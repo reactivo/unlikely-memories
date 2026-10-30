@@ -41,10 +41,7 @@
     --palette-amber-300:  #e8c46a;   /* soft amber */
     --palette-yellow-300: #f2d25c;
     --palette-red-400:    #e0645a;   /* soft red: bright enough on near black, not alarm red */
-    --palette-amber-400:  #d99a52;   /* warm amber, browner than the focus ring's */
     --palette-green-400:  #8cc97a;   /* soft green */
-    --palette-green-200:  #b8d98e;   /* light green */
-
 
 
     /* ---- Colour roles: what each colour is FOR, anywhere in the game. ----
@@ -103,13 +100,16 @@
 
     /* ---- Durations ----
        Motion that shows a change in the game (an item arriving, an exit opening…): the timing is here, the look is
-       in the piece's own CSS (its @keyframes), and the script only says *that* something changed. Everything stops
-       with the system's reduce motion setting; restores (new game, language change) don't move. */
+       in the piece's own CSS (its @keyframes), and the script only says *that* something changed. Then the two steady
+       blinks (the cursor, the clock's colons). Everything stops with the system's reduce motion setting; restores (new
+       game, undo, a loaded game) don't move. */
     --duration-phrase:      450ms;   /* each phrase of story text fades in over this time (ui/log.css; gaps in ui/log.js) */
     --duration-arrive:      420ms;   /* an item appearing in its inventory slot (ui/inventory.css) */
     --duration-depart:      300ms;   /* an item leaving its slot (ui/inventory.css) */
     --duration-exit-change: 720ms;   /* an exit that opens or closes blinks (ui/compass.css) */
     --duration-fold:        250ms;   /* the picture on an upright phone folds to the whole scene, or opens to its crop (css/layout.css) */
+    --duration-cursor:      1.06s;   /* the command line's block cursor blinks once (ui/prompt.css) */
+    --duration-colon:       2s;      /* the clock's colons blink once (ui/titlebar.css) */
 
 
     /* ---- The map's sizes (ui/map.css) ----

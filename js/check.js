@@ -4,12 +4,12 @@
 // touches the page; used by the tests now, and later to check a world the AI builds before it's played.
 //
 // Also: the world's opening keeps the contract of BRIEF.md §3 (checkOpening below): its room in an area of its own,
-// two things to take and one carried, the way on held back and then leading into the world, the lines said, no
+// one thing to take (the hints thing) and one carried (the intro), the way on held back and then leading into the world, the lines said, no
 // word of the three things used by anything else.
 //
 // Also: the ending's picture (BRIEF.md §7): every `end` effect names a picture the world has, a world that can hurt the player
 // has a `died` picture (the one the story ends with when health runs out), and each picture in `state.pictures` is well formed
-// and described (`alt`, in the world file: the ending's `add picture`).
+// and described (`alt`, in the world file: the ending's `add picture`). Every room's picture is held to the same drawing checks.
 //
 // Also: pictures are language-free (ART-DIRECTION.md §5). No picture, room's or ending's, carries an `alt` of its own, nor any of
 // its overlays: the world file says what they look like, in its language (the room's `alt`; its `overlayAlt` for each overlay;
@@ -19,6 +19,9 @@
 // world has (commandProblems); a room's text that names one of its scenery nouns with an obvious verb nothing answers is warned of
 // (sceneryVerbWarnings); and a world written in a language whose pack lists regional words (`words.regional`: Spanish from Spain) is warned
 // of a word of the other region, with the preferred one (regionalWarnings).
+//
+// Also: questions for words (BRIEF.md §8): an `ask` that no rule catches, and player.answers.<key> read where nothing asks "<key>",
+// are warned of (answerWarnings).
 //
 // Also: an exit with a condition (`{ to, if, closed }`) is well formed, and can open: the playthrough waits for the hour
 // of a timed one, and a way no property or hour could ever open is warned of (neverOpen below).
@@ -36,16 +39,24 @@
 //
 //   check(state, pack, bible?) → { ok, problems: [...], warnings: [...], endings: { id: [commands played] } }
 
-import { parse, normalise } from "./parser.js";
+import { parse, normalise, inScope } from "./parser.js";
 import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js";
-import { placeOf } from "./use.js";
+import { placeOf, isAction } from "./use.js";
 import { solveCommand } from "./narrator.js";
 import { isExitObject, exitTo, exitConditions } from "./exits.js";
 import { moveTo, worldTime, parts } from "./time.js";
-import { inScope } from "./parser.js";
 import * as opening from "./opening.js";
-import { TEXT_WORDS, PROPERTY_WORD, FIELDS, suggest, conditionProblems } from "./fields.js";
+import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf } from "./fields.js";
 import art from "../content/art.js";
+
+// The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
+const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
+// A text with its objects' markup taken out ({tin of mints|tin} → tin of mints).
+const unmarked = (t) => String(t).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1");
+// A rule's effects with each named change it runs written out after it (one level: what the rule itself does).
+const withChanges = (state, effects) => (effects || []).flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]);
+// A "@key" as the pack's own text (any other value as it is).
+const packText = (x, pack) => (typeof x === "string" && x.startsWith("@") ? x.slice(1).split(".").reduce((v, k) => v?.[k], pack) : x);
 
 export function check(state, pack, bible) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)
@@ -114,7 +125,7 @@ export function check(state, pack, bible) {
     for (const [dir, raw] of Object.entries(room.exits || {})) {
       const to = exitTo(raw);
       if (typeof to !== "string" || badExits.has(id + "." + dir)) continue;
-      let there = { ...arrived, player: { ...arrived.player, at: id } };
+      let there = inRoom(arrived, id);
       if (isExitObject(raw) && !exitNow(there, id, dir).go) {          // shut now: try it open (waiting for its hour)
         there = opensByWaiting(there, id, dir);
         if (!there) continue;                                           // held by something else: the playthrough, and neverOpen, say
@@ -135,14 +146,14 @@ export function check(state, pack, bible) {
     return g.player.at === to;
   };
   for (const [id, room] of Object.entries(arrived.world.rooms)) {
-    const there = { ...arrived, player: { ...arrived.player, at: id } };
+    const there = inRoom(arrived, id);
     for (const [dir, raw] of Object.entries(room.exits || {})) {
       const to = exitTo(raw);
       const name = typeof to === "string" && arrived.world.rooms[to]?.name;
       if (name && !isExitObject(raw) && !reaches(there, go + " " + name.toLowerCase(), to)) warnings.push(`${id}: "${go} ${name.toLowerCase()}" doesn't go ${dir} to ${to}`);
     }
     const leading = [...(room.scenery || []).map(x => ({ word: x.words?.[0], leads: x.leads })),
-      ...Object.entries(arrived.world.objects).filter(([oid, o]) => o.at === id && o.leads).map(([oid, o]) => ({ word: pack.names?.[oid]?.nouns?.[0] ?? o.words?.nouns?.[0], leads: o.leads }))];
+      ...Object.entries(arrived.world.objects).filter(([, o]) => o.at === id && o.leads).map(([, o]) => ({ word: o.words?.nouns?.[0], leads: o.leads }))];
     for (const { word, leads } of leading.filter(x => x.leads && x.word)) {
       if (!(leads in (room.exits || {}))) problems.push(`${id}: "${word}" leads ${leads}, but there's no way ${leads} from here`);
       else if (travels(there, climb + " " + word) !== leads) problems.push(`${id}: "${climb} ${word}" doesn't go ${leads}`);
@@ -169,7 +180,7 @@ export function check(state, pack, bible) {
   const look = pack.words.verbs.examine[0];
   const answers = (s, m) => { const r = parse(look + " " + m, s, pack); return !!(r.actions || r.error?.scenery); };
   for (const [id, room] of Object.entries(arrived.world.rooms)) {
-    const s = { ...arrived, player: { ...arrived.player, at: id } };
+    const s = inRoom(arrived, id);
     for (const m of room.mentions || []) if (!answers(s, m)) problems.push(`${id} mentions "${m}", but nothing there answers to it`);
   }
   for (const [id, o] of Object.entries(state.world.objects)) {
@@ -182,10 +193,9 @@ export function check(state, pack, bible) {
   }
   // Clicking an object in the story examines it with the words shown ({label|id}: "Examine label"), so each label,
   // read where it's shown (a room's text, or an object's `here` line in its room), must name that very object.
-  const read = (x) => typeof x === "string" && x.startsWith("@") ? x.slice(1).split(".").reduce((v, k) => v?.[k], pack) : x;
-  const marked = (line) => [...String(read(line) ?? "").matchAll(/\{([^|}]+)(?:\|([^}]+))?\}/g)].map(m => [m[1], m[2] ?? m[1]]);
+  const marked = (line) => [...String(packText(line, pack) ?? "").matchAll(/\{([^|}]+)(?:\|([^}]+))?\}/g)].map(m => [m[1], m[2] ?? m[1]]);
   const clicks = (where, lines) => {
-    const s = { ...arrived, player: { ...arrived.player, at: where } };
+    const s = inRoom(arrived, where);
     for (const [label, oid] of lines.flatMap(marked)) {
       if (!s.world.objects[oid]) { problems.push(`${where}: "{${label}|${oid}}" marks "${oid}", which isn't an object`); continue; }
       if (!inScope(s, oid)) continue;                // shut away for now (the oars in the hut): shown only once it's open
@@ -201,11 +211,11 @@ export function check(state, pack, bible) {
   // change with the lock that runs it) that moves an object into a room and names it in what it says must mark it there:
   // "the oars … slide gently onto the sand" left the oars as plain words until you looked again (the sea, Diego, 27 Oct 2026).
   // (Not in what someone says: "Tea always is", in quotes, is a word in a sentence, not the cup on the table.)
-  const plain = (line) => String(read(line) ?? "").replace(/\{[^}]*\}|`[^`]*`|"[^"]*"|«[^»]*»|“[^”]*”/g, " ").toLowerCase();
+  const plain = (line) => String(packText(line, pack) ?? "").replace(/\{[^}]*\}|`[^`]*`|"[^"]*"|«[^»]*»|“[^”]*”/g, " ").toLowerCase();
   const named = (line, word) => new RegExp(`(^|[^\\p{L}\\p{N}])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}\\p{N}])`, "u").test(plain(line));
   const saysOf = (effects) => effects.flatMap(e => [].concat(e?.say ?? [])).filter(x => typeof x === "string");
   const events = [
-    ...state.rules.map(r => ({ id: r.id, effects: (r.do || []).flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]) })),
+    ...state.rules.map(r => ({ id: r.id, effects: withChanges(state, r.do) })),
     ...Object.entries(state.changes || {}).map(([name, effects]) => ({ id: "change " + name, effects,
       texts: Object.entries(state.world.objects).filter(([, o]) => o.lock?.then === name && o.lock.opens).map(([, o]) => o.lock.opens) }))
   ];
@@ -234,7 +244,7 @@ export function check(state, pack, bible) {
         warnings.push(`${id}: topic "${key}" is about "${about}", which nothing brings up (opens, know): it's never offered`);
       const where = placeOf(state, id);
       if (!state.world.rooms[where]) continue;
-      const s = { ...state, player: { ...state.player, at: where }, talkingTo: id };
+      const s = { ...inRoom(state, where), talkingTo: id };
       const label = t.label ?? t.words?.[0] ?? key, r = parse(askAbout(label), s, pack);
       if (r.actions?.[0]?.topic !== key) problems.push(`${id}: "${askAbout(label)}" doesn't ask about "${key}" (its label isn't one of its words)`);
     }
@@ -248,7 +258,7 @@ export function check(state, pack, bible) {
     const w = thing.waitFor;
     if (w === undefined || w === null) continue;
     if (typeof w !== "object" || Array.isArray(w)) { problems.push(`${id}: waitFor must be { time, says, if? }`); continue; }
-    for (const k of Object.keys(w)) if (!["time", "says", "if"].includes(k)) problems.push(`${id}: waitFor has no "${k}" (it is { time, says, if? })`);
+    for (const k of Object.keys(w)) if (!FIELDS.waitFor.includes(k)) problems.push(`${id}: waitFor has no "${k}" (it is { time, says, if? })`);
     if (typeof w.time !== "string" || moveTo(w.time, 0).error) problems.push(`${id}: waitFor.time must be a time like "next 17:15" or "+5m"`);
     if (typeof w.says !== "string" || !w.says.trim()) problems.push(`${id}: waitFor.says is missing: the line said while you wait`);
     for (const why of conditionProblems(w.if)) problems.push(`${id}: waitFor.if: ${why}`);
@@ -293,21 +303,24 @@ export function check(state, pack, bible) {
   // Room texts within WRITING-DIRECTION.md §5: about 30–80 words, 2 paragraphs (3 at most), the opening's too.
   for (const [id, room] of Object.entries(state.world.rooms)) {
     if (!Array.isArray(room.describe) || room.describe.some(p => typeof p !== "string" || p.startsWith("@"))) continue;
-    const words = room.describe.join(" ").replace(/\{([^|}]*)(\|[^}]*)?\}/g, "$1").split(/\s+/).filter(Boolean).length;
+    const words = unmarked(room.describe.join(" ")).split(/\s+/).filter(Boolean).length;
     if (words > 80) warnings.push(`${id}: ${words} words; a room's text is about 30–80`);
     if (room.describe.length > 3) warnings.push(`${id}: ${room.describe.length} paragraphs; 2, or 3 at most`);
   }
 
-  // Clock times the text names (GUIDE.md §3): each needs something in the world at that hour, or [time].
+  // What the texts say: the commands in them parse; a clock time they name has something in the world at that hour, or
+  // [time] (GUIDE.md §3); a way in or out has an exit; a verb offered on scenery is answered; no words of the other region;
+  // every [..] is known. Then the exits and waits that can never open or fire.
   problems.push(...commandProblems(state, pack, arrived));
   warnings.push(...clockTimeWarnings(state, pack, arrived));
-  warnings.push(...wayWarnings(state, pack, arrived));
+  warnings.push(...wayWarnings(pack, arrived));
   warnings.push(...sceneryVerbWarnings(state, pack, arrived));
   if (pack.words.regional) warnings.push(...regionalWarnings(state, pack, bible));
   warnings.push(...wordWarnings(state, pack));
+  warnings.push(...answerWarnings(state, pack));
   const never = neverHolds(state, arrived);
-  warnings.push(...neverOpen(state, never, arrived, badExits));
-  warnings.push(...neverWaits(state, never, arrived));
+  warnings.push(...neverOpen(never, arrived, badExits));
+  warnings.push(...neverWaits(never, arrived));
   if (problems.length) return { ok: false, problems, warnings, endings };
 
   // Each ending, from a fresh start.
@@ -358,7 +371,7 @@ export function bibleProblems(bible, state) {
 }
 
 // What is wrong with the world's pictures: an `end` that names none, or one that doesn't exist; a world that can hurt the player
-// and has no `died` picture; a picture that is badly drawn; an ending with no description (`alt` on its `add picture`, in the
+// and has no `died` picture; a picture, a room's or an ending's, that is badly drawn; an ending with no description (`alt` on its `add picture`, in the
 // world file); a room's overlay with no description (`overlayAlt`, on the room); and a picture, or one of its overlays, that
 // carries an `alt` itself (pictures.js holds shapes, not words).
 function pictureProblems(state) {
@@ -380,6 +393,7 @@ function pictureProblems(state) {
     if (!room?.picture) continue;
     carried(`rooms/${id}`, room.picture, "describe it as the room's alt");
     overlaysDescribed(`rooms/${id}`, id, room.picture.overlays);
+    for (const why of drawingProblems(room.picture)) problems.push(`rooms/${id}: ${why}`);
   }
   let hurts = null;
   for (const { effect: e, where } of effectsOf(state)) {
@@ -403,7 +417,7 @@ function pictureProblems(state) {
   return problems;
 }
 
-// What is wrong with one picture ({ version, draw: [shapes], cycles?, overlays? }), as a room's is checked: only the shapes
+// What is wrong with one picture ({ version, draw: [shapes], cycles?, overlays? }), a room's or an ending's: only the shapes
 // and fills of the art spec, colours 0–15, at most `maxShapes`, unique ids, at most 3 cycles that point at real shapes.
 function drawingProblems(picture) {
   if (!picture || !Array.isArray(picture.draw) || !picture.draw.length) return ["has no drawing list"];
@@ -437,7 +451,7 @@ function healProblems(r, e, id, state, problems, warnings) {
   if (!named && (typeof e.heal !== "number" || !(e.heal > 0))) problems.push(`${id}: heal is a number above 0, not ${JSON.stringify(e.heal)}`);
   if (!e.says) warnings.push(`${id}: heals with no line of its own (says): only the echo is shown`);
   if (!Array.isArray(r.do) || r.once === true || r.when === "at" || r.named) return;   // (a named change is judged in the rules that run it)
-  const all = r.do.flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]);
+  const all = withChanges(state, r.do);
   const sets = new Set(all.filter(x => x && typeof x.set === "string").map(x => x.set));
   const takes = all.some(x => x && (typeof x.remove === "string" || "move" in x));
   const asks = (Array.isArray(r.if) ? r.if : r.if ? [r.if] : []).flatMap(c => c && typeof c === "object" ? Object.keys(c) : []);
@@ -501,7 +515,6 @@ function neverHolds(state, arrived) {
   })(inJson);
   // The kind of thing an id names: the engine's own ("player", "game", "time"), an object, a room, or nothing.
   const kindOf = (id) => ["player", "game", "time"].includes(id) ? id : objects[id] ? "object" : rooms[id] ? "room" : later.has(id) ? "later" : null;
-  const ownFields = (kind) => kind === "object" ? [...FIELDS.object, ...FIELDS.any] : kind === "room" ? [...FIELDS.room, "place"] : FIELDS[kind] ?? [];
   // A comparison a declared number can't satisfy, whatever sets it (a set is held to the range): [operator, number] pairs.
   const outOfRange = (d, want) => {
     const [lo, hi] = [Number.isFinite(d.min) ? d.min : -Infinity, Number.isFinite(d.max) ? d.max : Infinity];
@@ -560,7 +573,7 @@ function neverHolds(state, arrived) {
 // Exits whose condition can never hold: it needs a declared property that no rule ever sets to a value that passes, or an hour
 // of the day that isn't any, or something that isn't there (see neverHolds). `if: false` is the way written as no way through
 // (a one-way door): it is meant, so it is left alone.
-function neverOpen(state, never, arrived, badExits) {
+function neverOpen(never, arrived, badExits) {
   const out = [];
   for (const [id, room] of Object.entries(arrived.world.rooms)) for (const [dir, raw] of Object.entries(room.exits || {})) {
     const list = exitConditions(raw);
@@ -574,7 +587,7 @@ function neverOpen(state, never, arrived, badExits) {
 // A wait (a room's or a thing's `waitFor`) that can never fire: the `if` that says when waiting is worth it can never hold
 // (neverHolds), so "wait for…" would always get "nothing here worth waiting for". A room's own wait only counts while you are in
 // that room. A wait with no `if`, or one that might hold, is left alone.
-function neverWaits(state, never, arrived) {
+function neverWaits(never, arrived) {
   const out = [];
   for (const [id, thing] of [...Object.entries(arrived.world.rooms), ...Object.entries(arrived.world.objects)]) {
     const list = thing.waitFor?.if;
@@ -603,7 +616,7 @@ const ES_AFTER = END + String.raw`|\s+(?:y|a|hasta|o|e|en|de|del|por|la|el|se|ya
 
 // The clock times a text names: [{ text, times: [{ hour, minute }] }], each with its readings (12 or 24 hour).
 export function clockMentions(raw) {
-  const text = String(raw).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1").replace(/\s+/g, " ").toLowerCase();
+  const text = unmarked(raw).replace(/\s+/g, " ").toLowerCase();
   const found = [], taken = [];
   const free = (a, b) => !taken.some(([x, y]) => a < y && x < b);
   const add = (m, hour, minute, exact) => {
@@ -667,7 +680,7 @@ function worldTexts(state, pack) {
 
 // The player-facing texts inside one piece (a room, a thing, a rule, one effect…), added to `out`.
 function collectTexts(root, where, pack, out = []) {
-  const resolve = (v) => typeof v === "string" && v.startsWith("@") ? v.slice(1).split(".").reduce((x, k) => x?.[k], pack) : v;
+  const resolve = (v) => packText(v, pack);
   const walk = (node, path) => {
     if (Array.isArray(node)) return node.forEach(x => walk(x, path));
     if (!node || typeof node !== "object") return;
@@ -700,10 +713,10 @@ function collectTexts(root, where, pack, out = []) {
 // words; a match right after one of `not` is a refusal, "don't go in"), while the room has nothing that answers: "in" (or
 // "out") typed in it is only "there's no way", and for in, no "enter" alone finds a door and no boat or the like is there to get into. Like the
 // other text warnings it is a nudge: mark the exit that goes there `in: true` (`out: true`), or give the room an `in` / `out` exit.
-function wayWarnings(state, pack, arrived) {
+function wayWarnings(pack, arrived) {
   const invites = pack.words.invites, out = [];
   if (!invites) return out;
-  const words = (t) => String(t).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1").toLowerCase().match(/[\p{L}\p{N}'\u2019]+/gu) ?? [];
+  const words = (t) => unmarked(t).toLowerCase().match(/[\p{L}\p{N}'\u2019]+/gu) ?? [];
   const find = (tokens, phrases) => {
     for (const phrase of phrases) {
       const p = phrase.split(" ");
@@ -749,11 +762,10 @@ const shortText = (t) => { const x = String(t).replace(/\s+/g, " ").trim(); retu
 // names the text, the command and why.
 function commandProblems(state, pack, arrived) {
   const out = [], seen = new Set(), rooms = Object.keys(arrived.world.rooms);
-  const inRoom = (room) => ({ ...arrived, player: { ...arrived.player, at: room } });
   // Everything in reach: each thing in the room, out of any container (a thing that is still shut away, or elsewhere, is not
   // what a command is wrong about).
   const reachAll = (room) => {
-    const s = structuredClone(inRoom(room));
+    const s = structuredClone(inRoom(arrived, room));
     for (const o of Object.values(s.world.objects)) o.at = room;
     return s;
   };
@@ -777,9 +789,9 @@ function commandProblems(state, pack, arrived) {
     if (fromPack) continue;
     for (const [, command] of String(text).matchAll(/`([^`]+)`/g)) {
       const room = arrived.world.rooms[where] ? [where] : arrived.world.objects[where] && arrived.world.rooms[placeOf(arrived, where)] ? [placeOf(arrived, where)] : rooms;
-      let result = room.map(r => read(command, inRoom(r))).find(x => x.ok);
+      let result = room.map(r => read(command, inRoom(arrived, r))).find(x => x.ok);
       if (!result) {
-        const first = room.map(r => read(command, inRoom(r)))[0];
+        const first = room.map(r => read(command, inRoom(arrived, r)))[0];
         result = NOT_HERE.includes(first.error.say) ? room.map(r => read(command, reachAll(r))).find(x => x.ok) || first : first;
       }
       if (result.ok) continue;
@@ -811,7 +823,7 @@ function sceneryVerbWarnings(state, pack, arrived) {
   }
   verbs.sort((a, b) => b.parts.length - a.parts.length);
   const linkers = new Set([...(pack.words.articles || []), ...(pack.words.preps || [])].map(norm).concat(["out", "up", "off", "over", "down", "away", "fuera", "arriba", "abajo", "lejos"]));
-  const markup = (t) => String(t).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1").replace(/\[[^\]]*\]/g, " ");
+  const markup = (t) => unmarked(t).replace(/\[[^\]]*\]/g, " ");
   for (const [roomId, room] of Object.entries(arrived.world.rooms)) {
     // The room's scenery: what its text mentions without being a thing, and the things marked scenery that lie in it.
     const scenery = [...(room.scenery || []).filter(x => Array.isArray(x.words)),
@@ -819,7 +831,7 @@ function sceneryVerbWarnings(state, pack, arrived) {
     if (!scenery.length) continue;
     const texts = [...(Array.isArray(room.describe) ? room.describe : []).filter(t => typeof t === "string" && !t.startsWith("@")).map(t => ({ field: "describe", text: t })),
       ...Object.entries(arrived.world.objects).filter(([oid, o]) => placeOf(arrived, oid) === roomId && typeof o.here === "string" && !o.here.startsWith("@")).map(([oid, o]) => ({ field: `${oid} here`, text: o.here }))];
-    const there = { ...arrived, player: { ...arrived.player, at: roomId } };
+    const there = inRoom(arrived, roomId);
     for (const { field, text } of texts) for (const sentence of markup(text).split(/[.!?;:—–«»]+/)) {
       const tokens = norm(sentence).replace(/[.,;]/g, " , ").split(/\s+/).filter(Boolean);
       for (let i = 1; i < tokens.length; i++) {
@@ -854,7 +866,7 @@ function answeredByWorld(state, there, v, word, scenery, pack) {
   const ids = [scenery.id, scenery.words[0]].filter(Boolean);
   return state.rules.some(rule => {
     const m = rule.match || {};
-    return (rule.when || "action") === "action" && [].concat(m.verb ?? []).includes(v.id) && [].concat(m.scenery ?? []).some(x => ids.includes(x));
+    return isAction(rule) && [].concat(m.verb ?? []).includes(v.id) && [].concat(m.scenery ?? []).some(x => ids.includes(x));
   });
 }
 
@@ -882,7 +894,7 @@ function regionalWarnings(state, pack, bible) {
   const out = [], seen = new Set();
   for (const { where, field, text, pack: fromPack } of [...worldTexts(state, pack), ...shown]) {
     if (fromPack) continue;
-    const plain = String(text).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1").replace(/\[[^\]]*\]/g, " ");
+    const plain = unmarked(text).replace(/\[[^\]]*\]/g, " ");
     for (const token of norm(plain).split(" ")) {
       if (!avoid.has(token)) continue;
       const line = `${where} (${field}): uses "${avoid.get(token)}", a word of another region of this language${prefer[token] ? `; the pack prefers "${prefer[token]}"` : ""}`;
@@ -915,6 +927,7 @@ function worldHours(state, arrived) {
   return hours;
 }
 
+// A clock time a text names with nothing in the world at that hour (see clockMentions): a warning each.
 function clockTimeWarnings(state, pack, arrived) {
   const hours = worldHours(state, arrived), warnings = [], seen = new Set();
   const show = ({ hour, minute }) => `${hour}:${String(minute).padStart(2, "0")}`;
@@ -943,7 +956,7 @@ function wordWarnings(state, pack) {
   // Every text: the words it names must be known.
   for (const { where, field, text } of worldTexts(state, pack)) {
     for (const [, token] of String(text).matchAll(/\[([^\[\]]+)\]/g)) {
-      if (TEXT_WORDS.includes(token)) continue;
+      if (TEXT_WORDS.includes(token) || ANSWER_PATH.test(token)) continue;   // (an answer no `ask` sets: answerWarnings)
       if (/^[A-Za-z_][\w-]*\.[A-Za-z_][\w-]*$/.test(token)) {
         if (!declared[token]) warn(where, field, `[${token}] names a property that isn't declared${suggest(token, paths)}`);
         else if (declared[token].type === "boolean") warn(where, field, `[${token}] is a yes/no property: a text shows numbers and words, so it would show nothing`);
@@ -959,7 +972,7 @@ function wordWarnings(state, pack) {
     const d = declared[path];
     if (!d || d.type === "boolean") return false;
     const [id, prop] = path.split(".");
-    const o = id === "player" ? state.player : id === "game" ? state : state.world.objects[id] ?? state.world.rooms[id];
+    const o = ownerOf(state, id);
     return typeof (o?.[prop] ?? d.start) !== "number" && typeof (o?.[prop] ?? d.start) !== "string";
   };
   const named = (text) => [...String(text).matchAll(PROPERTY_WORD)].map(m => m[1] + "." + m[2]).filter(empty);
@@ -984,6 +997,29 @@ function wordWarnings(state, pack) {
     const asked = JSON.stringify(r.if ?? []);
     walk(r.do, r.id, new Set(), paths.filter(x => asked.includes(JSON.stringify(x) + ":")));
   }
+  return out;
+}
+
+// ---- Questions for words ---------------------------------------------------------------------------------------------
+// An `ask` (BRIEF.md §8, "Questions for words") is answered once, and a rule catches the answer: { verb: "answer", question:
+// "<key>" } (a rule matching "answer" with no `question` catches every one). An ask no rule catches only ever gets the stock
+// reply; and a rule, a text or a condition that reads player.answers.<key> when nothing asks "<key>" reads nothing. Only warns.
+const ANSWER_PATH = /^player\.answers\.[A-Za-z_][\w-]*$/;
+function answerWarnings(state, pack) {
+  const out = [], asked = new Map();
+  for (const { effect: e, where } of effectsOf(state))
+    if (typeof e.ask === "string" && !asked.has(e.ask)) asked.set(e.ask, where);
+  const list = (x) => [].concat(x ?? []);
+  const catches = (r, key) => isAction(r) && list(r.match?.verb).includes("answer") && (r.match.question === undefined || list(r.match.question).includes(key));
+  const stock = packText("@answerUnheard", pack);
+  for (const [key, where] of asked)
+    if (!state.rules.some(r => catches(r, key)))
+      out.push(`${where}: asks "${key}", but no rule catches the answer ({ "verb": "answer", "question": "${key}" }): it only gets "${stock}"`);
+  const readers = [...state.rules.map(r => [r.id, r]), ...Object.entries(state.changes || {}).map(([id, x]) => ["change " + id, x]),
+                   ...Object.entries(state.world.rooms), ...Object.entries(state.world.objects), ...Object.entries(state.puzzles || {})];
+  for (const [where, piece] of readers)
+    for (const key of new Set([...JSON.stringify(piece ?? null).matchAll(/player\.answers\.([A-Za-z_][\w-]*)/g)].map(m => m[1])))
+      if (!asked.has(key)) out.push(`${where}: reads player.answers.${key}, but nothing asks "${key}" ({ "ask": "${key}" }): it is always empty`);
   return out;
 }
 
@@ -1029,7 +1065,7 @@ function checkOpening(state, pack) {
   const things = (only) => [
     ...Object.entries(objects).filter(([, o]) => !only || o.at === roomId || o.at === "player")
       .map(([oid, o]) => ({ id: oid, owner: oid, label: `"${oid}" (${kindOf(oid)})`, words: fold(o.words?.nouns) })),
-    ...Object.entries(objects).filter(([oid, o]) => !only || o.at === roomId || o.at === "player")
+    ...Object.entries(objects).filter(([, o]) => !only || o.at === roomId || o.at === "player")
       .flatMap(([oid, o]) => (o.parts || []).map(x => ({ id: null, owner: oid, label: `the part "${x.name ?? x.words?.[0]}" of "${oid}" (part)`, words: fold(x.words) }))),
     ...Object.entries(rooms).filter(([rid]) => !only || rid === roomId)
       .flatMap(([rid, r]) => (r.scenery || []).map(x => ({ id: null, owner: rid, label: `the scenery "${x.name ?? x.words?.[0]}" of room "${rid}" (scenery)`, words: fold(x.words) })))];
@@ -1039,7 +1075,7 @@ function checkOpening(state, pack) {
     const key = [w, x, y].sort().join("|");
     if (!clash.has(key)) { clash.add(key); problems.push(`"${w}" names two things${text}: ${x} and ${y}; rename one of them, so each thing has its own word`); }
   };
-  for (const [k, id] of MAIN)                                          // a word of one of the four: nothing else answers to it
+  for (const [k, id] of MAIN)                                          // a word of one of the three: nothing else answers to it
     for (const w of fold(objects[id].words.nouns)) for (const x of things(k === "way"))
       if (!(x.id === id) && x.words.includes(w)) report(w, name(id), x.label, "");
   const inside = things(true).filter(x => !MAIN.some(([, id]) => x.id === id));   // the others: their parts, the room's scenery, the rest
@@ -1097,7 +1133,7 @@ class Run {
     const a = parsed.actions?.length === 1 && parsed.actions[0];
     if (!a || !a.obj2 || !["put", "unlock", "give", "open"].includes(a.verb) || !pack.words.verbs.use) return;
     const objects = this.state.world.objects;
-    const noun = (x) => pack.names?.[x]?.nouns?.[0] ?? objects[x]?.words?.nouns?.[0];
+    const noun = (x) => objects[x]?.words?.nouns?.[0];
     if (!noun(a.obj) || !noun(a.obj2)) return;
     const withWord = pack.words.grammar?.secondObject?.[0] ?? "with", use = pack.words.verbs.use[0];
     // What came of it: the world and you as they are, whether the story ended, and what was said.
@@ -1165,7 +1201,7 @@ class Run {
     const place = placeOf(this.state, thing);
     if (!o || !this.state.world.rooms[place]) return this.fail(`"${forPuzzle}" needs "${thing}", but it can't be found`);
     this.go(place);
-    const noun = o.words?.nouns?.[0] ?? this.pack.names?.[thing]?.nouns?.[0] ?? thing;
+    const noun = o.words?.nouns?.[0] ?? thing;
     const take = this.pack.words.verbs.take[0];
     this.type(take + " " + noun);
     if (!this.problem && !this.state.player.carrying.includes(thing)) this.fail(`"${take} ${noun}" didn't pick up "${thing}"`);

@@ -3,10 +3,12 @@
 // ui/scene.js turns the grid into colours on the canvas.
 
 import art from "../content/art.js";
-import { SPRITES, COLORS } from "../content/sprites.js";
 import { parseShapes } from "../js/picture.js";
 
 const DITHER = art.dither.matrix;                 // Bayer 4×4: the order in which pixels switch to the second colour
+
+// Each palette number's colour as [r, g, b], for putting a grid of palette numbers on a canvas (the scene, the thumbnails).
+export const RGB = art.palette.colors.map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
 
 // Is this pixel past the dither threshold for a level (0–1)? The same test scene.py used.
 export const lit = (x, y, level) => (DITHER[y & 3][x & 3] + 0.5) / 16 < level;
@@ -106,7 +108,7 @@ function fillColor(f, x, y) {
 }
 
 // The pixels of a line through points (each segment drawn with evenly spaced steps).
-export function linePoints(points) {
+function linePoints(points) {
   const out = [];
   for (let k = 0; k + 1 < points.length; k++) {
     const [x0, y0] = points[k], [x1, y1] = points[k + 1];
@@ -116,18 +118,6 @@ export function linePoints(points) {
   return out;
 }
 
-// Draw a sprite (rows of letters, content/sprites.js) onto a grid at [x, y]; "." and unknown letters are clear.
-export function stamp(px, width, height, rows, at, colors) {
-  rows.forEach((row, j) => [...row].forEach((ch, i) => {
-    const c = colors[ch], x = at[0] + i, y = at[1] + j;
-    if (c !== undefined && x >= 0 && y >= 0 && x < width && y < height) px[y * width + x] = c;
-  }));
-}
-
-// A sprite letter's colour as an EGA palette number (sprites are written with the palette's hex colours).
-const INDEX = Object.fromEntries(Object.entries(COLORS).map(([ch, hex]) =>
-  [ch, art.palette.colors.findIndex(c => c.toLowerCase() === hex.toLowerCase())]));
-
 // Which of a picture's overlays are drawn in this state: those whose object is in the room.
 export const overlaysShown = (picture, state, roomId) =>
   (picture.overlays || []).filter(o => state.world.objects[o.object]?.at === roomId);
@@ -136,21 +126,19 @@ export const overlaysShown = (picture, state, roomId) =>
 // world file, in its own language, says it). A game saved before that kept the line on the overlay itself.
 export const overlayAlt = (room, overlay) => room?.overlayAlt?.[overlay.object] ?? overlay.alt;
 
-// A world sprite's characters as palette numbers: hex digits 0–f ("." and anything else stay clear).
-const HEX_INDEX = Object.fromEntries([..."0123456789abcdef"].flatMap((c, i) => [[c, i], [c.toUpperCase(), i]]));
+// A sprite's characters as palette numbers: hex digits 0–f ("." and anything else stay clear).
+export const HEX_INDEX = Object.fromEntries([..."0123456789abcdef"].flatMap((c, i) => [[c, i], [c.toUpperCase(), i]]));
 
-// The whole picture for a room in this state: its painted shapes (cached by the caller) with the overlays on top.
-// An overlay's sprite is a hand-made one by name (content/sprites.js), or else its object's own `floorSprite`
-// (rows in hex, as the world writes them).
+// The whole picture for a room in this state: its painted shapes (cached by the caller) with the overlays on top, each
+// its object's own `floorSprite`, else its `sprite` (rows in hex, as the world writes them), at the overlay's `at`.
 export function compose(base, picture, state, roomId, width = art.picture.width, height = art.picture.height) {
   const px = base.slice();
   for (const o of overlaysShown(picture, state, roomId)) {
-    if (SPRITES[o.sprite]) stamp(px, width, height, SPRITES[o.sprite], o.at, INDEX);
-    else {
-      const own = state.world.objects[o.object];
-      const rows = own.floorSprite || own.sprite;
-      if (rows) stamp(px, width, height, rows, o.at, HEX_INDEX);
-    }
+    const own = state.world.objects[o.object], rows = own.floorSprite || own.sprite;
+    if (rows) rows.forEach((row, j) => [...row].forEach((ch, i) => {
+      const c = HEX_INDEX[ch], x = o.at[0] + i, y = o.at[1] + j;
+      if (c !== undefined && x >= 0 && y >= 0 && x < width && y < height) px[y * width + x] = c;
+    }));
   }
   return px;
 }

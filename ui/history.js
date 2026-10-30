@@ -1,6 +1,6 @@
 // Earlier commands: the commands the player ran, typed or clicked, stepped through with ↑ / ↓ (ui/prompt.js). Pure: no page.
 // Kept: non-empty lines, trimmed; the same line sent twice in a row once; at most MAX. Lasts for this visit to the
-// page (it carries across a new game and a language change) and is never saved.
+// page (it carries across a new game and a loaded one) and is never saved.
 
 export const MAX = 50;
 

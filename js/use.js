@@ -3,7 +3,7 @@
 // that knows which pairs mean which action. Pure: reads the state, never changes it.
 
 // The one walk through what holds what (a mint in a tin in a bag in a room). Things inside things go no deeper than this.
-export const DEPTH = 5;
+const DEPTH = 5;
 
 // The thing, then what it is in, and what that is in… (only things; the room or "player" at the end is not in the list).
 export function chainOf(g, id) {
@@ -27,12 +27,15 @@ export const carried = (g, id) => placeOf(g, id) === "player";
 // Is `inner` the thing `outer` itself, or inside it (or in something inside it)?
 export const within = (g, inner, outer) => chainOf(g, inner).includes(outer);
 
+// Is this an action rule (your commands), not a timed or scheduled one? `when: "action"` is the default.
+export const isAction = (r) => (r.when || "action") === "action";
+
 // Someone who'd take what you give: a character (it has `topics` or `talk`), or anything a world rule for `give` names.
 export function receives(g, id) {
   const o = g.world.objects[id];
   if (!o) return false;
   return !!o.topics || o.talk != null || g.rules.some(r =>
-    (r.when || "action") === "action" && [].concat(r.match?.verb ?? []).includes("give") && [].concat(r.match?.obj2 ?? []).includes(id));
+    isAction(r) && [].concat(r.match?.verb ?? []).includes("give") && [].concat(r.match?.obj2 ?? []).includes(id));
 }
 
 // What "use A with B" means, in either order, as the action to run (null when it means nothing known):

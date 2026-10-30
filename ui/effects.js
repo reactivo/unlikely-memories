@@ -3,7 +3,7 @@
 // (How one picture changes into another, a room's or an ending's, is not here: it is all in ui/transitions.js.)
 
 // Palette cycling styles: which step of its colour list a cycle shows at a moment. Each gets the cycle's
-// settings (from the picture data), its own little memory (`mem`), the time since it started and now.
+// own fields (from the picture data), its own little memory (`mem`), the time since it started and now.
 // Returns a step number; the pixel's colour moves that many places along the list.
 export const CYCLES = {
   // Every pixel steps along the colours, in a loop: water, conveyor belts, flowing light.

@@ -329,7 +329,6 @@
     .titlebar {
       --titlebar-direction: row;
       --titlebar-justify: space-between;
-      --titlebar-gap: var(--space-m);
     }
 
     /* Tools ♫ ≡ (ui/tools.css): in the strip, as wide as their half of it and as high as a compass tile. */

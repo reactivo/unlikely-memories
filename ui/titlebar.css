@@ -31,7 +31,7 @@
 
     @media (prefers-reduced-motion: no-preference) {
       & .colon {
-        animation: colon-blink 2s steps(1) infinite;
+        animation: colon-blink var(--duration-colon) steps(1) infinite;
       }
     }
   }

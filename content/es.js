@@ -26,7 +26,6 @@ export default {
   endNote: (d) => `Has jugado ${playedFor(d.ms)}. Has visto ${d.rooms} ${d.rooms === 1 ? "sala" : "salas"}.`,
   gameOver: "La historia ha terminado. `Deshacer` tu último movimiento, `Empezar de nuevo` o `Salir`.",
   againYes: "Todo se oscurece. Luego, despacio, vuelve a empezar…",
-  hintNone: "Nada más. Solo una especie de paciencia.",
   hintDo: (cmds) => "Prueba " + cmds.join(", y luego ") + ".",
   askAbout: (l) => `Preguntar por ${l}`,
   talkedOut: (d) => `No tienes nada más de lo que hablar con ${d.name}${d.forNow ? " (por ahora)" : ""}.`,
@@ -43,7 +42,7 @@ export default {
   sceneryOther: [(w) => `No puedes hacer gran cosa con ${w}.`, (w) => `Mejor no tocar ${w}.`],
   noVerb: "¿Qué quieres hacer? Empieza con un verbo, como `Examinar` o `Coger`.",
   whatTo: (v) => `¿Qué quieres ${v}?`,
-  notHere: (w) => `No ves ningún «${w}» aquí.`,
+  notHere: (w) => `No ves «${w}» por aquí.`,
   noWait: ["Aquí no hay nada que valga la pena esperar.", "Aquí no va a venir nada.", "Podrías esperar. Aquí no saldría nada de ello."],
   // La hora del mundo en palabras, para [time] en un texto: { hour, minute } → "las cinco y cuarto".
   timeWords({ hour, minute }) {
@@ -92,6 +91,9 @@ export default {
   saveFailed: "No se ha podido guardar la partida aquí (el navegador está bloqueando el almacenamiento).",
   yesNo: "`Sí` / `No`",
   confirmNo: "De acuerdo.",
+  // Una pregunta que se contesta con palabras (`ask`: un nombre, una contraseña): la línea gris tras ella, y la respuesta cuando ninguna regla la recoge.
+  typeAnswer: "Escribe tu respuesta.",
+  answerUnheard: "No contestas nada.",
   help: "Escribe lo que quieres hacer en pocas palabras, como «abre la puerta» o «coge la lámpara». Haz clic en un objeto+ para examinarlo, o en una orden en mayúsculas para hacerla al momento.\n\nAcciones comunes: `Mirar`, `Examinar`, `Coger`, `Dejar`, `Abrir`, `Inventario`, `Hora`, `Estado`, `Hablar con`, `Esperar`.\n\nDirecciones: `N`, `S`, `E`, `O`, `Arriba`, `Abajo`, `Dentro`, `Fuera`. `Mapa` muestra por dónde has estado, y un clic en una sala te lleva hasta ella.\n\nPartida: `Deshacer`, `Grabar`, `Cargar`, `Salir` (vuelve a la lista de juegos).",
   hintCarried: (n) => `Algo que llevas quizá sepa más. Prueba \`Escuchar ${n}\`.`,
   hintHere: (n) => `Algo de aquí quizá sepa más. Prueba \`Escuchar ${n}\`.`,
@@ -150,7 +152,6 @@ export default {
   // Lo que dicen las mecánicas de la apertura (js/opening.js): el mundo escribe el resto con su propia voz.
   already: (_, w) => `Ya ${it(w)} tienes, a salvo en el bolsillo.`,
   cantDrop: (_, w) => `Mejor quedárte${it(w)}. Puede que ${it(w)} necesites.`,
-  takeFirst: (_, w) => `Tendrás que coger${it(w)} primero.`,
   // Una pista, dicha con la línea propia del mundo (`hintFrame` de la apertura): la línea y la pista entre comillas.
   framed: (frame, hint) => `${frame} «${hint.replace(/\.$/, "")}».`,
   // El artículo y un nombre, para [way] en un texto: el camino de la apertura ("la puerta giratoria").
@@ -175,8 +176,6 @@ export default {
   // Los nombres de los botones de la brújula: su tooltip, lo que dice el lector de pantalla y lo que escribe un clic (el mapa camina con dirs, arriba).
   dirTips: { n: "Norte", s: "Sur", e: "Este", w: "Oeste", u: "Subir", d: "Bajar", in: "Entrar", out: "Salir" },
 
-  objects: {},
-  items: {},
   // Respuestas normales, por acción (js/actions.js): lo que dice una acción cuando ninguna regla le da sentido.
   // Neutras, para cualquier partida; 2–3 versiones, nunca la misma dos veces seguidas.
   replies: {
@@ -227,9 +226,6 @@ export default {
     think: ["Piensas mucho. No se te ocurre nada.", "Ordenas tus ideas.", "Pensar ayuda un poco. No mucho."],
     pray: ["Rezas. No pasa nada, que tú sepas.", "Una oración en voz baja. Ninguna respuesta."]
   },
-
-  // Las palabras para las cosas, por id de objeto (js/parser.js). g: género ("m"/"f"), para lo/la/los/las.
-  names: {},
 
   // Las palabras del intérprete en español (PARSER.md capas 1–2). Verbos: infinitivo, imperativo (tú y usted)
   // y primera persona, que algunos jugadores escriben. Sin tildes: se quitan al leer (la ñ se queda).

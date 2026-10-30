@@ -3,8 +3,8 @@
 // without words of their own (a move, a set) say nothing: the rule that caused them says what happened.
 // Pure: never touches the page or the state.
 
-import { worldTime, parts } from "./time.js";
-import { PROPERTY_WORD, propertyText } from "./fields.js";
+import { worldTime, parts, hhmm } from "./time.js";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText } from "./fields.js";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -74,18 +74,20 @@ export function describe(state, roomId, pack) {
   return lines;
 }
 
+// A list in a sentence: "A, B or C" (`last` is the pack's " or " or " and ").
+export const joined = (list, last) => (list.length > 1 ? list.slice(0, -1).join(", ") + last + list.at(-1) : list[0]);
+
 // What you carry, from the state: "You are carrying: tin of mints." (names from the objects).
 export function inventory(state, pack) {
   const names = state.player.carrying.map(id => listName(id, state, pack));
   if (!names.length) return text("@invEmpty", pack);
-  const list = names.length > 1 ? names.slice(0, -1).join(", ") + (pack.and ?? pack.or) + names.at(-1) : names[0];
-  return text("@invList", pack, list);
+  return text("@invList", pack, joined(names, pack.and ?? pack.or));
 }
 
 // TIME: the world's weekday (if it has one), time and day of your adventure, worded by the pack.
-export function timeNow(state, pack, at = worldTime(state)) {
-  const p = parts(at, state.time?.weekday), pad = (n) => String(n).padStart(2, "0");
-  return text("@timeNow", pack, { weekday: p.weekday ? pack.weekdays[p.weekday] : null, time: pad(p.hour) + ":" + pad(p.minute), day: p.day });
+function timeNow(state, pack, at = worldTime(state)) {
+  const p = parts(at, state.time?.weekday);
+  return text("@timeNow", pack, { weekday: p.weekday ? pack.weekdays[p.weekday] : null, time: hhmm(p), day: p.day });
 }
 
 // The phrase of a health echo: a hurt says the pack's own phrase for that step (echo.hurt), if it has one, else the state
@@ -107,8 +109,7 @@ export function statusLine(state, pack) {
   return { text: statusNow(state, pack), style: "status " + (level >= 4 ? "status-healed" : "status-hurt"), level };
 }
 
-// An object's name: the pack's, else the world's own (literal text, or an "@key").
-// A name inside a sentence ("You are carrying: tin of mints."): lower case first letter only if the language does
+// A thing's name inside a sentence ("You are carrying: tin of mints."): lower case first letter only if the language does
 // that (grammar.lowerNames; not German, whose nouns keep their capital), so "Photo of Madrid" keeps "Madrid".
 export function listName(id, state, pack) {
   const n = nameOf(id, state, pack);
@@ -119,6 +120,7 @@ export function listName(id, state, pack) {
 // and [way], the way you came in from the opening ("the revolving door": the pack's `the`, then the thing's name).
 // And any declared property, [thing.property] ([player.name], [bell.rung]): its number or string, nothing for a boolean
 // or one that holds nothing yet; a name that isn't declared stays as written (js/fields.js, "Words from the state").
+// And what the player typed to a question, [player.answers.<key>] ("Voss"), as typed; nothing before it is answered.
 // Square brackets, because {…} marks objects.
 // `at`: the world time it was said at (a line said before a jump in the same turn keeps its own time); `vals`: the
 // properties it names as they were when it was said (the engine keeps them with the line, as it keeps the time).
@@ -129,7 +131,8 @@ export function timed(t, state, pack, at = worldTime(state), vals = undefined) {
           .replace(/\[day\]/g, String(p.day))
           .replace(/\[weekday\]/g, () => (p.weekday ? pack.weekdays[p.weekday] : ""))
           .replace(/\[way\]/g, () => wayName(state, pack))
-          .replace(PROPERTY_WORD, (m, id, prop) => vals && (id + "." + prop) in vals ? vals[id + "." + prop] : propertyText(state, id, prop) ?? m);
+          .replace(PROPERTY_WORD, (m, id, prop) => vals && (id + "." + prop) in vals ? vals[id + "." + prop] : propertyText(state, id, prop) ?? m)
+          .replace(ANSWER_WORD, (m, key) => vals && ("player.answers." + key) in vals ? vals["player.answers." + key] : answerText(state, key));
 }
 
 // The way you came in from the opening, named in a sentence ("the revolving door"); nothing if there isn't one.
@@ -138,13 +141,14 @@ function wayName(state, pack) {
   return o ? pack.the(listName(id, state, pack), o) : "";
 }
 
+// A thing's name, as the world writes it (literal text, or an "@key"); its id if it has none.
 export function nameOf(id, state, pack) {
-  const p = pack.items?.[id] || pack.objects?.[id], o = state.world.objects[id];
-  return p?.name ?? (o?.name ? text(o.name, pack) : id);
+  const o = state.world.objects[id];
+  return o?.name ? text(o.name, pack) : id;
 }
 
 // A room's name for the title bar: its own, else the pack's.
-export function placeOf(state, pack) {
+export function placeName(state, pack) {
   const room = state.world.rooms[state.player.at];
   return room?.name ? text(room.name, pack) : pack.place;
 }

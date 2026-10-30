@@ -9,11 +9,10 @@ export const AUTO = "auto";
 export const GAME = "game";
 const key = (id, kind) => id + "/" + kind;
 
-// The database, as the four things this module needs of one: get, put, keys, del. Tests swap it for a plain object (useBackend).
+// The database, as the three things this module needs of one: get, put, del. Tests swap it for a plain object (useBackend).
 const idb = {
   get: (k) => run("readonly", s => s.get(k)),
   put: (k, value) => run("readwrite", s => s.put(value, k)),
-  keys: () => run("readonly", s => s.getAllKeys()),
   del: (k) => run("readwrite", s => s.delete(k))
 };
 let backend = idb;

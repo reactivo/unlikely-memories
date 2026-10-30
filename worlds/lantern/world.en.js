@@ -39,6 +39,13 @@ export const bible = {
 // Carried things get their sprites (sprites.js): the one shown when examined, and the one drawn on the floor.
 const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
+// The names the court accepts when it asks "Whose?" (rules: name_*), each also as "it was …", "accuse …", "name …"
+// and "say …" (the answer is compared without case or punctuation: "Mrs. Halloran!" is "mrs halloran").
+const answered = (names) => names.flatMap(n => [n, "it was " + n, "accuse " + n, "i accuse " + n, "name " + n, "say " + n]);
+const HALLORAN = answered(["halloran", "mrs halloran", "missus halloran", "the baker", "baker", "the pie woman", "pie woman", "piewoman"]);
+const VOSS = answered(["voss", "mr voss", "mister voss", "the company", "company", "the electric company", "electric company"]);
+const FENN = answered(["fenn", "mr fenn", "mister fenn", "albert", "albert fenn", "the lamplighter", "lamplighter", "the deceased", "deceased"]);
+
 // ---- The ending pictures ----------------------------------------------------------------------------------------------------
 // The drawings are language-free (pictures.js); what each one says to a screen reader (alt) is said here, in this world's language.
 const endingPictures = {
@@ -550,6 +557,32 @@ const rules = [
     do: [{ say: "\"On what evidence?\" says Dr Mabbott, mildly. \"The court hears words, not feelings. The fog will have kept the last ones said at the lamp.\"" }] },
   { id: "say_in_court", match: { verb: "say" }, if: [{ "player.at": "court" }],
     do: [{ say: "\"If you are naming someone,\" says Dr Mabbott, \"name them plainly, and the court will write it down.\"" }] },
+
+  // The court asks for the name itself: in the witness box (every time you step in), or when you talk to Dr Mabbott with
+  // the last words in hand. One answer, then play goes on. (You can only be in the court while it sits; an answer typed
+  // after it has risen, on the Row, goes unheard.)
+  { id: "box_asks", match: { verb: ["enter", "sit", "climb", "lie"], obj: "witness_box" }, if: [{ "player.in": { "!=": "witness_box" } }],
+    do: [{ set: "player.in", to: "witness_box" }, { say: "$obj.enter" },
+         { say: "\"The court will hear a name,\" says Dr Mabbott, pen lifted. \"Whose?\"" }, { ask: "name" }] },
+  { id: "box_asks_again", match: { verb: ["enter", "sit", "climb", "lie"], obj: "witness_box" },
+    do: [{ say: "\"The court will hear a name,\" says Dr Mabbott, pen lifted. \"Whose?\"" }, { ask: "name" }] },
+  { id: "mabbott_asks", match: { verb: "talk", obj: "mabbott" }, if: [{ "last_words.at": "player" }],
+    do: [{ say: "\"The court will hear a name,\" says Dr Mabbott, pen lifted. \"Whose?\"" }, { ask: "name" }] },
+  // The answer: the same as naming them (ACCUSE, SAY), so the same questions and lines.
+  { id: "name_blank", match: { verb: "answer", question: "name", blank: true }, if: [{ "player.at": "court" }],
+    do: [{ say: "You say nothing. The fog in the jury chairs leans in, and waits with you." }] },
+  { id: "name_halloran", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "last_words.at": "player" }, { "player.answers.name": { in: HALLORAN } }],
+    do: [{ confirm: "Name Mrs Halloran before the court? A name said here stays said.", yes: [{ change: "truth_ending" }],
+           no: [{ say: "You close your mouth on it. The fog in the jury chairs sits back, disappointed." }] }] },
+  { id: "name_halloran_bare", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "player.answers.name": { in: HALLORAN } }],
+    do: [{ say: "\"On what evidence?\" says Dr Mabbott, mildly. \"The court hears words, not feelings. The fog will have kept the last ones said at the lamp.\"" }] },
+  { id: "name_voss", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "player.answers.name": { in: VOSS } }],
+    do: [{ confirm: "Name Mr Voss before the court? A name said here stays said.", yes: [{ change: "blamed_ending" }],
+           no: [{ say: "You close your mouth on it. The fog in the jury chairs sits back, disappointed." }] }] },
+  { id: "name_fenn", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "player.answers.name": { in: FENN } }],
+    do: [{ say: "\"The deceased can't be named at his own inquest,\" says Dr Mabbott. \"It upsets them.\"" }] },
+  { id: "name_other", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }],
+    do: [{ say: "\"Not on the constable's list,\" says Dr Mabbott. \"Persons present at the lamp: Mr Voss, Mrs Halloran, and the deceased.\"" }] },
 
   // The pole lies in the hut as a shape in its picture: taking it removes the shape, dropping it back in the hut redraws it.
   { id: "pole_up", match: { verb: "take", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "hut" }],

@@ -3,9 +3,10 @@
 // Pure: reads the state and the set, never changes either. The engine (js/engine.js) decides what to do with the
 // findings: a world's are warnings (it still loads), an AI change set's are reasons to refuse it.
 //
-//   checkSet(state, set) → [{ piece, text, effect? }]      "rules/dog-attacks", `uses "dog.angr", not declared (…)`
+//   checkSet(state, set) → [{ piece, text, effect?, refuse? }]   "rules/dog-attacks", `uses "dog.angr", not declared (…)`
+// A finding marked `refuse` (an effect or an operator only the engine writes: ENGINE_ONLY, ENGINE_ONLY_OPERATORS) refuses the
+// set even where the others only warn.
 
-import { ACTIONS } from "./actions.js";
 import { ANSWERED } from "./verbs.js";
 import { PARTS, LINES } from "./opening.js";
 import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js";
@@ -15,7 +16,7 @@ import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
 const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "ambience", "waitFor", "placeholder", ...ANSWERED];
 const OBJECT = ["at", "portable", "container", "open", "locked", "scenery", "name", "note", "actions", "heldActions", "examine",
-  "here", "words", "sprite", "floorSprite", "img", "alt", "use", "leads", "lock", "enterable", "parts", "mentions", "topics",
+  "here", "words", "sprite", "floorSprite", "img", "use", "leads", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
 
@@ -39,7 +40,8 @@ export const FIELDS = {
   every: ["seconds", "turns"],
   match: ["verb", "obj", "obj2", "dir", "prep", "topic", "text", "scenery", "absent", "question", "value", "blank"],
   puzzle: PUZZLE,
-  // Each effect, by its main key, with the other fields it may carry. `add` and `remove` carry the new thing's own fields.
+  // Each effect, by its main key, with the other fields it may carry, in the order the engine reads the keys (effectKind
+  // relies on it). `add` and `remove` carry the new thing's own fields.
   effect: {
     say: ["say", "img", "style", "arg", "vary", "things"],
     describe: ["describe"],
@@ -56,7 +58,7 @@ export const FIELDS = {
     draw: ["draw", "add", "remove", "replace", "restyle", "cycles", "overlays"],
     time: ["time", "weekday"],
     confirm: ["confirm", "yes", "no", "style", "arg"],
-    ask: ["ask", "blankOk"],
+    ask: ["ask"],
     end: ["end", "picture"], know: ["know"], hint: ["hint"], restart: ["restart"], session: ["session"],
     useAs: ["useAs"], useHow: ["useHow"], listenFor: ["listenFor"],
     "add room": ["add", "id", ...ROOM],
@@ -70,17 +72,30 @@ export const FIELDS = {
     "remove rule": ["remove", "id"]
   },
   // The engine's own values that rules read and set by path: "player.health", "time.hour".
-  player: ["at", "in", "carrying", "health"],
+  player: ["at", "in", "carrying", "health", "answers"],   // answers: what was typed to each `ask`, by its key (player.answers.name)
   game: ["ended", "ending", "entrance", "turn", "clock"],
   time: ["hour", "minute", "second", "day", "weekday"],
   any: ["place", "chain"]                  // read on any thing: where it really is, and what it is in
 };
 
-// The engine's own numbers keep to their own ranges, whatever sets them (the same clamp a declared property's range gets).
-// The engine's own numbers (INTERFACE.md §6c): health, 5 (well) to 0 (the end).
+// The engine's own effects: the standard verbs' (`unlock`, `useAs`, `useHow`, `listenFor`), the opening's (`hint`) and the
+// session's (`restart`, `session`). They are on the list above because the engine's own rules use them, which never pass
+// this check; a world or an AI change set that writes one is refused.
+export const ENGINE_ONLY = ["unlock", "hint", "listenFor", "useAs", "useHow", "restart", "session"];
+// The engine's own condition operator: `holds` (conditions kept as data hold: the standard WAIT reads a `waitFor.if` with
+// it). Only the engine's own rules use it; a world or an AI change set that writes it is refused, like an effect above.
+export const ENGINE_ONLY_OPERATORS = ["holds"];
+
+// The engine's own fields of one kind of thing, the ones no world declares: an object's (with where it really is and what
+// it is in), a room's (and where it is), or the player's, the game's or the clock's. Any kind at all when it isn't known.
+export const ownFields = (kind) => kind === "object" ? [...FIELDS.object, ...FIELDS.any] : kind === "room" ? [...FIELDS.room, "place"]
+  : kind ? FIELDS[kind] ?? [] : [...FIELDS.object, ...FIELDS.room, ...FIELDS.any];
+
+// The engine's own numbers keep to their own ranges, whatever sets them (the same clamp a declared property's range gets):
+// health, 5 (well) to 0 (the end; INTERFACE.md §6c).
 export const RANGES = { "player.health": [0, 5] };
 
-export const PROPERTY_TYPES = ["number", "boolean", "string"];
+const PROPERTY_TYPES = ["number", "boolean", "string"];
 
 // ---- Words from the state in a text --------------------------------------------------------------------------------
 // A text can hold the world's own words, [time] [day] [weekday] [way] (js/narrator.js), and any declared property
@@ -89,18 +104,31 @@ export const PROPERTY_TYPES = ["number", "boolean", "string"];
 // left as written, so it is easy to spot (and the checker warns of it).
 export const TEXT_WORDS = ["time", "day", "weekday", "way"];
 export const PROPERTY_WORD = /\[([A-Za-z_][\w-]*)\.([A-Za-z_][\w-]*)\]/g;
+// And what the player typed to a question (`ask`), [player.answers.<key>]: as typed (trimmed), nothing before it is answered.
+export const ANSWER_WORD = /\[player\.answers\.([A-Za-z_][\w-]*)\]/g;
+export const answerText = (state, key) => { const v = state.player?.answers?.[key]; return typeof v === "string" ? v : ""; };
+
+// ---- Questions for words -------------------------------------------------------------------------------------------
+// The key of an `ask` ("name", "password", "verdict"): a plain word, never "confirm" (the yes/no question's own).
+export const ASK_KEY = /^[A-Za-z_][\w-]*$/;
+// An answer as conditions compare it: no case, no accents (ñ is n), no punctuation, single spaces, trimmed. Both sides of the
+// comparison are folded, so a world writes its words plainly: { "player.answers.verdict": { "in": ["halloran", "mrs halloran"] } }.
+export const foldAnswer = (t) => String(t).normalize("NFD").replace(/\p{M}+/gu, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+
+// What the first part of a path names: the player, the game (the state itself), or a thing or a room by its id; undefined if none.
+export const ownerOf = (state, id) => id === "player" ? state.player : id === "game" ? state : state.world.objects[id] ?? state.world.rooms[id];
 
 // What a declared property holds now, as a text: its number or string, "" for anything else; undefined if it isn't declared.
 // The same places a rule reads it from: the player, the game, a thing, a room.
 export function propertyText(state, id, prop) {
   const d = state.properties?.[id + "." + prop];
   if (!d) return undefined;
-  const o = id === "player" ? state.player : id === "game" ? state : state.world.objects[id] ?? state.world.rooms[id];
-  const v = o?.[prop] ?? d.start ?? null;
+  const v = ownerOf(state, id)?.[prop] ?? d.start ?? null;
   return typeof v === "number" || typeof v === "string" ? String(v) : "";
 }
 
-// The properties a text names, as they are now: { "player.name": "Diego" } (declared ones only). The engine keeps this
+// The properties a text names, as they are now: { "player.name": "Diego" } (declared ones only; and the answers it names,
+// { "player.answers.verdict": "Voss" }). The engine keeps this
 // with a line it says, as it keeps the time ([time] in it), so the line shows what was true when it was said.
 export function propertyWords(state, text) {
   const out = {};
@@ -109,15 +137,19 @@ export function propertyWords(state, text) {
     const v = propertyText(state, id, prop);
     if (v !== undefined) out[id + "." + prop] = v;
   }
+  for (const [, key] of text.matchAll(ANSWER_WORD)) out["player.answers." + key] = answerText(state, key);
   return out;
 }
 
-// The main key of an effect (the order the engine reads them in), as a name from FIELDS.effect, or null.
-const KINDS = ["say", "describe", "move", "set", "hurt", "heal", "echo", "travel", "connect", "disconnect", "unlock", "change", "draw", "time",
-  "confirm", "ask", "end", "know", "hint", "restart", "session", "useAs", "useHow", "listenFor"];
-export function effectKind(e) {
-  if (typeof e.add === "string" && !("draw" in e)) return "add " + e.add;
-  if (typeof e.remove === "string" && !("draw" in e)) return "remove " + e.remove;
+// The main key of an effect, as a name from FIELDS.effect, or null. FIELDS.effect lists them in the order the engine
+// reads them (js/engine.js, apply), so an effect with two main keys is named as the engine reads it.
+const KINDS = Object.keys(FIELDS.effect).filter(k => !k.includes(" "));
+// Is this effect an `add` or a `remove` of a thing? (A picture edit's own `add` / `remove` are shapes, not things: `draw` goes first.)
+export const adding = (e) => typeof e.add === "string" && !("draw" in e);
+export const removing = (e) => typeof e.remove === "string" && !("draw" in e);
+function effectKind(e) {
+  if (adding(e)) return "add " + e.add;
+  if (removing(e)) return "remove " + e.remove;
   return KINDS.find(k => k in e) ?? null;
 }
 
@@ -187,9 +219,9 @@ export function checkSet(state, set) {
   const objects = new Set([...Object.keys(state.world.objects), ...adds("object")]);
   const rooms = new Set([...Object.keys(state.world.rooms), ...adds("room")]);
   const kindOf = (id) => id === "player" || id === "game" || id === "time" ? id : objects.has(id) ? "object" : rooms.has(id) ? "room" : null;
-  const own = (kind) => kind === "object" ? [...FIELDS.object, ...FIELDS.any] : kind === "room" ? [...FIELDS.room, "place"]
-    : kind ? FIELDS[kind] : [...FIELDS.object, ...FIELDS.room, ...FIELDS.any];
-  const note = (piece, text, effect) => { if (!found.some(f => f.piece === piece && f.text === text)) found.push({ piece, text, ...(effect ? { effect } : {}) }); };
+  const note = (piece, text, effect, refuse) => {
+    if (!found.some(f => f.piece === piece && f.text === text)) found.push({ piece, text, ...(effect ? { effect } : {}), ...(refuse ? { refuse } : {}) });
+  };
 
   // Ids are unique across rooms, objects and puzzles: one the game has already, or an earlier effect of this set adds, is a finding.
   const taken = new Map([...Object.keys(state.world.rooms).map(id => [id, "room"]), ...Object.keys(state.world.objects).map(id => [id, "object"]),
@@ -219,13 +251,13 @@ export function checkSet(state, set) {
     const [, dollar, id, prop] = m;
     const here = dollar && (id === "obj" || id === "obj2" || id === "in") ? "object" : dollar && id === "here" ? "room" : undefined;
     if (here !== undefined) {                                   // the action's thing, or your room: any id; declared by name
-      if (own(here).includes(prop) || Object.keys(declared).some(d => d.endsWith("." + prop))) return;
+      if (ownFields(here).includes(prop) || Object.keys(declared).some(d => d.endsWith("." + prop))) return;
       return note(piece, `uses "${raw}", whose property "${prop}" isn't declared${suggest(prop, Object.keys(declared).map(d => d.slice(d.indexOf(".") + 1)))}`, effect);
     }
     const kind = kindOf(id);
-    if (own(kind).includes(prop) || declared[id + "." + prop]) return;
+    if (ownFields(kind).includes(prop) || declared[id + "." + prop]) return;
     // A declared name first; the engine's own fields only for a longer word (a short one is too near a verb: "shut", "shout").
-    const near = suggest(id + "." + prop, Object.keys(declared)) || (prop.length >= 5 ? suggest(id + "." + prop, own(kind).map(f => id + "." + f)) : "");
+    const near = suggest(id + "." + prop, Object.keys(declared)) || (prop.length >= 5 ? suggest(id + "." + prop, ownFields(kind).map(f => id + "." + f)) : "");
     note(piece, `uses "${id}.${prop}", not declared${near}`, effect);
   };
 
@@ -238,6 +270,8 @@ export function checkSet(state, set) {
         continue;
       }
       reference(piece, path, effect, true);
+      for (const op of isObject(want) ? Object.keys(want) : []) if (ENGINE_ONLY_OPERATORS.includes(op))
+        note(piece, `"${op}" is one of the engine's own operators: only the game itself writes it`, effect, true);
       for (const v of isObject(want) ? Object.values(want).flat() : [want]) reference(piece, v, effect);
     }
   };
@@ -249,6 +283,7 @@ export function checkSet(state, set) {
     const kind = effectKind(e);
     if (!kind) return note(piece, `an effect with no known kind (${Object.keys(e).join(", ") || "empty"})`, e);
     if (!(kind in FIELDS.effect)) return note(piece, `can't ${kind}`, e);
+    if (ENGINE_ONLY.includes(kind)) return note(piece, `"${kind}" is one of the engine's own effects: only the game itself writes it`, e, true);
     const named = { "add room": "rooms/", "add object": "objects/", "add rule": "rules/", "add change": "changes/", "add puzzle": "puzzles/", "add word": "words/", "add picture": "pictures/" }[kind];
     if (named) piece = named + (kind === "add rule" ? e.rule?.id : kind === "add word" ? e.verb : e.id);
     if (["add room", "add object", "add puzzle"].includes(kind)) claim(piece, kind.slice(4), e);
@@ -376,7 +411,7 @@ export function checkSet(state, set) {
     if (!m) return note(piece, `"${key}" isn't named like thing.property (dog.anger)`, e);
     const [, id, prop] = m, kind = kindOf(id);
     if (!kind) note(piece, `${key}: there is no thing or room called "${id}"${suggest(id, [...objects, ...rooms, "player", "game"])}`, e);
-    else if (own(kind).includes(prop)) return note(piece, `${key}: "${prop}" is one of the engine's own fields`, e);
+    else if (ownFields(kind).includes(prop)) return note(piece, `${key}: "${prop}" is one of the engine's own fields`, e);
     if (state.properties?.[key]) return note(piece, `${key} is already declared`, e);
     if (!isObject(d)) return note(piece, `${key} must be { type, min?, max?, start? }`, e);
     fields(piece, d, FIELDS.property, key, null, e);

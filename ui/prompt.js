@@ -9,7 +9,7 @@ import { makeHistory } from "./history.js";
 const IDLE_HINT = 120000;   // ms with no command and nothing typed before the hint comes back
 
 // Earlier commands (↑ / ↓): the commands run, typed or clicked (js/main.js runCommand calls remember()), kept for this visit to the page (ui/history.js). This module
-// is created once, so they carry across a new game and a language change; they are never saved.
+// is created once, so they carry across a new game and a loaded one; they are never saved.
 
 // Set up the command line on its <form>. Returns update(), focus(), remember(), typing(), hint(), clearHint() and clear().
 export function mount(root, on) {

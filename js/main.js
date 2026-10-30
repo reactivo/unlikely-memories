@@ -6,19 +6,18 @@
 import en from "../content/en.js";
 import es from "../content/es.js";
 import { newState, FORMAT } from "./state.js";
-import { step, nextDue, ask } from "./engine.js";
-import { parse, normalise, retype } from "./parser.js";
-import { tell, describe, text, listName, placeOf } from "./narrator.js";
-import { parts } from "./time.js";
+import { step, nextDue, ask, askedFor, withoutYesNo } from "./engine.js";
+import { parse, normalise, retype, inScope } from "./parser.js";
+import { tell, describe, text, listName, placeName, joined } from "./narrator.js";
+import { parts, hhmm } from "./time.js";
 import * as saves from "./saves.js";
 import { suggestion, topicsLine, story } from "./view.js";
 import { walk, tripWords } from "./map.js";
-import { inScope } from "./parser.js";
 import { createClock } from "./clock.js";
-import { routeOf } from "./route.js";
+import { routeOf, hashOf } from "./route.js";
 import { listFor, thumbnailFor } from "../worlds/index.js";
 import { load, store } from "./prefs.js";
-import { objectImage } from "../ui/sprite.js";
+import { itemSVG } from "../ui/sprite.js";
 import * as titlebar from "../ui/titlebar.js";
 import * as scene from "../ui/scene.js";
 import * as fold from "../ui/fold.js";
@@ -44,7 +43,7 @@ const UNDO_STEPS = 50;        // how many of your moves UNDO can take back
 const TRANSCRIPT = 40;        // story paragraphs kept with a save, shown again when it's loaded
 
 // Language: the one remembered on this device, else the browser's language if we have it, else English.
-const LANGS = ["en", "es"];
+const LANGS = Object.keys(LANG_PACKS);
 const browserLang = (navigator.language || "en").slice(0, 2).toLowerCase();
 let lang = LANGS.includes(load("parser-lang")) ? load("parser-lang") : LANGS.includes(browserLang) ? browserLang : "en";
 let musicOn = load("parser-music") === "on";             // remembered music switch, off by default
@@ -77,9 +76,9 @@ const on = {
   music: () => { musicOn = !musicOn; store("parser-music", musicOn ? "on" : "off"); redraw(); },
   homeLanguage: (l) => setHomeLang(l),                   // EN · ES on the list of games
   quit: () => quit(),                                    // "Quit" in options (or the QUIT command): back to the list of games
-  play: (id, fresh = false) => {                        // LOAD GAME / NEW GAME on a card: the address changes, route() follows
+  play: (id, fresh = false) => {                        // CONTINUE / NEW GAME on a card: the address changes, route() follows
     if (fresh) freshFor = id;                            // (NEW GAME on a world with a saved game: open it with a new game, once; its kept game stays)
-    location.hash = id;
+    location.hash = hashOf(id);
   },
   restart: () => restart({ ask: true }),                 // "Restart game" in options (and Esc): asks in the story first, unless the story is over
   travel: (room) => travel(room),                        // a room was clicked on the map: walk there
@@ -114,9 +113,9 @@ const landing = home.mount($(".home"), on);              // the list of games: n
 // Esc: restart the game (it asks first, in the story).
 ui.keys.add({ key: "Escape", when: () => view === "game" && !restarting, release: () => on.restart() });   // (not on the list of games)
 
-// Redraw the screen: each piece gets the state (plus the texts and settings) and updates what changed since
-// last time. reason: "turn" (a command), "tick" (the world on its own), "restore" (new game, language change:
-// no animation).
+// Redraw the screen: each piece gets the state (plus the language pack and the music switch) and updates what changed since
+// last time. reason: "turn" (a command), "tick" (the world on its own), "restore" (new game, undo, load: no
+// animation).
 function redraw(reason) {
   const next = { state, pack: packOf(state), music: musicOn };
   for (const piece of Object.values(ui)) piece.update(shown, next, reason);
@@ -130,8 +129,7 @@ function redraw(reason) {
 function runCommand(raw, kept = raw) {
   if (restarting) return;                                // a new game is about to start
   ui.prompt.remember(kept);                              // (the history ignores empty lines)
-  const q = state.pending.question;
-  if (!raw.trim() && !(q && q.blankOk)) return;          // ignore empty input (unless the question accepts it)
+  if (!raw.trim() && !askedFor(state)) return;           // ignore empty input (unless a question for words waits: it is the answer)
   const from = state.player.at;
   turnStart = null;
   ui.prompt.clearHint();                                 // a command: the hint steps aside (it comes back after two idle minutes)
@@ -146,13 +144,12 @@ function runCommand(raw, kept = raw) {
 function travel(room) {
   if (restarting || state.ended) return;
   const pack = packOf(state), from = state.player.at, before = state;
-  const clear = state.pending.question ? { ...state, pending: { ...state.pending, question: null } } : state;   // a question waiting is dropped, as by a session command
-  const trip = walk(clear, room, pack, clock.now());
+  const trip = walk(withoutQuestion(state), room, pack, clock.now());   // a question waiting is dropped: a walk is moves, not an answer
   if (!trip) return;                                     // here already, or not on the map
   turnStart = null; pendingWhich = null;
   ui.prompt.clearHint();
   echo("> " + tripWords(trip.path, pack));
-  history.push(before); if (history.length > UNDO_STEPS) history.shift();
+  keepForUndo(before);
   state = trip.next;
   show(trip.paragraphs);
   redraw("turn");
@@ -184,20 +181,25 @@ function examineObject(id, label, fromInventory = false) {
   suggest(suggestion(state, pack, id, fromInventory, true));
 }
 
+// The state with no question waiting (the same state when none is).
+const withoutQuestion = (s) => (s.pending.question ? { ...s, pending: { ...s.pending, question: null } } : s);
+// Keep a state for UNDO: the newest last, at most UNDO_STEPS.
+function keepForUndo(s) { history.push(s); if (history.length > UNDO_STEPS) history.shift(); }
+
 // Parse and play some typed words (also used by OOPS, which replays earlier words).
 function play(raw) {
   const which = pendingWhich;
   pendingWhich = null;                                   // it waits for the next input only
   const pack = packOf(state), parsed = parse(raw, state, pack, seenText(pack), which);
-  if (parsed.meta) {                                     // a session command drops any question waiting
-    if (state.pending.question) state = { ...state, pending: { ...state.pending, question: null } };
+  if (parsed.meta) {                                     // a session command drops a yes/no question; a question for words stays open
+    state = withoutYesNo(state);
     return session(parsed.meta, parsed.arg);
   }
   lastInput = raw; lastUnknown = null;
   if (parsed.error) return problem(parsed.error, raw);
   // Answering one of the session's own questions (undo, load…) isn't a move to take back.
-  const q = state.pending.question, answering = parsed.actions[0]?.verb === "answer" && q?.yes?.some(e => e.session);
-  if (!answering) { history.push(state); if (history.length > UNDO_STEPS) history.shift(); }
+  const q = state.pending.question, answering = parsed.actions[0]?.verb === "answer" && parsed.actions[0].question === q?.ask && q?.yes?.some(e => e.session);
+  if (!answering) keepForUndo(state);
   let again = false, then = null;
   for (const action of parsed.actions) {
     const { next, applied, refused } = step(state, { ...action, at: clock.now() });
@@ -226,8 +228,7 @@ function problem(error, raw) {
   const pack = packOf(state);
   let arg = error.arg;
   if (error.say === "@which" || error.say === "@whoMean") {   // "Which do you mean: the green door or the grey door?"
-    const names = arg.map(id => listName(id, state, pack));
-    arg = names.slice(0, -1).join(", ") + pack.or + names.at(-1);
+    arg = joined(arg.map(id => listName(id, state, pack)), pack.or);   // (always two or more)
   }
   if (error.which) pendingWhich = error.which;           // the next input may be the answer
   if (error.word) lastUnknown = error.word;
@@ -330,8 +331,8 @@ async function saveGame() {
 }
 // What LOAD tells about the saved game: where you were, the world's day and time then, and when you saved it.
 function savedDetails(r) {
-  const at = parts((r.played ?? r.state.clock) + (r.state.time?.shift || 0)), pad = (n) => String(n).padStart(2, "0");
-  return { place: placeOf(r.state, packOf(r.state)), day: at.day, time: pad(at.hour) + ":" + pad(at.minute),
+  const at = parts((r.played ?? r.state.clock) + (r.state.time?.shift || 0));
+  return { place: placeName(r.state, packOf(r.state)), day: at.day, time: hhmm(at),
            saved: new Date(r.savedAt ?? Date.now()), now: new Date() };
 }
 
@@ -339,8 +340,8 @@ function savedDetails(r) {
 const record = () => ({ state, transcript, played: clock.now() });   // played: play time when saved
 
 // Save automatically, a moment after the game changes (so closing the tab loses nothing).
-// Moves in quick succession share one save (a moment after the last); `now` saves at once (a new game, a language
-// change), and leaving the page writes a save that's still waiting, so a reload or a closed tab loses nothing.
+// Moves in quick succession share one save (a moment after the last); `now` saves at once (a new game, leaving the
+// game), and leaving the page writes a save that's still waiting, so a reload or a closed tab loses nothing.
 // A game with no world (a language that has none) is not saved.
 function autosave(now = false) {
   clearTimeout(autosaving);
@@ -352,6 +353,7 @@ function autosave(now = false) {
 }
 // Write the automatic save now, also where the page can't wait for the database (see saves.putNow).
 function saveNow() { if (!state?.worldId) return; autosave(true); saves.putNow(state.worldId, saves.AUTO, record()); }
+// Write the automatic save that is waiting, if one is (the tab hidden, the page left).
 function flushSave() { if (autosaving) saveNow(); }
 
 // Continue a saved game: its state, its clock, its story so far (shown at once), no undo history.
@@ -362,7 +364,7 @@ function restore(r) {
   ui.log.clear(); transcript = []; ui.prompt.clear();
   ui.prompt.hint(ui.log.markup(packOf(state).hint), 0, false);   // not shown; it comes back if you're idle
   for (const p of r.transcript || []) {
-    const el = ui.log.say(p.text, p.style || "", p.img ? objectImage(p.img, state) : undefined, true, p.level);
+    const el = ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, true, p.level);
     keep(p);
     if (p.visit) ui.log.newVisit(el, true);               // a room entered here: earlier text is past
   }
@@ -398,7 +400,7 @@ function tick() {
 
 // Add story paragraphs to the log ({ text, style, img }; img = an object's picture shown beside the text).
 function show(paragraphs) {
-  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? objectImage(p.img, state) : undefined, false, p.level), p);
+  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, false, p.level), p);
 }
 // One line of text (a reply, a note) and an echoed command, kept in the transcript too.
 function say(t, style = "") { show([{ text: t, style }]); }
@@ -426,20 +428,6 @@ function suggest(text) {
   ui.prompt.focus();
 }
 
-// Start the story: a fresh state in the chosen language (health carried over if given), the opening room described.
-// id: which world (the one in the address; beginning again, or a new language, keeps it).
-function startStory(health, id) {
-  state = newState({ lang, health, id });
-  state = step(state, { tick: true, at: clock.now() }).next;   // wake the world: timed rules start counting
-  history = []; transcript = [];
-  ui.log.clear(); ui.prompt.clear();
-  show(describe(state, state.player.at, packOf(state)));
-  ui.log.seen();                                         // (the opening is shown from the top: what's followed next is only what comes after it)
-  ui.prompt.hint(ui.log.markup(packOf(state).hint), ui.log.busyFor());   // beside the prompt, once the room is told
-  redraw("restore");
-  schedule(); autosave(true);
-}
-
 // Restart: a whole new game of the same world, from its opening (clock back to zero, story from the top). The ONE way a new game
 // starts, whatever asked for it. It never touches the world's kept game (SAVE / LOAD: saves.GAME): LOAD can always go back to it.
 // The automatic save is simply replaced by the new game's first one.
@@ -457,9 +445,19 @@ function restart({ ask = false, said = false, id } = {}) {
   } else if (ask) confirm("@askRestart", "restart");
   else begin(state.worldId ?? undefined);
 }
+// A new game: the clock from zero, a fresh state in the chosen language, the opening room described, saved at once.
+// id: which world (the one in the address; beginning again keeps it).
 function begin(id) {
   clock.reset(); showTime();
-  startStory(undefined, id);
+  state = newState({ lang, id });
+  state = step(state, { tick: true, at: clock.now() }).next;   // wake the world: timed rules start counting
+  history = []; transcript = [];
+  ui.log.clear(); ui.prompt.clear();
+  show(describe(state, state.player.at, packOf(state)));
+  ui.log.seen();                                         // (the opening is shown from the top: what's followed next is only what comes after it)
+  ui.prompt.hint(ui.log.markup(packOf(state).hint), ui.log.busyFor());   // beside the prompt, once the room is told
+  redraw("restore");
+  schedule(); autosave(true);
   ui.prompt.focus();
 }
 
@@ -483,7 +481,7 @@ function leaveGame() {
   clock.pause();
 }
 
-// Show the list of games: one card per world written in this language, LOAD GAME beside NEW GAME on those with a saved game.
+// Show the list of games: one card per world written in this language, CONTINUE beside NEW GAME on those with a saved game.
 async function showHome() {
   const mine = ++opening;
   leaveGame();

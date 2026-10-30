@@ -7,13 +7,13 @@ import standardVerbs from "./verbs.js";
 import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js";
 import { isExitObject, exitTo, exitConditions, wayFor, connectedExit } from "./exits.js";
 import { parseShape, parseShapes } from "./picture.js";
-import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, nextAfter, WEEKDAYS } from "./time.js";
+import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
 import * as opening from "./opening.js";
-import { translate as translateUse, placeOf, chainOf, shut } from "./use.js";
-import { checkSet, propertyWords, RANGES } from "./fields.js";
+import { translate as translateUse, placeOf, chainOf, shut, isAction } from "./use.js";
+import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer } from "./fields.js";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
-// rules (events, warnings, consequences) and scheduled rules ignore it.
+// rules (events, consequences) and scheduled rules ignore it.
 export const QUIET_AFTER_COMMAND = 20000;
 // Game ms between an automatic line (timed rule or ambience) and the next ambience line. Like the quiet, it holds
 // ambience only: the world's own rules are never delayed (one per tick still orders them).
@@ -30,17 +30,29 @@ const DEFAULTS = { portable: false, scenery: false, container: false, open: fals
 // Returns { next, applied, refused }: the new state, the effects applied (for the narrator) and any refused.
 export function step(state, input) {
   const g = structuredClone(state);
-  const out = { applied: [], refused: [] };
+  const out = { applied: [], refused: [], trusted: true };
   const { at = g.clock, tick, ...action } = input;
   g.clock = at;
   const startedIn = g.player.at;
-  out.trusted = true;
-  let asked = null;                                             // the question this input may be answering
+  let question = null;                                          // the question this input may be answering
+  let open = null;                                              // a question for words that stays open after this input
   if (!tick) {
     g.turn++;
     g.lastCommand = at;                                         // the quiet after a command counts from here
-    asked = g.pending.question;
+    question = g.pending.question;
     g.pending.question = null;     // an answer uses up the question; any other command drops it (PARSER.md layer 0)
+    // A question for words (`ask`) under a yes/no one (the session's UNDO, SAVE…: `confirm` keeps it as `then`): answering
+    // the yes/no one leaves it open; anything else is read as its answer (the parser reads it so).
+    if (question?.then) {
+      if (answering(question, action)) open = question.then;
+      else question = question.then;
+    }
+    if (question && !question.yesNo) {
+      if (answering(question, action)) {                        // the answer: kept, for rules now and later (player.answers)
+        g.player.answers = { ...g.player.answers, [question.ask]: answerText(action.text) };
+        action.text = g.player.answers[question.ask];
+      } else if (action.verb === "help") open = question;      // HELP is told and the question stays
+    }
     if (action.verb === "go" && action.dir === "out" && g.player.in) {   // OUT from inside a thing: get out of it, as "get up" does
       action.verb = "exit"; delete action.dir;
     } else if (action.verb === "go") {
@@ -61,7 +73,8 @@ export function step(state, input) {
     for (const id of [action.obj2, action.obj]) if (id) {        // and the things mentioned lately, newest first,
       g.mentioned = [id, ...(g.mentioned || []).filter(x => x !== id)].slice(0, 6);   // for "lo" / "la" / "them"
     }
-    runAction(g, action, out, asked);
+    runAction(g, action, out, question);
+    if (open && !g.pending.question && !g.ended) g.pending.question = open;
   }
   if (g.player.at !== startedIn) g.asked = {};                 // a new room: conversations start afresh
   const n0 = out.applied.length;
@@ -72,11 +85,15 @@ export function step(state, input) {
   // What the world did on its own (scheduled and timed rules) is marked `aside`: shown set apart, like a stage direction
   // (ui/log.css), even when it falls due during your command, and its echoes with it.
   out.applied = [...echoesLast(out.applied.slice(0, n0)), ...echoesLast(out.applied.slice(n0)).map(e => ({ ...e, aside: true }))];
+  // A question for words asked now: the last line is the system's, in grey, "Type your answer." (every `ask` gets it).
+  const asked = out.applied.findLast(e => "ask" in e);
+  if (asked && g.pending.question?.ask === asked.ask && !g.pending.question.yesNo)
+    out.applied.push({ say: "@typeAnswer", style: "sys", at: worldTime(g) });
   seeHere(g);                                                   // what's in the room has now been seen
   if (g.player.health <= 0 && !g.ended) {                        // out of health: the story ends, whatever the world
     if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its line was said when the health went)
       apply(g, { say: "@hurt.dead", vary: true }, {}, out, "died");
-    if (!out.applied.some(dying)) out.applied.push({ echo: "@health.0", kind: "hurt", level: 0, at: worldTime(g) });   // (and the echo of it)
+    if (!out.applied.some(dying)) echo(x => out.applied.push(x), g, "hurt", 0);   // (and the echo of it)
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
   return { next: g, ...out };
@@ -86,6 +103,18 @@ export function step(state, input) {
 // stays where it is, right after the death's lines and so before the end's own text.
 const dying = (e) => e.echo === "@health.0";
 const echoesLast = (list) => [...list.filter(e => !("echo" in e) || dying(e)), ...list.filter(e => "echo" in e && !dying(e))];
+
+// Is this action the answer to that question? (A yes/no question's answer is `{ verb: "answer", question: "confirm", value }`;
+// a question for words', `{ verb: "answer", question: <its key>, text, blank }`: PARSER.md layer 0.)
+const answering = (q, action) => !!q && action.verb === "answer" && action.question === q.ask;
+// An answer as it is kept: the words typed, trimmed, at most ANSWER_LENGTH characters.
+export const ANSWER_LENGTH = 40;
+const answerText = (t) => (typeof t === "string" ? t.trim().slice(0, ANSWER_LENGTH) : "");
+
+// The question for words waiting (`ask`), if any: the one asked, or the one a yes/no question was asked over (`then`).
+export const askedFor = (state) => { const q = state.pending.question; return (q?.yesNo ? q.then : q) ?? null; };
+// The state with no yes/no question waiting, as a session command leaves it (UNDO, SAVE, MAP…): a question for words stays open.
+export const withoutYesNo = (state) => (state.pending.question?.yesNo ? { ...state, pending: { ...state.pending, question: state.pending.question.then ?? null } } : state);
 
 // Ask the player something for the controller (undo, load…): a `confirm` effect applied now, outside any turn.
 // Returns { next, applied, refused }, like step().
@@ -103,11 +132,13 @@ export function ask(state, effect) {
 // `properties` declares the set's own properties (ARCHITECTURE.md §3, "Fields and properties"). `fields` says what to do
 // about a field the engine doesn't know or a property that isn't declared (js/fields.js): "warn" (a world: it still
 // loads, the findings come back as `warnings` and are kept in state.warnings) or "refuse" (the AI's: the set is
-// refused with the reasons). Without it the set isn't checked (the engine's and the tests' own sets).
+// refused with the reasons). Either way an effect or an operator only the engine writes (`restart`, `hint`…, `holds`: ENGINE_ONLY) refuses the
+// set. Without it the set isn't checked (the engine's and the tests' own sets).
 export function applyChangeSet(state, set, { protect = true, fields = null } = {}) {
   const found = fields ? checkSet(state, set) : [];
-  if (fields === "refuse" && found.length)
-    return { next: state, applied: [], refused: found.map(f => ({ effect: f.effect ?? null, reason: `${f.piece}: ${f.text}` })) };
+  const refusing = fields === "refuse" ? found : found.filter(f => f.refuse);   // the engine's own effects: refused in a world too
+  if (refusing.length)
+    return { next: state, applied: [], refused: refusing.map(f => ({ effect: f.effect ?? null, reason: `${f.piece}: ${f.text}` })) };
   const g = structuredClone(state);
   if (set.properties && typeof set.properties === "object") g.properties = { ...g.properties, ...structuredClone(set.properties) };
   const out = { applied: [], refused: [], trusted: false };     // a world's changes never touch the opening
@@ -162,7 +193,7 @@ export function nextDue(state) {
     if (spent(state, r)) continue;                                           // a `once` rule that has fired never wakes the timer
     let t = r.when === "every" && r.every.seconds ? state.timers[r.id]
           : r.when === "every" && state.timers[r.id] <= state.turn ? 0       // a per-turn rule held back: it runs on a tick
-          : r.when === "at" ? (x => (x === null ? undefined : x - shift))(nextAfter(scheduleOf(r.at), state.time?.seen ?? 0))
+          : r.when === "at" ? (x => (x === null ? undefined : x - shift))(occursBetween(scheduleOf(r.at), state.time?.seen ?? 0, Number.MAX_SAFE_INTEGER))
           : undefined;
     if (t !== undefined && r.ambient) t = Math.max(t, quietEnd);   // ambience waits out the quiet
     if (t !== undefined && (due === null || t < due)) due = Math.max(0, t);
@@ -177,12 +208,12 @@ export function nextDue(state) {
 // game is locked: "begin again" (the parser reads it only then) begins again, and anything else is told, in grey, that
 // the story is over (LOAD and UNDO are the controller's, and their questions are answered above).
 // In the opening (a `fixed` room) only its own rules apply: nothing a world adds reaches it.
-function runAction(g, action, out, asked) {
-  if (action.verb === "answer" && asked?.yes) {
+function runAction(g, action, out, question) {
+  if (question?.yesNo && answering(question, action)) {
     out.answer = { rule: "confirm", generic: false };
-    const effects = action.value === "yes" ? asked.yes : (asked.no || [{ say: "@confirmNo" }]);
+    const effects = action.value === "yes" ? question.yes : (question.no || [{ say: "@confirmNo" }]);
     const trusted = out.trusted;
-    out.trusted = asked.trusted;                                 // as trusted as whoever asked
+    out.trusted = question.trusted;                              // as trusted as whoever asked
     effects.forEach((e, i) => apply(g, e, action, out, "confirm#" + i));
     out.trusted = trusted;
     return;
@@ -230,7 +261,6 @@ function run(g, rule, action, out) {
   out.trusted = was;
 }
 
-const isAction = (r) => (r.when || "action") === "action";
 // A rule with `once: true` fires at most once per game: the engine records it in `state.fired` when it runs, and from
 // then on it no longer matches, comes due or counts (action, scheduled and timed rules alike).
 const spent = (g, r) => !!(r.once && g.fired?.[r.id]);
@@ -245,17 +275,22 @@ function matches(match = {}, action) {
 // Do all the conditions hold? Each is { path: value } (equal) or { path: { operator: value } }. The operator
 // `holds` is for conditions kept as data (a room's `waitFor.if`): { "$here.waitFor.if": { holds: true } } is true when
 // the conditions at that path all hold, or when there are none. `any` is "or": { any: [ { "dog.asleep": true }, { "dog.tied": true } ] }.
+// An answer the player typed (`player.answers.<key>`) is compared to words without case, accents, punctuation or extra
+// spaces, on both sides ("Mrs. Halloran!" is "mrs halloran"; js/fields.js, foldAnswer): `=`, `!=`, `in` and plain equality.
 export function holds(g, conditions = [], action = {}) {
   return conditions.every(c => Object.entries(c).every(([path, want]) => {
     // { any: [ cond, cond, … ] }: at least one holds (an item that is a list means all of that list).
     if (path === "any") return Array.isArray(want) && want.some(x => holds(g, Array.isArray(x) ? x : [x], action));
-    const have = read(g, path, action);
-    if (want === null || typeof want !== "object") return have === fill(g, want, action);
+    const words = isAnswer(path) ? folded : (x) => x;
+    const have = words(read(g, path, action));
+    if (want === null || typeof want !== "object") return have === words(fill(g, want, action));
     return Object.entries(want).every(([op, v]) => op === "holds"
       ? holds(g, Array.isArray(have) ? have : [], action) === v
-      : compare(have, op, fill(g, v, action)));
+      : compare(have, op, words(fill(g, v, action))));
   }));
 }
+const isAnswer = (path) => /^\$?player\.answers\./.test(path);
+const folded = (x) => (typeof x === "string" ? foldAnswer(x) : Array.isArray(x) ? x.map(folded) : x);
 
 // Compare with an operator: = != < <= > >=, "in" (one of a list), "has" (a list has it: `$obj2.chain` has `$obj`), or
 // "between" [from, to) (wrapping round: the hours between 22 and 6 are the night).
@@ -294,7 +329,7 @@ export function exitNow(g, roomId, dir, action = {}) {
 function read(g, path, action) {
   if (path === "$exit") return exitNow(g, g.player.at, action.dir, action).go;     // "$exit.closed": the line of a shut way
   if (path === "$exit.closed") return exitNow(g, g.player.at, action.dir, action).closed;
-  if (/^\$\w+$/.test(path) && path !== "$obj" && path !== "$here" && path in prefixed(action)) return action[path.slice(1)] ?? null;   // "$topic"
+  if (/^\$\w+$/.test(path) && path !== "$obj" && path !== "$here" && Object.hasOwn(action, path.slice(1))) return action[path.slice(1)] ?? null;   // "$topic"
   path = path.replace(/\.\$(\w+)/g, (_, k) => "." + (action[k] ?? ""));      // "$obj.topics.$topic.says": the action's topic
   if (/^\$here\./.test(path)) path = g.player.at + path.slice(5);           // "$here.visited": your room's
   else if (/^\$in\./.test(path)) path = (g.player.in ?? "") + path.slice(3); // "$in.name": what you're in or on
@@ -303,6 +338,7 @@ function read(g, path, action) {
   else if (path.startsWith("$")) path = path.slice(1);                      // "$letter.examine": a named thing's
   const [id, ...rest] = path.split(".");
   const prop = rest.join(".");
+  if (id === "player" && rest[0] === "answers") return rest.length === 2 ? g.player.answers?.[rest[1]] ?? null : null;   // "player.answers.name": what was typed
   if (id === "player") return g.player[prop] ?? startOf(g, id, prop);
   if (id === "game") return g[prop] ?? startOf(g, id, prop);
   if (id === "time") return parts(worldTime(g), g.time?.weekday)[prop] ?? null;   // "time.hour", "time.day", "time.weekday"
@@ -316,8 +352,6 @@ function read(g, path, action) {
 
 // A declared property's start (js/fields.js): what it is until something sets it. Null if it has none.
 const startOf = (g, id, prop) => g.properties?.[id + "." + prop]?.start ?? null;
-
-const prefixed = (action) => Object.fromEntries(Object.entries(action).map(([k, v]) => ["$" + k, v]));
 
 // Fill in variables in a value: "$obj" (the action's object), "$here" (your room), "$text" (what you typed as
 // an answer), "$exit", "$obj.<property>", "$<id>.<property>" (any object's, room's, the player's or the game's).
@@ -442,6 +476,7 @@ function speaks(g, effects, depth = 0) {
 // A room's ambience says each line once per visit (the said ones are kept in g.ambienceSaid[room]; arriving clears
 // them). Never the line before, even across visits.
 const ambienceOver = (g, r) => (g.ambienceSaid?.[r.ambient]?.length || 0) >= r.do[0].say.length;
+// The ambience rule with one line to say: one not said this visit, picked with the seeded numbers.
 function ambienceLine(g, r) {
   const lines = r.do[0].say, said = g.ambienceSaid[r.ambient] ??= [], key = r.id + "#0";
   let left = lines.map((_, i) => i).filter(i => !said.includes(i));
@@ -475,9 +510,8 @@ function apply(g, e, action, out, key) {
 
   // `add` and `remove` first: what they add carries its own fields, which can share names with effects (a room's
   // `describe`, an object's `move`), so those mustn't be read as effects.
-  // (A picture edit's own `add` / `remove` are shapes, not things: `draw` goes first.)
-  if (typeof e.add === "string" && !("draw" in e)) return addThing(g, e, refuse, done);
-  if (typeof e.remove === "string" && !("draw" in e)) return removeThing(g, e, refuse, done);
+  if (adding(e)) return addThing(g, e, refuse, done);
+  if (removing(e)) return removeThing(g, e, refuse, done);
 
   if ("say" in e) {                                  // a line for the narrator: "@key" (pack) or text
     let text = e.say, pick, prev;
@@ -522,7 +556,7 @@ function apply(g, e, action, out, key) {
     // Of the player, the game, an object or a room; deeper paths reach inside it: "beach.describe.0" is the first
     // paragraph of the beach's text (an existing one, or the next one).
     const [id, ...path] = e.set.split(".");
-    let target = id === "player" ? g.player : id === "game" ? g : g.world.objects[id] || g.world.rooms[id];
+    let target = ownerOf(g, id);
     if (!target) return refuse("no such object: " + id);
     if (!path.length) return refuse("set what? " + e.set);
     for (const key of path.slice(0, -1)) {
@@ -546,7 +580,7 @@ function apply(g, e, action, out, key) {
     done({ set: e.set, to: value });
     if (e.set === "player.health" && typeof was === "number" && value < was) hurtLine(g, null, done);
     else if (e.set === "player.health" && typeof was === "number" && value > was) echo(done, g, "healed", value);
-  } else if ("hurt" in e) {                          // hurt the player: { hurt: 1, says: "Something caught you." } (2 for something serious)
+  } else if ("hurt" in e) {                          // hurt the player: { hurt: 1, says: "Something caught you." } (1 ordinary … 5 an instant death)
     const n = fill(g, e.hurt, action);
     if (typeof n !== "number" || !(n > 0)) return refuse("hurt by how much? " + e.hurt);
     const [lo] = RANGES["player.health"], was = g.player.health;
@@ -634,11 +668,16 @@ function apply(g, e, action, out, key) {
     if (!Array.isArray(e.yes) || (e.no && !Array.isArray(e.no))) return refuse("a confirm needs yes: [effects] (and no: [effects], if any)");
     const said = fill(g, e.confirm, action);
     if (said === null || said === undefined || said === "") return refuse("nothing to ask: " + e.confirm);
-    g.pending.question = { ask: "confirm", yesNo: true, yes: e.yes, ...(e.no ? { no: e.no } : {}), trusted: !!out.trusted };
+    // A question for words waiting (the session asks over it: UNDO, SAVE…) is kept under it, `then`, and stays open.
+    const under = g.pending.question && !g.pending.question.yesNo ? g.pending.question : g.pending.question?.then;
+    g.pending.question = { ask: "confirm", yesNo: true, yes: e.yes, ...(e.no ? { no: e.no } : {}), trusted: !!out.trusted, ...(under ? { then: under } : {}) };
     const vals = propertyWords(g, said);
     done(clean({ say: said, confirm: true, style: e.style, arg: fill(g, e.arg, action), vals: Object.keys(vals).length ? vals : undefined, at: worldTime(g) }));
-  } else if ("ask" in e) {                           // ask the player for words (a name): the next input is the answer
-    g.pending.question = { ask: e.ask, ...(e.blankOk ? { blankOk: true } : {}) };
+  } else if ("ask" in e) {                           // ask the player for words (a name, a password): the next input is the answer
+    // { ask: "<key>" }: one answer, whatever is typed (an empty line too: blank), kept as player.answers.<key>
+    // and caught by a rule matching { verb: "answer", question: "<key>" }. step() adds the grey "Type your answer." at the end.
+    if (typeof e.ask !== "string" || !ASK_KEY.test(e.ask) || e.ask === "confirm") return refuse("ask for what? a key like \"name\" or \"password\", not " + JSON.stringify(e.ask));
+    g.pending.question = { ask: e.ask };
     done({ ask: e.ask });
   } else if ("end" in e) {                           // the story has ended: asks nothing; a note, once, and the way to begin again
     // { end: true, picture: "drowned" }: the ending's own picture, one of `pictures` (add picture); the scene shows it.
@@ -655,7 +694,7 @@ function apply(g, e, action, out, key) {
     const v = fill(g, e.know, action);
     for (const idea of [].concat(v ?? [])) if (typeof idea === "string" && !g.seen.ideas.includes(idea)) g.seen.ideas.push(idea);
     if (v != null) done({ know: v });
-  } else if ("hint" in e) {                          // a hint, from the puzzles: { hint: "@conchSays" } frames it
+  } else if ("hint" in e) {                          // a hint, from the puzzles: { hint: <the opening's hintFrame line> } frames it
     done({ hint: fill(g, e.hint, action), ...nextHint(g) });
   } else if ("restart" in e) {                       // begin again: the controller starts a new game
     done({ restart: true });
@@ -706,10 +745,10 @@ function echo(done, g, kind, level) {
 // What part of the opening an effect would change, if any (for effects from a world: they may not).
 function fixedTarget(g, e, action) {
   const ids = [];
-  if (typeof e.add === "string" && !("draw" in e)) {
+  if (adding(e)) {
     if (e.add === "rule" && e.before) ids.push(g.rules.find(r => r.id === e.before)?.fixed ? "rule " + e.before : null);
     if (e.add === "object") ids.push(e.at);
-  } else if (typeof e.remove === "string" && !("draw" in e)) {
+  } else if (removing(e)) {
     if (e.remove === "rule") ids.push(g.rules.find(r => r.id === e.id)?.fixed ? "rule " + e.id : null);
     else ids.push(e.id);
   } else if ("move" in e) ids.push(fill(g, e.move, action), fill(g, e.to, action));
@@ -723,7 +762,7 @@ function fixedTarget(g, e, action) {
 
 // What an id already names, if anything: "room", "object" or "puzzle". Ids are unique across all three (a rule reads
 // `last_lamp.visited` or `$here.waitFor` by id, so one id for two things would make it read the wrong one).
-export const idKind = (g, id) => (g.world.rooms[id] ? "room" : g.world.objects[id] ? "object" : g.puzzles?.[id] ? "puzzle" : null);
+const idKind = (g, id) => (g.world.rooms[id] ? "room" : g.world.objects[id] ? "object" : g.puzzles?.[id] ? "puzzle" : null);
 // The reason an id can't be used for a new room, object or puzzle, or null when it is free.
 const idTaken = (g, kind, id) => {
   const has = idKind(g, id);

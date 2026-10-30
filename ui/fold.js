@@ -38,7 +38,7 @@ export function mount(top, log) {
   const bottom = top.closest(".layout").querySelector(".bottom");
   const html = document.documentElement;
   let folded = false;   // the state: folded (the whole scene) or open (the crop)
-  let pan = 0;          // where the open crop looks: -1 the left edge … 0 the middle … 1 the right edge
+  let pan = 0;          // where the open crop looks: -1 the scene's right edge … 0 the middle … 1 its left edge (ui/scene.css)
   let intent = 0;       // how far you have scrolled in one direction, in a row (positive up, negative down)
   let lastY = scrollY;  // where the page was at the last scroll event
   let own = null;       // while the game scrolls the page itself (a room's glide, following new text): where to, so it is not counted

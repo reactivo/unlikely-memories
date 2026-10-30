@@ -8,12 +8,11 @@
 // is then wider than the box and CSS centres it, so nothing here changes.
 
 import art from "../content/art.js";
-import { paintPicture, compose, overlaysShown, overlayAlt } from "./draw.js";
+import { paintPicture, compose, overlaysShown, overlayAlt, RGB } from "./draw.js";
 import { CYCLES } from "./effects.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
 
 const W = art.picture.width, H = art.picture.height;
-const RGB = art.palette.colors.map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 // Set up the picture on its element (.picture). Returns update().
@@ -89,7 +88,7 @@ export function mount(root) {
   return {
     // Redraw when the room, its picture version or the overlays shown change; once the story has ended, when it
     // changes to the ending's own picture (a state with no such picture keeps the room's). A restore (new game,
-    // language change, undo, a loaded game) switches at once; the ending and a room each use their own named transition
+    // undo, a loaded game) switches at once; the ending and a room each use their own named transition
     // of ui/transitions.js. With reduced motion every change is a cut.
     update(prev, next, reason) {
       const s = next.state, roomId = s.player.at, room = s.world.rooms[roomId];

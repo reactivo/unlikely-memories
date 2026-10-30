@@ -6,18 +6,18 @@
 //     { meta: "undo" | "earlier" | "save" | "load" | "oops" | "clear" | "map" | "quit", arg? }   session commands, run by the controller
 //     { error: { say: "@key", arg?, word?, didYouMean? } }           nothing to do: a reply in the world's voice
 //
-// words = the language pack's `words` (verbs, directions, articles…) plus `names` (object id → nouns, adjectives).
-// The world adds its own: each object's `words` ({ nouns, adj }), each room's `scenery`, and verbs it added
-// (state.vocab), so things the AI creates are understood without touching the packs.
+// words = the language pack (its `words`: verbs, directions, articles…). The world adds its own: each object's `words`
+// ({ nouns, adj }), each room's `scenery`, and verbs it added (state.vocab), so things the AI creates are understood
+// without touching the packs.
 //
 // A "Which do you mean…?" comes back with `which` (the typed text, the words that were ambiguous, the candidates). The
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
 import { ACTIONS } from "./actions.js";
-import { holds, answers } from "./engine.js";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js";
 import { exitTo, wayFor } from "./exits.js";
-import { placeOf, shut } from "./use.js";
+import { placeOf, shut, isAction } from "./use.js";
 import { distance } from "./fields.js";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
@@ -79,19 +79,31 @@ export function parse(text, state, words, seen = "", which = null) {
   return { error: { ...error, didYouMean: fix ? shown.get(fix.word) ?? fix.word : null } };
 }
 
+// The reading itself (parse() adds the "did you mean"): layer 0 (an answer, the end, "which do you mean"), session
+// commands, then each command in turn. picks: things already chosen in answer to "Which do you mean…?".
 function read(text, state, words, seen = "", which = null, picks = []) {
   const V = vocabulary(withWorld(words, state)), seenShown = new Map();
   const W = { ...V, seen: seenWords(seen, words.words.grammar, seenShown), picks, shown: new Map([...V.shown, ...seenShown]) };
   const tokens = normalise(text, words.words.grammar).split(" ").filter(Boolean);
 
   // Layer 0: a waiting question reads the input as its answer first.
-  const q = state.pending.question;
-  if (q && q.ask === "name") return { actions: [{ verb: "answer", question: "name", text: text.trim().slice(0, 40), blank: !tokens.length }] };
+  let q = state.pending.question;
+  const said = tokens.filter(x => !W.punct.has(x));
   if (q && q.yesNo) {                                          // a yes/no question (engine: `confirm`)
-    const t = tokens.filter(x => !W.punct.has(x));
-    if (t.length === 1 && W.yes.has(t[0])) return { actions: [{ verb: "answer", question: q.ask, value: "yes" }] };
-    if (t.length === 1 && W.no.has(t[0])) return { actions: [{ verb: "answer", question: q.ask, value: "no" }] };
-    // Not an answer: it goes on as a normal command (the engine drops the question).
+    if (said.length === 1 && W.yes.has(said[0])) return { actions: [{ verb: "answer", question: q.ask, value: "yes" }] };
+    if (said.length === 1 && W.no.has(said[0])) return { actions: [{ verb: "answer", question: q.ask, value: "no" }] };
+    // Not an answer: it goes on as a normal command (the engine drops the question), or answers the question for words
+    // the session asked over (UNDO while it waits: `then`).
+    q = q.then ?? null;
+  }
+  // A question for words (engine: `ask`): whatever comes next is the answer, a word, a sentence, "look", nothing at all
+  // (an empty line is an answer too: `blank`). Only the game's own commands, typed alone, are not:
+  // the session's (UNDO, SAVE, LOAD, MAP…: the controller keeps the question open) and HELP.
+  if (q && !state.ended) {
+    const meta = matchPhrase(tokens, 0, W.meta), verb = matchPhrase(tokens, 0, W.verbs);
+    if (meta && meta.len === said.length && (meta.id !== "quit" || quits(meta, tokens, W))) return { meta: meta.id, arg: "" };
+    if (verb?.id === "help" && verb.len === said.length) return { actions: [{ verb: "help" }] };
+    return { actions: [{ verb: "answer", question: q.ask, text: text.trim().slice(0, ANSWER_LENGTH), blank: !said.length }] };
   }
   // After the end the game is locked: only the restart words ("begin again": the story's last line offers them), LOAD, UNDO
   // and QUIT (alone) are read; anything else, the session commands included, answers with the story's last line.
@@ -124,7 +136,7 @@ function read(text, state, words, seen = "", which = null, picks = []) {
   const recent = [...(state.mentioned || [])];
   if (state.lastObj && !recent.includes(state.lastObj)) recent.unshift(state.lastObj);
   for (const part of splitCommands(tokens, W)) {
-    const r = readCommand(part, state, W, words, recent);
+    const r = readCommand(part, state, W, recent);
     if (r.error?.say === "@which" || r.error?.say === "@whoMean")   // the controller keeps this for the reply
       return { error: { ...r.error, which: { text, phrase: r.error.phrase, candidates: r.error.arg, picks } } };
     if (r.error) return { error: r.error };
@@ -175,7 +187,7 @@ function withWorld(words, state) {
   if (key === "[{},{},{},{},{},{}]") return words;
   const seen = merged.get(words);
   if (seen && seen.key === key) return seen.value;
-  const value = { ...words, names: { ...words.names, ...names }, scenery: { ...words.scenery, ...scenery }, topics, roomNames, parts,
+  const value = { ...words, names, scenery, topics, roomNames, parts,
                   shown: Object.fromEntries(shown), words: { ...words.words, verbs: { ...words.words.verbs, ...verbs } } };
   merged.set(words, { key, value });
   return value;
@@ -333,7 +345,9 @@ function splitContraction(tokens, W) {
   return verbLen(tokens) === at || verbLen(written) > at ? written : tokens;
 }
 
-function readCommand(tokens, state, W, words, recent) {
+// One command (layer 2): its verb, then a direction, or its objects and what comes with them. { actions } or { error }.
+// recent: the things mentioned lately, newest first (what a pronoun can mean).
+function readCommand(tokens, state, W, recent) {
   tokens = withoutFiller(tokens.filter(t => t !== ","), W);
   if (!tokens) return { error: { say: "@unsure" } };
   tokens = splitContraction(tokens, W);
@@ -459,7 +473,7 @@ function readCommand(tokens, state, W, words, recent) {
     // a verb the game doesn't know, not part of a name.
     if (["@notHere", "@onlyMentioned"].includes(r.error?.say) && !verb && ph === phrases[0] && ph.words.length > 1) {
       const after = resolve(ph.words.slice(1), state, W, false);
-      if (after.id || after.scenery) return { error: suggestion(ph.words[0], W, W.verbWords) };
+      if (after.id || after.scenery) return { error: suggestion(ph.words[0], W.verbWords) };
     }
     if (r.error && verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]]) { topic = "?"; prep = ph.prep; continue; }
     // A thing that is a way out (`leads`): going, climbing, entering, using or taking it goes that way ("climb the
@@ -485,8 +499,8 @@ function readCommand(tokens, state, W, words, recent) {
     return { error: { say: "@noVerb" } };
   }
   if (verb === "look") verb = "examine";                    // "look door", "mirar puerta"
-  const extra = (obj) => ({ ...(topic ? { prep, topic } : {}), ...(absent.length ? { absent } : {}) });
-  return { actions: objs.map(obj => (obj2 ? { verb, obj, prep, obj2, ...extra(obj) } : { verb, obj, ...extra(obj) })) };
+  const extra = { ...(topic ? { prep, topic } : {}), ...(absent.length ? { absent } : {}) };
+  return { actions: objs.map(obj => (obj2 ? { verb, obj, prep, obj2, ...extra } : { verb, obj, ...extra })) };
 }
 
 // Where the words say a thing is taken out of ("from", "out of"; the pack's `fromWords`): the first one after at least one
@@ -565,8 +579,6 @@ function namesOne(phrase, state, W) {
          sceneryHere(state, W).some(s => words.every(w => s.words.includes(w))) || !!neighbourNamed(words, state, W);
 }
 
-// Which object do these words name? Only things in scope (here, carried, or inside those). first: these are the
-// first words typed (no verb was found), so an unknown first word is more likely a mistyped verb.
 // The direction of the neighbouring room these words name (all of them in its name), or null.
 function neighbourNamed(phrase, state, W) {
   const words = phrase.filter(w => !W.preps.has(w) && !W.articles.has(w));
@@ -592,13 +604,15 @@ function topicOf(phrase, topics, W) {
   return found ? found[0] : null;
 }
 
-// absentOK: the verb may name something that exists but isn't here (marked absent): "order coffee". verb: what's
-// being done, to choose between two that fit (taking means one you don't already hold).
+// Which object do these words name? Only things in scope (here, carried, or inside those). first: these are the
+// first words typed (no verb was found), so an unknown first word is more likely a mistyped verb. absentOK: the verb may
+// name something that exists but isn't here (marked absent): "order coffee". verb: what's being done, to choose between
+// two that fit (taking means one you don't already hold).
 function resolve(phrase, state, W, first, absentOK = false, verb = null) {
   const words = phrase.filter(w => !W.preps.has(w));
   const unknown = words.find(w => !W.known.has(w));
   if (unknown && W.seen.has(unknown) && !(first && unknown === words[0])) return { error: { say: "@onlyMentioned", arg: show(words, W) } };
-  if (unknown) return { error: suggestion(unknown, W, first && unknown === words[0] ? W.verbWords : wordsHere(state, W)) };
+  if (unknown) return { error: suggestion(unknown, first && unknown === words[0] ? W.verbWords : wordsHere(state, W)) };
   const fits = (id) => fitsName(W.names[id], words);
   const matches = Object.keys(state.world.objects).filter(id => fits(id));
   const here = matches.filter(id => inScope(state, id));
@@ -621,13 +635,13 @@ function resolve(phrase, state, W, first, absentOK = false, verb = null) {
   return { error: { say: "@notHere", arg: show(phrase, W) } };
 }
 
-// What's mentioned here but not there to use: the room's scenery, and the parts of things in reach (the key in
-// door 11's lock, the ticket in the coat's pocket).
 // A thing that is a way out (stairs, a ladder, a path: `leads: "u"`), as { leads } for resolve(); else nothing.
 function leadsOf(thing) {
   return thing?.leads ? { leads: thing.leads } : {};
 }
 
+// What's mentioned here but not there to use: the room's scenery, and the parts of things in reach (the key in
+// door 11's lock, the ticket in the coat's pocket).
 function sceneryHere(state, W) {
   const parts = Object.entries(W.parts).filter(([id]) => state.world.objects[id] && inScope(state, id)).flatMap(([, p]) => p);
   return [...(W.scenery[state.player.at] || []), ...parts];
@@ -693,12 +707,11 @@ function onlyCandidate(verb, state) {
   return ids.size === 1 ? [...ids][0] : null;
 }
 
-// Nothing makes sense of the word: the known words of the right kind one letter away (a clear typo), for parse()
-// to try in its place.
-// Known words one slip away (a letter missing, extra, changed or swapped). In a long word that's a clear typo; in a
-// short one only two swapped letters or a doubled letter are. A changed letter is doubtful, even a neighbouring key
-// ("miss" isn't clearly "kiss", though m touches k). Clear ones first. [{ word, clear }]
-function suggestion(word, W, pool) {
+// Nothing makes sense of the word: the known words of the right kind (`pool`) one slip away (a letter missing, extra,
+// changed or swapped), for parse() to try in its place. In a long word that's a clear typo; in a short one only two
+// swapped letters or a doubled letter are. A changed letter is doubtful, even a neighbouring key ("miss" isn't clearly
+// "kiss", though m touches k). Clear ones first. [{ word, clear }]
+function suggestion(word, pool) {
   const options = word.length < 4 ? [] : [...pool].filter(k => k.length >= 3 && distance(word, k) === 1)
     .map(k => ({ word: k, clear: word.length >= 5 || clearSlip(word, k) }))
     .sort((a, b) => b.clear - a.clear);
@@ -708,7 +721,7 @@ function suggestion(word, W, pool) {
 // Is a one-slip difference between a short word and a known one clearly a typo?
 function clearSlip(word, known) {
   if (word.length === known.length) {
-    const diff = [...word].map((c, i) => i).filter(i => word[i] !== known[i]);
+    const diff = [...word].map((_, i) => i).filter(i => word[i] !== known[i]);
     return diff.length === 2;                                             // two letters swapped, not one changed
   }
   const [long, short] = word.length > known.length ? [word, known] : [known, word];
@@ -727,7 +740,7 @@ function wordsHere(state, W) {
 function answersAlone(verb, state) {
   return state.rules.some(r => {
     const m = r.match || {};
-    if ((r.when || "action") !== "action" || !m.verb || ![].concat(m.verb).includes(verb)) return false;
+    if (!isAction(r) || !m.verb || ![].concat(m.verb).includes(verb)) return false;
     if (m.obj !== undefined && !(Array.isArray(m.obj) && m.obj.includes(null))) return false;
     return holds(state, r.if, { verb });
   });

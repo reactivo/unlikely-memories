@@ -1,7 +1,7 @@
 // Title bar: the place name, and the world's time ("Day 1 | 17:15:00": play time plus however far the story has
 // moved it, js/time.js; a new day at midnight).
 
-import { placeOf } from "../js/narrator.js";
+import { placeName } from "../js/narrator.js";
 
 // Set up the title bar on its element. Returns update() and showClock().
 export function mount(root) {
@@ -12,7 +12,7 @@ export function mount(root) {
   return {
     // The place name when you move (or the language changes), and the word "Day".
     update(prev, next) {
-      const place = placeOf(next.state, next.pack);
+      const place = placeName(next.state, next.pack);
       if ($("place").textContent !== place) $("place").textContent = place;
       if (!prev || prev.state.lang !== next.state.lang) $("l-day").textContent = next.pack.labels.day;
     },

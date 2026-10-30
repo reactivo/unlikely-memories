@@ -15,9 +15,9 @@ export const FORMAT = 16;   // 14: tension 0–5 and health 5–0. 15: health on
 // Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit takes what it takes (1 to 5,
 // the checker holds worlds to the scale: GUIDE.md §3), with no warning turn; at 0 the story ends.
 // A fresh game in a language: the world that plays (the one named by `id`; worlds/index.js's DEFAULT when none is), if it's
-// written in this language (only English worlds so far), built from its change set, opening and all (ARCHITECTURE.md
-// §3, "The opening"). Health can be carried over (changing language keeps it). sequel: a change set = that world
-// instead (tests); false = no world. A language with no world gets a placeholder room, so there is somewhere to be.
+// written in this language, built from its change set, opening and all (ARCHITECTURE.md §3, "The opening"). health: where
+// it starts (tests; a game always starts at 5). sequel: a change set = that world instead (tests); false = no world. A
+// language with no world gets a placeholder room, so there is somewhere to be.
 // protect: false leaves the opening open to change (only for tests that use it as a scratch room).
 export function newState({ lang, health = 5, seed = newSeed(), sequel = true, protect = true, id = DEFAULT }) {
   const state = blank({ lang, health, seed });
@@ -53,6 +53,8 @@ function blank({ lang, health, seed }) {
       at: null,                    // the room you're in
       carrying: [],                // item ids, in inventory slot order
       health                       // 5 (well) to 0 (the end): INTERFACE.md §6c
+                                   // (answers: what was typed to each `ask`, by key, { verdict: "Voss" }: made by the
+                                   //  engine with the first answer, so games saved before it load unchanged)
     },
     world: {                       // rooms (description, exits) and objects (where they are, their properties)
       rooms: {},
@@ -82,7 +84,8 @@ function blank({ lang, health, seed }) {
     ambienceSaid: {},              // the ambience lines said this visit, by room: room → [line number, …]
     pending: {
       question: null,              // a question waiting for your answer: your next input is read as the answer
-                                   //   { ask: "name", blankOk: true }, or a yes/no question (engine: `confirm`)
+                                   //   a question for words, { ask: "name" }, or a yes/no question (engine:
+                                   //   `confirm`), with `then`: the question for words it was asked over, open again after
       proposals: []                // AI change sets waiting to be applied (from step 6)
     },
     ended: false,                  // the story has ended (the `end` effect)
@@ -97,6 +100,3 @@ function nowhere(state) {
     world: { objects: {}, rooms: { nowhere: { name: "@noWorld.place", area: "nowhere", at: [0, 0, 0], exits: {},
       describe: ["@noWorld.text"], alt: "@noWorld.alt", picture: blankPicture } } } };
 }
-
-// Is this item being carried?
-export const carries = (state, id) => state.player.carrying.includes(id);

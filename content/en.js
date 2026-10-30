@@ -17,10 +17,9 @@ export default {
   endNote: (d) => `You played for ${playedFor(d.ms)}. You saw ${d.rooms} ${d.rooms === 1 ? "room" : "rooms"}.`,
   gameOver: "The story is over. `Undo` your last move, `Begin again` or `Quit`.",
   againYes: "Everything goes dark. Then, slowly, it begins again…",
-  hintNone: "Nothing more. Only a kind of patience.",
   hintDo: (cmds) => "Try " + cmds.join(", then ") + ".",
-  askAbout: (l) => `Ask about ${l}`,
-  talkedOut: (d) => `You have nothing else to talk about with ${d.name}${d.forNow ? " (for now)" : ""}.`,   // after they answer          // a topic offered after someone answers you ("Ask about umbrella")
+  askAbout: (l) => `Ask about ${l}`,   // a topic offered after someone answers you ("Ask about umbrella")
+  talkedOut: (d) => `You have nothing else to talk about with ${d.name}${d.forNow ? " (for now)" : ""}.`,   // after they answer, when nothing is left
   noWay: ["You can't go that way.", "There's no way through there.", "That way leads nowhere."],
   // When nothing makes sense of what you typed: in the world's voice, never about words (several, varied).
   unsure: ["You're not sure how to do that.", "Nothing comes of it.", "That doesn't get you anywhere.",
@@ -88,6 +87,9 @@ export default {
   // Every yes/no question ends with these (js/narrator.js); "no" to a question with nothing of its own to say.
   yesNo: "`Yes` / `No`",
   confirmNo: "All right.",
+  // A question for words (`ask`: a name, a password): the grey line after it, and the reply when no rule takes the answer up.
+  typeAnswer: "Type your answer.",
+  answerUnheard: "You answer nothing.",
   // HELP: how the game works, and the commands that work anywhere. (Hints come from the thing that listens.)
   help: "Type what you want to do in a few words, like \"open the door\" or \"take the lamp\". Click any object+ to examine it, or any command in capitals to do it at once.\n\nCommon actions: `Look`, `Examine`, `Take`, `Drop`, `Open`, `Inventory`, `Time`, `Status`, `Talk to`, `Wait`.\n\nDirections: `N`, `S`, `E`, `W`, `Up`, `Down`, `In`, `Out`. `Map` shows where you've been, and a click on a room there walks you to it.\n\nGame: `Undo`, `Save`, `Load`, `Quit` (back to the list of games).",
   // HINT: never a hint itself, only where to listen (n = the opening's listening thing, named).
@@ -149,7 +151,6 @@ export default {
   // Things the opening's mechanics say (js/opening.js): the world writes the rest in its own voice.
   already: "You already have it, safe in your pocket.",
   cantDrop: "Better keep it. You may need it.",
-  takeFirst: "You will have to pick it up first.",
   // A hint, said by the world's own line (the opening's `hintFrame`): the frame, then the hint in quotes.
   framed: (frame, hint) => `${frame} "${hint}"`,
   // "the" and a name, for [way] in a text: the way on from the opening ("the revolving door").
@@ -174,9 +175,6 @@ export default {
   // The compass buttons' names: their tooltip, what a screen reader says and what a click types (the map walks with dirs above).
   dirTips: { n: "North", s: "South", e: "East", w: "West", u: "Up", d: "Down", in: "In", out: "Out" },
 
-  // Clicking an object in the story or an inventory item examines it, then shows these actions (except Examine)
-  // (placeholder: what objects show is still to be decided).
-  objects: {},
   // Standard replies, by action (js/actions.js): what an action says when no rule gives it a meaning. Neutral, so
   // they suit any game; 2–3 phrasings, never the same one twice in a row.
   replies: {
@@ -227,9 +225,6 @@ export default {
     think: ["You think hard. Nothing comes.", "You gather your thoughts.", "Thinking helps a little. Not much."],
     pray: ["You pray. Nothing happens, as far as you can tell.", "A quiet prayer. No answer."]
   },
-
-  // The words for things, by object id (js/parser.js): nouns name it; adjectives can come before a noun.
-  names: {},
 
   // The parser's words for English (PARSER.md layers 1–2). Verbs: the engine's verb → the words for it
   // (two-word verbs like "pick up" are fine). Meta commands run outside the game (undo, save…).
@@ -356,6 +351,5 @@ export default {
     },
     yes: ["yes", "y", "yeah", "yep", "ok", "okay", "sure"],
     no: ["no", "n", "nope", "not"]
-  },
-  items: {}
+  }
 };

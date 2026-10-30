@@ -47,6 +47,15 @@ const named = (names, opening = ["", "el ", "fue ", "fue el ", "ha sido ", "ha s
   "el culpable es ", "el culpable es el ", "culpable ", "culpable el ", "que fue ", "que fue el ", "que ha sido ", "que ha sido el ",
   "que es ", "que es el ", "que lo hizo ", "que lo hizo el ", "fue culpa de ", "fue culpa de el ", "es culpa de ", "es culpa de el "]) => [...new Set(opening.flatMap(a => names.map(n => a + n)))];
 
+// Los nombres que el tribunal acepta cuando pregunta «¿De quién?» (reglas name_*), también como «de …», «fue …»,
+// «acuso a …», «nombro a …» o «di …» (la respuesta se compara sin mayúsculas, tildes ni puntuación: «¡La señora Halloran!»).
+const answered = (names) => named(names, ["", "el ", "la ", "de ", "del ", "de la ", "fue ", "fue el ", "fue la ", "el de ", "la de ",
+  "acuso a ", "acuso al ", "acuso a la ", "acusa a ", "acusa al ", "acusa a la ", "nombro a ", "nombro al ", "nombro a la ",
+  "nombra a ", "nombra al ", "nombra a la ", "di ", "digo ", "culpable "]);
+const HALLORAN = answered(["halloran", "señora halloran", "doña halloran", "pastelera", "la pastelera", "la de los pasteles"]);
+const VOSS = answered(["voss", "señor voss", "don voss", "compañía", "la compañía", "compañía eléctrica", "la compañía eléctrica", "la eléctrica"]);
+const FENN = answered(["fenn", "señor fenn", "albert", "albert fenn", "farolero", "el farolero", "difunto", "el difunto", "muerto", "el muerto"]);
+
 // ---- Los dibujos de los finales ---------------------------------------------------------------------------------------------
 // Los dibujos no llevan lengua (pictures.js); lo que cada uno dice a un lector de pantalla (alt) se dice aquí, en español.
 const endingPictures = {
@@ -558,6 +567,32 @@ const rules = [
     do: [{ say: "«¿Con qué pruebas?», dice el doctor Mabbott, con suavidad. «El tribunal oye palabras, no sentimientos. La niebla habrá guardado las últimas que se dijeron junto al farol»." }] },
   { id: "say_in_court", match: { verb: "say" }, if: [{ "player.at": "court" }],
     do: [{ say: "«Si nombras a alguien», dice el doctor Mabbott, «nómbralo con claridad, y el tribunal lo anotará»." }] },
+
+  // El propio tribunal pide el nombre: en el estrado (cada vez que subes a él), o al hablar con el doctor Mabbott con las
+  // últimas palabras en las manos. Una respuesta, y el juego sigue. (Solo se puede estar en el tribunal mientras se reúne;
+  // una respuesta escrita después de levantarse la sesión, ya en la calle, no la recoge nadie.)
+  { id: "box_asks", match: { verb: ["enter", "sit", "climb", "lie"], obj: "witness_box" }, if: [{ "player.in": { "!=": "witness_box" } }],
+    do: [{ set: "player.in", to: "witness_box" }, { say: "$obj.enter" },
+         { say: "«El tribunal oirá un nombre», dice el doctor Mabbott, con la pluma en alto. «¿De quién?»" }, { ask: "name" }] },
+  { id: "box_asks_again", match: { verb: ["enter", "sit", "climb", "lie"], obj: "witness_box" },
+    do: [{ say: "«El tribunal oirá un nombre», dice el doctor Mabbott, con la pluma en alto. «¿De quién?»" }, { ask: "name" }] },
+  { id: "mabbott_asks", match: { verb: "talk", obj: "mabbott" }, if: [{ "last_words.at": "player" }],
+    do: [{ say: "«El tribunal oirá un nombre», dice el doctor Mabbott, con la pluma en alto. «¿De quién?»" }, { ask: "name" }] },
+  // La respuesta: lo mismo que nombrarlos (ACUSAR, DECIR), así que las mismas preguntas y frases.
+  { id: "name_blank", match: { verb: "answer", question: "name", blank: true }, if: [{ "player.at": "court" }],
+    do: [{ say: "No dices nada. La niebla de las sillas del jurado se inclina hacia delante, y espera contigo." }] },
+  { id: "name_halloran", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "last_words.at": "player" }, { "player.answers.name": { in: HALLORAN } }],
+    do: [{ confirm: "¿Nombrar a la señora Halloran ante el tribunal? Un nombre dicho aquí se queda dicho.", yes: [{ change: "truth_ending" }],
+           no: [{ say: "Cierras la boca sobre él. La niebla de las sillas del jurado se recuesta, decepcionada." }] }] },
+  { id: "name_halloran_bare", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "player.answers.name": { in: HALLORAN } }],
+    do: [{ say: "«¿Con qué pruebas?», dice el doctor Mabbott, con suavidad. «El tribunal oye palabras, no sentimientos. La niebla habrá guardado las últimas que se dijeron junto al farol»." }] },
+  { id: "name_voss", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "player.answers.name": { in: VOSS } }],
+    do: [{ confirm: "¿Nombrar al señor Voss ante el tribunal? Un nombre dicho aquí se queda dicho.", yes: [{ change: "blamed_ending" }],
+           no: [{ say: "Cierras la boca sobre él. La niebla de las sillas del jurado se recuesta, decepcionada." }] }] },
+  { id: "name_fenn", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }, { "player.answers.name": { in: FENN } }],
+    do: [{ say: "«El difunto no puede ser nombrado en su propia investigación», dice el doctor Mabbott. «Les sienta mal»." }] },
+  { id: "name_other", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }],
+    do: [{ say: "«No consta en la lista del agente», dice el doctor Mabbott. «Presentes junto al farol: el señor Voss, la señora Halloran y el difunto»." }] },
 
   // La pértiga yace en la caseta como una forma en su imagen: al cogerla desaparece la forma; al dejarla de nuevo allí, se redibuja.
   { id: "pole_up", match: { verb: "take", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "hut" }],

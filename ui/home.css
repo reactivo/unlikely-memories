@@ -8,6 +8,7 @@
 @layer ui {
   .home {
     --logo-width: 288px;   /* the logo at the top: its own size (288 × 210) */
+    --logo-dim:   .35;     /* how dim a letter goes when it flickers (the keyframes at the end of this file) */
 
     /* Colours on the landing page, by meaning. */
     --version:        var(--color-text-dim);    /* the version, left in the bar (the text colour under the pointer, like the switch) */
@@ -20,10 +21,10 @@
     --tile-bg:        var(--color-surface);     /* behind a thumbnail */
     --card-title:     var(--color-text);
     --card-blurb:     var(--color-text-soft);
-    --button:         var(--color-surface);     /* CONTINUE / NEW GAME */
-    --button-text:    var(--color-text);
-    --button-on:      var(--color-highlight);   /* the button under the pointer… */
-    --button-on-text: var(--color-bg);          /* …and its text */
+    --play:           var(--color-surface);     /* CONTINUE / NEW GAME */
+    --play-text:      var(--color-text);
+    --play-on:        var(--color-highlight);   /* the button under the pointer… */
+    --play-on-text:   var(--color-bg);          /* …and its text */
     --none:           var(--color-text-dim);    /* "There are no games in English yet." */
 
     box-sizing: border-box;
@@ -219,14 +220,14 @@
       padding: var(--space-m);   /* around the capitals: the label's box is trimmed to them (typography.css) */
       border: 0;
       white-space: nowrap;
-      color: var(--button-text);
-      background: var(--button);
+      color: var(--play-text);
+      background: var(--play);
       cursor: pointer;
     }
 
     & .play:hover {
-      color: var(--button-on-text);
-      background: var(--button-on);
+      color: var(--play-on-text);
+      background: var(--play-on);
     }
 
     & .play:focus-visible {
@@ -238,7 +239,7 @@
   /* The logo's letters (above): lit, then dim for a moment at the end of each period (about a tenth of a second). */
   @keyframes logo-flicker {
     0% { opacity: 1; }
-    99.4% { opacity: var(--logo-dim, .35); }
+    99.4% { opacity: var(--logo-dim); }
   }
 
   /* A rose's petals (above): in the plus, then one square on (the diagonal) for about a quarter of a second, then the plus again. */
@@ -249,8 +250,8 @@
 
   @keyframes logo-flicker-twice {
     0% { opacity: 1; }
-    98.8% { opacity: var(--logo-dim, .35); }
+    98.8% { opacity: var(--logo-dim); }
     99.25% { opacity: 1; }
-    99.6% { opacity: var(--logo-dim, .35); }
+    99.6% { opacity: var(--logo-dim); }
   }
 }

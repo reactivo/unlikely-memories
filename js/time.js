@@ -19,6 +19,9 @@ export function parts(ms, firstWeekday = null) {
            weekday: start < 0 ? null : WEEKDAYS[(start + day - 1) % 7] };
 }
 
+// A time of day as the game writes it in figures: "07:05".
+export const hhmm = ({ hour, minute }) => String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+
 // Where a time effect moves the clock, from now (world ms). Returns { to } or { error }.
 //   "+8h", "-1d", "+1d 2h 30m"       forward or back by an amount
 //   "next 06:00"                     the next time it's 06:00 (later today, or tomorrow)
@@ -57,7 +60,8 @@ export function schedule(spec) {
   return s.startsWith("day") && !r.error ? { daily: false, at: r.to } : { error: "a scheduled time is \"17:15\" (every day) or \"day 2 08:00\" (once): " + spec };
 }
 
-// The first time a schedule comes round after `from` and no later than `to` (world ms), or null.
+// The first time a schedule comes round after `from` and no later than `to` (world ms), or null. (The next time at all:
+// `to` = Number.MAX_SAFE_INTEGER.)
 export function occursBetween(sched, from, to) {
   if (!sched.daily) return sched.at > from && sched.at <= to ? sched.at : null;
   let t = from - (from % DAY) + sched.at;
@@ -65,11 +69,7 @@ export function occursBetween(sched, from, to) {
   return t <= to ? t : null;
 }
 
-// The next time a schedule comes round after `from`, or null (a one-off already past).
-export function nextAfter(sched, from) {
-  return occursBetween(sched, from, Number.MAX_SAFE_INTEGER);
-}
-
+// A time of day in ms (h:min), or null if there's no such time.
 function clockTime(h, min) {
   return h >= 0 && h < 24 && min >= 0 && min < 60 ? h * HOUR + min * MINUTE : null;
 }

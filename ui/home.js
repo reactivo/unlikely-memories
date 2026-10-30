@@ -3,15 +3,12 @@
 // Never decides which games exist or what a saved game is (js/main.js, worlds/index.js, js/saves.js); CONTINUE is the intent
 // on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)).
 
-import art from "../content/art.js";
 import { VERSION } from "../js/version.js";
-import { THUMB, thumbnailPixels } from "./draw.js";
-
-const RGB = art.palette.colors.map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
+import { THUMB, thumbnailPixels, RGB } from "./draw.js";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
-// pack: the language pack's home texts.
+// t: the language pack's home texts.
 export function buttonsFor(saved, t) {
   return saved ? [{ label: t.resume, fresh: false }, { label: t.newGame, fresh: true }] : [{ label: t.newGame, fresh: false }];
 }
