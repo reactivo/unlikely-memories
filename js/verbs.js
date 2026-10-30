@@ -27,23 +27,23 @@ const rules = [
   // `enter` line if it has one; getting out works by every common way. (Moving gets you out first: js/engine.js, before
 // any rule, so a world's own direction rules can't keep you in.)
   { id: "std_in_already", match: { verb: ["enter", "sit", "climb", "lie"] }, if: [{ "player.in": { "!=": null } }, { "$obj.enterable": { "!=": null } }, { "player.in": "$obj" }],
-    do: [{ say: "@alreadyIn", arg: "$obj.name" }] },
+    do: [{ say: "@alreadyIn", things: ["$obj"] }] },
   { id: "std_get_in_own", match: { verb: ["enter", "sit", "climb", "lie"] }, if: [{ "$obj.enterable": { "!=": null } }, { "$obj.enter": { "!=": null } }],
     do: [{ set: "player.in", to: "$obj" }, { say: "$obj.enter" }] },
   { id: "std_get_on", match: { verb: ["enter", "sit", "climb", "lie"] }, if: [{ "$obj.enterable": "on" }],
-    do: [{ set: "player.in", to: "$obj" }, { say: "@gotOn", arg: "$obj.name" }] },
+    do: [{ set: "player.in", to: "$obj" }, { say: "@gotOn", things: ["$obj"] }] },
   { id: "std_get_in", match: { verb: ["enter", "sit", "climb", "lie"] }, if: [{ "$obj.enterable": { "!=": null } }],
-    do: [{ set: "player.in", to: "$obj" }, { say: "@gotIn", arg: "$obj.name" }] },
+    do: [{ set: "player.in", to: "$obj" }, { say: "@gotIn", things: ["$obj"] }] },
   { id: "std_get_off", match: { verb: ["exit", "stand"], obj: [null] }, if: [{ "player.in": { "!=": null } }, { "$in.enterable": "on" }],
-    do: [{ say: "@gotOff", arg: "$in.name" }, { set: "player.in", to: null }] },
+    do: [{ say: "@gotOff", things: ["$in"] }, { set: "player.in", to: null }] },
   { id: "std_get_out", match: { verb: ["exit", "stand"], obj: [null] }, if: [{ "player.in": { "!=": null } }],
-    do: [{ say: "@gotOut", arg: "$in.name" }, { set: "player.in", to: null }] },
+    do: [{ say: "@gotOut", things: ["$in"] }, { set: "player.in", to: null }] },
   { id: "std_get_off_named", match: { verb: ["exit", "stand"] }, if: [{ "player.in": { "!=": null } }, { "player.in": "$obj" }, { "$obj.enterable": "on" }],
-    do: [{ say: "@gotOff", arg: "$obj.name" }, { set: "player.in", to: null }] },
+    do: [{ say: "@gotOff", things: ["$obj"] }, { set: "player.in", to: null }] },
   { id: "std_get_out_named", match: { verb: ["exit", "stand"] }, if: [{ "player.in": { "!=": null } }, { "player.in": "$obj" }],
-    do: [{ say: "@gotOut", arg: "$obj.name" }, { set: "player.in", to: null }] },
+    do: [{ say: "@gotOut", things: ["$obj"] }, { set: "player.in", to: null }] },
   { id: "std_not_in", match: { verb: "exit" }, if: [{ "$obj.enterable": { "!=": null } }],
-    do: [{ say: "@notIn", arg: "$obj.name" }] },
+    do: [{ say: "@notIn", things: ["$obj"] }] },
   { id: "std_ways_out", match: { verb: "exit", obj: [null] }, do: [{ say: "@waysOut", arg: "$exits" }] },
 
   // Locks: a locked thing opens with its key (`lock: { key, says, opens, then }`), or says why not.
@@ -90,19 +90,20 @@ const rules = [
   { id: "std_examine", match: { verb: "examine" }, if: describes, do: examined },
   { id: "std_examine_plain", match: { verb: "examine" }, if: [reachable], do: [{ say: "@nothingSpecial" }] },
 
-  // Take: already carried; portable and here (or in something here); or fixed in place.
+  // Take: already carried; portable and here (or in something here); or fixed in place. Taking and dropping say nothing of
+  // their own: the engine's echo of what you gain or lose ("You get the key", js/engine.js) is the whole reply.
   // "Take X from Y" only when X is directly in Y.
   { id: "std_take_not_in", match: { verb: "take" }, if: [{ "$obj2": { "!=": null } }, { "$obj.at": { "!=": "$obj2" } }],
     do: [{ say: "@notInside", things: ["$obj", "$obj2"], vary: true }] },
   { id: "std_take_have", match: { verb: "take" }, if: [{ "$obj.at": "player" }], do: [{ say: "@already" }] },
   // (`place` follows containers, so this also takes things out of an open hut or box in the room.)
   { id: "std_take", match: { verb: "take" }, if: [{ "$obj.place": "$here" }, { "$obj.portable": true }],
-    do: [{ move: "$obj", to: "player" }, { say: "@took" }] },
+    do: [{ move: "$obj", to: "player" }] },
   { id: "std_take_fixed", match: { verb: "take" }, if: [{ "$obj.place": "$here" }], do: [{ say: "@cantTake" }] },
 
   // Drop: only what you carry.
   { id: "std_drop", match: { verb: "drop" }, if: [{ "$obj.at": "player" }],
-    do: [{ move: "$obj", to: "$here" }, { say: "@dropped" }] },
+    do: [{ move: "$obj", to: "$here" }] },
   { id: "std_drop_not", match: { verb: "drop" }, do: [{ say: "@notCarried" }] },
 
   // Put: something you carry goes into an open container in reach ("put on" is read as in; no surfaces, no sizes: a
@@ -153,3 +154,9 @@ const GENERIC = new Set(["std_in_already", "std_not_in", "std_locked_plain", "st
   "std_examine_plain", "std_take_not_in", "std_take_have", "std_take_fixed", "std_drop_not", "std_go_blocked", "std_unknown",
   "std_put_not_carried", "std_put_inside", "std_put_closed", "std_use_alone", "std_unheard"]);
 export default rules.map(r => (GENERIC.has(r.id) || r.id.startsWith("std_reply_") ? { ...r, generic: true } : r));
+
+// The standard answer that only shows what examining the thing shows: reading a thing with nothing else to answer it
+// (std_read plays `examined`). A command answered by it, about a thing whose EXAMINE is the standard one too, would only
+// repeat it: the game doesn't offer it for that thing (js/view.js, `offering`). Not std_search: "Look through window" is
+// read as SEARCH, and a world offers it to say where to look.
+export const EXAMINED = new Set(["std_read"]);

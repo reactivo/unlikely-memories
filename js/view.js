@@ -3,6 +3,7 @@
 import { text, tell, listName, nameOf, joined } from "./narrator.js";
 import { parse, inScope } from "./parser.js";
 import { answers } from "./engine.js";
+import { EXAMINED } from "./verbs.js";
 import { carried, within, receives } from "./use.js";
 
 // Is this command worth offering now: would it be read, accepted, and answered by a rule or the thing itself (not a
@@ -11,6 +12,27 @@ function worthOffering(command, state, t) {
   const r = parse(command, state, t);
   if (r.error?.scenery) return true;
   return !!r.actions && answers(state, r.actions).meaningful;
+}
+
+// Which commands to offer for a thing: those worth offering (worthOffering), but never one the game would answer with
+// its stock reply that only shows the thing's examine (verbs.js EXAMINED: std_read, for a thing with nothing else to
+// answer reading it), when its EXAMINE is the stock one too: READ of a thing whose writing its EXAMINE already shows.
+// A command a rule of the game answers (a world's, the opening's: the intro's READ, which says its text, then its farewell,
+// and is gone) is always offered, even if it says what EXAMINE says; so is EXAMINE itself, and a command about another
+// thing (the chair's "Read card"). Pure: the thing's EXAMINE is tried once per line, only when a command needs it.
+function offering(state, t, id) {
+  let plain;
+  return (command) => {
+    const r = parse(command, state, t);
+    if (r.error?.scenery) return true;
+    if (!r.actions) return false;
+    const a = answers(state, r.actions);
+    if (!a.meaningful) return false;
+    const repeats = r.actions.length === 1 && r.actions[0].obj === id && EXAMINED.has(a.rules[0]);
+    if (!repeats) return true;
+    plain ??= answers(state, [{ verb: "examine", obj: id }]).rules[0] === "std_examine";
+    return !plain;
+  };
 }
 
 // Everything you've come across: held, seen, visited, or an idea brought up (a topic about it can be offered).
@@ -62,7 +84,8 @@ function sources(state, t, id) {
 }
 
 // The line shown when an object or item is clicked: "Name: note. <ACTION>, <ACTION> or <ACTION>."
-// A carried object shows its inventory actions, those worth offering now (worthOffering). Null for an unknown object.
+// A carried object shows its inventory actions, those worth offering now and not a stock repeat of its EXAMINE (offering). Null
+// for an unknown object.
 // examined: it has just been examined (a clicked object in the story), so no note and no "Examine…" action, which
 // would only repeat what was just said; null if nothing else is left to suggest.
 // A thing carries its own name, note and actions (`heldActions` when carried).
@@ -77,7 +100,7 @@ export function suggestion(state, t, id, fromInventory, examined = false) {
   }
   if (!src) return null;
   const examining = (x) => (t.words?.verbs?.examine || []).some(v => (x.toLowerCase() + " ").startsWith(v + " "));
-  const actions = (examined ? src.actions.filter(x => !examining(x)) : src.actions).filter(x => worthOffering(x, state, t));
+  const actions = (examined ? src.actions.filter(x => !examining(x)) : src.actions).filter(offering(state, t, id));
   if (examined && !actions.length) return null;
   if (examined) note = null;
   const a = actions.map(x => "`" + x + "`");                                    // each action as a <COMMAND>
@@ -92,14 +115,27 @@ export function suggestion(state, t, id, fromInventory, examined = false) {
 // when it is clicked), plus the two-thing actions that would work here and now, those first: unlock what is locked
 // and here with the key you carry, put what you carry in an open container that is here, give what you carry to someone
 // here who would take it. Only commands that would be read and answered by a rule or the thing (worthOffering: never a
-// stock or refused reply), at most five. Null when nothing is left to offer.
+// stock or refused reply), and, of its own actions, none the game would answer only with its examine, as a stock reply (offering), at most five. Null when nothing is left to offer.
 export function useLine(state, t, id) {
   const objects = state.world.objects, own = objects[id];
   if (!own || !t.useWith) return null;
+  // Each command as the player would type it: read as exactly those two things, and answered (not stock, not refused).
+  const worth = ({ command, verb, a, b }) => {
+    const r = parse(command, state, t), x = r.actions?.length === 1 && r.actions[0];
+    return !!x && (x.verb === verb || (verb === "unlock" && x.verb === "open")) && x.obj === a && x.obj2 === b && answers(state, r.actions).meaningful;
+  };
+  // How a command names a thing: its first noun, or, for a proper name (words.proper), its name as written, capital kept
+  // ("Give Monday to archivist", as its own actions say "Examine Monday"), each of the two as far as the parser reads the
+  // command as the same action (worth); otherwise the noun.
   const noun = (x) => objects[x]?.words?.nouns?.[0];
+  const named = (x) => (objects[x]?.words?.proper && typeof objects[x].name === "string" ? objects[x].name : noun(x));
   const here = Object.keys(objects).filter(x => x !== id && inScope(state, x));
   const pairs = [];                                   // { command, verb, a, b }: the action, with its two things
-  const offer = (verb, a, b) => { if (noun(a) && noun(b)) pairs.push({ command: t.useWith[verb](noun(a), noun(b)), verb, a, b }); };
+  const offer = (verb, a, b) => {
+    if (!noun(a) || !noun(b)) return;
+    const forms = [[named(a), named(b)], [named(a), noun(b)], [noun(a), named(b)], [noun(a), noun(b)]].map(([x, y]) => t.useWith[verb](x, y));
+    pairs.push({ command: forms.find(c => worth({ command: c, verb, a, b })) ?? forms[3], verb, a, b });
+  };
   if (carried(state, id))
     for (const c of here) {
       if (objects[c].container && objects[c].open && objects[id].at !== c && !within(state, c, id)) offer("put", id, c);
@@ -107,13 +143,8 @@ export function useLine(state, t, id) {
     }
   if (own.locked && own.lock?.key && carried(state, own.lock.key)) offer("unlock", id, own.lock.key);   // it is the locked thing
   if (carried(state, id)) for (const d of here) if (objects[d].locked && objects[d].lock?.key === id) offer("unlock", d, id);   // it is the key
-  // Each command as the player would type it: read as exactly those two things, and answered (not stock, not refused).
-  const worth = ({ command, verb, a, b }) => {
-    const r = parse(command, state, t), x = r.actions?.length === 1 && r.actions[0];
-    return !!x && (x.verb === verb || (verb === "unlock" && x.verb === "open")) && x.obj === a && x.obj2 === b && answers(state, r.actions).meaningful;
-  };
   const { item, obj } = sources(state, t, id), src = (carries(state, id) && item) || obj;
-  const commands = [...pairs.filter(worth).map(p => p.command), ...(src?.actions || []).filter(x => worthOffering(x, state, t))];
+  const commands = [...pairs.filter(worth).map(p => p.command), ...(src?.actions || []).filter(offering(state, t, id))];
   const list = [...new Set(commands)].slice(0, 5).map(x => "`" + x + "`");
   if (!list.length) return null;
   return text("@useHow", t, { name: listName(id, state, t), list: joined(list, t.or) }, undefined, undefined, own.words);

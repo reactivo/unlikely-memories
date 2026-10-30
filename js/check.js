@@ -46,7 +46,7 @@ import { solveCommand } from "./narrator.js";
 import { isExitObject, exitTo, exitConditions } from "./exits.js";
 import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
-import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf } from "./fields.js";
+import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite } from "./fields.js";
 import art from "../content/art.js";
 import { filterProblem } from "./filters.js";
 
@@ -98,10 +98,21 @@ export function check(state, pack, bible) {
       : `${id}: ${(p.clues || []).length} clue(s); main steps should have two`);
   }
   if (!Object.values(puzzles).some(p => p.ending)) problems.push("no puzzle ends the story");
-  // A language whose standard replies agree with the thing they are about (Spanish "Cogida.") needs each thing's gender.
+  // A language whose standard replies agree with the thing they are about (Spanish "Ya la tienes…", "Está cerrada.") needs each thing's gender.
   if (pack.words.grammar?.gender)
     for (const [id, o] of Object.entries(state.world.objects))
       if (!["m", "f"].includes(o.words?.g)) problems.push(`${id}: no gender (words.g, "m" or "f"): the standard replies agree with it in this language`);
+  // The proper-name mark is true or absent (js/fields.js warns of it as the world loads; here it is refused, as in an AI change set).
+  for (const [id, o] of Object.entries(state.world.objects))
+    if (o.words && typeof o.words === "object" && o.words.proper !== undefined && o.words.proper !== true)
+      problems.push(`${id}: words: proper is true (a proper name, said as written with no article), not ${JSON.stringify(o.words.proper)}`);
+
+  // Every thing that can end up in the player's hands has a sprite (BRIEF.md §5; INTERFACE.md §6c): portable, carried from the
+  // start, moved or put there by a rule or a named change, added there, or inside one of those (js/fields.js, heldThings).
+  for (const h of heldThings(state.world.objects, [
+    ...state.rules.map(r => ({ where: r.id ?? "a rule", match: r.match, effects: r.do })),
+    ...Object.entries(state.changes || {}).map(([name, effects]) => ({ where: "change " + name, effects }))]))
+    if (!hasSprite(state.world.objects[h.id] ?? spriteOf(state, h.id))) problems.push(h.where === `objects/${h.id}` ? noSprite(h) : `${h.where}: ${noSprite(h)}`);
 
   // An exit with a condition: `{ to, if?, closed? }`: it leads to a room (or `true`: a rule answers), its `if` is
   // written like a rule's, and its `closed` is a line (or a list of lines to vary).
@@ -349,6 +360,18 @@ export function check(state, pack, bible) {
     endings[id] = run.played;
   }
   return { ok: !problems.length, problems, warnings, endings };
+}
+
+// A thing a rule or a change adds in play (not in the world yet), as it adds it: { add: "object", id, sprite?, … }.
+function spriteOf(state, id) {
+  let found = null;
+  (function find(node) {
+    if (found || !node || typeof node !== "object") return;
+    if (Array.isArray(node)) return node.forEach(find);
+    if (node.add === "object" && node.id === id) { found = node; return; }
+    Object.values(node).forEach(find);
+  })([state.rules, state.changes]);
+  return found;
 }
 
 // ---- Pictures that aren't a room's: the endings' ------------------------------------------------------------------------

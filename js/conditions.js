@@ -27,6 +27,25 @@ export const modifiers = (state, kind) => activeIds(state).map(id => state.condi
 // The filters the active conditions keep on (a condition ends: its filters go, unless another active one keeps them).
 export const keptFilters = (state, except = null) => new Set(activeIds(state).filter(id => id !== except).flatMap(id => state.conditions?.[id]?.filters || []));
 
+// What a condition does to you, from its declaration alone (a world writes nothing for it): "harmful" when its health
+// ticks hurt, "good" when they heal, "neutral" with no health at all (drunk). A declaration with both a hurt and a heal is
+// refused (declarationProblems), but if one came through, harmful wins: the warning colour is the safer one.
+export function conditionClass(d) {
+  const h = d?.health;
+  if (h && typeof h === "object" && "hurt" in h) return "harmful";
+  if (h && typeof h === "object" && "heal" in h) return "good";
+  return "neutral";
+}
+// The colour of a condition's lines (INTERFACE.md §6c), as the tone its echo carries: "hurt" (red), "healed" (green) or
+// "neutral" (amber). Its start, and its STATUS line, in the colour of what it does: harmful red, good green, neutral amber;
+// its end the other way: a harmful or neutral one ends green (you're out of it), a good one ends amber (something good
+// lost).
+export function conditionTone(d, ending = false) {
+  const c = conditionClass(d);
+  if (ending) return c === "good" ? "neutral" : "healed";
+  return c === "harmful" ? "hurt" : c === "good" ? "healed" : "neutral";
+}
+
 // A gap [min, max] in whole numbers, min no more than max, min at least 1.
 const gap = (x) => Array.isArray(x) && x.length === 2 && x.every(Number.isInteger) && x[0] >= 1 && x[0] <= x[1];
 // A time span: { turns: [min, max] } or { seconds: [min, max] }, exactly one.

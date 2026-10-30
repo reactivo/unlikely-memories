@@ -7,8 +7,13 @@ import { HEX_INDEX } from "./draw.js";
 // A thing's sprite as SVG, for the inventory and beside its description in the story: one 1×1 square per coloured pixel
 // ("." and unknown characters are left empty). Null if it has none.
 export function itemSVG(id, state) {
-  const rows = state?.world.objects[id]?.sprite;
-  if (!rows) return null;
+  return spriteSVG(state?.world.objects[id]?.sprite);
+}
+
+// Sprite rows (a thing's `sprite`) as SVG: the same drawing, for a thing that may no longer exist (the echo of a thing you
+// lost keeps its rows, ui/log.js). Null if there are none.
+export function spriteSVG(rows) {
+  if (!Array.isArray(rows) || !rows.length) return null;
   let px = "";
   rows.forEach((row, y) => [...row].forEach((c, x) => {
     const fill = art.palette.colors[HEX_INDEX[c]];

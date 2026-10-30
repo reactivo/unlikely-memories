@@ -4,7 +4,8 @@
 // findings: a world's are warnings (it still loads), an AI change set's are reasons to refuse it.
 //
 //   checkSet(state, set) → [{ piece, text, effect?, refuse? }]   "rules/dog-attacks", `uses "dog.angr", not declared (…)`
-// A finding marked `refuse` (an effect or an operator only the engine writes: ENGINE_ONLY, ENGINE_ONLY_OPERATORS) refuses the
+// A finding marked `refuse` (an effect, an operator or a kind of echo only the engine writes: ENGINE_ONLY, ENGINE_ONLY_OPERATORS,
+// ENGINE_ECHOES) refuses the
 // set even where the others only warn.
 
 import { ANSWERED } from "./verbs.js";
@@ -30,7 +31,7 @@ export const FIELDS = {
   object: OBJECT,
   scenery: ["words", "name", "says", "leads", "id"],
   part: ["words", "name", "says"],
-  words: ["nouns", "adj", "g", "pl"],
+  words: ["nouns", "adj", "g", "pl", "proper"],   // proper: true, a proper name ("Monday"): said as written, with no article
   lock: ["key", "says", "opens", "then"],
   topic: ["words", "says", "about", "label", "open", "opens"],
   ambience: ["lines", "every", "chance", "if"],
@@ -93,6 +94,86 @@ export const ENGINE_ONLY = ["unlock", "hint", "listenFor", "useAs", "useHow", "r
 // The engine's own condition operator: `holds` (conditions kept as data hold: the standard WAIT reads a `waitFor.if` with
 // it). Only the engine's own rules use it; a world or an AI change set that writes it is refused, like an effect above.
 export const ENGINE_ONLY_OPERATORS = ["holds"];
+// The engine's own kinds of echo: what you hold, gained and lost (js/engine.js, holdingEchoes; INTERFACE.md §6c). The engine
+// writes them whatever moved the thing; a world or an AI change set that writes `{ echo: …, kind: "gained" }` is refused, like
+// an effect above (and the engine refuses the effect itself in play).
+export const ENGINE_ECHOES = ["gained", "lost"];
+
+// What a language pack needs to name a thing in a sentence and agree with it, from its `words`: gender `g`, number `pl`, and
+// `proper` (a proper name: the pack's `the` adds no article, and the name keeps its capital: js/narrator.js, inSentence).
+// { g, pl, proper } with only the ones it has, or nothing. The one rule for every line that names a thing or agrees with it.
+export function grammarOf(words) {
+  if (!words || !(words.g || words.pl || words.proper)) return undefined;
+  return Object.fromEntries([["g", words.g], ["pl", words.pl], ["proper", words.proper]].filter(([, v]) => v));
+}
+
+// ---- Things you can hold have a sprite ---------------------------------------------------------------------------------
+// Every thing that can end up in the player's hands has a `sprite` (BRIEF.md §5): the inventory shows it, and so does the slot
+// before the echo of a thing gained or lost (INTERFACE.md §6c). A thing can end up there when it is `portable: true`, starts
+// `at: "player"`, is moved there (`{ move, to: "player" }`, in a world's effects, a rule, a named change, a `confirm`'s
+// answers…; `$obj` / `$obj2` as the rule's `match` names them), is made portable or put there with a `set` (`thing.portable`,
+// `thing.at`), or lies inside such a thing (carried with it: declared there, or moved or put there). A value that can't be known (`$obj` of a rule that matches any
+// thing, a `$` elsewhere) is passed over.
+//   things: { id: the thing as declared (an object, or an `add object` effect) }; groups: [{ where, match?, effects }]
+//   → [{ id, where, why }]: each thing, once, with the first reason found, in the order of `things` (then of the groups).
+export function heldThings(things, groups) {
+  const all = { ...things }, found = new Map();
+  groups = [...groups];
+  // Each effect of a group, at any depth, except inside a rule it adds: that rule is a group of its own (its own match).
+  const walk = (node, visit) => {
+    if (Array.isArray(node)) return node.forEach(x => walk(x, visit));
+    if (!isObject(node)) return;
+    if (node.add === "rule" && isObject(node.rule)) {
+      if (!groups.some(g => g.rule === node.rule)) groups.push({ where: `rules/${node.rule.id}`, match: node.rule.match, effects: node.rule.do, rule: node.rule });
+      return;
+    }
+    visit(node);
+    Object.values(node).forEach(x => walk(x, visit));
+  };
+  for (let i = 0; i < groups.length; i++) walk(groups[i].effects, (e) => { if (e.add === "object" && typeof e.id === "string" && !(e.id in all)) all[e.id] = e; });
+  const mark = (id, where, why) => { if (typeof id === "string" && Object.hasOwn(all, id) && !found.has(id)) found.set(id, { id, where, why }); };
+  for (const [id, o] of Object.entries(all)) {
+    if (!isObject(o)) continue;
+    if (o.portable === true) mark(id, `objects/${id}`, "it is portable");
+    else if (o.at === "player") mark(id, `objects/${id}`, "it starts in the player's hands");
+  }
+  for (const { where, match, effects } of groups) {
+    const ids = (v) => v === "$obj" ? [match?.obj].flat() : v === "$obj2" ? [match?.obj2].flat() : typeof v === "string" && !v.startsWith("$") ? [v] : [];
+    walk(effects, (e) => {
+      if ("move" in e && e.to === "player") for (const id of ids(e.move)) mark(id, where, "it is moved to the player");
+      if (typeof e.set === "string") {
+        const [, id, prop] = /^(\$?[\w-]+)\.(portable|at)$/.exec(e.set) ?? [];
+        if (prop === "portable" && e.to === true) for (const x of ids(id)) mark(x, where, "it is made portable");
+        if (prop === "at" && e.to === "player") for (const x of ids(id)) mark(x, where, "it is put in the player's hands");
+      }
+      if (e.add === "object" && e.at === "player" && typeof e.id === "string") mark(e.id, where, "it is added in the player's hands");
+    });
+  }
+  // What lies inside a thing you can hold is carried with it: declared there, or moved or put there (`{ move, to }`,
+  // `set thing.at`) by a group, its destination a thing already found; again until nothing new is found (a bag in a bag).
+  for (let more = true; more;) {
+    const before = found.size;
+    for (const [id, o] of Object.entries(all))
+      if (!found.has(id) && isObject(o) && found.has(o.at)) mark(id, `objects/${id}`, `it is inside ${o.at}, which can be carried`);
+    for (const { where, match, effects } of groups) {
+      const ids = (v) => v === "$obj" ? [match?.obj].flat() : v === "$obj2" ? [match?.obj2].flat() : typeof v === "string" && !v.startsWith("$") ? [v] : [];
+      const into = (v) => ids(v).find(x => found.has(x));
+      walk(effects, (e) => {
+        const bag = "move" in e ? into(e.to) : undefined;
+        if (bag) for (const id of ids(e.move)) mark(id, where, `it is moved into ${bag}, which can be carried`);
+        const [, id, prop] = typeof e.set === "string" ? /^(\$?[\w-]+)\.(at)$/.exec(e.set) ?? [] : [];
+        const put = prop === "at" ? into(e.to) : undefined;
+        if (put) for (const x of ids(id)) mark(x, where, `it is put in ${put}, which can be carried`);
+      });
+    }
+    more = found.size > before;
+  }
+  return Object.keys(all).filter(id => found.has(id)).map(id => found.get(id));
+}
+// Has it a sprite to show (rows to draw)?
+export const hasSprite = (o) => Array.isArray(o?.sprite) && o.sprite.length > 0;
+// The sentence for a thing you can hold that has no sprite (a problem for the checker, a finding for the field check).
+export const noSprite = (h) => `${h.id} can end up in the player's hands (${h.why}) but has no sprite: every thing you can carry has one (the inventory and the echoes of what you gain and lose show it)`;
 
 // The engine's own fields of one kind of thing, the ones no world declares: an object's (with where it really is and what
 // it is in), a room's (and where it is), or the player's, the game's or the clock's. Any kind at all when it isn't known.
@@ -292,6 +373,8 @@ export function checkSet(state, set) {
     if (!kind) return note(piece, `an effect with no known kind (${Object.keys(e).join(", ") || "empty"})`, e);
     if (!(kind in FIELDS.effect)) return note(piece, `can't ${kind}`, e);
     if (ENGINE_ONLY.includes(kind)) return note(piece, `"${kind}" is one of the engine's own effects: only the game itself writes it`, e, true);
+    if (kind === "echo" && ENGINE_ECHOES.includes(e.kind))
+      return note(piece, `an echo of kind "${e.kind}" is the engine's own: the game itself says what you gain and lose`, e, true);
     const named = { "add room": "rooms/", "add object": "objects/", "add rule": "rules/", "add change": "changes/", "add puzzle": "puzzles/", "add word": "words/", "add picture": "pictures/", "add condition": "conditions/" }[kind];
     if (named) piece = named + (kind === "add rule" ? e.rule?.id : kind === "add word" ? e.verb : e.id);
     if (["add room", "add object", "add puzzle"].includes(kind)) claim(piece, kind.slice(4), e);
@@ -406,6 +489,8 @@ export function checkSet(state, set) {
       if (isObject(t.picture)) fields(piece, t.picture, FIELDS.picture, "picture", null, t);
     } else {
       fields(piece, t.words, FIELDS.words, "words", null, t);
+      if (isObject(t.words) && t.words.proper !== undefined && t.words.proper !== true)   // the mark is there or not: only true
+        note(piece, `words: proper is true (a proper name, said as written with no article), not ${JSON.stringify(t.words.proper)}`, t);
       fields(piece, t.lock, FIELDS.lock, "lock", null, t);
       for (const p of Array.isArray(t.parts) ? t.parts : []) fields(piece, p, FIELDS.part, "part", null, t);
       for (const [key, topic] of Object.entries(isObject(t.topics) ? t.topics : {})) if (isObject(topic)) fields(piece, topic, FIELDS.topic, `topic "${key}"`, null, t);
@@ -436,6 +521,15 @@ export function checkSet(state, set) {
     if ("start" in d && typeof d.start !== d.type) note(piece, `${key}: start ${JSON.stringify(d.start)} isn't a ${d.type}`, e);
     else if (outside(d, d.start)) note(piece, `${key} start ${d.start} is outside ${range(d)}`, e);
   };
+
+  // Every thing this set lets into the player's hands has a sprite: the things it adds, and those it moves there (heldThings).
+  const added = Object.fromEntries(effects.filter(e => isObject(e) && e.add === "object" && typeof e.id === "string").map(e => [e.id, e]));
+  const within = { ...state.world.objects, ...added };
+  for (const h of heldThings(within, [{ where: "effects", effects }])) {   // (each rule it adds is read on its own, with its match)
+    if (!(h.id in added) && h.where.startsWith("objects/")) continue;   // already the game's: not this set's doing
+    const o = state.world.objects[h.id] ?? within[h.id];
+    if (!hasSprite(added[h.id] ?? o)) note(h.where, noSprite(h), added[h.id] ?? null);
+  }
 
   fields("change set", set, FIELDS.changeSet, "", null, set);
   if (set.properties !== undefined && !isObject(set.properties)) note("properties", "must be { \"thing.property\": { type, … } }", set);

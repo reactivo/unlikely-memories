@@ -419,7 +419,7 @@ const objects = {
   shoe: { at: "tideline", scenery: true, name: "Shoe", note: "A child's, red.", take: "You leave it where the sea put it. It isn't finished giving it back.",
     words: { nouns: ["shoe"], adj: ["red", "small", "child's", "childs"] },
     examine: "A small red shoe, buckled. You had a pair like it once. Yours had a scuff on the left toe. So does this one." },
-  page: { at: "tideline", scenery: true, name: "Typed page", note: "A form, going soft.", actions: ["Read page"], take: "You leave it where the sea put it. It isn't finished giving it back.",
+  page: { at: "tideline", scenery: true, name: "Typed page", note: "A form, going soft.", take: "You leave it where the sea put it. It isn't finished giving it back.",
     words: { nouns: ["page", "form", "paper", "sheet"], adj: ["typed", "wet", "soggy", "sodden"] },
     examine: "A Ministry form. The ink has run. One line is still legible: \"Reason for leaving:\" The space after it is empty." },
 
@@ -498,7 +498,7 @@ const objects = {
   chair: { at: "dining", scenery: true, name: "Empty chair", note: "Reserved.", actions: ["Read card", "Sit"],
     words: { nouns: ["chair", "seat", "place"], adj: ["empty", "near"] },
     examine: "An empty chair, pulled out a little, as if someone had just got up, or was about to sit down." },
-  card: { at: "dining", scenery: true, name: "Card", note: "A place card.", actions: ["Read card"],
+  card: { at: "dining", scenery: true, name: "Card", note: "A place card.",
     words: { nouns: ["card"], adj: ["place", "name"] },
     examine: "A place card. A name has been written on it and rubbed out so many times the card has worn thin." },
   door11: { at: "hallway", scenery: true, name: "Door 11", note: "Ajar, the key in the lock.", actions: ["Enter door"], leads: "w",
@@ -562,7 +562,7 @@ const objects = {
     enter: "You sit in the empty carriage among other people's coats. The train doesn't move. After a while you get off again. Some departures need more than a ticket.",
     words: { nouns: ["train", "carriage", "doors", "door"], adj: ["green", "sleeping", "empty"] },
     examine: "Green carriages, empty seats, the luggage racks full of other people's coats. The engine breathes slowly in its sleep." },
-  timetable: { at: "station", scenery: true, name: "Timetable", note: "Every train: 5.15.", actions: ["Read timetable"],
+  timetable: { at: "station", scenery: true, name: "Timetable", note: "Every train: 5.15.",
     words: { nouns: ["timetable", "board", "times", "schedule"], adj: ["white"] },
     examine: "Three destinations, all leaving at 5.15, Sundays only: \"Adequate Happiness, via Level Minus Four.\" \"The Life You Did Not Live.\" \"Elsewhere.\"" },
 

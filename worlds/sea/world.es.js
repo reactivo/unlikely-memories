@@ -422,7 +422,7 @@ const objects = {
   shoe: { at: "tideline", scenery: true, name: "Zapato", note: "De niño, rojo.", take: "Lo dejas donde lo puso el mar. Aún no ha terminado de devolverlo.",
     words: { nouns: ["zapato", "zapatito"], adj: ["rojo", "pequeño", "pequeno", "niño", "nino"], g: "m" },
     examine: "Un zapatito rojo, con hebilla. Tuviste un par igual. El tuyo tenía un roce en la punta izquierda. Este también." },
-  page: { at: "tideline", scenery: true, name: "Hoja escrita a máquina", note: "Un formulario, reblandecido.", actions: ["Leer hoja"], take: "La dejas donde la puso el mar. Aún no ha terminado de devolverla.",
+  page: { at: "tideline", scenery: true, name: "Hoja escrita a máquina", note: "Un formulario, reblandecido.", take: "La dejas donde la puso el mar. Aún no ha terminado de devolverla.",
     words: { nouns: ["hoja", "formulario", "papel", "pagina"], adj: ["mecanografiada", "maquina", "mojada", "empapada", "escrita"], g: "f" },
     examine: "Un formulario del Ministerio. La tinta se ha corrido. Una línea todavía se lee: «Motivo de la baja:». El espacio que sigue está vacío." },
 
@@ -501,7 +501,7 @@ const objects = {
   chair: { at: "dining", scenery: true, name: "Silla vacía", note: "Reservada.", actions: ["Leer tarjeta", "Sentarse"],
     words: { nouns: ["silla", "asiento", "sitio", "lugar"], adj: ["vacia", "cercana"], g: "f" },
     examine: "Una silla vacía, un poco retirada de la mesa, como si alguien acabara de levantarse, o estuviera a punto de sentarse." },
-  card: { at: "dining", scenery: true, name: "Tarjeta", note: "Una tarjeta de sitio.", actions: ["Leer tarjeta"],
+  card: { at: "dining", scenery: true, name: "Tarjeta", note: "Una tarjeta de sitio.",
     words: { nouns: ["tarjeta", "cartulina"], adj: ["sitio", "nombre"], g: "f" },
     examine: "Una tarjeta de sitio. Han escrito un nombre y lo han borrado tantas veces que la cartulina se ha gastado hasta quedarse fina." },
   door11: { at: "hallway", scenery: true, name: "Puerta 11", note: "Entornada, con la llave en la cerradura.", actions: ["Entrar en puerta"], leads: "w",
@@ -565,7 +565,7 @@ const objects = {
     enter: "Te sientas en el vagón vacío, entre abrigos ajenos. El tren no se mueve. Al cabo de un rato te bajas. Hay salidas que necesitan algo más que un billete.",
     words: { nouns: ["tren", "vagon", "vagones", "puertas", "puerta"], adj: ["verde", "dormido", "vacio"], g: "m" },
     examine: "Vagones verdes, asientos vacíos, los portaequipajes llenos de abrigos ajenos. El motor respira despacio, dormido." },
-  timetable: { at: "station", scenery: true, name: "Horario", note: "Todos los trenes: 17.15.", actions: ["Leer horario"],
+  timetable: { at: "station", scenery: true, name: "Horario", note: "Todos los trenes: 17.15.",
     words: { nouns: ["horario", "tablero", "horarios", "indicador"], adj: ["blanco"], g: "m" },
     examine: "Tres destinos, todos con salida a las 17.15, solo domingos: «Felicidad Suficiente, vía planta menos cuatro». «La vida que no viviste». «En otra parte»." },
 

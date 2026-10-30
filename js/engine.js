@@ -10,8 +10,8 @@ import { parseShape, parseShapes } from "./picture.js";
 import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
 import * as opening from "./opening.js";
 import { translate as translateUse, placeOf, chainOf, shut, isAction } from "./use.js";
-import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer } from "./fields.js";
-import { activeIds, keptFilters, declarationProblems } from "./conditions.js";
+import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer, ENGINE_ECHOES, grammarOf } from "./fields.js";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js";
 import { filterProblem, parseFilter, switched, MOMENTS } from "./filters.js";
 import { spoken, slurring, slur, answerLine } from "./speech.js";
 import { movementNow, stray } from "./movement.js";
@@ -38,7 +38,8 @@ export function step(state, input) {
   const { at = g.clock, tick, ...action } = input;
   g.clock = at;
   const startedIn = g.player.at;
-  let question = null;                                          // the question this input may be answering
+  const held0 = holding(g);                                     // what you hold as the moment starts (its echoes: holdingEchoes)
+  let question = null;                                         // the question this input may be answering
   let open = null;                                              // a question for words that stays open after this input
   if (!tick) {
     g.turn++;
@@ -64,7 +65,7 @@ export function step(state, input) {
       // direction had been typed (so a rule on "go e" fires, and the compass shows only E).
       if (action.dir === "in" || action.dir === "out") action.dir = wayFor(g.world.rooms[g.player.at]?.exits, action.dir) ?? action.dir;
       if (g.player.in) {                                         // moving while in or on something: out first
-        apply(g, { say: "@outFirst", arg: "$in.name" }, action, out, "outFirst");
+        apply(g, { say: "@outFirst", things: ["$in"] }, action, out, "outFirst");
         g.player.in = null;
       }
     }
@@ -82,10 +83,13 @@ export function step(state, input) {
     if (open && !g.pending.question && !g.ended) g.pending.question = open;
   }
   if (g.player.at !== startedIn) g.asked = {};                 // a new room: conversations start afresh
+  const held1 = holding(g);                                     // what your command gave you and took from you: its echoes
+  holdingEchoes(g, held0, held1, out);
   const n0 = out.applied.length;
   runScheduled(g, out);                                         // what's scheduled up to the world's time now
   runTimed(g, at, out, out.applied.slice(n0).some(e => "say" in e));   // timed rules that are now due (a scheduled line holds ambience back)
   runConditions(g, at, out);                                    // the conditions you are in: their ticks, and the ones that end now
+  holdingEchoes(g, held1, holding(g), out);                     // and what the world did on its own gave and took (aside, below)
   // An echo (INTERFACE.md §6c) is the last word on what just happened to you: after the story lines of your command, and
   // after those of what the world did on its own, however the rule ordered its effects.
   // What the world did on its own (scheduled and timed rules) is marked `aside`: shown set apart, like a stage direction
@@ -105,10 +109,38 @@ export function step(state, input) {
   return { next: g, ...out };
 }
 
-// The same effects with the echoes moved after everything else, each group in its own order. The echo of a death (level 0)
-// stays where it is, right after the death's lines and so before the end's own text.
+// The same effects with the echoes moved after the story's lines, in this order: things lost, things gained, the
+// conditions' (and any other kind's), then health last; each kind in the order it came. They go before the story's end
+// (the death's lines, or the `end` effect with its note and "The story is over…"), which stays the last word. The echo of a
+// death (level 0) stays where it is, right after the death's lines and so before the end's own text.
 const dying = (e) => e.echo === "@health.0";
-const echoesLast = (list) => [...list.filter(e => !("echo" in e) || dying(e)), ...list.filter(e => "echo" in e && !dying(e))];
+const ECHO_ORDER = { lost: 0, gained: 1, hurt: 3, healed: 3 };   // any other kind: 2
+const echoRank = (e) => ECHO_ORDER[e.kind] ?? 2;
+function echoesLast(list) {
+  const echoes = list.filter(e => "echo" in e && !dying(e)).sort((a, b) => echoRank(a) - echoRank(b));   // (sort is stable)
+  const rest = list.filter(e => !("echo" in e) || dying(e)), end = rest.findIndex(e => "end" in e || e.say === "@hurt.dead");
+  return end < 0 ? [...rest, ...echoes] : [...rest.slice(0, end), ...echoes, ...rest.slice(end)];
+}
+
+// ---- What you hold ----------------------------------------------------------------------------------------------
+// What you hold: every thing whose place is "player" (in your hands, or in something you carry: a mint in the tin), in the
+// world's order, each with what its echo needs if it is gone by then: its name, gender, number and proper-name mark
+// (grammarOf), and sprite, as they are now.
+function holding(g) {
+  const held = new Map();
+  for (const [id, o] of Object.entries(g.world.objects))
+    if (placeOf(g, id) === "player") held.set(id, { name: o.name, who: grammarOf(o.words), sprite: o.sprite });
+  return held;
+}
+// The echoes of what changed in your hands between two moments (INTERFACE.md §6c): one line for each thing you no longer have
+// (kind `lost`), then one for each thing you now have (kind `gained`), in the pack's words (echo.lost, echo.gained). The engine's
+// own, whatever moved the thing (a standard verb, a world's rule, the opening, a timed rule); a world never writes them. A thing
+// moved between your own containers is held all along: nothing to say.
+function holdingEchoes(g, before, after, out) {
+  const line = (kind, id, t) => out.applied.push(clean({ echo: "@echo." + kind, kind, thing: id, name: t.name, who: t.who, sprite: t.sprite, at: worldTime(g) }));
+  for (const [id, t] of before) if (!after.has(id)) line("lost", id, t);
+  for (const [id, t] of after) if (!before.has(id)) line("gained", id, t);
+}
 
 // Is this action the answer to that question? (A yes/no question's answer is `{ verb: "answer", question: "confirm", value }`;
 // a question for words', `{ verb: "answer", question: <its key>, text, blank }`: PARSER.md layer 0.)
@@ -237,16 +269,18 @@ function runAction(g, action, out, question) {
 
 // Would these actions, done now, be accepted, and would something answer them: a game rule or the thing itself,
 // not a verb's generic reply (verbs.js)? For offering commands ("Did you mean…?", suggestion lines). The state is
-// untouched. { works, meaningful }
+// untouched. { works, meaningful, rules }: rules, the id of the rule that answered each action (null for none).
 export function answers(state, actions) {
   let s = state, meaningful = !state.ended;
+  const rules = [];
   for (const a of actions) {
     const r = step(s, a);
-    if (r.refused.length) return { works: false, meaningful: false };
+    if (r.refused.length) return { works: false, meaningful: false, rules };
     if (!r.answer || r.answer.generic) meaningful = false;
+    rules.push(r.answer?.rule ?? null);
     s = r.next;
   }
-  return { works: true, meaningful };
+  return { works: true, meaningful, rules };
 }
 
 // The game's rules that can act now: all of them, or only the opening's own while you're in it.
@@ -371,6 +405,7 @@ function fill(g, v, action) {
   if (typeof v !== "string" || !v.startsWith("$")) return v;
   if (v === "$obj") return action.obj ?? null;
   if (v === "$here") return g.player.at;
+  if (v === "$in") return g.player.in ?? null;              // what you're in or on
   if (v === "$text") return action.text ?? "";
   if (v === "$topic") return action.topic ?? null;
   if (v === "$exits") return Object.keys(g.world.rooms[g.player.at].exits || {}).filter(d => exitNow(g, g.player.at, d).seen);   // shut ones too: you can see the door
@@ -541,14 +576,14 @@ function nextTick(g, every) {
   const [min, max] = every.turns || every.seconds, n = rollBetween(g, min, max);
   return every.turns ? { tickTurn: g.turn + n } : { tickAt: g.clock + n * 1000 };
 }
-// A condition ends: it is gone from the player, its `ends` line is said (the echo), and its filters go off, unless another
-// condition you are still in keeps them.
+// A condition ends: it is gone from the player, its `ends` line is said (the echo, with the tone of an end: conditionTone),
+// and its filters go off, unless another condition you are still in keeps them.
 function endCondition(g, id, action, out, key) {
   const d = g.conditions[id], kept = keptFilters(g, id);
   delete g.player.conditions[id];
   if (!Object.keys(g.player.conditions).length) delete g.player.conditions;   // (none left: no key, as before conditions)
   out.applied.push({ stop: id });
-  out.applied.push({ echo: d.ends, kind: "condition", at: worldTime(g) });
+  out.applied.push({ echo: d.ends, kind: "condition", tone: conditionTone(d, true), at: worldTime(g) });
   for (const f of d.filters || []) if (!kept.has(f)) apply(g, { unfilter: f }, action, out, key + ":unfilter");
 }
 
@@ -611,14 +646,14 @@ function apply(g, e, action, out, key) {
     const said = fill(g, text, action);
     if (said === null || said === undefined || said === "") return refuse("nothing to say: " + e.say);
     // who: what the language pack needs to make a standard line agree with the thing the action is about (Spanish
-    // "Cogida." / "Cogidos."): that thing's gender and number, from its `words` ({ g: "m" | "f", pl }).
+    // "Ya la tienes…" / "Están cerrados con llave."): that thing's gender and number, from its `words` ({ g: "m" | "f", pl }), and `proper` (grammarOf).
     const w = typeof said === "string" && said.startsWith("@") && action.obj ? g.world.objects[action.obj]?.words : null;
     // things: a standard line about several things ("You put the letter in the bottle."): the narrator names each in
     // this language and hands the pack their names and their gender and number, in order ({ say: "@putIn", things: ["$obj", "$obj2"] }).
     const things = Array.isArray(e.things) ? e.things.map(t => fill(g, t, action)).filter(t => g.world.objects[t]) : null;
     const vals = propertyWords(g, said);              // the properties it names, as they are now ([player.name] in it)
     done(clean({ say: said, img: fill(g, e.img, action), style: e.style, arg: fill(g, e.arg, action),
-                 pick, prev, who: !things && w && (w.g || w.pl) ? clean({ g: w.g, pl: w.pl }) : undefined, things,
+                 pick, prev, who: !things ? grammarOf(w) : undefined, things,
                  vals: Object.keys(vals).length ? vals : undefined,
                  at: worldTime(g) }));     // at: the world's time when it was said ([time] in it)
   } else if ("describe" in e) {                      // the narrator describes a room, or what you carry
@@ -684,6 +719,7 @@ function apply(g, e, action, out, key) {
     const said = fill(g, e.echo, action);
     if (typeof said !== "string" || !said.trim()) return refuse("echo says what? " + e.echo);
     if (typeof e.kind !== "string" || !/^[a-z]+$/.test(e.kind)) return refuse("echo of what kind? " + e.kind);
+    if (ENGINE_ECHOES.includes(e.kind)) return refuse(`an echo of kind "${e.kind}" is the engine's own: what you hold is told by the game itself`);
     done({ echo: said, kind: e.kind, at: worldTime(g) });
   } else if ("start" in e) {                         // start a condition: { start: "drunk" } (js/conditions.js); again: it starts afresh
     const id = fill(g, e.start, action), d = g.conditions?.[id];
@@ -693,7 +729,7 @@ function apply(g, e, action, out, key) {
     if (!again && d.health) Object.assign(active[id], nextTick(g, d.health.every));
     done(again ? { start: id, again: true } : { start: id });
     if (again) return;                                // already in it: nothing new to say (the rule's own line tells it)
-    done({ echo: d.starts, kind: "condition", at: worldTime(g) });
+    done({ echo: d.starts, kind: "condition", tone: conditionTone(d), at: worldTime(g) });   // in the colour of what it does
     for (const f of d.filters || []) apply(g, { filter: f }, action, out, key + ":filter");
   } else if ("stop" in e) {                          // end a condition: { stop: "drunk" }; nothing happens if you're not in it
     const id = fill(g, e.stop, action);

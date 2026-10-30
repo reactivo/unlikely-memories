@@ -22,6 +22,8 @@
 //   `Look`              a command → shown as <LOOK>; clicking runs it
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
+import { spriteSVG } from "./sprite.js";
+
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
 const PHRASE_GAP_BASE = 60;      // ms before the next phrase starts…
@@ -34,6 +36,10 @@ const GLUED = /^[,;:.!?…)\]"»”']+/;
 
 // Set up the log on its element, with the folding picture (ui/fold.js) it tells when the story is at the present. Returns
 // update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), toEnd() and atEnd().
+// What goes in the small inventory slot of a line's `slot` ({ sprite: rows }): the sprite as SVG, or null when there is none
+// to draw (no slot, an empty one, a sprite with no rows). Null: the line has no slot at all, just its words.
+export const slotArt = (slot) => (slot && typeof slot === "object" ? spriteSVG(slot.sprite) : null);
+
 export function mount(root, on, header) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   let gliding = false;           // the page is gliding to a new visit: don't follow new text meanwhile
@@ -259,7 +265,9 @@ export function mount(root, on, header) {
   // cls: "cmd" = an echoed command (appears at once), "sys" = dim text. art: optional SVG shown on the left.
   // instant: show it at once, no fading in (a restored game's earlier text).
   // level: a health line (an echo, STATUS) gets the five health bars before it, the first `level` filled (0 to 5; 0 is all empty).
-  function say(text, cls, art, instant, level) {
+  // slot: the echo of a thing you gained or lost gets a small inventory slot before it, with the thing's sprite: { sprite: rows }
+  // (no sprite: no slot at all, just the words; also for a saved line that kept an empty slot).
+  function say(text, cls, art, instant, level, slot) {
     const p = document.createElement("p");
     if (cls) p.className = cls;
     let into = p;                                                   // where the text goes
@@ -270,6 +278,8 @@ export function mount(root, on, header) {
       p.append(fig, into);
     }
     if (level >= 0 && level <= 5) into.appendChild(bars(level));    // (older saves have no level: plain text)
+    const inSlot = slotArt(slot);
+    if (inSlot) into.appendChild(held(inSlot));                     // (older saves have no slot: plain text)
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
     current().appendChild(p);
@@ -284,6 +294,19 @@ export function mount(root, on, header) {
     b.className = "bars"; b.setAttribute("aria-hidden", "true");
     for (let i = 1; i <= 5; i++) { const bar = document.createElement("i"); if (i <= level) bar.className = "on"; b.appendChild(bar); }
     return b;
+  }
+
+  // The small inventory slot before the echo of a thing you gained or lost (log.css, `.held`): a box on the font's pixel grid
+  // with the thing's sprite in it, one sprite pixel to one font pixel. It takes no height in the line, so the line is as tall
+  // as any other. Decoration only: the phrase names the thing, so it is hidden from screen readers.
+  function held(svg) {
+    const mark = document.createElement("span");
+    mark.className = "held"; mark.setAttribute("aria-hidden", "true");
+    const box = document.createElement("span");
+    box.className = "held-box";
+    box.innerHTML = svg;
+    mark.appendChild(box);
+    return mark;
   }
 
   // Build story text into an element: plain parts, `commands` (buttons that run them) and {objects} (buttons that

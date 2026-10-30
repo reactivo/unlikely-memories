@@ -7,6 +7,13 @@ const playedFor = (ms) => {
   return !m ? "less than a minute" : !h ? unit(m, "minute", "minutes") : unit(h, "hour", "hours") + (r ? " and " + unit(r, "minute", "minutes") : "");
 };
 
+// "the" and a thing's name in a sentence (o: the thing, or { words }: its gender, number and mark): for [way] (the pack's `the`),
+// the echoes of what you gain and lose, and every standard line that names a thing. A proper name (`words.proper`: "Monday",
+// "Mr Ambrose") has no article: "You get Monday". `The`: the same at the start of a sentence.
+const the = (name, o) => (o?.words?.proper ? name : "the " + name);
+const The = (name, w) => (w?.proper ? name : "The " + name);
+const theW = (name, w) => the(name, { words: w });                  // by its gender, number and mark (`w`, as the narrator hands them)
+
 export default {
   hint: "Type `Help` for ideas",   // beside the prompt at the start (no full stop: it isn't a sentence in the story)
   or: " or ",
@@ -57,8 +64,8 @@ export default {
   health: ["You're dead", "You can barely stand", "You feel awful", "You feel unwell", "You feel a little off", "You're in good health"],
   // STATUS: d = { health: the step, 5 to 1 }.
   statusNow(d) { return this.health[d.health] + "."; },
-  // STATUS, under the health line: the conditions you are in (js/conditions.js), each its world's own `status` phrase.
-  statusConditions(list) { return list.map(s => s + ".").join(" "); },
+  // STATUS, under the health line: one line for each condition you are in (js/conditions.js), its world's own `status` phrase, s.
+  statusCondition: (s) => s + ".",
   // Words said while a condition slurs them (js/speech.js): how they came out, t.
   slurred: (t) => `It comes out as "${t}".`,
   weekdays: { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday" },
@@ -105,13 +112,14 @@ export default {
   // Standard verbs (js/verbs.js), for objects without their own rule
   locked: "It's locked.", unlocked: "It opens.",
   noTopic: ["They don't seem to know anything about that.", "No answer worth having.", "A shrug."],
-  // Being in or on things (js/verbs.js): n = the thing's name.
-  gotIn: (n) => `You get into the ${(n || "").toLowerCase()}.`, gotOn: (n) => `You get onto the ${(n || "").toLowerCase()}.`,
-  gotOut: (n) => `You get out of the ${(n || "").toLowerCase()}.`, gotOff: (n) => `You get off the ${(n || "").toLowerCase()}.`,
-  outFirst: (n) => `You get out of the ${(n || "").toLowerCase()} first.`,
-  alreadyIn: (n) => `You're already there, in the ${(n || "").toLowerCase()}.`,
-  notIn: (n) => `You're not in the ${(n || "").toLowerCase()}.`,
-  youAreIn: (n) => `You are in the ${n}.`, youAreOn: (n) => `You are on the ${n}.`,
+  // Being in or on things (js/verbs.js): n = [the thing's name, in a sentence], w = [its gender, number and mark].
+  gotIn: (n, w) => `You get into ${theW(n[0], w[0])}.`, gotOn: (n, w) => `You get onto ${theW(n[0], w[0])}.`,
+  gotOut: (n, w) => `You get out of ${theW(n[0], w[0])}.`, gotOff: (n, w) => `You get off ${theW(n[0], w[0])}.`,
+  outFirst: (n, w) => `You get out of ${theW(n[0], w[0])} first.`,
+  alreadyIn: (n, w) => `You're already there, in ${theW(n[0], w[0])}.`,
+  notIn: (n, w) => `You're not in ${theW(n[0], w[0])}.`,
+  // Where you are, in a room's description: n = the thing's name, w = its gender, number and mark.
+  youAreIn: (n, w) => `You are in ${theW(n, w)}.`, youAreOn: (n, w) => `You are on ${theW(n, w)}.`,
   // "leave" with nowhere to leave: the ways out, as commands.
   waysOut: function (dirs) {
     const ways = (dirs || []).map(d => "`" + this.dirs[d] + "`");
@@ -121,9 +129,13 @@ export default {
   // Echoes (INTERFACE.md §6c): one short line under the story text after a change to your health, for the step
   // you land on (health 5–0), in the colour of its kind, with the five health bars before it. js/narrator.js picks them.
   // hurt: a phrase of its own for a step when you get hurt (null: the `health` one). English has none.
+  // gained, lost: a thing you now have, or no longer have (the engine's own echoes, whatever moved it), with no full stop:
+  // n = its name as in a list ("roof key"), w = its gender, number and mark (a proper name: "You get Monday").
   echo: {
     healed: [null, "You feel a little better", "You feel better", "You feel much better", "You feel almost yourself again", "You feel well"],
-    hurt: [null, null, null, null, null, null]
+    hurt: [null, null, null, null, null, null],
+    gained: (n, w) => "You get " + theW(n, w),
+    lost: (n, w) => "You no longer have " + theW(n, w)
   },
   // Losing the last of your health (js/engine.js, `hurt`): the cause's own words first (s) if it has some.
   hurt: {
@@ -136,20 +148,20 @@ export default {
       (s) => (s ? s + " " : "") + "You had meant to do so many things. The thought stays a moment longer than you do."
     ]
   },
-  took: "Taken.", dropped: "Dropped.", cantTake: "It won't come away.", nothingSpecial: "You see nothing special.",
+  cantTake: "It won't come away.", nothingSpecial: "You see nothing special.",
   notCarried: "You aren't carrying that.",
-  // USE and its words alone (js/view.js, useLine): d = { name: the thing, list: the commands it offers, as a sentence }.
-  useHow: (d) => `Use the ${d.name} how? ${d.list}.`,
+  // USE and its words alone (js/view.js, useLine): d = { name: the thing, list: the commands it offers, as a sentence }; w = its words.
+  useHow: (d, w) => `Use ${theW(d.name, w)} how? ${d.list}.`,
   // The two-thing commands USE alone offers, written the way a player types them (nouns, no articles).
   useWith: { unlock: (door, key) => `Unlock ${door} with ${key}`, put: (thing, into) => `Put ${thing} in ${into}`, give: (thing, who) => `Give ${thing} to ${who}` },
-  // Putting one thing in another (js/verbs.js): n = [the thing, where it goes], names in lower case, w = their gender and number.
-  putIn: [(n) => `You put the ${n[0]} in the ${n[1]}.`, (n, w) => `The ${n[0]} ${w[0]?.pl ? "go" : "goes"} into the ${n[1]}.`,
-          (n) => `You place the ${n[0]} in the ${n[1]}.`],
+  // Putting one thing in another (js/verbs.js): n = [the thing, where it goes], names in a sentence, w = their gender, number and mark.
+  putIn: [(n, w) => `You put ${theW(n[0], w[0])} in ${theW(n[1], w[1])}.`, (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} into ${theW(n[1], w[1])}.`,
+          (n, w) => `You place ${theW(n[0], w[0])} in ${theW(n[1], w[1])}.`],
   // Taking a thing from somewhere it isn't: n = [the thing, the place].
-  notInside: [(n, w) => `The ${n[0]} ${w[0]?.pl ? "aren't" : "isn't"} in the ${n[1]}.`, (n, w) => `You look in the ${n[1]}, but the ${n[0]} ${w[0]?.pl ? "are" : "is"} not there.`,
-              (n) => `There is no ${n[0]} in the ${n[1]} to take.`],
-  closed: [(n, w) => `The ${n[0]} ${w[0]?.pl ? "are" : "is"} closed.`, (n, w) => `The ${n[0]} ${w[0]?.pl ? "are" : "is"} shut.`,
-           (n) => `You would have to open the ${n[0]} first.`],
+  notInside: [(n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "aren't" : "isn't"} in ${theW(n[1], w[1])}.`, (n, w) => `You look in ${theW(n[1], w[1])}, but ${theW(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} not there.`,
+              (n, w) => w[0]?.proper ? `${n[0]} isn't in ${theW(n[1], w[1])} to take.` : `There is no ${n[0]} in ${theW(n[1], w[1])} to take.`],
+  closed: [(n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} closed.`, (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} shut.`,
+           (n, w) => `You would have to open ${theW(n[0], w[0])} first.`],
   invEmpty: "You are carrying nothing.", invList: (list) => "You are carrying: " + list + ".",
 
   // Things the opening's mechanics say (js/opening.js): the world writes the rest in its own voice.
@@ -157,8 +169,8 @@ export default {
   cantDrop: "Better keep it. You may need it.",
   // A hint, said by the world's own line (the opening's `hintFrame`): the frame, then the hint in quotes.
   framed: (frame, hint) => `${frame} "${hint}"`,
-  // "the" and a name, for [way] in a text: the way on from the opening ("the revolving door").
-  the: (name) => "the " + name,
+  // "the" and a name, for [way] in a text: the way on from the opening ("the revolving door"); a proper name, bare.
+  the,
   // A language with no world yet: a single room, so the game still has somewhere to be.
   noWorld: { place: "NOWHERE", alt: "A blank picture.",
              text: "There is no world to play in this language yet. Go back to the list of games and choose another language." },

@@ -6,7 +6,12 @@ const ending = (w) => (w?.g === "f" ? "a" : "o") + (w?.pl ? "s" : "");          
 const it = (w) => (w?.pl ? (w?.g === "f" ? "las" : "los") : w?.g === "f" ? "la" : "lo");     // lo / la / los / las
 const num = (w, one, many) => (w?.pl ? many : one);                                            // "se abre" / "se abren"
 const article = (w) => (w?.pl ? (w?.g === "f" ? "las" : "los") : w?.g === "f" ? "la" : "el");    // la / el / las / los, en una frase
+// El artículo y el nombre de una cosa en una frase, por su género y número (o.words): la `the` del paquete, los ecos y cada
+// respuesta normal que nombra una cosa. Un nombre propio (`words.proper`) va sin artículo y con su mayúscula.
+const the = (name, o) => (o?.words?.proper ? name : article(o?.words) + " " + name);
 const Article = (w) => article(w).charAt(0).toUpperCase() + article(w).slice(1);                 // La / El / Las / Los, al empezar
+const el = (name, w) => the(name, { words: w });                                                 // por su género, número y marca (`w`)
+const El = (name, w) => (w?.proper ? name : Article(w) + " " + name);                            // lo mismo, al empezar una frase
 
 // El tiempo jugado en palabras, para la nota del final: "menos de un minuto", "23 minutos", "1 hora y 5 minutos".
 const playedFor = (ms) => {
@@ -65,8 +70,8 @@ export default {
   health: ["Has muerto", "Apenas te tienes en pie", "Te sientes fatal", "Te encuentras mal", "No estás del todo bien", "Te sientes muy bien"],
   // STATUS: d = { health: el paso, de 5 a 1 }.
   statusNow(d) { return this.health[d.health] + "."; },
-  // STATUS, bajo la línea de la salud: los estados en que estás (js/conditions.js), cada uno con su frase `status` del mundo.
-  statusConditions(list) { return list.map(s => s + ".").join(" "); },
+  // STATUS, bajo la línea de la salud: una línea por cada estado en que estás (js/conditions.js), con su frase `status` del mundo, s.
+  statusCondition: (s) => s + ".",
   // Lo que dices mientras un estado te traba la lengua (js/speech.js): cómo te sale, t.
   slurred: (t) => `Te sale así: «${t}».`,
   weekdays: { mon: "lunes", tue: "martes", wed: "miércoles", thu: "jueves", fri: "viernes", sat: "sábado", sun: "domingo" },
@@ -122,7 +127,11 @@ export default {
   // hurt: la frase propia de un paso al herirte; null, la de `health`.
   echo: {
     healed: [null, "Te sientes un poco mejor", "Te sientes mejor", "Te sientes mucho mejor", "Te sientes bien", "Te sientes muy bien"],
-    hurt: [null, null, null, null, "Te has hecho daño", null]
+    hurt: [null, null, null, null, "Te has hecho daño", null],
+    // gained, lost: una cosa que ahora tienes, o que ya no tienes (los ecos propios del motor, la mueva lo que la mueva), sin
+    // punto: n = su nombre como en una lista ("llave de la azotea"), w = su género y número.
+    gained: (n, w) => "Obtienes " + el(n, w),
+    lost: (n, w) => "Ya no tienes " + el(n, w)
   },
   // Perder lo último de tu salud (js/engine.js, `hurt`): primero las palabras de lo que te ha herido (s), si las tiene.
   hurt: {
@@ -135,22 +144,22 @@ export default {
       (s) => (s ? s + " " : "") + "Tenías pensado hacer tantas cosas. El pensamiento se queda un momento más que tú."
     ]
   },
-  took: (_, w) => `Cogid${ending(w)}.`, dropped: (_, w) => `Dejad${ending(w)}.`, cantTake: "No se puede coger.", nothingSpecial: "No ves nada especial.",
+  cantTake: "No se puede coger.", nothingSpecial: "No ves nada especial.",
   notCarried: "No llevas eso.",
   // USAR y sus palabras solas (js/view.js, useLine): d = { name: la cosa, list: las órdenes que ofrece, como una frase }; w = su género.
-  useHow: (d, w) => `¿Usar ${article(w)} ${d.name} cómo? ${d.list}.`,
+  useHow: (d, w) => `¿Usar ${el(d.name, w)} cómo? ${d.list}.`,
   // Las órdenes de dos cosas que ofrece USAR solo, como las escribiría un jugador (nombres, sin artículos).
   useWith: { unlock: (door, key) => `Abrir ${door} con ${key}`, put: (thing, into) => `Meter ${thing} en ${into}`, give: (thing, who) => `Dar ${thing} a ${who}` },
-  // Meter una cosa en otra (js/verbs.js): n = [la cosa, dónde va], nombres en minúscula; w = su género y número.
-  putIn: [(n, w) => `Metes ${article(w[0])} ${n[0]} en ${article(w[1])} ${n[1]}.`, (n, w) => `Pones ${article(w[0])} ${n[0]} en ${article(w[1])} ${n[1]}.`,
-          (n, w) => `Dejas ${article(w[0])} ${n[0]} en ${article(w[1])} ${n[1]}.`],
+  // Meter una cosa en otra (js/verbs.js): n = [la cosa, dónde va], nombres en una frase; w = su género, número y marca.
+  putIn: [(n, w) => `Metes ${el(n[0], w[0])} en ${el(n[1], w[1])}.`, (n, w) => `Pones ${el(n[0], w[0])} en ${el(n[1], w[1])}.`,
+          (n, w) => `Dejas ${el(n[0], w[0])} en ${el(n[1], w[1])}.`],
   // Coger una cosa de donde no está: n = [la cosa, el sitio].
-  notInside: [(n, w) => `${Article(w[0])} ${n[0]} no ${num(w[0], "está", "están")} en ${article(w[1])} ${n[1]}.`,
-              (n, w) => `Miras en ${article(w[1])} ${n[1]}, pero ${article(w[0])} ${n[0]} no ${num(w[0], "está", "están")} ahí.`,
-              (n, w) => `No hay nada que coger de ${article(w[1])} ${n[1]}: ${article(w[0])} ${n[0]} no ${num(w[0], "está", "están")} ahí.`],
-  closed: [(n, w) => `${Article(w[0])} ${n[0]} ${num(w[0], "está", "están")} cerrad${ending(w[0])}.`,
-           (n, w) => `${Article(w[0])} ${n[0]} ${num(w[0], "está", "están")} cerrad${ending(w[0])}: primero hay que abrir${it(w[0])}.`,
-           (n, w) => `Tendrías que abrir ${article(w[0])} ${n[0]} primero.`],
+  notInside: [(n, w) => `${El(n[0], w[0])} no ${num(w[0], "está", "están")} en ${el(n[1], w[1])}.`,
+              (n, w) => `Miras en ${el(n[1], w[1])}, pero ${el(n[0], w[0])} no ${num(w[0], "está", "están")} ahí.`,
+              (n, w) => `No hay nada que coger de ${el(n[1], w[1])}: ${el(n[0], w[0])} no ${num(w[0], "está", "están")} ahí.`],
+  closed: [(n, w) => `${El(n[0], w[0])} ${num(w[0], "está", "están")} cerrad${ending(w[0])}.`,
+           (n, w) => `${El(n[0], w[0])} ${num(w[0], "está", "están")} cerrad${ending(w[0])}: primero hay que abrir${it(w[0])}.`,
+           (n, w) => `Tendrías que abrir ${el(n[0], w[0])} primero.`],
   invEmpty: "No llevas nada.", invList: (list) => "Llevas: " + list + ".",
 
   // Lo que dicen las mecánicas de la apertura (js/opening.js): el mundo escribe el resto con su propia voz.
@@ -158,8 +167,9 @@ export default {
   cantDrop: (_, w) => `Mejor quedárte${it(w)}. Puede que ${it(w)} necesites.`,
   // Una pista, dicha con la línea propia del mundo (`hintFrame` de la apertura): la línea y la pista entre comillas.
   framed: (frame, hint) => `${frame} «${hint.replace(/\.$/, "")}».`,
-  // El artículo y un nombre, para [way] en un texto: el camino de la apertura ("la puerta giratoria").
-  the: (name, o) => (o?.words?.g === "f" ? "la " : "el ") + name,
+  // El artículo y un nombre, por el género y el número de la cosa (o.words): para [way] en un texto, el camino de la apertura
+  // ("la puerta giratoria"), y en los ecos de lo que obtienes y pierdes ("las últimas palabras").
+  the,
   // Un idioma sin mundo todavía: una sola sala, para que la partida tenga dónde estar.
   noWorld: { place: "NINGUNA PARTE", alt: "Un dibujo en blanco.",
              text: "Todavía no hay ningún mundo que jugar en este idioma. Vuelve a la lista de juegos y elige otro idioma." },

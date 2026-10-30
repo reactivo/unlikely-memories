@@ -343,7 +343,7 @@ const objects = {
       sea: { about: "sea_crate", label: "cajón", words: ["mar", "cajón", "cajon"], says: "«Alguien lo perdió hace años. Gotea. Le pongo un cubo debajo los jueves.»" },
       default: "Pasa una hoja del libro, no encuentra nada y la devuelve a su sitio."
     } },
-  ledger: { at: "lost_property", scenery: true, name: "Libro de registro", note: "Todo lo perdido, en orden.", actions: ["Leer libro"], opens: ["monday", "umbrella"],
+  ledger: { at: "lost_property", scenery: true, name: "Libro de registro", note: "Todo lo perdido, en orden.", opens: ["monday", "umbrella"],
     words: { nouns: ["libro", "registro"], adj: ["grande", "negro"], g: "m" },
     examine: "Columnas de cosas perdidas. Hacia el final, con la misma letra paciente: «Un paraguas, gris. Dejado un lunes. Sin reclamar». Al lado, el nombre del dueño se ha corrido con la lluvia, en una letra que es la tuya.",
     parts: [{ words: ["columnas", "columna", "letra", "anotación", "anotacion", "anotaciones", "entradas"], name: "las anotaciones" }], mentions: ["paraguas", "columnas"] },
@@ -366,7 +366,7 @@ const objects = {
     words: { nouns: ["calendario", "almanaque", "taco", "hojas"], adj: ["pared"], g: "m" },
     examine: "Un calendario de hojas que marca DOMINGO. Entre la hoja del domingo y la siguiente, la del martes, queda el resto de una que arrancaron, y un poco de cola, todavía pegajosa.",
     parts: [{ words: ["cola", "pegamento", "resto", "hueco"], name: "el hueco", says: "Sitio para una hoja. La cola sigue pegajosa, después de tantos años." }], mentions: ["hueco", "cola"] },
-  decree: { at: "station_hall", scenery: true, name: "Decreto", note: "Enmarcado y firmado.", actions: ["Leer decreto"], opens: ["monday"],
+  decree: { at: "station_hall", scenery: true, name: "Decreto", note: "Enmarcado y firmado.", opens: ["monday"],
     words: { nouns: ["decreto", "aviso", "marco", "cuadro"], adj: ["enmarcado"], g: "m" },
     examine: "«Por decreto: queda abolido el lunes en este pueblo, con efecto desde el próximo. El último lunes se guardará en el ayuntamiento, por si acaso.» Firmado por el Ministro, con una rúbrica que se alarga demasiado.",
     parts: [{ words: ["rúbrica", "rubrica", "firma", "ministro"], name: "la firma" }], mentions: ["firma"] },
@@ -381,7 +381,7 @@ const objects = {
     talk: "«Un viaje, una moneda», dice. «De las antiguas. Martes es el único sitio al que vamos.»",
     topics: { coin: { about: "window", label: "monedas", words: ["moneda", "monedas", "dinero", "precio", "tarifa", "viaje"], says: "«De las antiguas. Dejaron de acuñarlas cuando dejaron de hacer lunes. La gente las tiraba a la fuente de la plaza, para dar suerte.»" },
               default: "«Billetes», dice, como si eso fuera la respuesta." } },
-  timetable: { at: "station_hall", scenery: true, name: "Horario", note: "Un solo tren.", actions: ["Leer horario"],
+  timetable: { at: "station_hall", scenery: true, name: "Horario", note: "Un solo tren.",
     words: { nouns: ["horario", "pared"], adj: [], g: "m" },
     examine: "Una pared entera de horario para una sola línea: MARTES, SALIDA 23:40, DIARIO. El tren llega diez minutos antes. Bajo REGRESOS, alguien ha pintado una raya limpia." },
 
@@ -413,7 +413,7 @@ const objects = {
     words: { nouns: ["banco", "asiento"], adj: ["madera"], g: "m" }, enterable: "on",
     examine: "Un banco con una placa de latón: EN MEMORIA DEL LUNES, QUE NOS TENÍA ENTRETENIDOS.",
     parts: [{ words: ["placa"], name: "la placa", says: "EN MEMORIA DEL LUNES, QUE NOS TENÍA ENTRETENIDOS." }], mentions: ["placa"] },
-  board: { at: "platform", scenery: true, name: "Panel de horarios", note: "Una sola línea.", actions: ["Leer panel"],
+  board: { at: "platform", scenery: true, name: "Panel de horarios", note: "Una sola línea.",
     words: { nouns: ["panel", "cuadro", "horario", "horarios"], adj: ["colgante"], g: "m" },
     examine: "MARTES, SALIDA 23:40. El tren llega diez minutos antes. Solo pasajeros con billete." },
   train: { at: null, scenery: true, name: "Tren", note: "Para el martes.", actions: ["Subir al tren"],
@@ -474,7 +474,7 @@ const objects = {
 
   // Café
   ines: { at: "cafe", scenery: true, name: "Inés", note: "Tras la barra.", actions: ["Hablar con Inés", "Pedir café"],
-    words: { nouns: ["ines", "camarera", "mujer"], adj: [], g: "f" },
+    words: { nouns: ["ines", "camarera", "mujer"], adj: [], g: "f", proper: true },
     examine: "Una mujer con las mangas remangadas y un lápiz detrás de cada oreja, por si uno se rinde.",
     talk: "«¿Café?», dice. Es la única pregunta que hace.",
     topics: {
@@ -484,7 +484,7 @@ const objects = {
       coffee: { open: true, words: ["café", "cafe", "taza", "beber"], says: "«Café», dice." },
       default: "«Café», dice. «De café sí entiendo.»"
     } },
-  menu: { at: "cafe", scenery: true, name: "Pizarra", note: "Café, y nada más.", actions: ["Leer pizarra"],
+  menu: { at: "cafe", scenery: true, name: "Pizarra", note: "Café, y nada más.",
     words: { nouns: ["pizarra", "carta", "menú", "menu", "tiza"], adj: [], g: "f" },
     examine: "En tiza: CAFÉ. Debajo, borrado pero legible: CHURROS (SOLO LOS LUNES)." },
   coffee: { at: null, portable: false, name: "Taza de café", note: "Caliente, y gratis.", actions: ["Beber café"],
@@ -492,7 +492,7 @@ const objects = {
     examine: "Pequeño, negro, muy caliente. Huele a mañanas en las que no tuviste que madrugar." },
 
   // Calle Mayor, ayuntamiento, archivo
-  plate: { at: "high_street", scenery: true, name: "Placa de latón", note: "Horario de oficina.", actions: ["Leer placa"], opens: ["monday"],
+  plate: { at: "high_street", scenery: true, name: "Placa de latón", note: "Horario de oficina.", opens: ["monday"],
     words: { nouns: ["placa", "horario", "horas"], adj: ["latón", "laton", "oficina"], g: "f" },
     examine: "AYUNTAMIENTO, ABIERTO DE 09:00 A 17:00, ARCHIVO ARRIBA, CERRADO LOS LUNES. La última línea está más pulida que las otras." },
   archivist: { at: "archive", scenery: true, name: "Archivera", note: "Guarda el último lunes.", actions: ["Hablar con archivera"],

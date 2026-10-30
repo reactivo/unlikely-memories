@@ -4,7 +4,8 @@
 // Pure: never touches the page or the state.
 
 import { worldTime, parts, hhmm } from "./time.js";
-import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText } from "./fields.js";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./fields.js";
+import { activeIds, conditionTone } from "./conditions.js";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -22,9 +23,18 @@ export function tell(applied, state, pack) {
       String(said).split(/\n\s*\n/).forEach((part, i) =>
         out.push(clean({ text: part, style: e.say === "@hurt.dead" ? "death" : e.style, img: i === 0 ? e.img : undefined })));
     }
-    // An echo of what just happened to you (INTERFACE.md §6c): its own short line, styled by its kind.
-    // A health echo (e.level) also carries the level its line describes, for the bars before it.
-    if (e.echo) out.push(clean({ text: timed(text(echoPhrase(e, pack), pack), state, pack, e.at), style: "echo text-echo echo-" + e.kind, level: e.level }));
+    // An echo of what just happened to you (INTERFACE.md §6c): its own short line, styled by its kind, and by its tone if
+    // it has one (a condition's start or end: "tone-hurt", "tone-healed" or "tone-neutral", its colour; js/conditions.js).
+    // A health echo (e.level) also carries the level its line describes, for the bars before it. An echo of a thing you gained
+    // or lost (e.thing) names it, with its article, and carries `slot`: the small inventory slot drawn before it, with the
+    // thing's sprite (its rows, kept with the line so a loaded game draws it again, even of a thing that is gone). A thing
+    // with no sprite gets no slot at all, just the words (the checker refuses a world with one you can carry: js/check.js).
+    if (e.echo) {
+      const arg = e.thing !== undefined ? heldName(e, state, pack) : undefined;
+      out.push(clean({ text: timed(text(echoPhrase(e, pack), pack, arg, undefined, undefined, e.who), state, pack, e.at),
+                       style: echoStyle(e.kind, e.tone), level: e.level,
+                       slot: e.thing !== undefined && Array.isArray(e.sprite) && e.sprite.length ? { sprite: e.sprite } : undefined }));
+    }
     if (e.hint) out.push({ text: timed(pack.framed(text(e.hint, pack), hintText(e, pack)), state, pack) });   // the world's frame, then the hint
     if (e.describe === "inventory") out.push({ text: inventory(state, pack) });
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
@@ -35,14 +45,15 @@ export function tell(applied, state, pack) {
   return out;
 }
 
+// An echo's style: "echo text-echo echo-<kind>", and "tone-<tone>" when it has one (its colour: ui/log.css).
+const echoStyle = (kind, tone) => "echo text-echo echo-" + kind + (tone ? " tone-" + tone : "");
+
 // A paragraph's style with "aside" added: what the world said on its own (js/engine.js marks those effects).
 const styled = (style) => [style, "aside"].filter(Boolean).join(" ");
 
-// A thing's gender and number as the pack wants them (Spanish agreement): { g, pl } from its `words`, or nothing.
-function whoOf(o) {
-  const w = o?.words;
-  return w && (w.g || w.pl) ? clean({ g: w.g, pl: w.pl }) : undefined;
-}
+// A thing's gender, number and proper-name mark as the pack wants them (Spanish agreement; no article before a proper
+// name): { g, pl, proper } from its `words` (js/fields.js, grammarOf), or nothing.
+const whoOf = (o) => grammarOf(o?.words);
 
 // What a hint says (the opening's hint frame goes round it, pack.framed): the world's line, or the commands that solve
 // it ("`Wait for the train`, then `board train`"), or that there's nothing left to find.
@@ -70,7 +81,7 @@ export function describe(state, roomId, pack) {
   for (const o of Object.values(state.world.objects)) if (o.at === roomId && o.here) lines.push({ text: timed(text(o.here, pack), state, pack) });
   const inside = state.player.in && state.world.objects[state.player.in];        // you're in or on something here
   if (inside && roomId === state.player.at)
-    lines.push({ text: text(inside.enterable === "on" ? "@youAreOn" : "@youAreIn", pack, listName(state.player.in, state, pack)) });
+    lines.push({ text: text(inside.enterable === "on" ? "@youAreOn" : "@youAreIn", pack, listName(state.player.in, state, pack), undefined, undefined, whoOf(inside)) });
   return lines;
 }
 
@@ -96,6 +107,13 @@ function echoPhrase(e, pack) {
   return e.kind === "hurt" && e.level && pack.echo?.hurt?.[e.level] ? "@echo.hurt." + e.level : e.echo;
 }
 
+// The name of a thing you gained or lost, inside its echo: as the engine kept it at that moment (the thing may be gone by
+// now), in this language, with the case a name has in a sentence (inSentence, with the mark the engine kept in `who`); the
+// pack adds its article (`the`), or none for a proper name.
+function heldName(e, state, pack) {
+  return inSentence(e.name ? text(e.name, pack) : nameOf(e.thing, state, pack), e.who, pack);
+}
+
 // STATUS: your health, one sentence per step (5 to 1; the pack has the words).
 export function statusNow(state, pack) {
   return text("@statusNow", pack, { health: statusHealth(state) });
@@ -109,18 +127,25 @@ export function statusLine(state, pack) {
   return { text: statusNow(state, pack), style: "status " + (level >= 4 ? "status-healed" : "status-hurt"), level };
 }
 
-// STATUS, under the health line: the conditions you are in, each its world's own `status` phrase, framed by the pack
-// (statusConditions), in the dim echo style, close under the line before it. Nothing when you are in none.
+// STATUS, under the health line: the conditions you are in, one line each, in the order they started: its world's own
+// `status` phrase, framed by the pack (statusCondition: a full stop), styled like the condition's start echo (its tone: harmful
+// red, good green, neutral amber; js/conditions.js), close under the line before it. No bars. Nothing when you are in none.
 export function conditionsLine(state, pack) {
-  const list = Object.keys(state.player.conditions || {}).map(id => state.conditions?.[id]?.status).filter(x => typeof x === "string");
-  return list.length ? [{ text: timed(text("@statusConditions", pack, list.map(x => text(x, pack))), state, pack), style: "echo text-echo echo-condition" }] : [];
+  return activeIds(state).map(id => state.conditions?.[id]).filter(d => typeof d?.status === "string")
+    .map(d => ({ text: timed(text("@statusCondition", pack, text(d.status, pack)), state, pack), style: echoStyle("condition", conditionTone(d)) }));
 }
 
 // A thing's name inside a sentence ("You are carrying: tin of mints."): lower case first letter only if the language does
-// that (grammar.lowerNames; not German, whose nouns keep their capital), so "Photo of Madrid" keeps "Madrid".
+// that (grammar.lowerNames; not German, whose nouns keep their capital), so "Photo of Madrid" keeps "Madrid"; and never for
+// a proper name (`words.proper`: "You are carrying: Monday."). The one rule for a name in a sentence: every line that names
+// a thing comes through here (listName, and the echoes' heldName), and the pack adds its article with its own `the`,
+// which leaves a proper name bare. (A name shown on its own, an inventory slot or a hover, keeps the world's capital.)
+export function inSentence(name, who, pack) {
+  const n = String(name ?? "");
+  return pack.words?.grammar?.lowerNames && !who?.proper ? n.charAt(0).toLowerCase() + n.slice(1) : n;
+}
 export function listName(id, state, pack) {
-  const n = nameOf(id, state, pack);
-  return pack.words?.grammar?.lowerNames ? n.charAt(0).toLowerCase() + n.slice(1) : n;
+  return inSentence(nameOf(id, state, pack), whoOf(state.world.objects[id]), pack);
 }
 
 // The world's time in a text: [time] ("a quarter past five", worded by the pack), [day] (3), [weekday] ("Sunday");
@@ -142,7 +167,7 @@ export function timed(t, state, pack, at = worldTime(state), vals = undefined) {
           .replace(ANSWER_WORD, (m, key) => vals && ("player.answers." + key) in vals ? vals["player.answers." + key] : answerText(state, key));
 }
 
-// The way you came in from the opening, named in a sentence ("the revolving door"); nothing if there isn't one.
+// The way you came in from the opening, named in a sentence ("the revolving door"; a proper name bare); nothing if there isn't one.
 function wayName(state, pack) {
   const id = state.opening?.way, o = id && state.world.objects[id];
   return o ? pack.the(listName(id, state, pack), o) : "";

@@ -331,7 +331,7 @@ const objects = {
 
   // Lost property
   ambrose: { at: "lost_property", scenery: true, name: "Mr Ambrose", note: "The lost property clerk.", actions: ["Talk to Mr Ambrose"],
-    words: { nouns: ["ambrose", "clerk", "man"], adj: ["mr", "mister", "old"] },
+    words: { nouns: ["ambrose", "clerk", "man"], adj: ["mr", "mister", "old"], proper: true },
     examine: "A small man in sleeve protectors. He looks at you as though trying to remember where you were left.",
     talk: ["\"Lost something?\" he says. \"Everyone has. Say what, and I'll look in the book.\"", "\"Describe it,\" he says, \"and if it's yours it will know.\""],
     topics: {
@@ -341,7 +341,7 @@ const objects = {
       sea: { about: "sea_crate", label: "crate", words: ["sea", "crate"], says: "\"Some fellow lost it years ago. It leaks. I keep a bucket under it on Thursdays.\"" },
       default: "He turns a page of the ledger, finds nothing, and turns it back."
     } },
-  ledger: { at: "lost_property", scenery: true, name: "Ledger", note: "Everything lost, in order.", actions: ["Read ledger"], opens: ["monday", "umbrella"],
+  ledger: { at: "lost_property", scenery: true, name: "Ledger", note: "Everything lost, in order.", opens: ["monday", "umbrella"],
     words: { nouns: ["ledger", "book", "register"], adj: ["big", "black"] },
     examine: "Columns of lost things. Near the end, in the same patient hand: \"One umbrella, grey. Left on a Monday. Unclaimed.\" Beside it the owner's name has run in the rain, in handwriting that is yours.",
     parts: [{ words: ["columns", "hand", "entry", "entries"], name: "the entries" }], mentions: ["umbrella", "columns"] },
@@ -364,7 +364,7 @@ const objects = {
     words: { nouns: ["calendar", "stub", "pages"], adj: ["tear-off", "tear", "off"] },
     examine: "A tear-off calendar showing SUNDAY. Between Sunday's page and the next, Tuesday, there's a stub where a page was torn out, and a little paste, still sticky.",
     parts: [{ words: ["paste", "page"], name: "the stub", says: "Room for one page. The paste is still sticky, after all these years." }], mentions: ["stub", "paste"] },
-  decree: { at: "station_hall", scenery: true, name: "Decree", note: "Framed, and signed.", actions: ["Read decree"], opens: ["monday"],
+  decree: { at: "station_hall", scenery: true, name: "Decree", note: "Framed, and signed.", opens: ["monday"],
     words: { nouns: ["decree", "notice", "frame"], adj: ["framed"] },
     examine: "\"By order: Monday is abolished in this town, with effect from the next one. The last Monday shall be kept at the town hall, in case.\" Signed by the Minister, with a flourish that goes on too long.",
     parts: [{ words: ["flourish", "signature", "minister"], name: "the signature" }], mentions: ["signature"] },
@@ -379,7 +379,7 @@ const objects = {
     talk: "\"One fare, one coin,\" she says. \"The old sort. Tuesday's the only place we go.\"",
     topics: { coin: { about: "window", label: "coins", words: ["coin", "coins", "currency", "money", "fare"], says: "\"The old sort. They stopped making them when they stopped making Mondays. People threw them in the fountain on the square for luck.\"" },
               default: "\"Tickets,\" she says, as if that were the answer." } },
-  timetable: { at: "station_hall", scenery: true, name: "Timetable", note: "One train.", actions: ["Read timetable"],
+  timetable: { at: "station_hall", scenery: true, name: "Timetable", note: "One train.",
     words: { nouns: ["timetable", "wall"], adj: [] },
     examine: "A whole wall of timetable for one line: TUESDAY, DEPARTS 23:40, DAILY. The train comes in ten minutes before. Under RETURNS, someone has painted a neat dash." },
 
@@ -396,7 +396,7 @@ const objects = {
     words: { nouns: ["photograph", "photo", "picture", "strip"], adj: ["wet"] }, ...item("photograph"),
     examine: "A strip of four photographs, still wet, in daylight: the town hall steps, then a woman in a grey cardigan upstairs at a window, holding up a calendar page that says MONDAY. In the last frame you are taking it." },
   oduya: { at: "waiting_room", scenery: true, name: "Mrs Oduya", note: "Waiting, with a suitcase.", actions: ["Talk to Mrs Oduya"],
-    words: { nouns: ["oduya", "woman", "traveller", "lady", "suitcase"], adj: ["mrs", "old"] },
+    words: { nouns: ["oduya", "woman", "traveller", "lady", "suitcase"], adj: ["mrs", "old"], proper: true },
     examine: "A neat old woman in a hat with a feather that has given up. Her ticket is for the eight-twelve to Monday. It is very old.",
     talk: "\"I'm waiting for the eight-twelve,\" she says. \"It doesn't run any more. I'm very patient.\"",
     topics: {
@@ -411,7 +411,7 @@ const objects = {
     words: { nouns: ["bench", "seat"], adj: ["wooden"] }, enterable: "on",
     examine: "A bench with a brass plate: IN MEMORY OF MONDAY, WHO KEPT US BUSY.",
     parts: [{ words: ["plate"], name: "the plate", says: "IN MEMORY OF MONDAY, WHO KEPT US BUSY." }], mentions: ["plate"] },
-  board: { at: "platform", scenery: true, name: "Timetable board", note: "One line.", actions: ["Read board"],
+  board: { at: "platform", scenery: true, name: "Timetable board", note: "One line.",
     words: { nouns: ["board"], adj: ["timetable", "hanging"] },
     examine: "TUESDAY, DEPARTS 23:40. The train is in ten minutes before. Passengers with tickets only." },
   train: { at: null, scenery: true, name: "Train", note: "For Tuesday.", actions: ["Board train"],
@@ -472,7 +472,7 @@ const objects = {
 
   // Café
   ines: { at: "cafe", scenery: true, name: "Inés", note: "Behind the counter.", actions: ["Talk to Inés", "Order coffee"],
-    words: { nouns: ["ines", "waitress", "woman"], adj: [] },
+    words: { nouns: ["ines", "waitress", "woman"], adj: [], proper: true },
     examine: "A woman with her sleeves rolled and a pencil behind each ear, in case one gives up.",
     talk: "\"Coffee?\" she says. It is the only question she asks.",
     topics: {
@@ -482,7 +482,7 @@ const objects = {
       coffee: { open: true, words: ["coffee", "cup", "drink"], says: "\"Coffee,\" she says." },
       default: "\"Coffee,\" she says. \"I'd know about coffee.\""
     } },
-  menu: { at: "cafe", scenery: true, name: "Menu board", note: "Coffee, and nothing else.", actions: ["Read board"],
+  menu: { at: "cafe", scenery: true, name: "Menu board", note: "Coffee, and nothing else.",
     words: { nouns: ["board", "menu", "chalk"], adj: ["menu", "chalk"] },
     examine: "In chalk: COFFEE. Under it, rubbed out but legible: CROISSANTS (MONDAYS ONLY)." },
   coffee: { at: null, portable: false, name: "Cup of coffee", note: "Hot, and free.", actions: ["Drink coffee"],
@@ -490,7 +490,7 @@ const objects = {
     examine: "Small, black, very hot. It smells of mornings you didn't have to get up for." },
 
   // High street, town hall, archive
-  plate: { at: "high_street", scenery: true, name: "Brass plate", note: "Office hours.", actions: ["Read plate"], opens: ["monday"],
+  plate: { at: "high_street", scenery: true, name: "Brass plate", note: "Office hours.", opens: ["monday"],
     words: { nouns: ["plate", "hours"], adj: ["brass", "office"] },
     examine: "TOWN HALL, OPEN 09:00 TO 17:00, ARCHIVE UPSTAIRS, CLOSED MONDAYS. The last line has been polished more than the others." },
   archivist: { at: "archive", scenery: true, name: "Archivist", note: "Keeps the last Monday.", actions: ["Talk to archivist"],
@@ -503,7 +503,7 @@ const objects = {
       default: "She looks it up, under a letter of her own choosing, and finds nothing."
     } },
   monday_page: { at: null, portable: true, name: "Monday", note: "The last one.", actions: ["Examine Monday"], heldActions: ["Examine Monday", "Put Monday on calendar"],
-    words: { nouns: ["monday", "page"], adj: ["last", "calendar"] }, ...item("monday_page"),
+    words: { nouns: ["monday", "page"], adj: ["last", "calendar"], proper: true }, ...item("monday_page"),
     examine: "A calendar page: MONDAY, in black, with nothing written under it. It is heavier than paper should be. It is all still to do." },
 
   // Clockmaker's

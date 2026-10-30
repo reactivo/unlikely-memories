@@ -364,7 +364,7 @@ function restore(r) {
   ui.log.clear(); transcript = []; ui.prompt.clear();
   ui.prompt.hint(ui.log.markup(packOf(state).hint), 0, false);   // not shown; it comes back if you're idle
   for (const p of r.transcript || []) {
-    const el = ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, true, p.level);
+    const el = ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, true, p.level, p.slot);
     keep(p);
     if (p.visit) ui.log.newVisit(el, true);               // a room entered here: earlier text is past
   }
@@ -398,9 +398,12 @@ function tick() {
   schedule(); autosave();
 }
 
-// Add story paragraphs to the log ({ text, style, img }; img = an object's picture shown beside the text).
+// Add story paragraphs to the log ({ text, style, img, level, slot }; img = an object's picture shown beside the text; level =
+// the health bars; slot = the small inventory slot before the echo of a thing gained or lost, with its sprite; a thing with no
+// sprite has none). The paragraph is kept whole in the transcript, so a loaded game draws them again (and a line saved with an
+// empty slot draws none: ui/log.js slotArt).
 function show(paragraphs) {
-  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, false, p.level), p);
+  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, false, p.level, p.slot), p);
 }
 // One line of text (a reply, a note) and an echoed command, kept in the transcript too.
 function say(t, style = "") { show([{ text: t, style }]); }

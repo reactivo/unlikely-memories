@@ -21,8 +21,12 @@
     /* Echoes (INTERFACE.md §6c): the short line under the story text after a change to your health. */
     --echo-hurt:    var(--color-hurt);        /* you lost health */
     --echo-healed:  var(--color-healed);      /* you got some back */
+    --echo-neutral: var(--color-neutral);     /* neither: a condition with no health effect starts, or a good one ends */
     --bar-empty:    var(--color-text-faint);  /* the empty health bars before an echo or STATUS (the filled ones take the line's colour) */
     --figure-bg:    var(--color-surface);     /* the square behind an object's picture */
+    --held-slot:    var(--color-surface);     /* the small inventory slot before the echo of a thing you gain (filled) or lose (its outline) */
+    --held-lost:    0.3;                      /* the opacity of a lost thing's sprite, in grey, in its empty slot */
+    --echo-gap:     var(--space-s);           /* between an echo and the line above it, whatever that line is */
     --object:       var(--color-text);        /* an object's name: looks like the story text… */
     --object-mark:  var(--color-highlight);   /* …with a small mark after it, in this colour… */
     --object-sign:  "+";                      /* …this character (m5x7's own plus)… */
@@ -60,6 +64,7 @@
       --hint: var(--past);
       --echo-hurt: var(--past);
       --echo-healed: var(--past);
+      --echo-neutral: var(--past);
       --command-text: var(--past);
       --command-mark: var(--past);
       --command-hover: var(--past);
@@ -72,7 +77,8 @@
         cursor: default;
       }
 
-      & .figure {
+      & .figure,
+      & .held-box svg {
         filter: grayscale(1);
       }
     }
@@ -105,11 +111,17 @@
     }
 
     /* An echo (js/narrator.js gives it "echo text-echo echo-<kind>"): a short line at the story's size, close under the
-       story line it follows, in the colour of its kind. A kind with no colour of its own is dim. A health echo and STATUS
-       have the five health bars before the phrase (log.js, `.bars`; below). */
+       line it follows, in the colour of its kind. A kind with no colour of its own is dim (a thing gained or lost, a world's
+       own); a condition's takes its tone's colour (below). A health echo and STATUS have the five health bars before the phrase (log.js, `.bars`; below), the echo of a
+       thing gained or lost a small inventory slot with its sprite (`.held`; below). */
     & .echo {
       color: var(--hint);
-      margin-top: calc(var(--space-xs) - var(--space-m));   /* close under the line before it: --space-xs between them */
+      margin-top: calc(var(--echo-gap) - var(--space-m));   /* close under the line before it: --echo-gap between them */
+    }
+
+    /* Right under your command (TAKE, DROP: the echo is the whole reply), whose own space below is smaller: the same gap. */
+    & .cmd + .echo {
+      margin-top: var(--echo-gap);
     }
 
     & .echo-hurt {
@@ -123,6 +135,21 @@
 
     & .echo-healed {
       color: var(--echo-healed);
+    }
+
+    /* A condition's lines (js/narrator.js adds "tone-<hurt|healed|neutral>" to their echo style; js/conditions.js works it
+       out from the condition's health): its start echo and its STATUS line red if it hurts you, green if it heals you,
+       amber if neither; its end echo green, or amber for one that healed you. No bars: those are for health lines. */
+    & .tone-hurt {
+      color: var(--echo-hurt);
+    }
+
+    & .tone-healed {
+      color: var(--echo-healed);
+    }
+
+    & .tone-neutral {
+      color: var(--echo-neutral);
     }
 
     /* STATUS (js/narrator.js gives it "status status-<healed|hurt>"): the sentence in the colour of how you are, 5 and 4
@@ -154,6 +181,46 @@
 
     & .bars i.on {
       background: currentColor;
+    }
+
+    /* The small inventory slot before the echo of a thing you gained or lost (log.js, `.held`), on m5x7's pixel grid: a box
+       1em square, so each of the sprite's 16 pixels is one font pixel (1/16 em), 5 font pixels before the phrase, like the
+       bars. It takes no height in the line (an inline-block of height 0 on the baseline; the box is drawn over it), so the line
+       is as tall as any other: the box runs from 0.25em below the baseline to 0.75em above it, the capitals in its middle.
+       Gained: a filled slot, with the sprite. Lost: an empty slot, its outline one font pixel wide, the sprite grey and faint.
+       Rooms you've left: the sprite goes grey too, like the pictures there. */
+    & .held {
+      display: inline-block;
+      position: relative;
+      width: 1em;
+      height: 0;
+      margin-right: 0.3125em;
+      vertical-align: baseline;
+    }
+
+    & .held-box {
+      position: absolute;
+      left: 0;
+      bottom: -0.25em;
+      width: 1em;
+      height: 1em;
+      background: var(--held-slot);
+    }
+
+    & .held-box svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    & .echo-lost .held-box {
+      background: transparent;
+      box-shadow: inset 0 0 0 0.0625em var(--held-slot);
+    }
+
+    & .echo-lost .held-box svg {
+      filter: grayscale(1);
+      opacity: var(--held-lost);
     }
 
     & .keep {

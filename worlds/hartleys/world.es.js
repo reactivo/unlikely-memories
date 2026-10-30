@@ -260,7 +260,7 @@ const objects = {
     examine: "Latón y cristal, girando despacio sin nadie dentro. Cada vidrio muestra una tarde un poco posterior a la del anterior." },
 
   // Planta baja
-  directory: { at: "front_hall", scenery: true, name: "Directorio", note: "Todas las plantas, en oro.", actions: ["Leer directorio"], opens: ["fourth", "roof"],
+  directory: { at: "front_hall", scenery: true, name: "Directorio", note: "Todas las plantas, en oro.", opens: ["fourth", "roof"],
     words: { nouns: ["directorio", "panel", "cartel", "índice", "indice", "letras"], adj: ["tienda", "dorado", "negro"], g: "m" },
     examine: "Letras doradas sobre fondo negro: SÓTANO, ARTÍCULOS PARA EL HOGAR Y CAJA. BAJA, PERFUMERÍA, GUANTERÍA. PRIMERA, MERCERÍA, JUGUETES. SEGUNDA, MUEBLES, ABRIGOS, SALÓN DE TÉ. AZOTEA (CERRADA). CUARTA, TARDES PERDIDAS, CON CITA PREVIA. Entre la SEGUNDA y la CUARTA no hay nada, y nadie ha preguntado nunca por qué." },
   indicator: { at: "lift_lobby", scenery: true, name: "Indicador", note: "De la S al 4.", actions: ["Examinar indicador"], opens: ["fourth"],
@@ -284,7 +284,7 @@ const objects = {
 
   // Perfumería
   corre: { at: "perfumery", scenery: true, name: "Madame Corre", note: "Perfumista. Guantes blancos.", actions: ["Hablar con Madame Corre"],
-    words: { nouns: ["corre", "perfumista", "señora", "senora", "madame", "mujer"], adj: ["madame"], g: "f" },
+    words: { nouns: ["corre", "perfumista", "señora", "senora", "madame", "mujer"], adj: ["madame"], g: "f", proper: true },
     examine: "Una mujer alta, con el pelo recogido en lo alto, curvo como una pregunta. Sus guantes blancos nunca han tocado nada que no quisiera ser tocado.",
     parts: [{ words: ["guantes", "guante", "moño", "mono", "pelo"], name: "sus guantes", says: "Guantes blancos, abotonados en la muñeca. No se los quita por nadie." }], mentions: ["guantes"],
     talk: "«Huela la muestra», dice. «Yo embotello lo que usted recuerda. Es lo único que aceptan aquí como pago».",
@@ -294,7 +294,7 @@ const objects = {
       keeping: { about: "memory", label: "el recuerdo", words: ["recuerdo", "guardar", "conservar", "quedarse", "libre", "azotea", "alto", "cielo", "soltar", "destapar"], says: "«Podría conservarlo, claro. Llévelo a un sitio alto, bajo el cielo, y suéltelo. Entonces será suyo para siempre y nadie podrá volver a vendérselo»." },
       default: "Alza un frasco, lo huele y lo devuelve a su sitio. «No», dice. «Eso no»."
     } },
-  tester: { at: "perfumery", scenery: true, name: "Muestra", note: "N.º 7.", actions: ["Oler muestra", "Leer etiqueta"], opens: ["price"],
+  tester: { at: "perfumery", scenery: true, name: "Muestra", note: "N.º 7.", actions: ["Oler muestra"], opens: ["price"],
     words: { nouns: ["muestra", "probador", "tester", "perfume", "pulverizador", "atomizador", "etiqueta", "pera", "frasco"], adj: ["cristal", "número", "numero", "siete", "de"], g: "f" },
     examine: "Un frasco de cristal tallado con una pera de goma. La etiqueta dice: N.º 7. UNA TARDE EN CASA. Y debajo, más pequeño: PRECIO A CONSULTAR." },
   memory: { at: null, portable: true, name: "Recuerdo", note: "Una tarde embotellada.", actions: ["Examinar recuerdo"], heldActions: ["Oler recuerdo", "Abrir recuerdo"],
@@ -364,7 +364,7 @@ const objects = {
     examine: "Un sofá hondo, de un verde desteñido. El hueco de los cojines tiene la forma de alguien sentado con los pies recogidos, leyendo.",
     enter: "Te sientas. El hueco te sienta casi bien, como un abrigo prestado. Desde aquí la tienda suena muy lejos." },
   dot: { at: "tea_room", scenery: true, name: "Dot", note: "La camarera.", actions: ["Hablar con Dot", "Pedir té"],
-    words: { nouns: ["dot", "camarera", "mujer"], adj: [], g: "f" },
+    words: { nouns: ["dot", "camarera", "mujer"], adj: [], g: "f", proper: true },
     examine: "Una camarera de vestido negro y cofia blanca, con una tetera que no ha soltado ni una vez.",
     talk: "«¿Té?», dice Dot. «Siempre hay té».",
     topics: {

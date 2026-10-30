@@ -259,7 +259,7 @@ const objects = {
     examine: "Brass and glass, turning slowly with nobody in it. Each pane shows a slightly later afternoon than the one before." },
 
   // Ground floor
-  directory: { at: "front_hall", scenery: true, name: "Directory", note: "Every floor, in gold.", actions: ["Read directory"], opens: ["fourth", "roof"],
+  directory: { at: "front_hall", scenery: true, name: "Directory", note: "Every floor, in gold.", opens: ["fourth", "roof"],
     words: { nouns: ["directory", "board", "stand"], adj: ["store", "gold"] },
     examine: "Gold letters on black: BASEMENT, HOUSEHOLD AND CASH OFFICE. GROUND, PERFUMERY, GLOVES. FIRST, HABERDASHERY, TOYS. SECOND, FURNITURE, COATS, TEA ROOM. ROOF GARDEN (CLOSED). FOURTH, LOST AFTERNOONS, BY APPOINTMENT. Between SECOND and FOURTH there is nothing, and nobody has ever asked." },
   indicator: { at: "lift_lobby", scenery: true, name: "Indicator", note: "B to 4.", actions: ["Examine indicator"], opens: ["fourth"],
@@ -270,7 +270,7 @@ const objects = {
     examine: "Four leaves of mahogany and bevelled panes, turning slowly. Through it, the arcade is the colour of tea.",
     push: "You push. The door turns you all the way round and sets you down inside again, a little more politely than before. Hartley's doesn't let its customers go without something." },
   gage: { at: "front_hall", scenery: true, name: "Mr Gage", note: "The floorwalker.", actions: ["Talk to Mr Gage"],
-    words: { nouns: ["gage", "floorwalker", "man", "carnation"], adj: ["mr", "mister"] },
+    words: { nouns: ["gage", "floorwalker", "man", "carnation"], adj: ["mr", "mister"], proper: true },
     examine: "A tall man in a morning coat with a carnation that has been fresh for thirty years. He looks at you the way he looks at stock.",
     talk: ["\"Is madam being served?\" he says, and then, looking again, \"Is sir?\" He settles on neither. \"Everything has a price at Hartley's. Do look around.\"", "\"We close at six,\" he says. \"We have never quite managed to be closed.\""],
     topics: {
@@ -283,7 +283,7 @@ const objects = {
 
   // Perfumery
   corre: { at: "perfumery", scenery: true, name: "Madame Corre", note: "Perfumer. White gloves.", actions: ["Talk to Madame Corre"],
-    words: { nouns: ["corre", "perfumer", "woman", "madame"], adj: ["madame"] },
+    words: { nouns: ["corre", "perfumer", "woman", "madame"], adj: ["madame"], proper: true },
     examine: "A tall woman with her hair up like a question. Her white gloves have never touched anything that didn't want to be touched.",
     parts: [{ words: ["gloves", "hair"], name: "her gloves", says: "White gloves, buttoned at the wrist. She takes them off for nobody." }], mentions: ["gloves"],
     talk: "\"Smell the tester,\" she says. \"I bottle what you remember. It is the only thing anyone here will take as payment.\"",
@@ -293,7 +293,7 @@ const objects = {
       keeping: { about: "memory", label: "keeping it", words: ["keep", "keeping", "free", "roof", "high", "open", "uncork"], says: "\"You could keep it, of course. Take it somewhere high, under the sky, and let it out. Then it is yours for good, and nobody can sell it to you again.\"" },
       default: "She lifts a bottle, smells it, and puts it back. \"No,\" she says. \"Not that.\""
     } },
-  tester: { at: "perfumery", scenery: true, name: "Tester", note: "No. 7.", actions: ["Smell tester", "Read label"], opens: ["price"],
+  tester: { at: "perfumery", scenery: true, name: "Tester", note: "No. 7.", actions: ["Smell tester"], opens: ["price"],
     words: { nouns: ["tester", "label", "atomiser", "atomizer", "spray"], adj: ["perfume", "number", "seven"] },
     examine: "A crystal tester with a rubber bulb. The label says: NO. 7. AN AFTERNOON INDOORS. And below, smaller: PRICE ON REQUEST." },
   memory: { at: null, portable: true, name: "Memory", note: "An afternoon, stoppered.", actions: ["Examine memory"], heldActions: ["Smell memory", "Open memory"],
@@ -314,7 +314,7 @@ const objects = {
 
   // The lift
   pell: { at: "lift", scenery: true, name: "Mr Pell", note: "The lift man.", actions: ["Talk to Mr Pell"],
-    words: { nouns: ["pell", "man", "operator", "liftman", "attendant"], adj: ["mr", "mister", "lift"] },
+    words: { nouns: ["pell", "man", "operator", "liftman", "attendant"], adj: ["mr", "mister", "lift"], proper: true },
     examine: "A small man in a maroon uniform with a stripe down each leg. He has taken the lift up and down for so long he no longer believes in stairs.",
     talk: "\"Fourth floor only,\" says Mr Pell. \"Stairs for the rest. By appointment.\"",
     topics: {
@@ -329,7 +329,7 @@ const objects = {
 
   // Haberdashery
   thimble: { at: "haberdashery", scenery: true, name: "Miss Thimble", note: "Measures twice.", actions: ["Talk to Miss Thimble"],
-    words: { nouns: ["thimble", "woman", "haberdasher", "assistant"], adj: ["miss"] },
+    words: { nouns: ["thimble", "woman", "haberdasher", "assistant"], adj: ["miss"], proper: true },
     examine: "A small woman with a tape measure round her neck and pins along her lapel in order of size.",
     talk: "\"Measure twice, pay once,\" says Miss Thimble. \"Payments go up the tube.\"",
     topics: {
@@ -362,7 +362,7 @@ const objects = {
     examine: "A deep sofa in faded green. The dent in its cushions is the shape of someone sitting with their feet tucked under them, reading.",
     enter: "You sit. The dent fits you nearly, the way a borrowed coat fits. From here the store sounds very far away." },
   dot: { at: "tea_room", scenery: true, name: "Dot", note: "The waitress.", actions: ["Talk to Dot", "Order tea"],
-    words: { nouns: ["dot", "waitress", "woman"], adj: [] },
+    words: { nouns: ["dot", "waitress", "woman"], adj: [], proper: true },
     examine: "A waitress in a black dress and a white cap, with a teapot she has never once put down.",
     talk: "\"Tea?\" says Dot. \"There's always tea.\"",
     topics: {
@@ -383,7 +383,7 @@ const objects = {
 
   // Basement
   ruth: { at: "basement", scenery: true, name: "Miss Ruth", note: "The cash office.", actions: ["Talk to Miss Ruth"],
-    words: { nouns: ["ruth", "cashier", "woman", "shape"], adj: ["miss"] },
+    words: { nouns: ["ruth", "cashier", "woman", "shape"], adj: ["miss"], proper: true },
     examine: "A shape behind frosted panes, quick and neat, catching canisters as they fall and sending them back up with change.",
     talk: "Miss Ruth can't hear you through the panes. She points, without looking up, at the sign: ALL PAYMENTS BY TUBE.",
     give: "There's no gap in the booth for that. She taps the sign: ALL PAYMENTS BY TUBE." },
@@ -524,7 +524,7 @@ const puzzles = {
     hints: ["Madame Corre bottles what you remember, if you smell her tester.", "Smell the tester in perfumery."] },
   pay_by_tube: { where: "haberdashery", needs: ["memory"], solve: ["put memory in canister", "pull handle"], gives: ["lift_ticket"], clues: ["thimble", "mannequins", "ruth", "pell"],
     hints: ["Payment goes to the cash office by tube, from the canister in haberdashery.", "Put the memory in the canister, then pull the handle."] },
-  ride_up: { where: "lift", needs: ["lift_ticket"], solve: ["show ticket to Pell"], reaches: "fourth_floor", clues: ["pell", "directory", "gage"],
+  ride_up: { where: "lift", needs: ["lift_ticket"], solve: ["show ticket to Mr Pell"], reaches: "fourth_floor", clues: ["pell", "directory", "gage"],
     hints: ["Mr Pell only goes to the fourth, and only by appointment.", "In the lift, show Mr Pell your ticket."] },
   try_on: { where: "fourth_floor", needs: ["ride_up"], solve: ["wear afternoon"], ending: true, clues: ["fitter", "afternoon"],
     hints: ["The fitter has it ready, in your size.", "Wear the afternoon."] },
@@ -574,7 +574,7 @@ export default {
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", actions: ["Examine ticket"], heldActions: ["Examine ticket", "Show ticket to Pell"],
+    { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", actions: ["Examine ticket"], heldActions: ["Examine ticket", "Show ticket to Mr Pell"],
       words: { nouns: ["ticket", "appointment"], adj: ["pink", "appointment", "lift"] }, ...item("lift_ticket"),
       here: "A pink {ticket|lift_ticket} lies here.",
       examine: "A pink ticket: HARTLEY'S. FOURTH FLOOR. ONE APPOINTMENT. PAID. On the back, in the cash office's hand: ONE AFTERNOON, INDOORS, WITH RAIN." },

@@ -305,7 +305,7 @@ const objects = {
       inquest: { open: true, label: "la investigación", words: ["investigacion", "tribunal", "forense", "medianoche", "mabbott", "nombre"], says: "«Medianoche, en el tribunal, al norte de aquí. Al doctor Mabbott le gusta un nombre. Procura darle el correcto. Un nombre dicho ahí dentro se queda dicho»." },
       default: "«Lo anotaré», dice el agente Pye, y lo anota."
     } },
-  notebook: { at: "pye", scenery: true, name: "Libreta", note: "Los presentes.", actions: ["Leer libreta"],
+  notebook: { at: "pye", scenery: true, name: "Libreta", note: "Los presentes.",
     words: { nouns: ["libreta", "cuaderno", "lista"], adj: ["agente", "policia", "negra"], g: "f" },
     examine: "Con letra cuidada: «Presentes en el último farol, esta noche: señor Voss (Cía. Eléctrica). Señora Halloran (pasteles). El difunto». Debajo, más pequeño: «Niebla muy espesa. No se veían caras. Se oyó una voz»." },
   court_doors: { at: "row", scenery: true, name: "Puertas del tribunal", note: "La investigación es a medianoche.", actions: ["Examinar puertas"], leads: "n",
@@ -414,7 +414,7 @@ const objects = {
     words: { nouns: ["pertiga", "llama", "gancho", "vara"], adj: ["farolero", "larga", "laton", "azul", "de", "del"], g: "f" }, ...item("pole"),
     here: "La larga {pértiga|pole} del señor Fenn está apoyada aquí, con su pequeña llama azul todavía encendida.",
     examine: "Una larga pértiga con un gancho de latón para la llave del gas y una pequeña llama azul en la punta que no se ha apagado en cuarenta años. Pesa más en el extremo que hizo el trabajo." },
-  logbook: { at: "hut", scenery: true, name: "Libro de registro", note: "Cada farol, cada noche.", actions: ["Leer registro"],
+  logbook: { at: "hut", scenery: true, name: "Libro de registro", note: "Cada farol, cada noche.",
     words: { nouns: ["libro", "registro", "pagina", "diario"], adj: ["registro", "abierto", "faroles", "de"], g: "m" },
     examine: "Cada farol de cada noche durante cuarenta años, a lápiz. La página de hoy: «Farol uno, encendido. Dos, encendido. Tres, encendido. Visita de Voss, desagradable. Cuatro, encendido», y así hasta once, y luego: «Pastel». Debajo, «Doce», y nada después." },
 
@@ -440,13 +440,13 @@ const objects = {
     examine: "Un gran tambor de hierro bobinado de cobre, que zumba. El lunes encenderá doce faroles a la vez y ya ha dejado de pensar en otra cosa.",
     listen: "Un zumbido grave y seguro, sin una sola palabra dentro. Al señor Voss le parece relajante.",
     touch: "Tibia, y muy segura de sí misma. No se da cuenta de que estás ahí." },
-  ledger: { at: "substation", scenery: true, name: "Libro de cuentas", note: "Cifras de la Compañía.", actions: ["Leer cuentas"],
+  ledger: { at: "substation", scenery: true, name: "Libro de cuentas", note: "Cifras de la Compañía.",
     words: { nouns: ["libro", "cuentas", "cifras", "columnas"], adj: ["compania", "abierto", "de", "cuentas"], g: "m" },
     examine: "Columnas de cifras y, al pie de la de hoy, con letra pulcra: «Informado F. del lunes, en su tercer farol. Me dio las gracias. Regreso aquí». La palabra «gracias» está subrayada dos veces." },
 
   // La escalera del río
   pip: { at: "river_steps", scenery: true, name: "Pip", note: "Rebusca en el fango.", actions: ["Hablar con Pip"],
-    words: { nouns: ["pip", "niña", "nina", "chica", "rebuscadora"], adj: [], g: "f" },
+    words: { nouns: ["pip", "niña", "nina", "chica", "rebuscadora"], adj: [], g: "f", proper: true },
     examine: "Una niña de unos diez años con un abrigo de hombre, con barro hasta la rodilla, un {cubo|bucket} de cosas perdidas y un palo para encontrar más.",
     parts: [{ words: ["cubo", "palo", "abrigo"], name: "su cubo", says: "Cucharas, botones, un pomo de puerta, medio par de gafas. Y en el fondo, algo pequeño y pálido que tapa con la mano cuando lo miras." }], mentions: ["cubo", "palo"],
     talk: "«Quien lo encuentra se lo queda», dice Pip, sin levantar la vista. «Pregúntame qué he encontrado, si quieres».",
@@ -737,7 +737,7 @@ export default {
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     // Borracho de porter (la tercera media en The Bell, y las siguientes): la calle se mece y se ve doble, las palabras salen trabadas y, al
     // salir de un sitio, a veces tomas otro camino. Se pasa solo; un pastel lo pasa antes.
-    { add: "condition", id: "drunk", lasts: { turns: [8, 12] }, starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera",
+    { add: "condition", id: "drunk", lasts: { seconds: [120, 180] }, starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera",
       status: "La cerveza se te ha subido a la cabeza", filters: ["sway", "ghost"], speech: { slur: true },
       movement: { chance: 0.3, says: ["Los pies te llevan por otro camino del que querías.", "Echas a andar hacia un lado, y la niebla te da la vuelta."] } },
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),

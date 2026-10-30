@@ -40,6 +40,7 @@
 
     --palette-amber-300:  #e8c46a;   /* soft amber */
     --palette-yellow-300: #f2d25c;
+    --palette-orange-400: #e8964a;   /* oranger amber: warm, clearly apart from the focus amber and the yellow */
     --palette-red-400:    #e0645a;   /* soft red: bright enough on near black, not alarm red */
     --palette-green-400:  #8cc97a;   /* soft green */
 
@@ -60,6 +61,7 @@
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
     --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health, and the death lines */
     --color-healed:        var(--palette-green-400);  /* the echo when you get health back */
+    --color-neutral:       var(--palette-orange-400); /* a change that is neither harm nor healing: a condition that does neither */
 
     /* ---- Text sizes ----
        Phones first, windows big enough for the strip further down. Plain pixels; browser zoom still scales them.
