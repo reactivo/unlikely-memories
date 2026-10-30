@@ -512,7 +512,7 @@ const rules = [
   { id: "tea_once", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }],
     do: [{ say: "«Una tetera por persona», dice Dot. «Con más, dejarías de notar el té»." }] },
   { id: "drink_tea", match: { verb: "drink", obj: "tea" }, if: [{ "tea.at": "tea_room" }],
-    do: [{ say: "Está exactamente tan fuerte como te gusta, algo que nadie sabía desde hace años. La tienda se queda en silencio alrededor de la taza." }, { move: "tea", to: null }] },
+    do: [{ heal: 1, says: "Está exactamente tan fuerte como te gusta, algo que nadie sabía desde hace años. La tienda se queda en silencio alrededor de la taza." }, { move: "tea", to: null }] },
 
   // La hora de cierre, a las seis: se dice en todas partes.
   { id: "closing_bell", when: "at", at: "18:00",

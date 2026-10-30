@@ -510,7 +510,7 @@ const rules = [
   { id: "tea_once", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }],
     do: [{ say: "\"One pot each,\" says Dot. \"Any more and you'd stop noticing it.\"" }] },
   { id: "drink_tea", match: { verb: "drink", obj: "tea" }, if: [{ "tea.at": "tea_room" }],
-    do: [{ say: "It is exactly as strong as you like it, which nobody has known for years. The store goes quiet around the cup." }, { move: "tea", to: null }] },
+    do: [{ heal: 1, says: "It is exactly as strong as you like it, which nobody has known for years. The store goes quiet around the cup." }, { move: "tea", to: null }] },
 
   // Closing time, at six: said everywhere.
   { id: "closing_bell", when: "at", at: "18:00",

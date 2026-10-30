@@ -626,7 +626,7 @@ const rules = [
   { id: "coffee_served", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "coffee.at": "cafe" }, { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Primero ese», dice Inés." }] },
   { id: "coffee_done", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Uno al día», dice Inés. «Con más empezarías a esperar cosas.»" }] },
   { id: "drink_coffee", match: { verb: "drink", obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ say: "Está muy bueno. Por un momento no recuerdas nada a lo que hayas llegado tarde." }, { move: "coffee", to: null }] },
+    do: [{ heal: 1, says: "Está muy bueno. Por un momento no recuerdas nada a lo que hayas llegado tarde." }, { move: "coffee", to: null }] },
 
   // La ventanilla de billetes tiene su horario (de nueve de la noche a seis de la mañana).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],

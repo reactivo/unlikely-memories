@@ -618,7 +618,7 @@ const rules = [
   { id: "coffee_served", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "coffee.at": "cafe" }, { "$topic": { in: [null, "coffee"] } }], do: [{ say: "\"Drink that one first,\" says Inés." }] },
   { id: "coffee_done", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }], do: [{ say: "\"One a day,\" says Inés. \"Any more and you'd start expecting things.\"" }] },
   { id: "drink_coffee", match: { verb: "drink", obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ say: "It is very good. For a moment you can't think of anything you've ever been late for." }, { move: "coffee", to: null }] },
+    do: [{ heal: 1, says: "It is very good. For a moment you can't think of anything you've ever been late for." }, { move: "coffee", to: null }] },
 
   // The ticket window keeps its hours (nine in the evening to six in the morning).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],

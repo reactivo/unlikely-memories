@@ -296,6 +296,19 @@ export function check(state, pack, bible) {
     }
   }
 
+  // Whatever the player consumes does them some good (BRIEF.md §5): a rule that eats or drinks its object and uses it up
+  // heals. Certain only where the rule says so: the verb is EAT or DRINK and the rule (or a change it runs) takes away
+  // the very thing it matches (removes it, or moves it to nowhere), and the story goes on (an ending is not a meal). A
+  // consumption told some other way (ORDER a pint and drink it in the same line, a property's answer) is not seen.
+  for (const r of state.rules) {
+    const verbs = [r?.match?.verb].flat(), objs = [r?.match?.obj].flat().filter(x => typeof x === "string");
+    if (!Array.isArray(r?.do) || !objs.length || !verbs.some(v => v === "eat" || v === "drink")) continue;
+    const all = withChanges(state, r.do), mine = (x) => x === "$obj" || objs.includes(x);
+    const usesUp = all.some(x => x && ((x.remove === "object" && mine(x.id)) || ("move" in x && x.to === null && mine(x.move))));
+    if (usesUp && !all.some(x => x && ("heal" in x || x.end)))
+      warnings.push(`${r.id}: the player consumes ${objs.join("/")} with no health effect; whatever is eaten or drunk heals: { heal: 1, says: "…" } (more only for something restorative)`);
+  }
+
   // The ending's picture: each `end` names one the world has; a world that can hurt you has a `died` one; each is well formed.
   problems.push(...pictureProblems(state));
   if (bible) problems.push(...bibleProblems(bible, state));

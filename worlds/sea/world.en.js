@@ -745,7 +745,7 @@ const rules = [
   { id: "cafe_order", match: { verb: ["talk", "ask", "order", "say", "drink"], obj: [null, "waiter", "coffee"] }, if: [at("cafe"), { "coffee.at": { "!=": "cafe" } }, { "coffee.had": { "!=": true } }, notAsking],
     do: [{ move: "coffee", to: "cafe" }, { say: "Before you can say anything, he puts a {cup of coffee|coffee} on the table. \"The usual,\" he says. You have never been here before." }] },
   { id: "coffee_drink", match: { verb: ["drink", "eat", "take", "taste"], obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ move: "coffee", to: null }, { set: "coffee.had", to: true }, { say: "It tastes of a morning you didn't have. Your hands stop shaking. You hadn't noticed they were shaking." }] },
+    do: [{ move: "coffee", to: null }, { set: "coffee.had", to: true }, { heal: 1, says: "It tastes of a morning you didn't have. Your hands stop shaking. You hadn't noticed they were shaking." }] },
 
   { id: "cafe_again", match: { verb: ["order", "ask"], obj: ["waiter", "coffee"] }, if: [at("cafe"), { "coffee.had": true }, { "coffee.at": null }],
     do: [{ say: "\"The usual,\" he says, and looks at the napkin. \"You've had it. It's all there is, on a Sunday.\"" }] },
