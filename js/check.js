@@ -46,7 +46,7 @@ import { parse, normalise, inScope } from "./parser.js";
 import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js";
 import { placeOf, isAction } from "./use.js";
 import { solveCommand } from "./narrator.js";
-import { isExitObject, exitTo, exitConditions, wayOf } from "./exits.js";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js";
 import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
 import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite } from "./fields.js";
@@ -163,11 +163,13 @@ export function check(state, pack, bible, { before = null } = {}) {
       const name = typeof to === "string" && arrived.world.rooms[to]?.name;
       if (name && !isExitObject(raw) && exitNow(there, id, dir).go && !reaches(there, go + " " + name.toLowerCase(), to)) warnings.push(`${id}: "${go} ${name.toLowerCase()}" doesn't go ${dir} to ${to}`);
     }
-    const leading = [...(room.scenery || []).map(x => ({ word: x.words?.[0], leads: x.leads })),
-      ...Object.entries(arrived.world.objects).filter(([, o]) => o.at === id && wayOf(o)).map(([, o]) => ({ word: o.words?.nouns?.[0], leads: wayOf(o) }))];
-    for (const { word, leads } of leading.filter(x => x.leads && x.word)) {
-      if (!(leads in (room.exits || {}))) problems.push(`${id}: "${word}" leads ${leads}, but there's no way ${leads} from here`);
-      else if (travels(there, climb + " " + word) !== leads) problems.push(`${id}: "${climb} ${word}" doesn't go ${leads}`);
+    // (stairs both up and down, `leads: ["u", "d"]`: each way needs its exit, and climbing them with no way typed goes up)
+    const leading = [...(room.scenery || []).map(x => ({ word: x.words?.[0], thing: x })),
+      ...Object.entries(arrived.world.objects).filter(([, o]) => o.at === id && wayOf(o)).map(([, o]) => ({ word: o.words?.nouns?.[0], thing: o }))];
+    for (const { word, thing } of leading.filter(x => wayOf(x.thing) && x.word)) {
+      const missing = waysOf(thing).filter(dir => !(dir in (room.exits || {})));
+      for (const dir of missing) problems.push(`${id}: "${word}" leads ${dir}, but there's no way ${dir} from here`);
+      if (!missing.length && travels(there, climb + " " + word) !== wayOf(thing)) problems.push(`${id}: "${climb} ${word}" doesn't go ${wayOf(thing)}`);
     }
   }
   // A door locked from either side (`pair`): each door names the other, written on both, and each is a door. Their locks and states then go together.
@@ -1210,9 +1212,9 @@ function checkOpening(state, pack) {
     else problems.push(`the opening room has a second way on, ${dir}: a closed place has one way on, the one that closes behind you (BRIEF.md §3)`);
   }
   for (const [oid, o] of Object.entries(objects))
-    if (wayOf(o) && wayOf(o) !== onDir && o.at === roomId && oid !== W) problems.push(`"${oid}" in the opening room leads ${wayOf(o)}: a second way out of a closed place (BRIEF.md §3)`);
+    for (const dir of waysOf(o)) if (dir !== onDir && o.at === roomId && oid !== W) problems.push(`"${oid}" in the opening room leads ${dir}: a second way out of a closed place (BRIEF.md §3)`);
   for (const x of room.scenery || [])
-    if (x.leads && x.leads !== onDir) problems.push(`the opening room's scenery "${x.name ?? x.words?.[0]}" leads ${x.leads}: a second way out of a closed place (BRIEF.md §3)`);
+    for (const dir of waysOf(x)) if (dir !== onDir) problems.push(`the opening room's scenery "${x.name ?? x.words?.[0]}" leads ${dir}: a second way out of a closed place (BRIEF.md §3)`);
   for (const [id, o] of Object.entries(objects))
     if ((o.at === roomId || o.at === "player") && o.portable && ![H, I].includes(id))
       problems.push(`"${id}" can be taken in the opening: only the hints thing can be (the intro is carried)`);

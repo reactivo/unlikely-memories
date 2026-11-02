@@ -518,7 +518,7 @@ const objects = {
     words: { nouns: ["stones", "stone", "gravestones", "graves", "dates"], adj: ["plain"] },
     examine: "Small plain stones, each with a date, all Mondays. The newest says only: THE LAST ONE IS NOT HERE. KEPT AT THE TOWN HALL, IN CASE.",
     parts: [{ words: ["date", "newest"], name: "the newest stone", says: "THE LAST ONE IS NOT HERE. KEPT AT THE TOWN HALL, IN CASE." }], mentions: ["date"] },
-  pond_water: { at: "pond", name: "Pond", note: "The town, upside down.", actions: ["Look in pond"],
+  pond_water: { at: "pond", name: "Pond", note: "The town, upside down.",
     words: { nouns: ["pond", "water", "reflection"], adj: ["round"] },
     examine: "In the water the station clock is upside down and running the right way. On the calendar under it, in the reflection, there is a page between Sunday and Tuesday." },
 
@@ -610,11 +610,6 @@ const rules = [
   // The ticket window keeps its hours (nine in the evening to six in the morning).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
     do: [{ say: "The shutter is up. Behind the grille, the booking clerk waits with her punch. The card says: ONE FARE: ONE COIN. OLD CURRENCY ONLY." }] },
-  // Buying at the shut window: the shutter. While you hold a ticket, BUY (TICKET) is the ticket's `already` line, as ORDER TICKET says it.
-  { id: "buy_ticket_shut", match: { verb: "buy", obj: [null, "ticket"] }, if: [at("station_hall"), notHours(21, 6), { "ticket.at": { "!=": "player" } }],
-    do: [{ say: "The shutter is down. The card says: TICKETS FROM 21:00." }] },
-  { id: "buy_window_shut", match: { verb: "buy", obj: ["window", "booking_clerk"] }, if: [at("station_hall"), notHours(21, 6)],
-    do: [{ say: "The shutter is down. The card says: TICKETS FROM 21:00." }] },
   // The booking clerk is at her window while it's open.
   { id: "clerk_in", when: "at", at: "21:00", do: [{ move: "booking_clerk", to: "station_hall" }] },
   { id: "clerk_in_say", when: "at", at: "21:00", if: [at("station_hall")], do: [{ say: "The shutter of the ticket window goes up. A woman behind the grille sets out her punch." }] },
@@ -760,7 +755,7 @@ export default {
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "ticket", at: null, portable: true,
-      from: "window", if: [hours(21, 6)], requires: "coin", spends: true,   // the window sells it in its hours, for the old coin
+      from: "window", if: [hours(21, 6)], requires: "coin", spends: true,   // the window sells it in its hours, for the old coin; shut, BUY (the ticket, the window) says `again`
       brought: "You slide the old coin under the grille. The clerk bites it, nods, punches a ticket, and slides it back. \"Tuesday,\" she says. \"One way.\"",
       lacking: "\"One fare, one coin,\" says the clerk. \"The old sort.\"",
       already: "You have one already. One is all anyone needs.",

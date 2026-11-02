@@ -20,6 +20,25 @@ export default {
     "................",
     "................"
   ],
+  // The same receiver hanging on the wall, for the yard's picture: upright, its coiled cord dangling below it.
+  receiver_floor: [
+    "....000.........",
+    "...0ccc0........",
+    "...0ccc0........",
+    "....0cc0........",
+    ".....0c0........",
+    ".....0c0........",
+    ".....0c0........",
+    "....0cc0........",
+    "...0ccc0........",
+    "...0ccc0........",
+    "....0000........",
+    "......0.........",
+    ".....0..........",
+    "......0.........",
+    ".....0..........",
+    "......0........."
+  ],
   // A folded summons: white paper, grey lines of type, a red stamp.
   summons: [
     "................",

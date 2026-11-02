@@ -8,7 +8,7 @@ import { EXAMINED, ANSWERED } from "./verbs.js";
 import { ACTIONS } from "./actions.js";
 import { carried, within, receives, person, holderOf, placeOf } from "./use.js";
 import { spellings, called } from "./names.js";
-import { wayOf } from "./exits.js";
+import { wayOf, waysOf } from "./exits.js";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
@@ -124,14 +124,24 @@ const NOT_OFFERED = new Set(["take", "drop", "put", "give", "throw", "attack", "
 // (a `climb` line is the verb's own word: "Trepar farol"; "Subir X" is for a way up).
 const POSITION = { enter: "enterIn", sit: "enterOn" };
 
+// A command as the language writes it: a preposition and the article of a name that starts with its own come together as the pack's
+// contractions say (`grammar.contractions`, read backwards: Spanish "Llamar a el último farol" → "Llamar al último farol", "Salir de el
+// coche" → "Salir del coche"; English has none). A capital "El" starts a proper name and stays ("de El Escorial"). The parser reads the
+// contraction back (js/parser.js).
+function contracted(t, command) {
+  return Object.entries(t.words?.grammar?.contractions || {}).reduce((c, [short, [prep, article]]) =>
+    c.replace(new RegExp(`(^|\\s)${prep} ${article}(?=\\s)`, "g"), `$1${short}`), command);
+}
+
 // A command for a thing, worded by the pack: `phrase` (the pack's, a function of the noun) with the thing named as its name writes it
 // (js/names.js), the first spelling the parser reads as the thing and the kind of action `reads` expects. Null when none does.
 function wording(state, t, id, phrase, reads) {
+  const said = (n) => contracted(t, phrase(n));
   const x = called(state.world.objects[id], nameOf(id, state, t), (n) => {
-    const r = parse(phrase(n), state, t), a = r.actions?.length === 1 && r.actions[0];
+    const r = parse(said(n), state, t), a = r.actions?.length === 1 && r.actions[0];
     return !!a && reads(a);
   }, t.titled, { lowerNumbers: t.lowerNumbers });
-  return x === null ? null : phrase(x);
+  return x === null ? null : said(x);
 }
 
 // The phrase for any verb: the pack's own (basic.listen, "Listen to X"), else the verb's first word with what it takes before its
@@ -162,7 +172,7 @@ function pairCommand(state, t, verb, a, b) {
     return got.meaningful && !(verb === "put" && got.rules[0] === "std_put_in" && !carried(state, b));
   };
   for (let n = 0; n < A.length + B.length - 1; n++)
-    for (let i = 0; i <= n; i++) if (i < A.length && n - i < B.length) { const c = t.useWith[verb](A[i], B[n - i]); if (worth(c)) return c; }
+    for (let i = 0; i <= n; i++) if (i < A.length && n - i < B.length) { const c = contracted(t, t.useWith[verb](A[i], B[n - i])); if (worth(c)) return c; }
   return null;
 }
 
@@ -196,7 +206,7 @@ export function basicActions(state, t, id, held = carries(state, id)) {
   if (!o || !b || !inScope(state, id)) return [];
   const is = (...verbs) => (a) => a.obj === id && verbs.includes(a.verb);
   const room = state.player.at, here = placeOf(state, id) === room, op = state.opening;
-  const way = wayOf(o), ways = (a) => a.verb === "go" && a.dir === way;
+  const way = wayOf(o), goes = (dir) => (a) => a.verb === "go" && a.dir === dir;
   const out = [], add = (phrase, reads) => { const c = phrase && wording(state, t, id, phrase, reads); if (c) out.push(c); };
 
   if (o.portable && o.at !== "player" && !held && !holderOf(state, id) && state.player.in !== id && o.take == null) add(b.take, is("take"));
@@ -208,10 +218,11 @@ export function basicActions(state, t, id, held = carries(state, id)) {
   const unlocks = unlockActions(state, t, id);
   out.push(...unlocks);
   if (way && o.locked && here && !unlocks.length) add(b.open, is("open"));
-  if (way && !o.locked && here) {
-    const now = exitNow(state, room, way);
-    // (a door is gone through, whichever way it faces; stairs and the like are climbed or entered by the way they go)
-    if (now.go === true || typeof now.go === "string") add(o.door ? b.goThrough : way === "u" ? b.climbUp : way === "d" ? b.climbDown : b.enterIn, ways);
+  if (way && !o.locked && here) for (const dir of waysOf(o)) {
+    const now = exitNow(state, room, dir);
+    // (a door is gone through, whichever way it faces; stairs and the like are climbed or entered by the way they go: each of
+    // their ways, for stairs both up and down)
+    if (now.go === true || typeof now.go === "string") add(o.door ? b.goThrough : dir === "u" ? b.climbUp : dir === "d" ? b.climbDown : b.enterIn, goes(dir));
   }
   for (const verb of ANSWERED) {
     const line = o[verb], spec = ACTIONS[verb];
@@ -285,7 +296,7 @@ export function suggestion(state, t, id, fromInventory, examined = false) {
 // ---- USE on its own ----------------------------------------------------------------------------------------------------
 
 // What you could do with a thing when you type USE and its words alone (nothing means it by itself): "Use the key how?
-// `Unlock door with key`, `Take key` or `Drop key`." The two-thing actions that would work here and now first: put what you carry in
+// `Unlock door with key` or `Examine key`." The two-thing actions that would work here and now first: put what you carry in
 // an open container that is here, give what you carry to someone here who would take it, unlock what is locked and here with the key you
 // carry; then the thing's basic actions (basicActions), then the world's own `actions` (the same source as the line shown when it is
 // clicked). Only commands that would be read and answered by a rule or the thing (never a stock or refused reply), at most five.

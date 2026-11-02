@@ -5,7 +5,7 @@
 import { random, between } from "./random.js";
 import standardVerbs from "./verbs.js";
 import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, wayOf } from "./exits.js";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js";
 import { parseShape, parseShapes } from "./picture.js";
 import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
 import * as opening from "./opening.js";
@@ -446,7 +446,7 @@ export function exitNow(g, roomId, dir, action = {}) {
 // the way; nothing else is written for it. Null when no locked thing is that way.
 function lockedWay(g, roomId, dir) {
   for (const [by, o] of Object.entries(g.world.objects))
-    if (o.at === roomId && wayOf(o) === dir && o.locked === true) return { by, closed: o.shut || o.lock?.says || "@locked" };
+    if (o.at === roomId && waysOf(o).includes(dir) && o.locked === true) return { by, closed: o.shut || o.lock?.says || "@locked" };
   return null;
 }
 

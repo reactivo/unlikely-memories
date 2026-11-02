@@ -480,9 +480,9 @@ const rules = [
     do: [{ change: "afternoon_ending" }] },
 
   // The memory: let out somewhere high, under the sky.
-  { id: "keep_memory", match: { verb: ["open", "drink", "pull"], obj: "memory" }, if: [at("roof_garden"), holding("memory")],
+  { id: "keep_memory", match: { verb: ["open", "drink", "pull", "uncork"], obj: "memory" }, if: [at("roof_garden"), holding("memory")],
     do: [{ change: "kept_ending" }] },
-  { id: "keep_memory_not_here", match: { verb: ["open", "drink", "pull"], obj: "memory" }, if: [holding("memory")],
+  { id: "keep_memory_not_here", match: { verb: ["open", "drink", "pull", "uncork"], obj: "memory" }, if: [holding("memory")],
     do: [{ say: "You put your thumb to the cork, and stop. Not here, under a ceiling. It wants somewhere high, with sky." }] },
 
   // The bear: wound, it says what the first floor has seen.
@@ -547,6 +547,8 @@ export default {
     ] },
     // Verbs this world needs
     { add: "word", verb: "shake", words: ["shake", "shake hands with", "hold hands with"] },
+    // Uncorking: the natural gesture with a little corked bottle (the memory), as the Spanish world has it.
+    { add: "word", verb: "uncork", words: ["uncork", "unstop", "unstopper", "unseal"] },
     { add: "word", verb: "send", words: ["send", "dispatch"], reply: "Payments go by tube, from the canister in haberdashery." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

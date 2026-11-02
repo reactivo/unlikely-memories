@@ -182,7 +182,8 @@ export default {
   // The two-thing commands USE alone offers, written the way a player types them (nouns, no articles).
   useWith: { unlock: (door, key) => `Unlock ${door} with ${key}`, put: (thing, into) => `Put ${thing} in ${into}`, give: (thing, who) => `Give ${thing} to ${who}` },
   // The commands the engine words itself for one thing (js/narrator.js, the opening's hints), the way a player types them: x = the thing's
-  // name as a command writes it (js/names.js: its noun, as its name spells it; no article). Each one is read back as the verb it
+  // name as a command writes it (js/names.js: its whole name when it has more than one word, with its own article, "the fitter"; else its
+  // noun, as its name spells it). Each one is read back as the verb it
   // names (tests/words.test.js). "Sit on" and "Get off" are for what you sit on, "Enter" and "Get out of" for what you get into.
   basic: {
     take: (x) => `Take ${x}`, talk: (x) => `Talk to ${x}`, listen: (x) => `Listen to ${x}`, read: (x) => `Read ${x}`,
@@ -345,7 +346,7 @@ export default {
       move: ["move", "shift", "slide", "lift", "raise", "lower", "roll"],
       switch_on: ["turn on", "switch on", "light", "ignite", "activate", "start"],
       switch_off: ["turn off", "switch off", "extinguish", "put out", "blow out", "deactivate", "stop"],
-      attack: ["attack", "hit", "strike", "smash", "kick", "punch", "break", "bash", "whack", "fight", "destroy", "slap",
+      attack: ["hit", "attack", "strike", "smash", "kick", "punch", "break", "bash", "whack", "fight", "destroy", "slap",
                "thump", "shatter", "wreck", "kill", "stab"],
       knock: ["knock", "knock on", "rap", "rap on", "bang", "bang on"],
       use: ["use", "utilise", "utilize", "apply", "operate", "employ"],
@@ -427,7 +428,9 @@ export default {
       whom: [],                                    // the word before the person asked (Spanish "pregunta A Inés"); English names them bare: "ask Dot"
       oneWords: ["one", "ones"],                   // "the iron ONE": answers "Which do you mean?" without naming anything
       contractions: {},                            // words written out in full right after the verb (Spanish al, del): none
-      verbPreps: {},                               // what a verb takes before its object, in hints (`{enter+}`): none ("enter door" reads fine)
+      // What a verb takes before its object, in the commands the engine words (js/view.js, phraseFor: "Knock on door") and in hints
+      // (`{knock+}`). The rest read fine bare ("enter door", "push bell").
+      verbPreps: { knock: "on", lie: "on", sit: "on", wave: "at" },
       nameParts: [],                               // prepositions that can be part of a name ("butaca DEL pasillo"): none
       lowerNames: true,                            // names in a sentence start in lower case ("tin of mints"); German: false
       gender: false                                // things have no gender (`words.g`) to agree with: the standard replies ignore it

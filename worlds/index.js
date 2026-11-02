@@ -4,6 +4,10 @@
 //
 // The landing page lists them (listFor), newest first by `made`; the address picks one (js/route.js). Each world's bible
 // gives its title, its blurb and its thumbnail (GUIDE.md §1), carried here so the list needs no world loaded.
+// About each world, data only (nothing shows it): `model` and `effort`, of the build that made it (written by the new-world
+// skill, never by the AI that builds it), `minutes` the build took (null when it wasn't logged), and `version`, a whole number
+// from 1, one more each delivery that changes its files. The versions of the four worlds made before 30 October 2026 are a floor:
+// the deliveries recorded in git since then, plus their making and their Spanish versions; earlier changes weren't recorded.
 // A new world: add its folder, import it here and add it to WORLDS.
 
 import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js";
@@ -18,11 +22,11 @@ import meridian, { bible as meridianBible } from "./meridian/world.en.js";
 import { parseShapes } from "../js/picture.js";
 
 export const WORLDS = {
-  sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
-  tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", bible: { es: tuesdayBibleEs }, text: { en: tuesday, es: tuesdayEs } },   // "The Train to Tuesday"
-  hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
-  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } },      // "The Last Word on Lantern Row"
-  meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", text: { en: meridian } }      // "Please Remain Present"
+  sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 5, minutes: null, bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
+  tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", model: "Claude Opus 5.5", effort: "medium", version: 7, minutes: null, bible: { es: tuesdayBibleEs }, text: { en: tuesday, es: tuesdayEs } },   // "The Train to Tuesday"
+  hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", model: "Claude Opus 5.5", effort: "medium", version: 6, minutes: null, bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
+  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", model: "Claude Opus 5.5", effort: "high", version: 6, minutes: 53, bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } },      // "The Last Word on Lantern Row"
+  meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", model: "Claude Haiku 5.5", effort: "default", version: 3, minutes: 28, text: { en: meridian } }      // "Please Remain Present"
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).

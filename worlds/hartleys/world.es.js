@@ -475,7 +475,7 @@ const rules = [
     do: [{ say: "El señor Pell te baja sin decir palabra, que es su forma de ser amable." }, { travel: "lift" }] },
 
   // La cuarta planta: la tarde a la que no fuiste.
-  { id: "wear_afternoon", match: { verb: ["wear", "tryon", "enter", "taste"], obj: "afternoon" }, if: [at("fourth_floor")],
+  { id: "wear_afternoon", match: { verb: ["wear", "enter", "taste"], obj: "afternoon" }, if: [at("fourth_floor")],
     do: [{ change: "afternoon_ending" }] },
 
   // El recuerdo: se suelta en un sitio alto, bajo el cielo.
@@ -546,10 +546,6 @@ export default {
     ] },
     // Verbos que necesita este mundo
     { add: "word", verb: "shake", words: ["estrechar la mano a", "estrecha la mano a", "estrechar la mano de", "estrecha la mano de", "estrechar la mano", "estrecha la mano", "dar la mano a", "da la mano a", "dale la mano a", "darle la mano a", "dar la mano", "da la mano", "darse la mano con", "estrechale la mano a", "estrechale la mano", "estrechar", "estrecha"] },
-    // «enseñar» con su ñ: la lista de la lengua lo trae sin ella ("ensenar"), y la ñ se conserva al leer lo que escribe el jugador.
-    { add: "word", verb: "show", words: ["mostrar", "muestra", "muestre", "muestro", "ensenar", "ensena", "ensene", "enseno", "enseñar", "enseña", "enseñe", "enseño"] },
-    // «probarse» una prenda: lo que dice la modista («Pruébesela») y lo que escribe quien la oye. «Probar» solo es probar el sabor.
-    { add: "word", verb: "tryon", words: ["probarse", "pruebate", "pruebatela", "pruebese", "pruebesela", "me pruebo", "pruebo me"] },
     // Sacar el tapón: el gesto natural con un frasquito corchado (el recuerdo). «Sacar» solo ya es coger.
     { add: "word", verb: "uncork", words: ["descorchar", "descorcha", "descorche", "descorcho", "destaponar", "destapona", "quitar el tapon", "quita el tapon", "quitar el corcho", "quita el corcho", "sacar el tapon", "saca el tapon", "sacar el corcho", "saca el corcho"] },
     { add: "word", verb: "send", words: ["enviar", "envía", "envia", "envíe", "envie", "envío", "mandar", "manda", "mande", "despachar", "despacha"], reply: "Los pagos van por tubo, desde la cápsula de mercería." },

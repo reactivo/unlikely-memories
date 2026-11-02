@@ -20,8 +20,6 @@ export const CONDITION_FIELDS = ["lasts", "until", "starts", "ends", "status", "
 
 // The ids of the conditions you are in now, in the order they started.
 export const activeIds = (state) => Object.keys(state.player?.conditions || {});
-// Are you in this condition now?
-export const isActive = (state, id) => !!state.player?.conditions?.[id];
 // What the active conditions say of one modifier kind: their declarations' fields of that kind, in the order they started.
 export const modifiers = (state, kind) => activeIds(state).map(id => state.conditions?.[id]?.[kind]).filter(m => m != null);
 // The filters the active conditions keep on (a condition ends: its filters go, unless another active one keeps them).

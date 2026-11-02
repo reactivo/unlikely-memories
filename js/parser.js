@@ -16,7 +16,7 @@
 
 import { ACTIONS } from "./actions.js";
 import { holds, answers, ANSWER_LENGTH } from "./engine.js";
-import { exitTo, wayAt, wayOf } from "./exits.js";
+import { exitTo, wayAt, wayOf, waysOf } from "./exits.js";
 import { placeOf, shut, isAction, person } from "./use.js";
 import { distance } from "./fields.js";
 
@@ -360,6 +360,11 @@ function splitContraction(tokens, W) {
   return verbLen(tokens) === at || verbLen(written) > at ? written : tokens;
 }
 
+// Up or down, if a word of a verb phrase says so ("climb up", *subir a*): the way it climbs. Null if none does.
+function upOrDown(words, W) {
+  return words.map(w => matchPhrase([w], 0, W.dirs)?.id).find(dir => dir === "u" || dir === "d") ?? null;
+}
+
 // One command (layer 2): its verb, then a direction, or its objects and what comes with them. { actions } or { error }.
 // recent: the things mentioned lately, newest first (what a pronoun can mean).
 function readCommand(tokens, state, W, recent) {
@@ -407,14 +412,19 @@ function readCommand(tokens, state, W, recent) {
   const bare = rest.filter(t => !W.preps.has(t));
   const d = matchPhrase(bare, 0, W.dirs);
   if ((verb === null || verb === "go") && d && d.len === bare.length) return { actions: [{ verb: "go", dir: d.id }] };
+  // A way typed with a thing that is a way wins over the thing's own `leads` when the thing or the room goes that way ("climb down the
+  // stairs" that lead up, in a room with a way down); else the thing's own way stands (steps that go down to the river, south).
+  const here = state.world.rooms[state.player.at]?.exits || {};
+  const typed = (dir, thing) => (dir && (thing.ways?.includes(dir) || exitTo(here[dir])) ? dir : null);
+  if (verb === "climb" && d && d.len === bare.length && exitTo(here[d.id])) return { actions: [{ verb: "go", dir: d.id }] };   // ("climb down", "climb downstairs")
   // A direction and where it leads ("go upstairs to the archive", "go up the ladder"): the room's name decides the
-  // way; else a thing here that leads that way.
+  // way; else a thing here that is a way, by the way typed (above).
   if ((verb === null || verb === "go" || verb === "climb") && d && d.len < bare.length) {   // ("climb down the ladder")
     const tail = bare.slice(d.len);
     const room = neighbourNamed(tail, state, W);
     if (room) return { actions: [{ verb: "go", dir: room }] };
     const thing = resolve(tail, state, W, false);
-    if (thing.leads === d.id) return { actions: [{ verb: "go", dir: d.id }] };
+    if (thing.leads && typed(d.id, thing)) return { actions: [{ verb: "go", dir: d.id }] };
   }
   if (verb === "go" && !rest.length) return { error: { say: "@whatTo", arg: verbText } };
 
@@ -473,7 +483,7 @@ function readCommand(tokens, state, W, recent) {
   const dbl = W.attached?.doubling;
   const doubled = pronoun && dbl?.forms.includes(pronoun) && phrases.length && (!phrases[0].prep || dbl.preps.includes(phrases[0].prep));
   if (doubled) phrases[0] = { ...phrases[0], prep: null };
-  else if (pronoun) phrases.unshift({ words: [pronoun], prep: null });
+  else if (pronoun) phrases.unshift({ words: [pronoun], prep: null, attached: true });
   if (indirect && !phrases.slice(1).some(ph => ph.prep)) phrases.push({ words: [indirect], prep: dbl?.preps?.[0] ?? null });   // "dáselo": to whom
   if (KEY_VERBS.has(verb) && phrases.length === 2) W = withLockPicks(phrases, state, W, recent);
   let prep = null, obj2 = null, topic, absent = [], scenery = null;
@@ -492,9 +502,10 @@ function readCommand(tokens, state, W, recent) {
       const dir = (thing.error || thing.scenery) && neighbourNamed(ph.words, state, W);
       if (dir) return { actions: [{ verb: "go", dir }] };
     }
-    const r = ph.words.length === 1 && W.it.has(ph.words[0]) ? resolvePronoun(ph.words[0], recent, state, W)
-                                                            : resolve(ph.words, state, W, !verb && ph === phrases[0],
-                                                                      absentOK && (verb !== "ask" || !!ph.prep), verb);   // whoever you ask must be here
+    let r = ph.words.length === 1 && W.it.has(ph.words[0]) ? resolvePronoun(ph.words[0], recent, state, W)
+                                                          : resolve(ph.words, state, W, !verb && ph === phrases[0],
+                                                                    absentOK && (verb !== "ask" || !!ph.prep), verb);   // whoever you ask must be here
+    if (ph.attached && verb && phrases.length === 1 && !indirect) r = attachedTo(r, verb, ph.words[0], state, W);
     // No verb, and the words after the first name something here ("ring bell" with no "ring"): the first word is
     // a verb the game doesn't know, not part of a name.
     if (["@notHere", "@onlyMentioned"].includes(r.error?.say) && !verb && ph === phrases[0] && ph.words.length > 1) {
@@ -504,9 +515,10 @@ function readCommand(tokens, state, W, recent) {
     if (r.error && verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]]) { topic = "?"; prep = ph.prep; continue; }
     // A thing that is a way out (`leads`): going, climbing, entering, opening, using or taking it goes that way ("climb the
     // stairs", "use the ladder", "take the stairs", "open the door").
+    // A climbing verb that says its way ("climb up", *subir a*) goes that way; else the thing's own (up, for stairs both ways).
     if (r.leads && phrases.length === 1 && LEADS_VERBS.has(verb) && !(verb === "take" && state.world.objects[r.id]?.portable)
         && !(verb === "open" && (state.world.objects[r.id]?.locked || state.world.objects[r.id]?.container)))
-      return { actions: [{ verb: "go", dir: r.leads }] };
+      return { actions: [{ verb: "go", dir: (verb === "climb" && v && typed(upOrDown(tokens.slice(0, v.len), W), r)) || r.leads }] };
     if (r.error) return r;
     if (r.absent) absent.push(r.id);
     if (verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]] && !r.scenery) topic = "?";   // still a question
@@ -725,7 +737,7 @@ function resolve(phrase, state, W, first, absentOK = false, verb = null) {
 // A thing that is a way out (stairs, a ladder, a path: `leads: "u"`; a door, a gate, a hatch: `door: "e"`), as { leads } for resolve();
 // else nothing.
 function leadsOf(thing) {
-  return wayOf(thing) ? { leads: wayOf(thing) } : {};
+  return wayOf(thing) ? { leads: wayOf(thing), ways: waysOf(thing) } : {};
 }
 
 // What's mentioned here but not there to use: the room's scenery, and the parts of things in reach (the key in
@@ -748,6 +760,12 @@ function mention(recent, a) {
   for (const id of [a.obj2, a.obj]) if (id) { const i = recent.indexOf(id); if (i >= 0) recent.splice(i, 1); recent.unshift(id); }
 }
 
+// Does the thing fit the pronoun: its gender (`g`) and number (`pl`), where both say one?
+function fitsPronoun(word, id, state, W) {
+  const want = W.pronouns[word] || {}, o = state.world.objects[id], w = o?.words || W.names[id] || {};
+  return (!want.g || !w.g || w.g === want.g) && (want.pl === undefined || !!w.pl === want.pl);
+}
+
 // What a pronoun means (the pack's `pronouns` say what each prefers).
 // - By default the most recent thing in reach that fits its gender (`g`) and number (`pl`) ("la" → la caja, "los" → los
 //   remos, "them" → something plural); if none fits, the most recent thing in reach; if none, ask.
@@ -756,10 +774,7 @@ function mention(recent, a) {
 //   ask who. A person is a character: an object with `topics` or `talk` (js/use.js, `person`).
 function resolvePronoun(word, recent, state, W) {
   const want = W.pronouns[word] || {};
-  const fits = (id) => {
-    const o = state.world.objects[id], w = o?.words || W.names[id] || {};
-    return (!want.g || !w.g || w.g === want.g) && (want.pl === undefined || !!w.pl === want.pl);
-  };
+  const fits = (id) => fitsPronoun(word, id, state, W);
   if (want.person) {
     const picked = W.picks.find(p => p.phrase === word && inScope(state, p.id));          // "Who do you mean?" was answered
     if (picked) return { id: picked.id };
@@ -773,6 +788,19 @@ function resolvePronoun(word, recent, state, W) {
   const here = recent.filter(id => inScope(state, id));
   if (!here.length) return { error: { say: "@noIt" } };
   return { id: here.find(fits) || here[0] };
+}
+
+// A pronoun joined to the verb ("pruébatela", "ábrela") means what the verb typed alone would go to (the one thing here it fits), when
+// that thing fits the pronoun and the pronoun has nothing else to mean that the verb does something with: nothing mentioned lately, or
+// something only a stock reply answers (the dressmaker just talked to, for "pruébatela"). Else it stays what it means (resolvePronoun).
+function attachedTo(r, verb, word, state, W) {
+  const want = W.pronouns[word];
+  if (!want || want.person) return r;
+  const required = (ACTIONS[verb]?.object ?? state.vocab?.[verb]?.object) === "required";
+  const alone = required ? (NO_GUESS.has(verb) ? null : onlyCandidate(verb, state)) : onlyCandidate(verb, state) || onlyAnswer(verb, state);
+  if (!alone || alone === r.id || !fitsPronoun(word, alone, state, W)) return r;
+  if (r.id && answers(state, [{ verb, obj: r.id }]).meaningful) return r;
+  return { id: alone };
 }
 
 // For a verb typed alone: the one thing in scope that answers it with a property of that name, if exactly one does.

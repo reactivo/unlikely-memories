@@ -16,9 +16,14 @@
 
 export const isExitObject = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
 
-// The way a thing is: the direction going through it takes, from its `door` (a door, gate or hatch on that way) or its `leads` (stairs,
-// a shop front, a cave: a way you climb or walk into). A thing has one or the other, never both. Null for a thing that is no way.
-export const wayOf = (o) => o?.door ?? o?.leads ?? null;
+// The ways a thing is: the directions going through it takes, from its `door` (a door, gate or hatch on that way) or its `leads` (stairs,
+// a shop front, a cave: a way you climb or walk into; one direction, or a list for stairs that go both up and down, ["u", "d"]). A thing
+// has one or the other, never both. Empty for a thing that is no way.
+export const waysOf = (o) => (o?.door != null ? [o.door] : o?.leads == null ? [] : [].concat(o.leads));
+
+// The way a thing is taken when no direction is typed ("climb the stairs"): up, if it leads up, else its first way. Null for a thing
+// that is no way. A direction typed with it wins ("climb down the stairs": js/parser.js).
+export const wayOf = (o) => { const w = waysOf(o); return w.includes("u") ? "u" : w[0] ?? null; };
 
 // Where an exit leads, whatever its form: a room id, true, or false (none). A conditional exit's `to`, open or not.
 export const exitTo = (x) => (isExitObject(x) ? (x.to ?? false) : (x ?? false));

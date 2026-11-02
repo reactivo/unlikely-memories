@@ -30,9 +30,8 @@ poly tarp 28,96 112,96 116,110 26,110 15 e0
 rect bin 268,84,20,26 8 e0
 rect door_frame 186,12,68,100 8 e0
 rect door 194,16,52,96 7 e8
-line seam 220,16 220,112 c8
-rect intercom_box 184,50,8,12 12 e0
-line cord 188,62 184,80 c8` }
+line seam 220,16 220,112 c8`,
+      overlays: [{ object: "intercom", at: [178, 48] }] }
   },
   corridor: {
     alt: "A grey corridor, a lamp overhead, a notice board on the right wall and an open lift shaft on the left.",
@@ -60,7 +59,7 @@ ellipse lamp 262,56,12,7 14 e0
 ellipse glow 262,56,24,14 mix:,14@0.3` }
   },
   canteen: {
-    alt: "A steaming urn looking up from the canteen floor, with a biscuit on the counter and a vending machine by the door.",
+    alt: "A steaming urn on a long counter, seen looking up from the canteen floor, and a vending machine by the door.",
     picture: { version: 1, draw: `rect ceiling 0,0,320,40 8
 rect wall 0,40,320,70 fade:12,8/0,40/0,110
 rect floor 0,110,320,26 6 e0
@@ -68,10 +67,10 @@ rect urn 146,20,34,92 7 e0
 rect urn_top 150,12,26,10 7 e0
 dots steam 158,6 164,2 156,0 c15
 rect counter 0,96,320,14 6 e0
-rect biscuit 92,88,12,8 14 e0
 rect vend 252,22,44,88 9 e0
 rect vend_glass 258,30,32,36 11 e0
-ellipse lamp 60,8,20,4 15` }
+ellipse lamp 60,8,20,4 15`,
+      overlays: [{ object: "biscuit", at: [124, 86] }] }
   },
   staff: {
     alt: "A grey printer close up, its light on, a red button and an empty output tray.",
@@ -155,6 +154,16 @@ ellipse head 96,28,10,12 0
 poly body 84,42 108,42 116,96 76,96 0
 rect legs 80,96,11,34 0
 rect legs2 96,96,11,34 0` }
+  },
+  booth: {
+    alt: "The last booth from outside: a seated figure behind frosted glass, and a green light just come on above it.",
+    picture: { version: 1, draw: `rect bg 0,0,320,136 fade:8,0/0,0/0,136
+rect frame 104,14,112,122 7 e0
+ellipse light 160,22,12,5 10
+ellipse head 160,62,10,12 0
+poly body 146,76 174,76 182,124 138,124 0
+rect chair 132,118,56,8 0
+rect glass 112,34,96,102 mix:,15@0.5` }
   },
   erased: {
     alt: "A shredder seen from above: strips of grey, and one small slip of white among them.",

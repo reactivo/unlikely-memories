@@ -211,8 +211,9 @@ export default {
   // Las órdenes de dos cosas que ofrece USAR solo, como las escribiría un jugador (nombres, sin artículos).
   useWith: { unlock: (door, key) => `Abrir ${door} con ${key}`, put: (thing, into) => `Meter ${thing} en ${into}`, give: (thing, who) => `Dar ${thing} a ${who}` },
   // Las órdenes que el motor escribe él mismo para una cosa (js/narrator.js, las pistas de la apertura), como las escribiría un jugador:
-  // x = el nombre de la cosa como lo escribe una orden (js/names.js: su sustantivo, tal como lo deletrea su nombre; sin artículo, así que
-  // no hay contracciones que escribir: «Salir de cabina»). Cada una se lee de vuelta como el verbo que nombra (tests/words.test.js).
+  // x = el nombre de la cosa como lo escribe una orden (js/names.js: su nombre entero si tiene más de una palabra, con el artículo que traiga,
+  // «la modista»; si no, su sustantivo, tal como lo deletrea su nombre: «Salir de cabina»). «a el» y «de el» se contraen al escribir la orden
+  // (`grammar.contractions`, js/view.js: «Salir del coche»). Cada una se lee de vuelta como el verbo que nombra (tests/words.test.js).
   basic: {
     take: (x) => `Coger ${x}`, talk: (x) => `Hablar con ${x}`, listen: (x) => `Escuchar ${x}`, read: (x) => `Leer ${x}`,
     open: (x) => `Abrir ${x}`, close: (x) => `Cerrar ${x}`,
@@ -357,7 +358,7 @@ export default {
                 "observar", "observa", "observe", "observo", "describir", "describe", "estudiar", "estudia", "ver", "veo",
                 "mirar bien", "mira bien"],
       read: ["leer", "lee", "lea", "leo", "ojear", "ojea"],
-      search: ["buscar", "busca", "busque", "busco", "registrar", "registra", "registre", "registro", "rebuscar",
+      search: ["registrar", "registra", "registre", "registro", "buscar", "busca", "busque", "busco", "rebuscar",
                "rebusca", "mirar dentro", "mira dentro", "mirar debajo", "mira debajo", "mirar detras", "mira detras",
                "mirar por", "mira por", "mirar a traves de", "mira a traves de", "explorar", "explora"],
       listen: ["escuchar", "escucha", "escuche", "escucho", "oir", "oye", "oiga", "oigo"],
@@ -403,7 +404,7 @@ export default {
                   "conecta"],
       switch_off: ["apagar", "apaga", "apague", "apago", "desactivar", "desactiva", "desconectar", "desconecta",
                    "soplar", "sopla"],
-      attack: ["atacar", "ataca", "ataque", "ataco", "golpear", "golpea", "golpee", "golpeo", "pegar", "pega", "pegue",
+      attack: ["golpear", "golpea", "golpee", "golpeo", "atacar", "ataca", "ataque", "ataco", "pegar", "pega", "pegue",
                "pego", "romper", "rompe", "rompa", "rompo", "patear", "patea", "dar una patada", "da una patada",
                "dar un golpe", "da un golpe", "dar un puñetazo", "da un puñetazo", "destrozar", "destroza", "machacar",
                "machaca", "matar", "mata", "luchar", "lucha", "abofetear"],
@@ -440,7 +441,7 @@ export default {
             "murmurar", "murmura"],
       shout: ["gritar", "grita", "grite", "grito", "chillar", "chilla", "vociferar", "aullar", "aulla"],
       sing: ["cantar", "canta", "cante", "canto", "tararear", "tararea", "silbar", "silba"],
-      wave: ["agitar la mano", "agita la mano", "hacer señas", "haz señas", "señalar", "señala", "gesticular"],
+      wave: ["hacer señas", "haz señas", "agitar la mano", "agita la mano", "señalar", "señala", "gesticular"],
       kiss: ["besar", "besa", "bese", "beso", "abrazar", "abraza", "abrace", "abrazo"],
       think: ["pensar", "piensa", "piense", "pienso", "recordar", "recuerda", "reflexionar", "reflexiona", "meditar",
               "medita"],
@@ -534,9 +535,12 @@ export default {
       askFor: [],                                  // pedir algo es «pide té», «pídele té a Dot» (ORDER); «pregunta a Dot por el té» es preguntar sobre ello
       whom: ["a", "al"],                           // a quién se pregunta o se pide: «pregunta A Inés por el café», «pide A Inés un café»
       oneWords: ["uno", "una", "unos", "unas"],    // "la de hierro, UNA": responde a «¿Cuál quieres decir?» sin nombrar nada
-      verbPreps: { enter: "en" },                  // lo que lleva un verbo antes de su objeto, en las pistas (`{enter+}`): «Entrar EN puerta»
+      // Lo que lleva un verbo antes de su objeto, en las órdenes que escribe el motor (js/view.js, phraseFor: «Llamar a puerta») y en
+      // las pistas (`{enter+}`: «Entrar EN puerta»). La a de persona va en los verbos que casi siempre son para alguien (despertar, besar,
+      // hacer señas), y en trepar («Trepar a farol»). Un nombre que empieza por «el» se contrae con ella: «Trepar al último farol».
+      verbPreps: { enter: "en", knock: "a", sit: "en", lie: "en", wave: "a", wake: "a", kiss: "a", climb: "a" },
       nameParts: ["del"],                          // pueden ser parte de un nombre: "la butaca DEL pasillo" es una sola cosa, no dos
-      contractions: { al: ["a", "el"], del: ["de", "el"] },   // justo después del verbo se escriben enteras: "sal DEL coche", "sube AL tren"
+      contractions: { al: ["a", "el"], del: ["de", "el"] },   // justo después del verbo se leen enteras: "sal DEL coche", "sube AL tren"; las órdenes del motor las contraen
       lowerNames: true,                            // los nombres dentro de una frase, en minúscula ("lata de caramelos")
       gender: true                                 // las cosas llevan género (`words.g`) y las respuestas normales concuerdan con él
     },
