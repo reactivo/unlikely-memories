@@ -11,15 +11,17 @@
 import { ANSWERED } from "./verbs.js";
 import { PARTS, LINES } from "./opening.js";
 import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js";
+import { DIRECTIONS } from "./space.js";
 import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
 const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "ambience", "waitFor", "placeholder", ...ANSWERED];
-const OBJECT = ["at", "portable", "container", "open", "locked", "scenery", "name", "note", "actions", "heldActions", "examine",
-  "here", "words", "sprite", "floorSprite", "img", "use", "leads", "lock", "enterable", "parts", "mentions", "topics",
-  "unnoticed", "opens", "waitFor", ...ANSWERED];
+const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
+  "here", "lies", "words", "sprite", "floorSprite", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
+  "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
+  "requires", "spends", "lacking", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
 
 export const FIELDS = {
@@ -36,9 +38,9 @@ export const FIELDS = {
   topic: ["words", "says", "about", "label", "open", "opens"],
   ambience: ["lines", "every", "chance", "if"],
   waitFor: ["time", "says", "if"],
-  exit: ["to", "if", "closed", "in", "out"],   // an exit that is not just a room: { to, if?, closed?, in?, out? }
+  exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking? }
   picture: ["version", "draw", "cycles", "overlays"],
-  rule: ["id", "match", "if", "do", "when", "every", "at", "chance", "then", "once"],
+  rule: ["id", "match", "if", "do", "when", "every", "at", "chance", "then", "once", "again"],
   every: ["seconds", "turns"],
   match: ["verb", "obj", "obj2", "dir", "prep", "topic", "text", "scenery", "absent", "question", "value", "blank"],
   puzzle: PUZZLE,
@@ -49,7 +51,7 @@ export const FIELDS = {
   // Each effect, by its main key, with the other fields it may carry, in the order the engine reads the keys (effectKind
   // relies on it). `add` and `remove` carry the new thing's own fields.
   effect: {
-    say: ["say", "img", "style", "arg", "vary", "things"],
+    say: ["say", "img", "style", "arg", "vary", "things", "marked"],
     describe: ["describe"],
     move: ["move", "to"],
     set: ["set", "to", "add"],
@@ -61,21 +63,21 @@ export const FIELDS = {
     travel: ["travel"],
     connect: ["connect", "dir", "to", "passage", ...CONNECT_FIELDS],   // and the exit's own: in, out (marks), if, closed
     disconnect: ["disconnect", "dir"],
-    unlock: ["unlock"],
+    unlock: ["unlock"], inside: ["inside"],
     change: ["change", "optional"],
     draw: ["draw", "add", "remove", "replace", "restyle", "cycles", "overlays"],
     time: ["time", "weekday"],
     confirm: ["confirm", "yes", "no", "style", "arg"],
     ask: ["ask"],
     end: ["end", "picture"], know: ["know"], hint: ["hint"], restart: ["restart"], session: ["session"],
-    useAs: ["useAs"], useHow: ["useHow"], listenFor: ["listenFor"],
+    useAs: ["useAs"], useHow: ["useHow"], listenFor: ["listenFor"], consume: ["consume"], bring: ["bring"],
     "add room": ["add", "id", ...ROOM],
     "add object": ["add", "id", ...OBJECT],
     "add rule": ["add", "rule", "before"],
     "add change": ["add", "id", "effects"],
     "add puzzle": ["add", "id", ...PUZZLE],
     "add picture": ["add", "id", "picture", "alt"],
-    "add word": ["add", "verb", "words", "object", "absent", "speech"],
+    "add word": ["add", "verb", "words", "object", "absent", "speech", "reply"],
     "add condition": ["add", "id", ...CONDITION_FIELDS],
     "remove object": ["remove", "id"],
     "remove rule": ["remove", "id"]
@@ -84,13 +86,13 @@ export const FIELDS = {
   player: ["at", "in", "carrying", "health", "answers", "conditions"],   // answers: what was typed to each `ask`, by its key (player.answers.name); conditions: the ids of those you're in
   game: ["ended", "ending", "entrance", "turn", "clock"],
   time: ["hour", "minute", "second", "day", "weekday"],
-  any: ["place", "chain"]                  // read on any thing: where it really is, and what it is in
+  any: ["place", "chain", "person", "holder"]   // read on any thing: where it really is, what it is in, whether it is a person, who has it
 };
 
-// The engine's own effects: the standard verbs' (`unlock`, `useAs`, `useHow`, `listenFor`), the opening's (`hint`) and the
+// The engine's own effects: the standard verbs' (`unlock`, `inside`, `useAs`, `useHow`, `listenFor`), the opening's (`hint`) and the
 // session's (`restart`, `session`). They are on the list above because the engine's own rules use them, which never pass
 // this check; a world or an AI change set that writes one is refused.
-export const ENGINE_ONLY = ["unlock", "hint", "listenFor", "useAs", "useHow", "restart", "session"];
+export const ENGINE_ONLY = ["unlock", "inside", "hint", "listenFor", "useAs", "useHow", "restart", "session", "consume", "bring"];
 // The engine's own condition operator: `holds` (conditions kept as data hold: the standard WAIT reads a `waitFor.if` with
 // it). Only the engine's own rules use it; a world or an AI change set that writes it is refused, like an effect above.
 export const ENGINE_ONLY_OPERATORS = ["holds"];
@@ -294,6 +296,8 @@ export function suggest(word, list) {
 
 // ---- The check -----------------------------------------------------------------------------------------------------
 const isObject = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+// A line a thing or a rule says: a text, or a list of texts (varied, never the same twice in a row).
+export const isLine = (x) => (typeof x === "string" && x.trim() !== "") || (Array.isArray(x) && x.length > 0 && x.every(y => typeof y === "string" && y.trim() !== ""));
 const range = (d) => (Number.isFinite(d?.min) && Number.isFinite(d?.max) ? `${d.min}–${d.max}` : Number.isFinite(d?.min) ? `${d.min} or more` : `${d.max} or less`);
 const outside = (d, n) => typeof n === "number" && d?.type === "number" && ((Number.isFinite(d.min) && n < d.min) || (Number.isFinite(d.max) && n > d.max));
 
@@ -380,13 +384,18 @@ export function checkSet(state, set) {
     if (["add room", "add object", "add puzzle"].includes(kind)) claim(piece, kind.slice(4), e);
     if (kind === "remove object" && typeof e.id === "string") taken.delete(e.id);
     if (kind === "add room" || kind === "add object") {
-      fields(piece, e, FIELDS.effect[kind], "", e.id, e);
+      // `scenery` on a thing did nothing, so it is no field (decision 16): refused, a world's too, with what to do instead
+      const { scenery: gone, ...own } = kind === "add object" ? e : {};
+      if (kind === "add object" && "scenery" in e)
+        note(piece, `scenery is not a field of a thing: it does nothing (a thing that isn't portable stays where it is); leave it out`, e, true);
+      fields(piece, kind === "add object" ? own : e, FIELDS.effect[kind], "", e.id, e);
       return thing(piece, e, kind === "add room" ? "room" : "object");
     }
     fields(piece, e, FIELDS.effect[kind], named ? "" : kind + " effect", null, e);
     if (kind === "add rule") return rule(piece, e.rule);
     if (kind === "add change") return list(piece, e.effects);
     if (kind === "add picture") return fields(piece, e.picture, FIELDS.picture, "picture", null, e);
+    if (kind === "add word" && e.reply !== undefined && !isLine(e.reply)) note(piece, `reply is the line the verb says when no rule answers it (a line, or a list of lines), not ${JSON.stringify(e.reply)}`, e);
     if (kind === "add puzzle" || kind === "add word") return;
     if (kind === "add condition") {                             // its parts, and what its `until` reads
       fields(piece, e.lasts, FIELDS.lasts, "lasts", null, e);
@@ -397,6 +406,7 @@ export function checkSet(state, set) {
     }
     if (kind === "connect") {                                   // the exit it writes: marks, and a condition as an exit's own
       marks(piece, `connect ${e.dir}`, e.dir, e, e);
+      paying(piece, `connect ${e.dir}: `, e, e);
       if (typeof e.if !== "boolean") wellFormed(piece, exitConditions(e) ?? [], e, `connect ${e.dir}: if`);
       conditions(piece, exitConditions(e) ?? [], e);
     }
@@ -445,6 +455,15 @@ export function checkSet(state, set) {
     };
   };
 
+  // What a thing that comes from somewhere, or a way, wants you to hold (decision 41): `requires` a thing's id, `spends` true, `lacking` a line.
+  const paying = (piece, label, x, effect) => {
+    if (x.requires !== undefined && !(typeof x.requires === "string" && x.requires.trim()))
+      note(piece, `${label}requires is the id of the thing you must hold, not ${JSON.stringify(x.requires)}`, effect);
+    if (x.spends !== undefined && x.spends !== true) note(piece, `${label}spends is true (it takes the thing from you) or left out, not ${JSON.stringify(x.spends)}`, effect);
+    if (x.lacking !== undefined && !isLine(x.lacking)) note(piece, `${label}lacking is the line said when you don't hold it, not ${JSON.stringify(x.lacking)}`, effect);
+    for (const k of ["spends", "lacking"]) if (x[k] !== undefined && x.requires === undefined) note(piece, `${label}${k} goes with requires`, effect);
+  };
+
   // Conditions written wrongly (an operator the engine doesn't know, a list that isn't one): each is a finding, so the set
   // is refused (or the world warned of) and play never meets it. `label` says where they are.
   const wellFormed = (piece, list, effect, label) => { for (const why of conditionProblems(list)) note(piece, `${label}: ${why}`, effect); };
@@ -458,6 +477,8 @@ export function checkSet(state, set) {
     conditions(piece, r.if, r);
     if (!Array.isArray(r.do)) note(piece, "do must be a list of effects: [ { say: … }, … ]", r);
     if (r.when !== undefined && !["action", "every", "at"].includes(r.when)) note(piece, `when is action, every or at, not ${JSON.stringify(r.when)}`, r);
+    if (r.again !== undefined && !isLine(r.again)) note(piece, `again is the line said once the rule's one time is used (a line, or a list of lines), not ${JSON.stringify(r.again)}`, r);
+    else if (r.again !== undefined && (r.once !== true || (r.when ?? "action") !== "action")) note(piece, "again is for a rule of your commands that is once: true (the line it says from the second time)", r);
     if (r.when === "every") {
       const gap = isObject(r.every) ? r.every.seconds ?? r.every.turns : undefined;
       const one = isObject(r.every) && Object.keys(r.every).filter(k => k === "seconds" || k === "turns").length === 1;
@@ -478,6 +499,7 @@ export function checkSet(state, set) {
       for (const [dir, x] of Object.entries(isObject(t.exits) ? t.exits : {})) {   // an exit with a condition: its fields and references
         if (!isExitObject(x)) continue;
         fields(piece, x, FIELDS.exit, `exit ${dir}`, null, t);
+        paying(piece, `exit ${dir}: `, x, t);
         marks(piece, `exit ${dir}`, dir, x, t);                  // marked as the way in / out of a place: true, on a direction
         if (typeof x.if !== "boolean") wellFormed(piece, exitConditions(x) ?? [], t, `exit ${dir}: if`);
         conditions(piece, exitConditions(x) ?? [], t);
@@ -489,9 +511,51 @@ export function checkSet(state, set) {
       if (isObject(t.picture)) fields(piece, t.picture, FIELDS.picture, "picture", null, t);
     } else {
       fields(piece, t.words, FIELDS.words, "words", null, t);
+      // `proper` and `open` take only their values: anything else is refused, a world's set too (the one check for them)
       if (isObject(t.words) && t.words.proper !== undefined && t.words.proper !== true)   // the mark is there or not: only true
-        note(piece, `words: proper is true (a proper name, said as written with no article), not ${JSON.stringify(t.words.proper)}`, t);
+        note(piece, `words: proper is true (a proper name, said as written with no article), not ${JSON.stringify(t.words.proper)}`, t, true);
+      if (t.droppable !== undefined && t.droppable !== false)   // the mark is there or not: only false (everything else can be dropped)
+        note(piece, `droppable is false (it can't be dropped or put away), not ${JSON.stringify(t.droppable)}; leave it out for a thing that can`, t);
+      if (t.open !== undefined && ![true, false, "always"].includes(t.open))   // open, shut, or open for good (no lid)
+        note(piece, `open is true, false or "always" (open for good: a boat, a bin, a slot), not ${JSON.stringify(t.open)}`, t, true);
       fields(piece, t.lock, FIELDS.lock, "lock", null, t);
+      if (t.door !== undefined && (typeof t.door !== "string" || !DIRECTIONS.includes(t.door)))   // a door is on a way: a direction
+        note(piece, `door is the direction the door is on (${DIRECTIONS.join(" ")}), not ${JSON.stringify(t.door)}`, t);
+      if (t.door !== undefined && t.leads !== undefined)         // a thing is a door or a way you climb or walk into, not both
+        note(piece, `a thing has door (a door, gate or hatch on that way) or leads (stairs, a shop front, a cave), not both`, t);
+      if (t.shut !== undefined && (typeof t.shut !== "string" || !t.shut.trim()))   // a line, said when you go that way while the door is locked
+        note(piece, `shut is the line said when you go that way while the door is locked, not ${JSON.stringify(t.shut)}`, t);
+      else if (t.shut !== undefined && t.door === undefined && t.leads === undefined)
+        note(piece, `shut is for a door (or a thing that leads): the line said when you go that way while it is locked`, t);
+      if (t.pair !== undefined && (typeof t.pair !== "string" || !t.pair.trim()))
+        note(piece, `pair is the id of the door on the other side, not ${JSON.stringify(t.pair)}`, t);
+      else if (t.pair !== undefined && t.door === undefined)
+        note(piece, `pair links two doors: this thing needs a door (the direction it is on)`, t);
+      if (t.shape !== undefined && !(typeof t.shape === "string" && t.shape.trim()) && !(Array.isArray(t.shape) && t.shape.length && t.shape.every(x => typeof x === "string" && x.trim())))
+        note(piece, `shape is the id of the shape (or a list of ids) its home room's picture draws it with, not ${JSON.stringify(t.shape)}`, t);
+      if (t.consumable !== undefined && t.consumable !== true)   // the mark is there or not: only true
+        note(piece, `consumable is true (it is eaten or drunk, and used up), not ${JSON.stringify(t.consumable)}; leave it out for a thing that isn't`, t);
+      if (t.heals !== undefined && !(Number.isInteger(t.heals) && t.heals >= 1 && t.heals <= 5))
+        note(piece, `heals is how much eating or drinking it heals, a whole number from 1 to 5, not ${JSON.stringify(t.heals)}`, t);
+      for (const k of ["starts", "stops"]) if (t[k] !== undefined && !(typeof t[k] === "string" && t[k].trim()))
+        note(piece, `${k} is the id of the condition eating or drinking it ${k === "starts" ? "starts" : "ends"}, not ${JSON.stringify(t[k])}`, t);
+      for (const k of ["heals", "starts", "stops"]) if (t[k] !== undefined && t.consumable !== true)
+        note(piece, `${k} is what a consumable thing does when it is eaten or drunk: it needs consumable: true`, t);
+      if (t.from !== undefined && !(typeof t.from === "string" && t.from.trim()))
+        note(piece, `from is the id of the person or thing it comes from, not ${JSON.stringify(t.from)}`, t);
+      if (t.times !== undefined && !(Number.isInteger(t.times) && t.times >= 1))
+        note(piece, `times is how many times it comes from its source, a whole number from 1, not ${JSON.stringify(t.times)}`, t);
+      if (t.daily !== undefined && t.daily !== true)   // the mark is there or not: only true
+        note(piece, `daily is true (its times count afresh each day), not ${JSON.stringify(t.daily)}; leave it out for a thing that doesn't`, t);
+      const SAID = { brought: "the line said as it comes (a list: one each time, in order)", again: "the line said when it can't come any more",
+        already: "the line said when it is asked for while the last one is still there (in front of you, or yours)" };
+      for (const k of ["brought", "again", "already"]) if (t[k] !== undefined && !isLine(t[k]))
+        note(piece, `${k} is ${SAID[k]}, not ${JSON.stringify(t[k])}`, t);
+      for (const k of ["brought", "again", "already", "times", "daily", "if"]) if (t[k] !== undefined && t.from === undefined)
+        note(piece, `${k} is for a thing that comes from someone or something: it needs from`, t);
+      if (t.if !== undefined) { wellFormed(piece, t.if, t, "if"); conditions(piece, t.if, t); }
+      paying(piece, "", t, t);
+      if (t.requires !== undefined && t.from === undefined) note(piece, `requires is for a thing that comes from someone or something (it needs from), or for a way`, t);
       for (const p of Array.isArray(t.parts) ? t.parts : []) fields(piece, p, FIELDS.part, "part", null, t);
       for (const [key, topic] of Object.entries(isObject(t.topics) ? t.topics : {})) if (isObject(topic)) fields(piece, topic, FIELDS.topic, `topic "${key}"`, null, t);
     }

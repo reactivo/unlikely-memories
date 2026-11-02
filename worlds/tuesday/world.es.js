@@ -38,7 +38,7 @@ const holding = (id) => ({ [id + ".at"]: "player" });
 const notAsking = { "$topic": null };
 const hours = (from, to) => ({ "time.hour": { between: [from, to] } });
 const notHours = (from, to) => ({ "time.hour": { between: [to, from] } });   // las demás horas del día
-const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
+const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- Textos que cambian -------------------------------------------------------------------------------------------------
 const squareDusk = [
@@ -77,7 +77,6 @@ const rooms = {
       { words: ["banco", "asiento", "farola", "andén", "anden", "apeadero", "cartel", "letrero", "nombre", "plataforma"], name: "el apeadero", says: "Un banco, una farola, un cartel con el nombre. Alguien ha pintado el banco desde que cerraron la línea, y no hace mucho." },
       { words: ["horario", "tren", "línea", "linea", "vía", "via", "vías", "vias", "raíles", "railes", "carriles"], name: "el horario", says: "Un tren a la semana, hacia un lugar cuyo nombre han raspado del cartel y vuelto a escribir a lápiz: Martes." }
     ],
-    mentions: ["banco", "farola", "cartel", "horario", "puerta del vagón"],
     ambience: { lines: ["La farola sobre el banco zumba una nota y la sostiene.", "Un hilo del telégrafo hace tic, una sola vez, como un reloj que se lo está pensando.", "Muy lejos, línea abajo, algo que no es un tren hace sonar su silbato y se arrepiente.", "El cartel con el nombre gira un poco con el viento, y vuelve a su sitio."], every: [30, 70] },
     alt: "Un pequeño apeadero al anochecer: un andén con un banco y una farola, un cartel con el nombre y, al fondo, un único vagón iluminado con la puerta abierta.",
     overlayAlt: {
@@ -93,7 +92,6 @@ const rooms = {
     exits: { e: "station_hall" },
     scenery: [{ words: ["estanterías", "estanterias", "estantería", "estanteria", "estantes", "paraguas", "guantes", "jaula", "vestido", "novia", "caja", "etiquetas", "fechas"], name: "las estanterías", says: "Cosas que la gente dejó de buscar. Cada una tiene una etiqueta, y cada etiqueta una fecha. Ninguna fecha es un lunes posterior al decreto." },
               { words: ["mostrador"], name: "el mostrador", says: "Un mostrador largo, gastado donde se ha apoyado un siglo de reclamantes." }],
-    mentions: ["estanterías", "jaula", "mostrador", "señor Ambrose", "libro de registro", "cajón"],
     alt: "Una sala larga de estanterías atestadas de paraguas, cajas y una jaula. Un mostrador con un libro de registro y un viejo empleado; un cajón húmedo junto a la pared."
   },
   station_hall: {
@@ -106,7 +104,7 @@ const rooms = {
     exits: { n: "platform", s: { to: "square", out: true }, w: "lost_property", e: "waiting_room" },
     waitFor: { time: "next 21:00", says: "Esperas bajo el reloj. No miente en ningún minuto.", if: [hours(6, 21)] },
     scenery: [{ words: ["techo", "cristal", "azulejos", "azulejo", "vestíbulo", "vestibulo", "palomas", "paloma"], name: "el vestíbulo", says: "Azulejos verdes y crema, y un cristal tan alto que las palomas de debajo parecen pensamientos." }],
-    mentions: ["reloj", "calendario", "decreto", "ventanilla", "reja", "postigo", "horario", "techo"],
+    mentions: ["reloj", "reja", "postigo"],
     alt: "Un vestíbulo de estación con azulejos verdes y crema bajo un techo de cristal. Un gran reloj con un calendario debajo y un aviso enmarcado. A la derecha, una ventanilla de billetes con reja de latón; en la pared de la izquierda, un horario."
   },
   waiting_room: {
@@ -118,7 +116,7 @@ const rooms = {
     ],
     exits: { w: "station_hall" },
     scenery: [{ words: ["bancos", "banco", "estufa", "carteles", "cartel", "balnearios"], name: "la sala de espera", says: "La estufa lleva mucho tiempo fría. Los carteles prometen aire de mar, aire de montaña, cualquier aire menos este." }],
-    mentions: ["bancos", "estufa", "carteles", "fotomatón", "cortina", "señora Oduya", "maleta"],
+    mentions: ["cortina", "maleta"],
     alt: "Una sala de espera en penumbra, con bancos de madera y una estufa negra. Una anciana sentada con una maleta sobre las rodillas. Un fotomatón con la cortina echada en un rincón."
   },
   platform: {
@@ -130,7 +128,7 @@ const rooms = {
     exits: { s: "station_hall", e: "platform_end", w: "signal_box", n: true },
     scenery: [{ words: ["raíles", "railes", "riel", "rieles", "vía", "via", "vías", "vias", "línea", "linea", "carriles", "marquesina", "túnel", "tunel"], name: "la vía", says: "Una sola vía, pulida por un solo tren, que va en un solo sentido." },
               { words: ["caseta", "casilla", "garita", "señales", "senales", "pilotes"], name: "la caseta de señales", says: "Una caja de madera sobre pilotes, toda ventanas, al oeste del andén. Alguien dentro vigila la vía." }],
-    mentions: ["banco", "caseta de señales", "panel de horarios", "raíles", "marquesina", "túnel"],
+    mentions: ["caseta de señales"],
     // Vale la pena esperar mientras el tren no está; cuando ya ha estado, las palabras cambian (train_out).
     waitFor: { time: "next 23:30", says: "Esperas en el andén. Las horas vuelven como vuelven los trenes, todas de golpe.", if: [{ "train.at": { "!=": "platform" } }] },
     alt: "Un único andén bajo una marquesina de hierro, con un banco y un panel de horarios colgado. Los raíles se curvan al este hacia un túnel; al oeste hay una caseta de señales."
@@ -143,7 +141,6 @@ const rooms = {
     ],
     exits: { w: "platform", e: true },
     scenery: [{ words: ["cartel", "rampa", "raíles", "railes", "hombre"], name: "el cartel", says: "Nadie puede ir más allá. El cartel lo dice sin palabras, y por eso sabes que va en serio." }],
-    mentions: ["cartel", "túnel", "raíles"],
     alt: "El final de un andén que baja en rampa hacia los raíles, los cuales se pierden en la boca oscura de un túnel. Un cartel de advertencia en un poste."
   },
   signal_box: {
@@ -154,7 +151,6 @@ const rooms = {
     ],
     exits: { e: { to: "platform", out: true } },
     scenery: [{ words: ["palancas", "palanca", "ventanas", "ventana", "pilotes", "escalones"], name: "las palancas", says: "Más altas que tú, pulidas en la empuñadura, y no te toca tirar de ellas." }],
-    mentions: ["palancas", "guardagujas", "esquema", "ventanas"],
     alt: "El interior de una caseta de señales: una hilera de palancas altas, ventanas por todas partes, un hombre en mangas de camisa con una mano en una palanca y un esquema de una sola línea en la pared."
   },
   square: {
@@ -162,7 +158,7 @@ const rooms = {
     describe: squareDusk,
     exits: { n: "station_hall", w: "hotel", e: { to: "cafe", if: hours(7, 22), closed: "El café está a oscuras, con las sillas sobre las mesas. Un cartel en la puerta: DE 7 A 22." }, s: "high_street" },
     scenery: [{ words: ["farolas", "farola", "escalera", "adoquines", "palomas", "sombrero", "farolero"], name: "las farolas", says: "Farolas de hierro con sombreritos de cristal. Alguien las enciende a las ocho, y también la que está bajo el agua de la fuente." }],
-    mentions: ["fuente", "estatua", "farolas", "escalera"],
+    mentions: ["estatua"],
     // Vale la pena esperar desde las siete de la mañana hasta que se encienden las farolas, a las ocho; desde la primera mañana las palabras cambian (daybreak).
     waitFor: { time: "next 20:00", says: "Esperas junto a la fuente mientras se va la luz.", if: [hours(7, 20)] },
     alt: "Una plaza empedrada al anochecer: una fuente redonda con la estatua de un hombre de chistera, farolas de hierro todavía apagadas y una escalera apoyada en una. Al norte la fachada de la estación, a la izquierda un hotel, a la derecha un café de ventanas amarillas."
@@ -177,7 +173,6 @@ const rooms = {
       closed: "El conserje carraspea. «Las habitaciones son para los huéspedes», dice. «Los huéspedes las piden.»" } },
     scenery: [{ words: ["mostrador", "periódico", "periodico", "vestíbulo", "vestibulo", "col", "cera", "recepción", "recepcion"], name: "el vestíbulo", says: "Latón, cera, un timbre que nadie toca. El periódico es el del sábado; los domingos no hay periódico, y tampoco hay lunes." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera estrecha que sube a las habitaciones.", leads: "u" }],
-    mentions: ["conserje de noche", "periódico", "escalera", "mostrador"],
     alt: "Un vestíbulo de hotel estrecho con un mostrador de madera, un hombre leyendo el periódico tras él, ganchos con llaves en la pared y una escalera que sube a la derecha."
   },
   hotel_room: {
@@ -189,7 +184,6 @@ const rooms = {
     exits: { d: "hotel" },
     scenery: [{ words: ["lavabo", "palangana", "jarra", "ventana", "vías", "vias", "raíles", "railes"], name: "la ventana", says: "Desde aquí ves la línea y el túnel en el que desaparece. De noche el túnel respira." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera estrecha que baja al vestíbulo.", leads: "d" }],
-    mentions: ["cama", "lavabo", "ventana", "escalera"],
     alt: "Una pequeña habitación de hotel: una cama de hierro abierta, un lavabo con una jarra, una ventana que da a las vías del tren."
   },
   cafe: {
@@ -200,7 +194,6 @@ const rooms = {
     ],
     exits: { w: { to: "square", out: true } },
     scenery: [{ words: ["mesas", "mesa", "barra", "zinc", "radio", "vals", "sillas"], name: "el café", says: "El vals termina y vuelve a empezar sin una pausa, como alguien a quien nunca han interrumpido." }],
-    mentions: ["mesas", "barra", "radio", "Inés", "pizarra"],
     alt: "Un pequeño café con mesas redondas, una barra de zinc y una radio en un estante. Una mujer limpia la barra. Una pizarra de tiza con la carta en la pared. Luz amarilla y cálida."
   },
   high_street: {
@@ -213,7 +206,6 @@ const rooms = {
     scenery: [{ words: ["tiendas", "tienda", "persianas", "mercería", "merceria", "farmacia", "calendarios", "calendario"], name: "las tiendas", says: "En el escaparate de la tienda de calendarios hay calendarios de seis días por semana. Se venden bien." },
               { words: ["ayuntamiento", "columnas", "escalones", "escalinata"], name: "el ayuntamiento", says: "Columnas, escalones y puertas que cumplen horario de oficina. La placa de latón lo da.", leads: "w" },
               { words: ["relojería", "relojeria", "relojes", "escaparate", "esferas"], name: "la relojería", says: "Un escaparate lleno de relojes, cada uno con una hora distinta, y todos en lo cierto en algún sitio.", leads: "e" }],
-    mentions: ["tiendas", "ayuntamiento", "placa", "relojería", "calendarios"],
     waitFor: { time: "next 09:00", says: "Te sientas en los escalones del ayuntamiento. La noche pasa sin ninguna prisa. A las nueve un empleado abre las puertas, te mira y decide no preguntar.", if: [notHours(9, 17)] },
     alt: "Una calle de tiendas con las persianas bajadas. A la izquierda, un ayuntamiento con columnas y una placa de latón junto a la puerta; a la derecha, el escaparate de una relojería lleno de esferas de reloj."
   },
@@ -226,7 +218,6 @@ const rooms = {
     exits: { e: { to: "high_street", out: true }, u: "archive" },
     scenery: [{ words: ["escalera", "escaleras", "archivo"], name: "la escalera", says: "Una escalera de mármol, gastada en el centro, que sube al archivo.", leads: "u" },
               { words: ["ventanillas", "ventanilla", "mostradores", "mostrador", "mármol", "marmol", "cartel", "carteles", "quejas", "trámite", "tramite"], name: "las ventanillas", says: "Cada ventanilla tiene un timbre y un cartelito. MATRIMONIOS. DEFUNCIONES. TIEMPO. El timbre de QUEJAS se lo han llevado." }],
-    mentions: ["ventanillas", "cartel", "archivo"],
     alt: "Un vestíbulo de mármol con una larga hilera de ventanillas vacías, una escalera que sube a la izquierda y dos carteles sobre pies."
   },
   archive: {
@@ -238,7 +229,6 @@ const rooms = {
     exits: { d: "town_hall" },
     scenery: [{ words: ["estanterías", "estanterias", "estantería", "estanteria", "registros", "registro", "libros", "polvo", "ventana", "mesa"], name: "las estanterías", says: "Cada año del pueblo, encuadernado y en orden. A las encuadernaciones les falta un día a la semana, y los huecos están tapados con cinta." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera de mármol que baja al vestíbulo.", leads: "d" }],
-    mentions: ["estanterías", "registros", "archivera", "mesa", "ventana", "escalera"],
     alt: "Una sala de estanterías altas llenas de registros encuadernados. Una mujer con una rebeca gris en una mesa bajo una ventana, con una lámpara a su lado."
   },
   clock_shop: {
@@ -250,7 +240,7 @@ const rooms = {
     exits: { w: { to: "high_street", out: true } },
     scenery: [{ words: ["mostrador", "banco", "pinzas"], name: "el mostrador" },
               { words: ["relojes", "paredes", "tictac", "lupa", "esferas"], name: "los relojes", says: "Laten a velocidades distintas. Juntos suenan como una lluvia que no se decide." }],
-    mentions: ["relojes", "relojero", "lupa", "reloj del revés", "mostrador"],
+    mentions: ["reloj del revés"],
     alt: "Una tienda pequeña atestada de relojes de todos los tamaños en las paredes. Un anciano en un banco con una lupa de joyero; sobre el mostrador, un reloj con las manecillas girando al revés."
   },
   park: {
@@ -265,7 +255,6 @@ const rooms = {
       { words: ["quiosco", "banda", "atriles", "batuta"], name: "el quiosco de música", says: "Atriles plegados. Alguien ha dejado una batuta de director en la barandilla, apuntando a nada." },
       { words: ["seto", "semana", "día", "dia", "forma"], name: "el seto", says: "Siete bloques verdes, luego seis. El jardinero cuida el hueco con el mismo esmero que el resto." }
     ],
-    mentions: ["caminos", "quiosco", "seto"],
     ambience: { lines: ["Un búho dice una palabra y se lo piensa mejor antes de la segunda.", "La grava cruje, aunque nadie la pisa.", "A lo lejos, en el túnel, algo canturrea una nota y la sostiene."],
                 if: [hours(20, 7)] },
     alt: "Un pequeño parque: caminos de grava, un quiosco de música redondo y vacío, un largo seto recortado en bloques con un solo hueco. Árboles detrás."
@@ -276,9 +265,8 @@ const rooms = {
       "Una capilla pequeña y fría, con un cementerio de {lápidas|gravestones} sencillas tras unas puertas de cristal. Cada lápida lleva una fecha y nada más. Todas las fechas son lunes.",
       "El parque queda al este."
     ],
-    exits: { e: { to: "park", out: true } },
+    exits: { e: "park" },
     scenery: [{ words: ["puertas", "puerta", "cristal", "capilla", "cementerio", "bancos"], name: "la capilla", says: "Bancos fríos, olor a cera. Las puertas de cristal del cementerio no están cerradas con llave; nadie viene." }],
-    mentions: ["lápidas", "puertas", "cementerio"],
     alt: "El interior de una capilla pequeña y fría: bancos sencillos y, a través de altas puertas de cristal, un cementerio de lápidas pequeñas e iguales."
   },
   pond: {
@@ -289,7 +277,6 @@ const rooms = {
     ],
     exits: { w: "park" },
     scenery: [{ words: ["borde", "piedra", "pueblo"], name: "el borde" }],
-    mentions: ["estanque", "borde", "pueblo"],
     alt: "Un estanque redondo con un borde de piedra, que refleja cabeza abajo los tejados y la torre del reloj de la estación."
   },
   compartment: {
@@ -300,7 +287,7 @@ const rooms = {
     ],
     exits: { e: "dining_car", s: "platform" },
     scenery: [{ words: ["asientos", "asiento", "felpa", "redecilla", "portaequipajes", "equipaje", "cartel", "martes"], name: "el compartimento", says: "Los asientos recuerdan a otras personas. El cartel dice MARTES y, debajo, más pequeño: NO SE EXPIDEN BILLETES DE VUELTA." }],
-    mentions: ["asientos", "redecilla", "ventanilla", "cartel", "correa"],
+    mentions: ["correa"],
     waitFor: { time: "next 23:40", says: "Te sientas. El asiento está caliente. Por todo el tren se cierran puertas, una tras otra, como una frase al acabar." },
     alt: "El interior de un compartimento de tren: asientos de felpa verde, una redecilla para el equipaje, una ventanilla con una correa de cuero, un cartelito en la pared."
   },
@@ -312,7 +299,6 @@ const rooms = {
     ],
     exits: { w: "compartment" },
     scenery: [{ words: ["manteles", "mantel", "mesas", "mesa", "lámpara", "lampara", "lámparas", "lamparas", "cubiertos", "cubierto", "comida"], name: "las mesas", says: "Cada cubierto lleva una carta. Bajo MARTES hay una lista de platos y, bajo LUNES, una raya." }],
-    mentions: ["manteles", "lámpara", "revisor", "mesas"],
     alt: "Un coche comedor de tren: manteles blancos, pequeñas lámparas en cada mesa y un revisor de uniforme al fondo con una libreta."
   }
 };
@@ -320,19 +306,19 @@ const rooms = {
 // ---- Objetos ---------------------------------------------------------------------------------------------------------------
 const objects = {
   // La apertura: la cosa que se coge, la que llevas, y el camino (BRIEF.md §3).
-  tin: { at: "halt", portable: true, name: "Lata de cacao", note: "Alguien al otro lado.", actions: ["Coger lata", "Escuchar lata"], heldActions: ["Escuchar lata", "Examinar lata"],
+  tin: { at: "halt", portable: true, name: "Lata de cacao", note: "Alguien al otro lado.",
     words: { nouns: ["lata", "cordel", "cuerda", "cacao", "bote"], adj: ["cacao", "fría", "fria", "larga"], g: "f" }, ...item("tin"),
     here: "Sobre el banco, una {lata|tin} de cacao tiende su cordel más allá del borde del andén.",
     examine: "Una lata de cacao con un agujero en el fondo y un cordel que sale de él, a lo largo del andén y por el borde hacia la oscuridad. El cordel está tenso, como si hubiera algo en el otro extremo." },
-  diary_leaf: { at: "player", portable: true, name: "Página de agenda", note: "Rayada para una semana.", actions: ["Leer página"], heldActions: ["Leer página"],
+  diary_leaf: { at: "player", portable: true, name: "Página de agenda", note: "Rayada para una semana.",
     words: { nouns: ["página", "pagina", "agenda", "diario"], adj: ["hoja", "doblada", "amarilla", "rayada"], g: "f" }, ...item("diary_leaf"),
     examine: "Una página de agenda, rayada para una semana. El domingo y el martes están escritos, de tu puño y letra; donde debería estar el lunes hay un hueco limpio y cuidadoso, frotado hasta gastar el papel." },
-  carriage_door: { at: "halt", scenery: true, name: "Puerta del vagón", note: "Abierta, esperando.", actions: ["Examinar puerta", "Entrar vagón"],
+  carriage_door: { at: "halt", name: "Puerta del vagón", note: "Abierta, esperando.",
     words: { nouns: ["vagón", "vagon", "puerta", "coche"], adj: ["abierta", "única", "unica", "verde"], g: "f" },
     examine: "Un vagón verde, uno solo, con la puerta abierta y un escalón hasta la grava. La luz de dentro es la amarilla de una habitación de la que alguien acaba de levantarse." },
 
   // Objetos perdidos
-  ambrose: { at: "lost_property", scenery: true, name: "Señor Ambrose", note: "El empleado de objetos perdidos.", actions: ["Hablar con Ambrose"],
+  ambrose: { at: "lost_property", name: "Señor Ambrose", note: "El empleado de objetos perdidos.",
     words: { nouns: ["ambrose", "señor", "senor", "empleado", "hombre"], adj: ["viejo", "pequeño", "pequeno", "don"], g: "m" },
     examine: "Un hombre pequeño con manguitos. Te mira como si intentara recordar dónde te dejaron.",
     talk: ["«¿Has perdido algo?», dice. «Todo el mundo. Di qué, y lo busco en el libro.»", "«Descríbelo», dice, «y si es tuyo, él lo sabrá.»"],
@@ -343,15 +329,15 @@ const objects = {
       sea: { about: "sea_crate", label: "cajón", words: ["mar", "cajón", "cajon"], says: "«Alguien lo perdió hace años. Gotea. Le pongo un cubo debajo los jueves.»" },
       default: "Pasa una hoja del libro, no encuentra nada y la devuelve a su sitio."
     } },
-  ledger: { at: "lost_property", scenery: true, name: "Libro de registro", note: "Todo lo perdido, en orden.", opens: ["monday", "umbrella"],
+  ledger: { at: "lost_property", name: "Libro de registro", note: "Todo lo perdido, en orden.", opens: ["monday", "umbrella"],
     words: { nouns: ["libro", "registro"], adj: ["grande", "negro"], g: "m" },
     examine: "Columnas de cosas perdidas. Hacia el final, con la misma letra paciente: «Un paraguas, gris. Dejado un lunes. Sin reclamar». Al lado, el nombre del dueño se ha corrido con la lluvia, en una letra que es la tuya.",
-    parts: [{ words: ["columnas", "columna", "letra", "anotación", "anotacion", "anotaciones", "entradas"], name: "las anotaciones" }], mentions: ["paraguas", "columnas"] },
-  umbrella: { at: "lost_property", portable: false, unnoticed: true, name: "Paraguas gris", note: "Tuyo, según la etiqueta.", actions: ["Examinar paraguas"], heldActions: ["Examinar paraguas", "Dar paraguas a archivera"],
+    parts: [{ words: ["columnas", "columna", "letra", "anotación", "anotacion", "anotaciones", "entradas"], name: "las anotaciones" }], mentions: ["columnas"] },
+  umbrella: { at: "lost_property", portable: false, unnoticed: true, name: "Paraguas gris", note: "Tuyo, según la etiqueta.", heldActions: ["Dar paraguas a archivera"],
     words: { nouns: ["paraguas"], adj: ["gris"], g: "m" }, ...item("umbrella"),
     examine: "Un paraguas gris con mango de madera y una etiqueta de papel. Huele a la última lluvia del último lunes.",
     parts: [{ words: ["etiqueta", "mango"], name: "la etiqueta", says: "Un nombre, corrido por la lluvia. Con tu letra, aunque no recuerdas haberlo escrito." }], mentions: ["etiqueta", "mango"] },
-  sea_crate: { at: "lost_property", scenery: true, name: "Cajón", note: "MAR, UNO, SIN RECLAMAR.", actions: ["Escuchar cajón", "Abrir cajón"],
+  sea_crate: { at: "lost_property", name: "Cajón", note: "MAR, UNO, SIN RECLAMAR.", actions: ["Abrir cajón"],
     words: { nouns: ["cajón", "cajon", "mar"], adj: ["húmedo", "humedo", "mojado", "madera"], g: "m" },
     examine: "Un cajón de madera, rotulado con plantilla: MAR, UNO, SIN RECLAMAR. El agua perla sus junturas y corre, despacio, hacia tus pies.",
     listen: "Dentro, muy pequeñas, las olas se dan la vuelta mientras duermen.",
@@ -359,45 +345,45 @@ const objects = {
     parts: [{ words: ["junturas", "juntura", "agua", "tapa", "clavos", "plantilla"], name: "las junturas", says: "Agua salada. Te encuentra los pies cada vez, como si tuviera adónde ir." }], mentions: ["junturas", "agua", "tapa"] },
 
   // Vestíbulo
-  station_clock: { at: "station_hall", scenery: true, name: "Reloj de la estación", note: "No miente en ningún minuto.", actions: ["Examinar reloj"],
+  station_clock: { at: "station_hall", name: "Reloj de la estación", note: "No miente en ningún minuto.",
     words: { nouns: ["reloj"], adj: ["estación", "estacion", "grande", "honrado", "sincero"], g: "m" },
     examine: "Un reloj grande y sencillo. Marca [time]. El pueblo lleva sus horas por él, y las lleva bien." },
-  calendar: { at: "station_hall", scenery: true, name: "Calendario", note: "Arrancado hasta el domingo.", actions: ["Examinar calendario"], opens: ["monday"],
+  calendar: { at: "station_hall", name: "Calendario", note: "Arrancado hasta el domingo.", opens: ["monday"],
     words: { nouns: ["calendario", "almanaque", "taco", "hojas"], adj: ["pared"], g: "m" },
     examine: "Un calendario de hojas que marca DOMINGO. Entre la hoja del domingo y la siguiente, la del martes, queda el resto de una que arrancaron, y un poco de cola, todavía pegajosa.",
     parts: [{ words: ["cola", "pegamento", "resto", "hueco"], name: "el hueco", says: "Sitio para una hoja. La cola sigue pegajosa, después de tantos años." }], mentions: ["hueco", "cola"] },
-  decree: { at: "station_hall", scenery: true, name: "Decreto", note: "Enmarcado y firmado.", opens: ["monday"],
+  decree: { at: "station_hall", name: "Decreto", note: "Enmarcado y firmado.", opens: ["monday"],
     words: { nouns: ["decreto", "aviso", "marco", "cuadro"], adj: ["enmarcado"], g: "m" },
     examine: "«Por decreto: queda abolido el lunes en este pueblo, con efecto desde el próximo. El último lunes se guardará en el ayuntamiento, por si acaso.» Firmado por el Ministro, con una rúbrica que se alarga demasiado.",
     parts: [{ words: ["rúbrica", "rubrica", "firma", "ministro"], name: "la firma" }], mentions: ["firma"] },
-  window: { at: "station_hall", scenery: true, name: "Ventanilla de billetes", note: "Billetes desde las nueve de la noche.", actions: ["Examinar ventanilla", "Comprar billete"],
+  window: { at: "station_hall", name: "Ventanilla de billetes", note: "Billetes desde las nueve de la noche.",
     words: { nouns: ["ventanilla", "taquilla", "reja", "rejilla", "postigo", "cartel", "tarjeta"], adj: ["billetes", "billete", "latón", "laton"], g: "f" },
     examine: "Una reja de latón, un postigo y un cartel: BILLETES DESDE LAS 21:00. UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA.",
     mentions: ["reja", "postigo", "cartel"] },
-  booking_clerk: { at: null, scenery: true, name: "Taquillera", note: "Tras la reja.", actions: ["Comprar billete"],
+  booking_clerk: { at: null, name: "Taquillera", note: "Tras la reja.",
     words: { nouns: ["taquillera", "mujer", "empleada"], adj: ["billetes", "billete"], g: "f" },
     examine: "Una mujer con un sacabocados y ninguna expresión de sobra.",
     here: "El postigo está levantado. Tras la reja, la {taquillera|booking_clerk} espera con su sacabocados.",
     talk: "«Un viaje, una moneda», dice. «De las antiguas. Martes es el único sitio al que vamos.»",
     topics: { coin: { about: "window", label: "monedas", words: ["moneda", "monedas", "dinero", "precio", "tarifa", "viaje"], says: "«De las antiguas. Dejaron de acuñarlas cuando dejaron de hacer lunes. La gente las tiraba a la fuente de la plaza, para dar suerte.»" },
               default: "«Billetes», dice, como si eso fuera la respuesta." } },
-  timetable: { at: "station_hall", scenery: true, name: "Horario", note: "Un solo tren.",
+  timetable: { at: "station_hall", name: "Horario", note: "Un solo tren.",
     words: { nouns: ["horario", "pared"], adj: [], g: "m" },
     examine: "Una pared entera de horario para una sola línea: MARTES, SALIDA 23:40, DIARIO. El tren llega diez minutos antes. Bajo REGRESOS, alguien ha pintado una raya limpia." },
 
   // Sala de espera
-  booth: { at: "waiting_room", scenery: true, name: "Fotomatón", note: "Con la cortina echada.", actions: ["Entrar en fotomatón"],
+  booth: { at: "waiting_room", name: "Fotomatón", note: "Con la cortina echada.",
     words: { nouns: ["fotomatón", "fotomaton", "cabina", "cortina"], adj: ["foto", "fotográfica", "fotografica"], g: "m" }, enterable: "in",
     enter: "Corres la cortina y te sientas en el taburete. Hay un botón y un espejo que anda un poco retrasado.",
     examine: "Un fotomatón con un taburete y un botón rojo. Un cartel avisa de que revela las fotos de MAÑANA, NO SE ADMITEN DEVOLUCIONES.",
     parts: [{ words: ["taburete", "espejo", "cartel", "aviso"], name: "el espejo", says: "Tu cara llega a él un instante después que tú." }],
-    mentions: ["taburete", "botón", "cartel"] },
-  button: { at: "booth", scenery: true, name: "Botón", note: "Rojo, gastado.", actions: ["Pulsar botón"],
+    mentions: ["taburete", "botón"] },
+  button: { at: "booth", name: "Botón", note: "Rojo, gastado.", actions: ["Pulsar botón"],
     words: { nouns: ["botón", "boton", "pulsador"], adj: ["rojo"], g: "m" }, examine: "Un botón rojo, gastado y pálido en el centro." },
-  photograph: { at: null, portable: true, name: "Fotografía", note: "De mañana, aún mojada.", actions: ["Examinar fotografía"],
+  photograph: { at: null, portable: true, name: "Fotografía", note: "De mañana, aún mojada.",
     words: { nouns: ["fotografía", "fotografia", "foto", "fotos", "tira"], adj: ["mojada", "húmeda", "humeda"], g: "f" }, ...item("photograph"),
     examine: "Una tira de cuatro fotografías, todavía mojada, a la luz del día: los escalones del ayuntamiento; luego una mujer con rebeca gris, arriba, en una ventana, enseñando una hoja de calendario que dice LUNES. En el último fotograma la coges tú." },
-  oduya: { at: "waiting_room", scenery: true, name: "Señora Oduya", note: "Esperando, con una maleta.", actions: ["Hablar con Oduya"],
+  oduya: { at: "waiting_room", name: "Señora Oduya", note: "Esperando, con una maleta.",
     words: { nouns: ["oduya", "señora", "senora", "mujer", "viajera", "anciana", "maleta"], adj: ["vieja", "mayor"], g: "f" },
     examine: "Una anciana pulcra con un sombrero cuya pluma se ha rendido. Su billete es para el de las ocho y doce a Lunes. Es muy antiguo.",
     talk: "«Espero al de las ocho y doce», dice. «Ya no circula. Soy muy paciente.»",
@@ -409,26 +395,26 @@ const objects = {
     } },
 
   // Andén
-  bench: { at: "platform", scenery: true, name: "Banco", note: "Para esperar.", actions: ["Sentarse en banco"], opens: ["monday"],
+  bench: { at: "platform", name: "Banco", note: "Para esperar.", opens: ["monday"],
     words: { nouns: ["banco", "asiento"], adj: ["madera"], g: "m" }, enterable: "on",
     examine: "Un banco con una placa de latón: EN MEMORIA DEL LUNES, QUE NOS TENÍA ENTRETENIDOS.",
     parts: [{ words: ["placa"], name: "la placa", says: "EN MEMORIA DEL LUNES, QUE NOS TENÍA ENTRETENIDOS." }], mentions: ["placa"] },
-  board: { at: "platform", scenery: true, name: "Panel de horarios", note: "Una sola línea.",
+  board: { at: "platform", name: "Panel de horarios", note: "Una sola línea.",
     words: { nouns: ["panel", "cuadro", "horario", "horarios"], adj: ["colgante"], g: "m" },
     examine: "MARTES, SALIDA 23:40. El tren llega diez minutos antes. Solo pasajeros con billete." },
-  train: { at: null, scenery: true, name: "Tren", note: "Para el martes.", actions: ["Subir al tren"],
+  train: { at: null, name: "Tren", note: "Para el martes.", actions: ["Subir al tren"],
     words: { nouns: ["tren", "vagón", "vagon", "vagones", "locomotora", "coche"], adj: ["martes", "noche", "verde"], g: "m" }, enterable: "in",
     examine: "Tres vagones verdes y una locomotora que respira vapor en bocanadas lentas y deliberadas. Todas las ventanillas están encendidas. Nadie mira hacia fuera.",
     here: "El {tren|train} está en el andén, respirando. Al norte, tiene las puertas abiertas." },
 
   // Final del andén
-  tunnel: { at: "platform_end", scenery: true, name: "Túnel", note: "Tibio. Zumbando.", actions: ["Escuchar túnel"],
+  tunnel: { at: "platform_end", name: "Túnel", note: "Tibio. Zumbando.",
     words: { nouns: ["túnel", "tunel", "boca", "oscuridad"], adj: ["tibio", "cálido", "calido"], g: "m" },
     examine: "Ladrillo, y luego nada. El aire tibio huele a hollín y a algo dulce, como un día que has estado esperando. La oscuridad de dentro se inclina hacia ti, y el zumbido se te mete en los dientes.",
     listen: "Un zumbido bajo y paciente. Suena como una multitud diciendo una palabra que aún no ha aprendido." },
 
   // Caseta de señales
-  signalman: { at: "signal_box", scenery: true, name: "Guardagujas", note: "La mano en la palanca.", actions: ["Hablar con guardagujas"],
+  signalman: { at: "signal_box", name: "Guardagujas", note: "La mano en la palanca.",
     words: { nouns: ["guardagujas", "señalero", "senalero", "hombre"], adj: [], g: "m" },
     examine: "Mangas de camisa, brazalete, un bigote adiestrado durante muchos años. No aparta la mano de la palanca.",
     talk: "«A las doce menos veinte», dice. «Todas las noches. Nunca he dejado salir tarde a la máquina.»",
@@ -438,25 +424,25 @@ const objects = {
       monday: { label: "lunes", words: ["lunes"], says: "«Antes salía el de las ocho y doce a Lunes. Yo mismo tiré de la palanca la última vez.» Se mira la mano." },
       default: "«No es de mi línea», dice. Lo dice con buena intención."
     } },
-  diagram: { at: "signal_box", scenery: true, name: "Esquema", note: "Un solo trazo.", actions: ["Examinar esquema"],
+  diagram: { at: "signal_box", name: "Esquema", note: "Un solo trazo.",
     words: { nouns: ["esquema", "plano", "trazo", "diagrama"], adj: [], g: "m" },
     examine: "Toda la línea, dibujada sobre esmalte: un solo trazo desde aquí hasta MARTES. Un segundo trazo, hacia LUNES, ha sido pintado encima con el mismo crema que la pared." },
 
   // Plaza
-  fountain: { at: "square", scenery: true, name: "Fuente", note: "Con monedas dentro.", actions: ["Examinar fuente", "Coger moneda"],
+  fountain: { at: "square", name: "Fuente", note: "Con monedas dentro.", actions: ["Coger moneda"],
     words: { nouns: ["fuente", "pilón", "pilon", "agua"], adj: ["piedra"], g: "f" },
     examine: "Un pilón de piedra con el agua quieta. En el fondo hay monedas, de una moneda que ya nadie usa. En el suelo del pilón hay empotrada una lamparita.",
     parts: [{ words: ["lámpara", "lampara", "lamparita", "fondo"], name: "la lámpara bajo el agua", says: "Una lámpara de latón en el fondo del pilón. Se enciende a las ocho, con las demás." }], mentions: ["monedas", "lámpara"] },
-  coin: { at: "fountain", portable: true, name: "Moneda antigua", note: "La moneda de antes.", actions: ["Examinar moneda"], heldActions: ["Examinar moneda", "Comprar billete"],
+  coin: { at: "fountain", portable: true, name: "Moneda antigua", note: "La moneda de antes.",
     words: { nouns: ["moneda", "monedas", "dinero", "pieza"], adj: ["antigua", "vieja", "pesada"], g: "f" }, ...item("coin"),
     examine: "Una moneda antigua y pesada. Por una cara, un perfil con los ojos cerrados. Por la otra, la semana, con sus siete días." },
-  statue: { at: "square", scenery: true, name: "Estatua", note: "El Ministro.", actions: ["Examinar estatua"],
+  statue: { at: "square", name: "Estatua", note: "El Ministro.",
     words: { nouns: ["estatua", "ministro", "bronce"], adj: [], g: "f" },
     examine: "El Ministro que abolió los lunes, en bronce, con una mano en el corazón y la otra sosteniendo una pluma como un cuchillo. En el pedestal: NOS DEVOLVIÓ LOS DOMINGOS.",
     parts: [{ words: ["pedestal", "pluma", "mano"], name: "el pedestal" }], mentions: ["pedestal", "pluma"] },
 
   // Hotel
-  porter: { at: "hotel", scenery: true, name: "Conserje de noche", note: "Leyendo el sábado.", actions: ["Hablar con conserje"],
+  porter: { at: "hotel", name: "Conserje de noche", note: "Leyendo el sábado.",
     words: { nouns: ["conserje", "portero", "recepcionista"], adj: ["noche", "nocturno"], g: "m" },
     examine: "Un hombre largo, plegado tras un mostrador corto. Lee el mismo periódico todas las noches y sigue sorprendiéndose.",
     talk: "«¿Una habitación?», dice, sin levantar la vista. «Pídela, entonces.»",
@@ -465,15 +451,15 @@ const objects = {
       train: { open: true, words: ["tren", "martes"], says: "«Los huéspedes se van en el tren del martes. Dejan el equipaje. Está todo en el desván.»" },
       default: "«No sabría decirte», dice. «El periódico del sábado no lo menciona.»"
     } },
-  room_key: { at: null, portable: true, name: "Llave de la habitación", note: "La cuatro.", actions: ["Examinar llave"],
+  room_key: { at: null, portable: true, name: "Llave de la habitación", note: "La cuatro.",
     words: { nouns: ["llave", "habitación", "habitacion", "cuarto"], adj: ["hotel", "latón", "laton"], g: "f" }, ...item("room_key"),
     examine: "Una llave de latón colgada de una pera de madera con un 4 marcado a fuego." },
-  bed: { at: "hotel_room", scenery: true, name: "Cama", note: "Abierta.", actions: ["Dormir"],
+  bed: { at: "hotel_room", name: "Cama", note: "Abierta.", actions: ["Dormir"],
     words: { nouns: ["cama", "sábanas", "sabanas", "almohada", "colchón", "colchon"], adj: ["hierro"], g: "f" }, enterable: "on",
     examine: "Una cama de hierro, abierta. La almohada está fresca. Quien debía acostarse en ella se hace esperar desde hace años." },
 
   // Café
-  ines: { at: "cafe", scenery: true, name: "Inés", note: "Tras la barra.", actions: ["Hablar con Inés", "Pedir café"],
+  ines: { at: "cafe", name: "Inés", note: "Tras la barra.",
     words: { nouns: ["ines", "camarera", "mujer"], adj: [], g: "f", proper: true },
     examine: "Una mujer con las mangas remangadas y un lápiz detrás de cada oreja, por si uno se rinde.",
     talk: "«¿Café?», dice. Es la única pregunta que hace.",
@@ -481,35 +467,40 @@ const objects = {
       monday: { label: "lunes", words: ["lunes", "archivo", "archivera"], says: "«¿El último lunes? En el ayuntamiento. De nueve a cinco. La archivera no le da nada a quien no pruebe que lo perdió.»" },
       train: { open: true, words: ["tren", "martes"], says: "«La gente toma aquí su último café», dice. «Luego se van. Yo lavo la taza.»" },
       coin: { about: "fountain", label: "monedas", words: ["moneda", "monedas", "dinero"], says: "«¿Monedas antiguas? En la fuente de la plaza. Las verás cuando se encienda la lámpara del agua.»" },
-      coffee: { open: true, words: ["café", "cafe", "taza", "beber"], says: "«Café», dice." },
+      coffee: { open: true, words: ["café", "cafe", "taza", "beber"], says: "«Solo, pequeño y caliente», dice. «Lo demás ya es conversación.»" },
       default: "«Café», dice. «De café sí entiendo.»"
     } },
-  menu: { at: "cafe", scenery: true, name: "Pizarra", note: "Café, y nada más.",
+  menu: { at: "cafe", name: "Pizarra", note: "Café, y nada más.",
     words: { nouns: ["pizarra", "carta", "menú", "menu", "tiza"], adj: [], g: "f" },
     examine: "En tiza: CAFÉ. Debajo, borrado pero legible: CHURROS (SOLO LOS LUNES)." },
-  coffee: { at: null, portable: false, name: "Taza de café", note: "Caliente, y gratis.", actions: ["Beber café"],
-    words: { nouns: ["café", "cafe", "taza"], adj: [], g: "f" },
+  coffee: { from: "ines", daily: true,   // a cup a day
+    brought: "Inés deja ante ti un {café|coffee} pequeño y negro sin decir palabra. «Invita la casa», dice. «Los domingos siempre invita.»",
+    already: "«Primero ese», dice Inés.",
+    again: "«Uno al día», dice Inés. «Con más empezarías a esperar cosas.»",
+    consumable: true, heals: 1, drink: "Está muy bueno. Por un momento no recuerdas nada a lo que hayas llegado tarde.",
+    at: null, portable: false, name: "Taza de café", note: "Caliente, y gratis.", words: { nouns: ["café", "cafe", "taza"], adj: [], g: "f" },
     examine: "Pequeño, negro, muy caliente. Huele a mañanas en las que no tuviste que madrugar." },
 
   // Calle Mayor, ayuntamiento, archivo
-  plate: { at: "high_street", scenery: true, name: "Placa de latón", note: "Horario de oficina.", opens: ["monday"],
+  plate: { at: "high_street", name: "Placa de latón", note: "Horario de oficina.", opens: ["monday"],
     words: { nouns: ["placa", "horario", "horas"], adj: ["latón", "laton", "oficina"], g: "f" },
     examine: "AYUNTAMIENTO, ABIERTO DE 09:00 A 17:00, ARCHIVO ARRIBA, CERRADO LOS LUNES. La última línea está más pulida que las otras." },
-  archivist: { at: "archive", scenery: true, name: "Archivera", note: "Guarda el último lunes.", actions: ["Hablar con archivera"],
+  archivist: { at: "archive", name: "Archivera", note: "Guarda el último lunes.",
     words: { nouns: ["archivera", "archivista", "mujer", "señora", "senora"], adj: [], g: "f" },
     examine: "Una rebeca gris, gafas de media luna y la paciencia de quien archiva por orden alfabético de sentimientos.",
+    give: "«Eso no es de un lunes», dice, amable, y te lo devuelve.",
     talk: "«¿Sí?», dice, que en el archivo es un párrafo entero.",
     topics: {
       monday: { label: "lunes", words: ["lunes", "página", "pagina", "decreto", "último", "ultimo"], says: "«El último lunes», dice. «Guardado, por si acaso. Es de quien perdió uno. Tráeme algo que perdieras en el tuyo, y será tuyo para devolverlo a su sitio.»" },
       umbrella: { words: ["paraguas", "etiqueta", "mesa"], says: "«Algo que perdiste», dice. «No algo de lo que te hayan hablado.»" },
       default: "Lo busca bajo una letra que elige ella, y no encuentra nada."
     } },
-  monday_page: { at: null, portable: true, name: "Lunes", note: "El último.", actions: ["Examinar lunes"], heldActions: ["Examinar lunes", "Poner lunes en calendario"],
+  monday_page: { at: null, portable: true, name: "Lunes", note: "El último.", heldActions: ["Poner lunes en calendario"],
     words: { nouns: ["lunes", "hoja"], adj: ["último", "ultimo", "última", "ultima", "calendario", "página", "pagina"], g: "m" }, ...item("monday_page"),
     examine: "Una hoja de calendario: LUNES, en negro, sin nada escrito debajo. Pesa más de lo que debería pesar un papel. Está todo por hacer." },
 
   // Relojería
-  clockmaker: { at: "clock_shop", scenery: true, name: "Relojero", note: "Arreglando un minuto.", actions: ["Hablar con relojero"],
+  clockmaker: { at: "clock_shop", name: "Relojero", note: "Arreglando un minuto.",
     words: { nouns: ["relojero", "hombre", "anciano"], adj: ["viejo"], g: "m" },
     examine: "Un anciano con una lupa enroscada en un ojo y un minuto entre las pinzas. El minuto se resiste un poco.",
     talk: "«Cada reloj de aquí lleva la hora de alguien», dice. «El del mostrador lleva la de ayer. Dale cuerda, si necesitas que te devuelva uno.»",
@@ -518,24 +509,24 @@ const objects = {
       monday: { label: "lunes", words: ["lunes", "calendario"], says: "«Pon la hoja donde la arrancaron», dice, «y todos los relojes del pueblo sabrán qué hacer.»" },
       default: "«Eso no es una cuestión de relojes», dice, y vuelve a su minuto."
     } },
-  backwards_clock: { at: "clock_shop", scenery: true, name: "Reloj del revés", note: "La hora de ayer.", actions: ["Dar cuerda al reloj"],
+  backwards_clock: { at: "clock_shop", name: "Reloj del revés", note: "La hora de ayer.", actions: ["Dar cuerda al reloj"],
     words: { nouns: ["reloj"], adj: ["revés", "reves", "atrás", "atras", "atrasado", "contrario", "inverso"], g: "m" },
     examine: "Un reloj de sobremesa, de latón, cuyas manecillas giran al revés, sin prisa. Lleva una llave en la espalda." },
 
   // Capilla, estanque
-  gravestones: { at: "chapel", scenery: true, name: "Lápidas", note: "Todas lunes.", actions: ["Examinar lápidas"], opens: ["monday"],
+  gravestones: { at: "chapel", name: "Lápidas", note: "Todas lunes.", opens: ["monday"],
     words: { nouns: ["lápidas", "lapidas", "lápida", "lapida", "piedras", "tumbas", "fechas"], adj: ["sencillas"], g: "f", pl: true },
     examine: "Lápidas pequeñas y sencillas, cada una con una fecha, todas lunes. La más nueva dice solo: AQUÍ NO ESTÁ EL ÚLTIMO. SE GUARDA EN EL AYUNTAMIENTO, POR SI ACASO.",
     parts: [{ words: ["fecha", "nueva", "reciente", "última", "ultima"], name: "la lápida más nueva", says: "AQUÍ NO ESTÁ EL ÚLTIMO. SE GUARDA EN EL AYUNTAMIENTO, POR SI ACASO." }], mentions: ["fecha"] },
-  pond_water: { at: "pond", scenery: true, name: "Estanque", note: "El pueblo, cabeza abajo.", actions: ["Examinar estanque"],
+  pond_water: { at: "pond", name: "Estanque", note: "El pueblo, cabeza abajo.",
     words: { nouns: ["estanque", "agua", "reflejo"], adj: ["redondo"], g: "m" },
     examine: "En el agua el reloj de la estación está cabeza abajo y marcha en el sentido correcto. En el calendario que hay debajo, en el reflejo, hay una hoja entre el domingo y el martes." },
 
   // El tren
-  train_window: { at: "compartment", scenery: true, name: "Ventanilla", note: "Con correa de cuero.", actions: ["Mirar por ventanilla"],
+  train_window: { at: "compartment", name: "Ventanilla", note: "Con correa de cuero.", actions: ["Mirar por ventanilla"],
     words: { nouns: ["ventanilla", "ventana", "correa"], adj: ["cuero", "tren"], g: "f" },
     examine: "Tu cara en el cristal, y detrás el andén, y detrás el pueblo, que ya se ve más pequeño." },
-  guard: { at: "dining_car", scenery: true, name: "Revisor", note: "Haciendo cuentas.", actions: ["Hablar con revisor"],
+  guard: { at: "dining_car", name: "Revisor", note: "Haciendo cuentas.",
     words: { nouns: ["revisor", "interventor", "jefe", "hombre"], adj: [], g: "m" },
     examine: "Un revisor con un abrigo de demasiados botones, sumando una columna que no acaba nunca.",
     talk: "«Billetes», dice, y luego, al ver el tuyo, «Ah. Solo de ida.»",
@@ -573,7 +564,7 @@ const changes = {
     // El vagón es la entrada del andén ("dentro", "entrar") y la salida del compartimento; la caseta de señales, también junto al
     // andén, no está marcada: se entra por su dirección, y un "entrar" sin tren es la pista del tren.
     { move: "train", to: "platform" }, { connect: "platform", dir: "n", to: "compartment", passage: true, in: true },
-    { connect: "compartment", dir: "s", to: "platform", passage: true, out: true },
+    { connect: "compartment", dir: "s", to: "platform", passage: true },
     { draw: "platform", add: "rect train_body 0,50,300,26 2 e0 after:rails\nrect train_windows 10,56,280,10 stripes:14,6 after:train_body" }
   ],
   train_out: [
@@ -600,7 +591,7 @@ const changes = {
 
 // ---- Reglas ----------------------------------------------------------------------------------------------------------------
 // Pasado el revisor: igual si subes al tren por su nombre («sube al tren») o por su camino («dentro», «entrar», «n»).
-const pastTheGuard = [{ say: "El revisor mira tu billete, lo pica otra vez, por si acaso, y se hace a un lado." }, { travel: "compartment" }, { describe: "$here" }];
+const pastTheGuard = [{ say: "El revisor mira tu billete, lo pica otra vez, por si acaso, y se hace a un lado." }, { travel: "compartment" }];
 
 // Subir al tren, en español: «entra en el tren», «sube al tren», «coge el tren», «toma el tren», «abordar el tren».
 const BOARD = ["enter", "board", "take", "climb"];
@@ -620,26 +611,13 @@ const rules = [
 
   // El café: abierto de siete de la mañana a diez de la noche.
   { id: "cafe_closes", when: "at", at: "22:00", if: [at("cafe")],
-    do: [{ say: "Inés apaga la radio en mitad del vals. «Cerramos», dice, y te encuentras en la plaza." }, { travel: "square" }, { describe: "$here" }] },
-  { id: "order_coffee", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }, { "coffee.at": null }, { "coffee.day": { "!=": "$time.day" } }],
-    do: [{ say: "Inés deja ante ti un {café|coffee} pequeño y negro sin decir palabra. «Invita la casa», dice. «Los domingos siempre invita.»" }, { move: "coffee", to: "cafe" }, { set: "coffee.day", to: "$time.day" }] },
-  { id: "coffee_served", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "coffee.at": "cafe" }, { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Primero ese», dice Inés." }] },
-  { id: "coffee_done", match: { verb: ["order", "buy", "ask"], obj: [null, "coffee", "ines"] }, if: [at("cafe"), { "$topic": { in: [null, "coffee"] } }], do: [{ say: "«Uno al día», dice Inés. «Con más empezarías a esperar cosas.»" }] },
-  { id: "drink_coffee", match: { verb: "drink", obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ heal: 1, says: "Está muy bueno. Por un momento no recuerdas nada a lo que hayas llegado tarde." }, { move: "coffee", to: null }] },
+    do: [{ say: "Inés apaga la radio en mitad del vals. «Cerramos», dice, y te encuentras en la plaza." }, { travel: "square" }] },
 
   // La ventanilla de billetes tiene su horario (de nueve de la noche a seis de la mañana).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
     do: [{ say: "El postigo está levantado. Tras la reja, la taquillera espera con su sacabocados. El cartel dice: UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA." }] },
-  { id: "buy_ticket_have", match: { verb: "buy" }, if: [holding("ticket")], do: [{ say: "Ya tienes uno. Con uno basta." }] },
-  { id: "buy_ticket", match: { verb: "buy", obj: [null, "ticket", "window", "booking_clerk"] }, if: [at("station_hall"), hours(21, 6), holding("coin")],
-    do: [{ say: "Deslizas la moneda antigua bajo la reja. La taquillera la muerde, asiente, pica un billete y te lo devuelve. «Martes», dice. «Solo ida.»" },
-         { move: "coin", to: null }, { move: "ticket", to: "player" }] },
-  { id: "buy_ticket_poor", match: { verb: "buy", obj: [null, "ticket", "window", "booking_clerk"] }, if: [at("station_hall"), hours(21, 6), { "ticket.at": { "!=": "player" } }],
-    do: [{ say: "«Un viaje, una moneda», dice la taquillera. «De las antiguas.»" }] },
   { id: "buy_ticket_shut", match: { verb: "buy", obj: [null, "ticket", "window", "booking_clerk"] }, if: [at("station_hall"), notHours(21, 6)],
     do: [{ say: "El postigo está bajado. El cartel dice: BILLETES DESDE LAS 21:00." }] },
-  { id: "buy_elsewhere", match: { verb: "buy" }, do: [{ say: "Aquí nada está en venta, salvo en la ventanilla de billetes." }] },
   // La taquillera está en su ventanilla mientras está abierta.
   { id: "clerk_in", when: "at", at: "21:00", do: [{ move: "booking_clerk", to: "station_hall" }] },
   { id: "clerk_in_say", when: "at", at: "21:00", if: [at("station_hall")], do: [{ say: "Se levanta el postigo de la ventanilla de billetes. Una mujer tras la reja dispone su sacabocados." }] },
@@ -689,22 +667,19 @@ const rules = [
 
   // El ayuntamiento tiene horario de oficina (de nueve a cinco); puedes esperar en sus escalones, o dormir en el hotel.
   { id: "hall_closes", when: "at", at: "17:00", if: [at("town_hall", "archive")],
-    do: [{ say: "Una campana da las cinco. Un empleado te acompaña a la salida, con educación, como si fueras una corriente de aire." }, { travel: "high_street" }, { describe: "$here" }] },
+    do: [{ say: "Una campana da las cinco. Un empleado te acompaña a la salida, con educación, como si fueras una corriente de aire." }, { travel: "high_street" }] },
 
   // La archivera: el último lunes, por algo que perdiste en el tuyo.
   { id: "give_umbrella", match: { verb: ["give", "show"], obj: "umbrella", obj2: "archivist" }, if: [holding("umbrella")],
     do: [{ say: "La archivera da la vuelta al paraguas y lee la etiqueta. Lo abre un poco, y unas gotas de la lluvia de un lunes caen sobre su mesa. «Sí», dice. Saca una hoja de un cajón y te la da. «Devuélvela al lugar de donde salió.»" },
          { move: "umbrella", to: null }, { move: "monday_page", to: "player" }] },
-  { id: "give_other_archivist", match: { verb: ["give", "show"], obj2: "archivist" }, do: [{ say: "«Eso no es de un lunes», dice, amable, y te lo devuelve." }] },
 
   // Devolver el lunes a su sitio.
   { id: "restore_monday", match: { verb: ["put", "use", "attach", "stick"], obj: "monday_page", obj2: [null, "calendar"] }, if: [at("station_hall"), holding("monday_page")],
     do: [{ change: "monday_ending" }] },
   { id: "restore_monday_glue", match: { verb: "attack", obj: "monday_page", obj2: "calendar" }, if: [at("station_hall"), holding("monday_page")],   // «pega la hoja en el calendario»
     do: [{ change: "monday_ending" }] },
-  { id: "restore_monday_use", match: { verb: "use", obj: "calendar", obj2: "monday_page" }, if: [at("station_hall"), holding("monday_page")],   // (USAR, en cualquier orden)
-    do: [{ change: "monday_ending" }] },
-  { id: "restore_elsewhere", match: { verb: ["put", "use", "attach", "stick"], obj: "monday_page" }, if: [holding("monday_page")],
+  { id: "restore_elsewhere", match: { verb: ["put", "attach", "stick"], obj: "monday_page" }, if: [holding("monday_page")],
     do: [{ say: "Quiere volver al sitio de donde la arrancaron: el calendario bajo el reloj de la estación." }] },
 
   // El hotel: una habitación para quien la pide; dormir hasta la mañana.
@@ -716,21 +691,19 @@ const rules = [
     do: [{ say: "Te tumbas. La cama te recibe como si te hubiera estado esperando. Pasan trenes que no oyes. Cuando despiertas es de mañana, y la habitación huele a la tostada de otro." }, { time: "next 07:30" }, { set: "bed.slept", to: "$time.day" }] },
   { id: "sleep_again", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room")],
     do: [{ say: "No tienes sueño. En esa cama ya se ha dormido hoy, y has sido tú." }] },
-  { id: "sleep_elsewhere", match: { verb: "sleep" }, do: [{ say: "Aquí no. Hay un hotel en la plaza." }] },
 
   // El fotomatón: la fotografía de mañana, una vez.
-  { id: "photo", match: { verb: ["push", "use"], obj: ["button", "booth"], obj2: [null] }, if: [{ "player.in": "booth" }, { "photograph.at": null }],
+  { id: "photo", match: { verb: "push", obj: ["button", "booth"] }, if: [{ "player.in": "booth" }], once: true,
+    again: "El fotomatón zumba y no devuelve nada. NO SE ADMITEN DEVOLUCIONES, dice el cartel. El mañana solo ocurre una vez.",
     do: [{ say: "El flash se dispara cuatro veces. Esperas. Una tira cae en la ranura de fuera, y vas a buscarla, todavía mojada." }, { move: "photograph", to: "player" }] },
-  { id: "photo_again", match: { verb: ["push", "use"], obj: ["button", "booth"], obj2: [null] }, if: [{ "player.in": "booth" }],
-    do: [{ say: "El fotomatón zumba y no devuelve nada. NO SE ADMITEN DEVOLUCIONES, dice el cartel. El mañana solo ocurre una vez." }] },
   { id: "photo_outside", match: { verb: "push", obj: "button" }, if: [{ "player.in": { "!=": "booth" } }],
     do: [{ say: "El botón está dentro. Primero tienes que sentarte en el fotomatón." }] },
 
   // El reloj del revés: el ayer, cuando ya hay uno.
   // (No hasta antes de que llegaras: un día atrás desde el día 2 solo pasadas las siete y media de esta tarde.)
-  { id: "wind_back", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock", obj2: [null] }, if: [{ "time.day": { ">=": 3 } }], do: [{ change: "yesterday" }] },
-  { id: "wind_back_2", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock", obj2: [null] }, if: [{ "time.day": 2 }, { "time.hour": { ">=": 20 } }], do: [{ change: "yesterday" }] },
-  { id: "wind_back_first", match: { verb: ["wind", "turn", "use"], obj: "backwards_clock" },
+  { id: "wind_back", match: { verb: ["wind", "turn"], obj: "backwards_clock" }, if: [{ "time.day": { ">=": 3 } }], do: [{ change: "yesterday" }] },
+  { id: "wind_back_2", match: { verb: ["wind", "turn"], obj: "backwards_clock" }, if: [{ "time.day": 2 }, { "time.hour": { ">=": 20 } }], do: [{ change: "yesterday" }] },
+  { id: "wind_back_first", match: { verb: ["wind", "turn"], obj: "backwards_clock" },
     do: [{ say: "La llave gira y se detiene. «Todavía no», dice el relojero. «Aquí aún no hay ayer. Al menos, no uno en el que estuvieras.»" }] },
 
 ];
@@ -767,7 +740,6 @@ export default {
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, «Fields and properties»); las del motor no se declaran.
   properties: {
     "bed.slept": { type: "number" },    // el día en que se durmió por última vez en la cama
-    "coffee.day": { type: "number" }   // el día en que se sirvió por última vez el café
   },
   facts: [
     "El jugador llega un domingo por la tarde a un pueblo que abolió los lunes.",
@@ -783,10 +755,10 @@ export default {
       { say: "En algún sitio un reloj da las siete y media, de la tarde, un domingo." }
     ] },
     // Verbos que este mundo necesita
-    { add: "word", verb: "buy", words: ["comprar", "compra", "compre", "compro", "adquirir", "adquiere", "pagar", "paga", "pague", "pago", "sacar billete", "saca billete", "saque billete", "saco billete", "sacar billetes", "sacar un billete", "saca un billete", "saque un billete", "saco un billete", "sacar el billete", "saca el billete"], absent: true },
+    { add: "word", verb: "sleep", reply: "Aquí no. Hay un hotel en la plaza." },
+    { add: "word", verb: "buy", words: ["sacar billete", "saca billete", "saque billete", "saco billete", "sacar billetes", "sacar un billete", "saca un billete", "saque un billete", "saco un billete", "sacar el billete", "saca el billete"], reply: "Aquí nada está en venta, salvo en la ventanilla de billetes." },
     { add: "word", verb: "board", words: ["abordar", "aborda", "aborde", "abordo", "embarcarse", "embarcate"] },
     { add: "word", verb: "wind", words: ["rebobinar", "rebobina", "rebobine", "retroceder", "retrocede", "retroceda", "atrasar", "atrasa", "atrase"] },
-    { add: "word", verb: "order", words: ["pedir", "pide", "pida", "pido", "encargar", "encarga"], absent: true },
     { add: "word", verb: "attach", words: ["adherir", "adhiere", "adhiera", "encolar", "encola", "reponer", "repon", "repone", "reponga", "devolver", "devuelve", "devuelva", "restituir", "restituye"] },
     { add: "word", verb: "stick", words: ["fijar", "fija", "fije", "enganchar", "engancha"] },
 
@@ -795,7 +767,13 @@ export default {
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    { add: "object", id: "ticket", at: null, portable: true, name: "Billete", note: "Martes. Solo ida.", actions: ["Examinar billete"],
+    { add: "object", id: "ticket", at: null, portable: true,
+      from: "window", if: [hours(21, 6)], requires: "coin", spends: true,   // the window sells it in its hours, for the old coin
+      brought: "Deslizas la moneda antigua bajo la reja. La taquillera la muerde, asiente, pica un billete y te lo devuelve. «Martes», dice. «Solo ida.»",
+      lacking: "«Un viaje, una moneda», dice la taquillera. «De las antiguas.»",
+      already: "Ya tienes uno. Con uno basta.",
+      again: "El postigo está bajado. El cartel dice: BILLETES DESDE LAS 21:00.",
+      name: "Billete", note: "Martes. Solo ida.",
       words: { nouns: ["billete", "tarjeta", "boleto"], adj: ["tren", "martes", "cartón", "carton"], g: "m" }, ...item("ticket"),
       examine: "Un billete de cartón rígido: MARTES, SOLO IDA. Picado dos veces. En el reverso: NO VÁLIDO PARA VUELTA, PORQUE NO LA HAY." },
     ...rules.map((rule) => ({ add: "rule", rule }))

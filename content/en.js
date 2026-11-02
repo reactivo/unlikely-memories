@@ -10,9 +10,29 @@ const playedFor = (ms) => {
 // "the" and a thing's name in a sentence (o: the thing, or { words }: its gender, number and mark): for [way] (the pack's `the`),
 // the echoes of what you gain and lose, and every standard line that names a thing. A proper name (`words.proper`: "Monday",
 // "Mr Ambrose") has no article: "You get Monday". `The`: the same at the start of a sentence.
-const the = (name, o) => (o?.words?.proper ? name : "the " + name);
-const The = (name, w) => (w?.proper ? name : "The " + name);
+// A name that already starts with its own article ("The fitter", "A coin") is never given another: "the fitter", not "the the fitter".
+// Its article is then lower case in a sentence and capital at the start of one; a proper name keeps what it is written with
+// ("The Bell"), unless what follows the article is lower case ("The fitter" marked proper), which is no name's capital.
+const OWN = /^(the|a|an)\s+(?=\S)/i;
+const own = (name, w) => OWN.test(String(name)) && !(w?.proper && /^\p{Lu}/u.test(String(name).replace(OWN, "")));
+const withCase = (name, up) => { const n = String(name); return (up ? n.charAt(0).toUpperCase() : n.charAt(0).toLowerCase()) + n.slice(1); };
+// A name that ends in a number ("Hut 7", "Door 11") reads as a name, not as a thing: no article, and its capital kept in a sentence
+// ("You open Hut 7.", "Hut 7 is already closed."). Spanish keeps its article ("la caseta 7"; content/es.js).
+const numbered = (name) => /\d$/.test(String(name).trim());
+const the = (name, o) => (own(name, o?.words) ? withCase(name, false) : o?.words?.proper ? name : numbered(name) ? withCase(name, true) : "the " + name);
+const The = (name, w) => (own(name, w) ? withCase(name, true) : w?.proper ? name : numbered(name) ? withCase(name, true) : "The " + name);
 const theW = (name, w) => the(name, { words: w });                  // by its gender, number and mark (`w`, as the narrator hands them)
+// "a" / "an" and a thing's name ("a coin", "an apple"; "some tins" for a plural; a proper name bare; a name with its own article keeps it).
+// A name the narrator marked as a clickable thing ("{crank|crank}") keeps its mark round the name alone: "a {crank}".
+const MARK = /^\{([^|}]*)\|([^}]*)\}$/;
+const a = (name, w) => {
+  const m = MARK.exec(String(name)), label = m ? m[1] : String(name), wrap = (x) => (m ? `{${x}|${m[2]}}` : x);
+  if (own(label, w)) return wrap(withCase(label, false));
+  if (w?.proper) return wrap(label);
+  if (numbered(label)) return wrap(withCase(label, true));
+  return (w?.pl ? "some " : /^[aeiou]/i.test(label) ? "an " : "a ") + wrap(label);
+};
+const listOf = (items, last) => (items.length > 1 ? items.slice(0, -1).join(", ") + last + items.at(-1) : items[0] ?? "");
 
 export default {
   hint: "Type `Help` for ideas",   // beside the prompt at the start (no full stop: it isn't a sentence in the story)
@@ -26,7 +46,7 @@ export default {
   againYes: "Everything goes dark. Then, slowly, it begins again…",
   hintDo: (cmds) => "Try " + cmds.join(", then ") + ".",
   askAbout: (l) => `Ask about ${l}`,   // a topic offered after someone answers you ("Ask about umbrella")
-  talkedOut: (d) => `You have nothing else to talk about with ${d.name}${d.forNow ? " (for now)" : ""}.`,   // after they answer, when nothing is left
+  talkedOut: (d, w) => `You have nothing else to talk about with ${theW(d.name, w)}${d.forNow ? " (for now)" : ""}.`,   // after they answer, when nothing is left
   noWay: ["You can't go that way.", "There's no way through there.", "That way leads nowhere."],
   // When nothing makes sense of what you typed: in the world's voice, never about words (several, varied).
   unsure: ["You're not sure how to do that.", "Nothing comes of it.", "That doesn't get you anywhere.",
@@ -115,7 +135,9 @@ export default {
   // Being in or on things (js/verbs.js): n = [the thing's name, in a sentence], w = [its gender, number and mark].
   gotIn: (n, w) => `You get into ${theW(n[0], w[0])}.`, gotOn: (n, w) => `You get onto ${theW(n[0], w[0])}.`,
   gotOut: (n, w) => `You get out of ${theW(n[0], w[0])}.`, gotOff: (n, w) => `You get off ${theW(n[0], w[0])}.`,
-  outFirst: (n, w) => `You get out of ${theW(n[0], w[0])} first.`,
+  outFirst: (n, w) => `You get out of ${theW(n[0], w[0])} first.`, offFirst: (n, w) => `You get off ${theW(n[0], w[0])} first.`,
+  // Taking what you are in or on: get out of it first.
+  getOutToTake: (n, w) => `You'll have to get out of ${theW(n[0], w[0])} first.`, getOffToTake: (n, w) => `You'll have to get off ${theW(n[0], w[0])} first.`,
   alreadyIn: (n, w) => `You're already there, in ${theW(n[0], w[0])}.`,
   notIn: (n, w) => `You're not in ${theW(n[0], w[0])}.`,
   // Where you are, in a room's description: n = the thing's name, w = its gender, number and mark.
@@ -150,10 +172,26 @@ export default {
   },
   cantTake: "It won't come away.", nothingSpecial: "You see nothing special.",
   notCarried: "You aren't carrying that.",
+  // Taking something out of what you carry (nothing is gained, so it says so): n = [the thing, what it was in]. Taking what a
+  // person has: n = [the person, the thing]. Talking to a person who has topics but no line for it: n = [the person].
+  tookOut: (n, w) => `You take ${theW(n[0], w[0])} out of ${theW(n[1], w[1])}.`,
+  wontGive: (n, w) => `${The(n[0], w[0])} won't give ${w[1]?.pl ? "them" : "it"} up.`,
+  talkReady: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "wait" : "waits"} for your question.`,
   // USE and its words alone (js/view.js, useLine): d = { name: the thing, list: the commands it offers, as a sentence }; w = its words.
   useHow: (d, w) => `Use ${theW(d.name, w)} how? ${d.list}.`,
   // The two-thing commands USE alone offers, written the way a player types them (nouns, no articles).
   useWith: { unlock: (door, key) => `Unlock ${door} with ${key}`, put: (thing, into) => `Put ${thing} in ${into}`, give: (thing, who) => `Give ${thing} to ${who}` },
+  // The commands the engine words itself for one thing (js/narrator.js, the opening's hints), the way a player types them: x = the thing's
+  // name as a command writes it (js/names.js: its noun, as its name spells it; no article). Each one is read back as the verb it
+  // names (tests/words.test.js). "Sit on" and "Get off" are for what you sit on, "Enter" and "Get out of" for what you get into.
+  basic: {
+    take: (x) => `Take ${x}`, talk: (x) => `Talk to ${x}`, listen: (x) => `Listen to ${x}`, read: (x) => `Read ${x}`,
+    open: (x) => `Open ${x}`, close: (x) => `Close ${x}`,
+    enterIn: (x) => `Enter ${x}`, enterOn: (x) => `Sit on ${x}`, exitIn: (x) => `Get out of ${x}`, exitOn: (x) => `Get off ${x}`,
+    climbUp: (x) => `Climb ${x}`, climbDown: (x) => `Climb down ${x}`, goThrough: (x) => `Go through ${x}`,
+    order: (x) => `Order ${x}`, buy: (x) => `Buy ${x}`,
+    examine: (x) => `Examine ${x}`
+  },
   // Putting one thing in another (js/verbs.js): n = [the thing, where it goes], names in a sentence, w = their gender, number and mark.
   putIn: [(n, w) => `You put ${theW(n[0], w[0])} in ${theW(n[1], w[1])}.`, (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} into ${theW(n[1], w[1])}.`,
           (n, w) => `You place ${theW(n[0], w[0])} in ${theW(n[1], w[1])}.`],
@@ -162,6 +200,31 @@ export default {
               (n, w) => w[0]?.proper ? `${n[0]} isn't in ${theW(n[1], w[1])} to take.` : `There is no ${n[0]} in ${theW(n[1], w[1])} to take.`],
   closed: [(n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} closed.`, (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} shut.`,
            (n, w) => `You would have to open ${theW(n[0], w[0])} first.`],
+  // Opening and closing a container (js/verbs.js): n = [the thing], w = [its gender, number and mark].
+  opened: (n, w) => `You open ${theW(n[0], w[0])}.`, closedIt: (n, w) => `You close ${theW(n[0], w[0])}.`,
+  // Eating or drinking a consumable thing that has no line of its own for it (js/verbs.js, std_eat_it).
+  ate: (n, w) => `You eat ${theW(n[0], w[0])}.`, drank: (n, w) => `You drink ${theW(n[0], w[0])}.`,
+  // A thing that comes from someone or something (js/engine.js, `bring`), when it has no line of its own for it: n = [the thing].
+  brought: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} put in front of you.`,
+  stillHere: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} in front of you already.`,
+  haveOne: (n, w) => `You already have ${theW(n[0], w[0])}.`,
+  noMore: (n, w) => `There ${w[0]?.pl ? "are" : "is"} no more ${n[0]} to be had.`,
+  // What a thing that comes from somewhere, or a way, wants you to hold (`requires`), when you don't and it has no `lacking` line: n = [that thing].
+  lacking: (n, w) => `You would need ${theW(n[0], w[0])}.`,
+  // What an opened container holds, each thing marked (js/engine.js, `inside`): n = their names, w = their gender, number and mark.
+  inside: (n, w) => `Inside: ${listOf(n.map((x, i) => a(x, w[i])), " and ")}.`,
+  // What can be taken and lies in a room with no `here` line in force, each thing marked (js/narrator.js, `lyingLine`), one line after
+  // the room's paragraphs: "There is a {coin} here.", "There is a {coin} and some {oars} here." (the verb agrees with the first). A
+  // proper name has a sentence of its own: "{Dot} is here.", and after the rest "{Dot} is here too.". n = their names, w = their marks.
+  lying: (n, w) => {
+    const all = n.map((x, i) => [x, w[i]]), common = all.filter(([, v]) => !v?.proper), proper = all.filter(([, v]) => v?.proper);
+    return [common.length ? `There ${common[0][1]?.pl ? "are" : "is"} ${listOf(common.map(([x, v]) => a(x, v)), " and ")} here.` : "",
+            proper.length ? `${listOf(proper.map(([x]) => x), " and ")} ${proper.length > 1 || proper[0][1]?.pl ? "are" : "is"} here${common.length ? " too" : ""}.` : ""]
+      .filter(Boolean).join(" ");
+  },
+  cantOpen: "That isn't something you can open.", cantClose: "That isn't something you can close.",   // no lid: open for good (`open: "always"`)
+  alreadyOpen: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} already open.`,
+  alreadyClosed: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} already closed.`,
   invEmpty: "You are carrying nothing.", invList: (list) => "You are carrying: " + list + ".",
 
   // Things the opening's mechanics say (js/opening.js): the world writes the rest in its own voice.
@@ -203,6 +266,9 @@ export default {
     put: ["That won't go there.", "There's no point putting it there.", "You can't put it there."],
     give: ["They don't seem interested.", "Nobody here wants that.", "There's no one to give it to."],
     show: ["Nobody reacts.", "No one seems interested.", "There's no one to show it to."],
+    // To a person who has no line of their own for it (the thing, then the person, come with the line, but "they" does for one or many):
+    givePerson: ["They don't want it.", "They don't seem interested.", "That isn't something they want."],
+    showPerson: ["They look, and say nothing.", "They don't seem interested.", "They are not impressed."],
     throw: ["You think better of it.", "Throwing that won't help.", "You decide to keep hold of it."],
     wear: ["You can't wear that.", "That isn't something to wear."],
     remove: ["You're not wearing that.", "There's nothing to take off."],
@@ -221,6 +287,8 @@ export default {
     use: ["That doesn't seem to do anything.", "Nothing comes of it.", "You turn it over. Nothing comes to mind."],
     eat: ["That's not something you can eat.", "Not edible.", "You decide not to eat that."],
     drink: ["That's not something you can drink.", "There's nothing to drink there."],
+    order: ["There's nothing like that to order here.", "Nobody here is taking orders."],
+    buy: ["There's nothing like that for sale here.", "Nobody here is selling that."],
     enter: ["You can't go in there.", "There's no way in."],
     exit: ["There's no obvious way out from here.", "You can't leave that way."],
     climb: ["You can't climb that.", "There's nothing to climb.", "It isn't climbable."],
@@ -281,6 +349,8 @@ export default {
       use: ["use", "utilise", "utilize", "apply", "operate", "employ"],
       eat: ["eat", "swallow", "consume", "devour", "chew", "munch", "gobble"],
       drink: ["drink", "sip", "gulp", "quaff", "swig"],
+      order: ["order"],
+      buy: ["buy", "purchase", "pay for"],
       go: ["go", "walk", "run", "head", "travel", "proceed", "move to", "crawl", "visit", "go back", "come back", "head back",
            "walk back", "get back", "return"],   // "go back down the stairs": down the stairs
       enter: ["enter", "go in", "go into", "get in", "get into", "step in", "step into", "go inside", "board", "get on",
@@ -351,6 +421,7 @@ export default {
       fromWords: ["from", "out of"],               // "take letter FROM bottle": where a thing is taken out of
       attached: null,                              // pronouns joined to verbs: none in English
       speechTo: ["to", "at"],                      // who words are said to: "say hello TO the waiter"
+      askFor: ["for"],                             // "ask Dot FOR tea", "ask for tea": asking for a thing (it comes), not about it
       oneWords: ["one", "ones"],                   // "the iron ONE": answers "Which do you mean?" without naming anything
       contractions: {},                            // words written out in full right after the verb (Spanish al, del): none
       verbPreps: {},                               // what a verb takes before its object, in hints (`{enter+}`): none ("enter door" reads fine)

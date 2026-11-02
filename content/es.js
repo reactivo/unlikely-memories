@@ -8,10 +8,60 @@ const num = (w, one, many) => (w?.pl ? many : one);                             
 const article = (w) => (w?.pl ? (w?.g === "f" ? "las" : "los") : w?.g === "f" ? "la" : "el");    // la / el / las / los, en una frase
 // El artículo y el nombre de una cosa en una frase, por su género y número (o.words): la `the` del paquete, los ecos y cada
 // respuesta normal que nombra una cosa. Un nombre propio (`words.proper`) va sin artículo y con su mayúscula.
-const the = (name, o) => (o?.words?.proper ? name : article(o?.words) + " " + name);
+// Salvo el que empieza por un tratamiento: «la señora Hale», «el doctor Mabbott» (el tratamiento, en minúscula tras el artículo).
+// Se deduce del nombre, sin propiedad nueva; el género es el de la cosa (`words.g`) o, si no lo dice, el del tratamiento. Don, doña,
+// sor y fray no llevan artículo nunca («don Quijote», «sor Juana»), ni lo que no es tratamiento español («Madame Corre»).
+const TITLES = { senor: "m", senora: "f", senorita: "f", sr: "m", sra: "f", srta: "f", doctor: "m", doctora: "f", dr: "m", dra: "f",
+                 profesor: "m", profesora: "f", padre: "m", madre: "f", hermano: "m", hermana: "f", inspector: "m", inspectora: "f",
+                 capitan: "m", comisario: "m", comisaria: "f", agente: "m" };
+// El tratamiento con que empieza un nombre de dos palabras o más (su género), si lo hay.
+const titleOf = (name) => {
+  const words = String(name).trim().split(/\s+/);
+  return words.length > 1 ? TITLES[words[0].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\.$/, "")] : undefined;
+};
+// Un nombre que ya empieza con su propio artículo («La modista», «El doctor Mabbott», «Una tienda») no recibe otro: [el artículo, el resto]
+// (el artículo en minúscula, que va dentro de una frase; la mayúscula de quien abre una frase se la pone `El`). Un nombre propio cuyo
+// resto empieza en mayúscula («El Escorial», «La Haya») es así, entero, y no se toca; tampoco se contrae («de El Escorial»).
+const OWN = /^(el|la|los|las|un|una|unos|unas)\s+(?=\S)/i;
+const ownArticle = (name, w) => {
+  const m = OWN.exec(String(name).trim());
+  if (!m) return null;
+  const rest = String(name).trim().slice(m[0].length);
+  return w?.proper && /^\p{Lu}/u.test(rest) ? null : [m[1].toLowerCase(), rest];
+};
+// El nombre de una cosa tal como lo escribe una orden cuando empieza por un tratamiento («señor Cotter», «agente Pye», «doctor Mabbott»):
+// entero, con el tratamiento en minúscula y sin artículo, como lo escribe `name`; null si no empieza por uno. El inglés no lo necesita
+// (sus nombres con tratamiento son `proper` y la orden los escribe enteros: «Talk to Mrs Hale»). Lo usa js/names.js.
+const titled = (name) => {
+  const n = String(name).trim(), own = OWN.exec(n), rest = own ? n.slice(own[0].length) : n;
+  return titleOf(rest) ? rest.charAt(0).toLowerCase() + rest.slice(1) : null;
+};
+// El artículo de un nombre en una frase, sin mayúscula, y el nombre como va con él; el artículo es "" si va sin él.
+const named = (name, w) => {
+  const own = ownArticle(name, w);
+  if (own) return own;
+  const title = w?.proper && titleOf(name);
+  if (title) return [article({ ...w, g: w.g ?? title }), String(name).charAt(0).toLowerCase() + String(name).slice(1)];
+  return w?.proper ? ["", name] : [article(w), name];
+};
+const the = (name, o) => named(name, o?.words).join(" ").trim();
 const Article = (w) => article(w).charAt(0).toUpperCase() + article(w).slice(1);                 // La / El / Las / Los, al empezar
 const el = (name, w) => the(name, { words: w });                                                 // por su género, número y marca (`w`)
-const El = (name, w) => (w?.proper ? name : Article(w) + " " + name);                            // lo mismo, al empezar una frase
+const El = (name, w) => { const [a, n] = named(name, w); return a ? a.charAt(0).toUpperCase() + a.slice(1) + " " + n : n; };   // lo mismo, al empezar una frase
+// «un» / «una» / «unos» / «unas» y el nombre de una cosa («una moneda»); un nombre propio va sin artículo, y el que trae el suyo («la modista»)
+// lo conserva. Un nombre que el narrador marcó como cosa pulsable («{llave|llave}») deja la marca alrededor del nombre solo: «una {llave}».
+const MARK = /^\{([^|}]*)\|([^}]*)\}$/;
+const un = (name, w) => {
+  const m = MARK.exec(String(name)), label = m ? m[1] : String(name), wrap = (x) => (m ? `{${x}|${m[2]}}` : x);
+  const own = ownArticle(label, w);
+  if (own) return wrap(own.join(" "));
+  if (w?.proper) { const [art, rest] = named(label, w); return (art ? art + " " : "") + wrap(rest); }
+  return (w?.pl ? (w?.g === "f" ? "unas" : "unos") : w?.g === "f" ? "una" : "un") + " " + wrap(label);
+};
+const listOf = (items, last) => (items.length > 1 ? items.slice(0, -1).join(", ") + last + items.at(-1) : items[0] ?? "");
+// Una lista con «y», que es «e» ante un nombre que suena /i/ («Lunes e Inés», pero «y hielo»); la marca de cosa pulsable no cuenta.
+const yList = (items) => listOf(items, /^\{?h?[ií](?![aeoáéó])/i.test(String(items.at(-1) ?? "")) ? " e " : " y ");
+const de = (name, w) => { const [a, n] = named(name, w); return a === "el" ? "del " + n : "de " + (a ? a + " " : "") + n; };   // "de" y el artículo: de el → del
 
 // El tiempo jugado en palabras, para la nota del final: "menos de un minuto", "23 minutos", "1 hora y 5 minutos".
 const playedFor = (ms) => {
@@ -21,6 +71,8 @@ const playedFor = (ms) => {
 };
 
 export default {
+  titled,
+  lowerNumbers: true,           // un nombre con número se escribe en minúscula en una orden («Entrar en caseta 7»), como en una frase («la caseta 7»)
   hint: "Escribe `Ayuda` si la necesitas",
   or: " o ",
   and: " y ",
@@ -33,7 +85,7 @@ export default {
   againYes: "Todo se oscurece. Luego, despacio, vuelve a empezar…",
   hintDo: (cmds) => "Prueba " + cmds.join(", y luego ") + ".",
   askAbout: (l) => `Preguntar por ${l}`,
-  talkedOut: (d) => `No tienes nada más de lo que hablar con ${d.name}${d.forNow ? " (por ahora)" : ""}.`,
+  talkedOut: (d, w) => `No tienes nada más de lo que hablar con ${el(d.name, w)}${d.forNow ? " (por ahora)" : ""}.`,
   noWay: ["Por ahí no se puede ir.", "No hay paso por ahí.", "Por ahí no se va a ninguna parte."],
   // Cuando nada da sentido a lo escrito: con la voz del mundo, nunca hablando de palabras (varias, alternadas).
   unsure: ["No sabes muy bien cómo hacer eso.", "No sale nada de ahí.", "Eso no te lleva a ninguna parte.",
@@ -110,11 +162,14 @@ export default {
   hintNone: "Nadie escucha. Todavía no.",
 
   // Standard verbs (js/verbs.js), for objects without their own rule
-  locked: (_, w) => `${num(w, "Está", "Están")} cerrad${ending(w)} con llave.`, unlocked: (_, w) => num(w, "Se abre.", "Se abren."),
+  // (`w` es el género y número de la cosa; una lista con el de la cosa que cierra un camino, `things`, vale igual)
+  locked: (_, w) => { const x = Array.isArray(w) ? w[0] : w; return `${num(x, "Está", "Están")} cerrad${ending(x)} con llave.`; }, unlocked: (_, w) => num(w, "Se abre.", "Se abren."),
   noTopic: ["No parece saber nada de eso.", "Ninguna respuesta que valga la pena.", "Se encoge de hombros."],
   // Estar dentro o encima de algo (js/verbs.js). Sin artículo, para no equivocar el género.
   gotIn: () => "Te metes dentro.", gotOn: () => "Te subes encima.",
-  gotOut: () => "Sales.", gotOff: () => "Te bajas.", outFirst: () => "Primero sales.",
+  gotOut: () => "Sales.", gotOff: () => "Te bajas.", outFirst: () => "Primero sales.", offFirst: () => "Primero te bajas.",
+  // Coger lo que ocupas (estás dentro o encima): primero hay que salir.
+  getOutToTake: () => "Primero tienes que salir.", getOffToTake: () => "Primero tienes que bajarte.",
   alreadyIn: () => "Ya estás ahí.", notIn: () => "No estás dentro de eso.",
   youAreIn: (n) => `Estás dentro: ${n}.`, youAreOn: (n) => `Estás encima: ${n}.`,
   waysOut: function (dirs) {
@@ -146,10 +201,26 @@ export default {
   },
   cantTake: "No se puede coger.", nothingSpecial: "No ves nada especial.",
   notCarried: "No llevas eso.",
+  // Sacar algo de lo que llevas (no ganas nada, así que lo dice): n = [la cosa, de qué la sacas]. Coger lo que tiene una persona:
+  // n = [la persona, la cosa]. Hablar con una persona que tiene temas pero ninguna línea para eso: n = [la persona].
+  tookOut: (n, w) => `Sacas ${el(n[0], w[0])} ${de(n[1], w[1])}.`,
+  wontGive: (n, w) => `${El(n[0], w[0])} no ${it(w[1])} ${w[0]?.pl ? "sueltan" : "suelta"}.`,
+  talkReady: (n, w) => `${El(n[0], w[0])} ${num(w[0], "espera", "esperan")} tu pregunta.`,
   // USAR y sus palabras solas (js/view.js, useLine): d = { name: la cosa, list: las órdenes que ofrece, como una frase }; w = su género.
   useHow: (d, w) => `¿Usar ${el(d.name, w)} cómo? ${d.list}.`,
   // Las órdenes de dos cosas que ofrece USAR solo, como las escribiría un jugador (nombres, sin artículos).
   useWith: { unlock: (door, key) => `Abrir ${door} con ${key}`, put: (thing, into) => `Meter ${thing} en ${into}`, give: (thing, who) => `Dar ${thing} a ${who}` },
+  // Las órdenes que el motor escribe él mismo para una cosa (js/narrator.js, las pistas de la apertura), como las escribiría un jugador:
+  // x = el nombre de la cosa como lo escribe una orden (js/names.js: su sustantivo, tal como lo deletrea su nombre; sin artículo, así que
+  // no hay contracciones que escribir: «Salir de cabina»). Cada una se lee de vuelta como el verbo que nombra (tests/words.test.js).
+  basic: {
+    take: (x) => `Coger ${x}`, talk: (x) => `Hablar con ${x}`, listen: (x) => `Escuchar ${x}`, read: (x) => `Leer ${x}`,
+    open: (x) => `Abrir ${x}`, close: (x) => `Cerrar ${x}`,
+    enterIn: (x) => `Entrar en ${x}`, enterOn: (x) => `Sentarse en ${x}`, exitIn: (x) => `Salir de ${x}`, exitOn: (x) => `Bajarse de ${x}`,
+    climbUp: (x) => `Subir ${x}`, climbDown: (x) => `Bajar ${x}`, goThrough: (x) => `Cruzar ${x}`,
+    order: (x) => `Pedir ${x}`, buy: (x) => `Comprar ${x}`,
+    examine: (x) => `Examinar ${x}`
+  },
   // Meter una cosa en otra (js/verbs.js): n = [la cosa, dónde va], nombres en una frase; w = su género, número y marca.
   putIn: [(n, w) => `Metes ${el(n[0], w[0])} en ${el(n[1], w[1])}.`, (n, w) => `Pones ${el(n[0], w[0])} en ${el(n[1], w[1])}.`,
           (n, w) => `Dejas ${el(n[0], w[0])} en ${el(n[1], w[1])}.`],
@@ -160,6 +231,31 @@ export default {
   closed: [(n, w) => `${El(n[0], w[0])} ${num(w[0], "está", "están")} cerrad${ending(w[0])}.`,
            (n, w) => `${El(n[0], w[0])} ${num(w[0], "está", "están")} cerrad${ending(w[0])}: primero hay que abrir${it(w[0])}.`,
            (n, w) => `Tendrías que abrir ${el(n[0], w[0])} primero.`],
+  // Abrir y cerrar un recipiente (js/verbs.js): n = [la cosa], w = [su género, número y marca].
+  opened: (n, w) => `Abres ${el(n[0], w[0])}.`, closedIt: (n, w) => `Cierras ${el(n[0], w[0])}.`,
+  // Comer o beber algo consumible que no tiene una frase propia para ello (js/verbs.js, std_eat_it).
+  ate: (n, w) => `Te comes ${el(n[0], w[0])}.`, drank: (n, w) => `Te bebes ${el(n[0], w[0])}.`,
+  // Algo que viene de alguien o de algo (js/engine.js, `bring`), cuando no tiene una frase propia para ello: n = [la cosa].
+  brought: (n, w) => `Te ponen delante ${el(n[0], w[0])}.`,
+  stillHere: (n, w) => `Ya tienes ${el(n[0], w[0])} delante.`,
+  haveOne: (n, w) => `Ya tienes ${el(n[0], w[0])}.`,
+  noMore: () => "No queda más.",
+  // Lo que algo que viene de otro sitio, o un camino, pide que lleves (`requires`), si no lo llevas y no tiene frase `lacking`: n = [esa cosa].
+  lacking: (n, w) => `Te haría falta ${el(n[0], w[0])}.`,
+  // Lo que guarda un recipiente al abrirlo, cada cosa marcada (js/engine.js, `inside`): n = sus nombres, w = su género, número y marca.
+  inside: (n, w) => `Dentro: ${listOf(n.map((x, i) => un(x, w[i])), " y ")}.`,
+  // Lo que se puede coger y está en una sala sin una línea `here` en vigor, cada cosa marcada (js/narrator.js, `lyingLine`), una línea tras
+  // los párrafos de la sala: «Aquí hay una {moneda}.», «Aquí hay una {moneda} y unos {remos}.». Un nombre propio va en una frase suya:
+  // «Aquí está {Dot}.», y tras lo demás «También está {Dot}.». n = sus nombres, w = su género, número y marca.
+  lying: (n, w) => {
+    const all = n.map((x, i) => [x, w[i]]), common = all.filter(([, v]) => !v?.proper), proper = all.filter(([, v]) => v?.proper);
+    return [common.length ? `Aquí hay ${listOf(common.map(([x, v]) => un(x, v)), " y ")}.` : "",
+            proper.length ? `${common.length ? "También" : "Aquí"} ${proper.length > 1 || proper[0][1]?.pl ? "están" : "está"} ${yList(proper.map(([x, v]) => un(x, v)))}.` : ""]
+      .filter(Boolean).join(" ");
+  },
+  cantOpen: "Eso no es algo que se pueda abrir.", cantClose: "Eso no es algo que se pueda cerrar.",   // sin tapa: abierto siempre (`open: "always"`)
+  alreadyOpen: (n, w) => `${El(n[0], w[0])} ya ${num(w[0], "está", "están")} abiert${ending(w[0])}.`,
+  alreadyClosed: (n, w) => `${El(n[0], w[0])} ya ${num(w[0], "está", "están")} cerrad${ending(w[0])}.`,
   invEmpty: "No llevas nada.", invList: (list) => "Llevas: " + list + ".",
 
   // Lo que dicen las mecánicas de la apertura (js/opening.js): el mundo escribe el resto con su propia voz.
@@ -202,6 +298,11 @@ export default {
     put: ["Eso no cabe ahí.", (_, w) => `No tiene sentido poner${it(w)} ahí.`, (_, w) => `No puedes poner${it(w)} ahí.`],
     give: ["No parece interesarle a nadie.", (_, w) => `Nadie aquí ${it(w)} quiere.`, (_, w) => `No hay nadie a quien dárse${it(w)}.`],
     show: ["Nadie reacciona.", "A nadie parece interesarle.", (_, w) => `No hay nadie a quien enseñárse${it(w)}.`],
+    // A una persona que no tiene línea propia para eso: n = [la cosa, la persona], w = su género y número.
+    givePerson: [(n, w) => `${El(n[1], w[1])} no ${it(w[0])} ${num(w[1], "quiere", "quieren")}.`, (n, w) => `${El(n[1], w[1])} no ${num(w[1], "muestra", "muestran")} ningún interés.`,
+                 (n, w) => `${El(n[1], w[1])} ${num(w[1], "niega", "niegan")} con la cabeza.`],
+    showPerson: [(n, w) => `${El(n[1], w[1])} ${num(w[1], "mira", "miran")} y no ${num(w[1], "dice", "dicen")} nada.`, (n, w) => `${El(n[1], w[1])} no ${num(w[1], "parece", "parecen")} interesad${ending(w[1])}.`,
+                 (n, w) => `${El(n[1], w[1])} no ${num(w[1], "se inmuta", "se inmutan")}.`],
     throw: ["Te lo piensas mejor.", "Lanzar eso no va a ayudar.", (_, w) => `Decides no soltar${it(w)}.`],
     wear: ["No puedes ponerte eso.", "Eso no es algo que se pueda llevar puesto."],
     remove: ["No llevas eso puesto.", "No hay nada que quitarse."],
@@ -220,6 +321,8 @@ export default {
     use: ["Eso no parece servir para nada.", "No sale nada de ahí.", (_, w) => `Le das vueltas. No se te ocurre cómo usar${it(w)}.`],
     eat: ["Eso no se come.", (_, w) => num(w, "No es comestible.", "No son comestibles."), (_, w) => `Decides no comérte${it(w)}.`],
     drink: ["Eso no se bebe.", "Ahí no hay nada que beber."],
+    order: ["Aquí no hay nada de eso que pedir.", "Aquí nadie te toma nota."],
+    buy: ["Aquí no hay nada de eso a la venta.", "Aquí nadie vende eso."],
     enter: ["No puedes entrar ahí.", "No hay forma de entrar."],
     exit: ["No hay una salida clara desde aquí.", "No puedes salir por ahí."],
     climb: ["No puedes trepar por ahí.", "No hay nada a lo que subir.", "No se puede escalar."],
@@ -254,7 +357,7 @@ export default {
       read: ["leer", "lee", "lea", "leo", "ojear", "ojea"],
       search: ["buscar", "busca", "busque", "busco", "registrar", "registra", "registre", "registro", "rebuscar",
                "rebusca", "mirar dentro", "mira dentro", "mirar debajo", "mira debajo", "mirar detras", "mira detras",
-               "explorar", "explora"],
+               "mirar por", "mira por", "mirar a traves de", "mira a traves de", "explorar", "explora"],
       listen: ["escuchar", "escucha", "escuche", "escucho", "oir", "oye", "oiga", "oigo"],
       smell: ["oler", "huele", "huela", "huelo", "olfatear", "olfatea", "olisquear", "olisquea"],
       taste: ["probar", "prueba", "pruebe", "pruebo", "saborear", "saborea", "lamer", "lame", "lama", "lamo"],
@@ -289,7 +392,8 @@ export default {
       pull: ["tirar de", "tira de", "tire de", "tiro de", "arrastrar", "arrastra", "arrastre", "jalar", "jala", "estirar",
              "estira"],
       turn: ["girar", "gira", "gire", "giro", "dar la vuelta", "da la vuelta", "dale la vuelta", "darle la vuelta",
-             "dar cuerda", "da cuerda", "dale cuerda", "darle cuerda", "voltear", "voltea", "rotar", "rota",
+             "dar cuerda", "da cuerda", "dale cuerda", "darle cuerda",   // dar cuerda: darle cuerda a un reloj
+             "voltear", "voltea", "rotar", "rota",
              "torcer", "tuerce", "enroscar", "desenroscar"],
       move: ["mover", "mueve", "mueva", "muevo", "desplazar", "desplaza", "levantar", "levanta", "levante", "alzar",
              "alza"],
@@ -307,9 +411,13 @@ export default {
       eat: ["comer", "come", "coma", "como", "tragar", "traga", "trague", "trago", "tragarse", "tragate", "comerse",
             "comete", "devorar", "devora", "masticar", "mastica", "engullir"],
       drink: ["beber", "bebe", "beba", "bebo", "beberse", "sorber", "sorbe", "tragar agua"],
+      order: ["pedir", "pide", "pida", "pido", "encargar", "encarga"],
+      buy: ["comprar", "compra", "compre", "compro", "adquirir", "adquiere", "pagar", "paga", "pague", "pago"],
       go: ["ir", "ve", "vaya", "voy", "andar", "anda", "ande", "ando", "caminar", "camina", "camine", "camino", "dirigirse",
            "dirigete", "avanzar", "avanza", "correr", "corre", "gatear", "gatea", "visitar", "visita", "visite", "visito",
-           "volver", "vuelve", "vuelva", "vuelvo", "regresar", "regresa", "regrese", "regreso"],
+           "volver", "vuelve", "vuelva", "vuelvo", "regresar", "regresa", "regrese", "regreso",
+           "cruzar", "cruza", "cruce", "cruzo", "atravesar", "atraviesa", "atraviese", "atravieso",
+           "pasar por", "pasa por", "pase por", "paso por"],   // «cruza la puerta»: through a door (a gate, a hatch)
       enter: ["entrar", "entra", "entre", "entro", "meterse", "metete", "pasar dentro", "pasa dentro", "embarcar", "embarca",
               "embarque", "embarco", "subir a bordo", "sube a bordo", "montarse en", "montate en"],
       exit: ["salir", "sal", "salga", "salgo", "irse", "vete", "marcharse", "marchate", "bajarse", "bajate", "apearse", "apeate"],
@@ -421,6 +529,7 @@ export default {
                   pairs: { selo: { person: "le", thing: "lo" }, sela: { person: "le", thing: "la" },
                            selos: { person: "le", thing: "los" }, selas: { person: "le", thing: "las" } } },
       speechTo: ["a", "al"],                       // a quién se dice: "di hola AL portero"
+      askFor: [],                                  // pedir algo es «pide té», «pídele té a Dot» (ORDER); «pregunta a Dot por el té» es preguntar sobre ello
       oneWords: ["uno", "una", "unos", "unas"],    // "la de hierro, UNA": responde a «¿Cuál quieres decir?» sin nombrar nada
       verbPreps: { enter: "en" },                  // lo que lleva un verbo antes de su objeto, en las pistas (`{enter+}`): «Entrar EN puerta»
       nameParts: ["del"],                          // pueden ser parte de un nombre: "la butaca DEL pasillo" es una sola cosa, no dos

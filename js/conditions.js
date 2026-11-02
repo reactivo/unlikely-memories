@@ -16,7 +16,7 @@ import { filterProblem } from "./filters.js";
 // The modifier kinds a condition may have, and the fields of each (js/fields.js lists them for the checks).
 export const MODIFIERS = { health: ["every", "hurt", "heal", "says"], speech: ["slur", "answer"], movement: ["chance", "says"] };
 // Everything a condition's declaration may hold.
-export const CONDITION_FIELDS = ["lasts", "until", "starts", "ends", "status", "filters", ...Object.keys(MODIFIERS)];
+export const CONDITION_FIELDS = ["lasts", "until", "starts", "ends", "status", "filters", "doses", ...Object.keys(MODIFIERS)];
 
 // The ids of the conditions you are in now, in the order they started.
 export const activeIds = (state) => Object.keys(state.player?.conditions || {});
@@ -59,6 +59,7 @@ export function declarationProblems(d) {
   for (const k of ["starts", "ends", "status"]) if (typeof d[k] !== "string" || !d[k].trim()) why.push(`${k} is a line: ${k === "starts" ? "the echo when it starts" : k === "ends" ? "the echo when it ends" : "what STATUS says of it"}`);
   if (d.lasts !== undefined && !span(d.lasts)) why.push("lasts is { turns: [min, max] } or { seconds: [min, max] }, whole numbers from 1");
   if (d.until !== undefined && !Array.isArray(d.until)) why.push("until is a list of conditions, like a rule's if");
+  if (d.doses !== undefined && !(Number.isInteger(d.doses) && d.doses >= 1)) why.push("doses is how many starts it takes to start it, a whole number from 1");
   if (d.filters !== undefined && !Array.isArray(d.filters)) why.push("filters is a list of picture filters, like [\"sway\", \"tint:cold\"]");
   else for (const f of d.filters || []) { const no = filterProblem(f, { lasting: true }); if (no) why.push("filters: " + no); }
   const h = d.health;

@@ -16,8 +16,8 @@
 
 import { ACTIONS } from "./actions.js";
 import { holds, answers, ANSWER_LENGTH } from "./engine.js";
-import { exitTo, wayFor } from "./exits.js";
-import { placeOf, shut, isAction } from "./use.js";
+import { exitTo, wayAt, wayOf } from "./exits.js";
+import { placeOf, shut, isAction, person } from "./use.js";
 import { distance } from "./fields.js";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
@@ -118,7 +118,7 @@ function read(text, state, words, seen = "", which = null, picks = []) {
   // key") finish the command that was asked about, with that thing. None, or several, and it's a new command.
   if (which) {
     const reply = tokens.filter(t => !W.punct.has(t) && !W.articles.has(t) && !W.preps.has(t) && !W.one.has(t));
-    const fits = (id) => { const n = W.names[id] || {}; return reply.every(t => (n.nouns || []).includes(t) || (n.adj || []).includes(t)); };
+    const fits = (id) => { const n = W.names[id] || {}; return reply.every(t => (n.nouns || []).includes(t) || (n.adj || []).includes(t) || (n.multi || []).some(run => run.includes(t))); };
     const hit = reply.length ? which.candidates.filter(fits) : [];
     if (hit.length === 1) return read(which.text, state, words, seen, null, [...(which.picks || []), { phrase: which.phrase, id: hit[0] }]);
   }
@@ -172,17 +172,28 @@ function withWorld(words, state) {
   // The world's words are read the way typed words are (accents, folded letters, apostrophes, capitals), so "Inés" or
   // "clockmaker's" in a world still matches what the player types (and what comes back to them is as the world wrote it).
   const g = words.words.grammar, norm = (list) => (list || []).map(w => { note(shown, w, g); return normalise(String(w), g); });
-  const normWords = (x) => ({ ...x, words: norm(x.words) });
+  // A name of several words ("lift shaft", "tablón de anuncios") is read as one: its words in order, as typed, without the
+  // articles and prepositions the reading drops ("de"). A word of one token is an ordinary one.
+  const idle = new Set(norm([...(words.words.articles || []), ...(words.words.preps || [])]));
+  const runs = (list) => list.filter(x => x.includes(" ")).map(x => x.split(" ").filter(t => !idle.has(t))).filter(r => r.length > 1);
+  // A topic's `label` is one of its words: "Ask about <label>" always asks that topic. (Several words are one run, as above.)
+  const label = (x) => (typeof x?.label === "string" && x.label.trim() ? norm([x.label])[0] : null);
+  const normWords = (x) => ({ ...x, words: norm([...(x.words || []), ...(label(x) ? [x.label] : [])]), label: label(x) ?? undefined });
   const topics = {}, roomNames = {};
   for (const [id, r] of Object.entries(state.world.rooms))           // rooms by name: "hotel" for HOTEL MIRAMAR
     if (typeof r.name === "string" && !r.name.startsWith("@")) { note(shown, r.name, g); roomNames[id] = normalise(r.name, g).split(" "); }
   for (const [id, o] of Object.entries(state.world.objects)) {
-    if (o.words) names[id] = { ...o.words, nouns: norm(o.words.nouns), adj: norm(o.words.adj) };
+    if (o.words) {
+      names[id] = { ...o.words, nouns: norm(o.words.nouns), adj: norm(o.words.adj) };
+      const multi = runs(names[id].nouns);
+      if (multi.length) names[id].multi = multi;
+    }
     if (o.topics) topics[id] = Object.fromEntries(Object.entries(o.topics).map(([k, v]) => [k, typeof v === "object" ? normWords(v) : v]));
     if (o.parts) parts[id] = o.parts.map(normWords);
   }
   for (const [id, r] of Object.entries(state.world.rooms)) if (r.scenery) scenery[id] = r.scenery.map(normWords);
-  for (const [verb, v] of Object.entries(state.vocab || {})) verbs[verb] = norm(v.words);
+  // A world's words for one of the pack's verbs are added to the pack's (lantern's "pay for" beside "order").
+  for (const [verb, v] of Object.entries(state.vocab || {})) verbs[verb] = norm([...(words.words.verbs[verb] || []), ...(v.words || [])]);
   const key = JSON.stringify([names, scenery, verbs, topics, roomNames, parts]);
   if (key === "[{},{},{},{},{},{}]") return words;
   const seen = merged.get(words);
@@ -222,6 +233,7 @@ function vocabulary(words) {
     it: new Set(w.it), pronouns: w.pronouns || {}, yes: new Set(w.yes), no: new Set(w.no),
     attached: w.grammar?.attached || null, secondObject: new Set(w.grammar?.secondObject || []),
     speechTo: new Set(w.grammar?.speechTo || []),
+    askFor: new Set(w.grammar?.askFor || []),         // "ask Dot FOR tea": asking for a thing, not about it (decision 51)
     fromWords: phrases({ f: w.grammar?.fromWords || [] }),   // "take letter FROM bottle": where a thing is taken out of
     restart: phrases({ r: w.restart || [] }),         // "begin again", "new game": a command only after the end
     one: new Set(w.grammar?.oneWords || []),          // "the iron ONE": stands for the thing, names nothing
@@ -238,13 +250,13 @@ function vocabulary(words) {
     shown: new Map([...shown, ...Object.entries(words.shown || {})]),   // how the words that normalising changes were written
     verbWord: Object.fromEntries(Object.entries(w0.verbs).map(([id, list]) => [id, list[0]]))   // "take" → "take", as the pack writes it
   };
-  v.topicWords = Object.values(words.topics || {}).flatMap(t => Object.values(t).flatMap(x => x.words || []));
+  v.topicWords = Object.values(words.topics || {}).flatMap(t => Object.values(t).flatMap(x => (x.words || []).flatMap(e => e.split(" "))));   // (a label of several words: each one is known)
   v.known = new Set([...v.verbs, ...v.meta, ...v.dirs, ...v.fillerStart, ...v.fillerEnd].flatMap(p => p.parts).concat(v.topicWords, Object.values(v.roomNames).flat())
     .concat(w.articles, w.preps, w.and, w.then, w.it, w.yes, w.no,
-            Object.values(v.names).flatMap(n => [...(n.nouns || []), ...(n.adj || [])]),
+            Object.values(v.names).flatMap(n => [...(n.nouns || []), ...(n.adj || []), ...(n.multi || []).flat()]),
             Object.values(v.scenery).flat().flatMap(s => s.words), Object.values(v.parts).flat().flatMap(s => s.words)));
   v.verbWords = new Set(v.verbs.filter(p => p.parts.length === 1).map(p => p.parts[0]));   // for typo suggestions
-  v.thingWords = new Set(Object.values(v.names).flatMap(n => [...(n.nouns || []), ...(n.adj || [])])
+  v.thingWords = new Set(Object.values(v.names).flatMap(n => [...(n.nouns || []), ...(n.adj || []), ...(n.multi || []).flat()])
     .concat(Object.values(v.scenery).flat().flatMap(s => s.words)));
   cache.set(words, v);
   return v;
@@ -326,10 +338,12 @@ function splitEnclitic(token, W) {
 
 // ---- Layer 2: one command ---------------------------------------------------------------------------------
 
-// Verbs that, on a thing that is a way out (`leads`), mean going that way.
-const LEADS_VERBS = new Set(["go", "climb", "enter", "exit", "use", "take"]);
+// Verbs that, on a thing that is a way out (`leads` or `door`), mean going that way. "open" is one too (the door opens, and you go through),
+// but not on a locked thing (that goes to its lock: the key turns, or the lock says what it wants) nor on a container.
+const LEADS_VERBS = new Set(["go", "climb", "enter", "exit", "use", "take", "open"]);
 
-// What a verb typed alone means when the room has that way (an `in` / `out` exit, or one marked `in: true` / `out: true`):
+// What a verb typed alone means when the room has that way (an `in` / `out` exit, one marked `in: true` / `out: true`, or the way back
+// from a place entered by one marked `in: true`):
 // "enter" / "get in" is IN, "leave" / "get out" is OUT.
 const WAY_OF = { enter: "in", exit: "out" };
 
@@ -387,14 +401,14 @@ function readCommand(tokens, state, W, recent) {
   if ((verb === null || verb === "go") && whole && whole.len === rest.length) return { actions: [{ verb: "go", dir: whole.id }] };
   // "enter" / "leave" alone, in a room with a way in / out, go that way (not while in or on something: that gets you out
   // of it). Without such a way they keep their own meaning.
-  if (WAY_OF[verb] && !rest.length && !pronoun && wayFor(state.world.rooms[state.player.at]?.exits, WAY_OF[verb]) &&
+  if (WAY_OF[verb] && !rest.length && !pronoun && wayAt(state.world.rooms, state.player.at, WAY_OF[verb]) &&
       !(verb === "exit" && state.player.in)) return { actions: [{ verb: "go", dir: WAY_OF[verb] }] };
   const bare = rest.filter(t => !W.preps.has(t));
   const d = matchPhrase(bare, 0, W.dirs);
   if ((verb === null || verb === "go") && d && d.len === bare.length) return { actions: [{ verb: "go", dir: d.id }] };
   // A direction and where it leads ("go upstairs to the archive", "go up the ladder"): the room's name decides the
   // way; else a thing here that leads that way.
-  if ((verb === null || verb === "go") && d && d.len < bare.length) {
+  if ((verb === null || verb === "go" || verb === "climb") && d && d.len < bare.length) {   // ("climb down the ladder")
     const tail = bare.slice(d.len);
     const room = neighbourNamed(tail, state, W);
     if (room) return { actions: [{ verb: "go", dir: room }] };
@@ -440,7 +454,16 @@ function readCommand(tokens, state, W, recent) {
     const lead = W.preps.has(rest[0]) ? {} : resolve(phrases[0].words, state, W, false, true);   // (someone named, here or not)
     if (!(lead.id && W.topics[lead.id])) {
       const who = partner(state, W);
-      if (who) return { actions: [{ verb, obj: who, prep: null, topic: topicOf(phrases.flatMap(p => p.words), W.topics[who], W) || "?" }] };
+      if (who) {
+        const forIt = W.askFor.has(rest[0]);                        // "ask for tea": the "for" is kept (decision 51)
+        const topic = topicOf(phrases.flatMap(p => p.words), W.topics[who], W) || "?";
+        // no topic for it: the thing asked about, if the last words name one (here or not), as "ask Dot about X" has it
+        const last = phrases.at(-1), thing = topic === "?" ? resolve(last.words, state, W, false, true) : {};
+        const about = thing.id && !thing.scenery && thing.id !== who && state.world.objects[thing.id]
+          ? { prep: last.prep ?? (W.preps.has(rest[0]) ? rest[0] : null), obj2: thing.id, ...(thing.absent ? { absent: [thing.id] } : {}) }
+          : { prep: forIt ? rest[0] : null };
+        return { actions: [{ verb, obj: who, ...about, topic, ...(forIt ? { askFor: true } : {}) }] };
+      }
     }
   }
   // An attached pronoun that only repeats the person named after it ("pregúntale al portero": le = al portero)
@@ -450,6 +473,7 @@ function readCommand(tokens, state, W, recent) {
   if (doubled) phrases[0] = { ...phrases[0], prep: null };
   else if (pronoun) phrases.unshift({ words: [pronoun], prep: null });
   if (indirect && !phrases.slice(1).some(ph => ph.prep)) phrases.push({ words: [indirect], prep: dbl?.preps?.[0] ?? null });   // "dáselo": to whom
+  if (KEY_VERBS.has(verb) && phrases.length === 2) W = withLockPicks(phrases, state, W, recent);
   let prep = null, obj2 = null, topic, absent = [], scenery = null;
   const absentOK = !!(ACTIONS[verb]?.absent || state.vocab?.[verb]?.absent);   // "order coffee", "think about the sea"
   for (const ph of phrases) {
@@ -476,9 +500,10 @@ function readCommand(tokens, state, W, recent) {
       if (after.id || after.scenery) return { error: suggestion(ph.words[0], W.verbWords) };
     }
     if (r.error && verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]]) { topic = "?"; prep = ph.prep; continue; }
-    // A thing that is a way out (`leads`): going, climbing, entering, using or taking it goes that way ("climb the
-    // stairs", "use the ladder", "take the stairs").
-    if (r.leads && phrases.length === 1 && LEADS_VERBS.has(verb) && !(verb === "take" && state.world.objects[r.id]?.portable))
+    // A thing that is a way out (`leads`): going, climbing, entering, opening, using or taking it goes that way ("climb the
+    // stairs", "use the ladder", "take the stairs", "open the door").
+    if (r.leads && phrases.length === 1 && LEADS_VERBS.has(verb) && !(verb === "take" && state.world.objects[r.id]?.portable)
+        && !(verb === "open" && (state.world.objects[r.id]?.locked || state.world.objects[r.id]?.container)))
       return { actions: [{ verb: "go", dir: r.leads }] };
     if (r.error) return r;
     if (r.absent) absent.push(r.id);
@@ -499,8 +524,26 @@ function readCommand(tokens, state, W, recent) {
     return { error: { say: "@noVerb" } };
   }
   if (verb === "look") verb = "examine";                    // "look door", "mirar puerta"
-  const extra = { ...(topic ? { prep, topic } : {}), ...(absent.length ? { absent } : {}) };
+  const extra = { ...(topic ? { prep, topic } : {}), ...(absent.length ? { absent } : {}), ...(verb === "ask" && W.askFor.has(prep) ? { askFor: true } : {}) };
   return { actions: objs.map(obj => (obj2 ? { verb, obj, prep, obj2, ...extra } : { verb, obj, ...extra })) };
+}
+
+// Verbs that put a key to a lock.
+const KEY_VERBS = new Set(["unlock", "open", "lock", "use"]);
+
+// Two things in reach fit the words ("key": the brass key and the iron one) and only one of them goes with the lock the command
+// names ("unlock chest with key", "use key with chest", either way round): that one is meant, and nobody is asked. The reading
+// carries on with the words as already answered (`picks`, as an answer to "Which do you mean…?" is).
+function withLockPicks(phrases, state, W, recent) {
+  const read = (ph) => ph.words.length === 1 && W.it.has(ph.words[0]) ? resolvePronoun(ph.words[0], recent, state, W) : resolve(ph.words, state, W, false);
+  const things = phrases.map(read), picks = [];
+  things.forEach((r, i) => {
+    const other = things[1 - i].id;
+    if (r.error?.say !== "@which" || !other) return;
+    const o = state.world.objects, fit = r.error.arg.filter(c => o[other].lock?.key === c || o[c].lock?.key === other);
+    if (fit.length === 1) picks.push({ phrase: r.error.phrase, id: fit[0] });
+  });
+  return picks.length ? { ...W, picks: [...W.picks, ...picks] } : W;
 }
 
 // Where the words say a thing is taken out of ("from", "out of"; the pack's `fromWords`): the first one after at least one
@@ -523,7 +566,7 @@ function readSpeech(verb, words, pronoun, state, W, recent) {
     if (r.id) { obj = r.id; words = words.slice(0, i); }
   }
   if (!obj && pronoun) { const r = resolvePronoun(pronoun, recent, state, W); if (r.error) return r; obj = r.id; }
-  const someone = (id) => { const o = state.world.objects[id]; return o && (o.talk != null || !!o.topics); };
+  const someone = (id) => person(state.world.objects[id]);
   for (let n = 1; n < words.length && n <= 4 && !obj; n++) {
     const r = thing(words.slice(0, n));
     if (r.id && someone(r.id)) { obj = r.id; words = words.slice(n); }
@@ -563,11 +606,23 @@ function splitPhrases(tokens, W, hasFirst = false, names = () => false) {
   return out;
 }
 
-// Do these words fit this thing's names: one of its nouns among them, and all of them its nouns or adjectives?
+// Do these words fit this thing's names: one of its nouns among them, and all of them its nouns or adjectives? A noun of several
+// words ("lift shaft", `multi`) is one noun: its words, together and in order, count as it, and cover each other.
 function fitsName(n, words) {
   if (!n) return false;
   const nouns = new Set(n.nouns || []), adj = new Set(n.adj || []);
-  return words.some(w => nouns.has(w)) && words.every(w => nouns.has(w) || adj.has(w));
+  if (!n.multi) return words.some(w => nouns.has(w)) && words.every(w => nouns.has(w) || adj.has(w));
+  const covered = words.map(w => nouns.has(w) || adj.has(w));
+  let noun = words.some(w => nouns.has(w));
+  for (const run of n.multi)
+    for (let i = 0; i + run.length <= words.length; i++)
+      if (run.every((t, k) => words[i + k] === t)) { noun = true; run.forEach((_, k) => { covered[i + k] = true; }); }
+  return noun && covered.every(Boolean);
+}
+
+// Do these words end in one of the thing's nouns (a run of several words counts as one)? "mint" ends the mint, not the tin of mints.
+function endsInNoun(n, words) {
+  return (n.nouns || []).includes(words.at(-1)) || (n.multi || []).some(run => run.every((t, k) => words.at(k - run.length) === t));
 }
 
 // Do these words, all together, name one thing (anywhere), scenery here, or a neighbouring room? "butaca pasillo" does, for
@@ -598,9 +653,15 @@ function partner(state, W) {
 }
 
 // Which of someone's topics do these words name? The topic's key, or null.
+// A topic's label is asked as it is shown ("Ask about the fourth floor"): the topic whose label these words are, whole, comes
+// first; then the first whose words are among them, a word of several words (a label, "tablón de anuncios") as one.
 function topicOf(phrase, topics, W) {
   const words = phrase.filter(w => !W.preps.has(w) && !W.articles.has(w));
-  const found = Object.entries(topics).find(([k, t]) => k !== "default" && words.some(w => (t.words || []).includes(w)));
+  const run = (x) => x.split(" ").filter(t => !W.preps.has(t) && !W.articles.has(t));
+  const has = (r) => r.length > 0 && words.some((_, i) => r.every((t, k) => words[i + k] === t));
+  const topic = Object.entries(topics).filter(([k, t]) => k !== "default" && t && typeof t === "object");
+  const found = topic.find(([, t]) => t.label && run(t.label).join(" ") === words.join(" ")) ||
+                topic.find(([, t]) => (t.words || []).some(e => has(run(e))));
   return found ? found[0] : null;
 }
 
@@ -625,7 +686,7 @@ function resolve(phrase, state, W, first, absentOK = false, verb = null) {
     const picked = W.picks.find(p => p.phrase === words.join(" ") && here.includes(p.id));
     if (picked) return { id: picked.id, ...leadsOf(state.world.objects[picked.id]) };
     // Prefer an exact noun match ("mint" names the mint, not the tin of mints)
-    const exact = here.filter(id => (W.names[id].nouns || []).includes(words.at(-1)));
+    const exact = here.filter(id => endsInNoun(W.names[id], words));
     if (exact.length === 1) return { id: exact[0] };
     const free = verb === "take" ? here.filter(id => !state.player.carrying.includes(id)) : [];
     if (free.length === 1) return { id: free[0], ...leadsOf(state.world.objects[free[0]]) };
@@ -635,9 +696,10 @@ function resolve(phrase, state, W, first, absentOK = false, verb = null) {
   return { error: { say: "@notHere", arg: show(phrase, W) } };
 }
 
-// A thing that is a way out (stairs, a ladder, a path: `leads: "u"`), as { leads } for resolve(); else nothing.
+// A thing that is a way out (stairs, a ladder, a path: `leads: "u"`; a door, a gate, a hatch: `door: "e"`), as { leads } for resolve();
+// else nothing.
 function leadsOf(thing) {
-  return thing?.leads ? { leads: thing.leads } : {};
+  return wayOf(thing) ? { leads: wayOf(thing) } : {};
 }
 
 // What's mentioned here but not there to use: the room's scenery, and the parts of things in reach (the key in
@@ -665,7 +727,7 @@ function mention(recent, a) {
 //   remos, "them" → something plural); if none fits, the most recent thing in reach; if none, ask.
 // - A pronoun that prefers a person (`person`: "him", "her", *le*, *él*) means a person and never a thing: the last person
 //   mentioned, or talked to (`talkingTo`), if in reach; else the only person in reach; with several and none mentioned,
-//   ask who. A person is a character: an object with `topics`.
+//   ask who. A person is a character: an object with `topics` or `talk` (js/use.js, `person`).
 function resolvePronoun(word, recent, state, W) {
   const want = W.pronouns[word] || {};
   const fits = (id) => {
@@ -675,7 +737,7 @@ function resolvePronoun(word, recent, state, W) {
   if (want.person) {
     const picked = W.picks.find(p => p.phrase === word && inScope(state, p.id));          // "Who do you mean?" was answered
     if (picked) return { id: picked.id };
-    const people = (ids) => ids.filter(id => state.world.objects[id]?.topics && inScope(state, id) && fits(id));
+    const people = (ids) => ids.filter(id => person(state.world.objects[id]) && inScope(state, id) && fits(id));
     const known = people([...recent, state.talkingTo].filter(Boolean))[0];
     if (known) return { id: known };
     const all = people(Object.keys(state.world.objects));
@@ -732,7 +794,7 @@ function clearSlip(word, known) {
 // The words for things here: what's in reach, and this room's scenery (not the cave's roof when you're upstairs).
 function wordsHere(state, W) {
   const ids = Object.keys(W.names).filter(id => state.world.objects[id] && inScope(state, id));
-  return new Set(ids.flatMap(id => [...(W.names[id].nouns || []), ...(W.names[id].adj || [])])
+  return new Set(ids.flatMap(id => [...(W.names[id].nouns || []).filter(x => !x.includes(" ")), ...(W.names[id].adj || []), ...(W.names[id].multi || []).flat()])
     .concat(sceneryHere(state, W).flatMap(s => s.words)));
 }
 

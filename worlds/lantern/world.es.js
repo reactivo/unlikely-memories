@@ -39,7 +39,7 @@ export const bible = {
 };
 
 // Las cosas llevadas tienen sus sprites (sprites.js): el que se ve al examinarlas y el que se dibuja en el suelo.
-const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
+const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // Lo que se puede decir ante el tribunal para nombrar a alguien, como lo deja el intérprete (sin tildes, la ñ se queda, sin
 // artículos quitados: lo dicho se guarda tal cual). Combina las formas de nombrarlo con las maneras de decirlo.
@@ -83,7 +83,7 @@ const rooms = {
       { words: ["asiento", "cojin", "felpa", "banqueta", "coche", "punto"], name: "el asiento", says: "Felpa roja, gastada hasta brillar por muchísima gente que iba a algún sitio con prisa. El tuyo es el único lugar tibio.", leads: "out" },
       { words: ["gancho", "techo", "tejado"], name: "el gancho", says: "Un gancho de latón en el techo, para un farol. Alguien ha colgado en él un pájaro." }
     ],
-    mentions: ["riendas", "ventanilla", "cristal", "niebla", "portezuelas", "asiento", "gancho", "techo"],
+    mentions: ["portezuelas"],
     ambience: { lines: [
       "El coche se mece un poco sobre sus ballestas, como si el caballo acabara de salir de las varas.",
       "En algún punto del blanco suena una campana, una vez, muy lejos, para otro.",
@@ -114,7 +114,7 @@ const rooms = {
       { words: ["niebla", "bruma", "calima"], name: "la niebla", says: "Gris amarillenta y tan espesa que se puede apoyar uno en ella. De vez en cuando pasa una palabra a la altura de la cabeza, demasiado débil para entenderla." },
       { words: ["adoquines", "adoquin", "bordillo"], name: "los adoquines", says: "Adoquines mojados. La niebla lleva tanto tiempo tendida sobre ellos que han tomado su color." }
     ],
-    mentions: ["agente Pye", "puertas", "faroles", "fachadas", "niebla", "adoquines"],
+    mentions: ["agente Pye"],
     ambience: { lines: [
       "Un farol más abajo tose, y se serena.",
       "Pasan pasos entre la niebla, muy cerca, y nadie los acompaña.",
@@ -140,7 +140,7 @@ const rooms = {
       { words: ["vaso", "vasos", "copa", "copas"], name: "el vaso", says: "El señor Cotter lo levanta contra el farol, le encuentra un defecto que nadie más sería capaz de ver y sigue sacándole brillo." },
       { words: ["chimenea", "hogar", "rejilla", "parrilla"], name: "la chimenea", says: "Una rejilla de hierro, con el carbón amontonado hasta arriba." }
     ],
-    mentions: ["señor Cotter", "fuego", "barra", "hombres", "vaso", "vigas", "chimenea"],
+    mentions: ["señor Cotter"],
     ambience: { lines: [
       "El canto se detiene el tiempo de un aliento, y vuelve a empezar un poco más adelante.",
       "Alguien en la barra dice el nombre de Fenn, y los demás beben por él sin saber muy bien por qué.",
@@ -160,7 +160,7 @@ const rooms = {
       { words: ["mostrador", "bandejas", "bandeja", "pasteles", "masa"], name: "el mostrador", says: "Bandejas de pasteles en filas, cada uno con un respiradero cortado en forma de hoja. En una de las filas falta uno." },
       { words: ["escaparate", "ventana", "vaho", "vapor", "letra", "cristal"], name: "el escaparate", says: "Empañado por dentro hasta no ver. Alguien ha escrito con un dedo una sola letra en el vaho, una A, y el vaho casi se la ha llevado de vuelta." }
     ],
-    mentions: ["horno", "señora Halloran", "mostrador", "escaparate", "pasteles", "harina"],
+    mentions: ["señora Halloran", "harina"],
     smell: "Masa y grasa caliente, y debajo algo más dulce: el olor de una cocina donde siempre se espera a alguien.",
     alt: "Una tienda de pasteles vista desde arriba: un largo mostrador marrón con bandejas de pasteles dorados en filas, la boca encendida de un horno de hierro arriba, un escaparate empañado a lo largo del borde inferior y una mujer con gorro blanco inclinada sobre el mostrador, a la derecha."
   },
@@ -175,7 +175,7 @@ const rooms = {
       { words: ["pupitre", "tribuna", "sitial", "tachuelas", "cuero", "paneles"], name: "el pupitre", says: "Alto y verde, con tachuelas de latón. Lo construyeron para que los forenses miraran las cosas desde arriba, y lo hacen." },
       { words: ["sillas", "silla", "jurado", "niebla"], name: "el jurado", says: "Doce sillas en dos filas. La niebla las ha ocupado todas y está muy quieta, como se queda un jurado que ya ha decidido escuchar." }
     ],
-    mentions: ["estrado de testigos", "doctor Mabbott", "pupitre", "sillas", "jurado", "niebla", "pluma"],
+    mentions: ["doctor Mabbott", "pluma"],
     alt: "Mirando hacia arriba desde el estrado de testigos a un alto pupitre verde de forense: un hombre delgado de negro encima con una pluma, una lámpara de pantalla verde a su lado y, a la derecha, doce sillas de jurado con niebla pálida sentada en ellas."
   },
   last_lamp: {
@@ -187,13 +187,13 @@ const rooms = {
     exits: {
       n: "row", w: "substation", s: "river_steps",
       // La caseta es el único edificio al que aquí significa «dentro» (la subestación se entra por su nombre): el camino al este es también el camino dentro.
-      e: { to: "hut", in: true, if: { "hut_door.locked": false }, closed: "La puerta de la caseta está cerrada con llave. Necesita la llave del señor Fenn." }
+      e: { to: "hut", in: true }
     },
     scenery: [
       { words: ["muro", "bordillo", "adoquines", "rio"], name: "el muro del río", says: "Un muro bajo de piedra negra, y el río chapoteando contra él en algún lugar de abajo. El bordillo está gastado allí donde un solo hombre se sentó una vez." },
       { words: ["escalones", "escalon", "escalera", "peldaños", "peldanos"], name: "los escalones", says: "Escalones de piedra que bajan al río, al sur.", leads: "s" }
     ],
-    mentions: ["farol", "señor Fenn", "bordillo", "adoquines", "niebla", "caseta", "muro del río", "escalones"],
+    mentions: ["señor Fenn", "muro del río"],
     ambience: { lines: [
       "La niebla murmura, una palabra aquí, media palabra allá, como un público en otra sala.",
       "El río chapotea contra el muro, una vez, como para dejar algo claro.",
@@ -210,13 +210,12 @@ const rooms = {
       "La caseta del señor Fenn: una caja de madera del tamaño de un armario, con olor a gas y a parafina. Cuarenta años de gorras cuelgan de cuarenta años de clavos, la más vieja arriba.",
       "Su {libro de registro|logbook} está abierto sobre el estante, en la página de hoy. La puerta queda al oeste."
     ],
-    exits: { w: { to: "last_lamp", out: true } },
+    exits: { w: "last_lamp" },
     scenery: [
       { words: ["gorras", "gorra", "clavos", "clavo"], name: "las gorras", says: "La misma gorra cuarenta veces, cada una un poco más verde que la siguiente. El clavo más nuevo está vacío." },
       { words: ["estante", "balda", "lata", "cerillas", "fosforos"], name: "el estante", says: "Una tabla sobre dos escuadras, con el libro de registro y una lata de cerillas que nadie ha necesitado en cuarenta años." },
       { words: ["puerta", "caseta"], name: "la puerta", says: "La puerta de la caseta, abierta, y fuera, al oeste, el último farol.", leads: "w" }
     ],
-    mentions: ["gorras", "clavos", "libro de registro", "estante", "puerta"],
     alt: "Dentro de una caseta de madera diminuta, mirando a su pared del fondo: tres filas de gorras viejas en clavos, de un verde vivo arriba y más grises abajo, el último clavo vacío, y un estante con un libro de registro abierto y una lata roja.",
     overlayAlt: { trumpet: "Una trompetilla de latón abollada yace en el suelo." }
   },
@@ -231,7 +230,7 @@ const rooms = {
       { words: ["bombilla", "luz", "foco", "cable"], name: "la bombilla", says: "Una bombilla eléctrica colgada de su cable, muy blanca, muy segura de sí. Hace que el ladrillo parezca sorprendido en falta." },
       { words: ["escritorio", "mesa", "ladrillo", "ladrillos", "cables"], name: "el escritorio", says: "Un escritorio de la Compañía, ladrillo de la Compañía, cables de la Compañía que bajan al suelo, esperando al lunes." }
     ],
-    mentions: ["dínamo", "señor Voss", "libro de cuentas", "bombilla", "escritorio", "sombrero hongo"],
+    mentions: ["señor Voss", "sombrero hongo"],
     ambience: { lines: [
       "La dínamo cambia un poco de nota, como si se le hubiera ocurrido algo.",
       "La bombilla parpadea una vez, y el señor Voss la mira, dolido.",
@@ -250,7 +249,7 @@ const rooms = {
       { words: ["escalera", "escalones", "escalon", "muro"], name: "la escalera", says: "Escalones de piedra, verdes abajo, que vuelven a subir al último farol, al norte.", leads: "n" },
       { words: ["barro", "fango", "franja", "orilla"], name: "el barro", says: "Barro negro, brillante. Las cosas se hunden en él y, si Pip anda cerca, vuelven a aparecer." }
     ],
-    mentions: ["Pip", "río", "barro", "escalera", "cubo", "palo", "Támesis"],
+    mentions: ["cubo", "palo", "Támesis"],
     ambience: { lines: [
       "El río chupa el último escalón y lo suelta.",
       "Pip sostiene algo ante la niebla, lo piensa mejor y lo deja caer otra vez en el barro.",
@@ -271,7 +270,7 @@ const rooms = {
       { words: ["faroles", "farol", "collar", "hueco", "orilla", "calle", "lantern", "row"], name: "la calle", says: "Once faroles en fila, pequeños y amarillos, y luego un hueco donde debería estar el duodécimo." },
       { words: ["mitad", "lejana", "otra", "final"], name: "la mitad lejana", says: "Niebla, y más niebla. El puente se mete en ella y no sale. Nadie en la calle ha necesitado nunca la otra orilla." }
     ],
-    mentions: ["parapeto", "río", "faroles", "orilla", "mitad lejana"],
+    mentions: ["mitad lejana"],
     alt: "A lo lejos, sobre una niebla de azul pálido y un agua oscura, una orilla baja con una corta hilera de faroles amarillos diminutos y un hueco al final; un parapeto de piedra a lo largo del borde inferior de la imagen."
   }
 };
@@ -279,22 +278,22 @@ const rooms = {
 // ---- Objetos -----------------------------------------------------------------------------------------------------------
 const objects = {
   // La apertura: la cosa que coger, la que ya llevas y el camino (BRIEF.md §3).
-  canary: { at: "cab", portable: true, name: "Canario", note: "Vigilando la niebla por ti.", actions: ["Coger canario", "Escuchar canario"], heldActions: ["Escuchar canario", "Examinar canario"],
+  canary: { at: "cab", portable: true, name: "Canario", note: "Vigilando la niebla por ti.",
     words: { nouns: ["canario", "pajaro", "ave", "jaula", "pajarito"], adj: ["amarillo", "laton", "pequeno", "pequeño", "dorado"], g: "m" }, ...item("canary"),
     here: "De un gancho del techo cuelga un {canario|canary} en una pequeña jaula de latón, vigilando la niebla por ti.",
     examine: "Un canario amarillo en una jaula de latón del tamaño de un sombrero. Los mineros los bajan a la mina para saber cuándo el aire se echa a perder. A este lo han traído a Londres, donde tiene mucho que decir." },
-  summons: { at: "player", portable: true, name: "Citación", note: "Doblada, oficial.", actions: ["Leer citación"], heldActions: ["Leer citación"],
+  summons: { at: "player", portable: true, name: "Citación", note: "Doblada, oficial.",
     words: { nouns: ["citacion", "citatorio", "papel", "documento", "carta"], adj: ["doblada", "oficial", "judicial"], g: "f" }, ...item("summons"),
     examine: "«Se cita como testigo en la investigación de la muerte de Albert Fenn, farolero, de Lantern Row. El tribunal se reúne a medianoche». Bajo el sello, con otra letra, más pequeña: «El difunto estará presente»." },
-  cab_fog: { at: "cab", scenery: true, name: "Niebla", note: "El único camino.", actions: ["Examinar niebla", "Entrar niebla"],
+  cab_fog: { at: "cab", name: "Niebla", note: "El único camino.",
     words: { nouns: ["niebla", "portezuelas", "portezuela", "puertas", "puerta", "blanco", "bruma"], adj: ["plegables", "abiertas", "espesa", "blanca"], g: "f" },
     examine: "Las portezuelas plegables del coche están abiertas a una niebla tan espesa que tiene veta, como el papel. En algún punto de ella, muy lejos, hay un farol encendido, o recordado." },
 
   // Lantern Row
-  pye: { at: "row", scenery: true, name: "Agente Pye", note: "Haciendo su ronda.", actions: ["Hablar con agente Pye"],
+  pye: { at: "row", name: "Agente Pye", note: "Haciendo su ronda.",
     words: { nouns: ["pye", "agente", "policia", "guardia", "bobby"], adj: ["agente", "policia"], g: "m" },
     examine: "Un agente joven y alto, con capa, con un farol propio y una {libreta|notebook} que sostiene como un devocionario. En la copa del casco se le ha juntado un poco de niebla.",
-    parts: [{ words: ["casco", "capa"], name: "su casco", says: "La niebla se ha estancado en la copa. Él no se ha dado cuenta, o es demasiado educado para decirlo." }], mentions: ["libreta", "casco", "capa"],
+    parts: [{ words: ["casco", "capa"], name: "su casco", says: "La niebla se ha estancado en la copa. Él no se ha dado cuenta, o es demasiado educado para decirlo." }], mentions: ["casco", "capa"],
     talk: "«Buenas noches», dice el agente Pye. «A ti te toca declarar. La investigación es a medianoche, en el tribunal. Tengo apuntados a los presentes, si los quieres».",
     topics: {
       present: { open: true, label: "los presentes", words: ["presentes", "presente", "personas", "lista", "sospechosos", "gente", "libreta"], says: "«Presentes junto al último farol esta noche», lee. «El señor Voss, de la Compañía. La señora Halloran, de los pasteles. El difunto. Es todo lo que la niebla me ha dejado ver»." },
@@ -305,15 +304,15 @@ const objects = {
       inquest: { open: true, label: "la investigación", words: ["investigacion", "tribunal", "forense", "medianoche", "mabbott", "nombre"], says: "«Medianoche, en el tribunal, al norte de aquí. Al doctor Mabbott le gusta un nombre. Procura darle el correcto. Un nombre dicho ahí dentro se queda dicho»." },
       default: "«Lo anotaré», dice el agente Pye, y lo anota."
     } },
-  notebook: { at: "pye", scenery: true, name: "Libreta", note: "Los presentes.",
+  notebook: { at: "pye", name: "Libreta", note: "Los presentes.",
     words: { nouns: ["libreta", "cuaderno", "lista"], adj: ["agente", "policia", "negra"], g: "f" },
     examine: "Con letra cuidada: «Presentes en el último farol, esta noche: señor Voss (Cía. Eléctrica). Señora Halloran (pasteles). El difunto». Debajo, más pequeño: «Niebla muy espesa. No se veían caras. Se oyó una voz»." },
-  court_doors: { at: "row", scenery: true, name: "Puertas del tribunal", note: "La investigación es a medianoche.", actions: ["Examinar puertas"], leads: "n",
+  court_doors: { at: "row", name: "Puertas del tribunal", note: "La investigación es a medianoche.", door: "n",
     words: { nouns: ["puertas", "puerta", "cartulina", "cartel", "aviso"], adj: ["tribunal", "roble", "forense"], g: "f", pl: true },
     examine: "Puertas de roble con una cartulina clavada: «Investigación. A. Fenn, farolero. Medianoche». Se abren cuando el tribunal se reúne, y no antes." },
 
   // The Bell
-  cotter: { at: "bell", scenery: true, name: "Señor Cotter", note: "El tabernero.", actions: ["Hablar con señor Cotter", "Pedir porter"],
+  cotter: { at: "bell", name: "Señor Cotter", note: "El tabernero.",
     words: { nouns: ["cotter", "tabernero", "posadero", "camarero"], adj: ["señor", "senor"], g: "m" },
     examine: "Un hombre ancho en mangas de camisa y chaleco, que ha oído cada canción de The Bell cantada mal y no ha perdonado ninguna.",
     talk: "«¿Qué te pongo?», dice el señor Cotter. «Cerramos a las once. Después, la calle queda tan quieta que se oye caer una palabra».",
@@ -325,36 +324,45 @@ const objects = {
       halloran: { label: "Halloran", words: ["halloran", "pasteles", "pastel"], says: "«Enamorada de Fenn cuarenta años, estaba. Nunca se lo dijo, que se sepa»." },
       default: "«No sabría decirte», dice el señor Cotter. «Yo solo sirvo»."
     } },
-  fire: { at: "bell", scenery: true, name: "Fuego", note: "Amontonado hasta arriba.", actions: ["Examinar fuego"],
+  fire: { at: "bell", name: "Fuego", note: "Amontonado hasta arriba.",
     words: { nouns: ["fuego", "lumbre", "llamas", "carbon", "brasas"], adj: ["carbon"], g: "m" },
     examine: "Carbón amontonado hasta arriba y rugiendo bajito para sí. La niebla se cuela por la puerta, lo mira una vez y vuelve a salir." },
-  porter: { at: null, portable: false, name: "Media pinta de porter", note: "Oscura, con espuma.", actions: ["Examinar porter"],
+  porter: { from: "cotter", times: 3, brought: ["El señor Cotter te sirve media pinta de {porter} sin preguntar cuál.",
+              "El señor Cotter te sirve otra media. «Esta es la buena», dice. «La tercera es la que habla por ti».",
+              "El señor Cotter te sirve una tercera media y te mira como quien vigila un cazo al fuego. La canción de la barra empieza a tener sentido."],
+    again: "El señor Cotter se queda el vaso y no lo llena. «Tres es la cuenta», dice. «Después de tres, la calle te lleva a casa sola».",
+    consumable: true, heals: 1, starts: "drunk", drink: ["Te la bebes junto al fuego. La niebla del pecho se va a sentarse a otro sitio un rato.",
+            "Te la bebes junto al fuego, y la niebla del pecho se aleja un poco más."],
+    at: null, portable: false, name: "Media pinta de porter", note: "Oscura, con espuma.",
     words: { nouns: ["porter", "pinta", "cerveza", "trago", "bebida"], adj: ["media", "negra", "oscura"], g: "f" },
     examine: "Oscura como el río y más caliente." },
 
   // La tienda de pasteles
-  halloran: { at: "pie_shop", scenery: true, name: "Señora Halloran", note: "Harina hasta los codos.", actions: ["Hablar con señora Halloran", "Pedir pastel"],
+  halloran: { at: "pie_shop", name: "Señora Halloran", note: "Harina hasta los codos.",
     words: { nouns: ["halloran", "mujer", "pastelera", "panadera"], adj: ["señora", "senora"], g: "f" },
     examine: "Una mujer menuda con gorro blanco y delantal enharinado. Las manos siguen trabajando cuando el resto de ella ha parado.",
     parts: [{ words: ["harina", "delantal", "manos", "gorro"], name: "su delantal", says: "Harina hasta los codos, y en el delantal dos huellas enharinadas de manos, donde ha apretado algo contra él." }], mentions: ["harina", "delantal"],
     talk: "«Estamos cerrados», dice la señora Halloran, aunque la puerta estaba abierta y el horno encendido. «Toma un pastel de todos modos. Alguien tiene que hacerlo».",
     topics: {
-      pie: { open: true, label: "un pastel", words: ["pastel", "pasteles", "comida", "cena"], says: "«Con uno basta», dice. «Él solo tomaba uno»." },
+      pie: { open: true, label: "un pastel", words: ["pastel", "pasteles", "comida", "cena"], says: "«De carne, con un poco de riñón», dice. «Nadie pregunta qué llevan. Él nunca lo preguntó»." },
       fenn: { label: "Fenn", words: ["fenn", "albert", "farolero", "muerte"], says: "«Cuarenta años cenó aquí su pastel, y bajó con él hasta el último farol, y lo encendió». Pasa el trapo por el mostrador, donde ya está limpio. «Esta noche he bajado con él. La primera vez en cuarenta años»." },
       voss: { label: "Voss", words: ["voss", "compania", "electrica"], says: "«Ese Voss. Le dijo a Albert que sus faroles estaban acabados, bajo mi ventana, en el tercer farol. Albert le dio las gracias. Era de esperar»." },
       fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "dicho"], says: "«Lo que se dice en esa niebla se queda dicho», dice. «Por eso yo nunca decía mucho. En cuarenta años»." },
       inquest: { about: "court", label: "la investigación", words: ["investigacion", "tribunal", "forense", "medianoche"], says: "«No iré», dice. «No tengo nada que decir». Tiene harina hasta los codos, y la mira." },
       default: "«Yo solo hago pasteles, criatura», dice la señora Halloran."
     } },
-  oven: { at: "pie_shop", scenery: true, name: "Horno", note: "Nunca se apaga.", actions: ["Examinar horno"],
+  oven: { at: "pie_shop", name: "Horno", note: "Nunca se apaga.",
     words: { nouns: ["horno", "cocina", "fogon"], adj: ["hierro", "negro"], g: "m" },
     examine: "Un horno de hierro negro, con la puerta entornada sobre un resplandor del color de una buena tarde. Está encendido desde los tiempos de la vieja Reina, y la señora Halloran le habla cuando la tienda está vacía." },
-  pie: { at: null, portable: false, name: "Pastel", note: "Caliente, todavía humeante.", actions: ["Examinar pastel"],
+  pie: { from: "halloran", brought: "La señora Halloran envuelve un {pastel|pie} en papel y te lo deja en el mostrador, caliente.",
+    again: "«Con uno basta», dice la señora Halloran. «Él solo tomaba uno».",
+    consumable: true, heals: 1, stops: "drunk", eat: "Te lo comes de pie. Sabe a que te esperan.",
+    at: null, portable: false, name: "Pastel", note: "Caliente, todavía humeante.",
     words: { nouns: ["pastel", "pasteles", "cena"], adj: ["caliente", "carne"], g: "m" },
     examine: "Un pastel envuelto en papel, demasiado caliente para sostenerlo y demasiado bueno para soltarlo." },
 
   // El tribunal
-  mabbott: { at: "court", scenery: true, name: "Doctor Mabbott", note: "El forense.", actions: ["Hablar con doctor Mabbott"],
+  mabbott: { at: "court", name: "Doctor Mabbott", note: "El forense.",
     words: { nouns: ["mabbott", "forense", "doctor", "juez"], adj: ["doctor", "dr"], g: "m" },
     examine: "Un hombre delgado con abrigo negro, con una pluma detrás de cada oreja y una tercera en la mano. Ha presidido la investigación de cada muerte de la calle desde los tiempos de la vieja Reina, y ha estado de acuerdo con casi todas.",
     parts: [{ words: ["pluma", "plumas", "tinta", "plumilla"], name: "su pluma", says: "De plumilla de acero, y seca. Espera un nombre." }], mentions: ["pluma"],
@@ -366,17 +374,17 @@ const objects = {
       verdict: { open: true, label: "el veredicto", words: ["veredicto", "investigacion", "fallo", "sentencia"], says: "«El tribunal da por bueno lo que le cuentan», dice. «Ese es el problema de los tribunales»." },
       default: "«No es asunto de este tribunal», dice el doctor Mabbott, y toma una pequeña nota de todos modos."
     } },
-  witness_box: { at: "court", scenery: true, name: "Estrado de testigos", note: "Para ti.", actions: ["Entrar estrado"], enterable: "in",
+  witness_box: { at: "court", name: "Estrado de testigos", note: "Para ti.", enterable: "in",
     words: { nouns: ["estrado"], adj: ["testigo", "testigos", "de"], g: "m" },
     enter: "Entras en el estrado. Es exactamente de tu medida, como si el carpintero lo hubiera sabido.",
     examine: "Un recinto de madera barnizada, con una barandilla gastada hasta quedar clara por las manos de quienes vieron algo. Es exactamente de tu medida." },
 
   // El último farol
-  fenn: { at: "last_lamp", scenery: true, name: "Señor Fenn", note: "Muerto, y de servicio.", actions: ["Hablar con señor Fenn"],
+  fenn: { at: "last_lamp", name: "Señor Fenn", note: "Muerto, y de servicio.",
     words: { nouns: ["fenn", "farolero", "albert", "hombre", "cuerpo", "difunto", "cadaver"], adj: ["señor", "senor", "muerto", "viejo"], g: "m" },
     examine: "Un hombre menudo con gorra y un abrigo verdoso en las costuras, sentado muy recto en el bordillo con las manos en las rodillas. Lleva una {llave|hut_key} colgada de un cordel al cuello. Está muerto, y sigue de servicio.",
     take: "Pesa más de lo que parece. Lleva mucho tiempo en su puesto.",
-    parts: [{ words: ["abrigo", "costuras", "manos", "rodillas", "gorra"], name: "su abrigo", says: "Verde en las costuras, pulido en los codos por cuarenta años de alcanzar lo alto." }], mentions: ["llave", "abrigo", "gorra"],
+    parts: [{ words: ["abrigo", "costuras", "manos", "rodillas", "gorra"], name: "su abrigo", says: "Verde en las costuras, pulido en los codos por cuarenta años de alcanzar lo alto." }], mentions: ["abrigo", "gorra"],
     talk: "«Buenas noches», dice el señor Fenn, sin levantarse. «No puedo dejar mi puesto. No hasta que me releven».",
     topics: {
       death: { open: true, label: "la muerte", words: ["muerte", "murio", "muerto", "asesinato", "matado", "quien", "morir"], says: "«No sabría decirte quién», dice. «No sería justo, no antes de la investigación. Pregunta a la niebla. Estaba aquí»." },
@@ -388,41 +396,40 @@ const objects = {
       inquest: { open: true, label: "la investigación", words: ["investigacion", "tribunal", "forense", "medianoche"], says: "«Medianoche. No asistiré. No puedo dejar mi puesto»." },
       default: "«No sabría decirte», dice el señor Fenn. «Yo solo hacía los faroles»."
     } },
-  hut_key: { at: "fenn", portable: true, name: "Llave de la caseta", note: "En un cordel.", actions: ["Coger llave"], heldActions: ["Examinar llave", "Abrir puerta con llave"],
+  hut_key: { at: "fenn", portable: true, name: "Llave de la caseta", note: "En un cordel.", actions: ["Coger llave"],
     words: { nouns: ["llave", "cordel", "cuerda", "cordon"], adj: ["caseta", "hierro", "pequena", "pequeña"], g: "f" }, ...item("hut_key"),
-    here: "Una pequeña {llave|hut_key} de hierro, en su cordel, está donde la dejaste.",
+    lies: "Una pequeña {llave|hut_key} de hierro, en su cordel, está donde la dejaste.",
     examine: "Una pequeña llave de hierro en un trozo de cordel, tibia de un cuello que ya no es." },
-  dark_lamp: { at: "last_lamp", scenery: true, name: "El último farol", note: "El único apagado.", actions: ["Examinar farol", "Encender farol"],
+  dark_lamp: { at: "last_lamp", name: "El último farol", note: "El único apagado.", actions: ["Encender farol"],
     words: { nouns: ["farol", "farola", "poste", "linterna", "cristal", "lampara"], adj: ["ultimo", "apagado", "oscuro", "duodecimo", "hierro"], g: "m" },
     examine: "Un poste de hierro y una linterna de cuatro cristales, fría, con la llave del gas cerrada. Es el duodécimo farol de doce, y el único de la calle que nadie encendió esta noche. Está demasiado alto para alcanzarlo sin la pértiga de un farolero.",
     climb: "El poste es de hierro y está mojado, y no hay dónde agarrarse. Los faroleros nunca trepaban. Para eso tenían una pértiga." },
-  fog_lamp: { at: "last_lamp", scenery: true, name: "Niebla", note: "Murmurando, palabra a palabra.", actions: ["Escuchar niebla"],
+  fog_lamp: { at: "last_lamp", name: "Niebla", note: "Murmurando, palabra a palabra.", actions: ["Escuchar niebla"],
     words: { nouns: ["niebla", "murmullo", "murmullos", "bruma"], adj: ["espesa"], g: "f" },
     examine: "La niebla es aquí más espesa, y murmura: una palabra, media palabra, demasiado débiles para entenderlas, todas dichas aquí y ninguna oída todavía." },
-  hut_door: { at: "last_lamp", scenery: true, name: "Puerta de la caseta", note: "La del señor Fenn.", actions: ["Examinar puerta", "Abrir puerta"], leads: "e",
+  hut_door: { at: "last_lamp", name: "Puerta de la caseta", note: "La del señor Fenn.", door: "e",
     words: { nouns: ["puerta", "caseta", "garita"], adj: ["madera", "verde"], g: "f" },
     examine: "La puerta de una caseta de madera del tamaño de un armario, pintada de verde muchas veces. Cerrada con llave: necesita la llave del señor Fenn.",
     locked: true, lock: { key: "hut_key", says: "La puerta de la caseta está cerrada con llave. Necesita la llave del señor Fenn.",
       opens: "La llave gira como si lo hiciera todas las noches desde hace cuarenta años. La puerta de la caseta se abre sobre un olor a gas y a parafina.", then: "hut_opened" } },
 
   // La caseta
-  trumpet: { at: "hut", portable: true, name: "Trompetilla", note: "Para escuchar el gas.", actions: ["Coger trompetilla"], heldActions: ["Escuchar trompetilla", "Examinar trompetilla"],
+  trumpet: { at: "hut", portable: true, name: "Trompetilla", note: "Para escuchar el gas.", heldActions: ["Escuchar trompetilla"],
     words: { nouns: ["trompetilla", "trompeta"], adj: ["laton", "abollada", "acustica"], g: "f" }, ...item("trumpet"),
     here: "Hay una {trompetilla|trumpet} de latón, abollada.",
     examine: "Una trompetilla de latón, abollada, de las que los viejos faroleros acercaban a un farol para saber si el gas respiraba. Por dentro del pabellón el latón brilla, como si hubiera estado escuchando algo tibio." },
-  pole: { at: "hut", portable: true, name: "Pértiga del farolero", note: "Todavía encendida.", actions: ["Coger pértiga"], heldActions: ["Examinar pértiga"],
+  pole: { at: "hut", portable: true, shape: ["pole_shape", "pole_flame"], name: "Pértiga del farolero", note: "Todavía encendida.",
     words: { nouns: ["pertiga", "llama", "gancho", "vara"], adj: ["farolero", "larga", "laton", "azul", "de", "del"], g: "f" }, ...item("pole"),
     here: "La larga {pértiga|pole} del señor Fenn está apoyada aquí, con su pequeña llama azul todavía encendida.",
     examine: "Una larga pértiga con un gancho de latón para la llave del gas y una pequeña llama azul en la punta que no se ha apagado en cuarenta años. Pesa más en el extremo que hizo el trabajo." },
-  logbook: { at: "hut", scenery: true, name: "Libro de registro", note: "Cada farol, cada noche.",
+  logbook: { at: "hut", name: "Libro de registro", note: "Cada farol, cada noche.",
     words: { nouns: ["libro", "registro", "pagina", "diario"], adj: ["registro", "abierto", "faroles", "de"], g: "m" },
     examine: "Cada farol de cada noche durante cuarenta años, a lápiz. La página de hoy: «Farol uno, encendido. Dos, encendido. Tres, encendido. Visita de Voss, desagradable. Cuatro, encendido», y así hasta once, y luego: «Pastel». Debajo, «Doce», y nada después." },
 
   // La subestación
-  voss: { at: "substation", scenery: true, name: "Señor Voss", note: "La Compañía Eléctrica.", actions: ["Hablar con señor Voss"],
+  voss: { at: "substation", name: "Señor Voss", note: "La Compañía Eléctrica.",
     words: { nouns: ["voss", "hombre", "compania", "empleado"], adj: ["señor", "senor", "electrica"], g: "m" },
     examine: "Un hombre pulcro de cuello de celuloide y un {sombrero hongo|bowler}, que mira la dínamo como otros hombres miran a sus hijos.",
-    mentions: ["sombrero hongo"],
     talk: "«Voss, de la Compañía Eléctrica», dice, y te tiende una mano que no has pedido. «El lunes la calle se pasa a la electricidad. Querrás preguntarme por Fenn. Todo el mundo lo hace».",
     topics: {
       fenn: { open: true, label: "Fenn", words: ["fenn", "albert", "farolero", "muerte", "dijo", "palabras"], says: "«Se lo dije claro, en su tercer farol. Se acabaron sus faroles, Fenn. El lunes la calle se pasa a la electricidad». Resopla. «Me dio las gracias y siguió hasta el cuarto. Las gracias»." },
@@ -432,23 +439,23 @@ const objects = {
       inquest: { about: "court", label: "la investigación", words: ["investigacion", "tribunal", "forense", "medianoche", "nombre"], says: "«Querrán un nombre», dice. «El mío es bueno para eso, supongo. A todo el mundo le gusta culpar a la Compañía»." },
       default: "«Eso no es asunto de la Compañía», dice el señor Voss."
     } },
-  bowler: { at: "voss", scenery: true, name: "Sombrero hongo", note: "Reglamentario de la Compañía.", actions: ["Examinar hongo"],
+  bowler: { at: "voss", name: "Sombrero hongo", note: "Reglamentario de la Compañía.",
     words: { nouns: ["hongo", "sombrero", "bombin"], adj: ["negro"], g: "m" },
     examine: "Un hongo negro, cepillado contra la niebla. No se lo ha quitado desde que lo envió la Compañía, por si la Compañía se asoma." },
-  dynamo: { at: "substation", scenery: true, name: "Dínamo", note: "Zumbando, muy segura.", actions: ["Escuchar dínamo"],
+  dynamo: { at: "substation", name: "Dínamo", note: "Zumbando, muy segura.",
     words: { nouns: ["dinamo", "maquina", "tambor", "bobina"], adj: ["grande", "zumbante"], g: "f" },
     examine: "Un gran tambor de hierro bobinado de cobre, que zumba. El lunes encenderá doce faroles a la vez y ya ha dejado de pensar en otra cosa.",
     listen: "Un zumbido grave y seguro, sin una sola palabra dentro. Al señor Voss le parece relajante.",
     touch: "Tibia, y muy segura de sí misma. No se da cuenta de que estás ahí." },
-  ledger: { at: "substation", scenery: true, name: "Libro de cuentas", note: "Cifras de la Compañía.",
+  ledger: { at: "substation", name: "Libro de cuentas", note: "Cifras de la Compañía.",
     words: { nouns: ["libro", "cuentas", "cifras", "columnas"], adj: ["compania", "abierto", "de", "cuentas"], g: "m" },
     examine: "Columnas de cifras y, al pie de la de hoy, con letra pulcra: «Informado F. del lunes, en su tercer farol. Me dio las gracias. Regreso aquí». La palabra «gracias» está subrayada dos veces." },
 
   // La escalera del río
-  pip: { at: "river_steps", scenery: true, name: "Pip", note: "Rebusca en el fango.", actions: ["Hablar con Pip"],
+  pip: { at: "river_steps", name: "Pip", note: "Rebusca en el fango.",
     words: { nouns: ["pip", "niña", "nina", "chica", "rebuscadora"], adj: [], g: "f", proper: true },
     examine: "Una niña de unos diez años con un abrigo de hombre, con barro hasta la rodilla, un {cubo|bucket} de cosas perdidas y un palo para encontrar más.",
-    parts: [{ words: ["cubo", "palo", "abrigo"], name: "su cubo", says: "Cucharas, botones, un pomo de puerta, medio par de gafas. Y en el fondo, algo pequeño y pálido que tapa con la mano cuando lo miras." }], mentions: ["cubo", "palo"],
+    parts: [{ words: ["cubo", "palo", "abrigo"], name: "su cubo", says: "Cucharas, botones, un pomo de puerta, medio par de gafas. Y en el fondo, algo pequeño y pálido que tapa con la mano cuando lo miras." }], mentions: ["palo"],
     talk: "«Quien lo encuentra se lo queda», dice Pip, sin levantar la vista. «Pregúntame qué he encontrado, si quieres».",
     topics: {
       found: { open: true, label: "los hallazgos", words: ["hallazgos", "hallazgo", "encontrado", "encontrar", "cubo", "cosas", "barro"], says: "«Cucharas. Un botón. Palabras, a veces, cuando caen al río. Se ponen duras en el barro, como galletas. Esta noche nada». Mira escalera arriba. «Esta noche oí»." },
@@ -457,19 +464,19 @@ const objects = {
       river: { open: true, label: "el río", words: ["rio", "tamesis", "agua", "nadar"], says: "«No te metas. El agua está más fría de lo que parece y no devuelve nada. Salvo a mí»." },
       default: "«Ni idea», dice Pip. «No está en el cubo»."
     } },
-  river: { at: "river_steps", scenery: true, name: "Río", note: "Pardo, sin prisa.", actions: ["Examinar río"],
+  river: { at: "river_steps", name: "Río", note: "Pardo, sin prisa.",
     words: { nouns: ["rio", "tamesis", "agua"], adj: ["pardo", "frio"], g: "m" },
     examine: "Agua parda, que corre deprisa bajo su propia calma, con la niebla tendida encima como una tapa. Parece frío y hambriento, y el último escalón está oscuro donde ya ha alargado la mano hacia ti. No devuelve nada, dice Pip." },
 
   // El puente
-  parapet: { at: "bridge", scenery: true, name: "Parapeto", note: "Piedra fría.", actions: ["Examinar parapeto"],
+  parapet: { at: "bridge", name: "Parapeto", note: "Piedra fría.",
     words: { nouns: ["parapeto", "piedra", "balaustrada", "barandilla", "baranda"], adj: ["mojado", "frio", "piedra"], g: "m" },
     examine: "Piedra fría, mojada de niebla. Desde aquí se ve la forma que hace la niebla sobre la calle: más espesa alrededor del último farol, y alrededor de la chimenea de la tienda de pasteles, inclinada hacia ella como alguien que escucha." },
 
   // Lo que llega a las manos más tarde
-  last_words: { at: null, portable: true, name: "Últimas palabras", note: "Entre tus manos juntas.", actions: ["Examinar palabras"], heldActions: ["Examinar palabras", "Dar palabras a Mabbott"],
+  last_words: { at: null, portable: true, name: "Últimas palabras", note: "Entre tus manos juntas.", heldActions: ["Dar palabras a Mabbott"],
     words: { nouns: ["palabras", "palabra", "frase", "oracion"], adj: ["ultimas", "ultima", "tibias", "tibia"], g: "f", pl: true }, ...item("last_words"),
-    here: "Las {últimas palabras|last_words} están aquí, todavía algo tibias.",
+    lies: "Las {últimas palabras|last_words} están aquí, todavía algo tibias.",
     examine: "«Déjalo, Albert. Siéntate un momento. Nadie echará de menos un farol». Una voz de mujer, grave y cálida, con harina encima. Las palabras aún están un poco tibias, y huelen a masa." }
 };
 
@@ -511,20 +518,18 @@ const rules = [
     do: [{ say: "«La llave está al cuello», dice el señor Fenn, e inclina la cabeza para que puedas pasarle el cordel por encima. «No voy a ir a ninguna parte»." }, { move: "hut_key", to: "player" }, { change: "key_taken" }] },
 
   // Escuchar la niebla en el último farol: con la trompetilla, cuando The Bell ha cerrado y la calle está en silencio.
-  { id: "hear_noisy", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
+  { id: "hear_noisy", match: { verb: ["listen", "put"], obj: [null, "fog_lamp", "trumpet"] },
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "time.hour": { between: [11, 23] } }],
     do: [{ say: "Acercas la trompetilla a la niebla. Se llena hasta el borde con el coro de The Bell, una docena de hombres, cada uno un poco por detrás del siguiente. Debajo, muy pequeño, algo intenta que lo oigan. Tendrá que esperar a que cierre The Bell." }] },
-  { id: "hear_words", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
-    if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "last_words.at": null }],
+  { id: "hear_words", match: { verb: ["listen", "put"], obj: [null, "fog_lamp", "trumpet"] },
+    if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }], once: true,
+    again: "La niebla no tiene nada más que decir aquí. Ya ha dicho bastante.",
     do: [{ say: "Acercas la trompetilla a la niebla y escuchas. Casi todo lo que guarda la niebla es tiempo. Luego, cerca del farol, grave: una voz de mujer, cálida, con harina encima. «Déjalo, Albert. Siéntate un momento. Nadie echará de menos un farol»." },
          { say: "Las palabras bajan de la niebla y se posan en tus manos juntas, ligeras como una polilla, todavía algo tibias." },
          { move: "last_words", to: "player" }] },
-  { id: "heard_already", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
-    if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }],
-    do: [{ say: "La niebla no tiene nada más que decir aquí. Ya ha dicho bastante." }] },
   { id: "listen_fog_bare", match: { verb: "listen", obj: [null, "fog_lamp"] }, if: [{ "player.at": "last_lamp" }],
     do: [{ say: "La niebla murmura: una palabra aquí, media palabra allá, demasiado débiles para entenderlas. El señor Fenn escuchaba el gas con una trompetilla; ella lo oiría." }] },
-  { id: "trumpet_elsewhere", match: { verb: ["listen", "use"], obj: "trumpet", obj2: [null] }, if: [{ "trumpet.at": "player" }],
+  { id: "trumpet_elsewhere", match: { verb: "listen", obj: "trumpet" }, if: [{ "trumpet.at": "player" }],
     do: [{ say: ["Acercas la trompetilla a la niebla. Está llena de cosas pequeñas y corrientes: una tos, una puerta, el «bueno, pues» de alguien. Nada de lo que se dijo aquí importa.",
                  "La trompetilla te trae una tos, a dos calles, y el hervidor de alguien. Las palabras que importan se dijeron junto al último farol."] }] },
 
@@ -552,8 +557,6 @@ const rules = [
     do: [{ say: "«El difunto no puede ser nombrado en su propia investigación», dice el doctor Mabbott. «Les sienta mal»." }] },
   { id: "accuse_other", match: { verb: "accuse" }, if: [{ "player.at": "court" }],
     do: [{ say: "«No consta en la lista del agente», dice el doctor Mabbott. «Presentes junto al farol: el señor Voss, la señora Halloran y el difunto»." }] },
-  { id: "accuse_elsewhere", match: { verb: "accuse" },
-    do: [{ say: "Los nombres son para la investigación: el tribunal del forense, al norte de la calle, cuando se reúne a medianoche." }] },
   { id: "say_words_in_court", match: { verb: "say" }, if: [{ "player.at": "court" }, { "last_words.at": "player" },
       { "$text": { in: ["palabras", "las palabras", "ultimas palabras", "las ultimas palabras", "ellas", "estas palabras", "dejalo albert", "dejalo albert sientate un momento"] } }],
     do: [{ change: "truth_ending" }] },
@@ -594,52 +597,27 @@ const rules = [
   { id: "name_other", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }],
     do: [{ say: "«No consta en la lista del agente», dice el doctor Mabbott. «Presentes junto al farol: el señor Voss, la señora Halloran y el difunto»." }] },
 
-  // La pértiga yace en la caseta como una forma en su imagen: al cogerla desaparece la forma; al dejarla de nuevo allí, se redibuja.
-  { id: "pole_up", match: { verb: "take", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "hut" }],
-    do: [{ draw: "hut", remove: ["pole_shape", "pole_flame"] }], then: "default" },
-  { id: "pole_down", match: { verb: "drop", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "player" }],
-    do: [{ draw: "hut", add: ["line pole_shape 256,112 244,26 c14", "ellipse pole_flame 244,22,2,3 9"] }], then: "default" },
 
   // El último farol: quien lo enciende ocupa el puesto.
   { id: "light_lamp", match: { verb: ["switch_on", "use"], obj: ["dark_lamp", "pole"], obj2: [null, "dark_lamp", "pole"] },
     if: [{ "player.at": "last_lamp" }, { "pole.at": "player" }],
     do: [{ confirm: "¿Encender el último farol de Lantern Row? Quien lo enciende se queda con el puesto.", yes: [{ change: "relieved_ending" }],
            no: [{ say: "Bajas la pértiga. El señor Fenn suelta un aliento que no necesita." }] }] },
-  { id: "light_lamp_bare", match: { verb: ["switch_on", "use"], obj: "dark_lamp" }, if: [{ "player.at": "last_lamp" }, { "pole.at": { "!=": "player" } }],
+  { id: "light_lamp_bare", match: { verb: "switch_on", obj: "dark_lamp" }, if: [{ "player.at": "last_lamp" }, { "pole.at": { "!=": "player" } }],
     do: [{ say: "El farol está demasiado alto para alcanzarlo, y no tienes con qué encenderlo. La pértiga del señor Fenn está en su caseta, al este de aquí." }] },
   { id: "relieve_fenn", match: { verb: "relieve" }, if: [{ "player.at": "last_lamp" }, { "pole.at": "player" }],
     do: [{ confirm: "¿Encender el último farol de Lantern Row? Quien lo enciende se queda con el puesto.", yes: [{ change: "relieved_ending" }],
            no: [{ say: "Bajas la pértiga. El señor Fenn suelta un aliento que no necesita." }] }] },
   { id: "relieve_fenn_bare", match: { verb: "relieve" }, if: [{ "player.at": "last_lamp" }],
     do: [{ say: "«Así no», dice el señor Fenn. «Quien enciende el último farol se queda con el puesto. Mi pértiga está en la caseta, al este de aquí»." }] },
-  { id: "relieve_elsewhere", match: { verb: "relieve" },
-    do: [{ say: "El señor Fenn guarda su puesto en el último farol, al final de la calle, al sur. Solo quien lo encienda puede relevarlo." }] },
-  { id: "light_elsewhere", match: { verb: ["switch_on", "use"], obj: "pole", obj2: [null] }, if: [{ "pole.at": "player" }],
+  { id: "light_elsewhere", match: { verb: "switch_on", obj: "pole" }, if: [{ "pole.at": "player" }],
     do: [{ say: "Todos los faroles de aquí están ya encendidos. Solo el último, al final de la calle, espera." }] },
 
-  // La porter de The Bell: las dos primeras medias te sientan bien; la tercera, y las siguientes, te emborrachan (el estado de
-  // más abajo). Un pastel te despeja; el tiempo, también. Un pastel, un respiro de aire más claro: uno cada uno.
-  { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 0 }],
-    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "El señor Cotter te sirve media pinta de porter sin preguntar cuál. Te la bebes junto al fuego. La niebla del pecho se va a sentarse a otro sitio un rato." }] },
-  { id: "porter_second", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 1 }],
-    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "El señor Cotter te sirve otra media. «Esta es la buena», dice. «La tercera es la que habla por ti». Te la bebes junto al fuego, y la niebla del pecho se aleja un poco más." }] },
-  { id: "porter_drunk", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
-    do: [{ set: "cotter.poured", add: 1 },
-         { say: ["El señor Cotter te sirve otra media y te mira bebértela como quien vigila un cazo al fuego. La lumbre se arrima un poco. La canción de la barra empieza a tener sentido.",
-                 "El señor Cotter te sirve otra sin decir nada, que es peor. Los hombres de la barra te hacen sitio en el estribillo."] },
-         { start: "drunk" }] },
-  { id: "order_pie", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }], once: true,
-    do: [{ heal: 1, says: "La señora Halloran envuelve un pastel en papel y te lo da caliente. Te lo comes de pie. Sabe a que te esperan." }, { stop: "drunk" }] },
-  { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
-    do: [{ say: "«Con uno basta», dice la señora Halloran. «Él solo tomaba uno»." }] },
-  { id: "order_elsewhere", match: { verb: "order" },
-    do: [{ say: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." }] },
+  // (La porter de The Bell y el pastel de la señora Halloran vienen de ellos: sus propios campos. Tres medias, y cada una te sienta
+  // bien; la tercera te emborracha, el estado de más abajo, con sus dosis. Un pastel te despeja; el tiempo, también.) Un respiro de aire más claro: una vez.
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
+    again: "Respiras. Ayuda menos la segunda vez. Sigue siendo niebla, solo que más fina.",
     do: [{ heal: 1, says: "Respiras. Aquí fuera el aire es solo medio niebla; la otra mitad es el río que pasa. Por un momento, el pecho es tuyo." }] },
-  { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
-    do: [{ say: "Respiras. Ayuda menos la segunda vez. Sigue siendo niebla, solo que más fina." }] },
-  { id: "breathe_elsewhere", match: { verb: "breathe" },
-    do: [{ say: "Respiras niebla, y ella te respira a ti. Fuera, en el puente, pasada la escalera del río, el aire es más fino." }] },
 
   // Las palabras dichas en la niebla se quedan donde se dijeron.
   { id: "sing_bell", match: { verb: "sing" }, if: [{ "player.at": "bell" }],
@@ -656,7 +634,7 @@ const rules = [
   // The Bell cierra a las once; el tribunal se reúne a medianoche y se levanta a las seis.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
     do: [{ say: "El señor Cotter hace sonar la campanilla de la barra. «Hora», dice, y el canto se corta en mitad de una palabra. Te encuentras en la calle con los demás, que se van en distintas direcciones por la niebla y no salen de ella." },
-         { travel: "row" }, { describe: "$here" }] },
+         { travel: "row" }] },
   { id: "bell_shuts", when: "at", at: "23:00", if: [{ "player.at": { in: ["row", "last_lamp", "pie_shop", "substation", "hut", "river_steps"] } }],
     do: [{ say: "Calle arriba suena una campanilla en The Bell, y el canto se corta en mitad de una palabra. Lantern Row se queda callada, lo bastante para oír caer una palabra." }] },
   // Lo que la imagen de la calle muestra: la ventana de The Bell se oscurece a las once y se enciende a las once de la mañana; las
@@ -669,7 +647,7 @@ const rules = [
     do: [{ say: "En algún lugar por encima de la niebla un reloj da la medianoche. Las puertas del tribunal se abren solas, y la niebla pasa la primera." }] },
   { id: "court_rises", when: "at", at: "06:00", if: [{ "player.at": "court" }],
     do: [{ say: "Amanece, en algún lugar por encima de la niebla. El doctor Mabbott cierra su libro. «El tribunal volverá a reunirse a medianoche», dice, y te acompañan a la salida." },
-         { travel: "row" }, { describe: "$here" }] },
+         { travel: "row" }] },
 
 ];
 
@@ -709,9 +687,6 @@ const opening = {
 export default {
   because: "Después de la apertura: una calle envuelta en niebla, la noche de la investigación de un farolero.",
   opening,
-  properties: {
-    "cotter.poured": { type: "number", min: 0, max: 9, start: 0 }       // las medias de porter que te ha servido el señor Cotter
-  },
   facts: [
     "El jugador llega a Lantern Row, en Londres, en una niebla espesa, un jueves a las diez y media de la noche.",
     "Albert Fenn, farolero, murió esta noche bajo el único farol que no encendió, y sigue allí sentado, muerto, hasta que lo releven.",
@@ -726,18 +701,19 @@ export default {
       { say: "En algún lugar por encima de la niebla un reloj de iglesia da las diez y media, y no suena muy seguro." }
     ] },
     // Verbos que este mundo necesita
-    { add: "word", verb: "accuse", words: ["acusar", "acusa", "acuse", "acuso", "culpar", "culpa", "inculpar", "inculpa", "denunciar", "denuncia", "nombrar", "nombra"], absent: true },
-    { add: "word", verb: "order", words: ["pedir", "pide", "pida", "pido", "comprar", "compra", "compro", "encargar", "encarga", "pagar", "paga"], absent: true },
-    { add: "word", verb: "breathe", words: ["respirar", "respira", "respire", "respiro", "inspirar", "inspira", "aspirar", "aspira", "tomar aire", "toma aire", "coger aire", "coge aire"] },
+    { add: "word", verb: "accuse", words: ["acusar", "acusa", "acuse", "acuso", "culpar", "culpa", "inculpar", "inculpa", "denunciar", "denuncia", "nombrar", "nombra"], absent: true, reply: "Los nombres son para la investigación: el tribunal del forense, al norte de la calle, cuando se reúne a medianoche." },
+    { add: "word", verb: "order", reply: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." },
+    { add: "word", verb: "buy", reply: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." },
+    { add: "word", verb: "breathe", words: ["respirar", "respira", "respire", "respiro", "inspirar", "inspira", "aspirar", "aspira", "tomar aire", "toma aire", "coger aire", "coge aire"], reply: "Respiras niebla, y ella te respira a ti. Fuera, en el puente, pasada la escalera del río, el aire es más fino." },
     { add: "word", verb: "swim", words: ["nadar", "nade", "nado", "bucear", "bucea", "chapotear", "chapotea", "vadear", "vadea", "zambullirse", "zambullete"] },
-    { add: "word", verb: "relieve", words: ["relevar", "releva", "releve", "relevo", "sustituir", "sustituye", "reemplazar", "reemplaza", "tomar el relevo", "toma el relevo"] },
+    { add: "word", verb: "relieve", words: ["relevar", "releva", "releve", "relevo", "sustituir", "sustituye", "reemplazar", "reemplaza", "tomar el relevo", "toma el relevo"], reply: "El señor Fenn guarda su puesto en el último farol, al final de la calle, al sur. Solo quien lo encienda puede relevarlo." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    // Borracho de porter (la tercera media en The Bell, y las siguientes): la calle se mece y se ve doble, las palabras salen trabadas y, al
+    // Borracho de porter (la tercera media en The Bell: doses 3): la calle se mece y se ve doble, las palabras salen trabadas y, al
     // salir de un sitio, a veces tomas otro camino. Se pasa solo; un pastel lo pasa antes.
-    { add: "condition", id: "drunk", lasts: { seconds: [120, 180] }, starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera",
+    { add: "condition", id: "drunk", doses: 3, lasts: { seconds: [120, 180] }, starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera",
       status: "La cerveza se te ha subido a la cabeza", filters: ["sway", "ghost"], speech: { slur: true },
       movement: { chance: 0.3, says: ["Los pies te llevan por otro camino del que querías.", "Echas a andar hacia un lado, y la niebla te da la vuelta."] } },
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),

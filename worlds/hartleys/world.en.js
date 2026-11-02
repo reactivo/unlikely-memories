@@ -34,7 +34,7 @@ export const bible = {
 // ---- Helpers (they read like the rules' own words) -----------------------------------------------------------------
 const at = (...rooms) => ({ "player.at": rooms.length > 1 ? { in: rooms } : rooms[0] });
 const holding = (id) => ({ [id + ".at"]: "player" });
-const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
+const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // ---- The ending pictures ----------------------------------------------------------------------------------------------------
 // The drawings are language-free (pictures.js); what each one says to a screen reader (alt) is said here, in this world's language.
@@ -61,7 +61,6 @@ const rooms = {
       { words: ["sill", "sills", "ledge"], name: "the sill", says: "A stone sill, wide enough to set a parcel down on, worn smooth by people who stopped to look at dresses and then didn't leave." },
       { words: ["arcade", "passage", "roof", "tiles", "floor", "shutter", "street"], name: "the arcade", says: "Wet tiles, though it hasn't rained, and a glass roof with the last of the light in it. The shutter behind you has no handle, and the street beyond it is somebody else's Saturday." }
     ],
-    mentions: ["windows", "dresses", "sill", "revolving door"],
     ambience: { lines: ["In the nearest window a dress has changed its hands, and is looking at the glass as if it hadn't.", "Something heavy is wheeled past on the far side of the shutter, and nobody apologises.", "Somewhere inside, someone laughs at a price.", "The wireless on the sill finds a station, loses it, and apologises."], every: [30, 70] },
     alt: "A glass-roofed arcade at dusk, seen from its floor and shut at both ends: lit windows full of dresses along both walls, a revolving door in the blind end wall, a lamp beside it.",
     overlayAlt: {
@@ -76,7 +75,7 @@ const rooms = {
     ],
     exits: { w: "perfumery", e: "gloves", n: "lift_lobby", s: true },
     scenery: [{ words: ["mosaic", "mahogany", "brass", "counters", "ceiling", "chandelier"], name: "the hall", says: "A mosaic of a ship in full sail, worn through at the bow by a hundred years of people standing where you stand." }],
-    mentions: ["mosaic", "directory", "revolving door", "Mr Gage", "carnation"],
+    mentions: ["carnation"],
     ambience: { lines: ["Somewhere a till rings, though nobody has bought anything.", "A cash canister goes overhead in its tube, hurrying, like a thought on its way to someone.", "The revolving door turns once, empty, and stops."], every: [45, 90] },
     alt: "A grand store hall: mahogany counters, brass, a mosaic floor of a ship. A directory board on a stand, a floorwalker with a carnation, and a revolving door at the front."
   },
@@ -88,7 +87,7 @@ const rooms = {
     ],
     exits: { e: "front_hall" },
     scenery: [{ words: ["bottles", "bottle", "counters", "counter", "choir", "perfume", "perfumes"], name: "the bottles", says: "Small bottles with handwritten labels: THE LAST DAY OF THE HOLIDAYS. A HOSPITAL CORRIDOR AT NIGHT. SNOW, BEFORE IT FALLS. They are not for sale. They are what Madame Corre makes things from." }],
-    mentions: ["bottles", "Madame Corre", "gloves", "tester", "label", "counter"],
+    mentions: ["gloves", "label"],
     smell: "Twenty afternoons at once, none of them yours, all of them nearly.",
     alt: "A perfume counter crowded with small bottles on glass shelves. A tall woman in white gloves stands behind it; a single tester bottle on the counter in front."
   },
@@ -100,7 +99,6 @@ const rooms = {
     ],
     exits: { w: "front_hall" },
     scenery: [{ words: ["drawers", "drawer", "tissue", "pairs", "counter", "minutes", "sign"], name: "the drawers", says: "Every drawer is labelled with a size and a feeling: SEVEN AND A HALF, NERVOUS. EIGHT, FOR FUNERALS. The card on the counter has gone yellow waiting." }],
-    mentions: ["drawers", "tissue", "glove", "counter"],
     alt: "A glove counter with tall walls of small wooden drawers. On the counter, one cream glove lying by itself, its fingers curled shut."
   },
   lift_lobby: {
@@ -113,7 +111,6 @@ const rooms = {
     scenery: [{ words: ["stairs", "staircase", "banister"], name: "the stairs", says: "A wide staircase with a mahogany banister, going up.", leads: "u" },
               { words: ["steps", "basement"], name: "the steps", says: "Stone steps going down to the basement, with a smell of soap coming up them.", leads: "d" },
               { words: ["doors", "gate", "lift"], name: "the lift doors", says: "Brass doors, and inside them a brass gate, folded open.", leads: "n" }],
-    mentions: ["lift", "indicator", "stairs", "steps", "gate"],
     alt: "A lift lobby: brass doors with a folding gate open, a semicircular floor indicator above them, a staircase going up on one side and stone steps going down on the other."
   },
   lift: {
@@ -122,9 +119,8 @@ const rooms = {
       "A lift like a small drawing room: a mirror, a velvet bench, a brass gate. {Mr Pell|pell} sits on his stool by the {lever|lift_lever} and looks at the ceiling, where the floors would be.",
       "The gate opens south, onto the lobby."
     ],
-    exits: { s: { to: "lift_lobby", out: true }, u: true, d: false },
+    exits: { s: "lift_lobby", u: true, d: false },
     scenery: [{ words: ["mirror", "bench", "velvet", "stool", "ceiling", "buttons", "button", "gate", "lift"], name: "the lift", says: "There are no buttons. There is Mr Pell, and the lever, and a small brass keyhole beside the number 4. The gate is folded open onto the lobby.", leads: "s" }],
-    mentions: ["mirror", "bench", "gate", "Mr Pell", "stool", "lever"],
     alt: "Inside an old lift: a mirror, a red velvet bench, a folding brass gate, and a man in a uniform on a stool, one hand near a brass lever."
   },
   first_landing: {
@@ -136,7 +132,6 @@ const rooms = {
     exits: { w: "haberdashery", e: "toys", u: "second_landing", d: "lift_lobby" },
     scenery: [{ words: ["palm", "pot", "carpet", "threads"], name: "the palm", says: "A palm that has been on the first floor longer than anyone. It leans towards the stairs, as if it were thinking of going." },
               { words: ["stairs", "staircase", "banister"], name: "the stairs", says: "Mahogany stairs, going up to the second floor and down to the ground." }],
-    mentions: ["palm", "pot", "carpet", "stairs"],
     alt: "A wide landing with a worn red carpet, a palm in a brass pot, and stairs going up and down. Archways to the left and right."
   },
   haberdashery: {
@@ -147,7 +142,6 @@ const rooms = {
     ],
     exits: { e: "first_landing" },
     scenery: [{ words: ["ribbons", "ribbon", "reels", "reel", "buttons", "drawers", "counter", "tape"], name: "the ribbons", says: "Every colour, on reels, and a brass tape measure screwed to the edge of the counter, worn smooth in the first yard." }],
-    mentions: ["ribbons", "buttons", "counter", "Miss Thimble", "tubes", "canister", "handle"],
     alt: "A haberdashery counter with reels of coloured ribbon and small drawers of buttons. A woman with a tape measure. Above her, brass tubes run up into the ceiling; a canister sits in a cradle below a handle."
   },
   toys: {
@@ -158,7 +152,7 @@ const rooms = {
     ],
     exits: { w: "first_landing" },
     scenery: [{ words: ["soldiers", "soldier", "train", "set", "table", "loop", "toys", "shelf", "shelves"], name: "the toys", says: "The soldiers stand in rows, facing the stairs. The train goes round. Nobody has bought a toy here since the children grew up." }],
-    mentions: ["soldiers", "train set", "clockwork bear", "shelf"],
+    mentions: ["train set"],
     alt: "A toy department: shelves of soldiers and rocking horses, a model train circling a table, and a small brown clockwork bear sitting on a shelf."
   },
   second_landing: {
@@ -167,10 +161,9 @@ const rooms = {
       "The second floor landing, quieter, with a smell of new carpet. A {door|roof_door} at the top of a short flight says ROOF GARDEN, CLOSED FOR THE WINTER. It has been closed for a great many winters.",
       "Furniture is west, coats east. The stairs go down."
     ],
-    exits: { w: "furniture", e: "coats", d: "first_landing", u: true },
+    exits: { w: "furniture", e: "coats", d: "first_landing", u: "roof_garden" },
     scenery: [{ words: ["stairs", "staircase", "carpet"], name: "the stairs", says: "The main stairs go down to the first floor.", leads: "d" },
               { words: ["flight", "steps"], name: "the flight", says: "A short flight goes up to the roof door.", leads: "u" }],
-    mentions: ["carpet", "door", "flight", "stairs"],
     alt: "A quiet landing with new carpet. A short flight of steps leads up to a painted door with a sign. Archways left and right."
   },
   furniture: {
@@ -181,7 +174,7 @@ const rooms = {
     ],
     exits: { e: "second_landing", w: "tea_room" },
     scenery: [{ words: ["rooms", "dining", "bedroom", "parlour", "table", "bed", "lamp", "family"], name: "the rooms", says: "Places laid at the table, a lamp on the bedside, slippers by the bed. Everything is waiting to be somebody's." }],
-    mentions: ["dining room", "bedroom", "parlour", "sofa"],
+    mentions: ["dining room"],
     alt: "A furniture floor laid out as rooms with no walls: a dining table set for four, a bed with a lamp, and a deep sofa with a dent in its cushions."
   },
   tea_room: {
@@ -192,7 +185,6 @@ const rooms = {
     ],
     exits: { e: "furniture" },
     scenery: [{ words: ["tables", "table", "palms", "trolley", "cakes", "domes", "window", "roofs", "pot"], name: "the tea room", says: "From the window, the roofs of the town go away in every direction. Above the store, a roof garden nobody visits." }],
-    mentions: ["tables", "palms", "trolley", "cakes", "Dot", "window", "roofs"],
     alt: "A tea room: small round tables with white cloths, potted palms, a cake trolley with silver domes, a waitress with a teapot, and a tall window onto rooftops."
   },
   coats: {
@@ -203,7 +195,7 @@ const rooms = {
     ],
     exits: { w: "second_landing" },
     scenery: [{ words: ["rails", "rail", "coats", "hangers"], name: "the rails", says: "Coats for every weather, and one rail at the end for weathers that haven't been invented." }],
-    mentions: ["rails", "mannequins", "coat"],
+    mentions: ["coat"],
     ambience: { lines: ["Out of the corner of your eye, a mannequin lowers its hand.", "A hanger rings against a rail, once, though nobody is near it.", "The mannequins are exactly where they were. You are almost sure."], every: [40, 80] },
     alt: "A coat department: rails of coats and a row of pale mannequins in coats and hats, all facing the doorway."
   },
@@ -216,7 +208,7 @@ const rooms = {
     exits: { u: "lift_lobby" },
     scenery: [{ words: ["pans", "brooms", "soap", "booth", "office", "panes", "tubes", "brass"], name: "the cash office", says: "A brass booth with frosted panes and a small sign: ALL PAYMENTS BY TUBE. The tubes from every floor come down into it like the roots of something." },
               { words: ["steps", "stairs"], name: "the steps", says: "Stone steps going up to the lifts.", leads: "u" }],
-    mentions: ["pans", "brooms", "cash office", "Miss Ruth", "steps", "panes"],
+    mentions: ["cash office"],
     alt: "A basement of shelves with pans and brooms. In the middle, a brass booth with frosted panes, tubes coming down into its roof from above, a woman's shape inside."
   },
   roof_garden: {
@@ -228,7 +220,6 @@ const rooms = {
     exits: { d: "second_landing" },
     scenery: [{ words: ["gravel", "roses", "rose", "tubs", "roofs", "chimneys", "town", "sky"], name: "the roofs", says: "Slate and chimneys, the gasworks, the spire. From up here the town looks like something you could fold and put away." },
               { words: ["door", "stairs"], name: "the door", says: "The roof door, open, and the stairs down.", leads: "d" }],
-    mentions: ["gravel", "roses", "tubs", "bench", "roofs", "chimneys", "door"],
     alt: "A rooftop garden: gravel, bare rose bushes in tubs, a wooden bench facing a skyline of roofs and chimneys under a dark blue sky."
   },
   fourth_floor: {
@@ -239,7 +230,7 @@ const rooms = {
     ],
     exits: { s: { to: "lift", in: true } },
     scenery: [{ words: ["rails", "rail", "afternoons", "labels", "label", "grey", "blue", "lamp"], name: "the afternoons", says: "AUGUST 1958, THE FAIR. A SUNDAY, NOT VISITING. THE BUS NOT TAKEN. Each one cut to fit somebody, and none of them collected." }],
-    mentions: ["rails", "afternoons", "label", "afternoon", "fitter", "lamp"],
+    mentions: ["fitter"],
     alt: "A long dim room of clothes rails hung with soft shapes of different colours, like coats made of weather. At the end, one hangs under a lamp, and a woman with a pincushion waits beside it."
   }
 };
@@ -247,29 +238,29 @@ const rooms = {
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
   // The opening: the thing to take, the one you carry, and the way in (BRIEF.md §3).
-  wireless: { at: "pavement", portable: true, name: "Wireless", note: "Reading out the departments.", actions: ["Take wireless", "Listen to wireless"], heldActions: ["Listen to wireless", "Examine wireless"],
+  wireless: { at: "pavement", portable: true, name: "Wireless", note: "Reading out the departments.",
     words: { nouns: ["wireless", "radio"], adj: ["cream", "small"] }, ...item("wireless"),
     here: "On the sill of the nearest window a small {wireless} murmurs to itself.",
     examine: "A cream wireless the size of a loaf, tuned between two stations. A woman's voice reads out the departments of Hartley's, one floor at a time, and starts again at the top." },
-  shopping_list: { at: "player", portable: true, name: "Shopping list", note: "Mostly rubbed out.", actions: ["Read list"], heldActions: ["Read list"],
+  shopping_list: { at: "player", portable: true, name: "Shopping list", note: "Mostly rubbed out.",
     words: { nouns: ["list"], adj: ["shopping", "pencil", "folded"] }, ...item("shopping_list"),
     examine: "In your own pencil: \"Something I should remember.\" Under it, rubbed out so often the paper has worn through, a second line." },
-  street_door: { at: "pavement", scenery: true, name: "Revolving door", note: "Turning, with nobody in it.", actions: ["Examine door", "Enter door"],
+  street_door: { at: "pavement", name: "Revolving door", note: "Turning, with nobody in it.",
     words: { nouns: ["door"], adj: ["revolving", "brass", "front"] },
     examine: "Brass and glass, turning slowly with nobody in it. Each pane shows a slightly later afternoon than the one before." },
 
   // Ground floor
-  directory: { at: "front_hall", scenery: true, name: "Directory", note: "Every floor, in gold.", opens: ["fourth", "roof"],
+  directory: { at: "front_hall", name: "Directory", note: "Every floor, in gold.", opens: ["fourth", "roof"],
     words: { nouns: ["directory", "board", "stand"], adj: ["store", "gold"] },
     examine: "Gold letters on black: BASEMENT, HOUSEHOLD AND CASH OFFICE. GROUND, PERFUMERY, GLOVES. FIRST, HABERDASHERY, TOYS. SECOND, FURNITURE, COATS, TEA ROOM. ROOF GARDEN (CLOSED). FOURTH, LOST AFTERNOONS, BY APPOINTMENT. Between SECOND and FOURTH there is nothing, and nobody has ever asked." },
-  indicator: { at: "lift_lobby", scenery: true, name: "Indicator", note: "B to 4.", actions: ["Examine indicator"], opens: ["fourth"],
+  indicator: { at: "lift_lobby", name: "Indicator", note: "B to 4.", opens: ["fourth"],
     words: { nouns: ["indicator", "arrow", "letters", "dial"], adj: ["floor", "brass"] },
     examine: "A brass half-moon with an arrow: B, G, 1, 2, and then, after a gap, 4. The arrow rests on 4, and has for years. Under the 4, engraved: LOST AFTERNOONS. BY APPOINTMENT." },
-  revolving_door: { at: "front_hall", scenery: true, name: "Revolving door", note: "Turning on its own.", actions: ["Push revolving door"],
+  revolving_door: { at: "front_hall", name: "Revolving door", note: "Turning on its own.",
     words: { nouns: ["door", "doors"], adj: ["revolving", "front", "turning"] },
     examine: "Four leaves of mahogany and bevelled panes, turning slowly. Through it, the arcade is the colour of tea.",
     push: "You push. The door turns you all the way round and sets you down inside again, a little more politely than before. Hartley's doesn't let its customers go without something." },
-  gage: { at: "front_hall", scenery: true, name: "Mr Gage", note: "The floorwalker.", actions: ["Talk to Mr Gage"],
+  gage: { at: "front_hall", name: "Mr Gage", note: "The floorwalker.",
     words: { nouns: ["gage", "floorwalker", "man", "carnation"], adj: ["mr", "mister"], proper: true },
     examine: "A tall man in a morning coat with a carnation that has been fresh for thirty years. He looks at you the way he looks at stock.",
     talk: ["\"Is madam being served?\" he says, and then, looking again, \"Is sir?\" He settles on neither. \"Everything has a price at Hartley's. Do look around.\"", "\"We close at six,\" he says. \"We have never quite managed to be closed.\""],
@@ -282,7 +273,7 @@ const objects = {
     } },
 
   // Perfumery
-  corre: { at: "perfumery", scenery: true, name: "Madame Corre", note: "Perfumer. White gloves.", actions: ["Talk to Madame Corre"],
+  corre: { at: "perfumery", name: "Madame Corre", note: "Perfumer. White gloves.",
     words: { nouns: ["corre", "perfumer", "woman", "madame"], adj: ["madame"], proper: true },
     examine: "A tall woman with her hair up like a question. Her white gloves have never touched anything that didn't want to be touched.",
     parts: [{ words: ["gloves", "hair"], name: "her gloves", says: "White gloves, buttoned at the wrist. She takes them off for nobody." }], mentions: ["gloves"],
@@ -293,27 +284,28 @@ const objects = {
       keeping: { about: "memory", label: "keeping it", words: ["keep", "keeping", "free", "roof", "high", "open", "uncork"], says: "\"You could keep it, of course. Take it somewhere high, under the sky, and let it out. Then it is yours for good, and nobody can sell it to you again.\"" },
       default: "She lifts a bottle, smells it, and puts it back. \"No,\" she says. \"Not that.\""
     } },
-  tester: { at: "perfumery", scenery: true, name: "Tester", note: "No. 7.", actions: ["Smell tester"], opens: ["price"],
+  tester: { at: "perfumery", name: "Tester", note: "No. 7.", actions: ["Smell tester"], opens: ["price"],
     words: { nouns: ["tester", "label", "atomiser", "atomizer", "spray"], adj: ["perfume", "number", "seven"] },
     examine: "A crystal tester with a rubber bulb. The label says: NO. 7. AN AFTERNOON INDOORS. And below, smaller: PRICE ON REQUEST." },
-  memory: { at: null, portable: true, name: "Memory", note: "An afternoon, stoppered.", actions: ["Examine memory"], heldActions: ["Smell memory", "Open memory"],
+  memory: { at: null, portable: true, name: "Memory", note: "An afternoon, stoppered.", heldActions: ["Open memory"],
     words: { nouns: ["memory", "bottle", "phial", "stopper", "cork"], adj: ["small", "little", "stoppered", "my"] }, ...item("memory"),
-    here: "A small stoppered {bottle|memory} stands here, with an afternoon in it.",
+    lies: "A small stoppered {bottle|memory} stands here, with an afternoon in it.",
     examine: "A little bottle stoppered with cork. Inside, very small, rain on a kitchen window and someone you loved, asleep in a chair. It is warm to hold.",
     smell: "Rain, toast, a radio in the next room. You had that afternoon. You had forgotten you had it." },
 
   // Gloves
-  glove: { at: "gloves", scenery: true, name: "Glove", note: "Holding something.", actions: ["Examine glove", "Shake glove"],
+  glove: { at: "gloves", name: "Glove", note: "Holding something.", actions: ["Shake glove"],
     words: { nouns: ["glove", "fingers"], adj: ["cream", "lone", "single", "kid"] },
     examine: "A cream kid glove, a left one, with its fingers closed around something. It is warm, like a hand that has just been holding another.",
-    take: "It won't be carried. It would rather be held." },
-  roof_key: { at: null, portable: true, name: "Roof key", note: "Long, brass, mended.", actions: ["Examine roof key"],
+    take: "It won't be carried. It would rather be held.",
+    talk: "The glove says nothing. Its fingers stir a little, like a hand waiting to be taken." },
+  roof_key: { at: null, portable: true, name: "Roof key", note: "Long, brass, mended.",
     words: { nouns: ["key", "latchkey"], adj: ["roof", "brass", "long", "mended"] }, ...item("roof_key"),
-    here: "A long brass {key|roof_key} lies here, labelled ROOF.",
+    lies: "A long brass {key|roof_key} lies here, labelled ROOF.",
     examine: "A long brass key with a paper label: ROOF. MENDED. It has been mended so carefully that it's hard to say where." },
 
   // The lift
-  pell: { at: "lift", scenery: true, name: "Mr Pell", note: "The lift man.", actions: ["Talk to Mr Pell"],
+  pell: { at: "lift", name: "Mr Pell", note: "The lift man.",
     words: { nouns: ["pell", "man", "operator", "liftman", "attendant"], adj: ["mr", "mister", "lift"], proper: true },
     examine: "A small man in a maroon uniform with a stripe down each leg. He has taken the lift up and down for so long he no longer believes in stairs.",
     talk: "\"Fourth floor only,\" says Mr Pell. \"Stairs for the rest. By appointment.\"",
@@ -322,13 +314,13 @@ const objects = {
       lift: { open: true, label: "the lift", words: ["lift", "elevator", "lever", "floors", "floor"], says: "\"She only goes to the fourth,\" he says, patting the lever. \"She doesn't care for the other floors. Neither do I.\"" },
       default: "\"Couldn't tell you,\" says Mr Pell. \"I'm only ever between floors.\""
     } },
-  lift_lever: { at: "lift", scenery: true, name: "Lever", note: "Mr Pell's.", actions: ["Examine lever"],
+  lift_lever: { at: "lift", name: "Lever", note: "Mr Pell's.",
     words: { nouns: ["lever", "handle"], adj: ["brass", "lift"] },
     examine: "A brass lever in a half-moon of numbers. The 4 has a keyhole beside it instead of a notch.",
     pull: "Mr Pell puts his hand over yours, kindly, and takes it off the lever. \"Mine,\" he says." },
 
   // Haberdashery
-  thimble: { at: "haberdashery", scenery: true, name: "Miss Thimble", note: "Measures twice.", actions: ["Talk to Miss Thimble"],
+  thimble: { at: "haberdashery", name: "Miss Thimble", note: "Measures twice.",
     words: { nouns: ["thimble", "woman", "haberdasher", "assistant"], adj: ["miss"], proper: true },
     examine: "A small woman with a tape measure round her neck and pins along her lapel in order of size.",
     talk: "\"Measure twice, pay once,\" says Miss Thimble. \"Payments go up the tube.\"",
@@ -337,44 +329,48 @@ const objects = {
       fourth: { label: "the fourth floor", words: ["fourth", "afternoons", "appointment"], says: "\"Afternoons? That's the fourth. They'll want paying first.\"" },
       default: "\"We don't stock that,\" she says, \"but I can measure you for it.\""
     } },
-  tubes: { at: "haberdashery", scenery: true, name: "Tubes", note: "The cash railway.", actions: ["Examine tubes"],
+  tubes: { at: "haberdashery", name: "Tubes", note: "The cash railway.",
     words: { nouns: ["tubes", "tube", "railway", "pipes"], adj: ["brass", "cash", "pneumatic"] },
     examine: "Brass tubes, polished by the air rushing through them. Every now and then one breathes in, hard, and the whole floor hears it. They take what is offered: a sleeve, a glove, fingers. Miss Thimble says it takes fingers, and does not look as though she were joking." },
-  canister: { at: "haberdashery", scenery: true, container: true, open: true, name: "Canister", note: "In its cradle.", actions: ["Examine canister", "Pull handle"],
+  canister: { at: "haberdashery", container: true, open: "always", name: "Canister", note: "In its cradle.", actions: ["Pull handle"],
     words: { nouns: ["canister", "cylinder", "cradle", "carrier"], adj: ["brass", "cash"] },
     examine: "A brass canister with felt at each end, open, waiting for something to carry. It has been to the cash office and back more times than anyone has been anywhere." },
-  handle: { at: "haberdashery", scenery: true, name: "Handle", note: "Sends the canister.", actions: ["Pull handle"],
+  handle: { at: "haberdashery", name: "Handle", note: "Sends the canister.", actions: ["Pull handle"],
     words: { nouns: ["handle", "chain", "pull"], adj: ["brass", "wooden"] },
     examine: "A wooden handle on a brass chain, with a little enamel sign: PULL TO SEND." },
 
   // Toys
-  bear: { at: "toys", scenery: true, name: "Clockwork bear", note: "Waiting to be wound.", actions: ["Wind bear"],
+  bear: { at: "toys", name: "Clockwork bear", note: "Waiting to be wound.", actions: ["Wind bear"],
     words: { nouns: ["bear", "teddy", "clockwork", "toy"], adj: ["clockwork", "brown", "small"] },
     examine: "A brown clockwork bear with a winding handle in its back and one ear sewn on again in the wrong colour. Its eyes are buttons, and they have seen a great deal of the first floor." },
 
   // Second floor
-  roof_door: { at: "second_landing", scenery: true, name: "Roof door", note: "Closed for the winter.", actions: ["Examine door", "Unlock door"], opens: ["roof"],
+  roof_door: { at: "second_landing", name: "Roof door", note: "Closed for the winter.", opens: ["roof"],
     words: { nouns: ["door", "sign"], adj: ["roof", "garden", "painted"] },
     examine: "A painted door at the top of a short flight. ROOF GARDEN, CLOSED FOR THE WINTER. Locked; the keyhole is long and brass-coloured, as if it missed something.",
+    door: "u", shut: "You go up the short flight to the roof door. Locked. The keyhole wants a long brass key.",
     locked: true, lock: { key: "roof_key", says: "Locked. The keyhole wants a long brass key.", opens: "The long key turns as if it had never been away. The door opens on cold air and the smell of the town.", then: "roof_open" } },
-  sofa: { at: "furniture", scenery: true, name: "Sofa", note: "Keeps somebody's shape.", actions: ["Sit on sofa"], enterable: "on",
+  sofa: { at: "furniture", name: "Sofa", note: "Keeps somebody's shape.", enterable: "on",
     words: { nouns: ["sofa", "settee", "couch", "cushions", "dent"], adj: ["deep", "parlour"] },
     examine: "A deep sofa in faded green. The dent in its cushions is the shape of someone sitting with their feet tucked under them, reading.",
     enter: "You sit. The dent fits you nearly, the way a borrowed coat fits. From here the store sounds very far away." },
-  dot: { at: "tea_room", scenery: true, name: "Dot", note: "The waitress.", actions: ["Talk to Dot", "Order tea"],
+  dot: { at: "tea_room", name: "Dot", note: "The waitress.",
     words: { nouns: ["dot", "waitress", "woman"], adj: [], proper: true },
     examine: "A waitress in a black dress and a white cap, with a teapot she has never once put down.",
     talk: "\"Tea?\" says Dot. \"There's always tea.\"",
     topics: {
-      tea: { open: true, words: ["tea", "pot", "cup", "cake", "cakes"], says: "\"One pot each,\" says Dot. \"Any more and you'd stop noticing it.\"" },
+      tea: { open: true, words: ["tea", "pot", "cup", "cake", "cakes"], says: "\"Milk in first,\" says Dot, \"whatever they tell you in Haberdashery.\"" },
       afternoon: { about: "fourth", label: "afternoons", words: ["afternoon", "afternoons", "fourth", "missed"], says: "\"Mine was a Thursday in 1961. I didn't go to the dance.\" She pours. \"If I had it back I'd not buy it. I'd take it up on the roof and let it out, like a bird.\"" },
       roof: { about: "roof_door", label: "the roof garden", words: ["roof", "garden"], says: "\"Lovely up there, before they closed it. You could let anything go, up there.\"" },
       default: "\"I just do the tea,\" says Dot."
     } },
-  tea: { at: null, portable: false, name: "Pot of tea", note: "Hot.", actions: ["Drink tea"],
-    words: { nouns: ["tea", "pot", "teapot", "cup"], adj: [] },
+  tea: { from: "dot", brought: "Dot pours, without asking, into a {cup|tea} with a rose on it, and sets it in front of you. \"On the house,\" she says. \"Tea always is. It's the house that costs.\"",
+    already: "\"One pot each,\" says Dot. \"Any more and you'd stop noticing it.\"",
+    again: "\"One pot each,\" says Dot. \"Any more and you'd stop noticing it.\"",
+    consumable: true, heals: 1, drink: "It is exactly as strong as you like it, which nobody has known for years. The store goes quiet around the cup.",
+    at: null, portable: false, name: "Pot of tea", note: "Hot.", words: { nouns: ["tea", "pot", "teapot", "cup"], adj: [] },
     examine: "A small pot of tea and a cup with a rose on it. It smells of the four o'clocks of your childhood." },
-  mannequins: { at: "coats", scenery: true, name: "Mannequins", note: "Facing the door. Mostly.", actions: ["Examine mannequins", "Search coat"], opens: ["fourth", "price"],
+  mannequins: { at: "coats", name: "Mannequins", note: "Facing the door. Mostly.", actions: ["Search coat"], opens: ["fourth", "price"],
     words: { nouns: ["mannequins", "mannequin", "figures", "coat"], adj: ["pale", "warmer"], pl: true },
     examine: "Pale figures in coats and hats. The one in a coat like yours has a ticket pinned to its sleeve: FOURTH FLOOR. PAID FOR IN FULL, BY TUBE. Its pocket is buttoned.",
     search: "In the pocket of the coat like yours, a note in pencil: \"Haberdashery. Canister, then the handle. Pay with what you have. It is worth it, they say.\" The handwriting is yours.",
@@ -382,23 +378,23 @@ const objects = {
             { words: ["ticket"], name: "the ticket on the sleeve", says: "FOURTH FLOOR. PAID FOR IN FULL, BY TUBE. Pinned on, the way they pin a price." }], mentions: ["sleeve", "pocket", "hats", "ticket"] },
 
   // Basement
-  ruth: { at: "basement", scenery: true, name: "Miss Ruth", note: "The cash office.", actions: ["Talk to Miss Ruth"],
+  ruth: { at: "basement", name: "Miss Ruth", note: "The cash office.",
     words: { nouns: ["ruth", "cashier", "woman", "shape"], adj: ["miss"], proper: true },
     examine: "A shape behind frosted panes, quick and neat, catching canisters as they fall and sending them back up with change.",
     talk: "Miss Ruth can't hear you through the panes. She points, without looking up, at the sign: ALL PAYMENTS BY TUBE.",
     give: "There's no gap in the booth for that. She taps the sign: ALL PAYMENTS BY TUBE." },
 
   // Roof
-  roof_bench: { at: "roof_garden", scenery: true, name: "Bench", note: "Facing the town.", actions: ["Sit on bench"], enterable: "on",
+  roof_bench: { at: "roof_garden", name: "Bench", note: "Facing the town.", enterable: "on",
     words: { nouns: ["bench", "seat"], adj: ["wooden", "garden"] },
     examine: "A wooden bench with a brass plate: FOR THOSE WHO HAD ENOUGH. The slats are warm, though nobody has sat here for years." },
 
   // Fourth floor
-  afternoon: { at: "fourth_floor", scenery: true, name: "The afternoon you didn't go", note: "Your size.", actions: ["Examine afternoon", "Wear afternoon"],
+  afternoon: { at: "fourth_floor", name: "The afternoon you didn't go", note: "Your size.", actions: ["Wear afternoon"],
     words: { nouns: ["afternoon", "one"], adj: ["missed", "your", "lamp"] },
     examine: "Soft as an old coat, the colour of a bus window in June. The label says: THE SEA. YOU STAYED IN. It smells of salt and of someone calling your name from the top of a beach.",
     take: "\"Try it on,\" says the fitter, round her pins. \"Afternoons aren't for carrying.\"" },
-  fitter: { at: "fourth_floor", scenery: true, name: "The fitter", note: "Pins in her mouth.", actions: ["Talk to the fitter"],
+  fitter: { at: "fourth_floor", name: "The fitter", note: "Pins in her mouth.",
     words: { nouns: ["fitter", "woman", "seamstress", "tailor"], adj: [] },
     examine: "A woman in a grey smock with a pincushion on her wrist and a mouthful of pins. She has altered afternoons for every size of regret.",
     talk: "\"Paid for,\" she says, round the pins. \"Try it on. It'll take you in at the waist.\"",
@@ -412,7 +408,6 @@ const objects = {
 // ---- Named changes ---------------------------------------------------------------------------------------------------
 const changes = {
   roof_open: [
-    { connect: "second_landing", dir: "u", to: "roof_garden" },
     { set: "roof_door.examine", to: "The roof door, open. Cold air comes down the flight, and the sound of the town." },
     { draw: "second_landing", restyle: [{ id: "roof_door", fill: 0 }] }
   ],
@@ -437,80 +432,66 @@ const rules = [
     do: [{ say: "You step into the revolving door. It turns you all the way round and sets you down inside again. Hartley's doesn't let its customers go without something." }] },
 
   // The tester: a memory, bottled, once.
-  { id: "smell_tester", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] }, if: [{ "memory.at": null }], once: true,
+  { id: "smell_tester", match: { verb: ["smell", "push"], obj: "tester" }, once: true,
+    again: "Madame Corre caps the tester with one gloved finger. \"One each,\" she says. \"Memories are not samples.\"",
     do: [{ say: "You press the bulb. Rain on a kitchen window. Toast. A radio in the next room, and someone you loved asleep in a chair, on an afternoon you had forgotten you had." },
          { say: "Madame Corre holds a little bottle under your nose, and the afternoon goes into it. She corks it and gives it to you. \"Payment,\" she says. \"Or not. That is up to you.\"" },
          { move: "memory", to: "player" }] },
-  { id: "smell_tester_again", match: { verb: ["smell", "use", "push"], obj: "tester", obj2: [null] },
-    do: [{ say: "Madame Corre caps the tester with one gloved finger. \"One each,\" she says. \"Memories are not samples.\"" }] },
 
   // The cash railway: put the payment in the canister, pull the handle.
   { id: "put_canister", match: { verb: "put", obj2: "canister" }, if: [at("haberdashery"), { "$obj.at": "player" }],
     do: [{ move: "$obj", to: "canister" }, { say: "You put it in the canister. The canister approves." }] },
-  { id: "send_memory", match: { verb: ["pull", "use", "send"], obj: ["handle", "canister", "memory"] }, if: [at("haberdashery"), { "memory.at": "canister" }],
+  { id: "send_memory", match: { verb: ["pull", "send"], obj: ["handle", "canister", "memory"] }, if: [at("haberdashery"), { "memory.at": "canister" }],
     do: [{ say: "You pull the handle. The tube breathes in, hard, and the canister is gone, up into the ceiling, with a sound like a word swallowed." },
          { say: "A moment later it drops back into its cradle with a thump. Inside, a pink appointment ticket, and no memory. You take the ticket. You can't, for the moment, remember what it cost." },
          { move: "memory", to: null }, { move: "lift_ticket", to: "player" }] },
-  { id: "send_other", match: { verb: ["pull", "use", "send"], obj: ["handle", "canister"], obj2: [null] }, if: [at("haberdashery")],
+  { id: "send_other", match: { verb: ["pull", "send"], obj: ["handle", "canister"] }, if: [at("haberdashery")],
     do: [{ say: "The canister goes up the tube and comes straight back with whatever was in it, and a slip: PAYMENT NOT ACCEPTED. MEMORIES ONLY." }] },
-  { id: "send_away", match: { verb: "send" },
-    do: [{ say: "Payments go by tube, from the canister in haberdashery." }] },
 
   // The tubes: the first touch hurts. (Their danger is in the tubes' own text and Miss Thimble's.)
   { id: "tubes_hurt", match: { verb: ["enter", "touch", "climb"], obj: "tubes" },
     do: [{ say: "You put your hand up the tube. It takes the whole arm, to the shoulder, and then thinks better of it and lets go." }, { hurt: 2, says: "The tube had your arm for a moment." }] },
 
   // The glove: a handshake, and the roof key.
-  { id: "shake_glove", match: { verb: ["shake", "touch"], obj: "glove" }, if: [{ "roof_key.at": null }], once: true,
+  { id: "shake_glove", match: { verb: ["shake", "touch"], obj: "glove" }, once: true,
+    again: "The glove holds your hand a little longer than it needs to, then lets go.",
     do: [{ say: "You take the glove's hand. It holds on, warm, for a long moment, the way someone does at a station. Then its fingers open, and there is a long brass key in your palm." },
          { move: "roof_key", to: "player" }] },
-  { id: "shake_glove_again", match: { verb: ["shake", "touch"], obj: "glove" },
-    do: [{ say: "The glove holds your hand a little longer than it needs to, then lets go." }] },
-
-  // The roof door keeps the stairs shut until it's unlocked.
-  { id: "roof_shut", match: { verb: "go", dir: "u" }, if: [at("second_landing"), { "roof_door.locked": true }],
-    do: [{ say: "You go up the short flight to the roof door. Locked. The keyhole wants a long brass key." }] },
 
   // The lift: the fourth floor, with an appointment ticket.
   { id: "lift_up", match: { verb: ["show", "give"], obj: "lift_ticket", obj2: [null, "pell"] }, if: [at("lift"), holding("lift_ticket")],
     do: [{ say: "Mr Pell reads the ticket, punches it, and gives it back. \"The fourth,\" he says. He puts the lever over. The lift goes up for longer than the store is tall." },
-         { travel: "fourth_floor" }, { describe: "$here" }] },
+         { travel: "fourth_floor" }] },
   { id: "lift_go_up", match: { verb: "go", dir: "u" }, if: [at("lift"), holding("lift_ticket")],
     do: [{ say: "Mr Pell holds out his hand for your ticket, and punches it. \"The fourth.\" The lift goes up for longer than the store is tall." },
-         { travel: "fourth_floor" }, { describe: "$here" }] },
-  { id: "lift_lever_up", match: { verb: ["push", "pull", "use"], obj: "lift_lever", obj2: [null] }, if: [at("lift"), holding("lift_ticket")],
+         { travel: "fourth_floor" }] },
+  { id: "lift_lever_up", match: { verb: ["push", "pull"], obj: "lift_lever" }, if: [at("lift"), holding("lift_ticket")],
     do: [{ say: "Mr Pell holds out his hand for your ticket, and punches it. \"The fourth.\" He puts the lever over. The lift goes up for longer than the store is tall." },
-         { travel: "fourth_floor" }, { describe: "$here" }] },
+         { travel: "fourth_floor" }] },
   { id: "lift_no_ticket_go", match: { verb: "go", dir: "u" }, if: [at("lift")],
     do: [{ say: "Mr Pell taps the keyhole by the 4. \"By appointment,\" he says. \"Payment by tube, from haberdashery.\"" }] },
-  { id: "lift_no_ticket", match: { verb: ["push", "pull", "use", "show", "give"], obj: ["lift_lever", "pell"] }, if: [at("lift"), { "lift_ticket.at": { "!=": "player" } }],
+  { id: "lift_no_ticket", match: { verb: ["push", "pull", "show", "give"], obj: ["lift_lever", "pell"] }, if: [at("lift"), { "lift_ticket.at": { "!=": "player" } }],
     do: [{ say: "Mr Pell taps the keyhole by the 4. \"By appointment,\" he says. \"Payment by tube, from haberdashery.\"" }] },
   { id: "lift_down", match: { verb: "go", dir: "s" }, if: [at("fourth_floor")],
-    do: [{ say: "Mr Pell takes you down without a word, which is his way of being kind." }, { travel: "lift" }, { describe: "$here" }] },
+    do: [{ say: "Mr Pell takes you down without a word, which is his way of being kind." }, { travel: "lift" }] },
 
   // The fourth floor: the afternoon you didn't go.
-  { id: "wear_afternoon", match: { verb: ["wear", "enter", "use"], obj: "afternoon", obj2: [null] }, if: [at("fourth_floor")],
+  { id: "wear_afternoon", match: { verb: ["wear", "enter"], obj: "afternoon" }, if: [at("fourth_floor")],
     do: [{ change: "afternoon_ending" }] },
 
   // The memory: let out somewhere high, under the sky.
-  { id: "keep_memory", match: { verb: ["open", "use", "drink", "pull"], obj: "memory", obj2: [null] }, if: [at("roof_garden"), holding("memory")],
+  { id: "keep_memory", match: { verb: ["open", "drink", "pull"], obj: "memory" }, if: [at("roof_garden"), holding("memory")],
     do: [{ change: "kept_ending" }] },
-  { id: "keep_memory_not_here", match: { verb: ["open", "use", "drink", "pull"], obj: "memory", obj2: [null] }, if: [holding("memory")],
+  { id: "keep_memory_not_here", match: { verb: ["open", "drink", "pull"], obj: "memory" }, if: [holding("memory")],
     do: [{ say: "You put your thumb to the cork, and stop. Not here, under a ceiling. It wants somewhere high, with sky." }] },
 
   // The bear: wound, it says what the first floor has seen.
-  { id: "wind_bear", match: { verb: ["turn", "use", "push"], obj: "bear", obj2: [null] },
+  { id: "wind_bear", match: { verb: ["turn", "push"], obj: "bear" },
     do: [{ say: ["You wind the bear. It walks to the edge of the shelf and says, in a voice like a music box running down: \"The glove in Gloves is holding the roof key. It only lets go for a handshake.\"",
                  "You wind the bear. It nods three times and says: \"Afternoons on the fourth. Pay by tube. Everybody pays with the one they liked.\"",
                  "You wind the bear. \"The roof,\" it says. \"Somewhere high. Things let out up there stay out.\" It sits down, pleased."] }] },
 
   // Tea: once.
-  { id: "order_tea", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }, { "tea.at": null }], once: true,
-    do: [{ say: "Dot pours, without asking, into a {cup|tea} with a rose on it, and sets it in front of you. \"On the house,\" she says. \"Tea always is. It's the house that costs.\"" }, { move: "tea", to: "tea_room" }] },
-  { id: "tea_once", match: { verb: ["order", "ask"], obj: [null, "tea", "dot"] }, if: [at("tea_room"), { "$topic": { in: [null, "tea"] } }],
-    do: [{ say: "\"One pot each,\" says Dot. \"Any more and you'd stop noticing it.\"" }] },
-  { id: "drink_tea", match: { verb: "drink", obj: "tea" }, if: [{ "tea.at": "tea_room" }],
-    do: [{ heal: 1, says: "It is exactly as strong as you like it, which nobody has known for years. The store goes quiet around the cup." }, { move: "tea", to: null }] },
 
   // Closing time, at six: said everywhere.
   { id: "closing_bell", when: "at", at: "18:00",
@@ -566,17 +547,16 @@ export default {
     ] },
     // Verbs this world needs
     { add: "word", verb: "shake", words: ["shake", "shake hands with", "hold hands with"] },
-    { add: "word", verb: "order", words: ["order"], absent: true },
-    { add: "word", verb: "send", words: ["send", "dispatch"] },
+    { add: "word", verb: "send", words: ["send", "dispatch"], reply: "Payments go by tube, from the canister in haberdashery." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", actions: ["Examine ticket"], heldActions: ["Examine ticket", "Show ticket to Mr Pell"],
+    { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", heldActions: ["Show ticket to Mr Pell"],
       words: { nouns: ["ticket", "appointment"], adj: ["pink", "appointment", "lift"] }, ...item("lift_ticket"),
-      here: "A pink {ticket|lift_ticket} lies here.",
+      lies: "A pink {ticket|lift_ticket} lies here.",
       examine: "A pink ticket: HARTLEY'S. FOURTH FLOOR. ONE APPOINTMENT. PAID. On the back, in the cash office's hand: ONE AFTERNOON, INDOORS, WITH RAIN." },
     ...rules.map((rule) => ({ add: "rule", rule }))
   ]

@@ -37,7 +37,7 @@ export const bible = {
 };
 
 // Carried things get their sprites (sprites.js): the one shown when examined, and the one drawn on the floor.
-const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
+const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // The names the court accepts when it asks "Whose?" (rules: name_*), each also as "it was …", "accuse …", "name …"
 // and "say …" (the answer is compared without case or punctuation: "Mrs. Halloran!" is "mrs halloran").
@@ -73,7 +73,7 @@ const rooms = {
       { words: ["seat", "cushion", "plush", "cab", "hansom"], name: "the seat", says: "Red plush worn shiny by a great many people going somewhere in a hurry. Yours is the only warm place on it.", leads: "out" },
       { words: ["hook", "roof", "ceiling"], name: "the hook", says: "A brass hook in the roof, for a lantern. Somebody has hung a bird on it instead." }
     ],
-    mentions: ["reins", "window", "glass", "fog", "doors", "seat", "hook", "roof"],
+    mentions: ["doors"],
     ambience: { lines: [
       "The cab rocks a little on its springs, as if the horse had only just stepped out of the shafts.",
       "Somewhere in the white a bell rings once, very far off, for someone else.",
@@ -104,7 +104,7 @@ const rooms = {
       { words: ["fog", "muck", "peasouper"], name: "the fog", says: "Yellow-grey and thick enough to lean on. Now and then a word goes by in it at head height, too faint to make out." },
       { words: ["cobbles", "cobble", "kerb"], name: "the cobbles", says: "Wet cobbles. The fog has been lying on them so long they have taken its colour." }
     ],
-    mentions: ["Constable Pye", "doors", "lamps", "shop fronts", "fog", "cobbles"],
+    mentions: ["shop fronts"],
     ambience: { lines: [
       "A lamp further down the Row coughs, and steadies.",
       "Footsteps go by in the fog, quite close, and nobody comes with them.",
@@ -130,7 +130,6 @@ const rooms = {
       { words: ["glass", "glasses"], name: "the glass", says: "Mr Cotter holds it up to the lamp, finds something wrong with it that nobody else could, and goes on polishing." },
       { words: ["grate"], name: "the grate", says: "An iron grate, banked high with coal." }
     ],
-    mentions: ["Mr Cotter", "fire", "bar", "men", "glass", "beams", "grate"],
     ambience: { lines: [
       "The singing stops for a breath, and starts again a little further on.",
       "Someone at the bar says Fenn's name, and the others drink to it without quite knowing why.",
@@ -150,7 +149,7 @@ const rooms = {
       { words: ["counter", "trays", "tray", "pies", "pastry"], name: "the counter", says: "Trays of pies in rows, each with a little steam hole cut in the shape of a leaf. One row has a gap in it." },
       { words: ["window", "steam", "letter"], name: "the window", says: "Steamed blind from the inside. Someone has written a single letter in the steam with a finger, an A, and the steam has nearly taken it back." }
     ],
-    mentions: ["oven", "Mrs Halloran", "counter", "window", "pies", "flour"],
+    mentions: ["flour"],
     smell: "Pastry and hot fat, and under them something sweeter: the smell of a kitchen where someone is always expected.",
     alt: "A pie shop seen from above: a long brown counter with trays of golden pies in rows, the glowing mouth of an iron oven at the top, a steamed window along the bottom, and a woman in a white cap leaning over the counter on the right."
   },
@@ -165,7 +164,7 @@ const rooms = {
       { words: ["bench", "panels", "leather"], name: "the bench", says: "High and green, with brass studs. It was built so that coroners could look down on things, and they do." },
       { words: ["chairs", "chair", "jury", "fog"], name: "the jury", says: "Twelve chairs in two rows. The fog has taken all of them and sits very still, the way a jury does when it has already decided to listen." }
     ],
-    mentions: ["witness box", "Dr Mabbott", "bench", "chairs", "jury", "fog", "pen"],
+    mentions: ["pen"],
     alt: "Looking up from the witness box at a high green coroner's bench: a thin man in black above it with a pen, a green-shaded lamp beside him, and on the right twelve jury chairs with pale fog sitting in them."
   },
   last_lamp: {
@@ -177,13 +176,13 @@ const rooms = {
     exits: {
       n: "row", w: "substation", s: "river_steps",
       // The hut is the one building here "in" means (the substation is entered by its name): the way east is also the way in.
-      e: { to: "hut", in: true, if: { "hut_door.locked": false }, closed: "The hut door is locked. It wants Mr Fenn's key." }
+      e: { to: "hut", in: true }
     },
     scenery: [
       { words: ["kerb", "cobbles", "wall", "river"], name: "the river wall", says: "A low wall of black stone, and the river slapping it somewhere below. The kerb is worn where one man has sat down on it once." },
       { words: ["steps", "stairs"], name: "the steps", says: "Stone steps going down to the river, south.", leads: "s" }
     ],
-    mentions: ["lamp", "Mr Fenn", "kerb", "cobbles", "fog", "hut", "river wall", "steps"],
+    mentions: ["river wall"],
     ambience: { lines: [
       "The fog murmurs, a word here, half a word there, like a crowd in another room.",
       "The river slaps the wall below, once, as if to make a point.",
@@ -200,13 +199,12 @@ const rooms = {
       "Mr Fenn's hut: a wooden box the size of a wardrobe, smelling of gas and paraffin. Forty years of caps hang on forty years of nails, the oldest at the top.",
       "His {log book|logbook} lies open on the shelf at today's page. The door is west."
     ],
-    exits: { w: { to: "last_lamp", out: true } },
+    exits: { w: "last_lamp" },
     scenery: [
       { words: ["caps", "cap", "nails", "nail"], name: "the caps", says: "The same cap forty times, each a little greener than the one after it. The newest nail is empty." },
       { words: ["shelf", "tin", "matches"], name: "the shelf", says: "A plank on two brackets, holding the log book and a tin of matches nobody has needed in forty years." },
       { words: ["door", "hut"], name: "the door", says: "The hut door, open, and the last lamp outside it, west.", leads: "w" }
     ],
-    mentions: ["caps", "nails", "log book", "shelf", "door"],
     alt: "Inside a tiny wooden hut, looking at its back wall: three rows of old caps on nails, bright green at the top and greyer lower down, the last nail empty, and a shelf with an open log book and a red tin.",
     overlayAlt: { trumpet: "A dented brass ear trumpet lies on the floor." }
   },
@@ -221,7 +219,7 @@ const rooms = {
       { words: ["bulb", "light", "flex"], name: "the bulb", says: "One electric bulb on a flex, very white, very sure. It makes the brick look as if it had been caught at something." },
       { words: ["desk", "brick", "bricks", "wires", "wire"], name: "the desk", says: "A Company desk, Company brick, Company wires going down into the floor, waiting for Monday." }
     ],
-    mentions: ["dynamo", "Mr Voss", "ledger", "bulb", "desk", "bowler hat"],
+    mentions: ["bowler hat"],
     ambience: { lines: [
       "The dynamo changes its note a little, as if it had thought of something.",
       "The bulb flickers once, and Mr Voss looks up at it, hurt.",
@@ -240,7 +238,7 @@ const rooms = {
       { words: ["steps", "stairs", "wall"], name: "the steps", says: "Stone steps, green at the bottom, going back up to the last lamp, north.", leads: "n" },
       { words: ["mud", "strip", "foreshore"], name: "the mud", says: "Black mud, shining. Things go into it and, if Pip is about, come out again." }
     ],
-    mentions: ["Pip", "river", "mud", "steps", "bucket", "stick", "Thames"],
+    mentions: ["bucket", "stick", "Thames"],
     ambience: { lines: [
       "The river sucks at the bottom step and lets it go.",
       "Pip holds something up to the fog, decides against it, and drops it back in the mud.",
@@ -261,7 +259,7 @@ const rooms = {
       { words: ["lamps", "lamp", "string", "gap", "bank", "lantern", "row"], name: "the Row", says: "Eleven lamps in a line, small and yellow, and then a gap where the twelfth should be." },
       { words: ["half", "far", "end"], name: "the far half", says: "Fog, and more fog. The bridge goes into it and does not come out. Nobody on the Row has ever needed the other bank." }
     ],
-    mentions: ["parapet", "river", "lamps", "bank", "far half"],
+    mentions: ["far half"],
     alt: "Far off across pale blue fog and dark water, a low bank with a short row of tiny yellow lamps and a gap at the end of it; a stone parapet along the bottom of the picture."
   }
 };
@@ -269,22 +267,22 @@ const rooms = {
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
   // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
-  canary: { at: "cab", portable: true, name: "Canary", note: "Watching the fog for you.", actions: ["Take canary", "Listen to canary"], heldActions: ["Listen to canary", "Examine canary"],
+  canary: { at: "cab", portable: true, name: "Canary", note: "Watching the fog for you.",
     words: { nouns: ["canary", "bird", "cage"], adj: ["yellow", "brass", "small", "little"] }, ...item("canary"),
     here: "From a hook in the roof hangs a {canary} in a small brass cage, watching the fog for you.",
     examine: "A yellow canary in a brass cage the size of a hat. Miners take them underground to tell them when the air goes bad. This one has been brought to London, where it has a great deal to say." },
-  summons: { at: "player", portable: true, name: "Summons", note: "Folded, official.", actions: ["Read summons"], heldActions: ["Read summons"],
+  summons: { at: "player", portable: true, name: "Summons", note: "Folded, official.",
     words: { nouns: ["summons"], adj: ["folded", "official"] }, ...item("summons"),
     examine: "\"You are called as witness to the inquest into the death of Albert Fenn, lamplighter, of Lantern Row. The court sits at midnight.\" Under the seal, in another hand, smaller: \"The deceased will be present.\"" },
-  cab_fog: { at: "cab", scenery: true, name: "Fog", note: "The only way on.", actions: ["Examine fog", "Enter fog"],
+  cab_fog: { at: "cab", name: "Fog", note: "The only way on.",
     words: { nouns: ["fog", "doors", "door", "white"], adj: ["folding", "open", "thick"] },
     examine: "The cab's folding doors stand open on a fog so thick it has a grain, like paper. Somewhere in it, very far off, a lamp is lit, or remembered." },
 
   // Lantern Row
-  pye: { at: "row", scenery: true, name: "Constable Pye", note: "On his beat.", actions: ["Talk to Constable Pye"],
+  pye: { at: "row", name: "Constable Pye", note: "On his beat.",
     words: { nouns: ["pye", "constable", "policeman", "officer", "bobby"], adj: ["constable", "police"], proper: true },
     examine: "A tall young constable in a cape, with a lamp of his own and a {notebook} he holds like a hymn book. His helmet has collected a little fog in its crown.",
-    parts: [{ words: ["helmet", "cape"], name: "his helmet", says: "Fog has pooled in the crown of it. He hasn't noticed, or is too polite to." }], mentions: ["notebook", "helmet", "cape"],
+    parts: [{ words: ["helmet", "cape"], name: "his helmet", says: "Fog has pooled in the crown of it. He hasn't noticed, or is too polite to." }], mentions: ["helmet", "cape"],
     talk: "\"Evening,\" says Constable Pye. \"You'll be the witness. Inquest's at midnight, in the court. I've got the persons present written down, if you want them.\"",
     topics: {
       present: { open: true, label: "the persons present", words: ["persons", "present", "list", "suspects", "people", "notebook"], says: "\"Persons present at the last lamp this evening,\" he reads. \"Mr Voss, of the Company. Mrs Halloran, of the pies. The deceased. That's all the fog let me see.\"" },
@@ -295,15 +293,15 @@ const objects = {
       inquest: { open: true, label: "the inquest", words: ["inquest", "court", "coroner", "midnight", "mabbott", "name"], says: "\"Midnight, in the court, north of here. Dr Mabbott likes a name. Mind you give him the right one. A name said in there stays said.\"" },
       default: "\"I'll make a note of that,\" says Constable Pye, and does."
     } },
-  notebook: { at: "pye", scenery: true, name: "Notebook", note: "Persons present.",
+  notebook: { at: "pye", name: "Notebook", note: "Persons present.",
     words: { nouns: ["notebook", "list"], adj: ["constable's", "police", "black"] },
     examine: "In a careful hand: \"Persons present at the last lamp, this evening: Mr Voss (Electric Co.). Mrs Halloran (pies). The deceased.\" Underneath, smaller: \"Fog very thick. Could not see faces. Heard a voice.\"" },
-  court_doors: { at: "row", scenery: true, name: "Court doors", note: "The inquest sits at midnight.", actions: ["Examine doors"], leads: "n",
+  court_doors: { at: "row", name: "Court doors", note: "The inquest sits at midnight.", door: "n",
     words: { nouns: ["doors", "door", "card"], adj: ["court", "oak", "coroner's"] },
     examine: "Oak doors with a card pinned to them: \"Inquest. A. Fenn, lamplighter. Midnight.\" They open when the court sits, and not before." },
 
   // The Bell
-  cotter: { at: "bell", scenery: true, name: "Mr Cotter", note: "The landlord.", actions: ["Talk to Mr Cotter", "Order porter"],
+  cotter: { at: "bell", name: "Mr Cotter", note: "The landlord.",
     words: { nouns: ["cotter", "landlord", "publican", "barman"], adj: ["mr", "mister"], proper: true },
     examine: "A broad man in shirtsleeves and a waistcoat, who has heard every song in the Bell sung wrong and forgiven none of them.",
     talk: "\"What'll it be?\" says Mr Cotter. \"We shut at eleven. After that the Row's so quiet you could hear a word drop.\"",
@@ -315,36 +313,45 @@ const objects = {
       halloran: { label: "Mrs Halloran", words: ["halloran", "pies", "pie"], says: "\"Sweet on Fenn for forty years, she was. Never said a word to him about it, that anybody heard.\"" },
       default: "\"Couldn't say,\" says Mr Cotter. \"I only pour.\""
     } },
-  fire: { at: "bell", scenery: true, name: "Fire", note: "Banked high.", actions: ["Examine fire"],
+  fire: { at: "bell", name: "Fire", note: "Banked high.",
     words: { nouns: ["fire", "coal", "flames"], adj: ["coal"] },
     examine: "Coal, banked high and roaring quietly to itself. The fog comes in at the door, takes one look at it, and goes out again." },
-  porter: { at: null, portable: false, name: "Half of porter", note: "Dark, with a head.", actions: ["Examine porter"],
+  porter: { from: "cotter", times: 3, brought: ["Mr Cotter pulls you a half of {porter} without asking which.",
+              "Mr Cotter pulls you a second half. \"That's the good one,\" he says. \"The third does the talking.\"",
+              "Mr Cotter pulls you a third half and watches you, the way a man watches a kettle. The singing at the bar starts to make sense."],
+    again: "Mr Cotter takes the glass and doesn't fill it. \"Three's the number,\" he says. \"After the third, the Row starts walking you home.\"",
+    consumable: true, heals: 1, starts: "drunk", drink: ["You drink it by the fire. The fog in your chest goes and sits somewhere else for a while.",
+            "You drink it by the fire, and the fog in your chest goes a little further off."],
+    at: null, portable: false, name: "Half of porter", note: "Dark, with a head.",
     words: { nouns: ["porter", "drink", "half", "pint", "beer", "ale"], adj: ["dark"] },
     examine: "Dark as the river and warmer." },
 
   // The pie shop
-  halloran: { at: "pie_shop", scenery: true, name: "Mrs Halloran", note: "Flour to the elbow.", actions: ["Talk to Mrs Halloran", "Order pie"],
+  halloran: { at: "pie_shop", name: "Mrs Halloran", note: "Flour to the elbow.",
     words: { nouns: ["halloran", "woman", "baker", "piewoman"], adj: ["mrs", "missus"], proper: true },
     examine: "A small woman in a white cap and a floury apron. Her hands keep working when the rest of her has stopped.",
     parts: [{ words: ["flour", "apron", "hands", "cap"], name: "her apron", says: "Flour to the elbow, and on the apron, two floury handprints, where she has held something against it." }], mentions: ["flour", "apron"],
     talk: "\"We're shut,\" says Mrs Halloran, though the door was open and the oven is lit. \"Have a pie anyway. Somebody should.\"",
     topics: {
-      pie: { open: true, label: "a pie", words: ["pie", "pies", "food", "supper"], says: "\"One's plenty,\" she says. \"He only ever had the one.\"" },
+      pie: { open: true, label: "a pie", words: ["pie", "pies", "food", "supper"], says: "\"Steak, and a bit of kidney,\" she says. \"Nobody asks what's in them. He never did.\"" },
       fenn: { label: "Mr Fenn", words: ["fenn", "albert", "lamplighter", "death"], says: "\"Forty years he had his pie here, and took it down to the last lamp, and lit her.\" She wipes the counter where it is already clean. \"I walked down with him tonight. First time in forty years.\"" },
       voss: { label: "Mr Voss", words: ["voss", "company", "electric"], says: "\"That Voss. Told Albert his lamps were finished, under my window, at the third lamp. Albert said thank you. He would.\"" },
       fog: { open: true, label: "the fog", words: ["fog", "words", "word", "said"], says: "\"Whatever you say in that fog stays said,\" she says. \"That's why I never said much. Not in forty years.\"" },
       inquest: { about: "court", label: "the inquest", words: ["inquest", "court", "coroner", "midnight"], says: "\"I'll not go,\" she says. \"I've nothing to say.\" She has flour to the elbow, and she looks at it." },
       default: "\"I only do pies, love,\" says Mrs Halloran."
     } },
-  oven: { at: "pie_shop", scenery: true, name: "Oven", note: "Never out.", actions: ["Examine oven"],
+  oven: { at: "pie_shop", name: "Oven", note: "Never out.",
     words: { nouns: ["oven", "range", "door"], adj: ["iron", "black"] },
     examine: "A black iron oven, its door ajar on a glow the colour of a good evening. It has been lit since the old Queen, and Mrs Halloran talks to it when the shop is empty." },
-  pie: { at: null, portable: false, name: "Pie", note: "Hot, still steaming.", actions: ["Examine pie"],
+  pie: { from: "halloran", brought: "Mrs Halloran wraps a {pie} in paper and sets it on the counter for you, hot.",
+    again: "\"One's plenty,\" says Mrs Halloran. \"He only ever had the one.\"",
+    consumable: true, heals: 1, stops: "drunk", eat: "You eat it standing up. It tastes of being expected.",
+    at: null, portable: false, name: "Pie", note: "Hot, still steaming.",
     words: { nouns: ["pie", "pies", "supper"], adj: ["hot", "steak"] },
     examine: "A pie in a paper, too hot to hold and too good to put down." },
 
   // The court
-  mabbott: { at: "court", scenery: true, name: "Dr Mabbott", note: "The coroner.", actions: ["Talk to Dr Mabbott"],
+  mabbott: { at: "court", name: "Dr Mabbott", note: "The coroner.",
     words: { nouns: ["mabbott", "coroner", "doctor"], adj: ["dr", "doctor"], proper: true },
     examine: "A thin man in a black coat, with a pen behind each ear and a third in his hand. He has held an inquest on every death on the Row since the old Queen, and agreed with most of them.",
     parts: [{ words: ["pen", "pens", "ink"], name: "his pen", says: "Steel-nibbed, and dry. It is waiting for a name." }], mentions: ["pen"],
@@ -356,17 +363,17 @@ const objects = {
       verdict: { open: true, label: "the verdict", words: ["verdict", "inquest", "finding"], says: "\"The court finds what it is told,\" he says. \"That is the trouble with courts.\"" },
       default: "\"Not a matter for this court,\" says Dr Mabbott, and makes a small note anyway."
     } },
-  witness_box: { at: "court", scenery: true, name: "Witness box", note: "For you.", actions: ["Enter witness box"], enterable: "in",
+  witness_box: { at: "court", name: "Witness box", note: "For you.", enterable: "in",
     words: { nouns: ["box"], adj: ["witness"] },
     enter: "You step into the witness box. It is exactly your size, as if the carpenter had known.",
     examine: "A pen of varnished wood with a rail worn pale by the hands of people who saw something. It is exactly your size." },
 
   // The last lamp
-  fenn: { at: "last_lamp", scenery: true, name: "Mr Fenn", note: "Dead, and on duty.", actions: ["Talk to Mr Fenn"],
+  fenn: { at: "last_lamp", name: "Mr Fenn", note: "Dead, and on duty.",
     words: { nouns: ["fenn", "lamplighter", "albert", "man", "body"], adj: ["mr", "mister", "dead", "old"], proper: true },
     examine: "A small man in a cap and a coat gone green at the seams, sitting very straight on the kerb with his hands on his knees. There is a {key|hut_key} on a string round his neck. He is dead, and still on duty.",
     take: "He is heavier than he looks. He has been at his post a long time.",
-    parts: [{ words: ["coat", "seams", "hands", "knees", "cap"], name: "his coat", says: "Green at the seams, polished at the elbows by forty years of reaching up." }], mentions: ["key", "coat", "cap"],
+    parts: [{ words: ["coat", "seams", "hands", "knees", "cap"], name: "his coat", says: "Green at the seams, polished at the elbows by forty years of reaching up." }], mentions: ["coat", "cap"],
     talk: "\"Evening,\" says Mr Fenn, without getting up. \"I can't leave my post. Not till I'm relieved.\"",
     topics: {
       death: { open: true, label: "his death", words: ["death", "died", "dead", "murder", "killed", "who", "dying"], says: "\"Couldn't tell you who,\" he says. \"Wouldn't be fair, not before the inquest. Ask the fog. It was here.\"" },
@@ -378,41 +385,40 @@ const objects = {
       inquest: { open: true, label: "the inquest", words: ["inquest", "court", "coroner", "midnight"], says: "\"Midnight. I'll not be attending. Can't leave my post.\"" },
       default: "\"Couldn't say,\" says Mr Fenn. \"I only did the lamps.\""
     } },
-  hut_key: { at: "fenn", portable: true, name: "Hut key", note: "On a string.", actions: ["Take key"], heldActions: ["Examine key", "Unlock door with key"],
+  hut_key: { at: "fenn", portable: true, name: "Hut key", note: "On a string.", actions: ["Take key"],
     words: { nouns: ["key", "string"], adj: ["hut", "iron", "small"] }, ...item("hut_key"),
-    here: "A small iron {key|hut_key} on a string lies where you left it.",
+    lies: "A small iron {key|hut_key} on a string lies where you left it.",
     examine: "A small iron key on a length of string, warm from a neck that isn't any more." },
-  dark_lamp: { at: "last_lamp", scenery: true, name: "The last lamp", note: "The only one not lit.", actions: ["Examine lamp", "Light lamp"],
+  dark_lamp: { at: "last_lamp", name: "The last lamp", note: "The only one not lit.", actions: ["Light lamp"],
     words: { nouns: ["lamp", "lamppost", "post", "lantern", "glass"], adj: ["last", "unlit", "dark", "twelfth", "iron"] },
     examine: "An iron post and a lantern of four panes, cold, with the tap shut. It is the twelfth lamp of twelve, and the only one on the Row that nobody lit tonight. It is too high to reach without a lamplighter's pole.",
     climb: "The post is iron and wet, and there is nothing to hold on to. Lamplighters never climbed. They had a pole for it." },
-  fog_lamp: { at: "last_lamp", scenery: true, name: "Fog", note: "Murmuring, word by word.", actions: ["Listen to fog"],
+  fog_lamp: { at: "last_lamp", name: "Fog", note: "Murmuring, word by word.", actions: ["Listen to fog"],
     words: { nouns: ["fog", "murmur", "murmuring", "mist"], adj: ["thick"] },
     examine: "The fog is thickest here, and it murmurs: a word, half a word, too faint to make out, all of them said here and none of them heard yet." },
-  hut_door: { at: "last_lamp", scenery: true, name: "Hut door", note: "Mr Fenn's.", actions: ["Examine door", "Open door"], leads: "e",
+  hut_door: { at: "last_lamp", name: "Hut door", note: "Mr Fenn's.", door: "e",
     words: { nouns: ["door", "hut"], adj: ["hut", "wooden", "green"] },
     examine: "The door of a wooden hut the size of a wardrobe, painted green a great many times. Locked: it wants Mr Fenn's key.",
     locked: true, lock: { key: "hut_key", says: "The hut door is locked. It wants Mr Fenn's key.",
       opens: "The key turns as if it has done it every night for forty years. The hut door swings open on a smell of gas and paraffin.", then: "hut_opened" } },
 
   // The hut
-  trumpet: { at: "hut", portable: true, name: "Ear trumpet", note: "For listening to gas.", actions: ["Take trumpet"], heldActions: ["Listen to trumpet", "Examine trumpet"],
+  trumpet: { at: "hut", portable: true, name: "Ear trumpet", note: "For listening to gas.", heldActions: ["Listen to trumpet"],
     words: { nouns: ["trumpet"], adj: ["ear", "brass", "dented"] }, ...item("trumpet"),
     here: "There is a dented brass {ear trumpet|trumpet} here.",
     examine: "A brass ear trumpet, dented, the kind the old lamplighters held to a lamp to hear whether the gas was breathing. Inside the bell of it, the brass is bright, as if it had been listening to something warm." },
-  pole: { at: "hut", portable: true, name: "Lamplighter's pole", note: "Still burning.", actions: ["Take pole"], heldActions: ["Examine pole"],
+  pole: { at: "hut", portable: true, shape: ["pole_shape", "pole_flame"], name: "Lamplighter's pole", note: "Still burning.",
     words: { nouns: ["pole", "flame", "hook"], adj: ["lamplighter's", "long", "brass"] }, ...item("pole"),
     here: "Mr Fenn's long {pole} leans here, its little blue flame still burning.",
     examine: "A long pole with a brass hook for the tap and a small blue flame at the tip that has not gone out in forty years. It is heavier at the end that did the work." },
-  logbook: { at: "hut", scenery: true, name: "Log book", note: "Every lamp, every night.",
+  logbook: { at: "hut", name: "Log book", note: "Every lamp, every night.",
     words: { nouns: ["book", "logbook", "log", "page"], adj: ["log", "open", "lamp"] },
     examine: "Every lamp of every night for forty years, in pencil. Today's page: \"Lamp one, lit. Two, lit. Three, lit. Voss called, unpleasant. Four, lit,\" and so on to eleven, and then: \"Pie.\" Under that, \"Twelve,\" and nothing after it." },
 
   // The substation
-  voss: { at: "substation", scenery: true, name: "Mr Voss", note: "The Electric Company.", actions: ["Talk to Mr Voss"],
+  voss: { at: "substation", name: "Mr Voss", note: "The Electric Company.",
     words: { nouns: ["voss", "man", "company"], adj: ["mr", "mister", "electric"], proper: true },
     examine: "A neat man in a celluloid collar and a {bowler hat|bowler}, who looks at the dynamo the way other men look at their sons.",
-    mentions: ["bowler hat"],
     talk: "\"Voss, Electric Company,\" he says, and offers a hand you didn't ask for. \"On Monday the Row goes electric. You'll be wanting to ask me about Fenn. Everybody is.\"",
     topics: {
       fenn: { open: true, label: "Mr Fenn", words: ["fenn", "albert", "lamplighter", "death", "said", "words"], says: "\"I told him straight, at his third lamp. Your lamps are finished, Fenn. Monday the Row goes electric.\" He sniffs. \"He said thank you and went on to the fourth. Thank you.\"" },
@@ -422,23 +428,23 @@ const objects = {
       inquest: { about: "court", label: "the inquest", words: ["inquest", "court", "coroner", "midnight", "name"], says: "\"They'll want a name,\" he says. \"Mine's a good one for it, I expect. Everybody likes to blame the Company.\"" },
       default: "\"That's not the Company's concern,\" says Mr Voss."
     } },
-  bowler: { at: "voss", scenery: true, name: "Bowler hat", note: "Company issue.", actions: ["Examine bowler"],
+  bowler: { at: "voss", name: "Bowler hat", note: "Company issue.",
     words: { nouns: ["bowler", "hat"], adj: ["bowler", "black"] },
     examine: "A black bowler, brushed against the fog. He has not taken it off since the Company sent him, in case the Company looks in." },
-  dynamo: { at: "substation", scenery: true, name: "Dynamo", note: "Humming, very sure.", actions: ["Listen to dynamo"],
+  dynamo: { at: "substation", name: "Dynamo", note: "Humming, very sure.",
     words: { nouns: ["dynamo", "machine", "drum", "coil"], adj: ["big", "humming"] },
     examine: "A great iron drum wound with copper, humming. It is going to light twelve lamps at once on Monday and has already stopped thinking about anything else.",
     listen: "A hum, low and certain, with no words in it at all. Mr Voss finds it restful.",
     touch: "Warm, and very sure of itself. It doesn't notice you." },
-  ledger: { at: "substation", scenery: true, name: "Ledger", note: "Company figures.",
+  ledger: { at: "substation", name: "Ledger", note: "Company figures.",
     words: { nouns: ["ledger", "figures", "columns"], adj: ["company", "open"] },
     examine: "Columns of figures, and at the bottom of today, in a neat hand: \"Informed F. of Monday, at his third lamp. He thanked me. Returned here.\" The word thanked is underlined twice." },
 
   // The river steps
-  pip: { at: "river_steps", scenery: true, name: "Pip", note: "A mudlark.", actions: ["Talk to Pip"],
+  pip: { at: "river_steps", name: "Pip", note: "A mudlark.",
     words: { nouns: ["pip", "mudlark", "girl", "child"], adj: [], proper: true },
     examine: "A girl of about ten in a man's coat, mud to the knee, with a {bucket} of things that were lost and a stick for finding more.",
-    parts: [{ words: ["bucket", "stick", "coat"], name: "her bucket", says: "Spoons, buttons, a doorknob, half a pair of spectacles. And at the bottom, something small and pale that she covers with her hand when you look." }], mentions: ["bucket", "stick"],
+    parts: [{ words: ["bucket", "stick", "coat"], name: "her bucket", says: "Spoons, buttons, a doorknob, half a pair of spectacles. And at the bottom, something small and pale that she covers with her hand when you look." }], mentions: ["stick"],
     talk: "\"Finders,\" says Pip, without looking up. \"Ask me what I found, if you want.\"",
     topics: {
       found: { open: true, label: "what she found", words: ["found", "finds", "bucket", "things", "mud", "find"], says: "\"Spoons. A button. Words, sometimes, when they drop in the river. They go hard in the mud, like biscuits. Nothing tonight.\" She looks up the steps. \"Tonight I heard.\"" },
@@ -447,19 +453,19 @@ const objects = {
       river: { open: true, label: "the river", words: ["river", "thames", "water", "swim"], says: "\"Don't go in. It's colder than it looks and it doesn't give things back. Except to me.\"" },
       default: "\"Dunno,\" says Pip. \"It's not in the bucket.\""
     } },
-  river: { at: "river_steps", scenery: true, name: "River", note: "Brown, in no hurry.", actions: ["Examine river"],
+  river: { at: "river_steps", name: "River", note: "Brown, in no hurry.",
     words: { nouns: ["river", "thames", "water"], adj: ["brown", "cold"] },
     examine: "Brown water, moving fast under its own calm, with the fog lying on it like a lid. It looks cold, and hungry, and the last step is dark where it has already reached for you. It doesn't give things back, Pip says." },
 
   // The bridge
-  parapet: { at: "bridge", scenery: true, name: "Parapet", note: "Cold stone.", actions: ["Examine parapet"],
+  parapet: { at: "bridge", name: "Parapet", note: "Cold stone.",
     words: { nouns: ["parapet", "stone", "balustrade", "rail"], adj: ["wet", "cold", "stone"] },
     examine: "Cold stone, wet with fog. From here you can see the shape the fog makes over the Row: thickest round the last lamp, and round the chimney of the pie shop, leaning towards it like someone listening." },
 
   // What comes to hand later
-  last_words: { at: null, portable: true, name: "Last words", note: "Cupped in your hands.", actions: ["Examine words"], heldActions: ["Examine words", "Give words to Dr Mabbott"],
+  last_words: { at: null, portable: true, name: "Last words", note: "Cupped in your hands.", heldActions: ["Give words to Dr Mabbott"],
     words: { nouns: ["words", "sentence"], adj: ["last", "warm"], pl: true }, ...item("last_words"),
-    here: "The {last words|last_words} lie here, faintly warm.",
+    lies: "The {last words|last_words} lie here, faintly warm.",
     examine: "\"Leave it, Albert. Sit down a minute. Nobody will miss one lamp.\" A woman's voice, low and warm, with flour on it. The words are still a little warm, and they smell of pastry." }
 };
 
@@ -501,20 +507,18 @@ const rules = [
     do: [{ say: "\"Key's round my neck,\" says Mr Fenn, and bows his head so you can lift the string over it. \"I shan't be going anywhere.\"" }, { move: "hut_key", to: "player" }, { change: "key_taken" }] },
 
   // Listening to the fog at the last lamp: with the trumpet, once the Bell has shut and the Row is quiet.
-  { id: "hear_noisy", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
+  { id: "hear_noisy", match: { verb: ["listen", "put"], obj: [null, "fog_lamp", "trumpet"] },
     if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "time.hour": { between: [11, 23] } }],
     do: [{ say: "You hold the trumpet to the fog. It fills to the brim with the chorus from the Bell, a dozen men each a little behind the next. Under it, very small, something is trying to be heard. It will have to wait until the Bell shuts." }] },
-  { id: "hear_words", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
-    if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }, { "last_words.at": null }],
+  { id: "hear_words", match: { verb: ["listen", "put"], obj: [null, "fog_lamp", "trumpet"] },
+    if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }], once: true,
+    again: "The fog has nothing more to say here. It has said enough.",
     do: [{ say: "You hold the trumpet to the fog and listen. Most of what the fog holds is weather. Then, close by the lamp, low: a woman's voice, warm, with flour on it. \"Leave it, Albert. Sit down a minute. Nobody will miss one lamp.\"" },
          { say: "The words come down out of the fog and settle in your cupped hands, light as a moth, still a little warm." },
          { move: "last_words", to: "player" }] },
-  { id: "heard_already", match: { verb: ["listen", "use", "put"], obj: [null, "fog_lamp", "trumpet"] },
-    if: [{ "player.at": "last_lamp" }, { "trumpet.at": "player" }],
-    do: [{ say: "The fog has nothing more to say here. It has said enough." }] },
   { id: "listen_fog_bare", match: { verb: "listen", obj: [null, "fog_lamp"] }, if: [{ "player.at": "last_lamp" }],
     do: [{ say: "The fog murmurs: a word here, half a word there, too faint to make out. Mr Fenn used to listen to the gas with a trumpet; it would hear this." }] },
-  { id: "trumpet_elsewhere", match: { verb: ["listen", "use"], obj: "trumpet", obj2: [null] }, if: [{ "trumpet.at": "player" }],
+  { id: "trumpet_elsewhere", match: { verb: "listen", obj: "trumpet" }, if: [{ "trumpet.at": "player" }],
     do: [{ say: ["You hold the trumpet up to the fog. It is full of small ordinary things: a cough, a door, somebody's \"well, then\". Nothing that was said here matters.",
                  "The trumpet brings you a cough, two streets off, and somebody's kettle. The words that matter were said at the last lamp."] }] },
 
@@ -542,8 +546,6 @@ const rules = [
     do: [{ say: "\"The deceased can't be named at his own inquest,\" says Dr Mabbott. \"It upsets them.\"" }] },
   { id: "accuse_other", match: { verb: "accuse" }, if: [{ "player.at": "court" }],
     do: [{ say: "\"Not on the constable's list,\" says Dr Mabbott. \"Persons present at the lamp: Mr Voss, Mrs Halloran, and the deceased.\"" }] },
-  { id: "accuse_elsewhere", match: { verb: "accuse" },
-    do: [{ say: "Names are for the inquest: the coroner's court, north of the Row, when it sits at midnight." }] },
   { id: "say_words_in_court", match: { verb: "say" }, if: [{ "player.at": "court" }, { "last_words.at": "player" },
       { "$text": { in: ["words", "the words", "last words", "the last words", "them", "it", "leave it albert", "leave it, albert"] } }],
     do: [{ change: "truth_ending" }] },
@@ -584,52 +586,27 @@ const rules = [
   { id: "name_other", match: { verb: "answer", question: "name" }, if: [{ "player.at": "court" }],
     do: [{ say: "\"Not on the constable's list,\" says Dr Mabbott. \"Persons present at the lamp: Mr Voss, Mrs Halloran, and the deceased.\"" }] },
 
-  // The pole lies in the hut as a shape in its picture: taking it removes the shape, dropping it back in the hut redraws it.
-  { id: "pole_up", match: { verb: "take", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "hut" }],
-    do: [{ draw: "hut", remove: ["pole_shape", "pole_flame"] }], then: "default" },
-  { id: "pole_down", match: { verb: "drop", obj: "pole" }, if: [{ "player.at": "hut" }, { "pole.at": "player" }],
-    do: [{ draw: "hut", add: ["line pole_shape 256,112 244,26 c14", "ellipse pole_flame 244,22,2,3 9"] }], then: "default" },
 
   // The last lamp: whoever lights it takes the post.
   { id: "light_lamp", match: { verb: ["switch_on", "use"], obj: ["dark_lamp", "pole"], obj2: [null, "dark_lamp", "pole"] },
     if: [{ "player.at": "last_lamp" }, { "pole.at": "player" }],
     do: [{ confirm: "Light the last lamp of Lantern Row? Whoever lights her keeps her.", yes: [{ change: "relieved_ending" }],
            no: [{ say: "You lower the pole. Mr Fenn lets out a breath he doesn't need." }] }] },
-  { id: "light_lamp_bare", match: { verb: ["switch_on", "use"], obj: "dark_lamp" }, if: [{ "player.at": "last_lamp" }, { "pole.at": { "!=": "player" } }],
+  { id: "light_lamp_bare", match: { verb: "switch_on", obj: "dark_lamp" }, if: [{ "player.at": "last_lamp" }, { "pole.at": { "!=": "player" } }],
     do: [{ say: "The lamp is too high to reach, and you have nothing to light it with. Mr Fenn's pole is in his hut, east of here." }] },
   { id: "relieve_fenn", match: { verb: "relieve" }, if: [{ "player.at": "last_lamp" }, { "pole.at": "player" }],
     do: [{ confirm: "Light the last lamp of Lantern Row? Whoever lights her keeps her.", yes: [{ change: "relieved_ending" }],
            no: [{ say: "You lower the pole. Mr Fenn lets out a breath he doesn't need." }] }] },
   { id: "relieve_fenn_bare", match: { verb: "relieve" }, if: [{ "player.at": "last_lamp" }],
     do: [{ say: "\"Not like that,\" says Mr Fenn. \"Whoever lights the last lamp takes the post. My pole's in the hut, east of here.\"" }] },
-  { id: "relieve_elsewhere", match: { verb: "relieve" },
-    do: [{ say: "Mr Fenn keeps his post at the last lamp, at the bottom of the Row, south. Only whoever lights it can relieve him." }] },
-  { id: "light_elsewhere", match: { verb: ["switch_on", "use"], obj: "pole", obj2: [null] }, if: [{ "pole.at": "player" }],
+  { id: "light_elsewhere", match: { verb: "switch_on", obj: "pole" }, if: [{ "pole.at": "player" }],
     do: [{ say: "Every lamp here is lit already. Only the last one, at the bottom of the Row, is waiting." }] },
 
-  // Porter at the Bell: the first two halves do you good, the third and after make you drunk (the condition below). A pie
-  // sobers you; so does time. A pie, a breath of clearer air: one each.
-  { id: "order_porter", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 0 }],
-    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "Mr Cotter pulls you a half of porter without asking which. You drink it by the fire. The fog in your chest goes and sits somewhere else for a while." }] },
-  { id: "porter_second", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }, { "cotter.poured": 1 }],
-    do: [{ set: "cotter.poured", add: 1 }, { heal: 1, says: "Mr Cotter pulls you a second half. \"That's the good one,\" he says. \"The third does the talking.\" You drink it by the fire, and the fog in your chest goes a little further off." }] },
-  { id: "porter_drunk", match: { verb: ["order", "ask"], obj: [null, "porter", "cotter"] }, if: [{ "player.at": "bell" }, { "$topic": { in: [null, "porter"] } }],
-    do: [{ set: "cotter.poured", add: 1 },
-         { say: ["Mr Cotter pulls you another half and watches you drink it, the way a man watches a kettle. The fire leans in. The singing at the bar starts to make sense.",
-                 "Mr Cotter pulls you another and says nothing, which is worse. The men at the bar make room for you in the chorus."] },
-         { start: "drunk" }] },
-  { id: "order_pie", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }], once: true,
-    do: [{ heal: 1, says: "Mrs Halloran wraps a pie in paper and gives it to you hot. You eat it standing up. It tastes of being expected." }, { stop: "drunk" }] },
-  { id: "pie_again", match: { verb: ["order", "ask"], obj: [null, "pie", "halloran"] }, if: [{ "player.at": "pie_shop" }, { "$topic": { in: [null, "pie"] } }],
-    do: [{ say: "\"One's plenty,\" says Mrs Halloran. \"He only ever had the one.\"" }] },
-  { id: "order_elsewhere", match: { verb: "order" },
-    do: [{ say: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." }] },
+  // (Porter at the Bell and Mrs Halloran's pie come from them: their own fields. Three halves, each doing you good; the third makes
+  // you drunk, the condition below, with its doses. A pie sobers you; so does time.) A breath of clearer air: once.
   { id: "breathe_bridge", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }], once: true,
+    again: "You breathe. It helps less the second time. It is still fog, only thinner.",
     do: [{ heal: 1, says: "You breathe. The air out here is only half fog; the other half is the river going by. For a moment your chest is your own." }] },
-  { id: "breathe_again", match: { verb: "breathe" }, if: [{ "player.at": "bridge" }],
-    do: [{ say: "You breathe. It helps less the second time. It is still fog, only thinner." }] },
-  { id: "breathe_elsewhere", match: { verb: "breathe" },
-    do: [{ say: "You breathe in fog, and it breathes you back. Out on the bridge, past the river steps, the air is thinner." }] },
 
   // Words said in the fog stay where they were said.
   { id: "sing_bell", match: { verb: "sing" }, if: [{ "player.at": "bell" }],
@@ -646,7 +623,7 @@ const rules = [
   // The Bell shuts at eleven; the court sits at midnight and rises at six.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
     do: [{ say: "Mr Cotter rings the handbell over the bar. \"Time,\" he says, and the singing stops in the middle of a word. You find yourself out on the Row with the others, who go off into the fog in different directions and do not come out of it." },
-         { travel: "row" }, { describe: "$here" }] },
+         { travel: "row" }] },
   { id: "bell_shuts", when: "at", at: "23:00", if: [{ "player.at": { in: ["row", "last_lamp", "pie_shop", "substation", "hut", "river_steps"] } }],
     do: [{ say: "Up the Row a handbell rings in the Bell, and the singing stops in the middle of a word. Lantern Row goes quiet, quiet enough to hear a word drop." }] },
   // What the Row's picture shows of it: the Bell's window goes dark at eleven and lights at eleven in the morning; the
@@ -659,7 +636,7 @@ const rules = [
     do: [{ say: "Somewhere above the fog a clock strikes midnight. The court doors open by themselves, and the fog goes in first." }] },
   { id: "court_rises", when: "at", at: "06:00", if: [{ "player.at": "court" }],
     do: [{ say: "Morning, somewhere above the fog. Dr Mabbott closes his book. \"The court will sit again at midnight,\" he says, and you are shown out." },
-         { travel: "row" }, { describe: "$here" }] },
+         { travel: "row" }] },
 
 ];
 
@@ -699,9 +676,6 @@ const opening = {
 export default {
   because: "After the opening: a fog-bound street on the night of a lamplighter's inquest.",
   opening,
-  properties: {
-    "cotter.poured": { type: "number", min: 0, max: 9, start: 0 }       // the halves of porter Mr Cotter has pulled you
-  },
   facts: [
     "The player arrives on Lantern Row, London, in thick fog, on a Thursday at half past ten at night.",
     "Albert Fenn, lamplighter, died this evening under the one lamp he didn't light, and sits there still, dead, until relieved.",
@@ -716,18 +690,19 @@ export default {
       { say: "Somewhere above the fog a church clock strikes half past ten, and doesn't sound sure of it." }
     ] },
     // Verbs this world needs
-    { add: "word", verb: "accuse", words: ["accuse", "blame", "name", "charge", "denounce"], absent: true },
-    { add: "word", verb: "order", words: ["order", "buy", "pay for"], absent: true },
-    { add: "word", verb: "breathe", words: ["breathe", "breathe in", "take a breath", "inhale"] },
+    { add: "word", verb: "accuse", words: ["accuse", "blame", "name", "charge", "denounce"], absent: true, reply: "Names are for the inquest: the coroner's court, north of the Row, when it sits at midnight." },
+    { add: "word", verb: "order", reply: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." },
+    { add: "word", verb: "buy", reply: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." },
+    { add: "word", verb: "breathe", words: ["breathe", "breathe in", "take a breath", "inhale"], reply: "You breathe in fog, and it breathes you back. Out on the bridge, past the river steps, the air is thinner." },
     { add: "word", verb: "swim", words: ["swim", "wade", "paddle", "dive"] },
-    { add: "word", verb: "relieve", words: ["relieve", "take over from", "stand in for", "replace"] },
+    { add: "word", verb: "relieve", words: ["relieve", "take over from", "stand in for", "replace"], reply: "Mr Fenn keeps his post at the last lamp, at the bottom of the Row, south. Only whoever lights it can relieve him." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    // Drunk on porter (the third half at the Bell, and after): the Row sways and doubles, words come out slurred, and leaving a place you
+    // Drunk on porter (the third half at the Bell: doses 3): the Row sways and doubles, words come out slurred, and leaving a place you
     // sometimes take another way out. It wears off; a pie sobers you sooner.
-    { add: "condition", id: "drunk", lasts: { seconds: [120, 180] }, starts: "You're drunk", ends: "You're sober again", status: "You're drunk on beer",
+    { add: "condition", id: "drunk", doses: 3, lasts: { seconds: [120, 180] }, starts: "You're drunk", ends: "You're sober again", status: "You're drunk on beer",
       filters: ["sway", "ghost"], speech: { slur: true },
       movement: { chance: 0.3, says: ["Your feet take you another way than the one you meant.", "You set off one way, and the fog turns you round."] } },
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),

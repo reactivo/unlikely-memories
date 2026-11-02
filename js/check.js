@@ -3,9 +3,9 @@
 // them: walking between rooms, picking up what's needed, solving each puzzle with its own commands. Pure: never
 // touches the page; used by the tests now, and later to check a world the AI builds before it's played.
 //
-// Also: the world's opening keeps the contract of BRIEF.md §3 (checkOpening below): its room in an area of its own,
-// one thing to take (the hints thing) and one carried (the intro), the way on held back and then leading into the world, the lines said, no
-// word of the three things used by anything else.
+// Also: the world's opening keeps the contract of BRIEF.md §3 (checkOpening below): its room in an area of its own, a closed place,
+// one thing to take (the hints thing) and one carried (the intro), no word of the three things used by anything else. Its mechanics
+// are the engine's, pinned in tests/openings.test.js, not played here.
 //
 // Also: the ending's picture (BRIEF.md §7): every `end` effect names a picture the world has, a world that can hurt the player
 // has a `died` picture (the one the story ends with when health runs out), and each picture in `state.pictures` is well formed
@@ -27,8 +27,9 @@
 // of a timed one, and a way no property or hour could ever open is warned of (neverOpen below).
 //
 // Also: every exit leads where it says (and rooms can be gone to by name, and stairs climbed), what things offer when
-// clicked does something, and everything a text mentions answers (`mentions`, written with each room
-// and object: the things its lines name, GUIDE.md §6).
+// clicked does something (and repeats nothing the engine offers itself), a source's topic for a thing that comes from it doesn't say
+// that thing's `again` line, and everything a text mentions answers: what it marks,
+// the room's scenery words, and its `mentions`, which list only the rest (warned of when they repeat one of those; GUIDE.md §6).
 //
 // A puzzle: { where?, needs: [thing or puzzle ids], solve: [commands], gives?: [things], reaches?: room,
 //             ending?: true, clues: [object, rule or puzzle ids], time?: "next 22:00" }
@@ -37,13 +38,15 @@
 // Also, given the bible (the third argument): its blurb is 110–160 characters and its thumbnail names one of the world's room pictures
 // (never an ending's or `died`) with a whole-number x from 0 to 95 (bibleProblems below; GUIDE.md §1). Without a bible these aren't looked at.
 //
-//   check(state, pack, bible?) → { ok, problems: [...], warnings: [...], endings: { id: [commands played] } }
+//   check(state, pack, bible?, { before? }) → { ok, problems: [...], warnings: [...], endings: { id: [commands played] } }
+//   before(state, command, puzzle): called before each command a puzzle's `solve` types, with the state it is typed in (for the
+//   tests that try other commands there: tests/use.test.js, "use A with B" both ways). Never changes the run.
 
 import { parse, normalise, inScope } from "./parser.js";
 import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js";
 import { placeOf, isAction } from "./use.js";
 import { solveCommand } from "./narrator.js";
-import { isExitObject, exitTo, exitConditions } from "./exits.js";
+import { isExitObject, exitTo, exitConditions, wayOf } from "./exits.js";
 import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
 import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite } from "./fields.js";
@@ -59,7 +62,7 @@ const withChanges = (state, effects) => (effects || []).flatMap(x => x && typeof
 // A "@key" as the pack's own text (any other value as it is).
 const packText = (x, pack) => (typeof x === "string" && x.startsWith("@") ? x.slice(1).split(".").reduce((v, k) => v?.[k], pack) : x);
 
-export function check(state, pack, bible) {
+export function check(state, pack, bible, { before = null } = {}) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)
   // The opening's way on `reaches: "entrance"`: wherever the world says it leads.
   // (With no world yet, there's nowhere for it to lead: the opening's puzzles are left out.)
@@ -102,10 +105,6 @@ export function check(state, pack, bible) {
   if (pack.words.grammar?.gender)
     for (const [id, o] of Object.entries(state.world.objects))
       if (!["m", "f"].includes(o.words?.g)) problems.push(`${id}: no gender (words.g, "m" or "f"): the standard replies agree with it in this language`);
-  // The proper-name mark is true or absent (js/fields.js warns of it as the world loads; here it is refused, as in an AI change set).
-  for (const [id, o] of Object.entries(state.world.objects))
-    if (o.words && typeof o.words === "object" && o.words.proper !== undefined && o.words.proper !== true)
-      problems.push(`${id}: words: proper is true (a proper name, said as written with no article), not ${JSON.stringify(o.words.proper)}`);
 
   // Every thing that can end up in the player's hands has a sprite (BRIEF.md §5; INTERFACE.md §6c): portable, carried from the
   // start, moved or put there by a rule or a named change, added there, or inside one of those (js/fields.js, heldThings).
@@ -138,7 +137,7 @@ export function check(state, pack, bible) {
       const to = exitTo(raw);
       if (typeof to !== "string" || badExits.has(id + "." + dir)) continue;
       let there = inRoom(arrived, id);
-      if (isExitObject(raw) && !exitNow(there, id, dir).go) {          // shut now: try it open (waiting for its hour)
+      if (!exitNow(there, id, dir).go) {                               // shut now (its `if`, or a locked thing that leads there): try it open (waiting for its hour)
         there = opensByWaiting(there, id, dir);
         if (!there) continue;                                           // held by something else: the playthrough, and neverOpen, say
       }
@@ -148,7 +147,7 @@ export function check(state, pack, bible) {
   }
   // Rooms by name: "go <the room's name>" from next door gets there (the name is what the player reads on screen;
   // through a door's own rule counts).
-  // And a thing that leads somewhere (`leads: "u"`: stairs, a ladder): climbing it goes that way, to a room.
+  // And a thing that leads somewhere (`leads: "u"`: stairs, a ladder; `door: "e"`: a door, a gate, a hatch): climbing it goes that way, to a room.
   const go = pack.words.verbs.go[0], climb = pack.words.verbs.climb[0];
   const travels = (s, command) => { const r = parse(command, s, pack); return r.actions?.length === 1 && r.actions[0].verb === "go" ? r.actions[0].dir : null; };
   const reaches = (s, command, to) => {
@@ -162,50 +161,97 @@ export function check(state, pack, bible) {
     for (const [dir, raw] of Object.entries(room.exits || {})) {
       const to = exitTo(raw);
       const name = typeof to === "string" && arrived.world.rooms[to]?.name;
-      if (name && !isExitObject(raw) && !reaches(there, go + " " + name.toLowerCase(), to)) warnings.push(`${id}: "${go} ${name.toLowerCase()}" doesn't go ${dir} to ${to}`);
+      if (name && !isExitObject(raw) && exitNow(there, id, dir).go && !reaches(there, go + " " + name.toLowerCase(), to)) warnings.push(`${id}: "${go} ${name.toLowerCase()}" doesn't go ${dir} to ${to}`);
     }
     const leading = [...(room.scenery || []).map(x => ({ word: x.words?.[0], leads: x.leads })),
-      ...Object.entries(arrived.world.objects).filter(([, o]) => o.at === id && o.leads).map(([, o]) => ({ word: o.words?.nouns?.[0], leads: o.leads }))];
+      ...Object.entries(arrived.world.objects).filter(([, o]) => o.at === id && wayOf(o)).map(([, o]) => ({ word: o.words?.nouns?.[0], leads: wayOf(o) }))];
     for (const { word, leads } of leading.filter(x => x.leads && x.word)) {
       if (!(leads in (room.exits || {}))) problems.push(`${id}: "${word}" leads ${leads}, but there's no way ${leads} from here`);
       else if (travels(there, climb + " " + word) !== leads) problems.push(`${id}: "${climb} ${word}" doesn't go ${leads}`);
     }
   }
+  // A door locked from either side (`pair`): each door names the other, written on both, and each is a door. Their locks and states then go together.
+  for (const [id, o] of Object.entries(arrived.world.objects)) {
+    if (o.pair === undefined) continue;
+    const other = arrived.world.objects[o.pair];
+    if (o.pair === id) problems.push(`${id}: pair names the door itself: it links two doors`);
+    else if (!other) problems.push(`${id}: pair "${o.pair}" isn't a thing${suggest(o.pair, Object.keys(arrived.world.objects))}`);
+    else if (!other.door) problems.push(`${id}: pair "${o.pair}" isn't a door (it has no \`door\`): a pair is two doors`);
+    else if (other.pair !== id) problems.push(`${id}: pair "${o.pair}", but ${o.pair} ${other.pair ? `pairs with ${other.pair}` : "has no pair"}, not ${id}: write \`pair\` on both doors`);
+  }
   // What a thing offers when clicked (`actions`; `heldActions` when carried) does something where it's offered: it's
   // read, and answered by a rule or the thing (not a stock reply). Only someone else being elsewhere may stop it
   // (offered lines leave those out: js/view.js).
+  // And none repeats what the engine offers by itself (decision 52): ORDER or BUY of a thing that comes `from` somewhere, EAT or DRINK
+  // of a `consumable` one (looked at wherever the thing is, even nowhere yet: those verbs may name what isn't here).
+  const OFFERED = { order: "from", buy: "from", eat: "consumable", drink: "consumable" };
   for (const [id, o] of Object.entries(state.world.objects)) {
     const room = placeOf(state, id);
-    if (!state.world.rooms[room]) continue;
     for (const [list, held] of [[o.actions, false], [o.heldActions, true]]) for (const command of list || []) {
       const s = structuredClone(state);
-      s.player.at = room;
+      if (state.world.rooms[room]) s.player.at = room;
+      else if (!held) s.world.objects[id].at = s.player.at;   // (nowhere yet: put where you are, to read what it offers)
       if (held) s.world.objects[id].at = "player";
-      const r = parse(command, s, pack);
+      if (s.opening && id === s.opening.way) s.world.objects[s.opening.hints].at = "player";   // the way on is held back until you carry the hints thing: offered, and tried, then
+      const r = parse(command, s, pack), a = r.actions?.length === 1 ? r.actions[0] : null, mark = a && OFFERED[a.verb];
+      if (mark && a.obj && s.world.objects[a.obj]?.[mark] != null) {
+        warnings.push(`${id}: offers "${command}", which the game offers by itself (${a.verb} ${a.obj}: ${mark === "from" ? "it comes from its source" : "it is consumable"}): leave it out`);
+        continue;
+      }
+      if (!state.world.rooms[room]) continue;
       if (r.error?.scenery || r.error?.say === "@notHere") continue;
       if (!r.actions) warnings.push(`${id}: offers "${command}", which isn't understood (${r.error?.say})`);
       else if (!answered(s, r.actions).meaningful) warnings.push(`${id}: offers "${command}", which gets only a stock reply ${held ? "when carried" : "there"}`);
     }
   }
+  // A source's topic for a thing that comes from it (its key is the thing, or it is `about` it) says something of its own (decision 56):
+  // ASK ABOUT says the topic, and ASK FOR once it can't come says the thing's `again` line, so the same words twice would be said twice.
+  // The words compared are what is said in quotes ("…", «…», “…”), or the whole line with none; a list, any of its lines.
+  const spoken = (line) => { const t = String(line), q = [...t.matchAll(/"([^"]*)"|«([^»]*)»|“([^”]*)”/g)].map(m => m[1] ?? m[2] ?? m[3]);
+    return normalise(q.length ? q.join(" ") : t, pack.words.grammar); };
+  for (const [id, o] of Object.entries(state.world.objects)) {
+    const topics = state.world.objects[o.from]?.topics;
+    if (o.again == null || !topics) continue;
+    const again = new Set([].concat(o.again).map(spoken));
+    for (const [key, topic] of Object.entries(topics))
+      if (topic && typeof topic === "object" && (key === id || topic.about === id) && [].concat(topic.says ?? []).some(l => again.has(spoken(l))))
+        warnings.push(`${o.from}: its topic "${key}" says what ${id}'s again line says: give the topic words of its own`);
+  }
   // Everything a text mentions answers: "examine" each one where the text is read (an object's lines: with the
-  // object in hand) must find a thing, scenery or a part, never "You see no … here".
+  // object in hand) must find a thing, scenery or a part, never "You see no … here". What a text marks ({label|id}) and the
+  // room's scenery words are mentions without being listed (decision 53; for a room, the labels of the `here` and `lies` lines of
+// the things lying in it too, decision 58): the labels are checked here too (a room's, and an
+  // object's `here` and `lies`, by the clicks below), scenery words answer by being scenery. `mentions` lists only the rest, so
+  // a listed one that the text marks, or that is a scenery word there, is warned of.
   const look = pack.words.verbs.examine[0];
+  const marked = (line) => [...String(packText(line, pack) ?? "").matchAll(/\{([^|}]+)(?:\|([^}]+))?\}/g)].map(m => [m[1], m[2] ?? m[1]]);
+  const fold = (x) => normalise(String(x), pack.words.grammar);
   const answers = (s, m) => { const r = parse(look + " " + m, s, pack); return !!(r.actions || r.error?.scenery); };
+  const sceneryWords = (room) => new Set((state.world.rooms[room]?.scenery || []).flatMap(x => x.words || []).map(fold));
+  const already = (id, m, labels, room, by = new Map()) => labels.has(fold(m)) ? warnings.push(`${id}: mentions "${m}", which its text marks already: leave it out of mentions`)
+    : by.has(fold(m)) ? warnings.push(`${id}: mentions "${m}", which the here or lies line of ${by.get(fold(m))} lying there marks already: leave it out of mentions`)
+    : sceneryWords(room).has(fold(m)) ? warnings.push(`${id}: mentions "${m}", which is a scenery word of ${room}: leave it out of mentions`) : null;
+  // A room's marked labels are its `describe`'s, and those of the `here` and `lies` lines of the things lying in it (decision 58): label → thing.
+  const lying = (room) => new Map(Object.entries(arrived.world.objects).filter(([, o]) => o.at === room)
+    .flatMap(([t, o]) => [].concat(o.here ?? [], o.lies ?? []).flatMap(marked).map(([l]) => [fold(l), t])));
   for (const [id, room] of Object.entries(arrived.world.rooms)) {
-    const s = inRoom(arrived, id);
+    const s = inRoom(arrived, id), labels = new Set([].concat(room.describe || []).flatMap(marked).map(([l]) => fold(l)));
     for (const m of room.mentions || []) if (!answers(s, m)) problems.push(`${id} mentions "${m}", but nothing there answers to it`);
+    for (const m of room.mentions || []) already(id, m, labels, id, lying(id));
   }
   for (const [id, o] of Object.entries(state.world.objects)) {
-    if (!o.mentions) continue;
     const s = structuredClone(state);                // read where the object is (its room), with it in hand
     const room = placeOf(state, id);
     if (state.world.rooms[room]) s.player.at = room;
     s.world.objects[id].at = "player";
-    for (const m of o.mentions) if (!answers(s, m)) problems.push(`${id} mentions "${m}", but nothing answers to it`);
+    const own = collectTexts({ ...o, starts: undefined, stops: undefined }, id, pack).filter(x => !x.pack && !/^(here|lies)$/.test(x.field));
+    const labels = [...new Set(own.flatMap(x => marked(x.text)).map(([l]) => l))];
+    for (const m of o.mentions || []) if (!answers(s, m)) problems.push(`${id} mentions "${m}", but nothing answers to it`);
+    for (const l of labels) if (!answers(s, l)) problems.push(`${id} marks "${l}", but nothing answers to it`);
+    for (const m of o.mentions || []) already(id, m, new Set([...labels, ...[o.here, o.lies].filter(Boolean).flatMap(t => marked(t).map(([l]) => l))].map(fold)), room);
   }
   // Clicking an object in the story examines it with the words shown ({label|id}: "Examine label"), so each label,
   // read where it's shown (a room's text, or an object's `here` line in its room), must name that very object.
-  const marked = (line) => [...String(packText(line, pack) ?? "").matchAll(/\{([^|}]+)(?:\|([^}]+))?\}/g)].map(m => [m[1], m[2] ?? m[1]]);
   const clicks = (where, lines) => {
     const s = inRoom(arrived, where);
     for (const [label, oid] of lines.flatMap(marked)) {
@@ -217,36 +263,27 @@ export function check(state, pack, bible) {
   };
   for (const [id, room] of Object.entries(arrived.world.rooms)) clicks(id, [].concat(room.describe || []));
   for (const [id, o] of Object.entries(arrived.world.objects))
-    if (o.here && arrived.world.rooms[placeOf(arrived, id)]) clicks(placeOf(arrived, id), [o.here]);
-
-  // An object a text brings into view is marked in that text, so it can be clicked at once. An event (a rule, or a named
-  // change with the lock that runs it) that moves an object into a room and names it in what it says must mark it there:
-  // "the oars … slide gently onto the sand" left the oars as plain words until you looked again (the sea, Diego, 27 Oct 2026).
-  // (Not in what someone says: "Tea always is", in quotes, is a word in a sentence, not the cup on the table.)
-  const plain = (line) => String(packText(line, pack) ?? "").replace(/\{[^}]*\}|`[^`]*`|"[^"]*"|«[^»]*»|“[^”]*”/g, " ").toLowerCase();
-  const named = (line, word) => new RegExp(`(^|[^\\p{L}\\p{N}])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}\\p{N}])`, "u").test(plain(line));
-  const saysOf = (effects) => effects.flatMap(e => [].concat(e?.say ?? [])).filter(x => typeof x === "string");
-  const events = [
-    ...state.rules.map(r => ({ id: r.id, effects: withChanges(state, r.do) })),
-    ...Object.entries(state.changes || {}).map(([name, effects]) => ({ id: "change " + name, effects,
-      texts: Object.entries(state.world.objects).filter(([, o]) => o.lock?.then === name && o.lock.opens).map(([, o]) => o.lock.opens) }))
-  ];
-  for (const ev of events) {
-    const texts = [...saysOf(ev.effects), ...(ev.texts || [])];
-    for (const e of ev.effects) {
-      if (!e || typeof e.move !== "string" || !state.world.rooms[e.to]) continue;
-      const nouns = state.world.objects[e.move]?.words?.nouns || [];
-      for (const line of texts) {
-        if (marked(line).some(([, oid]) => oid === e.move)) continue;
-        const word = nouns.find(n => named(line, n.toLowerCase()));
-        if (word) warnings.push(`${ev.id}: names "${word}" as ${e.move} comes into view, but doesn't mark it ({${word}|${e.move}}): it can't be clicked there`);
-      }
-    }
+    if (o.lies && o.portable !== true) warnings.push(`${id}: has a \`lies\` line, but it can't be taken, so the line is never said`);
+  for (const [id, o] of Object.entries(arrived.world.objects)) {
+    const at = placeOf(arrived, id), room = arrived.world.rooms[at] ? at : arrived.player.at;   // (a `lies` line is said wherever it is put down)
+    if (o.here && arrived.world.rooms[at]) clicks(at, [o.here]);
+    if (o.lies) clicks(room, [o.lies]);
   }
 
-  // Topics offered after talking (js/view.js): each label, clicked, asks that very topic; each idea something brings
-  // up (an `opens` or a `know` somewhere), or the topic could never be offered.
-  const askAbout = (label) => (typeof pack.askAbout === "function" ? pack.askAbout(label) : "ask about " + label);
+  // A thing that can be taken is never named in a room's text (its `describe`, as written or as a rule rewrites it): the game says
+  // where it lies, with its `here` line where it starts and a line of its own once it has been taken ("There is a biscuit here."), so
+  // a room that names it would still show it after it has gone (meridian's canteen kept "A biscuit sits on a saucer" after it was eaten).
+  const roomTexts = [
+    ...Object.entries(state.world.rooms).map(([id, room]) => ({ id, where: id, texts: [].concat(room.describe || []) })),
+    ...effectsOf(state).filter(({ effect: e }) => typeof e?.set === "string" && /^[^.]+\.describe(\.\d+)?$/.test(e.set) && state.world.rooms[e.set.split(".")[0]])
+      .map(({ effect: e, where }) => ({ id: e.set.split(".")[0], where, texts: [].concat(e.to ?? []) }))];
+  for (const { id, where, texts } of roomTexts)
+    for (const [label, oid] of texts.flatMap(marked))
+      if (state.world.objects[oid]?.portable)
+        problems.push(`${where === id ? id : `${where} (${id})`}: names {${label}${label === oid ? "" : "|" + oid}} in the room's description, but it can be taken: give it a \`here\` line instead (the game says where a thing lies once it has been moved)`);
+
+  // Topics offered after talking (js/view.js): each idea something brings up (an `opens` or a `know` somewhere), or the topic
+  // could never be offered. (Each label, clicked, asks that very topic: the parser counts the label among the topic's words.)
   const brought = new Set(JSON.stringify([state.world.objects, state.rules, state.changes]).match(/"(?:opens|know)":(\[[^\]]*\]|"[^"]*")/g)?.flatMap(m => JSON.parse(m.slice(m.indexOf(":") + 1))) || []);
   for (const [id, o] of Object.entries(state.world.objects)) {
     for (const [key, t] of Object.entries(o.topics || {})) {
@@ -254,11 +291,6 @@ export function check(state, pack, bible) {
       const about = t.about ?? key;
       if (!t.open && !state.world.objects[about] && !state.world.rooms[about] && !brought.has(about))
         warnings.push(`${id}: topic "${key}" is about "${about}", which nothing brings up (opens, know): it's never offered`);
-      const where = placeOf(state, id);
-      if (!state.world.rooms[where]) continue;
-      const s = { ...inRoom(state, where), talkingTo: id };
-      const label = t.label ?? t.words?.[0] ?? key, r = parse(askAbout(label), s, pack);
-      if (r.actions?.[0]?.topic !== key) problems.push(`${id}: "${askAbout(label)}" doesn't ask about "${key}" (its label isn't one of its words)`);
     }
   }
 
@@ -281,6 +313,16 @@ export function check(state, pack, bible) {
   for (const [id, o] of Object.entries(state.world.objects))
     if (o.use !== undefined && (typeof o.use !== "string" || o.use === "use" || !verbs.has(o.use)))
       problems.push(`${id}: use must be the verb USE alone stands for (an action or a word this world adds, not "use"), not ${JSON.stringify(o.use)}`);
+
+  // A long thing's shape (G8) is in one room's picture, its home: where it is drawn while the thing lies there.
+  for (const [id, o] of Object.entries(state.world.objects)) {
+    if (o.shape == null) continue;
+    for (const s of [].concat(o.shape)) {
+      const homes = Object.entries(state.world.rooms).filter(([, r]) => [...(r.picture?.draw || []), ...(r.picture?.hidden || [])].some(x => x.id === s)).map(([r]) => r);
+      if (!homes.length) problems.push(`${id}: shape "${s}" is in no room's picture: draw it in its home room's picture, where it lies`);
+      else if (homes.length > 1) problems.push(`${id}: shape "${s}" is in the pictures of ${homes.join(" and ")}: a long thing has one home room`);
+    }
+  }
 
   // Harm is fair (GUIDE.md §3, §4): health (5 to 0) is lost with `hurt` and the rule's own line (`says`), then the game's
   // echo, never by setting it; and a hit is a whole number from 1 to 5 (1 ordinary, 2–3 serious, 4 very rare, 5 an instant
@@ -308,17 +350,20 @@ export function check(state, pack, bible) {
     }
   }
 
-  // Whatever the player consumes does them some good (BRIEF.md §5): a rule that eats or drinks its object and uses it up
-  // heals. Certain only where the rule says so: the verb is EAT or DRINK and the rule (or a change it runs) takes away
-  // the very thing it matches (removes it, or moves it to nowhere), and the story goes on (an ending is not a meal). A
-  // consumption told some other way (ORDER a pint and drink it in the same line, a property's answer) is not seen.
-  for (const r of state.rules) {
-    const verbs = [r?.match?.verb].flat(), objs = [r?.match?.obj].flat().filter(x => typeof x === "string");
-    if (!Array.isArray(r?.do) || !objs.length || !verbs.some(v => v === "eat" || v === "drink")) continue;
-    const all = withChanges(state, r.do), mine = (x) => x === "$obj" || objs.includes(x);
-    const usesUp = all.some(x => x && ((x.remove === "object" && mine(x.id)) || ("move" in x && x.to === null && mine(x.move))));
-    if (usesUp && !all.some(x => x && ("heal" in x || x.end)))
-      warnings.push(`${r.id}: the player consumes ${objs.join("/")} with no health effect; whatever is eaten or drunk heals: { heal: 1, says: "…" } (more only for something restorative)`);
+  // Food and drink is a consumable thing (BRIEF.md §5): the engine says its line, heals by its `heals`, starts or stops its
+  // condition and uses it up (js/verbs.js, std_eat_it). What a world can still get wrong: a condition it names that doesn't exist (a
+  // problem) and a consumable that does nothing at all.
+  for (const [id, o] of Object.entries(state.world.objects)) {
+    if (o.consumable !== true) continue;
+    for (const k of ["starts", "stops"]) if (o[k] != null && !state.conditions?.[o[k]]) problems.push(`${id}: ${k} "${o[k]}", but the world has no such condition`);
+    if (!(o.heals > 0) && o.starts == null && o.stops == null)
+      warnings.push(`${id}: consumable, but eating or drinking it does nothing; whatever is eaten or drunk does some good: heals: 1 (more only for something restorative)`);
+  }
+  // A thing that comes from someone or something (decision 40): its source exists, and it starts nowhere (it comes when asked for).
+  for (const [id, o] of Object.entries(state.world.objects)) {
+    if (o.from == null) continue;
+    if (!state.world.objects[o.from]) problems.push(`${id}: from "${o.from}", but there is no such thing or person`);
+    else if (o.at != null) warnings.push(`${id}: comes from ${o.from}, but starts at ${o.at}: a thing that comes when asked for starts nowhere (at: null)`);
   }
 
   // The ending's picture: each `end` names one the world has; a world that can hurt you has a `died` one; each is well formed.
@@ -352,7 +397,7 @@ export function check(state, pack, bible) {
   // Each ending, from a fresh start.
   for (const [id, p] of Object.entries(puzzles)) {
     if (!p.ending) continue;
-    const run = new Run(state, pack, puzzles, warnings);
+    const run = new Run(state, pack, puzzles, warnings, before);
     run.solve(id);
     if (run.problem) problems.push(`ending "${id}": ${run.problem}`);
     else if (!run.state.ended) problems.push(`ending "${id}": played to the end, but the story didn't end`);
@@ -711,13 +756,13 @@ export function clockMentions(raw) {
 }
 
 // Every player-facing text of a world: [{ where, field, text }]. Not pictures or their descriptions (`alt`).
-const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines",
+const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "lies", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines", "again", "already", "brought", "eat", "drink",
   "starts", "ends", "status", "answer"]);   // (the last four: a condition's lines)
 const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "words", "mentions", "if", "match", "id", "name", "label"]);
 function worldTexts(state, pack) {
   const out = [];
   for (const [id, r] of Object.entries(state.world.rooms)) collectTexts(r, id, pack, out);
-  for (const [id, o] of Object.entries(state.world.objects)) collectTexts(o, id, pack, out);
+  for (const [id, o] of Object.entries(state.world.objects)) collectTexts({ ...o, starts: undefined, stops: undefined }, id, pack, out);   // (a consumable's: conditions' ids, not lines)
   for (const r of state.rules) collectTexts(r, r.id, pack, out);
   for (const [name, effects] of Object.entries(state.changes || {})) collectTexts(effects, "change " + name, pack, out);
   for (const [id, p] of Object.entries(state.puzzles || {})) collectTexts(p, id, pack, out);
@@ -778,7 +823,7 @@ function wayWarnings(pack, arrived) {
     ...(Array.isArray(room.describe) ? room.describe : []).filter(t => typeof t === "string" && !t.startsWith("@")).map(t => ({ field: "describe", text: t })),
     ...(room.scenery || []).filter(x => typeof x.says === "string").map(x => ({ field: `scenery "${x.words?.[0]}"`, text: x.says })),
     ...Object.entries(arrived.world.objects).filter(([, o]) => o.at === id)
-      .flatMap(([oid, o]) => ["examine", "here"].filter(k => typeof o[k] === "string").map(k => ({ field: `${oid} ${k}`, text: o[k] })))
+      .flatMap(([oid, o]) => ["examine", "here", "lies"].filter(k => typeof o[k] === "string").map(k => ({ field: `${oid} ${k}`, text: o[k] })))
   ];
   // Does typing it in that room get an answer: a move, a line, a thing to enter? (not the stock "no way")
   const answers = (id, commands) => {
@@ -872,12 +917,13 @@ function sceneryVerbWarnings(state, pack, arrived) {
   const linkers = new Set([...(pack.words.articles || []), ...(pack.words.preps || [])].map(norm).concat(["out", "up", "off", "over", "down", "away", "fuera", "arriba", "abajo", "lejos"]));
   const markup = (t) => unmarked(t).replace(/\[[^\]]*\]/g, " ");
   for (const [roomId, room] of Object.entries(arrived.world.rooms)) {
-    // The room's scenery: what its text mentions without being a thing, and the things marked scenery that lie in it.
+    // The room's scenery: what its text mentions without being a thing, and the fixed things (not portable) that lie in it.
     const scenery = [...(room.scenery || []).filter(x => Array.isArray(x.words)),
-      ...Object.entries(arrived.world.objects).filter(([oid, o]) => o.scenery && placeOf(arrived, oid) === roomId && o.words?.nouns?.length).map(([oid, o]) => ({ id: oid, words: o.words.nouns }))];
+      ...Object.entries(arrived.world.objects).filter(([oid, o]) => !o.portable && placeOf(arrived, oid) === roomId && o.words?.nouns?.length).map(([oid, o]) => ({ id: oid, words: o.words.nouns }))];
     if (!scenery.length) continue;
     const texts = [...(Array.isArray(room.describe) ? room.describe : []).filter(t => typeof t === "string" && !t.startsWith("@")).map(t => ({ field: "describe", text: t })),
-      ...Object.entries(arrived.world.objects).filter(([oid, o]) => placeOf(arrived, oid) === roomId && typeof o.here === "string" && !o.here.startsWith("@")).map(([oid, o]) => ({ field: `${oid} here`, text: o.here }))];
+      ...Object.entries(arrived.world.objects).filter(([oid, o]) => placeOf(arrived, oid) === roomId && typeof o.here === "string" && !o.here.startsWith("@")).map(([oid, o]) => ({ field: `${oid} here`, text: o.here })),
+      ...Object.entries(arrived.world.objects).filter(([oid, o]) => placeOf(arrived, oid) === roomId && typeof o.lies === "string" && !o.lies.startsWith("@")).map(([oid, o]) => ({ field: `${oid} lies`, text: o.lies }))];
     const there = inRoom(arrived, roomId);
     for (const { field, text } of texts) for (const sentence of markup(text).split(/[.!?;:—–«»]+/)) {
       const tokens = norm(sentence).replace(/[.,;]/g, " , ").split(/\s+/).filter(Boolean);
@@ -1089,6 +1135,9 @@ function conditionChecks(state, arrived, problems, warnings) {
     if (!declared[e[k]]) problems.push(`${where}: ${k}s "${e[k]}", which isn't a condition the world declares${suggest(e[k], Object.keys(declared))}`);
     else (seen.get(e[k]) ?? seen.set(e[k], []).get(e[k])).push(where);
   }
+  // and a consumable thing's own: eating or drinking it starts or stops one (its `starts` / `stops`; a missing one is a problem above)
+  for (const [id, o] of Object.entries(state.world.objects)) if (o.consumable === true) for (const [k, seen] of [["starts", started], ["stops", stopped]])
+    if (typeof o[k] === "string" && declared[o[k]]) (seen.get(o[k]) ?? seen.set(o[k], []).get(o[k])).push(id);
   for (const { effect: e, where } of effectsOf(state)) for (const k of ["filter", "unfilter"]) {
     if (!(k in e) || (typeof e[k] === "string" && e[k].startsWith("$"))) continue;
     const why = filterProblem(e[k], { off: k === "unfilter" });
@@ -1101,6 +1150,8 @@ function conditionChecks(state, arrived, problems, warnings) {
       if (!declared[m[1]]) problems.push(`${where}: asks about the condition "${m[1]}", which the world doesn't declare${suggest(m[1], Object.keys(declared))}`);
   // The room a rule (or a change, through the rules that run it) acts in, when its `if` names one.
   const roomOf = (where) => {
+    const o = state.world.objects[where];                      // a consumable thing: where it lies, or where its source is
+    if (o) return [o.at, state.world.objects[o.from]?.at].find(x => state.world.rooms[x]) ?? null;
     const r = state.rules.find(x => x.id === where), name = String(where).replace(/^change /, "");
     const at = r ? (r.if || []).find(c => typeof c?.["player.at"] === "string")?.["player.at"] : undefined;
     if (at && state.world.rooms[at]) return at;
@@ -1131,16 +1182,15 @@ function conditionChecks(state, arrived, problems, warnings) {
   }
 }
 
-// The opening's contract (BRIEF.md §3), checked from its start: what the engine needs to build it (js/opening.js), and
-// what only play shows: the way on held back with each thing missing and leading into the world with both, by words
-// and by going that way; the hints thing framing its hint; the intro saying its text and
-// its farewell and leaving; neither of the two dropped. Returns the problems found.
+// The opening's contract (BRIEF.md §3): what the engine needs to build it (js/opening.js), a closed place, and words of its own.
+// Its mechanics (the way held back until you carry the hints thing, then leading on and closing; the hints thing's framed hint;
+// the intro read and gone; neither dropped) are the engine's, built the same for every world from the declaration: tests/openings.test.js
+// pins them in every world and language, so they are not played here. Returns the problems found.
 function checkOpening(state, pack) {
   const d = state.opening, why = opening.problems(state, d);
   if (why.length) return why;
-  const problems = [], { hints: H, intro: I, way: W, room: roomId, lines } = d;
+  const problems = [], { hints: H, intro: I, way: W, room: roomId } = d;
   const objects = state.world.objects, rooms = state.world.rooms, room = rooms[roomId];
-  const noun = (id) => objects[id].words.nouns[0];
 
   // Its room: in an area of its own, never returned to, and nothing else to take.
   for (const [id, r] of Object.entries(rooms)) {
@@ -1157,7 +1207,7 @@ function checkOpening(state, pack) {
     else problems.push(`the opening room has a second way on, ${dir}: a closed place has one way on, the one that closes behind you (BRIEF.md §3)`);
   }
   for (const [oid, o] of Object.entries(objects))
-    if (o.leads && o.leads !== onDir && o.at === roomId && oid !== W) problems.push(`"${oid}" in the opening room leads ${o.leads}: a second way out of a closed place (BRIEF.md §3)`);
+    if (wayOf(o) && wayOf(o) !== onDir && o.at === roomId && oid !== W) problems.push(`"${oid}" in the opening room leads ${wayOf(o)}: a second way out of a closed place (BRIEF.md §3)`);
   for (const x of room.scenery || [])
     if (x.leads && x.leads !== onDir) problems.push(`the opening room's scenery "${x.name ?? x.words?.[0]}" leads ${x.leads}: a second way out of a closed place (BRIEF.md §3)`);
   for (const [id, o] of Object.entries(objects))
@@ -1169,7 +1219,7 @@ function checkOpening(state, pack) {
   // the three things that names anything else in the world (the way's: anything else in its own room). Things are the objects in
   // the room or carried, their parts, and the room's scenery; each is told apart in the message by id and kind, so one can be renamed.
   const fold = (list) => (list || []).map(x => normalise(String(x), pack.words.grammar));
-  const kindOf = (id) => objects[id].at === "player" ? "carried" : objects[id].scenery ? "scenery" : "an object";
+  const kindOf = (id) => objects[id].at === "player" ? "carried" : "an object";
   const things = (only) => [
     ...Object.entries(objects).filter(([, o]) => !only || o.at === roomId || o.at === "player")
       .map(([oid, o]) => ({ id: oid, owner: oid, label: `"${oid}" (${kindOf(oid)})`, words: fold(o.words?.nouns) })),
@@ -1190,75 +1240,14 @@ function checkOpening(state, pack) {
   for (let a = 0; a < inside.length; a++) for (let b = a + 1; b < inside.length; b++)
     for (const w of inside[a].words) if (inside[b].words.includes(w)) report(w, inside[a].label, inside[b].label, " in the opening");
 
-  // Play it from its start.
-  if (state.player.at !== roomId) return [...problems, "the opening has to be checked from its start: the player isn't in its room"];
-  const v = pack.words.verbs, dir = opening.direction(state, d);
-  const type = (s, command) => {
-    const p = parse(command, s, pack);
-    return p.actions ? step(s, { ...p.actions[0], at: 0 }) : { next: s, applied: [], refused: [], error: p.error?.say ?? p.meta };
-  };
-  const said = (r) => r.applied.filter(e => e.say).map(e => e.say);
-  const holding = (...ids) => { const s = structuredClone(state); for (const id of ids) { s.world.objects[id].at = "player"; s.player.carrying.push(id); } return s; };
-  for (const command of [solveCommand("{enter+} " + noun(W), pack), v.go[0] + " " + pack.words.dirs[dir][0]]) {   // (the hint's own words)
-    {
-      const r = type(holding(), command);
-      if (!said(r).includes(lines.notYet)) problems.push(`"${command}" without the hints thing doesn't say the "notYet" line${r.error ? ` (not understood: ${r.error})` : ""}`);
-    }
-    const r = type(holding(H), command);
-    if (r.refused.length) problems.push(`"${command}" with the hints thing: the engine refused ${r.refused[0].reason}`);
-    else if (r.next.player.at !== state.entrance) problems.push(`"${command}" with the hints thing doesn't lead to ${state.entrance}${r.error ? ` (not understood: ${r.error})` : ""}`);
-    else {
-      if (!said(r).includes(lines.through)) problems.push(`"${command}" with the hints thing doesn't say the "through" line`);
-      if (r.next.world.rooms[roomId].exits[dir] !== false) problems.push("the way on doesn't close behind you");
-    }
-  }
-  let r = type(state, v.listen[0] + " " + noun(H));
-  if (!r.applied.some(e => e.hint === lines.hintFrame && (e.text || e.commands))) problems.push("listening to the hints thing doesn't give a hint in the world's frame");
-  r = type(state, v.read[0] + " " + noun(I));
-  if (!said(r).includes(objects[I].examine) || !said(r).includes(lines.farewell) || r.next.world.objects[I].at !== null)
-    problems.push("reading the intro doesn't say its text, then its farewell, and take it out of play");
-  for (const id of [H, I]) {
-    r = type(holding(H), v.drop[0] + " " + noun(id));
-    if (!said(r).includes("@cantDrop")) problems.push(`"${noun(id)}" can be dropped`);
-  }
   return problems;
 }
 
 // One playthrough towards a goal.
 class Run {
-  constructor(state, pack, puzzles, warnings = []) {
-    this.state = state; this.pack = pack; this.puzzles = puzzles; this.warnings = warnings;
+  constructor(state, pack, puzzles, warnings = [], before = null) {
+    this.state = state; this.pack = pack; this.puzzles = puzzles; this.warnings = warnings; this.before = before;
     this.solved = new Set(); this.played = []; this.problem = null; this.clock = 0;
-  }
-
-  // USE counts as one of the sensible commands (GUIDE.md §3): where a step puts, unlocks or gives with two things, "use A
-  // with B" and "use B with A" must do just what the step's own command does, here and now. Warns (naming the puzzle) when
-  // one doesn't: a world rule that answers only one order, say. Nothing is played: each is tried on a copy.
-  useCheck(id, command) {
-    const { pack } = this;
-    command = solveCommand(command, pack);
-    const parsed = parse(command, this.state, pack);
-    const a = parsed.actions?.length === 1 && parsed.actions[0];
-    if (!a || !a.obj2 || !["put", "unlock", "give", "open"].includes(a.verb) || !pack.words.verbs.use) return;
-    const objects = this.state.world.objects;
-    const noun = (x) => objects[x]?.words?.nouns?.[0];
-    if (!noun(a.obj) || !noun(a.obj2)) return;
-    const withWord = pack.words.grammar?.secondObject?.[0] ?? "with", use = pack.words.verbs.use[0];
-    // What came of it: the world and you as they are, whether the story ended, and what was said.
-    const result = (action) => {
-      const r = step(this.state, { ...action, at: this.clock + 1000 }), n = r.next;
-      return { refused: r.refused.length, said: r.applied.filter(e => e.say).map(e => String(e.say)),
-               digest: JSON.stringify([n.world, n.player, n.ended, n.time?.shift, n.pending.question && true]) };
-    };
-    const typed = result(a);
-    for (const [x, y] of [[a.obj, a.obj2], [a.obj2, a.obj]]) {
-      const written = `${use} ${noun(x)} ${withWord} ${noun(y)}`, p = parse(written, this.state, pack);
-      const warn = (why) => { const w = `${id}: "${written}" ${why}, where "${command}" works`; if (!this.warnings.includes(w)) this.warnings.push(w); };
-      if (!p.actions || p.actions.length !== 1) { warn(`isn't understood (${p.error?.say})`); continue; }
-      const used = result(p.actions[0]);
-      if (used.refused || used.digest !== typed.digest || used.said.join("|") !== typed.said.join("|"))
-        warn(`doesn't do the same (it says ${JSON.stringify((used.said[0] ?? "nothing").slice(0, 50))}, not ${JSON.stringify((typed.said[0] ?? "nothing").slice(0, 50))})`);
-    }
   }
 
   // Type a command, as a player would. Fails on words the parser can't read or effects the engine refuses.
@@ -1292,7 +1281,7 @@ class Run {
       if (r.refused.length) return this.fail(`"${id}": ${r.refused[0].reason}`);
       this.state = r.next;
     }
-    for (const c of p.solve) { this.useCheck(id, c); this.type(c); }
+    for (const c of p.solve) { if (this.before && !this.problem) this.before(this.state, solveCommand(c, this.pack), id); this.type(c); }
     if (this.problem) return;
     const s = this.state;
     for (const g of p.gives || []) if (!s.world.objects[g] || !inScope(s, g)) return this.fail(`solving "${id}" should give "${g}", but it isn't to hand`);
@@ -1333,13 +1322,14 @@ class Run {
     for (let steps = 0; path?.length && !this.problem; steps++) {
       if (steps > 60) return this.fail(`can't get from ${this.state.player.at} to ${room}: the walk keeps going astray`);
       const dir = path[0], here = this.state.player.at, raw = this.state.world.rooms[here].exits[dir];
-      if (isExitObject(raw) && !exitNow(this.state, here, dir).go) {     // shut: wait for its hour (the clock moves, as a puzzle's `time` does)
+      const shut = !exitNow(this.state, here, dir).go;                   // (its `if`, or a locked thing that leads that way)
+      if (shut) {                                                        // shut: wait for its hour (the clock moves, as a puzzle's `time` does)
         const later = opensByWaiting(this.state, here, dir);
         if (!later) return this.fail(`${dir} from ${here} is shut, and waiting doesn't open it`);
         this.state = later;
       }
       this.type(this.pack.words.dirs[dir][0]);
-      if (isExitObject(raw) && !this.problem && this.state.player.at === here) return this.fail(`${dir} from ${here}: the way stays shut`);
+      if ((isExitObject(raw) || shut) && !this.problem && this.state.player.at === here) return this.fail(`${dir} from ${here}: the way stays shut`);
       if (this.problem || this.state.ended) return;
       const at = this.state.player.at;
       if (at === exitTo(raw) || at === here) { path = path.slice(1); continue; }   // as planned (or held here: on with the walk as written)
@@ -1359,7 +1349,7 @@ function route(state, from, to) {
     for (const [dir, raw] of Object.entries(state.world.rooms[room].exits || {})) {
       const next = exitTo(raw);
       if (typeof next !== "string" || seen.has(next) || !state.world.rooms[next]) continue;
-      if (isExitObject(raw) && !exitNow(state, room, dir).go && !opensByWaiting(state, room, dir)) continue;   // shut, and waiting won't open it
+      if (!exitNow(state, room, dir).go && !opensByWaiting(state, room, dir)) continue;   // shut, and waiting won't open it
       seen.add(next); queue.push([next, [...path, dir]]);
     }
   }

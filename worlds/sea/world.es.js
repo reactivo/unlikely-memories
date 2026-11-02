@@ -45,7 +45,7 @@ const notAsking = { "$topic": null };                 // sin preguntar por nada 
 
 // Cada objeto que se puede llevar trae su sprite (16 × 16, números de la paleta en hexadecimal) y, si puede quedar en un
 // dibujo, una versión pequeña para el suelo (content/sample.sprites.js).
-const item = (id) => ({ img: id, sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
+const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // Textos de sala que los cambios ponen y quitan (la playa y la linterna). Un cambio reescribe todo el texto de una sala; cuando
 // dos cambios pueden tocar la misma sala, el posterior tiene en cuenta al anterior (GUIDE.md §6): encender la lámpara
@@ -88,7 +88,6 @@ const rooms = {
       { words: ["placa", "letrero", "letras"], name: "la placa", says: "Grabado en letras de otro tiempo: «Llama solo si recuerdas tu nombre»." },
       { words: ["charco", "agua"], name: "el charco", says: "Agua tibia, de ninguna parte. Huele a un lugar donde nunca has estado y que, sin embargo, recuerdas." }
     ],
-    mentions: ["altavoz", "cartel", "cámara", "puerta verde"],
     ambience: { lines: [
       "El {altavoz} carraspea. «La satisfacción en la planta menos cuatro se mantiene dentro de lo previsto».",
       "«Recordatorio», murmura el {altavoz}. «Las puertas que ayer no estaban hoy tampoco están».",
@@ -108,7 +107,7 @@ const rooms = {
     ],
     exits: { n: "pier", w: "tideline", e: { to: "cave", in: true }, s: "dunes" },
     ambience: { lines: ["Una gaviota grita una vez y nadie le contesta.", "Una ola sube por la arena más que las otras, toca la puerta y se retira.", "La puerta inspira. En algún lugar muy lejano, un altavoz carraspea."],
-                if: [{ "beach_door.shut": { "!=": true } }] },
+                if: [{ "beach_door.driftwood": { "!=": true } }] },
     alt: "Una playa de noche bajo la luna llena. Una pequeña puerta verde se alza en la arena, con luz que se escapa por sus bordes. A la izquierda, un muelle se adentra en el mar; a lo lejos, un faro apagado sobre una roca. A la derecha, rocas negras y la boca de una cueva.",
     scenery: [
       { words: ["arena", "playa"], name: "la arena" }, { words: ["mar", "agua", "olas", "ola", "oceano"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." },
@@ -137,7 +136,7 @@ const rooms = {
       "Di cualquier cosa y la cueva te la devuelve, un momento tarde y con otra voz.",
       "Se sale por el oeste, hacia la playa."
     ],
-    exits: { w: { to: "beach", out: true } },
+    exits: { w: "beach" },
     listen: "Gotas. El mar, fuera. Y debajo de todo, muy débil, el sonido de alguien que contiene la respiración.",
     alt: "El interior de una cueva oscura, mirando hacia fuera por su boca: la luna sobre el mar. Un charco en el suelo de la cueva atrapa la luz.",
     scenery: [
@@ -236,7 +235,7 @@ const rooms = {
       "Palmeras en macetones de latón y una alfombra gastada en forma de senderos. Tras el mostrador, el {tablero de llaves|keyboard} tiene un gancho vacío. Una {campanilla|bell} espera sobre el mostrador.",
       "Por las puertas dobles del oeste llega un tintineo de cubiertos. Una escalera sube. El paseo marítimo queda al este."
     ],
-    exits: { e: { to: "promenade", out: true }, w: "dining", u: "hallway" },
+    exits: { e: "promenade", w: "dining", u: "hallway" },
     alt: "Un vestíbulo de hotel: un mostrador de recepción con una campanilla de latón, un tablero de llaves detrás, palmeras en macetas, puertas dobles luminosas a la izquierda y una escalera con alfombra roja a la derecha.",
     scenery: [
       { words: ["palmeras", "palmera", "macetones", "macetas", "maceta"], name: "las palmeras" }, { words: ["alfombra", "senderos", "suelo"], name: "la alfombra" },
@@ -279,7 +278,7 @@ const rooms = {
       "Una habitación pequeña con una {ventana|window} al mar. La cama está hecha. Sobre la silla, un {abrigo|coat} de tu talla y de tu color, aunque nunca has tenido un abrigo así.",
       "La puerta está al este."
     ],
-    exits: { e: { to: "hallway", out: true } },
+    exits: { e: "hallway" },
     alt: "Una pequeña habitación de hotel de noche: una ventana al mar oscuro entre cortinas rojas, un abrigo azul sobre una silla, una cama hecha con una almohada blanca.",
     overlayAlt: { letter: "Una carta yace sobre la almohada." },
     scenery: [
@@ -382,108 +381,104 @@ const rooms = {
 
 const objects = {
   // La apertura: la cosa que coger, la que llevas y el camino (BRIEF.md §3).
-  suggestion_box: { at: "corridor", portable: true, name: "Buzón de sugerencias", note: "Alguien lee en voz alta.", actions: ["Coger buzón", "Escuchar buzón"], heldActions: ["Escuchar buzón", "Examinar buzón"],
+  suggestion_box: { at: "corridor", portable: true, name: "Buzón de sugerencias", note: "Alguien lee en voz alta.",
     words: { nouns: ["buzon", "ranura"], adj: ["sugerencias", "madera", "laton"], g: "m" }, ...item("suggestion_box"),
     here: "Bajo el cartel, un {buzón de sugerencias|suggestion_box} cuelga de un solo tornillo.",
     examine: "Un buzoncito de madera con una ranura de latón y una etiqueta: «Sugerencias». No lo han vaciado en tu tiempo y no está lleno. Desde dentro, muy bajito, una voz lee." },
-  memo: { at: "player", portable: true, name: "Memorando del Ministerio", note: "Doblado en cuatro.", actions: ["Leer memorando"], heldActions: ["Leer memorando"],
+  memo: { at: "player", portable: true, name: "Memorando del Ministerio", note: "Doblado en cuatro.",
     words: { nouns: ["memorando", "memo"], adj: ["ministerio", "doblado"], g: "m" }, ...item("memo"),
     examine: "Un memorando del Ministerio, doblado en cuatro, con el membrete todavía verde. «Al personal: se ha informado de la existencia de una puerta en la planta menos cuatro. No está ahí. Se ruega no usarla»." },
-  green_door: { at: "corridor", scenery: true, name: "Puerta verde", note: "Pequeña, y respira.", actions: ["Examinar puerta", "Llamar"],
+  green_door: { at: "corridor", name: "Puerta verde", note: "Pequeña, y respira.", actions: ["Llamar"],
     words: { nouns: ["puerta", "puertecita", "cerradura", "madera"], adj: ["verde", "pequeña", "pequena", "chiquita", "respirando", "diminuta"], g: "f" },
     examine: "La madera está tibia, como la piel. Sube y baja despacio, al compás de tu propia respiración. Encima, una placa de latón: «Llama solo si recuerdas tu nombre»." },
-  loudspeaker: { at: "corridor", scenery: true, name: "Altavoz", note: "Murmura.", actions: ["Escuchar"],
+  loudspeaker: { at: "corridor", name: "Altavoz", note: "Murmura.", actions: ["Escuchar"],
     words: { nouns: ["altavoz", "megafonia", "voz"], adj: [], g: "m" },
     examine: "«Estás conforme», murmura. «Estás conforme. Siempre has estado aquí»." },
-  poster: { at: "corridor", scenery: true, name: "Cartel", note: "Un solo ojo rojo.", actions: ["Examinar cartel"],
+  poster: { at: "corridor", name: "Cartel", note: "Un solo ojo rojo.",
     words: { nouns: ["cartel", "poster", "ojo", "palabras"], adj: ["rojo", "solo", "vigilante"], g: "m" },
     examine: "Un solo ojo rojo sobre las palabras «La conformidad es obligatoria». El ojo parpadea cuando no lo miras." },
-  camera: { at: "corridor", scenery: true, name: "Cámara", note: "Vuelta hacia otro lado.", actions: ["Examinar cámara"],
+  camera: { at: "corridor", name: "Cámara", note: "Vuelta hacia otro lado.",
     words: { nouns: ["camara"], adj: ["seguridad", "vigilancia"], g: "f" },
     examine: "Ha girado la cara. Por primera vez en once años, nadie te vigila." },
   // La playa
-  beach_door: { at: "beach", scenery: true, name: "Puerta verde", note: "En pie en la arena, respirando.", actions: ["Examinar puerta", "Entrar en puerta"],
+  beach_door: { at: "beach", name: "Puerta verde", note: "En pie en la arena, respirando.", actions: ["Entrar en puerta"],
     words: { nouns: ["puerta", "marco", "cerradura", "madera"], adj: ["verde", "pequeña", "pequena", "respirando", "deriva", "flotante"], g: "f" },
     examine: "La misma puerta. Desde este lado también respira. Por el ojo de la cerradura se ve linóleo gris y se oye un altavoz." },
-  lighthouse_far: { at: "beach", scenery: true, name: "Faro", note: "A lo lejos, apagado.",
+  lighthouse_far: { at: "beach", name: "Faro", note: "A lo lejos, apagado.",
     words: { nouns: ["faro", "torre", "lampara", "linterna"], adj: ["oscuro", "apagado", "lejano", "lejos"], g: "m" },
     examine: "Tiene la lámpara apagada. Hace mucho que nadie la enciende, y no llega ningún barco." },
 
   // La línea de la marea
   shell: { at: "tideline", portable: true, ...item("shell"), name: "Caracola", note: "Pálida, enroscada como una oreja.",
-    actions: ["Coger caracola", "Escuchar caracola"], heldActions: ["Examinar caracola", "Escuchar caracola"],
     listen: "Te acercas la caracola al oído. Muy pequeño, muy lejano, un altavoz: «Estás conforme. Estás conforme. El almuerzo será suficiente».",
     words: { nouns: ["caracola", "concha"], adj: ["palida", "enroscada", "blanca"], g: "f" },
     examine: "Pálida y acanalada, enroscada como una oreja. Si te la acercas a la tuya, oyes, muy pequeño, un altavoz que murmura que estás conforme.",
     here: "Entre las algas hay una {caracola|shell}, pálida y enroscada como una oreja." },
-  glove: { at: "tideline", scenery: true, name: "Guante", note: "Una mano izquierda, lana gris.", take: "Lo dejas donde lo puso el mar. Aún no ha terminado de devolverlo.",
+  glove: { at: "tideline", name: "Guante", note: "Una mano izquierda, lana gris.", take: "Lo dejas donde lo puso el mar. Aún no ha terminado de devolverlo.",
     words: { nouns: ["guante"], adj: ["gris", "lana", "izquierdo", "izquierda"], g: "m" },
     examine: "Un guante de lana gris, de mano izquierda. Todavía está tibio por dentro, como si alguien acabara de quitárselo." },
-  shoe: { at: "tideline", scenery: true, name: "Zapato", note: "De niño, rojo.", take: "Lo dejas donde lo puso el mar. Aún no ha terminado de devolverlo.",
+  shoe: { at: "tideline", name: "Zapato", note: "De niño, rojo.", take: "Lo dejas donde lo puso el mar. Aún no ha terminado de devolverlo.",
     words: { nouns: ["zapato", "zapatito"], adj: ["rojo", "pequeño", "pequeno", "niño", "nino"], g: "m" },
     examine: "Un zapatito rojo, con hebilla. Tuviste un par igual. El tuyo tenía un roce en la punta izquierda. Este también." },
-  page: { at: "tideline", scenery: true, name: "Hoja escrita a máquina", note: "Un formulario, reblandecido.", take: "La dejas donde la puso el mar. Aún no ha terminado de devolverla.",
+  page: { at: "tideline", name: "Hoja escrita a máquina", note: "Un formulario, reblandecido.", take: "La dejas donde la puso el mar. Aún no ha terminado de devolverla.",
     words: { nouns: ["hoja", "formulario", "papel", "pagina"], adj: ["mecanografiada", "maquina", "mojada", "empapada", "escrita"], g: "f" },
     examine: "Un formulario del Ministerio. La tinta se ha corrido. Una línea todavía se lee: «Motivo de la baja:». El espacio que sigue está vacío." },
 
   // La cueva
-  echo: { at: "cave", scenery: true, name: "Eco", note: "Responde tarde.", actions: ["Gritar"],
+  echo: { at: "cave", name: "Eco", note: "Responde tarde.", actions: ["Gritar"],
     words: { nouns: ["eco"], g: "m" }, examine: "No se ve. Solo se oye cómo espera." },
 
   // El muelle
-  lifebuoy: { at: "pier", scenery: true, name: "Salvavidas", note: "Un nombre, tapado con pintura.",
+  lifebuoy: { at: "pier", name: "Salvavidas", note: "Un nombre, tapado con pintura.",
     take: "Está atado al poste con un nudo que nadie ha deshecho en años. Tú tampoco.",
     words: { nouns: ["salvavidas", "aro", "flotador", "nombre", "pintura"], adj: ["rojo", "blanco"], g: "m" },
     examine: "Rojo y blanco, agrietado por la sal. Bajo la pintura nueva se transparenta el nombre antiguo. Tiene tantas letras como el tuyo." },
-  lighthouse_near: { at: "pier_end", scenery: true, name: "Faro", note: "Sobre su roca, apagado.",
+  lighthouse_near: { at: "pier_end", name: "Faro", note: "Sobre su roca, apagado.",
     words: { nouns: ["faro", "torre", "linterna"], adj: ["oscuro", "apagado", "blanco"], g: "m" },
     examine: "Blanco, con una franja roja. Tiene la linterna apagada. Desde aquí se ve que la puerta de su pie está abierta." },
-  boat: { at: "pier_end", scenery: true, container: true, name: "Barca", note: "Pequeña, azul, sin remos.",
-    actions: ["Examinar barca", "Entrar en barca"], img: "boat", sprite: sprites.boat, floorSprite: sprites.boat_floor,
+  boat: { at: "pier_end", container: true, open: "always", name: "Barca", note: "Pequeña, azul, sin remos.",
+    actions: ["Entrar en barca"], sprite: sprites.boat, floorSprite: sprites.boat_floor,
     words: { nouns: ["barca", "bote", "horquillas", "escalmos"], adj: ["pequeña", "pequena", "azul"], g: "f" },
     examine: "Pequeña y azul, con un charco en el fondo. Tiene horquillas, pero no remos.",
     here: "Una {barca|boat} azul y pequeña golpea con suavidad contra la argolla." },
 
   // Las casetas
-  hut: { at: "huts", scenery: true, container: true, locked: true, name: "Caseta 7", note: "Recién pintada, cerrada con llave.",
+  hut: { at: "huts", container: true, locked: true, name: "Caseta 7", note: "Recién pintada, cerrada con llave.",
     lock: { key: "key", says: "El candado resiste. Es nuevo, y lo han puesto por algo.",
             opens: "La llave gira como si lo hiciera cada mañana. La puerta se abre hacia fuera y los {remos|oars} que estaban apoyados en ella resbalan despacio hasta la arena. Dentro, colgada de un clavo, una {fotografía|photograph}.",
             then: "open_hut" },
     enter: "Entras. Huele a cuerda y a veranos. No hay nada más aquí que lo que ya ves.",
-    actions: ["Examinar caseta", "Abrir caseta"],
     words: { nouns: ["caseta", "7", "siete", "puerta", "candado", "cerradura", "rendija", "grieta"], adj: ["baño", "bano", "recien", "pintada", "nueva", "numero"], g: "f" },
     examine: "El número 7, en azul. El candado es nuevo. Por una rendija entre las tablas se ve el mango de un remo." },
-  oars: { at: "hut", portable: true, ...item("oars"), name: "Remos", note: "Dos, gastados y lisos.",
-    actions: ["Coger remos"], heldActions: ["Examinar remos"],
+  oars: { at: "hut", portable: true, shape: ["oars_shaft", "oars_blade"], ...item("oars"), name: "Remos", note: "Dos, gastados y lisos.",
     words: { nouns: ["remos", "remo", "palas"], adj: ["madera", "dos", "par"], g: "m", pl: true },
     examine: "Dos remos, lisos y gastados allí donde los han sujetado manos. Tus manos encajan exactamente en los sitios gastados.",
     here: "Un par de {remos|oars} yace en la arena, junto a la caseta abierta." },
   photograph: { at: "hut", portable: true, ...item("photograph"), name: "Fotografía", note: "Una playa a plena luz.",
-    actions: ["Coger fotografía"], heldActions: ["Examinar fotografía"],
     words: { nouns: ["fotografia", "foto", "retrato", "imagen", "clavo"], adj: ["vieja"], g: "f" },
     examine: "Una playa a plena luz del día. Alguien con un traje de baño a rayas se ríe de quien sostiene la cámara. Eres tú, once años más joven, en una vida que no recuerdas haber tenido." },
 
   // Las dunas
-  radio: { at: "dunes", scenery: true, name: "Radio", note: "En algún sitio. No la ves.", actions: ["Escuchar"],
+  radio: { at: "dunes", name: "Radio", note: "En algún sitio. No la ves.", actions: ["Escuchar"],
     listen: ["La canción llega al verso de volver a casa y empieza otra vez desde el principio.", "Una mujer canta que espera. Lleva un tiempo esperando.", "Entre canción y canción, una voz lee el parte marítimo de mares que no tienen nombre."],
     words: { nouns: ["radio", "cancion", "musica"], g: "f" },
     examine: "No se ve. La canción llega de todas partes entre las dunas a la vez, como un olor." },
 
   // El tiovivo
-  horse: { at: "carousel", scenery: true, name: "Caballito gris", note: "7-B en la silla.", actions: ["Examinar caballito", "Montar caballito"],
+  horse: { at: "carousel", name: "Caballito gris", note: "7-B en la silla.", actions: ["Montar caballito"],
     words: { nouns: ["caballito", "caballo", "silla", "montura", "numero"], adj: ["gris", "madera"], g: "m" },
     examine: "Gris, con la silla roja y una oreja desportillada. El número de la silla es el de tu mesa de trabajo. La pintura está fresca." },
 
   // El hotel
-  keyboard: { at: "lobby", scenery: true, name: "Tablero de llaves", note: "Un gancho está vacío.",
+  keyboard: { at: "lobby", name: "Tablero de llaves", note: "Un gancho está vacío.",
     take: "Son las llaves de las habitaciones de otros. Solo una es la tuya, y no está aquí.",
     words: { nouns: ["tablero", "llaves", "gancho", "ganchos", "llavero", "panel"], adj: ["vacio"], g: "m" },
     examine: "Ganchos de latón en filas, con una llave en cada uno menos en uno: el número 11. Bajo el gancho vacío, en letras pequeñas: «El huésped ha dejado la llave en la puerta»." },
-  bell: { at: "lobby", scenery: true, name: "Campanilla", note: "De latón, para el servicio.", actions: ["Pulsar campanilla"],
+  bell: { at: "lobby", name: "Campanilla", note: "De latón, para el servicio.", actions: ["Pulsar campanilla"],
     push: "Tilín. No viene nadie. Arriba, una puerta se abre y se cierra, con educación.",
     words: { nouns: ["campanilla", "timbre", "campana"], adj: ["laton", "servicio", "mostrador"], g: "f" },
     examine: "Una campanilla de latón para el servicio, pulida por muchas manos." },
-  guests: { at: "dining", scenery: true, name: "Comensales", note: "En el postre desde hace mucho.", actions: ["Hablar con comensales"],
+  guests: { at: "dining", name: "Comensales", note: "En el postre desde hace mucho.",
     topics: {
       postmaster: { words: ["administrador", "correos", "cartas", "paquete", "cartero"], says: "«¿El administrador?», dice una mujer de verde. «No te dará nada sin un nombre. A menos que el mar responda por ti. A veces responde»." },
       lighthouse: { about: "lighthouse_far", words: ["faro", "lampara", "luz"], says: "«El faro», dice un hombre, a nadie. «Mi hermano lo encendió una vez. Quemó su anillo de boda. Ya no recordaba por qué le había importado nunca»." },
@@ -498,79 +493,82 @@ const objects = {
     ],
     words: { nouns: ["comensales", "comensal", "invitados", "invitado", "gente", "personas", "hombre", "mujer", "hombres", "mujeres", "señor", "señora", "senor", "senora"], adj: ["comedor"], g: "m", pl: true },
     examine: "Doce, de etiqueta, con las costuras ya ablandadas. Se pasan la sal, se ríen y se la devuelven. Ninguno mira hacia la puerta." },
-  chair: { at: "dining", scenery: true, name: "Silla vacía", note: "Reservada.", actions: ["Leer tarjeta", "Sentarse"],
+  chair: { at: "dining", name: "Silla vacía", note: "Reservada.", actions: ["Leer tarjeta", "Sentarse"],
     words: { nouns: ["silla", "asiento", "sitio", "lugar"], adj: ["vacia", "cercana"], g: "f" },
     examine: "Una silla vacía, un poco retirada de la mesa, como si alguien acabara de levantarse, o estuviera a punto de sentarse." },
-  card: { at: "dining", scenery: true, name: "Tarjeta", note: "Una tarjeta de sitio.",
+  card: { at: "dining", name: "Tarjeta", note: "Una tarjeta de sitio.",
     words: { nouns: ["tarjeta", "cartulina"], adj: ["sitio", "nombre"], g: "f" },
     examine: "Una tarjeta de sitio. Han escrito un nombre y lo han borrado tantas veces que la cartulina se ha gastado hasta quedarse fina." },
-  door11: { at: "hallway", scenery: true, name: "Puerta 11", note: "Entornada, con la llave en la cerradura.", actions: ["Entrar en puerta"], leads: "w",
+  door11: { at: "hallway", name: "Puerta 11", note: "Entornada, con la llave en la cerradura.", door: "w",
     words: { nouns: ["puerta", "11", "once", "habitacion"], adj: ["entornada", "abierta", "numero"], g: "f" },
     examine: "El número 11, en latón. Está entornada. La llave de la cerradura lleva una chapa con el nombre del hotel, gastada de tanto tacto." },
-  window: { at: "room11", scenery: true, name: "Ventana", note: "Al mar.", actions: ["Mirar por ventana"],
+  window: { at: "room11", name: "Ventana", note: "Al mar.", actions: ["Mirar por ventana"],
     words: { nouns: ["ventana", "cristal", "vista", "vidrio"], g: "f" },
     examine: "El mar y, sobre su roca, el faro, apagado. Alguien se ha asomado aquí muchas veces: hay un trozo limpio en el cristal, a la altura de tus ojos." },
-  coat: { at: "room11", scenery: true, name: "Abrigo", note: "Tu talla, tu color.", actions: ["Registrar abrigo"],
+  coat: { at: "room11", name: "Abrigo", note: "Tu talla, tu color.", actions: ["Registrar abrigo"],
     take: "Te lo pones. Te queda perfecto. Te lo quitas otra vez: es de alguien más valiente.",
     words: { nouns: ["abrigo", "bolsillo", "bolsillos", "billete"], adj: ["azul"], g: "m" },
     examine: "Lana azul, de tu talla. En el bolsillo, un billete de autobús de hace once años, para un pueblo en el que nunca has estado. No llegó a usarse." },
   letter: { at: "room11", portable: true, ...item("letter"), name: "Carta", note: "Con tu letra.",
-    actions: ["Coger carta", "Leer carta"], heldActions: ["Leer carta"],
+    actions: ["Leer carta"], heldActions: ["Leer carta"],
     words: { nouns: ["carta", "sobre", "nota", "letra"], g: "f" },
     examine: "Con tu letra: «Si estás leyendo esto, al final viniste. El administrador guarda lo que es nuestro. No le dará nada a quien no tenga nombre, pero se fía del mar. Caseta 7. La barca. La lámpara quema lo que aceptes olvidar. Yo no supe elegir. Quizá tú sí».",
     here: "Sobre la almohada hay una {carta|letter}." },
 
   // La plaza
-  clock: { at: "square", scenery: true, name: "Reloj", note: "Las cinco y cuarto.",
+  clock: { at: "square", name: "Reloj", note: "Las cinco y cuarto.",
     turn: "Está demasiado alto. Y no es el reloj lo que se ha parado.",
     words: { nouns: ["reloj", "agujas", "pendulo", "esfera", "manecillas"], adj: ["ayuntamiento", "municipal"], g: "m" },
     examine: "Las agujas siguen en las cinco y cuarto. Tras la esfera, un péndulo oscila de todos modos, marcando el tiempo para nadie." },
 
   // Correos
-  postmaster: { at: "post_office", scenery: true, name: "Administrador de Correos", note: "Tras la reja.", actions: ["Hablar con administrador"],
+  postmaster: { at: "post_office", name: "Administrador de Correos", note: "Tras la reja.",
     topics: {
       name: { open: true, label: "mi nombre", words: ["nombre", "nombres"], says: "«Los nombres son cosa del mar», dice. «Los devuelve cuando está listo. No antes»." },
       sea: { open: true, words: ["mar", "caracola", "playa"], says: "«El mar sabe de dónde es cada uno», dice. «Escucha detrás de la puerta»." },
       default: "Te mira por encima de las gafas. «Eso no es correo»."
     },
     words: { nouns: ["administrador", "funcionario", "cartero", "empleado", "hombre", "señor", "senor"], adj: ["viejo", "correos"], g: "m" },
-    examine: "Un hombre pequeño con gorra azul y gafas redondas. Clasifica sin mirar, como si supiera dónde va todo." },
+    examine: "Un hombre pequeño con gorra azul y gafas redondas. Clasifica sin mirar, como si supiera dónde va todo.",
+    give: "Lo mira por encima de las gafas y te lo devuelve. «Eso no dice de dónde vienes»." },
   parcel: { at: null, portable: true, ...item("parcel"), name: "Paquete", note: "Dirigido a ti.",
-    actions: ["Abrir paquete"], heldActions: ["Examinar paquete", "Abrir paquete"],
+    actions: ["Abrir paquete"], heldActions: ["Abrir paquete"],
     words: { nouns: ["paquete", "bulto", "cuerda", "cordel"], adj: ["pequeño", "pequeno", "marron", "estraza"], g: "m" },
     examine: "Papel de estraza y cordel, un sello con un faro. Dirigido con tu letra: «Planta menos cuatro. Cuando vengas»." },
   key: { at: null, portable: true, ...item("key"), name: "Llave", note: "De latón, con etiqueta: 7.",
-    actions: ["Examinar llave"], heldActions: ["Examinar llave"],
     words: { nouns: ["llave", "etiqueta"], adj: ["laton", "pequeña", "pequena", "7", "siete"], g: "f" },
     examine: "Una llavecita de latón en una etiqueta de cartón. En la etiqueta, con tu letra: 7." },
 
   // El café
-  waiter: { at: "cafe", scenery: true, name: "Camarero", note: "Doblando una servilleta.", actions: ["Hablar con camarero"],
+  waiter: { at: "cafe", name: "Camarero", note: "Doblando una servilleta.",
     topics: {
       lighthouse: { about: "lighthouse_far", words: ["faro", "lampara", "luz"], says: "«Te sentabas ahí, junto a la ventana, y lo mirabas», dice. «Decías que algún día lo encenderías. Lo decías como si fuera una broma»." },
       coffee: { words: ["cafe", "habitual", "azucar", "terron"], says: "«Con un terrón», dice. «Siempre tomabas uno. Luego dejaste de venir, y nadie volvió a tomar azúcar»." },
       default: "Dobla la servilleta en forma de cisne mientras lo piensa, y la desdobla. «Solo sé de café y de ti»."
     },
-    talk: ["«Tómatelo mientras esté caliente», dice. «Nunca se queda caliente mucho rato. Nada se queda, los domingos».",
+    talk: ["«¿Lo de siempre?», dice. «El café nunca se queda caliente mucho rato. Nada se queda, los domingos».",
            "«Te sentabas junto a la ventana», dice. «Hablabas del faro. Luego un domingo no viniste»."],
     words: { nouns: ["camarero", "mozo", "hombre"], adj: ["viejo"], g: "m" },
     examine: "Chaqueta negra, delantal blanco. Dobla la servilleta en forma de cisne, la desdobla y vuelve a empezar. Te mira como si llegaras tarde." },
-  coffee: { at: null, portable: false, ...item("coffee"), name: "Café", note: "Caliente.", actions: ["Beber café"],
+  coffee: { from: "waiter", brought: "Antes de que digas nada, te pone una {taza de café|coffee} en la mesa. «Lo de siempre», dice. Nunca has estado aquí.",
+    again: "«Lo de siempre», dice, y mira la servilleta. «Ya lo tomaste. Es lo único que hay, los domingos».",
+    consumable: true, heals: 1, drink: "Sabe a una mañana que no tuviste. Las manos dejan de temblarte. No habías notado que temblaban.",
+    at: null, portable: false, ...item("coffee"), name: "Café", note: "Caliente.",
     words: { nouns: ["cafe", "taza"], adj: ["caliente", "negro"], g: "m" },
     examine: "Negro, con un terrón. Nunca has tomado azúcar.",
     here: "Una {taza de café|coffee} humea sobre la mesa." },
 
   // La estación
-  train: { at: "station", scenery: true, name: "Tren", note: "Puertas abiertas, motor dormido.", actions: ["Entrar en tren"],
+  train: { at: "station", name: "Tren", note: "Puertas abiertas, motor dormido.",
     enter: "Te sientas en el vagón vacío, entre abrigos ajenos. El tren no se mueve. Al cabo de un rato te bajas. Hay salidas que necesitan algo más que un billete.",
     words: { nouns: ["tren", "vagon", "vagones", "puertas", "puerta"], adj: ["verde", "dormido", "vacio"], g: "m" },
     examine: "Vagones verdes, asientos vacíos, los portaequipajes llenos de abrigos ajenos. El motor respira despacio, dormido." },
-  timetable: { at: "station", scenery: true, name: "Horario", note: "Todos los trenes: 17.15.",
+  timetable: { at: "station", name: "Horario", note: "Todos los trenes: 17.15.",
     words: { nouns: ["horario", "tablero", "horarios", "indicador"], adj: ["blanco"], g: "m" },
     examine: "Tres destinos, todos con salida a las 17.15, solo domingos: «Felicidad Suficiente, vía planta menos cuatro». «La vida que no viviste». «En otra parte»." },
 
   // La linterna
-  lamp: { at: "lantern", scenery: true, container: true, name: "Lámpara", note: "La gran lente, fría.", actions: ["Examinar lámpara", "Encender lámpara"],
+  lamp: { at: "lantern", name: "Lámpara", note: "La gran lente, fría.",
     switch_on: "No hay nada que quemar. La mecha espera algo que aceptes olvidar.",
     words: { nouns: ["lampara", "lente", "mecha", "luz", "laton", "copa"], adj: ["gran", "grande", "fria"], g: "f" },
     examine: "Una mecha en una copa de latón, tras una lente tan alta como un hombre. Grabado a arañazos en el latón: «Quemo lo que aceptes olvidar». La mecha está seca." }
@@ -582,9 +580,9 @@ const objects = {
 const changes = {
   // La puerta verde se vuelve madera de deriva: la playa, la vista lejana desde la linterna y los textos de los dos lados.
   driftwood: [
-    { set: "beach_door.shut", to: true },
+    { set: "beach_door.driftwood", to: true },
     { set: "beach_door.examine", to: "Un trozo de madera de deriva, clavado en la arena, del tamaño de una puertecita. No respira." },
-    { set: "beach_door.note", to: "Ahora, madera de deriva." }, { set: "beach_door.actions", to: ["Examinar puerta"] },
+    { set: "beach_door.note", to: "Ahora, madera de deriva." },
     { set: "beach.describe", to: [doorGone, seaDark, sand] },
     { set: "lantern.describe", to: [lampCold, farSand, down] },
     { draw: "beach", replace: ["poly door 151,101 161,99 160,118 150,120 mix:6,8@0.4 e0"],
@@ -607,17 +605,17 @@ const changes = {
   // La caseta 7 se abre (la ejecuta su cerradura, cuando gira la llave).
   open_hut: [
     { set: "hut.examine", to: "La caseta 7, con la puerta abierta. Dentro: olor a cuerda y a veranos, un clavo en la pared y, en el polvo, la huella de donde estuvieron los remos." },
-    { set: "hut.note", to: "Abierta." }, { set: "hut.actions", to: ["Examinar caseta"] },
+    { set: "hut.note", to: "Abierta." },
     { move: "oars", to: "huts" },
-    { draw: "huts", replace: ["rect hut_door 168,74,16,26 0 e1"], remove: ["padlock"], add: ["rect nail_photo 173,80,6,5 15 e8 after:hut_door", "poly oars_shaft 138,110 168,113 168,116 138,113 7", "ellipse oars_blade 172,115,5,2 15"] }
+    { draw: "huts", replace: ["rect hut_door 168,74,16,26 0 e1"], remove: ["padlock"], add: ["rect nail_photo 173,80,6,5 15 e8 after:hut_door"] }
   ],
   // Cruzar al faro y volver.
   row_out: [{ move: "oars", to: "boat" }, { move: "boat", to: "lighthouse_base" },
     { say: "Remas. El muelle se hace pequeño, luego el pueblo, luego la luz verde de la puerta. El faro se hace grande, y más silencioso, y de pronto estás allí." },
-    { travel: "lighthouse_base" }, { describe: "$here" }],
+    { travel: "lighthouse_base" }],
   row_back: [{ move: "boat", to: "pier_end" },
     { say: "Remas de vuelta. El pueblo sale de la oscuridad a tu encuentro, exactamente como lo dejaste." },
-    { travel: "pier_end" }, { describe: "$here" }],
+    { travel: "pier_end" }],
   // Los dos finales en la lámpara.
   end_photograph: [{ remove: "object", id: "photograph" }, { change: "lamp_lit" },
     { set: "beach.describe", to: [doorStands, seaLit, sand] }, { set: "lantern.describe", to: [lampLit, farDoor, down] },
@@ -640,7 +638,7 @@ const rules = [
   // -- Atravesar la puerta, en los dos sentidos ----------------------------------------------------------------
   { id: "beach_door_knock", match: { verb: "knock", obj: "beach_door" },
     do: [{ say: "Llamas. Del otro lado, al cabo de un rato, responden tres golpes." }] },
-  { id: "beach_through", match: { verb: ["enter", "go", "open", "push"], obj: "beach_door" },
+  { id: "beach_through", match: { verb: ["enter", "go", "open", "push"], obj: "beach_door" }, if: [{ "beach_door.driftwood": { "!=": true } }],
     do: [{ say: "Te arrodillas ante la puerta. Solo es una puerta desde el otro lado; desde aquí se abre a la arena." }] },
 
   // -- Ayuda, fuera del pasillo ----------------------------------------------------------------------------------
@@ -671,7 +669,6 @@ const rules = [
   { id: "swim_hurt", match: { verb: ["swim", "jump"] }, if: [{ "player.at": { in: ["beach", "tideline", "pier", "pier_end", "lighthouse_base"] } }],
     do: [{ say: "Entras. El frío es total. Algo, debajo, te agarra el tobillo, te considera y te suelta. Sales a la arena tosiendo, temblando, y con menos de lo que eras." },
          { hurt: 2, says: "Su presa te ha dejado una marca." }] },
-  { id: "swim_dry", match: { verb: "swim" }, do: [{ say: "Aquí no hay agua en la que nadar." }] },
 
   // -- Las casetas: la llave del paquete abre la caseta 7 ----------------------------------------------------------
   { id: "hut_photo", match: { verb: ["examine", "search", "look"], obj: "hut" }, if: [{ "hut.open": true }, { "photograph.at": "hut" }],
@@ -680,40 +677,31 @@ const rules = [
     do: [{ move: "photograph", to: "player" }, { draw: "huts", remove: ["nail_photo"] }, { say: "La descuelgas del clavo. Se suelta como si hubiera estado esperando." }] },
 
   // -- La barca: los remos dentro, y luego remar ---------------------------------------------------------------------
-  // Los remos yacen en la arena, junto a la caseta, como formas de su dibujo: cogerlos quita las formas, dejarlos allí las dibuja otra vez.
-  { id: "oars_up", match: { verb: "take", obj: "oars" }, if: [{ "player.at": "huts" }, { "oars.at": "huts" }],
-    do: [{ draw: "huts", remove: ["oars_shaft", "oars_blade"] }], then: "default" },
-  { id: "oars_down", match: { verb: "drop", obj: "oars" }, if: [{ "player.at": "huts" }, { "oars.at": "player" }],
-    do: [{ draw: "huts", add: ["poly oars_shaft 138,110 168,113 168,116 138,113 7", "ellipse oars_blade 172,115,5,2 15"] }], then: "default" },
-  { id: "oars_in_boat", match: { verb: ["put", "use"], obj: "oars", obj2: "boat" }, if: [holding("oars")],
+  { id: "oars_in_boat", match: { verb: "put", obj: "oars", obj2: "boat" }, if: [holding("oars")],
     do: [{ move: "oars", to: "boat" }, { set: "boat.examine", to: "Pequeña y azul, con los remos en las horquillas, lista." },
          { say: "Pones los remos en las horquillas. Encajan como si llevaran tiempo esperando." }] },
   { id: "oars_from_boat", match: { verb: "take", obj: "oars" }, if: [{ "oars.at": "boat" }],
     do: [{ move: "oars", to: "player" }, { set: "boat.examine", to: "Pequeña y azul, con un charco en el fondo. Tiene horquillas, pero no remos." }, { say: "Recoges los remos." }] },
   { id: "row_out", match: { verb: ["row", "enter"], obj: [null, "boat", "oars"] }, if: [at("pier_end"), oarsReady], do: [{ change: "row_out" }] },
-  { id: "row_out_use", match: { verb: "use", obj: ["boat", "oars"], obj2: [null] }, if: [at("pier_end"), oarsReady], do: [{ change: "row_out" }] },   // (USAR con una segunda cosa es poner, abrir con llave o dar)
   { id: "row_out_north", match: { verb: "go", dir: "n" }, if: [at("pier_end"), oarsReady], do: [{ change: "row_out" }] },
   { id: "row_back", match: { verb: ["row", "exit"], obj: [null, "boat", "oars"] }, if: [at("lighthouse_base")], do: [{ change: "row_back" }] },
-  { id: "row_back_boat", match: { verb: ["enter", "use"], obj: ["boat", "oars"] }, if: [at("lighthouse_base")], do: [{ change: "row_back" }] },
+  { id: "row_back_boat", match: { verb: "enter", obj: ["boat", "oars"] }, if: [at("lighthouse_base")], do: [{ change: "row_back" }] },
   { id: "row_back_south", match: { verb: "go", dir: "s" }, if: [at("lighthouse_base")], do: [{ change: "row_back" }] },
   { id: "lighthouse_in", match: { verb: ["enter", "climb"], obj: [null] }, if: [at("lighthouse_base")],
-    do: [{ say: "Entras y subes. La escalera da vueltas y más vueltas, y cuentas los peldaños hasta perder la cuenta." }, { travel: "lantern" }, { describe: "$here" }] },
+    do: [{ say: "Entras y subes. La escalera da vueltas y más vueltas, y cuentas los peldaños hasta perder la cuenta." }, { travel: "lantern" }] },
   { id: "row_no_oars", match: { verb: ["row", "enter"], obj: [null, "boat"] }, if: [at("pier_end")],
     do: [{ say: "Te sientas en la barca. Sin remos no va a ninguna parte. El mar la mece, paciente, como una cuna que nadie vigila." }] },
-  { id: "row_nowhere", match: { verb: "row" }, do: [{ say: "Aquí no hay dónde remar." }] },
 
   // -- Las dunas -------------------------------------------------------------------------------------------------
 
   // -- El tiovivo: una vuelta -----------------------------------------------------------------------
-  { id: "ride", match: { verb: ["ride", "climb", "sit", "enter"], obj: [null, "horse"] }, if: [at("carousel"), { "horse.rode": { "!=": true } }],
-    do: [{ set: "horse.rode", to: true }, { say: [
+  { id: "ride", match: { verb: ["ride", "climb", "sit", "enter"], obj: [null, "horse"] }, if: [at("carousel")], once: true,
+    again: "Vuelves a montar. Ahora es solo un tiovivo, y gira.",
+    do: [{ say: [
       "Das una vuelta. Cada vez que pasas frente al paseo marítimo, se enciende una ventana distinta del hotel y en cada una hay alguien que se te parece, asomado.",
       "Montas. La melodía casi se detiene y vuelve a empezar. Durante una vuelta entera tienes cinco años, y alguien te saluda con la mano.",
       "Vas dando vueltas. El faro, el hotel, el mar; el faro, el hotel, el mar. Es muy tranquilizador, para un tiovivo sin nadie encima."
     ] }] },
-
-  { id: "ride_again", match: { verb: ["ride", "climb", "sit", "enter"], obj: [null, "horse"] }, if: [at("carousel")],
-    do: [{ say: "Vuelves a montar. Ahora es solo un tiovivo, y gira." }] },
 
   // -- El hotel ------------------------------------------------------------------------------------------------
   { id: "dining_stuck", match: { verb: ["go", "exit", "enter"] }, if: [{ "player.seated": true }],
@@ -723,8 +711,6 @@ const rules = [
          { say: "Te sientas. Alguien te pasa la sal. La conversación se vuelve hacia ti, y es cálida, y cuesta mucho encontrar una razón para levantarse." }] },
   { id: "dining_stand", match: { verb: ["stand", "exit"] }, if: [{ "player.seated": true }],
     do: [{ set: "player.seated", to: false }, { say: "Te levantas. Nadie se opone. Nadie lo nota. Es sorprendentemente fácil, lo cual, de algún modo, es peor." }] },
-  { id: "hallway_door", match: { verb: ["enter", "go", "open", "push"], obj: "door11" },
-    do: [{ travel: "room11" }, { describe: "$here" }] },
   { id: "letter_read", match: { verb: ["read", "examine"], obj: "letter" }, once: true,
     do: [{ say: "$obj.examine" }] },
 
@@ -738,20 +724,12 @@ const rules = [
     do: [{ say: "«¿Nombre?», pregunta. Abres la boca. Tu nombre está con una puerta en la playa. «Sin nombre no hay correo», dice, sin dureza. «A no ser que alguien responda de dónde vienes»." }] },
   { id: "post_shell_again", match: { verb: ["give", "show"], obj: "shell" }, if: [at("post_office"), { "postmaster.gave": true }],
     do: [{ say: "«Ya he escuchado», dice. «Tienes todo lo que era tuyo»." }] },
-  { id: "post_give_other", match: { verb: ["give", "show"], obj2: "postmaster" },
-    do: [{ say: "Lo mira por encima de las gafas y te lo devuelve. «Eso no dice de dónde vienes»." }] },
   { id: "parcel_open", match: { verb: ["open", "search", "attack"], obj: "parcel" }, if: [holding("parcel")],
     do: [{ remove: "object", id: "parcel" }, { move: "key", to: "player" },
          { say: "Dentro, envuelta en una hoja del boletín del Ministerio, hay una {llave|key} de latón con una etiqueta. En la etiqueta, con tu letra: 7." }] },
 
   // -- El café: el café ----------------------------------------------------------------------------
-  { id: "cafe_order", match: { verb: ["talk", "ask", "order", "say", "drink"], obj: [null, "waiter", "coffee"] }, if: [at("cafe"), { "coffee.at": { "!=": "cafe" } }, { "coffee.had": { "!=": true } }, notAsking],
-    do: [{ move: "coffee", to: "cafe" }, { say: "Antes de que digas nada, te pone una {taza de café|coffee} en la mesa. «Lo de siempre», dice. Nunca has estado aquí." }] },
-  { id: "coffee_drink", match: { verb: ["drink", "eat", "take", "taste"], obj: "coffee" }, if: [{ "coffee.at": "cafe" }],
-    do: [{ move: "coffee", to: null }, { set: "coffee.had", to: true }, { heal: 1, says: "Sabe a una mañana que no tuviste. Las manos dejan de temblarte. No habías notado que temblaban." }] },
 
-  { id: "cafe_again", match: { verb: ["order", "ask"], obj: ["waiter", "coffee"] }, if: [at("cafe"), { "coffee.had": true }, { "coffee.at": null }],
-    do: [{ say: "«Lo de siempre», dice, y mira la servilleta. «Ya lo tomaste. Es lo único que hay, los domingos»." }] },
 
   // -- La plaza y la estación -------------------------------------------------------------------------------------
   { id: "station_south", match: { verb: "go", dir: "s" }, if: [at("station")],
@@ -768,7 +746,6 @@ const rules = [
     do: [{ say: ["La lámpara no lo acepta. Eso no es algo que pudieras olvidar.", "La mecha sigue seca. Eso no. Algo que echarías de menos."] }] },
   { id: "burn_any", match: { verb: "burn" }, if: [at("lantern")],
     do: [{ say: "La lámpara solo quema lo que aceptes olvidar. Tienes que elegirlo, y ponerlo dentro." }] },
-  { id: "burn_nothing", match: { verb: "burn" }, do: [{ say: "No tienes con qué quemarlo." }] },
 
 ];
 
@@ -813,9 +790,7 @@ export default {
   opening,
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, "Fields and properties"); las del motor no se declaran.
   properties: {
-    "coffee.had": { type: "boolean", start: false },        // ya se ha tomado el único café
-    "horse.rode": { type: "boolean", start: false },        // ya se ha dado la única vuelta
-    "beach_door.shut": { type: "boolean", start: false },   // la puerta verde se ha vuelto madera de deriva
+    "beach_door.driftwood": { type: "boolean", start: false },   // la puerta verde se ha vuelto madera de deriva
     "player.seated": { type: "boolean", start: false },   // estás sentado a la mesa del comedor
     "postmaster.gave": { type: "boolean", start: false }   // el administrador ha entregado el paquete
   },
@@ -832,11 +807,10 @@ export default {
       { say: "El aire es salado. En algún sitio un reloj marca [time], y es domingo, y a nadie le importa." }
     ] },
     // Verbos que solo necesita este mundo
-    { add: "word", verb: "row", words: ["remar", "rema", "reme", "bogar", "boga", "remar hacia", "rema hacia", "remar hasta", "rema hasta", "remar de vuelta", "rema de vuelta"] },
-    { add: "word", verb: "swim", words: ["nadar", "nada", "nade", "nado", "bañarse", "bañate", "me baño", "darse un baño", "zambullirse", "zambullete", "bucear", "bucea", "vadear", "vadea", "ir a nadar", "nadar en", "nada en"], object: "optional" },
-    { add: "word", verb: "burn", words: ["quemar", "quema", "queme", "quemo", "incinerar", "incinera", "prender fuego a", "prende fuego a", "dar fuego a", "da fuego a", "sacrificar", "sacrifica", "olvidar", "olvida", "olvide", "olvido"] },
+    { add: "word", verb: "row", words: ["remar", "rema", "reme", "bogar", "boga", "remar hacia", "rema hacia", "remar hasta", "rema hasta", "remar de vuelta", "rema de vuelta"], reply: "Aquí no hay dónde remar." },
+    { add: "word", verb: "swim", words: ["nadar", "nada", "nade", "nado", "bañarse", "bañate", "me baño", "darse un baño", "zambullirse", "zambullete", "bucear", "bucea", "vadear", "vadea", "ir a nadar", "nadar en", "nada en"], object: "optional", reply: "Aquí no hay agua en la que nadar." },
+    { add: "word", verb: "burn", words: ["quemar", "quema", "queme", "quemo", "incinerar", "incinera", "prender fuego a", "prende fuego a", "dar fuego a", "da fuego a", "sacrificar", "sacrifica", "olvidar", "olvida", "olvide", "olvido"], reply: "No tienes con qué quemarlo." },
     { add: "word", verb: "ride", words: ["cabalgar", "cabalga", "cabalgo", "dar una vuelta", "da una vuelta", "dar vueltas", "da vueltas"] },
-    { add: "word", verb: "order", words: ["pedir", "pide", "pida", "pido", "encargar", "encarga"], absent: true },   // "pide un café": todavía no está aquí
 
     // Puzles (descripciones, para el verificador)
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

@@ -10,7 +10,7 @@ import { newSeed } from "./random.js";
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
 // 11: `fired`, the `once` rules that have had their one time. 12: every key starts in blank(). 13: `pictures` (pictures that
 // aren't a room's) and `ending` (the one the story ended with).)
-export const FORMAT = 16;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh)
+export const FORMAT = 17;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh). 17: the engine audit (the worlds' rules became facts on their things; older saves hold the old rules, so they start afresh)
 
 // Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit takes what it takes (1 to 5,
 // the checker holds worlds to the scale: GUIDE.md §3), with no warning turn; at 0 the story ends.

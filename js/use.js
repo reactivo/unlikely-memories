@@ -18,8 +18,13 @@ export function placeOf(g, id) {
   return g.world.objects[last]?.at ?? null;
 }
 
-// Is it shut away, inside a container that is closed? (Something in a thing that isn't a container, mints in a tin, is not.)
+// Is it shut away, inside a container that is closed? (Something in a thing that isn't a container, mints in a tin, is not;
+// nor in one that is `open: "always"`, a boat or a bin with no lid.)
 export const shut = (g, id) => chainOf(g, id).slice(1).some(x => g.world.objects[x].container && !g.world.objects[x].open);
+
+// Has it been noticed? Anything not marked `unnoticed`; one that is (the umbrella behind the counter), once something has brought
+// it up (an idea of its id: an `opens`, a `know`), you have held it, or seen it. Until then it is in no line that says what is there.
+export const noticed = (g, id) => !g.world.objects[id]?.unnoticed || ["held", "ideas", "things"].some(k => g.seen?.[k]?.includes(id));
 
 // Do you carry it (in your hands or in something you carry)?
 export const carried = (g, id) => placeOf(g, id) === "player";
@@ -30,11 +35,22 @@ export const within = (g, inner, outer) => chainOf(g, inner).includes(outer);
 // Is this an action rule (your commands), not a timed or scheduled one? `when: "action"` is the default.
 export const isAction = (r) => (r.when || "action") === "action";
 
-// Someone who'd take what you give: a character (it has `topics` or `talk`), or anything a world rule for `give` names.
+// Is this thing a person: one you can talk to, a character? It has `topics` or `talk`. The one test for it: the parser's
+// "her", "him" and what you say to someone, the standard TALK, GIVE and TAKE, and who would take what you give all use it
+// (rules read it as `<id>.person`).
+export const person = (o) => !!o && (o.topics != null || o.talk != null);
+
+// The person who has this thing, if one does: the nearest thing it is in, or in what it is in, that is a person (a stamp in
+// Mrs Pell's hand). Null when nobody has it. (Rules read it as `<id>.holder`.)
+export function holderOf(g, id) {
+  return chainOf(g, id).slice(1).find(x => person(g.world.objects[x])) ?? null;
+}
+
+// Someone who'd take what you give: a person, or anything a world rule for `give` names.
 export function receives(g, id) {
   const o = g.world.objects[id];
   if (!o) return false;
-  return !!o.topics || o.talk != null || g.rules.some(r =>
+  return person(o) || g.rules.some(r =>
     isAction(r) && [].concat(r.match?.verb ?? []).includes("give") && [].concat(r.match?.obj2 ?? []).includes(id));
 }
 

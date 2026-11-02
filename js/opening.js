@@ -10,6 +10,8 @@
 // `arrival` change sets its start.)
 
 import { DIRECTIONS } from "./space.js";
+import { called } from "./names.js";
+import { wayOf } from "./exits.js";
 
 export const PARTS = ["room", "hints", "intro", "way"];
 export const THINGS = ["hints", "intro", "way"];
@@ -20,12 +22,12 @@ const LISTEN = ["listen", "use", "talk", "ask"];                                
 const READ = ["read", "examine", "open"];                                                  // the intro
 const GO_THROUGH = ["enter", "open", "push", "pull", "knock", "use", "climb", "board"];    // the way on (board: a world may add it)
 
-// The direction of the way on: the thing's own `leads`, else the room's one exit that is `true` (a way a rule
+// The direction of the way on: the thing's own `leads` (or `door`), else the room's one exit that is `true` (a way a rule
 // answers). Null if it isn't clear.
 export function direction(g, d) {
   const way = g.world.objects[d.way], room = g.world.rooms[d.room];
   if (!way || !room) return null;
-  if (way.leads) return DIRECTIONS.includes(way.leads) && room.exits?.[way.leads] === true ? way.leads : null;
+  if (wayOf(way)) return DIRECTIONS.includes(wayOf(way)) && room.exits?.[wayOf(way)] === true ? wayOf(way) : null;
   const open = Object.entries(room.exits || {}).filter(([, to]) => to === true).map(([dir]) => dir);
   return open.length === 1 ? open[0] : null;
 }
@@ -49,14 +51,15 @@ export function problems(g, d) {
   if (obj(d.way).portable) why.push(`the way on "${d.way}" can't be portable`);
   for (const k of THINGS) if (!obj(d[k]).words?.nouns?.length) why.push(`"${d[k]}" needs words.nouns, so it can be named`);
   for (const l of LINES) if (typeof d.lines?.[l] !== "string" || !d.lines[l].trim()) why.push(`opening.lines.${l} is missing`);
-  if (!direction(g, d)) why.push(`the opening room needs one exit set to true: the way on (or the way's \`leads\`, with that exit true)`);
+  if (!direction(g, d)) why.push(`the opening room needs one exit set to true: the way on (or the way's \`leads\` / \`door\`, with that exit true)`);
   if (!g.entrance || !g.world.rooms[g.entrance]) why.push(`game.entrance must be set to the room the way on leads to`);
   else if (g.entrance === d.room) why.push("game.entrance can't be the opening room");
   return why;
 }
 
-// The noun a player types for a thing.
-const noun = (g, id) => g.world.objects[id].words.nouns[0];
+// The noun a player types for a thing, as its name spells it ("buzón", with its accent: js/names.js). A name that is a key into
+// the pack ("@…") isn't known here, so the noun is as the world wrote it.
+const noun = (g, id) => { const o = g.world.objects[id]; return called(o, String(o.name).startsWith("@") ? null : o.name) ?? o.words.nouns[0]; };
 
 // The opening's rules (tried before every other, so no world rule can answer for them). `fixed` and the rest are
 // the engine's to add.
@@ -66,9 +69,10 @@ export function rules(g, d) {
   const here = { "player.at": room };
   // The way on is used by words or by going that way: the same rules for both, held back until you carry the hints thing.
   const through = [{ say: L.through }, { change: "arrival", optional: true }, { disconnect: room, dir },
-                   { travel: "$game.entrance" }, { describe: "$here" }];
+                   { travel: "$game.entrance" }];
   const way = (name, match) => [
-    { id: `opening_${name}_no_hints`, match, if: [here, loose(H)], do: [{ say: L.notYet }] },
+    // (a refusal, so `generic`: the game never offers the way on before the hints thing is carried, from a thing's own actions either)
+    { id: `opening_${name}_no_hints`, match, if: [here, loose(H)], do: [{ say: L.notYet }], generic: true },
     { id: `opening_${name}`, match, if: [here], do: through }
   ];
   return [
@@ -77,9 +81,10 @@ export function rules(g, d) {
     // The intro: it says its text, then its farewell, and is gone.
     { id: "opening_intro", match: { verb: READ, obj: I }, if: [held(I)],
       do: [{ say: `$${I}.examine`, img: `$${I}.img` }, { say: L.farewell }, { move: I, to: null }] },
-    // Neither the hints thing nor the intro can be dropped, or put away in something else.
-    { id: "opening_drop", match: { verb: "drop", obj: [H, I] }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }] },
-    { id: "opening_put", match: { verb: "put", obj: [H, I] }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }] },
+    // Neither the hints thing nor the intro can be dropped, or put away in something else. A refusal, so `generic`: the
+    // suggestion lines never offer it ("Put box in boat"), as they never offer a verb's stock reply (js/engine.js `answers`).
+    { id: "opening_drop", match: { verb: "drop", obj: [H, I] }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }], generic: true },
+    { id: "opening_put", match: { verb: "put", obj: [H, I] }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }], generic: true },
     ...way("way", { verb: GO_THROUGH, obj: W }),
     ...way("go", { verb: "go", dir })
   ];

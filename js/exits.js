@@ -6,12 +6,19 @@
 //   true                                       there is a way, but a rule answers
 //   false                                      no way
 //   { to, if?, closed?, in?, out? }            a way with a condition: open while `if` holds; else `closed` is said.
+//   { to, requires, spends?, lacking? }        a way you pass only holding that thing (decision 41); `spends: true` takes it from
+//                                              you as you go; else `lacking` is said (or the stock line)
 //                                              `in: true` / `out: true` mark it as the way into / out of a place
-//                                              (a hut at the east end of the street): "in" / "out" take it
+//                                              (a hut at the east end of the street): "in" / "out" take it. A way marked
+//                                              `in: true` also makes the way back, on the other side, the `out` (wayAt)
 //
 // A `connect` effect writes an exit too, and may carry the same fields beside `connect`, `dir` and `to` (connectedExit).
 
 export const isExitObject = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+
+// The way a thing is: the direction going through it takes, from its `door` (a door, gate or hatch on that way) or its `leads` (stairs,
+// a shop front, a cave: a way you climb or walk into). A thing has one or the other, never both. Null for a thing that is no way.
+export const wayOf = (o) => o?.door ?? o?.leads ?? null;
 
 // Where an exit leads, whatever its form: a room id, true, or false (none). A conditional exit's `to`, open or not.
 export const exitTo = (x) => (isExitObject(x) ? (x.to ?? false) : (x ?? false));
@@ -37,9 +44,20 @@ export function wayFor(exits, dir) {
   return markedDirs(exits, dir)[0] ?? null;
 }
 
+// The same for a room in the world's rooms, with the way back: a room with no way of its own for "out" (no `out` exit, no exit
+// marked `out: true`) takes the exit that leads back to a room whose exit is marked `in: true` and leads here. So the hut at the
+// east end of the street, where the street's exit east is `in: true`, needs no mark of its own for the way back west. "in" is only
+// ever what the room says itself. Returns the direction, or null when nothing answers.
+export function wayAt(rooms, roomId, dir) {
+  const exits = rooms?.[roomId]?.exits, own = wayFor(exits, dir);
+  if (own || dir !== "out") return own;
+  const entered = Object.entries(rooms || {}).filter(([id, r]) => id !== roomId && markedDirs(r.exits, "in").some(d => exitTo(r.exits[d]) === roomId)).map(([id]) => id);
+  return Object.keys(exits || {}).find(d => d !== "in" && d !== "out" && entered.includes(exitTo(exits[d]))) ?? null;
+}
+
 // What a `connect` effect writes into the room's exits: the plain room id, or, when the effect carries any of the
 // exit's other fields (`in`, `out`, `if`, `closed`), the exit object. `disconnect` writes false, whatever the form.
-export const CONNECT_FIELDS = ["if", "closed", "in", "out"];
+export const CONNECT_FIELDS = ["if", "closed", "in", "out", "requires", "spends", "lacking"];
 export function connectedExit(e) {
   const extra = Object.fromEntries(CONNECT_FIELDS.filter(k => e[k] !== undefined).map(k => [k, e[k]]));
   return Object.keys(extra).length ? { to: e.to, ...extra } : e.to;

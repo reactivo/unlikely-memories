@@ -284,6 +284,8 @@ export default {
       rect - 264,74,16,26 8 e0
       poly flag 176,34 186,37 176,40 12
       line - 176,34 176,46 c7
+      poly oars_shaft 138,110 168,113 168,116 138,113 7
+      ellipse oars_blade 172,115,5,2 15
     `
   },
 

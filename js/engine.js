@@ -5,12 +5,13 @@
 import { random, between } from "./random.js";
 import standardVerbs from "./verbs.js";
 import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js";
-import { isExitObject, exitTo, exitConditions, wayFor, connectedExit } from "./exits.js";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, wayOf } from "./exits.js";
 import { parseShape, parseShapes } from "./picture.js";
 import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
 import * as opening from "./opening.js";
-import { translate as translateUse, placeOf, chainOf, shut, isAction } from "./use.js";
-import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer, ENGINE_ECHOES, grammarOf } from "./fields.js";
+import { translate as translateUse, placeOf, chainOf, shut, isAction, person, holderOf, noticed } from "./use.js";
+import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer, ENGINE_ECHOES, grammarOf, isLine, hasSprite } from "./fields.js";
+import { ACTIONS } from "./actions.js";
 import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js";
 import { filterProblem, parseFilter, switched, MOMENTS } from "./filters.js";
 import { spoken, slurring, slur, answerLine } from "./speech.js";
@@ -34,7 +35,7 @@ const DEFAULTS = { portable: false, scenery: false, container: false, open: fals
 // Returns { next, applied, refused }: the new state, the effects applied (for the narrator) and any refused.
 export function step(state, input) {
   const g = structuredClone(state);
-  const out = { applied: [], refused: [], trusted: true };
+  const out = { applied: [], refused: [], trusted: true, viewed: inView(g) };   // viewed: what is in view so far (cameIntoView)
   const { at = g.clock, tick, ...action } = input;
   g.clock = at;
   const startedIn = g.player.at;
@@ -61,11 +62,12 @@ export function step(state, input) {
     if (action.verb === "go" && action.dir === "out" && g.player.in) {   // OUT from inside a thing: get out of it, as "get up" does
       action.verb = "exit"; delete action.dir;
     } else if (action.verb === "go") {
-      // IN / OUT in a room with no such exit of its own go by the exit marked `in: true` / `out: true`, as if that
-      // direction had been typed (so a rule on "go e" fires, and the compass shows only E).
-      if (action.dir === "in" || action.dir === "out") action.dir = wayFor(g.world.rooms[g.player.at]?.exits, action.dir) ?? action.dir;
+      // IN / OUT in a room with no such exit of its own go by the exit marked `in: true` / `out: true` (OUT also by the way back
+      // from a place entered by an exit marked `in: true`), as if that direction had been typed (so a rule on "go e" fires, and
+      // the compass shows only E).
+      if (action.dir === "in" || action.dir === "out") action.dir = wayAt(g.world.rooms, g.player.at, action.dir) ?? action.dir;
       if (g.player.in) {                                         // moving while in or on something: out first
-        apply(g, { say: "@outFirst", things: ["$in"] }, action, out, "outFirst");
+        apply(g, { say: g.world.objects[g.player.in]?.enterable === "on" ? "@offFirst" : "@outFirst", things: ["$in"] }, action, out, "outFirst");
         g.player.in = null;
       }
     }
@@ -85,41 +87,99 @@ export function step(state, input) {
   if (g.player.at !== startedIn) g.asked = {};                 // a new room: conversations start afresh
   const held1 = holding(g);                                     // what your command gave you and took from you: its echoes
   holdingEchoes(g, held0, held1, out);
-  const n0 = out.applied.length;
+  const n0 = out.applied.length, came0 = cameIntoView(g, out);   // what your command brought into view
   runScheduled(g, out);                                         // what's scheduled up to the world's time now
   runTimed(g, at, out, out.applied.slice(n0).some(e => "say" in e));   // timed rules that are now due (a scheduled line holds ambience back)
   runConditions(g, at, out);                                    // the conditions you are in: their ticks, and the ones that end now
   holdingEchoes(g, held1, holding(g), out);                     // and what the world did on its own gave and took (aside, below)
+  const came1 = cameIntoView(g, out);                           // and what the world brought on its own
   // An echo (INTERFACE.md §6c) is the last word on what just happened to you: after the story lines of your command, and
   // after those of what the world did on its own, however the rule ordered its effects.
   // What the world did on its own (scheduled and timed rules) is marked `aside`: shown set apart, like a stage direction
   // (ui/log.css), even when it falls due during your command, and its echoes with it.
-  out.applied = [...echoesLast(out.applied.slice(0, n0)), ...echoesLast(out.applied.slice(n0)).map(e => ({ ...e, aside: true }))];
+  // What came into view in each of the two (`inView`, for the narrator to mark) goes after its story lines, before its echoes.
+  out.applied = [...echoesLast(out.applied.slice(0, n0), came0), ...echoesLast(out.applied.slice(n0), came1).map(e => ({ ...e, aside: true }))];
   // A question for words asked now: the last line is the system's, in grey, "Type your answer." (every `ask` gets it).
   const asked = out.applied.findLast(e => "ask" in e);
   if (asked && g.pending.question?.ask === asked.ask && !g.pending.question.yesNo)
     out.applied.push({ say: "@typeAnswer", style: "sys", at: worldTime(g) });
   seeHere(g);                                                   // what's in the room has now been seen
+  drawLongThings(g, out);                                       // a long thing's shape where it lies (G8)
   if (g.player.health <= 0 && !g.ended) {                        // out of health: the story ends, whatever the world
     if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its line was said when the health went)
       apply(g, { say: "@hurt.dead", vary: true }, {}, out, "died");
     if (!out.applied.some(dying)) echo(x => out.applied.push(x), g, "hurt", 0);   // (and the echo of it)
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
-  return { next: g, ...out };
+  const { viewed, lists, drawn, ...told } = out;   // (the moment's own bookkeeping)
+  return { next: g, ...told };
 }
 
 // The same effects with the echoes moved after the story's lines, in this order: things lost, things gained, the
 // conditions' (and any other kind's), then health last; each kind in the order it came. They go before the story's end
 // (the death's lines, or the `end` effect with its note and "The story is over…"), which stays the last word. The echo of a
 // death (level 0) stays where it is, right after the death's lines and so before the end's own text.
+// `came`: the things that came into view in these effects; `{ inView: [...] }` goes after the story's lines, before the echoes.
 const dying = (e) => e.echo === "@health.0";
 const ECHO_ORDER = { lost: 0, gained: 1, hurt: 3, healed: 3 };   // any other kind: 2
 const echoRank = (e) => ECHO_ORDER[e.kind] ?? 2;
-function echoesLast(list) {
+function echoesLast(list, came = []) {
   const echoes = list.filter(e => "echo" in e && !dying(e)).sort((a, b) => echoRank(a) - echoRank(b));   // (sort is stable)
   const rest = list.filter(e => !("echo" in e) || dying(e)), end = rest.findIndex(e => "end" in e || e.say === "@hurt.dead");
-  return end < 0 ? [...rest, ...echoes] : [...rest.slice(0, end), ...echoes, ...rest.slice(end)];
+  const seen = came.length ? [{ inView: came }] : [];
+  return end < 0 ? [...rest, ...seen, ...echoes] : [...rest.slice(0, end), ...seen, ...echoes, ...rest.slice(end)];
+}
+
+// ---- What comes into view ---------------------------------------------------------------------------------------
+// What is in view where you are: what you carry, and the things in your room that aren't shut away in a closed container,
+// nor `unnoticed` and not yet come across. (What you carry counts, so a thing you put down has not come into view: it was with you.)
+function inView(g) {
+  const ids = new Set();
+  for (const id of Object.keys(g.world.objects)) {
+    const place = placeOf(g, id);
+    if (place === "player" || (place === g.player.at && !shut(g, id) && noticed(g, id))) ids.add(id);
+  }
+  return ids;
+}
+// The things that have come into view since the last time this moment looked (decision 14): a rule's `move`, a lock's `opens`,
+// a named change, an `add object`, a lid that opens… brought them where you are. Not what was there when you arrived: going
+// somewhere (`travel`) counts what is in the new room as seen (the room's description says it). Not what came into your hands
+// either: its echo says so ("You get the ticket."). The narrator marks each one in the lines of that moment, or says where it
+// lies (js/narrator.js, `tell`).
+function cameIntoView(g, out) {
+  const fresh = [...inView(g)].filter(id => !out.viewed.has(id));
+  for (const id of fresh) out.viewed.add(id);
+  return fresh.filter(id => placeOf(g, id) !== "player");
+}
+
+// ---- Long things ------------------------------------------------------------------------------------------------
+// A thing too long for a sprite (a pole, a ladder, a pair of oars) is drawn as shapes in its home room's picture, named by its `shape`
+// (an id, or a list of ids): the room whose picture has them. While it lies in that room (there itself, not inside something, not
+// carried) the shapes are drawn; anywhere else they are not (G8). A world writes no rule for it. Shapes taken out are kept in the
+// picture's `hidden` list, each with its place in the drawing (`at`), and come back to it. Each change is a new version
+// of the picture, like any `draw`, one a moment however many change (`out`: null as the world is built, where the picture is as it
+// starts, version and all).
+function drawLongThings(g, out) {
+  for (const [id, o] of Object.entries(g.world.objects)) {
+    if (o.shape == null) continue;
+    const ids = [].concat(o.shape);
+    const home = Object.keys(g.world.rooms).find(r => { const p = g.world.rooms[r].picture; return p && [...(p.draw || []), ...(p.hidden || [])].some(x => ids.includes(x.id)); });
+    if (!home) continue;
+    const room = g.world.rooms[home], pic = room.picture, show = o.at === home;
+    let draw = pic.draw, hidden = pic.hidden || [];
+    if (show && hidden.some(x => ids.includes(x.id))) {
+      for (const { at, ...shape } of hidden.filter(x => ids.includes(x.id)).sort((x, y) => x.at - y.at))
+        draw = [...draw.slice(0, at), shape, ...draw.slice(at)];
+      hidden = hidden.filter(x => !ids.includes(x.id));
+    } else if (!show && draw.some(x => ids.includes(x.id))) {
+      hidden = [...hidden, ...draw.map((x, at) => ({ ...x, at })).filter(x => ids.includes(x.id))];   // (each at its place before any goes)
+      draw = draw.filter(x => !ids.includes(x.id));
+    } else continue;
+    const bump = out && !out.drawn?.has(home);                    // one new version a moment: none if a `draw` made one already
+    room.picture = { ...pic, draw, ...(bump ? { version: pic.version + 1 } : {}) };
+    if (hidden.length) room.picture.hidden = hidden; else delete room.picture.hidden;
+    if (bump) { out.drawn = (out.drawn ?? new Set()).add(home); out.applied.push({ draw: home, version: room.picture.version }); }
+  }
 }
 
 // ---- What you hold ----------------------------------------------------------------------------------------------
@@ -180,12 +240,14 @@ export function applyChangeSet(state, set, { protect = true, fields = null } = {
   const g = structuredClone(state);
   if (set.properties && typeof set.properties === "object") g.properties = { ...g.properties, ...structuredClone(set.properties) };
   const out = { applied: [], refused: [], trusted: false };     // a world's changes never touch the opening
-  (set.effects || []).forEach((effect, i) => apply(g, effect, {}, out, "changeset#" + i));
+  each(g, set.effects || [], {}, out, "changeset#");
   if (set.opening && !out.refused.length) buildOpening(g, set.opening, out, protect);
   if (out.refused.length) return { next: state, applied: [], refused: out.refused };
+  drawLongThings(g, null);                                      // the pictures as the world starts: a long thing not at home isn't drawn
   const warnings = fields === "warn" ? found.map(f => `${f.piece}: ${f.text}`) : [];
   if (warnings.length) g.warnings = [...(g.warnings || []), ...warnings];
-  return { next: g, ...out, warnings };
+  const { lists, drawn, ...told } = out;
+  return { next: g, ...told, warnings };
 }
 
 // A change set the AI proposes in play: refused whole if it has a field the engine doesn't know or uses a property
@@ -254,7 +316,7 @@ function runAction(g, action, out, question) {
     const effects = action.value === "yes" ? question.yes : (question.no || [{ say: "@confirmNo" }]);
     const trusted = out.trusted;
     out.trusted = question.trusted;                              // as trusted as whoever asked
-    effects.forEach((e, i) => apply(g, e, action, out, "confirm#" + i));
+    each(g, effects, action, out, "confirm#");
     out.trusted = trusted;
     return;
   }
@@ -263,9 +325,15 @@ function runAction(g, action, out, question) {
     out.answer = { rule: "begin_again", generic: false };
     return BEGIN_AGAIN.forEach((e, i) => apply(g, e, action, out, "again#" + i));
   }
-  const rule = [...activeRules(g), ...standardVerbs].find(r => isAction(r) && fits(g, r, action));
-  if (rule) { out.answer = { rule: rule.id, generic: !!rule.generic }; run(g, rule, action, out); }
+  const rule = [...activeRules(g), ...standardVerbs].find(r => isAction(r) && (fits(g, r, action) || answersAgain(g, r, action)));
+  if (!rule) return;
+  out.answer = { rule: rule.id, generic: !!rule.generic };
+  if (spent(g, rule)) apply(g, { say: rule.again }, action, out, rule.id + "#again");   // its one time is used: its `again` line
+  else run(g, rule, action, out);
 }
+// A `once` rule whose one time is used, with an `again` line, answers what it would have answered (its match and its `if`) with
+// that line (decision 27): a puzzle needs no second rule for "already done".
+const answersAgain = (g, r, action) => r.again != null && spent(g, r) && matches(r.match, action) && holds(g, r.if, action);
 
 // Would these actions, done now, be accepted, and would something answer them: a game rule or the thing itself,
 // not a verb's generic reply (verbs.js)? For offering commands ("Did you mean…?", suggestion lines). The state is
@@ -295,9 +363,9 @@ function run(g, rule, action, out) {
   if (rule.once) g.fired[rule.id] = true;                // its one time: it counts from the moment it runs
   const was = out.trusted;
   out.trusted = !!(rule.fixed || STANDARD.has(rule));
-  rule.do.forEach((effect, i) => apply(g, effect, action, out, rule.id + "#" + i));
+  each(g, rule.do, action, out, rule.id + "#");
   if (rule.then === "default") {
-    const std = standardVerbs.find(r => fits(g, r, action));
+    const std = standardVerbs.find(r => !r.unlessAnswered && fits(g, r, action));   // (a rule that asked for the default has answered: no guard on it)
     if (std) run(g, std, action, out);
   }
   out.trusted = was;
@@ -357,21 +425,50 @@ function compare(a, op, b) {
 // `if` is open while the conditions hold, the same ones a rule has (ARCHITECTURE.md §3, "Rooms").
 export function exitNow(g, roomId, dir, action = {}) {
   const raw = g.world.rooms[roomId]?.exits?.[dir];
-  if (!isExitObject(raw)) return { go: raw ?? null, seen: !!raw, closed: null };
+  const lock = lockedWay(g, roomId, dir);                    // a locked thing that leads this way shuts it (its lock's `says`)
+  if (!isExitObject(raw)) return lock && raw ? { go: false, seen: true, closed: lock.closed, by: lock.by } : { go: raw ?? null, seen: !!raw, closed: null };
   const list = exitConditions(raw), to = exitTo(raw);
   const open = list !== null && holds(g, list, action);
-  return { go: open ? to : false, seen: !!to, closed: open ? null : (raw.closed ?? null) };
+  if (open && lock && to) return { go: false, seen: true, closed: lock.closed, by: lock.by };
+  // a way you pass only holding a thing (decision 41): shut without it, with its `lacking` line (else the stock one, naming the thing)
+  if (open && to && typeof raw.requires === "string" && placeOf(g, raw.requires) !== "player")
+    return { go: false, seen: true, closed: raw.lacking ?? "@lacking", needs: raw.requires };
+  return { go: open ? to : false, seen: !!to, closed: open ? null : (raw.closed ?? lock?.closed ?? null), by: open || raw.closed ? undefined : lock?.by };
+}
+
+// The thing that shuts a way by being locked: a locked thing in the room that is a way that direction (its `door`, or its `leads`: BRIEF.md
+// §8, "Objects"). What going that way says is its `shut` line if it has one (OPEN and UNLOCK without the key say the lock's `says`
+// instead), else its lock's `says` for both, else the standard "locked" (@locked, which agrees with the thing: `by`). Unlocking it opens
+// the way; nothing else is written for it. Null when no locked thing is that way.
+function lockedWay(g, roomId, dir) {
+  for (const [by, o] of Object.entries(g.world.objects))
+    if (o.at === roomId && wayOf(o) === dir && o.locked === true) return { by, closed: o.shut || o.lock?.says || "@locked" };
+  return null;
+}
+
+// A door locked from either side: `pair` names the door on the other side, written on both (BRIEF.md §8, "Exits"). Whatever sets one
+// door's `locked` or `open` sets the other's the same, so unlocking, locking, opening or closing one does it to both. Each door keeps its
+// own lock (key, says, opens) and its own `shut` line; only the state is shared.
+function mirror(g, id, prop) {
+  const o = g.world.objects[id], other = g.world.objects[o?.pair];
+  if (other && other !== o && (prop === "locked" || prop === "open") && prop in o) other[prop] = o[prop];
 }
 
 // Read a value by path (in conditions; in values with a "$" in front): "player.at", "game.ended", "player.health", "door.open", "dining.visited", "$obj.at" (the action's object), "$exit".
 // "<id>.place" is where it really is: its room, or "player", even inside something else (a mint in the tin).
 // "<id>.chain" is a list: the thing, what it is in, what that is in… ("$obj2.chain" { has: "$obj" }: the action's
 // object is, or holds, its second object). "$obj2" is the action's second object ("put X in Y": Y).
+// "<id>.person" is true for a person (it has `topics` or `talk`: js/use.js), and "<id>.holder" is the person who has the thing
+// (it is in their hands, or in something they hold), else null ("$obj.holder" { "!=": null }: the action's object is somebody's).
 // A missing object property counts as its default; anything missing is null.
 function read(g, path, action) {
   if (path === "$exit") return exitNow(g, g.player.at, action.dir, action).go;     // "$exit.closed": the line of a shut way
   if (path === "$exit.closed") return exitNow(g, g.player.at, action.dir, action).closed;
+  if (path === "$exit.by") return exitNow(g, g.player.at, action.dir, action).by ?? null;   // the locked thing that shuts the way, if one does
+  if (path === "$exit.needs") return exitNow(g, g.player.at, action.dir, action).needs ?? null;   // what the way wants you to hold, when you don't
   if (path === "$speech.answer") return answerLine(g);                       // what people answer while a condition holds your tongue (js/speech.js)
+  if (path === "$word.reply") return g.vocab?.[action.verb]?.reply ?? null;  // the reply a world gave the action's verb (`add word`)
+  if (path === "$wanted") return wanted(g, action);                          // the thing ORDER, BUY or ASK asks for, from its source here
   if (/^\$\w+$/.test(path) && path !== "$obj" && path !== "$here" && Object.hasOwn(action, path.slice(1))) return action[path.slice(1)] ?? null;   // "$topic"
   path = path.replace(/\.\$(\w+)/g, (_, k) => "." + (action[k] ?? ""));      // "$obj.topics.$topic.says": the action's topic
   if (/^\$here\./.test(path)) path = g.player.at + path.slice(5);           // "$here.visited": your room's
@@ -390,6 +487,9 @@ function read(g, path, action) {
   if (!o) return null;
   if (prop === "place") return placeOf(g, id);
   if (prop === "chain" && g.world.objects[id]) return chainOf(g, id);   // "<id>.chain": itself, then what it is in, and what that is in…
+  if (prop === "person" && g.world.objects[id]) return person(o);       // "<id>.person": someone you can talk to
+  if (prop === "holder" && g.world.objects[id]) return holderOf(g, id); // "<id>.holder": the person who has it, if one does
+  if (prop === "img" && g.world.objects[id]) return o.img ?? (hasSprite(o) ? id : null);   // its picture beside its line: its own sprite, unless it names another
   if (rest.length > 1) return rest.reduce((x, k) => (x == null ? x : x[k]), o) ?? null;   // deeper: "beach.describe.0"
   return o[prop] ?? DEFAULTS[prop] ?? startOf(g, id, prop);
 }
@@ -514,7 +614,7 @@ function runTimed(g, at, out, scheduledSpoke = false) {
 
 // Does a list of effects say something (directly, or through a named change)? Those are what calm holds back.
 function speaks(g, effects, depth = 0) {
-  return effects.some(e => "say" in e || "hurt" in e || "heal" in e || "echo" in e || "describe" in e || "start" in e || "stop" in e
+  return effects.some(e => "say" in e || "travel" in e || "hurt" in e || "heal" in e || "echo" in e || "describe" in e || "start" in e || "stop" in e
     || ("change" in e && depth < 5 && speaks(g, g.changes[e.change] || [], depth + 1)));
 }
 
@@ -617,6 +717,19 @@ function strayWays(g, action) {
 
 // ---- Effects ----------------------------------------------------------------------------------------------
 
+// Apply a list of effects in order (a rule's `do`, a named change, a confirm's answer, a change set). The lists being applied
+// are kept, innermost last, with the place reached in each (`out.lists`): `travel` reads them, to describe the new room only
+// when no list it is in describes it later (a world that writes `{ describe: "$here" }` after it has it said once).
+function each(g, list, action, out, key) {
+  const at = { list, i: 0 };
+  (out.lists ??= []).push(at);
+  try { list.forEach((e, i) => { at.i = i; apply(g, e, action, out, key + i); }); } finally { out.lists.pop(); }
+}
+// Does a list being applied describe this room after the effect it has reached ({ describe: "$here" } or the room's id)?
+function describedLater(out, room) {
+  return (out.lists || []).some(({ list, i }) => list.slice(i + 1).some(e => e && typeof e === "object" && "describe" in e && (e.describe === "$here" || e.describe === room)));
+}
+
 // Apply one effect. Each checks itself; a refused one is recorded and changes nothing.
 // key identifies the effect in its rule (used to avoid repeating the same phrasing twice in a row).
 function apply(g, e, action, out, key) {
@@ -653,7 +766,7 @@ function apply(g, e, action, out, key) {
     const things = Array.isArray(e.things) ? e.things.map(t => fill(g, t, action)).filter(t => g.world.objects[t]) : null;
     const vals = propertyWords(g, said);              // the properties it names, as they are now ([player.name] in it)
     done(clean({ say: said, img: fill(g, e.img, action), style: e.style, arg: fill(g, e.arg, action),
-                 pick, prev, who: !things ? grammarOf(w) : undefined, things,
+                 pick, prev, who: !things ? grammarOf(w) : undefined, things, marked: things && e.marked ? true : undefined,
                  vals: Object.keys(vals).length ? vals : undefined,
                  at: worldTime(g) }));     // at: the world's time when it was said ([time] in it)
   } else if ("describe" in e) {                      // the narrator describes a room, or what you carry
@@ -672,6 +785,8 @@ function apply(g, e, action, out, key) {
   } else if ("set" in e) {                           // set a property: { set: "door.open", to: true } or add: -15
     // Of the player, the game, an object or a room; deeper paths reach inside it: "beach.describe.0" is the first
     // paragraph of the beach's text (an existing one, or the next one).
+    // A path may start with the action's object ("$obj.open", "$obj2.open": the standard OPEN and CLOSE); it is recorded as the thing's own.
+    if (/^\$obj2?\./.test(e.set)) e = { ...e, set: (e.set.startsWith("$obj2") ? action.obj2 : action.obj) + e.set.slice(e.set.indexOf(".")) };
     const [id, ...path] = e.set.split(".");
     let target = ownerOf(g, id);
     if (!target) return refuse("no such object: " + id);
@@ -694,6 +809,7 @@ function apply(g, e, action, out, key) {
     }
     const was = target[prop];
     target[prop] = value;
+    if (path.length === 1 && target === g.world.objects[id]) mirror(g, id, prop);   // (a door's pair follows)
     done({ set: e.set, to: value });
     if (e.set === "player.health" && typeof was === "number" && value < was) hurtLine(g, null, done);
     else if (e.set === "player.health" && typeof was === "number" && value > was) echo(done, g, "healed", value);
@@ -724,6 +840,13 @@ function apply(g, e, action, out, key) {
   } else if ("start" in e) {                         // start a condition: { start: "drunk" } (js/conditions.js); again: it starts afresh
     const id = fill(g, e.start, action), d = g.conditions?.[id];
     if (!d) return refuse("no such condition: " + id);
+    // doses (decision 46): a condition with `doses: n` starts on the nth start; the ones before are counted (player.doses), silently
+    if (Number.isInteger(d.doses) && d.doses > 1 && !g.player.conditions?.[id]) {
+      const n = (g.player.doses?.[id] ?? 0) + 1;
+      if (n < d.doses) { (g.player.doses ??= {})[id] = n; return done({ start: id, dose: n }); }
+      delete g.player.doses?.[id];
+      if (g.player.doses && !Object.keys(g.player.doses).length) delete g.player.doses;
+    }
     const active = (g.player.conditions ??= {}), again = !!active[id];
     active[id] = { ...(again ? active[id] : {}), ...lasting(g, d) };   // its time runs from now; its ticks keep their pace
     if (!again && d.health) Object.assign(active[id], nextTick(g, d.health.every));
@@ -751,11 +874,17 @@ function apply(g, e, action, out, key) {
   } else if ("travel" in e) {                        // move the player to a room
     const room = fill(g, e.travel, action);
     if (!g.world.rooms[room]) return refuse("no such room: " + room);
+    // the standard GO through a way that `spends` what it requires: it is taken from you as you go (you paid)
+    const way = e.travel === "$exit" ? g.world.rooms[g.player.at]?.exits?.[action.dir] : null;
+    const paid = isExitObject(way) && way.spends === true && typeof way.requires === "string" ? way.requires : null;
     if (g.player.at !== room) delete g.ambienceSaid?.[room];   // a new visit: its ambience lines can be said again
     g.player.at = room;
     g.player.in = null;                              // whatever you were in or on stays behind
     if (!g.seen.visited.includes(room)) g.seen.visited.push(room);
+    if (out.viewed) for (const id of inView(g)) out.viewed.add(id);   // what is there as you arrive has not come into view: it was there
     done({ travel: room });
+    if (paid) apply(g, { move: paid, to: null }, action, out, key + ":paid");
+    if (!describedLater(out, room)) done({ describe: room });   // the new room is described, unless the same list does it itself
   } else if ("connect" in e || "disconnect" in e) {  // open or close an exit: { connect: room, dir, to, passage?, in?, out?, if?, closed? }
     const id = e.connect || e.disconnect, room = g.world.rooms[id];
     if (!room) return refuse("no such room: " + id);
@@ -769,12 +898,18 @@ function apply(g, e, action, out, key) {
     }
     room.exits[e.dir] = e.connect ? connectedExit(e) : false;   // a plain room id, or { to, in, out, if, closed } when it carries any
     done({ ...e });
+  } else if ("inside" in e) {                        // say what a container holds, each thing marked ("Inside: a {crank}."): the
+    const id = fill(g, e.inside, action);            // standard OPEN's second line. Nothing if it holds nothing (or nothing unnoticed)
+    if (!g.world.objects[id]) return refuse("no such object: " + id);
+    const held = Object.keys(g.world.objects).filter(x => g.world.objects[x].at === id && !g.world.objects[x].unnoticed);
+    if (held.length) apply(g, { say: "@inside", things: held, marked: true }, action, out, key + ":inside");
   } else if ("unlock" in e) {                        // try to open a locked thing: with its key, it opens (its `opens`
     const id = fill(g, e.unlock, action), o = g.world.objects[id];   // line, then its named change); without, its `says`
     if (!o) return refuse("no such object: " + id);
     const lock = o.lock || {};
-    if (lock.key && g.player.carrying.includes(lock.key)) {
+    if (lock.key && g.world.objects[lock.key] && placeOf(g, lock.key) === "player" && !shut(g, lock.key)) {   // the key, anywhere on you (not shut away in a closed bag)
       o.locked = false; o.open = true;
+      mirror(g, id, "locked"); mirror(g, id, "open");                   // (the door on the other side, if it has one, unlocks with it)
       done({ unlock: id });
       apply(g, { say: lock.opens || "@unlocked" }, action, out, key + ":opens");
       if (lock.then) apply(g, { change: lock.then }, action, out, key + ":then");
@@ -785,7 +920,7 @@ function apply(g, e, action, out, key) {
     if ((out.depth = (out.depth || 0) + 1) > 5) { out.depth--; return refuse("changes nested too deep: " + e.change); }
     const was = out.trusted;
     out.trusted = false;                             // named changes are a world's: they never touch the opening
-    effects.forEach((x, i) => apply(g, x, action, out, key + ">" + e.change + "#" + i));
+    each(g, effects, action, out, key + ">" + e.change + "#");
     out.trusted = was;
     out.depth--;
     done({ change: e.change });
@@ -795,6 +930,7 @@ function apply(g, e, action, out, key) {
     const next = editPicture(room.picture, e);
     if (typeof next === "string") return refuse(next);
     room.picture = next;
+    (out.drawn ??= new Set()).add(fill(g, e.draw, action));   // (a long thing's shape that changes in the same moment shares this version)
     done({ draw: e.draw, version: next.version });
   } else if ("time" in e) {                         // move the world's clock: "+8h", "-1d", "next 06:00", "day 1 17:00"
     const now = worldTime(g), r = moveTo(fill(g, e.time, action), now);
@@ -847,10 +983,54 @@ function apply(g, e, action, out, key) {
     // a question about it was answered yes (undo, load, save over the saved game, a new game): never from a world
     if (!out.trusted) return refuse("only the game itself can do " + e.session);
     done({ session: e.session });
+  } else if ("bring" in e) {                         // a thing comes from its source (the standard ORDER, BUY, ASK FOR): js/verbs.js, std_bring
+    const id = fill(g, e.bring, action), o = g.world.objects[id];
+    if (!o) return refuse("no such object: " + id);
+    const no = (say, things) => { apply(g, { say, ...(things ? { things } : {}) }, action, out, key + ":no"); out.answer = { ...out.answer, generic: true }; };
+    // how many have come: `n` in all (its lines go by it); a `daily` thing's `times` count afresh each day (decision 50), by `today`
+    const rec = g.served?.[id], served = rec?.n ?? 0, day = parts(worldTime(g), g.time?.weekday).day;
+    const count = o.daily === true ? (rec?.day === day ? rec.today ?? 0 : 0) : served, times = o.times ?? 1;
+    // the last one isn't gone yet: said first, whatever else holds (decision 48: a second coffee with one on the table says so), in the
+    // thing's own `already` line when it has one (decision 55), else the stock one
+    if (o.at != null) return o.already != null ? no(o.already) : no(placeOf(g, id) === "player" ? "@haveOne" : "@stillHere", [id]);
+    if (count >= times || (Array.isArray(o.if) && !holds(g, o.if, action))) return no(o.again ?? "@noMore", o.again ? null : [id]);
+    // what it costs (decision 41): only while you hold that thing (anywhere on you); `spends` takes it; without it, its `lacking` line
+    const needs = typeof o.requires === "string" && g.world.objects[o.requires] ? o.requires : null;
+    if (needs && placeOf(g, needs) !== "player") return no(o.lacking ?? "@lacking", o.lacking ? null : [needs]);
+    const lines = o.brought, line = Array.isArray(lines) ? lines[Math.min(served, lines.length - 1)] : lines;   // a list: one each time, in order
+    (g.served ??= {})[id] = { n: served + 1, ...(o.daily === true ? { day, today: count + 1 } : {}) };
+    apply(g, line != null ? { say: line } : { say: "@brought", things: [id] }, action, out, key + ":brought");
+    if (needs && o.spends === true) apply(g, { move: needs, to: null }, action, out, key + ":spent");   // you paid
+    apply(g, { move: id, to: o.portable ? "player" : placeOf(g, o.from) }, action, out, key + ":move");   // in front of you; a thing you can carry, into your hands
+  } else if ("consume" in e) {                       // eat or drink a consumable thing (the standard EAT and DRINK): its line, what it does, gone
+    const id = fill(g, e.consume, action), o = g.world.objects[id];
+    if (!o) return refuse("no such object: " + id);
+    // A list of lines (decision 49): one each time, in order, the last repeating, as `brought` is; the nth that came from its source
+    // says the nth line (a thing that comes once, or from nowhere, the first). Never one at random.
+    const nth = Math.max((g.served?.[id]?.n ?? 1) - 1, 0), own0 = o[action.verb];
+    const own = Array.isArray(own0) ? own0[Math.min(nth, own0.length - 1)] : own0, line = own != null ? own : action.verb === "drink" ? "@drank" : "@ate";
+    // The line is the heal's when it heals (its echo follows); a stock line names the thing, as the standard lines do.
+    if (Number.isInteger(o.heals) && o.heals > 0) {
+      const says = own ?? null;
+      if (says === null) apply(g, { say: line, things: ["$obj"] }, action, out, key + ":line");
+      apply(g, { heal: o.heals, ...(says !== null ? { says } : {}) }, action, out, key + ":heal");
+    } else apply(g, own != null ? { say: line } : { say: line, things: ["$obj"] }, action, out, key + ":line");
+    if (o.starts) apply(g, { start: o.starts }, action, out, key + ":starts");
+    if (o.stops) apply(g, { stop: o.stops }, action, out, key + ":stops");
+    apply(g, { move: id, to: null }, action, out, key + ":gone");
   } else if ("useAs" in e) {                         // USE becomes the action you meant, run as if typed (js/use.js):
     // "field": what USE alone means for a thing (its `use`, a verb); "pair": "use X with Y" (a world's own `use` rules came
     // first). It means nothing known: the stock reply, which is never "try a more specific verb".
+    // "own": USE alone on a thing a rule of the world answers by one verb of its own runs that (ownUse), else it lists what you could
+    // do (useHow). "pair": a rule of the world for the two the other way round ("use calendar with Monday": the rule for "use Monday with
+    // calendar"), else what the pair means (js/use.js).
     const o = g.world.objects[action.obj];
+    if (e.useAs === "own") {
+      const next = ownUse(g, action);
+      return next ? runAction(g, next, out, null) : apply(g, { useHow: "$obj" }, action, out, key + ":how");
+    }
+    const back = e.useAs === "pair" ? reversed(g, action) : null;
+    if (back) return runAction(g, back, out, null);
     const next = e.useAs === "field" ? (o && typeof o.use === "string" ? { verb: o.use, obj: action.obj } : null) : translateUse(g, action);
     if (next && next.verb !== "use") runAction(g, next, out, null);
     else {
@@ -865,6 +1045,54 @@ function apply(g, e, action, out, key) {
     const where = !o ? "@hintNone" : o.at === "player" ? "@hintCarried" : o.at === g.player.at ? "@hintHere" : "@hintAway";
     done(clean({ say: where, name: o ? id : undefined, style: "sys", at: worldTime(g) }));   // name: the narrator names it; grey: the system speaking
   } else refuse("unknown effect");
+}
+
+// ---- Things that come from someone -----------------------------------------------------------------------------
+// What ORDER, BUY or ASK asks for (decision 40): a thing with `from` whose source is here (in your room, or with you). ORDER and BUY name it
+// (and may name the source: "order tea from Dot", "pídele un té a Dot"), or name nothing where only one thing comes from a source here;
+// ASK names the source (or the parser takes the one you're talking to) and the thing, as a topic about it (its key is the thing's id, or
+// it is `about` it) or after "for" ("ask Dot for the tea"). ASK ABOUT a thing the source has a topic for is that topic, not this
+// (decision 51); ASK FOR it (the parser's `askFor`) is. Null when nothing asked for comes from here.
+function wanted(g, action) {
+  const objects = g.world.objects, here = (id) => !!objects[id] && [g.player.at, "player"].includes(placeOf(g, id));
+  const comes = (id) => typeof objects[id]?.from === "string" && here(objects[id].from);
+  if (action.verb === "ask") {
+    const src = action.obj, topic = action.topic && objects[src]?.topics?.[action.topic];
+    const asked = [action.obj2, action.topic, topic && typeof topic === "object" ? topic.about : null].find(x => objects[x]?.from === src);
+    // ASK ABOUT it says the source's topic for it, when there is one; ASK FOR it brings it (decision 51: the parser marks `askFor`)
+    if (topic && action.topic !== "default" && !action.askFor) return null;
+    return asked && comes(asked) ? asked : null;
+  }
+  if (action.obj && objects[action.obj]?.from) return comes(action.obj) && (!action.obj2 || action.obj2 === objects[action.obj].from) ? action.obj : null;
+  const all = Object.keys(objects).filter(id => comes(id) && (!action.obj || objects[id].from === action.obj));   // nothing named, or only the source
+  return all.length === 1 ? all[0] : null;
+}
+
+// ---- USE ----------------------------------------------------------------------------------------------------------
+// The verbs USE alone never stands for: taking, dropping, putting and giving (refusals, mostly, and a pair's), locks, words said,
+// moving, looking and the game's own (decision 9 of docs/engine-audit/PLAN.md, and the like).
+const NOT_USE = new Set(["use", "take", "drop", "put", "give", "show", "throw", "attack", "lock", "unlock", "talk", "ask", "say", "shout",
+  "sing", "think", "go", "examine", "look", "read", "search", "wait", "help", "hint", "inventory", "time", "status", "answer", "exit"]);
+// What USE alone on a thing means when the world answers it by a verb of its own (G11): the verbs of the world's rules that name the
+// thing as their object (not NOT_USE), tried on it alone; when they all come to one answer now (one rule, or rules that do the same),
+// that action, with the first of those verbs. Null when none does, or two different ones do (then the game lists them: useHow).
+function ownUse(g, action) {
+  const id = action.obj, rules = activeRules(g).filter(isAction), verbs = [];
+  if (!g.world.objects[id]) return null;
+  for (const r of rules)
+    if ([].concat(r.match?.obj ?? []).includes(id)) for (const v of [].concat(r.match?.verb ?? [])) if (!NOT_USE.has(v) && !verbs.includes(v)) verbs.push(v);
+  const found = new Map();
+  for (const verb of verbs) {
+    const a = { verb, obj: id }, r = rules.find(x => fits(g, x, a) || answersAgain(g, x, a));
+    if (r) { const k = JSON.stringify([r.do, r.then, spent(g, r) ? r.again : null]); if (!found.has(k)) found.set(k, a); }
+  }
+  return found.size === 1 ? [...found.values()][0] : null;
+}
+// "use A with B" that no rule answers: a rule of the world written for "use B with A" (its match names the second thing), as that (G12).
+function reversed(g, action) {
+  if (!action.obj || !action.obj2) return null;
+  const back = { ...action, obj: action.obj2, obj2: action.obj };
+  return activeRules(g).some(r => isAction(r) && r.match && "obj2" in r.match && (fits(g, r, back) || answersAgain(g, r, back))) ? back : null;
 }
 
 // Losing health always says so: the cause's own words, if any, as story text, then the echo of how hurt you are now
@@ -897,7 +1125,7 @@ function fixedTarget(g, e, action) {
     if (e.remove === "rule") ids.push(g.rules.find(r => r.id === e.id)?.fixed ? "rule " + e.id : null);
     else ids.push(e.id);
   } else if ("move" in e) ids.push(fill(g, e.move, action), fill(g, e.to, action));
-  else if ("set" in e) ids.push(e.set.split(".")[0]);
+  else if ("set" in e) { const id = e.set.split(".")[0]; ids.push(id === "$obj" ? action.obj : id === "$obj2" ? action.obj2 : id); }
   else if ("travel" in e) ids.push(fill(g, e.travel, action));
   else if ("connect" in e || "disconnect" in e) ids.push(e.connect || e.disconnect);
   else if ("draw" in e) ids.push(fill(g, e.draw, action));
@@ -973,9 +1201,13 @@ function addThing(g, e, refuse, done) {
     const why = declarationProblems(props);
     if (why.length) return refuse(`condition ${id}: ${why.join("; ")}`);
     (g.conditions ??= {})[id] = structuredClone(props);   // (made with the first: a game saved before conditions loads unchanged)
-  } else if (e.add === "word") {                   // a verb only this world needs: { verb: "row", words: [...] }
-    if (!e.verb || !Array.isArray(e.words) || !e.words.length) return refuse("a word needs a verb and words");
-    g.vocab[e.verb] = { words: e.words, object: e.object || "optional", ...(e.absent ? { absent: true } : {}), ...(e.speech ? { speech: true } : {}) };
+  } else if (e.add === "word") {                   // a verb only this world needs: { verb: "row", words: [...] }; or a reply, and more words, for one
+    // of the pack's (`order`: words optional). `reply`: what the verb says when no rule answers it (std_reply_word), a line or a list.
+    const own = Object.hasOwn(ACTIONS, e.verb);
+    if (!e.verb || (e.words !== undefined || !own) && (!Array.isArray(e.words) || !e.words.length)) return refuse("a word needs a verb and words (a verb of the game's own may have only a reply)");
+    if (e.reply !== undefined && !isLine(e.reply)) return refuse("a word's reply is a line, or a list of lines");
+    g.vocab[e.verb] = { words: e.words ?? [], object: e.object || "optional", ...(e.absent ? { absent: true } : {}), ...(e.speech ? { speech: true } : {}),
+                        ...(e.reply !== undefined ? { reply: structuredClone(e.reply) } : {}) };
   } else return refuse("can't add: " + e.add);
   done({ ...e });
 }

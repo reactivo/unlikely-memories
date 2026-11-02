@@ -6,15 +6,19 @@
 import { worldTime, parts, hhmm } from "./time.js";
 import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./fields.js";
 import { activeIds, conditionTone } from "./conditions.js";
+import { placeOf, noticed } from "./use.js";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
   const out = [];
+  let part = 0, aside;                                       // where the lines of this part of the moment start: your command's, or the world's own
   for (const e of applied) {
+    if (!!e.aside !== aside) { part = out.length; aside = !!e.aside; }
     const from = out.length;
     if (e.say) {
       // name: a thing, named in this language; things: several, with their gender and number, in order
-      const arg = e.things ? e.things.map(id => listName(id, state, pack)) : e.name ? listName(e.name, state, pack) : e.arg;
+      // marked: each is a clickable mark of the thing ("Inside: a {crank}."), the name as the pack would write it
+      const arg = e.things ? e.things.map(id => (e.marked ? `{${listName(id, state, pack)}|${id}}` : listName(id, state, pack))) : e.name ? listName(e.name, state, pack) : e.arg;
       const who = e.things ? e.things.map(id => whoOf(state.world.objects[id])) : e.who;
       // The death lines (the cause's words and one of the pack's lines, one paragraph) have their own style: red (log.css).
       let said = timed(text(e.say, pack, arg, e.pick, e.prev, who), state, pack, e.at, e.vals);
@@ -40,10 +44,83 @@ export function tell(applied, state, pack) {
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
     else if (e.describe === "status") out.push(statusLine(state, pack), ...conditionsLine(state, pack));
     else if (e.describe) out.push(...describe(state, e.describe, pack));
+    if (e.inView) out.push(...cameIntoView(out, part, e.inView, state, pack));   // what came into view: marked, or said where it lies
     if (e.aside) for (let i = from; i < out.length; i++) out[i] = { ...out[i], style: styled(out[i].style) };   // the world's own: set apart
   }
   return out;
 }
+
+// ---- What comes into view (decisions 14, 35, 36) ----------------------------------------------------------------
+// The things that came where you are in this part of the moment (the engine's `inView`: a rule's move, a lock's `opens`, a named change,
+// an added object…), so the player can click what just appeared without looking round first. Each is marked in the lines of the
+// moment (lines[from…]) at the first mention of its name or one of its nouns that isn't marked yet, nor inside quotes (what someone
+// says is a word in a sentence, not the thing) or a command; nothing is done for one a line marks already ("Inside: a {crank}.").
+// One no line names: a thing that can be taken gets the stock line, marked, at the end of the moment ("There is a {coin} here.",
+// one line for all of them), or its own `lies` line if it has one and has been taken (decision 38); a person or a fixture gets its `here`
+// line, if it has one, marked the same way; else nothing.
+// Changes lines[] in place; returns the lines to add.
+function cameIntoView(lines, from, ids, state, pack) {
+  const told = (i) => !/\b(sys|echo|status|death)\b/.test(lines[i].style || "");
+  const loose = [], added = [];
+  for (const id of ids) {
+    const o = state.world.objects[id];
+    if (!o) continue;
+    if (lines.slice(from).some(l => marks(l.text, id))) continue;
+    let done = false;
+    for (let i = from; i < lines.length && !done; i++) {
+      if (!told(i)) continue;
+      const t = markFirst(lines[i].text, id, state, pack);
+      if (t !== null) { lines[i] = { ...lines[i], text: t }; done = true; }
+    }
+    if (done) continue;
+    if (liesNow(state, id)) added.push({ text: markedLine(o.lies, id, state, pack) });
+    else if (o.portable === true) loose.push(id);
+    else if (hereNow(state, id) && placeOf(state, id) === o.at) added.push({ text: markedLine(o.here, id, state, pack) });
+  }
+  return loose.length ? [{ text: lyingLine(loose, state, pack) }, ...added] : added;
+}
+
+// A thing's own line (its `here`, its `lies`), said now and marked at the first mention of the thing if the world did not mark it.
+function markedLine(raw, id, state, pack) {
+  const t = timed(text(raw, pack), state, pack);
+  return marks(t, id) ? t : markFirst(t, id, state, pack) ?? t;
+}
+
+// Does a text mark this thing ({label|id}, or {id})?
+const marks = (t, id) => typeof t === "string" && (t.includes("|" + id + "}") || t.includes("{" + id + "}"));
+
+// A text with its first mention of a thing marked, `{label|id}`, or null if it names it nowhere a mark may go. The mention is its
+// name as a sentence says it ("old coin", "Mrs Hale") or one of its nouns, whichever comes first (the longer at the same place), and
+// it takes in the thing's own adjectives next to it ("the brass key", *la moneda antigua*), so a click names it plainly. Accents and
+// case don't count (the word lists are often written without accents: "pertiga" finds *pértiga*). Never inside another mark, a
+// `command`, or quotes ("…", «…», “…”).
+function markFirst(t, id, state, pack) {
+  if (typeof t !== "string") return null;
+  const o = state.world.objects[id], words = o.words || {};
+  const shut = [...t.matchAll(/\{[^}]*\}|`[^`]*`|"[^"]*"|«[^»]*»|“[^”]*”/g)].map(m => [m.index, m.index + m[0].length]);
+  const open = (i, j) => !shut.some(([a, b]) => i < b && j > a);
+  const plain = fold(t);
+  const names = [...new Set([listName(id, state, pack), ...(words.nouns || [])].map(n => fold(String(n).trim())).filter(Boolean))];
+  let best = null;
+  for (const n of names) {
+    const re = new RegExp(`(?<![\\p{L}\\p{N}])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}])`, "gu");
+    for (const m of plain.matchAll(re)) {
+      if (!open(m.index, m.index + n.length)) continue;
+      if (!best || m.index < best[0] || (m.index === best[0] && n.length > best[1] - best[0])) best = [m.index, m.index + n.length];
+      break;
+    }
+  }
+  if (!best) return null;
+  // Take in the thing's adjectives on either side (plain words of three letters or more: not "de", "of"), one space apart.
+  const adj = new Set((words.adj || []).map(a => fold(String(a))).filter(a => a.length >= 3 && !/\s/.test(a)));
+  let [i, j] = best;
+  for (let m; (m = /(\p{L}+) $/u.exec(plain.slice(0, i))) && adj.has(m[1]) && open(i - m[0].length, i);) i -= m[0].length;
+  for (let m; (m = /^ (\p{L}+)/u.exec(plain.slice(j))) && adj.has(m[1]) && open(j, j + m[0].length);) j += m[0].length;
+  return t.slice(0, i) + "{" + t.slice(i, j) + "|" + id + "}" + t.slice(j);
+}
+
+// A text folded for finding words in it, one character for one, so places in it are places in the text: lower case, accents off.
+const fold = (t) => String(t).split("").map(c => { const f = c.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase(); return f.length === 1 ? f : c.toLowerCase(); }).join("");
 
 // An echo's style: "echo text-echo echo-<kind>", and "tone-<tone>" when it has one (its colour: ui/log.css).
 const echoStyle = (kind, tone) => "echo text-echo echo-" + kind + (tone ? " tone-" + tone : "");
@@ -66,23 +143,62 @@ function hintText(e, pack) {
 // A command that solves a puzzle, in this game's language. It may start with a verb in braces, "{take} tin": the pack's
 // first word for that verb stands in its place ("coge tin"). "{enter+} door" puts the word the verb takes before its
 // object after it too, if the pack has one (`grammar.verbPreps`: Spanish "entrar en puerta"; English none: "enter door").
-// Any other command is returned as it is.
+// The two the engine words itself, `{take}` and `{enter+}` (the opening's own steps), are the pack's phrases for them
+// (`basic.take`, `basic.enterIn`), so they read as every command the engine words. Any other command is returned as it is.
+const BASIC = { take: "take", "enter+": "enterIn" };
 export function solveCommand(command, pack) {
-  return String(command).replace(/^\{(\w+)(\+?)\}/, (whole, verb, plus) => {
+  return String(command).replace(/^\{(\w+)(\+?)\}(?:\s+(.+))?/, (whole, verb, plus, rest) => {
+    const phrase = rest && pack.basic?.[BASIC[verb + plus]];
+    if (phrase) { const said = phrase(rest); return said.charAt(0).toLowerCase() + said.slice(1); }
     const word = pack.words.verbs[verb]?.[0], prep = plus && pack.words.grammar?.verbPreps?.[verb];
-    return word === undefined ? whole : prep ? word + " " + prep : word;
+    return word === undefined ? whole : (prep ? word + " " + prep : word) + (rest ? " " + rest : "");
   });
 }
 
-// A room's description: its paragraphs, then a line for each object lying there that has one (`here`).
+// A room's description: its paragraphs, then a line for each object lying there whose `here` is in force (hereNow) or that has its own
+// `lies` line and has been taken (liesNow), then one line for what can be taken and lies there with neither ("There is a {coin} and a
+// {key} here.": lyingLine), then where you are in it.
 export function describe(state, roomId, pack) {
   const room = state.world.rooms[roomId];
   const lines = room.describe.map(k => ({ text: timed(text(k, pack), state, pack) }));
-  for (const o of Object.values(state.world.objects)) if (o.at === roomId && o.here) lines.push({ text: timed(text(o.here, pack), state, pack) });
+  for (const [id, o] of Object.entries(state.world.objects)) if (o.at === roomId && (hereNow(state, id) || liesNow(state, id)))
+    lines.push({ text: timed(text(hereNow(state, id) ? o.here : o.lies, pack), state, pack) });
+  const loose = lyingIn(state, roomId);
+  if (loose.length) lines.push({ text: lyingLine(loose, state, pack) });
   const inside = state.player.in && state.world.objects[state.player.in];        // you're in or on something here
   if (inside && roomId === state.player.at)
     lines.push({ text: text(inside.enterable === "on" ? "@youAreOn" : "@youAreIn", pack, listName(state.player.in, state, pack), undefined, undefined, whoOf(inside)) });
   return lines;
+}
+
+// Is a thing's `here` line said where it lies? A thing that can be taken: until it is first taken (decision 33, Inform's initial
+// appearance: the line is for where it starts, "lies on the desk"; once it has been in your hands, wherever it is put down again, the
+// stock line says it lies there). A rule of the world that moves it before then (the oars that slide out of the hut) keeps it. A thing
+// that can't be taken, a person or a fixture: always (they come and go by the world's rules, and the world writes their line).
+export function hereNow(state, id) {
+  const o = state.world.objects[id];
+  return !!o?.here && (o.portable !== true || !state.seen?.held?.includes(id));
+}
+
+// Is a thing's `lies` line said where it lies (decision 38)? A thing that can be taken, once it has been taken: the same moment its
+// `here` stops, so exactly one of the two is in force for a thing that has both. It takes the place of the stock line.
+export function liesNow(state, id) {
+  const o = state.world.objects[id];
+  return !!o?.lies && o.portable === true && !!state.seen?.held?.includes(id);
+}
+
+// What the stock line of a room names (decision 15): the things that can be taken lying there (in the room itself, not inside
+// something: what a container holds is said when it is opened), in the world's order, with no `here` or `lies` in force, but not the thing
+// you are in or on, nor one marked `unnoticed` that nothing has brought up yet (it is there to be found).
+export function lyingIn(state, roomId) {
+  return Object.entries(state.world.objects).filter(([id, o]) => o.at === roomId && o.portable === true && !hereNow(state, id) && !liesNow(state, id) && id !== state.player.in
+    && noticed(state, id)).map(([id]) => id);
+}
+
+// The stock line for things lying in a room, each marked so it can be clicked: "There is a {coin} here.", "Aquí hay una {moneda} y
+// unos {remos}." (the pack's `lying`, with each thing's gender, number and proper-name mark, as the `inside` line has them).
+export function lyingLine(ids, state, pack) {
+  return text("@lying", pack, ids.map(id => `{${listName(id, state, pack)}|${id}}`), undefined, undefined, ids.map(id => whoOf(state.world.objects[id])));
 }
 
 // A list in a sentence: "A, B or C" (`last` is the pack's " or " or " and ").

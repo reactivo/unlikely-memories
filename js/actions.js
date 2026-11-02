@@ -45,6 +45,8 @@ export const ACTIONS = {
   use:       { object: "required" },
   eat:       { object: "required" },
   drink:     { object: "required" },
+  order:     { object: "optional", absent: true },   // "order tea": it isn't here yet (a thing that comes from someone: js/engine.js)
+  buy:       { object: "optional", absent: true },   // "buy a ticket": the same, for a thing that costs something
   // Moving yourself
   go:        { object: "none" },         // with a direction
   enter:     { object: "optional" },
