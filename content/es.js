@@ -266,6 +266,8 @@ export default {
   // El artículo y un nombre, por el género y el número de la cosa (o.words): para [way] en un texto, el camino de la apertura
   // ("la puerta giratoria"), y en los ecos de lo que obtienes y pierdes ("las últimas palabras").
   the,
+  // Una sala sin nombre propio: cómo la llaman la barra de título, el mapa y la pregunta de LOAD (js/narrator.js placeName, js/map.js).
+  place: "ALGÚN SITIO",
   // Un idioma sin mundo todavía: una sola sala, para que la partida tenga dónde estar.
   noWorld: { place: "NINGUNA PARTE", alt: "Un dibujo en blanco.",
              text: "Todavía no hay ningún mundo que jugar en este idioma. Vuelve a la lista de juegos y elige otro idioma." },
@@ -530,6 +532,7 @@ export default {
                            selos: { person: "le", thing: "los" }, selas: { person: "le", thing: "las" } } },
       speechTo: ["a", "al"],                       // a quién se dice: "di hola AL portero"
       askFor: [],                                  // pedir algo es «pide té», «pídele té a Dot» (ORDER); «pregunta a Dot por el té» es preguntar sobre ello
+      whom: ["a", "al"],                           // a quién se pregunta o se pide: «pregunta A Inés por el café», «pide A Inés un café»
       oneWords: ["uno", "una", "unos", "unas"],    // "la de hierro, UNA": responde a «¿Cuál quieres decir?» sin nombrar nada
       verbPreps: { enter: "en" },                  // lo que lleva un verbo antes de su objeto, en las pistas (`{enter+}`): «Entrar EN puerta»
       nameParts: ["del"],                          // pueden ser parte de un nombre: "la butaca DEL pasillo" es una sola cosa, no dos

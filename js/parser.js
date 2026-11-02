@@ -234,6 +234,7 @@ function vocabulary(words) {
     attached: w.grammar?.attached || null, secondObject: new Set(w.grammar?.secondObject || []),
     speechTo: new Set(w.grammar?.speechTo || []),
     askFor: new Set(w.grammar?.askFor || []),         // "ask Dot FOR tea": asking for a thing, not about it (decision 51)
+    whom: new Set(w.grammar?.whom || []),             // Spanish "pregunta A Inés", "pide A Inés un café": the person asked
     fromWords: phrases({ f: w.grammar?.fromWords || [] }),   // "take letter FROM bottle": where a thing is taken out of
     restart: phrases({ r: w.restart || [] }),         // "begin again", "new game": a command only after the end
     one: new Set(w.grammar?.oneWords || []),          // "the iron ONE": stands for the thing, names nothing
@@ -445,6 +446,7 @@ function readCommand(tokens, state, W, recent) {
     }
   }
 
+  if (W.whom.size && (verb === "ask" || verb === "order")) rest = whomPlaced(verb, rest, state, W);
   // The object(s): noun phrases joined by "and"; a preposition can introduce a second object ("with key").
   const objs = [], phrases = splitPhrases(rest, W, !!pronoun, (ws) => namesOne(ws, state, W));
   // Asking with no one named ("ask about the umbrella", "pregunta por la llave"): it goes to whoever you're talking
@@ -526,6 +528,30 @@ function readCommand(tokens, state, W, recent) {
   if (verb === "look") verb = "examine";                    // "look door", "mirar puerta"
   const extra = { ...(topic ? { prep, topic } : {}), ...(absent.length ? { absent } : {}), ...(verb === "ask" && W.askFor.has(prep) ? { askFor: true } : {}) };
   return { actions: objs.map(obj => (obj2 ? { verb, obj, prep, obj2, ...extra } : { verb, obj, ...extra })) };
+}
+
+// The person asked, named after the pack's `grammar.whom` (Spanish "a", "al"), put where the reading expects them, so they are the
+// one asked by name and not whoever you are talking to: first for ASK ("pregunta a Inés por el café", "pregunta por el café a Inés"
+// → "pregunta Inés por el café", as "ask Ines about coffee"), last for ORDER, the Spanish asking for ("pide a Inés un café" →
+// "pide un café a Inés", whose "a" names the source). Only someone with topics, here or not (one who isn't here is told so); any
+// other words are left as they are.
+function whomPlaced(verb, rest, state, W) {
+  const person = (ws) => { const r = ws.length ? resolve(ws, state, W, false, true) : {}; return !!(r.id && W.topics[r.id]); };
+  const upTo = (from) => { const i = rest.findIndex((t, j) => j >= from && W.preps.has(t)); return i < 0 ? rest.length : i; };
+  if (W.whom.has(rest[0])) {
+    // the longest run of words after "a" that names someone ("a la camarera"; "a Inés un café": Inés)
+    for (let end = upTo(1); end > 1; end--) {
+      if (!person(rest.slice(1, end))) continue;
+      const who = rest.slice(1, end), after = rest.slice(end);
+      if (verb === "ask") return [...who, ...after];
+      return after.length && !W.preps.has(after[0]) ? [...after, rest[0], ...who] : rest;
+    }
+    return rest;
+  }
+  // ASK about something, then whom: "pregunta por el café a Inés"
+  const at = rest.findLastIndex(t => W.whom.has(t));
+  if (verb === "ask" && at > 0 && W.preps.has(rest[0]) && person(rest.slice(at + 1))) return [...rest.slice(at + 1), ...rest.slice(0, at)];
+  return rest;
 }
 
 // Verbs that put a key to a lock.

@@ -352,12 +352,15 @@ export function check(state, pack, bible, { before = null } = {}) {
 
   // Food and drink is a consumable thing (BRIEF.md §5): the engine says its line, heals by its `heals`, starts or stops its
   // condition and uses it up (js/verbs.js, std_eat_it). What a world can still get wrong: a condition it names that doesn't exist (a
-  // problem) and a consumable that does nothing at all.
+  // problem), a consumable that does nothing at all, and one with no `eat` or `drink` line (it can be eaten or drunk, but EAT / DRINK
+  // is never offered: the offer comes from the line, js/view.js).
   for (const [id, o] of Object.entries(state.world.objects)) {
     if (o.consumable !== true) continue;
     for (const k of ["starts", "stops"]) if (o[k] != null && !state.conditions?.[o[k]]) problems.push(`${id}: ${k} "${o[k]}", but the world has no such condition`);
     if (!(o.heals > 0) && o.starts == null && o.stops == null)
       warnings.push(`${id}: consumable, but eating or drinking it does nothing; whatever is eaten or drunk does some good: heals: 1 (more only for something restorative)`);
+    if (o.eat == null && o.drink == null)
+      warnings.push(`${id}: consumable, but with no eat or drink line, so Eat / Drink is never offered (the offer comes from the line): write its "eat" or "drink" line`);
   }
   // A thing that comes from someone or something (decision 40): its source exists, and it starts nowhere (it comes when asked for).
   for (const [id, o] of Object.entries(state.world.objects)) {

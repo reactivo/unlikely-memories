@@ -234,6 +234,8 @@ export default {
   framed: (frame, hint) => `${frame} "${hint}"`,
   // "the" and a name, for [way] in a text: the way on from the opening ("the revolving door"); a proper name, bare.
   the,
+  // A room with no name of its own: what the title bar, the map and LOAD's question call it (js/narrator.js placeName, js/map.js).
+  place: "SOMEWHERE",
   // A language with no world yet: a single room, so the game still has somewhere to be.
   noWorld: { place: "NOWHERE", alt: "A blank picture.",
              text: "There is no world to play in this language yet. Go back to the list of games and choose another language." },
@@ -422,6 +424,7 @@ export default {
       attached: null,                              // pronouns joined to verbs: none in English
       speechTo: ["to", "at"],                      // who words are said to: "say hello TO the waiter"
       askFor: ["for"],                             // "ask Dot FOR tea", "ask for tea": asking for a thing (it comes), not about it
+      whom: [],                                    // the word before the person asked (Spanish "pregunta A Inés"); English names them bare: "ask Dot"
       oneWords: ["one", "ones"],                   // "the iron ONE": answers "Which do you mean?" without naming anything
       contractions: {},                            // words written out in full right after the verb (Spanish al, del): none
       verbPreps: {},                               // what a verb takes before its object, in hints (`{enter+}`): none ("enter door" reads fine)

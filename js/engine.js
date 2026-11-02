@@ -211,6 +211,10 @@ const answerText = (t) => (typeof t === "string" ? t.trim().slice(0, ANSWER_LENG
 
 // The question for words waiting (`ask`), if any: the one asked, or the one a yes/no question was asked over (`then`).
 export const askedFor = (state) => { const q = state.pending.question; return (q?.yesNo ? q.then : q) ?? null; };
+// Does an empty line count now? Only as the answer to a question for words waiting on top (`ask`). With nothing asked, at a
+// yes/no question (one asked over a question for words too: the yes/no one waits for yes or no) and after the end, a blank
+// Enter does nothing (js/main.js runCommand).
+export const takesBlank = (state) => !state.ended && !!state.pending.question && !state.pending.question.yesNo;
 // The state with no yes/no question waiting, as a session command leaves it (UNDO, SAVE, MAP…): a question for words stays open.
 export const withoutYesNo = (state) => (state.pending.question?.yesNo ? { ...state, pending: { ...state.pending, question: state.pending.question.then ?? null } } : state);
 

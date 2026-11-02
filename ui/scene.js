@@ -12,6 +12,7 @@ import { paintPicture, compose, overlaysShown, overlayAlt, RGB } from "./draw.js
 import { CYCLES, FILTERS, MOVING } from "./effects.js";
 import { parseFilter, inOrder } from "../js/filters.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
+import { text } from "../js/narrator.js";                  // "@key" → the pack's text, dotted keys too, as the story says it
 
 const W = art.picture.width, H = art.picture.height;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -142,5 +143,3 @@ function rectPixels([x0, y0, w, h]) {
   return out;
 }
 
-// "@key" → the pack's text (the picture's descriptions live in the room texts).
-const text = (t, pack) => (typeof t === "string" && t.startsWith("@") ? pack[t.slice(1)] ?? "" : t);

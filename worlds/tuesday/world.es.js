@@ -616,7 +616,10 @@ const rules = [
   // La ventanilla de billetes tiene su horario (de nueve de la noche a seis de la mañana).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
     do: [{ say: "El postigo está levantado. Tras la reja, la taquillera espera con su sacabocados. El cartel dice: UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA." }] },
-  { id: "buy_ticket_shut", match: { verb: "buy", obj: [null, "ticket", "window", "booking_clerk"] }, if: [at("station_hall"), notHours(21, 6)],
+  // Comprar con la ventanilla cerrada: el postigo. Si ya tienes billete, COMPRAR (BILLETE) es la línea `already` del billete, como la dice PEDIR BILLETE.
+  { id: "buy_ticket_shut", match: { verb: "buy", obj: [null, "ticket"] }, if: [at("station_hall"), notHours(21, 6), { "ticket.at": { "!=": "player" } }],
+    do: [{ say: "El postigo está bajado. El cartel dice: BILLETES DESDE LAS 21:00." }] },
+  { id: "buy_window_shut", match: { verb: "buy", obj: ["window", "booking_clerk"] }, if: [at("station_hall"), notHours(21, 6)],
     do: [{ say: "El postigo está bajado. El cartel dice: BILLETES DESDE LAS 21:00." }] },
   // La taquillera está en su ventanilla mientras está abierta.
   { id: "clerk_in", when: "at", at: "21:00", do: [{ move: "booking_clerk", to: "station_hall" }] },

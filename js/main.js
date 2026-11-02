@@ -6,7 +6,7 @@
 import en from "../content/en.js";
 import es from "../content/es.js";
 import { newState, FORMAT } from "./state.js";
-import { step, nextDue, ask, askedFor, withoutYesNo } from "./engine.js";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js";
 import { parse, normalise, retype, inScope } from "./parser.js";
 import { tell, describe, text, listName, placeName, joined } from "./narrator.js";
 import { parts, hhmm } from "./time.js";
@@ -129,11 +129,12 @@ function redraw(reason) {
 function runCommand(raw, kept = raw) {
   if (restarting) return;                                // a new game is about to start
   ui.prompt.remember(kept);                              // (the history ignores empty lines)
-  if (!raw.trim() && !askedFor(state)) return;           // ignore empty input (unless a question for words waits: it is the answer)
+  const blank = !raw.trim();
+  if (blank && !takesBlank(state)) return;               // a blank Enter does nothing (unless a question for words waits: it is the answer)
   const from = state.player.at;
   turnStart = null;
   ui.prompt.clearHint();                                 // a command: the hint steps aside (it comes back after two idle minutes)
-  echo("> " + raw);
+  if (!blank) echo("> " + raw);                          // (a blank answer has no echo: never a lone ">" in the story)
   play(raw);
   enteredRoom(from);
   ui.log.toEnd();

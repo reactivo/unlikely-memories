@@ -610,7 +610,10 @@ const rules = [
   // The ticket window keeps its hours (nine in the evening to six in the morning).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
     do: [{ say: "The shutter is up. Behind the grille, the booking clerk waits with her punch. The card says: ONE FARE: ONE COIN. OLD CURRENCY ONLY." }] },
-  { id: "buy_ticket_shut", match: { verb: "buy", obj: [null, "ticket", "window", "booking_clerk"] }, if: [at("station_hall"), notHours(21, 6)],
+  // Buying at the shut window: the shutter. While you hold a ticket, BUY (TICKET) is the ticket's `already` line, as ORDER TICKET says it.
+  { id: "buy_ticket_shut", match: { verb: "buy", obj: [null, "ticket"] }, if: [at("station_hall"), notHours(21, 6), { "ticket.at": { "!=": "player" } }],
+    do: [{ say: "The shutter is down. The card says: TICKETS FROM 21:00." }] },
+  { id: "buy_window_shut", match: { verb: "buy", obj: ["window", "booking_clerk"] }, if: [at("station_hall"), notHours(21, 6)],
     do: [{ say: "The shutter is down. The card says: TICKETS FROM 21:00." }] },
   // The booking clerk is at her window while it's open.
   { id: "clerk_in", when: "at", at: "21:00", do: [{ move: "booking_clerk", to: "station_hall" }] },
