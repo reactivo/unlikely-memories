@@ -27,7 +27,7 @@ export default {
     // Picture filters (ui/effects.js, FILTERS; js/filters.js): drawn on the scene's own 320×136 pixels while the state has
     // them on (the `filter` effect; a condition's `filters`). Each one's tunables, all sizes in picture pixels. The order
     // here is the order they are drawn in when several are on, whatever order they came on in: first what changes the
-    // picture itself (mosaic), then what moves it (sway, shake), then what lies over it (ghost, static, vignette), and
+    // picture itself (mosaic), then what moves it (sway, shake, wave), then what lies over it (ghost, static, vignette), and
     // last the colours (tint), so a tint colours everything, the static and the dark edges too.
     filters: {
       // Bigger blocks, less detail (dazed, half-asleep, a poor memory): each block shows the colour at its middle.
@@ -38,9 +38,15 @@ export default {
       // still: with reduce motion, the wave held at this phase (0 to 1), so the picture is still visibly off.
       sway: { amplitude: 3, rows: 48, ms: 4200, still: 0.25 },
       // A jolt of the whole picture, once (a blow, a fall, a door slammed, a quake): it shakes, less and less, and is still
-      // again. amplitude: the furthest it moves; ms: how long it lasts; shakes: how many times it goes back and forth.
+      // again. amplitude: the furthest it moves; ms: how long it lasts; shakes: how many times it goes back and forth;
+      // ease: 1 an even jolt; more, the most of it at once, then slowing down as it dies away (2 eases out).
       // Off with reduce motion (the story says what happened).
-      shake: { amplitude: 4, ms: 450, shakes: 5 },
+      shake: { amplitude: 4, ms: 450, shakes: 5, ease: 1 },
+      // A ripple, once (relief, a breath, something soothing): the rows slide sideways on a short wave, as in sway but gentler,
+      // that runs down the picture and dies away. amplitude: the furthest a row moves; rows: the wave's length in rows;
+      // ms: how long it lasts; travel: how many waves run past in that time; rise: the share of it the wave takes to swell;
+      // fade: how it dies away after that (1 evenly to nothing at the end; less, it stays fuller for longer). Off with reduce motion.
+      wave: { amplitude: 2, rows: 40, ms: 2100, travel: 1, rise: 0.15, fade: 0.5 },
       // Seeing double (drunk, concussed, a ghost of yourself): a second copy of the picture, dx, dy off, drawn through a
       // checkerboard so it reads as see-through. Still by nature.
       ghost: { dx: 2, dy: 1 },
@@ -65,6 +71,17 @@ export default {
                    "#949492", "#9494DF", "#94E192", "#94E1DF", "#E19492", "#E194DF", "#E1E192", "#E1E1DF"]    // washed out
         }
       }
+    },
+    // Reactions (INTERFACE.md §6c): what the picture does when you are hurt or healed, whatever did it (the engine counts them
+    // in state.reactions; a world writes nothing). Each is one of the moments above, `filter`, with these tunables in place of
+    // its own. The page background flashes with it (css/base.css; its colours and timings: css/tokens.css), and the picture's
+    // part lasts longer than the flash, so it lingers after it. A death is a hurt: its jolt plays, then the ending's picture.
+    // Off with reduce motion (the flash stays, softer).
+    reactions: {
+      // Hurt: a jolt that hits with the flash and slows as it dies away, past the flash's end.
+      hurt: { filter: "shake", ms: 1000, shakes: 6, ease: 1.5 },
+      // Healed: one calm ripple down the picture, long after the flash has gone.
+      heal: { filter: "wave", ms: 2100 }
     }
   }
 };

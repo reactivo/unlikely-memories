@@ -8,9 +8,12 @@
 //   "tint:<palette>"                                  the same, with the palette after a colon ("tint:cold"); one tint at
 //                                                     a time (a new one takes the old one's place); { "unfilter": "tint" }
 //                                                     turns off whichever is on, "tint:cold" only that one;
-//   "shake"                                           a moment, not a state: a jolt of the picture, once, then gone. It is
-//                                                     never kept on (state.shakes counts the jolts, so the scene sees a new
-//                                                     one), so it can't be turned off, nor be one of a condition's filters.
+//   "shake", "wave"                                   a moment, not a state: a jolt of the picture (shake) or a ripple down it
+//                                                     (wave), once, then gone. It is never kept on (state.shakes and
+//                                                     state.waves count them, so the scene sees a new one: COUNTS), so it
+//                                                     can't be turned off, nor be one of a condition's filters.
+// (The reactions to a hurt and a heal play a shake and a wave too, with tunables of their own: the engine counts those in
+// state.reactions, not here; content/art.js, effects.reactions.)
 
 import art from "../content/art.js";
 
@@ -19,8 +22,9 @@ const TUNED = art.effects.filters;
 export const ORDER = Object.keys(TUNED);
 // The filters that take a parameter, and the values it may have.
 export const PARAMS = { tint: Object.keys(TUNED.tint?.palettes || {}) };
-// The filters that are a moment rather than a state.
-export const MOMENTS = ["shake"];
+// The filters that are a moment rather than a state, and the key of the state that counts each one.
+export const COUNTS = { shake: "shakes", wave: "waves" };
+export const MOMENTS = Object.keys(COUNTS);
 
 // A filter's name and parameter: "tint:cold" → { name: "tint", param: "cold" }; "sway" → { name: "sway", param: null }.
 export function parseFilter(spec) {

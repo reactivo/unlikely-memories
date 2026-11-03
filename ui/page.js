@@ -1,7 +1,9 @@
 // Page-wide details that belong to no single piece: the page language, which view is shown (the list of games or the
 // game: css/layout.css reads data-view), whether the tab is visible (the game clock pauses while it's hidden), and when
 // the page is left (a waiting save is written), how much of the window the parts that stick take up (see followBars),
-// and, on phones, whether you are typing (see followTyping).
+// on phones, whether you are typing (see followTyping), and the background's flash when you are hurt or healed (see flash).
+
+import { reactionOf } from "./effects.js";
 
 // Phones and tablets (no hover, a coarse pointer: asked of the device, not of the window's width). Only they have an
 // on-screen keyboard; on a computer followTyping does nothing.
@@ -62,6 +64,22 @@ function followTyping(root) {
   update();
 }
 
+// The page's reaction to a hurt or a heal (INTERFACE.md §6c, "Reactions"): data-reaction="hurt" or "heal" on <html> for as long
+// as its flash runs, and css/base.css does the rest (the whole page background takes a little of the hurt or healed colour and
+// fades back; its colours and timings are css/tokens.css's; softer with reduce motion). A new one starts it afresh. The
+// picture's own part is ui/scene.js's. Returns play(kind).
+function flash(root) {
+  const html = root.documentElement;
+  html.addEventListener("animationend", (e) => {
+    if (e.target === html && e.animationName.startsWith("reaction-")) html.removeAttribute("data-reaction");
+  });
+  return (kind) => {
+    html.removeAttribute("data-reaction");
+    void getComputedStyle(html).animationName;   // (the style as it is without it, so the same flash again starts from the top)
+    html.dataset.reaction = kind;
+  };
+}
+
 // Set up on the document. Returns update() and show().
 export function mount(root, on) {
   // The game puts the page where it should be itself (ui/log.js: a room's first line under the picture, the newest text). The
@@ -72,6 +90,7 @@ export function mount(root, on) {
   window.addEventListener("pagehide", () => on.leaving());     // reload, closed tab: save what's waiting
   const measure = followBars(root);
   followTyping(root);
+  const react = flash(root);
   return {
     // Show one view, "home" or "game", in a language: an open panel (map, options) closes with the game.
     show(view, lang) {
@@ -81,8 +100,10 @@ export function mount(root, on) {
       root.documentElement.lang = lang;
       measure();   // the page was not drawn a moment ago: measure it now, not when the observer next reports (a restored game scrolls at once)
     },
-    // On a language change: <html lang> (for screen readers and hyphenation).
-    update(prev, next) {
+    // On a language change: <html lang> (for screen readers and hyphenation). A hurt or a heal just played: its flash.
+    update(prev, next, reason) {
+      const kind = reactionOf(prev, next, reason);
+      if (kind) react(kind);
       if (prev && prev.state.lang === next.state.lang) return;
       root.documentElement.lang = next.state.lang;
     }

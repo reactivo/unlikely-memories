@@ -9,13 +9,14 @@
 
 import art from "../content/art.js";
 import { paintPicture, compose, overlaysShown, overlayAlt, RGB } from "./draw.js";
-import { CYCLES, FILTERS, MOVING } from "./effects.js";
-import { parseFilter, inOrder } from "../js/filters.js";
+import { CYCLES, FILTERS, MOVING, reactionOf } from "./effects.js";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
 import { text } from "../js/narrator.js";                  // "@key" → the pack's text, dotted keys too, as the story says it
 
 const W = art.picture.width, H = art.picture.height;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const calm = () => art.effects.respectReducedMotion && reducedMotion.matches;   // the game's own reduce motion
 
 // Set up the picture on its element (.picture). Returns update().
 export function mount(root) {
@@ -33,9 +34,7 @@ export function mount(root) {
   let lastSteps = "";            // the cycles' steps last drawn (redraw only when one moves)
   let filters = [];              // the picture filters on (state.filters: js/filters.js), in the order they are drawn
   const since = new Map();       // when each filter on came on (its moving forms run from then)
-  let shakeAt = null;            // when the jolt now running (`shake`, a moment: state.shakes counts them) began
-
-  const calm = () => art.effects.respectReducedMotion && reducedMotion.matches;
+  let moment = null;             // the moment now playing, once (a shake, a wave): { name, o: its tunables, at: when it began }
 
   // Paint (or reuse) a room's picture.
   function base(roomId, picture) {
@@ -75,11 +74,11 @@ export function mount(root) {
     lastSteps = steps.join();
     // The picture filters, in their order (content/art.js), on the picture's own pixels; a tint swaps the colours.
     let pic = { px: out, w: W, h: H, rgb: RGB };
-    for (const f of inOrder(shakeAt === null ? filters : [...filters, "shake"])) {
-      const { name, param } = parseFilter(f);
-      if (FILTERS[name]) pic = FILTERS[name](pic, art.effects.filters[name], now - (f === "shake" ? shakeAt : since.get(f) ?? now), calm(), param);
+    for (const f of inOrder(moment ? [...filters, moment.name] : filters)) {
+      const { name, param } = parseFilter(f), own = f === moment?.name;
+      if (FILTERS[name]) pic = FILTERS[name](pic, own ? moment.o : art.effects.filters[name], now - (own ? moment.at : since.get(f) ?? now), calm(), param);
     }
-    if (shakeAt !== null && (calm() || now - shakeAt >= art.effects.filters.shake.ms)) shakeAt = null;   // the jolt is over (this frame shows it still)
+    if (moment && (calm() || now - moment.at >= moment.o.ms)) moment = null;   // the moment is over (this frame shows it still)
     out = pic.px;
     for (let k = 0; k < out.length; k++) {
       const [r, g, b] = pic.rgb[out[k]];
@@ -92,7 +91,7 @@ export function mount(root) {
   // pauses animation frames by itself).
   function tick(now) {
     const steps = stepsAt(now);
-    const moving = shakeAt !== null || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
+    const moving = moment !== null || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
     if (change || steps.join() !== lastSteps || moving) render(now, steps);   // nothing moved: leave the canvas as it is
     loop = (change || moving || (cycles.length && !calm())) ? requestAnimationFrame(tick) : 0;
   }
@@ -111,12 +110,12 @@ export function mount(root) {
       const shown = overlaysShown(picture, s, roomId);
       // The description for screen readers: the room's or the ending's, plus a line for each overlay drawn (the room's `overlayAlt`).
       canvas.setAttribute("aria-label", [end ? end.alt : room.alt, ...shown.map(o => overlayAlt(room, o))].filter(Boolean).map(t => text(t, next.pack)).join(" "));
-      // The picture filters on (none on an ending's picture: it is a shot of its own), and a new jolt (`shake`) to play, unless
-      // this is a restore (undo, load: a jolt already seen) or motion is reduced.
+      // The picture filters on (none on an ending's picture: it is a shot of its own), and a new moment to play (below).
       const on = end ? [] : inOrder((s.filters || []).filter(f => FILTERS[parseFilter(f).name]));
       const key = where + "#" + picture.version + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
-      if (!end && reason !== "restore" && !calm() && (s.shakes ?? 0) > (prev?.state?.shakes ?? 0)) shakeAt = performance.now();
-      if (key === drawnKey) return shakeAt !== null ? animate() : undefined;
+      const played = playing(prev, next, reason, !!end);
+      if (played) moment = played;
+      if (key === drawnKey) return moment ? animate() : undefined;
       for (const f of [...since.keys()]) if (!on.includes(f)) since.delete(f);
       for (const f of on) if (!since.has(f)) since.set(f, performance.now());
       filters = on;
@@ -126,7 +125,8 @@ export function mount(root) {
       const t = transition(end ? ENDING : ROOM);
       if (old && reason !== "restore" && !calm() && t.ms > 0) {
         from = change ? from : old;
-        change = { ...t, start: performance.now() };
+        // (A death's jolt plays on the room's picture first; the ending's picture comes in after it.)
+        change = { ...t, start: performance.now() + (end && played ? played.o.ms : 0) };
       } else { change = null; from = null; }
       if (drawnKey === null || !drawnKey.startsWith(where + "#" + picture.version + "|")) cycles = prepare(picture, areas);
       drawnKey = key;
@@ -134,6 +134,22 @@ export function mount(root) {
       animate();
     }
   };
+}
+
+// The moment a redraw starts, or null: the reaction to a hurt or a heal (ui/effects.js, reactionOf), with its own tunables
+// (content/art.js, effects.reactions), even as the story ends (a death's jolt); else a world's own shake or wave
+// (state.shakes, state.waves: js/filters.js), but not on an ending's picture. One at a time: a reaction wins, then the
+// first in COUNTS's order. None on a restore (undo, load: a moment already seen) nor with reduced motion.
+function playing(prev, next, reason, ending) {
+  if (reason === "restore" || calm()) return null;
+  const r = reactionOf(prev, next, reason);
+  if (r) {
+    const { filter, ...own } = art.effects.reactions[r];
+    return { name: filter, o: { ...art.effects.filters[filter], ...own }, at: performance.now() };
+  }
+  if (ending) return null;
+  const name = Object.keys(COUNTS).find(m => (next.state[COUNTS[m]] ?? 0) > (prev?.state?.[COUNTS[m]] ?? 0));
+  return name ? { name, o: art.effects.filters[name], at: performance.now() } : null;
 }
 
 // The pixels of a rectangle area [x, y, width, height].

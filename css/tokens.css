@@ -22,6 +22,15 @@
   initial-value: 1.6667;
 }
 
+/* The page background's flash when you are hurt or healed (css/base.css, "Reactions") moves one number, --reaction: how much of
+   the hurt or healed colour the background takes, 0% at rest. Registered as a percentage so that it can be animated. Its
+   strengths and timings are here, with the colours and the durations. */
+@property --reaction {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
 @layer tokens {
   :root {
 
@@ -49,7 +58,8 @@
        A short list of purposes, never named after one piece. Each piece's CSS defines its own variables (e.g.
        --exit-closed in ui/compass.css) that point at these roles; nothing outside this file uses a --palette colour.
        Three layers: palette (what the colour is) → role (what it's for) → piece variable (what it means in that piece). */
-    --color-bg:            var(--palette-ink-950);    /* the page background */
+    --color-bg:            var(--color-bg-rest);      /* the page background: at rest, or flashing when you are hurt or healed (css/base.css) */
+    --color-bg-rest:       var(--palette-ink-950);    /* the page background at rest: the page's own colour, change it here */
     --color-surface:       var(--palette-ink-900);    /* raised areas: buttons, tabs, tiles, filled slots, outlines */
     --color-surface-faint: var(--palette-ink-925);    /* barely raised: tiles that do nothing (the compass corners) */
     --color-text:          var(--palette-paper-50);   /* main text, and anything bright: the cursor, open exits, hovers */
@@ -62,6 +72,12 @@
     --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health, and the death lines */
     --color-healed:        var(--palette-green-400);  /* the echo when you get health back */
     --color-neutral:       var(--palette-orange-400); /* a change that is neither harm nor healing: a condition that does neither */
+
+    /* The reactions (INTERFACE.md §6c): when you are hurt or healed the whole page background takes a little of the hurt or
+       the healed colour, and fades back (css/base.css; the picture's own part: content/art.js, effects.reactions). How much,
+       at its height; with reduce motion, half of it. The timings: --duration-hurt and --duration-heal, below. */
+    --reaction-hurt:       25%;   /* of --color-hurt, at once */
+    --reaction-heal:       12%;   /* of --color-healed, rising and falling */
 
     /* ---- Text sizes ----
        Phones first, windows big enough for the strip further down. Plain pixels; browser zoom still scales them.
@@ -103,13 +119,15 @@
     /* ---- Durations ----
        Motion that shows a change in the game (an item arriving, an exit opening…): the timing is here, the look is
        in the piece's own CSS (its @keyframes), and the script only says *that* something changed. Then the two steady
-       blinks (the cursor, the clock's colons). Everything stops with the system's reduce motion setting; restores (new
-       game, undo, a loaded game) don't move. */
+       blinks (the cursor, the clock's colons). Everything stops with the system's reduce motion setting (the hurt and
+       healed flashes only soften: css/base.css); restores (new game, undo, a loaded game) don't move. */
     --duration-phrase:      450ms;   /* each phrase of story text fades in over this time (ui/log.css; gaps in ui/log.js) */
     --duration-arrive:      420ms;   /* an item appearing in its inventory slot (ui/inventory.css) */
     --duration-depart:      300ms;   /* an item leaving its slot (ui/inventory.css) */
     --duration-exit-change: 720ms;   /* an exit that opens or closes blinks (ui/compass.css) */
     --duration-fold:        250ms;   /* the picture on an upright phone folds to the whole scene, or opens to its crop (css/layout.css) */
+    --duration-hurt:        500ms;   /* hurt: the page background flashes red at once and fades back over this time (css/base.css) */
+    --duration-heal:        1.4s;    /* healed: the page background rises to green and fades back over this time (css/base.css) */
     --duration-cursor:      1.06s;   /* the command line's block cursor blinks once (ui/prompt.css) */
     --duration-colon:       2s;      /* the clock's colons blink once (ui/titlebar.css) */
 

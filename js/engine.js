@@ -13,7 +13,7 @@ import { translate as translateUse, placeOf, chainOf, shut, isAction, person, ho
 import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer, ENGINE_ECHOES, grammarOf, isLine, hasSprite } from "./fields.js";
 import { ACTIONS } from "./actions.js";
 import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js";
-import { filterProblem, parseFilter, switched, MOMENTS } from "./filters.js";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js";
 import { spoken, slurring, slur, answerLine } from "./speech.js";
 import { movementNow, stray } from "./movement.js";
 
@@ -111,8 +111,22 @@ export function step(state, input) {
     if (!out.applied.some(dying)) echo(x => out.applied.push(x), g, "hurt", 0);   // (and the echo of it)
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
+  felt(g, out.applied);
   const { viewed, lists, drawn, ...told } = out;   // (the moment's own bookkeeping)
   return { next: g, ...told };
+}
+
+// The page's reaction to the moment (INTERFACE.md §6c, "Reactions"): a moment with a hurt in it (a red health echo, whatever
+// caused it: a rule's hurt, a condition's tick, a death) adds one to state.reactions.hurt; one with a heal and no hurt (a green
+// health echo: a rule's heal, something eaten, a heal at full health too) adds one to state.reactions.heal. One a moment,
+// however many hurts and heals it had, and a hurt wins. The screen plays each new one once (ui/effects.js, reactionOf); a
+// world writes nothing for it. Made with the first one, so a game that was never hurt nor healed has no key (as `shakes`).
+function felt(g, applied) {
+  const kind = (k) => applied.some(e => "echo" in e && e.kind === k);
+  const r = kind("hurt") ? "hurt" : kind("healed") ? "heal" : null;
+  if (!r) return;
+  g.reactions = { hurt: 0, heal: 0, ...g.reactions };
+  g.reactions[r]++;
 }
 
 // The same effects with the echoes moved after the story's lines, in this order: things lost, things gained, the
@@ -870,8 +884,9 @@ function apply(g, e, action, out, key) {
     const on = "filter" in e, name = fill(g, on ? e.filter : e.unfilter, action);
     const why = filterProblem(name, { off: !on });
     if (why) return refuse(why);
-    if (MOMENTS.includes(parseFilter(name).name)) {  // a moment (shake): counted, never kept on; the scene plays each new one once
-      g.shakes = (g.shakes ?? 0) + 1;
+    if (MOMENTS.includes(parseFilter(name).name)) {  // a moment (shake, wave): counted, never kept on; the scene plays each new one once
+      const count = COUNTS[parseFilter(name).name];
+      g[count] = (g[count] ?? 0) + 1;
       return done({ filter: name });
     }
     const now = g.filters || [], next = switched(now, name, on);

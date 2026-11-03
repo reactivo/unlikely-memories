@@ -38,7 +38,7 @@ export const CYCLES = {
 // picture to show (a new one: it never changes what it is given). Several on: drawn one after another in content/art.js's
 // order. Cheap (one pass over the pixels), language-free, never the game's state; their randomness is a hash of the
 // pixel and the moment, so the same moment draws the same. With reduced motion each holds still in a way that still shows,
-// except shake, which is then off.
+// except the moments (shake, wave), which are then off.
 export const FILTERS = {
   // Bigger blocks, less detail: each block of o.block pixels shows the colour at its middle.
   mosaic: (pic, o) => {
@@ -59,12 +59,27 @@ export const FILTERS = {
     return { ...pic, px: out };
   },
   // A jolt, once: the whole picture shakes back and forth, less and less, for o.ms after it came on (black shows at the
-  // edge it leaves). Then, and with reduced motion, nothing.
+  // edge it leaves). o.ease above 1 runs it on eased time, so most of it comes at once and it slows as it dies away. Then,
+  // and with reduced motion, nothing.
   shake: (pic, o, t, calm) => {
     if (calm || t >= o.ms) return pic;
-    const p = t / o.ms, fade = 1 - p, turn = 2 * Math.PI * o.shakes * p;
+    const p = 1 - (1 - t / o.ms) ** (o.ease ?? 1), fade = 1 - p, turn = 2 * Math.PI * o.shakes * p;
     const dx = Math.round(o.amplitude * fade * Math.sin(turn)), dy = Math.round(o.amplitude * 0.5 * fade * Math.sin(turn * 1.7));
     return { ...pic, px: shifted(pic, dx, dy, 0) };
+  },
+  // A ripple, once: as sway, each row slides sideways along a wave, but a short gentle one that runs down the picture
+  // (o.travel waves in its o.ms), swells over the first o.rise of it and fades to nothing at the end (as (1 − time)
+  // to the power o.fade). Then, and with
+  // reduced motion, nothing.
+  wave: (pic, o, t, calm) => {
+    if (calm || t >= o.ms) return pic;
+    const { px, w, h } = pic, out = new Array(px.length), p = t / o.ms;
+    const swell = Math.sin(Math.PI / 2 * Math.min(1, p / o.rise)) * (1 - p) ** o.fade;
+    for (let y = 0; y < h; y++) {
+      const dx = Math.round(o.amplitude * swell * Math.sin(2 * Math.PI * (y / o.rows - p * o.travel)));
+      for (let x = 0; x < w; x++) out[y * w + x] = px[y * w + Math.min(w - 1, Math.max(0, x - dx))];
+    }
+    return { ...pic, px: out };
   },
   // Seeing double: a second copy o.dx, o.dy off, drawn on every other pixel (a checkerboard), so it reads as see-through.
   ghost: (pic, o) => {
@@ -98,7 +113,19 @@ export const FILTERS = {
 
 // The filters that move (the scene redraws them every frame while they are on, unless motion is reduced); the others are
 // drawn once, when they come on.
-export const MOVING = new Set(["sway", "shake", "static"]);
+export const MOVING = new Set(["sway", "shake", "wave", "static"]);
+
+// The reaction a redraw brings (INTERFACE.md §6c, "Reactions"): "hurt" when state.reactions.hurt went up since the screen
+// last showed the game, else "heal" when state.reactions.heal did, else null; never on a restore (new game, undo, a loaded
+// game: a moment already seen, or none), only for a moment just played (a turn or a tick). The engine counts them (one a
+// moment, a hurt winning: js/engine.js, felt); the picture (ui/scene.js) and the page's background (ui/page.js) each play it.
+export function reactionOf(prev, next, reason) {
+  if (reason === "restore" || !prev) return null;
+  const was = prev.state?.reactions, now = next.state?.reactions;
+  if ((now?.hurt ?? 0) > (was?.hurt ?? 0)) return "hurt";
+  if ((now?.heal ?? 0) > (was?.heal ?? 0)) return "heal";
+  return null;
+}
 
 // The picture's pixels moved dx right and dy down; where nothing comes in, `blank`.
 function shifted({ px, w, h }, dx, dy, blank) {

@@ -1,4 +1,4 @@
-/* BASE: the page itself (colour, background, margins, side padding).
+/* BASE: the page itself (colour, background, margins, side padding), and its background's flash when you are hurt or healed.
 
    NOT in a layer, on purpose: the published artifact wraps the page in its own unlayered styles (white background,
    black text, its own font on html/body), and unlayered styles always beat layered ones. These few page rules stay
@@ -46,4 +46,64 @@ body {
   /* Side gutters only: the layout pads itself top and bottom (layout.css). */
   padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
   padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+/* Reactions (INTERFACE.md §6c): while you are hurt or healed, ui/page.js puts data-reaction="hurt" or "heal" on <html> for as
+   long as its flash runs. The page background, --color-bg, then takes --reaction of the hurt or the healed colour. Every
+   part of the page that shows the background reads that one variable (html and body, the sticky top and bottom, the fade
+   above the prompt, their edges, the panels), so all of it flashes together and evenly. --reaction is the one thing that
+   moves (registered in css/tokens.css, with the strengths and the timings). Hurt: at once, then back over --duration-hurt.
+   Healed: up and back over --duration-heal. With reduce motion each is half as strong, and a hurt rises and falls as slowly
+   as a heal, with no sudden start. Here, not in a layer, so it is the page's background that changes whatever else sets it. */
+:root[data-reaction] {
+  --color-bg: color-mix(in srgb, var(--reaction-color) var(--reaction), var(--color-bg-rest));
+}
+
+:root[data-reaction="hurt"] {
+  --reaction-color: var(--color-hurt);
+  animation: reaction-hurt var(--duration-hurt) ease-out;
+}
+
+:root[data-reaction="heal"] {
+  --reaction-color: var(--color-healed);
+  animation: reaction-heal var(--duration-heal) ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-reaction="hurt"] {
+    animation-name: reaction-hurt-calm;
+    animation-duration: var(--duration-heal);
+    animation-timing-function: ease-in-out;
+  }
+
+  :root[data-reaction="heal"] {
+    animation-name: reaction-heal-calm;
+  }
+}
+
+/* Hurt: at full strength at once, back to nothing at the end. */
+@keyframes reaction-hurt {
+  from {
+    --reaction: var(--reaction-hurt);
+  }
+}
+
+/* Healed: from nothing, up to full strength a third of the way through, back to nothing. */
+@keyframes reaction-heal {
+  35% {
+    --reaction: var(--reaction-heal);
+  }
+}
+
+/* With reduce motion: the same, half as strong, and the hurt rises and falls like the heal (and as slowly: above). */
+@keyframes reaction-hurt-calm {
+  35% {
+    --reaction: calc(var(--reaction-hurt) / 2);
+  }
+}
+
+@keyframes reaction-heal-calm {
+  35% {
+    --reaction: calc(var(--reaction-heal) / 2);
+  }
 }
