@@ -16,7 +16,12 @@ import { text } from "../js/narrator.js";                  // "@key" → the pac
 
 const W = art.picture.width, H = art.picture.height;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-const calm = () => art.effects.respectReducedMotion && reducedMotion.matches;   // the game's own reduce motion
+// The game's own reduce motion: the system's setting, unless <html data-motion> says "reduce" or "full" (the debug panel's
+// setting, ui/debug.js; nothing else sets it).
+const calm = () => {
+  const forced = document.documentElement.dataset.motion;
+  return forced ? forced === "reduce" : art.effects.respectReducedMotion && reducedMotion.matches;
+};
 
 // Set up the picture on its element (.picture). Returns update().
 export function mount(root) {
@@ -96,7 +101,9 @@ export function mount(root) {
     loop = (change || moving || (cycles.length && !calm())) ? requestAnimationFrame(tick) : 0;
   }
   const animate = () => { if (!loop) loop = requestAnimationFrame(tick); };
-  reducedMotion.addEventListener("change", () => { if (frame) { render(performance.now()); animate(); } });
+  const motionChanged = () => { if (frame) { render(performance.now()); animate(); } };
+  reducedMotion.addEventListener("change", motionChanged);
+  new MutationObserver(motionChanged).observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });   // (see calm)
 
   return {
     // Redraw when the room, its picture version or the overlays shown change; once the story has ended, when it

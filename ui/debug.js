@@ -1,0 +1,359 @@
+// The debug panel (ARCHITECTURE.md §7, "The debug panel"; INTERFACE.md §14): a floating bar for trying things in any world,
+// opened by typing /debug at the prompt. Loaded only when first opened (js/main.js imports it then), with its stylesheet
+// (ui/debug.css). Never part of the game: it changes the game only through the controller's small interface `dev` (below),
+// which runs the engine's own effects (js/debug.js), so the state stays valid and saves as usual. The game knows nothing of it.
+//
+// What `dev` gives it (js/main.js, the debug panel's block):
+//   dev.state()             the game now (read only), or null
+//   dev.pack()              its language pack
+//   dev.now()               play time now (ms), for the live clock
+//   dev.run(effects, opts)  one moment of these effects (js/debug.js, moment): told in the story (opts.note: a dim line first),
+//                           kept for UNDO and saved; opts.tell false: only what the world said on its own is told; opts.undo false
+//   dev.languages()         the languages this world is written in
+//   dev.language(lang)      a new game of this world in that language
+//
+// It remembers itself on this device (localStorage, "parser-debug"): open or collapsed, where it is, its settings and which
+// sections are open. Closing it with × forgets all of that; /debug opens it fresh.
+
+import * as debug from "../js/debug.js";
+import { parts, hhmm } from "../js/time.js";
+import { text } from "../js/narrator.js";
+
+const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
+const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, motion: "system", rules: false, wholeMap: false };
+const SECTIONS = ["picture", "events", "travel", "inventory", "time", "inspect", "settings"];
+
+// What this device remembers, or null (nothing, or storage blocked).
+function recall() {
+  try { const v = JSON.parse(localStorage.getItem(KEY)); return v && typeof v === "object" ? { ...DEFAULTS, ...v } : null; }
+  catch (e) { return null; }
+}
+function keep(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+function forget() { try { localStorage.removeItem(KEY); } catch (e) {} }
+
+// What the panel says once the story is over: its game actions do nothing then (the engine refuses a moment after the end), so
+// they are disabled and this line says why. Its own controls (–, ×, dragging, the settings) keep working.
+export const ENDED = "The story has ended: UNDO or a new game.";
+
+// A small element: tag, class, text, attributes.
+function el(tag, cls, label, attrs = {}) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (label !== undefined) e.textContent = label;
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  return e;
+}
+// A button that runs `act` when clicked; `pressed`: a toggle, shown on or off; `key`: what it does, the same from one drawing to
+// the next (morph, below, keeps the button that is on the page when its key is the same); `off`: disabled.
+function button(label, act, pressed, key, off = false) {
+  const b = el("button", "", label, { type: "button" });
+  if (pressed !== undefined) b.setAttribute("aria-pressed", String(!!pressed));
+  if (key) b.dataset.key = key;
+  if (off) b.disabled = true;
+  b.addEventListener("click", act);
+  return b;
+}
+// A row: a label, then its controls.
+function row(label, ...controls) {
+  const r = el("div", "row");
+  if (label) r.append(el("span", "label", label));
+  const c = el("span", "controls");
+  c.append(...controls);
+  r.append(c);
+  return r;
+}
+// A checkbox with its label.
+function check(label, on, act) {
+  const l = el("label", "check"), box = el("input", "", undefined, { type: "checkbox" });
+  box.checked = !!on;
+  box.addEventListener("change", () => act(box.checked));
+  l.append(box, document.createTextNode(" " + label));
+  return l;
+}
+
+// Bring what is on the page in line with a fresh drawing of it, changing only what differs: an element whose tag and key are the
+// same stays (with its listeners, the focus, a finger or the mouse pressed on it), its attributes and text brought up to date;
+// anything else is replaced. The panel is drawn again after every change of the game, a condition's tick too, and replacing every
+// button then took away the one being pressed: the press was lost, the click never came (Diego, 3 Nov 2026). So every button's
+// action reads the game at the moment it is clicked (never the state it was drawn from), and a kept button does what it says.
+function morph(into, fresh) {
+  const old = [...into.childNodes];
+  if (old.length !== fresh.length || old.some((o, i) => !alike(o, fresh[i]))) { into.replaceChildren(...fresh); return; }
+  old.forEach((o, i) => sync(o, fresh[i]));
+}
+const alike = (a, b) => a.nodeType === b.nodeType && (a.nodeType !== 1 || (a.tagName === b.tagName && a.getAttribute("data-key") === b.getAttribute("data-key")));
+function sync(a, b) {
+  if (a.nodeType !== 1) { if (a.nodeValue !== b.nodeValue) a.nodeValue = b.nodeValue; return; }
+  for (const { name } of [...a.attributes]) if (!b.hasAttribute(name)) a.removeAttribute(name);
+  for (const { name, value } of [...b.attributes]) if (a.getAttribute(name) !== value) a.setAttribute(name, value);
+  if (a.tagName === "INPUT") a.checked = b.checked;
+  morph(a, [...b.childNodes]);
+  if (a.tagName === "SELECT" && document.activeElement !== a) a.value = b.value;
+}
+
+const touch = matchMedia("(hover: none) and (pointer: coarse)");   // (as ui/prompt.js and ui/page.js ask it)
+
+// Build the panel (hidden) and add it to the page. Returns open(), update(), showsRules() and wholeMap().
+export function mount(dev) {
+  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css", import.meta.url).href });
+  document.head.append(css);
+  const html = document.documentElement;
+  let v = null;                                    // what it remembers while open (null: closed)
+
+  const root = el("section", "debug", undefined, { "aria-label": "Debug panel", hidden: "" });
+  const bar = el("header", "bar");
+  const title = el("h2", "title", "Debug");
+  const fold = el("button", "fold", "–", { type: "button", "aria-label": "Collapse the debug panel", "aria-expanded": "true" });
+  const close = el("button", "close", "×", { type: "button", "aria-label": "Close the debug panel" });
+  bar.append(title, fold, close);
+  const body = el("div", "body");
+  const ended = el("p", "ended", ENDED, { role: "status", hidden: "" });
+  body.append(ended);
+  const parts$ = {};                               // each section's content, filled by draw()
+  for (const id of SECTIONS) {
+    const d = el("details", "section", undefined, { "data-section": id });
+    d.append(el("summary", "", id.charAt(0).toUpperCase() + id.slice(1)));
+    parts$[id] = el("div", "content");
+    d.append(parts$[id]);
+    d.addEventListener("toggle", () => { if (v) { v.sections[id] = d.open; keep(v); } });
+    body.append(d);
+  }
+  root.append(bar, body);
+  document.body.append(root);
+
+  // The panel's keys and clicks are its own: the command line doesn't take the focus or the keys from its fields (ui/prompt.js),
+  // and Esc doesn't restart the game (ui/keys.js).
+  for (const kind of ["keydown", "keyup", "click"]) root.addEventListener(kind, (e) => e.stopPropagation());
+  // While you type on a touch screen, a tap on one of its buttons keeps the keyboard open, as a tap on the story's buttons does
+  // (ui/prompt.js): the tap would take the focus from the command line, the keyboard closing moved the page and the panel under
+  // the finger, and the tap was lost.
+  root.addEventListener("mousedown", (e) => {
+    const a = document.activeElement;
+    if (touch.matches && a && !root.contains(a) && a.matches("input, textarea") && e.target.closest("button")) e.preventDefault();
+  });
+
+  // ---- Settings, as the page shows them ----
+  function apply() {
+    html.toggleAttribute("data-debug-instant", !!v?.instant);   // ui/debug.css: no fading in of story text
+    html.toggleAttribute("data-debug-rules", !!v?.rules);       // ui/debug.css: the rule lines show
+    if (v && v.motion !== "system") html.dataset.motion = v.motion === "reduce" ? "reduce" : "full";   // ui/scene.js, calm()
+    else delete html.dataset.motion;
+    root.toggleAttribute("data-collapsed", !!v?.collapsed);
+    fold.textContent = v?.collapsed ? "+" : "–";
+    fold.setAttribute("aria-expanded", String(!v?.collapsed));
+    fold.setAttribute("aria-label", v?.collapsed ? "Expand the debug panel" : "Collapse the debug panel");
+    if (v && v.x !== null && v.y !== null) place(v.x, v.y);
+    else { root.removeAttribute("data-placed"); root.style.removeProperty("--debug-x"); root.style.removeProperty("--debug-y"); }
+    for (const d of body.querySelectorAll("details")) d.open = !!v?.sections[d.dataset.section];
+  }
+  // Put the panel's top left corner at (x, y), kept on screen (at least its title bar).
+  function place(x, y) {
+    const w = root.offsetWidth || 320, h = bar.offsetHeight || 32;
+    x = Math.round(Math.max(0, Math.min(innerWidth - w, x)));
+    y = Math.round(Math.max(0, Math.min(innerHeight - h, y)));
+    root.setAttribute("data-placed", "");
+    root.style.setProperty("--debug-x", x + "px");
+    root.style.setProperty("--debug-y", y + "px");
+    return [x, y];
+  }
+  window.addEventListener("resize", () => { if (v && v.x !== null) [v.x, v.y] = place(v.x, v.y); });
+
+  // ---- Dragging by the title bar (mouse and touch) ----
+  // A drag ends however the pointer goes: lifted, cancelled, or its capture lost (the panel hidden under it, the window losing
+  // the focus); one that never ended would leave the bar holding the pointer.
+  let drag = null;
+  bar.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button") || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const r = root.getBoundingClientRect();
+    drag = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top };
+    bar.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  bar.addEventListener("pointermove", (e) => {
+    if (!drag || !v || e.pointerId !== drag.id) return;
+    [v.x, v.y] = place(e.clientX - drag.dx, e.clientY - drag.dy);
+  });
+  const drop = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag = null;
+    if (bar.hasPointerCapture?.(e.pointerId)) bar.releasePointerCapture(e.pointerId);
+    if (v) keep(v);
+  };
+  for (const kind of ["pointerup", "pointercancel", "lostpointercapture"]) bar.addEventListener(kind, drop);
+
+  fold.addEventListener("click", () => { if (!v) return; v.collapsed = !v.collapsed; keep(v); apply(); draw(); });
+  // × closes it, whatever the game is doing: hidden first, then forgotten.
+  close.addEventListener("click", () => {
+    root.hidden = true;
+    drag = null;
+    v = null;
+    forget();
+    apply();
+  });
+
+  // ---- The sections, drawn from the state ----
+  // Every action reads the game as it is when clicked (s()), never the state the button was drawn from (morph, above). The game's
+  // actions are disabled once the story is over (ENDED).
+  const s = () => dev.state();
+  const run = (effects, note, opts = {}) => { if (effects.length) dev.run(effects, { note: note ? "Debug: " + note + "." : undefined, ...opts }); };
+  // A button of the game: `make(st)` gives its effects and `note(st)` the dim line before them, both on the game when clicked.
+  const act = (make, note, opts) => () => { const st = s(); if (st && !st.ended) run(make(st), note ? note(st) : null, opts); };
+  const play = (label, make, note, key, pressed, st, opts) => button(label, act(make, note, opts), pressed, key, !!st.ended);
+
+  function picture(st) {
+    const on = new Set(st.filters || []), quiet = { tell: false };
+    return [
+      row("Filters", ...debug.lasting().map(f => play(f, (now) => debug.filter(f, !(now.filters || []).includes(f)), null, "filter:" + f, on.has(f), st, quiet))),
+      row("Once", ...debug.moments().map(m => play(m, () => debug.filter(m), null, "once:" + m, undefined, st, quiet))),
+      row("Reaction", ...["hurt", "heal"].map(k => play(k, () => debug.reaction(k), null, "reaction:" + k, undefined, st, quiet)))
+    ];
+  }
+  function events(st) {
+    const n = [1, 2, 3, 4, 5], h = st.player.health, list = debug.conditions(st);
+    const out = [
+      row("Hurt", ...n.map(i => play(String(i), () => debug.hurt(i), () => "hurt " + i, "hurt:" + i, undefined, st))),
+      row("Heal", ...n.map(i => play(String(i), () => debug.heal(i), () => "heal " + i, "heal:" + i, undefined, st))),
+      row("Health", ...[0, ...n].map(i => play(String(i), () => debug.health(i), () => "health " + i, "health:" + i, h === i, st))),
+      row("Death", play("die", () => debug.health(0), () => "death", "die", undefined, st)),
+      // A condition's toggle: on, it says "stop …", the same button stops it.
+      row("Conditions", ...list.map(c => {
+        const on = (now) => !!now.player.conditions?.[c.id];
+        return play((c.on ? "stop " : "") + c.label, (now) => (on(now) ? debug.stop(now, c.id) : debug.start(now, c.id)), (now) => (on(now) ? "stop " : "start ") + c.label, "condition:" + c.id, c.on, st);
+      }))
+    ];
+    // What a test condition that is on does to you, so its ticks are no surprise (always there, empty when none is on: the rows
+    // above stay the same elements from one drawing to the next).
+    const notes = el("div", "notes");
+    for (const c of list) if (c.on && c.test) notes.append(el("p", "note", c.label + ": " + debug.pace(c.id) + "."));
+    return [...out, notes];
+  }
+  function travel(st, pack) {
+    const out = [check("show whole map", v.wholeMap, (on) => { if (!v) return; v.wholeMap = on; keep(v); markAll(); })];
+    for (const g of debug.rooms(st, pack)) {
+      out.push(el("p", "group", g.label));
+      const list = el("div", "rooms");
+      for (const r of g.rooms) {
+        const b = play(r.name, () => debug.travel(r.id), () => "travel to " + r.id, "travel:" + r.id, r.here, st);
+        b.title = r.id + (r.visited ? "" : " (not visited)");
+        b.dataset.id = r.id;
+        if (!r.visited) b.classList.add("unvisited");
+        list.append(b);
+      }
+      out.push(list);
+    }
+    return out;
+  }
+  function inventory(st, pack) {
+    const list = el("div", "rooms");
+    for (const t of debug.things(st, pack)) {
+      const held = (now) => now.player.carrying.includes(t.id);
+      const b = play(t.name, (now) => debug.take(now, t.id), (now) => (held(now) ? "drop " : "get ") + t.id, "take:" + t.id, t.held, st);
+      b.title = t.id;
+      b.dataset.id = t.id;
+      list.append(b);
+    }
+    return [list];
+  }
+  // The time section is made once (its fields keep what you type); drawing only brings it up to date.
+  const day = el("input", "", undefined, { type: "number", min: "1", step: "1", "aria-label": "Day", inputmode: "numeric" });
+  const hour = el("input", "", undefined, { type: "number", min: "0", max: "23", step: "1", "aria-label": "Hour", inputmode: "numeric" });
+  const setTime = button("set", () => {
+    const st = s();
+    if (!st || st.ended) return;
+    const d = Math.max(1, Math.floor(+day.value || 1)), h = Math.max(0, Math.min(23, Math.floor(+hour.value || 0)));
+    run(debug.time(d, h), "time day " + d + " " + String(h).padStart(2, "0") + ":00");
+  }, undefined, "set-time");
+  parts$.time.append(row("Day", day), row("Hour", hour, setTime));
+  function time(st) {
+    const now = parts(worldNow(st));
+    if (document.activeElement !== day) day.value = now.day;
+    if (document.activeElement !== hour) hour.value = now.hour;
+    for (const c of [day, hour, setTime]) c.disabled = !!st.ended;
+  }
+  function inspect(st) {
+    const dl = el("dl", "facts");
+    const fact = (k, val) => dl.append(el("dt", "", k), el("dd", k === "clock" ? "clock" : "", val === "" ? "—" : String(val)));
+    fact("room", st.player.at + (st.player.in ? " (in " + st.player.in + ")" : ""));
+    fact("carrying", st.player.carrying.join(", "));
+    fact("health", st.player.health);
+    fact("conditions", Object.keys(st.player.conditions || {}).join(", "));
+    fact("filters", (st.filters || []).join(", "));
+    fact("ideas", (st.seen?.ideas || []).join(", "));
+    fact("clock", clockText(st));
+    fact("turn", st.turn + (st.ended ? " (ended)" : ""));
+    return [dl, check("show rule ids", v.rules, (on) => { if (!v) return; v.rules = on; keep(v); apply(); })];
+  }
+  function settings(st) {
+    const motion = el("select", "", undefined, { "aria-label": "Reduce motion" });
+    for (const [val, label] of [["system", "as the system"], ["reduce", "on"], ["full", "off"]]) {
+      const o = el("option", "", label, { value: val });
+      if (v.motion === val) o.selected = true;
+      motion.append(o);
+    }
+    motion.addEventListener("change", () => { if (!v) return; v.motion = motion.value; keep(v); apply(); });
+    const langs = dev.languages();
+    return [
+      check("instant text", v.instant, (on) => { if (!v) return; v.instant = on; keep(v); apply(); }),
+      row("Reduce motion", motion),
+      // (a new game, so it works after the end too)
+      row("Language", ...langs.map(l => button(l.toUpperCase(), () => { const now = s(); if (now && l !== now.lang) dev.language(l); }, l === st.lang, "lang:" + l))),
+      el("p", "note", "Another language starts a new game of this world.")
+    ];
+  }
+
+  // The world's time now: play time running, plus how far the story moved it.
+  const worldNow = (st) => Math.max(0, dev.now() + (st.time?.shift || 0));
+  function clockText(st) {
+    const p = parts(worldNow(st), st.time?.weekday);
+    return "day " + p.day + " " + hhmm(p) + ":" + String(p.second).padStart(2, "0") + (p.weekday ? " (" + p.weekday + ")" : "");
+  }
+  setInterval(() => {
+    const st = s(), out = parts$.inspect.querySelector("dd.clock");
+    if (v && !v.collapsed && st && out) out.textContent = clockText(st);
+  }, 500);
+
+  // Draw every section from the state, after every change of the game (morph: only what differs changes on the page).
+  function draw() {
+    const st = s();
+    if (!v || !st) return;
+    const pack = dev.pack();
+    const make = { picture, events, travel, inventory, inspect, settings };
+    for (const id of SECTIONS) {
+      if (id === "time") time(st);
+      else morph(parts$[id], make[id](st, pack));
+    }
+    ended.hidden = !st.ended;
+    const room = st.player.at ? " · " + (st.world.rooms[st.player.at]?.name ? text(st.world.rooms[st.player.at].name, pack) : st.player.at) : "";
+    const label = "Debug · " + (st.worldId ?? "") + " " + st.lang + room + (st.ended ? " · ended" : "");
+    if (title.textContent !== label) title.textContent = label;
+  }
+
+  // Show whole map: every room marked visited (js/debug.js, visitAll), quietly, and again whenever a new room appears or a new
+  // game starts while it is on. Not kept for UNDO (UNDO would only be marked again). After the redraw that asked for it.
+  let marking = false;
+  function markAll() {
+    const st = s();
+    if (!v?.wholeMap || !st || st.ended || marking || !debug.unvisited(st).length) return;
+    marking = true;
+    setTimeout(() => { marking = false; const now = s(); if (v?.wholeMap && now && !now.ended) run(debug.visitAll(now), null, { tell: false, undo: false }); });
+  }
+
+  return {
+    // Show the panel: as it was remembered (a reload), or fresh. Typed /debug while it is open: it unfolds. On a touch screen the
+    // keyboard closes (the command line lets go of the focus), so the page and the panel stay still under your finger.
+    open() {
+      if (!v) v = recall() ?? structuredClone(DEFAULTS);
+      else v.collapsed = false;
+      keep(v);
+      root.hidden = false;
+      if (touch.matches && document.activeElement?.matches?.("input, textarea") && !root.contains(document.activeElement)) document.activeElement.blur();
+      apply(); draw(); markAll();
+    },
+    // After every redraw of the game: the panel follows the state.
+    update() { if (v) { draw(); markAll(); } },
+    // Is "show rule ids" on? (js/main.js adds the line under each answer only then.)
+    showsRules: () => !!v?.rules,
+    // Is "show whole map" on? (A room clicked on the map is then reached even when the walk there can't: js/main.js.)
+    wholeMap: () => !!v?.wholeMap
+  };
+}

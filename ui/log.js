@@ -95,14 +95,20 @@ export function mount(root, on, header) {
   function toEnd(instant) {
     const last = lastLine();
     if (gliding || !last) return;
-    if (typing()) { followed = exchangeStart(root.lastElementChild); keepLine(followed); unseen = null; return; }
     // What to show: everything added since the last follow (your command and its answer, a line the world said, the game's own
     // question), from its first paragraph. Not "from the last command": the options' "Restart the game?" is no command, and
     // following from the command before it, far up, showed that old command instead of the question (Diego, 27 Oct 2026).
-    // Nothing new (a restored game): the last command and what came after it, as before.
-    const first = unseen && root.contains(unseen) ? unseen : exchangeStart(root.lastElementChild);
+    // Nothing new: a restored game (instant) shows the last command and what came after it, as before; anything else leaves the
+    // page where it is. Not from the start of the exchange either: the world's lines on their own are one exchange however many
+    // there are (.aside), so each tick of a condition that hurts made it taller, and once it was taller than the screen every
+    // follow, or a moment that said nothing (a filter from the debug panel, a timed rule that is silent), took the page back UP
+    // to its first line, while you typed always (Diego, 3 Nov 2026).
+    const fresh = unseen && root.contains(unseen) ? unseen : null;
+    if (!fresh && !instant) return;
+    const first = fresh ?? exchangeStart(root.lastElementChild);
     unseen = null;
     followed = first;
+    if (typing()) { keepLine(first); return; }
     const target = Math.max(0, endTarget(first, last, window.scrollY));
     window.scrollTo({ top: target, behavior: instant || calm.matches ? "instant" : "smooth" });
     header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)

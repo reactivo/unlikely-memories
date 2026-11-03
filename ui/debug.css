@@ -1,0 +1,242 @@
+/* The debug panel (ui/debug.js; ARCHITECTURE.md §7 "The debug panel"): a floating bar over the game, opened by typing /debug.
+   Loaded only with the panel, never by index.html. Plain on purpose, so it is never taken for part of the game: a solid
+   surface, a dashed frame in the neutral orange, small text in the game's font. Its sizes are at the top of the block;
+   everything else comes from css/tokens.css.
+
+   Also here, because only the panel turns them on (attributes on <html>, set by ui/debug.js):
+     data-debug-instant   story text appears at once, with no fading in (ui/log.js's phrases, .ph)
+     data-debug-rules     the dim line under each answer naming the rule that answered it (.debug-rule) shows
+   (data-motion, the panel's reduce motion setting, is read by ui/scene.js, calm(): no CSS.) */
+@layer ui {
+  .debug {
+    --debug-width:  360px;                         /* its width, at most (less on a narrow window) */
+    --debug-margin: var(--space-s);                /* from the window's edges, where it starts */
+    --debug-touch:  32px;                          /* the smallest button, for a finger */
+
+    /* Colours in the panel, by meaning. */
+    --frame:        var(--color-neutral);          /* the dashed frame: clearly not the game's */
+    --ground:       var(--color-surface);          /* behind everything in it */
+    --heading:      var(--color-text-dim);         /* section names, labels */
+    --choice:       var(--color-text);             /* a button's text */
+    --choice-frame: var(--color-text-faint);       /* a button's edge */
+    --choice-on:    var(--color-highlight);        /* a toggle that is on, the room you are in, a thing you carry */
+    --faint:        var(--color-text-faint);       /* a room not visited yet */
+
+    position: fixed;
+    z-index: 10;                                   /* over the page; the popovers (map, options) are above it, in the top layer */
+    top: var(--debug-y, var(--debug-margin));
+    right: var(--debug-margin);
+    width: min(var(--debug-width), calc(100vw - 2 * var(--debug-margin)));
+    box-sizing: border-box;
+    /* Never over the prompt to begin with: as tall as the window less the bottom (its height: ui/page.js, --bottom-h); when it
+       is taller, its content scrolls. */
+    max-height: max(var(--debug-touch), calc(100dvh - var(--debug-y, var(--debug-margin)) - var(--bottom-h, 0px) - var(--debug-margin)));
+    display: flex;
+    flex-direction: column;
+    color: var(--choice);
+    background: var(--ground);
+    border: 1px dashed var(--frame);
+    font-family: var(--font-game);
+    font-size: var(--text-xs);
+    line-height: var(--line-s);
+    text-transform: none;
+
+    &[hidden] {
+      display: none;
+    }
+
+    /* Moved by dragging (ui/debug.js): from the left edge instead of the right. */
+    &[data-placed] {
+      left: var(--debug-x);
+      right: auto;
+    }
+
+    /* The title bar: drag it to move the panel; – folds the panel to just this bar, × closes it. */
+    & .bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 0 0 0 var(--space-s);
+      cursor: move;
+      touch-action: none;                          /* a drag with a finger moves the panel, not the page */
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    & .title {
+      flex: 1;
+      margin: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      color: var(--frame);
+      font-size: inherit;
+    }
+
+    & .fold,
+    & .close {
+      min-width: var(--debug-touch);
+      min-height: var(--debug-touch);
+      border: 0;
+    }
+
+    & .body {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      min-height: 0;
+      padding: 0 var(--space-s) var(--space-s);
+      border-top: 1px dashed var(--frame);
+    }
+
+    &[data-collapsed] .body {
+      display: none;
+    }
+
+    & .section {
+      margin-top: var(--space-s);
+    }
+
+    & summary {
+      cursor: pointer;
+      color: var(--heading);
+      text-transform: uppercase;
+    }
+
+    & .row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-xs);
+      margin-top: var(--space-xs);
+    }
+
+    & .label {
+      min-width: 6em;
+      color: var(--heading);
+    }
+
+    & .controls,
+    & .rooms {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      flex: 1;
+    }
+
+    & .rooms {
+      margin-top: var(--space-xs);
+    }
+
+    & .group {
+      margin: var(--space-s) 0 0;
+      color: var(--heading);
+    }
+
+    & .note {
+      margin: var(--space-xs) 0 0;
+      color: var(--heading);
+    }
+
+    /* The story is over (ui/debug.js, ENDED): this line says so, and the game's buttons are disabled. */
+    & .ended {
+      margin: var(--space-s) 0 0;
+      color: var(--frame);
+
+      &[hidden] {
+        display: none;
+      }
+    }
+
+    & button,
+    & select,
+    & input {
+      min-height: var(--debug-touch);
+      padding: 0 var(--space-s);
+      color: var(--choice);
+      background: var(--color-bg);
+      border: 1px solid var(--choice-frame);
+      cursor: pointer;
+    }
+
+    & input[type="number"] {
+      width: 5em;
+      cursor: text;
+    }
+
+    & input[type="checkbox"] {
+      min-height: 0;
+      accent-color: var(--choice-on);
+    }
+
+    & .check {
+      display: block;
+      margin-top: var(--space-xs);
+      cursor: pointer;
+    }
+
+    & button[aria-pressed="true"] {
+      color: var(--choice-on);
+      border-color: var(--choice-on);
+    }
+
+    & button.unvisited {
+      color: var(--faint);
+    }
+
+    & button:hover {
+      border-color: var(--choice);
+    }
+
+    & button:disabled,
+    & input:disabled {
+      color: var(--faint);
+      border-color: var(--faint);
+      border-style: dashed;
+      cursor: not-allowed;
+    }
+
+    & :focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 1px;
+    }
+
+    & .facts {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 0 var(--space-s);
+      margin: var(--space-xs) 0 0;
+
+      & dt {
+        color: var(--heading);
+      }
+
+      & dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+
+  /* The panel belongs to the game's view: not shown over the list of games. */
+  :root[data-view="home"] .debug {
+    display: none;
+  }
+
+  /* Instant text: the story's phrases (and an object's picture beside them) show at once. */
+  :root[data-debug-instant] .log .ph {
+    animation: none;
+  }
+
+  /* Show rule ids: the line under an answer naming the rule that answered it (js/main.js adds it; it is never saved). Only
+     while the setting is on. */
+  .log .debug-rule {
+    display: none;
+  }
+
+  :root[data-debug-rules] .log .debug-rule {
+    display: block;
+    margin-top: 0;
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+}

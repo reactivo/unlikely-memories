@@ -527,6 +527,82 @@ function quit() {
   route();
 }
 
+// ---- The debug panel ------------------------------------------------------------------------------------------------------
+// A floating bar for trying things in any world, opened by typing /debug (ARCHITECTURE.md §7, "The debug panel"). Its own files:
+// js/debug.js (what its buttons do, as the engine's effects), ui/debug.js and ui/debug.css (the panel, loaded only when first
+// opened). The game doesn't depend on it: everything it does goes through `dev` below, and only this block knows it exists.
+//   To switch it off: DEBUG_PANEL = false (/debug is then an ordinary command, which the game doesn't understand).
+//   To remove it: delete this block and those three files (and tests/debug.test.js, tests/debug.py).
+const DEBUG_PANEL = true;
+if (DEBUG_PANEL) {
+  const KEY = "parser-debug";                          // remembered on this device while the panel is open (ui/debug.js)
+  let panel = null, debug = null, loading = null;      // the panel and js/debug.js, once loaded
+  // What the panel may do (documented at the top of ui/debug.js).
+  const dev = {
+    state: () => (view === "game" ? state : null),
+    pack: () => (state ? packOf(state) : null),
+    now: () => clock.now(),
+    // One moment of effects through the engine (js/debug.js, moment), shown and kept like a move: UNDO takes it back, it is saved.
+    // tell: false shows only what the world said on its own meanwhile; note: a dim line before it; undo: false keeps no UNDO step.
+    run(effects, { tell = true, note, undo = true } = {}) {
+      if (view !== "game" || restarting || !state || state.ended) return;
+      const before = state, from = state.player.at, pack = packOf(state);
+      const r = debug.moment(state, effects, clock.now());
+      if (r.refused.length) console.warn("Effects refused by the engine:", r.refused);
+      if (r.next === before) return;
+      if (undo) keepForUndo(before);
+      state = r.next; turnStart = null; pendingWhich = null;
+      if (tell && note) say(note, "sys");
+      show(story(tell ? r.applied : r.applied.filter(e => e.aside), state, pack));
+      redraw("turn");
+      enteredRoom(from);
+      schedule(); autosave();
+      ui.log.toEnd();
+    },
+    languages: () => LANGS.filter(l => state?.worldId && listFor(l).some(w => w.id === state.worldId)),
+    // A new game of this world in another language (the language is remembered, as on the list of games); its SAVE is kept.
+    language(l) {
+      if (view !== "game" || restarting || !dev.languages().includes(l) || l === state.lang) return;
+      lang = l; store("parser-lang", l);
+      begin(state.worldId);
+    }
+  };
+  // Open the panel (loading it the first time).
+  const openPanel = () => {
+    loading ??= Promise.all([import("../ui/debug.js"), import("./debug.js")]).then(([m, d]) => {
+      debug = d;
+      panel = m.mount(dev);
+      ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on
+      return panel;
+    });
+    loading.then(p => p.open()).catch(e => console.warn("The debug panel didn't load:", e));
+  };
+  // /debug, typed: opens the panel, before the parser (never a turn, never echoed, not kept for ↑, the story or UNDO).
+  const send = on.submit;
+  // Show rule ids (the panel's setting): under each answer, a dim line naming the rule that answered it (js/debug.js, answeredBy,
+  // on the state before the command), added to the story on screen only: never kept in the saved story.
+  const ruled = (fn) => (...args) => {
+    if (!panel?.showsRules() || view !== "game") return fn(...args);
+    const before = state, which = pendingWhich, seen = seenText(packOf(state)), last = transcript.findLast(p => p.style === "cmd");
+    fn(...args);
+    const cmd = transcript.findLast(p => p.style === "cmd");
+    if (!cmd || cmd === last || !cmd.text.startsWith("> ")) return;
+    const ids = debug.answeredBy(before, cmd.text.slice(2), packOf(before), seen, which, clock.now());
+    ui.log.say("rule: " + ids.join(" · "), "sys debug-rule", undefined, true);
+  };
+  for (const name of ["command", "useCommand", "showObject", "showItem"]) on[name] = ruled(on[name]);
+  const typed = ruled(send);
+  on.submit = (raw) => (raw.trim().toLowerCase() === "/debug" ? openPanel() : typed(raw));   // (js/debug.js, COMMAND)
+  // A room clicked on the map with "show whole map" on: walked to as usual; where the walk can't get there (a lock, a rule), travel.
+  const walkTo = on.travel;
+  on.travel = (room) => {
+    walkTo(room);
+    if (panel?.wholeMap() && view === "game" && !restarting && !state.ended && !state.pending.question && state.player.at !== room)
+      dev.run(debug.travel(room), { note: "Debug: travel to " + room + "." });
+  };
+  if (load(KEY) !== null) openPanel();                 // it was open when the page was left: open it again as it was
+}
+
 // Start up: tick the clock display 4 times a second; bring older saved games to their worlds; show the view the address asks for.
 setInterval(() => { if (view === "game") showTime(); }, 250);
 window.addEventListener("hashchange", route);
