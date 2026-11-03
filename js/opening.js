@@ -71,8 +71,9 @@ export function rules(g, d) {
   const through = [{ say: L.through }, { change: "arrival", optional: true }, { disconnect: room, dir },
                    { travel: "$game.entrance" }];
   const way = (name, match) => [
-    // (a refusal, so `generic`: the game never offers the way on before the hints thing is carried, from a thing's own actions either)
-    { id: `opening_${name}_no_hints`, match, if: [here, loose(H)], do: [{ say: L.notYet }], generic: true },
+    // (a refusal in the world's own words, `notYet`, so not `generic`: the way on is offered from the start, and answers "not yet"
+    // until the hints thing is carried, a clue to take it)
+    { id: `opening_${name}_no_hints`, match, if: [here, loose(H)], do: [{ say: L.notYet }] },
     { id: `opening_${name}`, match, if: [here], do: through }
   ];
   return [

@@ -12,6 +12,9 @@
 // Following new text: your own commands are always followed, and so is text the world adds on its own if you were
 // at the end (atEnd). Following is a short smooth scroll, worked out from where the command and its answer actually are.
 //
+// Where the game puts the page (a new story's top, a room's first line, a loaded game's newest text) is its anchor, and
+// stays put until you scroll, touch or type: whatever moves the page on its own before that puts it back (settle, below).
+//
 // The picture on an upright phone folds when you scroll back and opens at "the present" (ui/fold.js). This file knows when
 // that is: following new text (toEnd) and entering a room (newVisit) open it, and it is told which scrolling is ours.
 //
@@ -43,6 +46,7 @@ export const slotArt = (slot) => (slot && typeof slot === "object" ? spriteSVG(s
 export function mount(root, on, header) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   let gliding = false;           // the page is gliding to a new visit: don't follow new text meanwhile
+  let glides = 0;                // (which glide is the latest: only its own end ends it)
   let unseen = null;             // the first paragraph added since the story was last followed (toEnd)
   let followed = null;           // the first paragraph the last toEnd showed (a suggestion after an answer is shown from it too)
   const calm = matchMedia("(prefers-reduced-motion: reduce)");
@@ -85,8 +89,9 @@ export function mount(root, on, header) {
   // Bring the newest command and its answer into view with a short smooth scroll, worked out from where they are (not
   // "to the end of the page", which can stop short: a phone's browser bars change the page's height while it scrolls).
   // If they fit between the top and the bottom, they end just above the fade; if they are taller, the command goes just
-  // under the top, so you read the answer from its start. instant: no scroll animation (a game being restored, a window
-  // changing size). The answer's whole height exists as soon as it is added (it only fades in), so this can measure at once.
+  // under the top, so you read the answer from its start. instant: no scroll animation, for a game being restored (main.js),
+  // which goes to its newest text and is held there (the anchor, below) until you scroll, touch or type. The answer's whole
+  // height exists as soon as it is added (it only fades in), so this can measure at once.
   function toEnd(instant) {
     const last = lastLine();
     if (gliding || !last) return;
@@ -94,31 +99,65 @@ export function mount(root, on, header) {
     // What to show: everything added since the last follow (your command and its answer, a line the world said, the game's own
     // question), from its first paragraph. Not "from the last command": the options' "Restart the game?" is no command, and
     // following from the command before it, far up, showed that old command instead of the question (Diego, 27 Oct 2026).
-    // Nothing new (a restored game, the font loading): the last command and what came after it, as before.
+    // Nothing new (a restored game): the last command and what came after it, as before.
     const first = unseen && root.contains(unseen) ? unseen : exchangeStart(root.lastElementChild);
     unseen = null;
     followed = first;
+    const target = Math.max(0, endTarget(first, last, window.scrollY));
+    window.scrollTo({ top: target, behavior: instant || calm.matches ? "instant" : "smooth" });
+    header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)
+    anchor = instant ? { hold: true, at: () => endTarget(first, last, 0) }
+                     : { hold: false, y: target, at: () => endTarget(first, last, window.scrollY) };
+  }
+  // Where the page goes to show from `first` to the newest line `last`: if they fit between the top and the bottom, `last` just
+  // above the fade, but never further up than `floor` (following never moves the page back up); if they are taller, `first`
+  // just under the top.
+  function endTarget(first, last, floor) {
     const a = first.getBoundingClientRect(), b = last.getBoundingClientRect();
     const from = topEdge(), to = bottomEdge() - fade();
     const end = b.bottom + (parseFloat(getComputedStyle(last).marginBottom) || 0);
-    const target = end - a.top > to - from
-      ? window.scrollY + a.top - from
-      : Math.max(window.scrollY, window.scrollY + end - to);
-    window.scrollTo({ top: Math.max(0, target), behavior: instant || calm.matches ? "instant" : "smooth" });
-    header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)
-    placed = { y: Math.max(0, target), again: () => toEnd(true) };
+    return end - a.top > to - from ? window.scrollY + a.top - from : Math.max(floor, window.scrollY + end - to);
   }
 
-  // A change in the window's size does NOT move the page: the browser keeps the text where it was. (On a phone the browser's
-  // bars grow and shrink as soon as you scroll, which is a size change: anything done here then showed as jumps, pulling you
-  // back to the start of a long answer, or the first lines under the picture. Diego, 27 Oct 2026.) Two exceptions:
+  // The anchor: where the game itself last put the page, and how to work that place out again (at(): the scroll position for it
+  // now). Every placing sets it: a new story (its top: toTop), a room entered (its first line under the picture: newVisit), a
+  // loaded game (its newest text) and new text followed (toEnd). Your own scrolling, touching, clicking or typing drops it.
+  //
+  // A new story, a room or a loaded game HOLDS its place (hold: true): until you do something yourself, whatever moves the page
+  // on its own puts it back there at once, in this one place (settle):
+  //   - the browser moving it: Safari on an iPhone kept some of the list's scroll after the game had gone to the top (Diego,
+  //     27 Oct 2026), and because a room taller than the screen can only scroll a line or two, that leftover put the page at the
+  //     room's END, its first line under the picture: The Third Glass's opening, always (Diego, 3 Nov 2026);
+  //   - the font finishing loading (the letters change size a little);
+  //   - a change in the window's size (a phone's bars growing or shrinking as the page settles);
+  //   - typing ending (the command line losing the focus: ui/page.js), which before put a long room at its end, from a stale
+  //     "the newest text was in view" (wasAtEnd);
+  //   - the glide to a room ending (or being cut short).
+  // (Not during the glide, nor while you type: the browser decides then.) A loaded game was once sent back to the top by a
+  // retry meant for the opening (Diego, 28 Oct 2026): now there is one anchor, and the loaded game's replaces the opening's.
+  //
+  // Following new text (after a command, or the world speaking while you were at the end) does not hold (hold: false), as
+  // before: a change in the window's size does NOT move the page, the browser keeps the text where it was. (On a phone the
+  // browser's bars grow and shrink as soon as you scroll, which is a size change: anything done then showed as jumps, pulling
+  // you back to the start of a long answer, or the first lines under the picture. Diego, 27 Oct 2026.) Two exceptions:
   //   - you stop typing on a phone (ui/page.js marks <html data-typing> while you do): the prompt and the tabs stick again,
-  //     so if the newest text was in view, the page moves just enough to show its last line above them (never back up);
-  //   - the font finishing loading: the letters change size a little, so where the game last put the page (following new
-  //     text, gliding to a room) is redone, but only if you haven't scrolled since.
+  //     so if the newest text was in view, the page moves just enough to show its last line above them (never back up: keepEnd);
+  //   - the font finishing loading: the follow is redone, but only if the page hasn't moved since.
+  let anchor = null;             // { hold, at(), y (following: where it put the page) }
   let wasAtEnd = true;
-  let placed = null;             // where the game itself last put the page, and how to do it again: { y, again }
-  window.addEventListener("scroll", () => { wasAtEnd = atEnd(); }, { passive: true });
+  for (const kind of ["touchstart", "pointerdown", "wheel", "keydown"]) {
+    window.addEventListener(kind, () => { anchor = null; }, { passive: true, capture: true });   // you, not the browser
+  }
+  const holding = () => anchor?.hold && !gliding && !typing() && root.getClientRects().length > 0;   // (not under the list of games)
+  function settle() {
+    if (!holding()) return;
+    const y = Math.max(0, Math.min(anchor.at(), document.documentElement.scrollHeight - innerHeight));
+    if (Math.abs(window.scrollY - y) < 2) return;
+    window.scrollTo({ top: y, behavior: "instant" });
+    header.scrolling(y);
+  }
+  window.addEventListener("scroll", () => { wasAtEnd = atEnd(); settle(); }, { passive: true });
+  window.addEventListener("resize", settle);                      // (after ui/page.js has measured the bars: it was mounted first)
   function keepEnd() {
     const last = lastLine();
     if (gliding || !last) return;
@@ -130,23 +169,11 @@ export function mount(root, on, header) {
       header.scrolling(target);
     }
   }
-  // A new story starts at the top. Safari on an iPhone, coming from the list of games scrolled down to a card's button, kept some
-  // of that scroll after the game had gone to the top, so the opening started under the picture (Diego, 27 Oct 2026): so the
-  // top is asked for again a moment later, unless you have touched or scrolled the page by then, or the game has put it
-  // somewhere else meanwhile (a loaded game goes to its newest text: it was sent back to the top. Diego, 28 Oct 2026).
-  let touched = false;
-  for (const kind of ["touchstart", "wheel", "keydown"]) window.addEventListener(kind, () => { touched = true; }, { passive: true });
+  // A new story starts at the top, and is held there (the anchor: Safari keeping the list's scroll, above).
   function toTop() {
-    touched = false;
-    const again = () => {
-      if (touched || placed?.again !== again || window.scrollY === 0) return;
-      window.scrollTo(0, 0); header.scrolling(0);
-    };
     window.scrollTo(0, 0);
     header.scrolling(0);
-    placed = { y: 0, again };
-    requestAnimationFrame(again);
-    setTimeout(again, 300);
+    anchor = { hold: true, at: () => 0 };
   }
 
   // While you type on a phone (ui/page.js) the page is in its normal flow, and only the browser knows where its keyboard and
@@ -170,10 +197,21 @@ export function mount(root, on, header) {
     const tall = prompt.getBoundingClientRect().bottom - first.getBoundingClientRect().top > view.bottom - view.top;
     (tall ? first : prompt).scrollIntoView({ block: tall ? "start" : "end", behavior });
   }
-  // Typing ends (ui/page.js): the prompt sticks again, so the newest text, if it was in view, stays above it and the tabs.
-  new MutationObserver(() => requestAnimationFrame(() => { if (!typing() && wasAtEnd) keepEnd(); })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-typing"] });
+  // Typing ends (ui/page.js): the prompt sticks again. Held (a new story, a room, a loaded game, and you haven't done anything
+  // since): back to the anchor. Otherwise the newest text, if it was in view, stays above the prompt and the tabs.
+  new MutationObserver(() => requestAnimationFrame(() => {
+    if (typing()) return;
+    if (holding()) settle(); else if (wasAtEnd) keepEnd();
+  })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-typing"] });
+  // The font has loaded: the letters change size a little. Held: back to the anchor. Following: redone if the page hasn't moved.
   document.fonts?.ready.then(() => {
-    if (placed && !gliding && Math.abs(window.scrollY - placed.y) < 2) placed.again();
+    if (holding()) return settle();
+    if (anchor && !anchor.hold && !gliding && Math.abs(window.scrollY - anchor.y) < 2) {
+      const y = Math.max(0, anchor.at());
+      window.scrollTo({ top: y, behavior: "instant" });
+      header.scrolling(y);
+      anchor.y = y;
+    }
   });
 
   // Cut a paragraph into phrases and give each a delayed fade-in, so they appear one after another.
@@ -243,18 +281,13 @@ export function mount(root, on, header) {
     header.room();                                                // a new room opens the picture, its crop in the middle
     unseen = null;                                                // (the glide shows it, from its first line)
     if (instant) return;
-    const target = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
-    placed = {
-      y: target,
-      again: () => {
-        const y = Math.max(0, visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge());
-        window.scrollTo({ top: y, behavior: "instant" });
-        header.scrolling(y);
-        placed.y = y;
-      }
-    };
+    // Held there (the anchor, above) until you scroll, touch or type: the room's first line under the picture, never its end.
+    const at = () => visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge();
+    const target = Math.max(0, at());
+    anchor = { hold: true, at };
     gliding = true;
-    const done = () => { gliding = false; };
+    const glide = ++glides;
+    const done = () => { if (glide !== glides || !gliding) return; gliding = false; settle(); };   // (over, or cut short: is it there?)
     document.addEventListener("scrollend", done, { once: true });
     setTimeout(done, 1200);                                       // in case the browser has no scrollend
     window.scrollTo({ top: target, behavior: calm.matches ? "instant" : "smooth" });

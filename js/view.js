@@ -3,7 +3,7 @@
 import { text, tell, listName, nameOf, joined } from "./narrator.js";
 import { grammarOf } from "./fields.js";
 import { parse, inScope } from "./parser.js";
-import { answers, exitNow } from "./engine.js";
+import { answers } from "./engine.js";
 import { EXAMINED, ANSWERED } from "./verbs.js";
 import { ACTIONS } from "./actions.js";
 import { carried, within, receives, person, holderOf, placeOf } from "./use.js";
@@ -156,7 +156,7 @@ function phraseFor(state, t, verb) {
 
 // The two-thing commands, each worded as a player types them ("Unlock hut door with key"): the first thing named as its name writes it,
 // the second by its first noun (js/names.js), and the whole name or an adjective and the noun when the short one would mean two things (two keys). The first wording the parser reads as
-// exactly this action, and that is answered by a rule or the thing (never a stock or refused reply). A put the game answers only with its
+// exactly this action, and that is answered by a rule or the thing (never a stock reply or what is so already; a refusal in the world's own words is offered). A put the game answers only with its
 // plain "put it in" (std_put_in) is offered only into a container you carry (decision 7: it works anywhere, but the world has no reason to
 // invite it). Null when there is none.
 function pairCommand(state, t, verb, a, b) {
@@ -187,19 +187,21 @@ function unlockActions(state, t, id) {
 
 // What a thing offers by what it is (ARCHITECTURE.md §3, "What the engine offers"; docs/engine-audit/PLAN.md, stage 3), from its properties
 // and where you are, worded by the pack (`basic`) and the thing's name. Never Examine (a click examines already) and never Drop. Every
-// command passes `offering`: read, and answered by a rule or the thing, never a stock or refused reply. [] for a thing out of reach.
+// command passes `offering`: read, and answered by a rule or the thing, never a stock reply or what is so already; a refusal in the
+// world's own words is offered (a lock's `says`, a shut way's line, the opening's "not yet", what a thing costs: js/verbs.js, GENERIC).
+// So the list below says what is tried, and `offering` decides. [] for a thing out of reach.
 //   portable, in reach, no one holds it, not what you are on ......... Take
 //   a person (`topics` or `talk`) ..................................... Talk to
-//   `enterable`, in the room, not locked or shut, you not in it ....... Enter / Sit on        (in it: Get out of / Get off)
-//   a closed container, not locked .................................... Open               (carried, open: Close)
+//   `enterable`, in the room, not a way, you not in it ................ Enter / Sit on        (in it: Get out of / Get off)
+//   a closed container ................................................ Open               (carried, open: Close)
 //   locked, its key on you; a key for a lock here ..................... Unlock X with key
-//   locked, a way (`door` or `leads`), its key not on you ............. Open (the lock says what it wants)
-//   `door` (not locked, the way open) ................................. Go through            (OPEN, ENTER and the direction go too)
-//   `leads` (not locked, the way open) ................................ Enter / Climb / Climb down  (OPEN goes that way too)
+//   locked, its key not on you ........................................ Open (the lock says what it wants)
+//   `door`, in the room ............................................... Go through            (OPEN, ENTER and the direction go too)
+//   `leads`, in the room .............................................. Enter / Climb / Climb down  (OPEN goes that way too)
 //   a line for a verb (listen, push, smell, read…) .................... that verb, but not take, drop, put, give, throw, attack
 //   `use: "pull"` ..................................................... that verb
 //   a source (a thing's `from` names it) .............................. Order X / Buy X (what costs something), while it can come
-//   the opening: the hints thing .. Listen to; the intro .. Read; the way on .. Enter, once you carry the hints thing
+//   the opening: the hints thing .. Listen to; the intro .. Read; the way on .. Enter (until the hints thing is carried, "not yet")
 // `held`: the inventory's side (the thing is in your hands), which has no Take and no sitting on it.
 export function basicActions(state, t, id, held = carries(state, id)) {
   const o = state.world.objects[id], b = t.basic;
@@ -212,18 +214,15 @@ export function basicActions(state, t, id, held = carries(state, id)) {
   if (o.portable && o.at !== "player" && !held && !holderOf(state, id) && state.player.in !== id && o.take == null) add(b.take, is("take"));
   if (person(o)) add(b.talk, is("talk"));
   if (state.player.in === id) add(o.enterable === "on" ? b.exitOn : b.exitIn, is("exit"));
-  else if (o.enterable && here && !held && !way && !o.locked) add(o.enterable === "on" ? b.enterOn : b.enterIn, is("enter", "sit", "climb", "lie"));
+  else if (o.enterable && here && !held && !way) add(o.enterable === "on" ? b.enterOn : b.enterIn, is("enter", "sit", "climb", "lie"));
   if (o.container && !o.open && !o.locked) add(b.open, is("open"));
   if (o.container && o.open === true && carried(state, id)) add(b.close, is("close"));
   const unlocks = unlockActions(state, t, id);
   out.push(...unlocks);
-  if (way && o.locked && here && !unlocks.length) add(b.open, is("open"));
-  if (way && !o.locked && here) for (const dir of waysOf(o)) {
-    const now = exitNow(state, room, dir);
-    // (a door is gone through, whichever way it faces; stairs and the like are climbed or entered by the way they go: each of
-    // their ways, for stairs both up and down)
-    if (now.go === true || typeof now.go === "string") add(o.door ? b.goThrough : dir === "u" ? b.climbUp : dir === "d" ? b.climbDown : b.enterIn, goes(dir));
-  }
+  if (o.locked && !unlocks.length) add(b.open, is("open"));
+  // (a door is gone through, whichever way it faces; stairs and the like are climbed or entered by the way they go: each of
+  // their ways, for stairs both up and down. Open, or shut with a line of its own: locked, out of hours, wanting something)
+  if (way && here) for (const dir of waysOf(o)) add(o.door ? b.goThrough : dir === "u" ? b.climbUp : dir === "d" ? b.climbDown : b.enterIn, goes(dir));
   for (const verb of ANSWERED) {
     const line = o[verb], spec = ACTIONS[verb];
     if (NOT_OFFERED.has(verb) || !(typeof line === "string" || (Array.isArray(line) && line.length))) continue;
@@ -239,7 +238,7 @@ export function basicActions(state, t, id, held = carries(state, id)) {
   }
   if (op && id === op.hints) add(b.listen, is("listen", "use", "talk", "ask"));
   if (op && id === op.intro && carried(state, id)) add(b.read, is("read", "examine", "open"));
-  if (op && id === op.way && carried(state, op.hints) && !way) add(b.enterIn, is("enter", "open", "push", "pull", "knock", "use", "climb", "board"));
+  if (op && id === op.way && !way) add(b.enterIn, is("enter", "open", "push", "pull", "knock", "use", "climb", "board"));
   return out.filter(offering(state, t, id));
 }
 
@@ -299,7 +298,7 @@ export function suggestion(state, t, id, fromInventory, examined = false) {
 // `Unlock door with key` or `Examine key`." The two-thing actions that would work here and now first: put what you carry in
 // an open container that is here, give what you carry to someone here who would take it, unlock what is locked and here with the key you
 // carry; then the thing's basic actions (basicActions), then the world's own `actions` (the same source as the line shown when it is
-// clicked). Only commands that would be read and answered by a rule or the thing (never a stock or refused reply), at most five.
+// clicked). Only commands that would be read and answered by a rule or the thing (never a stock reply or what is so already), at most five.
 // Null when nothing is left to offer, or only Examine (the stock reply then: nothing to use it for).
 export function useLine(state, t, id) {
   const objects = state.world.objects, own = objects[id];

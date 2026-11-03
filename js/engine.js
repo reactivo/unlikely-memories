@@ -340,8 +340,9 @@ function runAction(g, action, out, question) {
 const answersAgain = (g, r, action) => r.again != null && spent(g, r) && matches(r.match, action) && holds(g, r.if, action);
 
 // Would these actions, done now, be accepted, and would something answer them: a game rule or the thing itself,
-// not a verb's generic reply (verbs.js)? For offering commands ("Did you mean…?", suggestion lines). The state is
-// untouched. { works, meaningful, rules }: rules, the id of the rule that answered each action (null for none).
+// not a verb's generic reply (verbs.js)? For offering commands ("Did you mean…?", suggestion lines). A refusal in the
+// world's own words (a lock's `says`, a shut way's line, the opening's "not yet", what a thing costs) is meaningful: trying
+// it tells the player something. The state is untouched. { works, meaningful, rules }: rules, the id of the rule that answered each action (null for none).
 export function answers(state, actions) {
   let s = state, meaningful = !state.ended;
   const rules = [];
@@ -920,7 +921,10 @@ function apply(g, e, action, out, key) {
       done({ unlock: id });
       apply(g, { say: lock.opens || "@unlocked" }, action, out, key + ":opens");
       if (lock.then) apply(g, { change: lock.then }, action, out, key + ":then");
-    } else apply(g, { say: lock.says || "@locked" }, action, out, key + ":says");
+    } else {                                         // (a refusal in the lock's own words is offered; the stock "locked" is generic)
+      apply(g, { say: lock.says || "@locked" }, action, out, key + ":says");
+      if (!lock.says) out.answer = { ...out.answer, generic: true };
+    }
   } else if ("change" in e) {                        // run a named change: effects written once, used by any rule
     const effects = g.changes[e.change];
     if (!effects) return e.optional ? undefined : refuse("no such change: " + e.change);   // optional: if the world has one
@@ -993,7 +997,9 @@ function apply(g, e, action, out, key) {
   } else if ("bring" in e) {                         // a thing comes from its source (the standard ORDER, BUY, ASK FOR): js/verbs.js, std_bring
     const id = fill(g, e.bring, action), o = g.world.objects[id];
     if (!o) return refuse("no such object: " + id);
-    const no = (say, things) => { apply(g, { say, ...(things ? { things } : {}) }, action, out, key + ":no"); out.answer = { ...out.answer, generic: true }; };
+    // A refusal: generic (never offered) when it is so already or no more are to be had; not when it says what it costs (`lacking`, the
+    // thing's own line or the pack's, which names what you need: a clue, so "Buy ticket" is offered without the coin)
+    const no = (say, things, generic = true) => { apply(g, { say, ...(things ? { things } : {}) }, action, out, key + ":no"); if (generic) out.answer = { ...out.answer, generic: true }; };
     // how many have come: `n` in all (its lines go by it); a `daily` thing's `times` count afresh each day (decision 50), by `today`
     const rec = g.served?.[id], served = rec?.n ?? 0, day = parts(worldTime(g), g.time?.weekday).day;
     const count = o.daily === true ? (rec?.day === day ? rec.today ?? 0 : 0) : served, times = o.times ?? 1;
@@ -1003,7 +1009,7 @@ function apply(g, e, action, out, key) {
     if (count >= times || (Array.isArray(o.if) && !holds(g, o.if, action))) return no(o.again ?? "@noMore", o.again ? null : [id]);
     // what it costs (decision 41): only while you hold that thing (anywhere on you); `spends` takes it; without it, its `lacking` line
     const needs = typeof o.requires === "string" && g.world.objects[o.requires] ? o.requires : null;
-    if (needs && placeOf(g, needs) !== "player") return no(o.lacking ?? "@lacking", o.lacking ? null : [needs]);
+    if (needs && placeOf(g, needs) !== "player") return no(o.lacking ?? "@lacking", o.lacking ? null : [needs], false);
     const lines = o.brought, line = Array.isArray(lines) ? lines[Math.min(served, lines.length - 1)] : lines;   // a list: one each time, in order
     (g.served ??= {})[id] = { n: served + 1, ...(o.daily === true ? { day, today: count + 1 } : {}) };
     apply(g, line != null ? { say: line } : { say: "@brought", things: [id] }, action, out, key + ":brought");

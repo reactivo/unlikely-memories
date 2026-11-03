@@ -221,15 +221,18 @@ const rules = [
   { id: "std_unknown", match: {}, do: [{ say: "@unsure", vary: true }] }
 ];
 
-// The generic answers: a verb's stock reply, or "you can't" / "nothing special" / "no way". A command answered only
-// by one of these isn't worth offering ("Did you mean…?", suggestion lines): nothing in the world answers it.
+// The generic answers: a verb's stock reply, or "you can't" / "nothing special" / "no way", or what is so already ("already
+// open", "you have it"). A command answered only by one of these isn't worth offering ("Did you mean…?", suggestion lines):
+// nothing in the world answers it. A refusal in the world's own words is not generic, and is offered (Diego, 3 November 2026: it
+// gives the player a clue): a lock's `says` (std_locked, std_locked_in, and OPEN through the engine's `unlock`), a shut way's own
+// line (std_go_closed: a door's `shut`, an exit's `closed` or `lacking`), and the line naming what a way wants you to hold
+// (std_go_lacking: the pack's `lacking`, but it names the world's thing). The engine's `bring` and `unlock` mark their own stock
+// refusals generic (js/engine.js); the opening's "not yet" is the world's line too (js/opening.js).
 const GENERIC = new Set(["std_in_already", "std_not_in", "std_locked_plain", "std_wait_nothing", "std_ask_unknown",
-  "std_examine_plain", "std_go_lacking", "std_take_not_in", "std_take_have", "std_take_fixed", "std_drop_not", "std_go_blocked", "std_unknown",
+  "std_examine_plain", "std_take_not_in", "std_take_have", "std_take_fixed", "std_drop_not", "std_go_blocked", "std_unknown",
   "std_put_not_carried", "std_put_inside", "std_put_closed", "std_use_alone", "std_unheard", "std_open_already", "std_close_already", "std_close_locked", "std_open_always", "std_close_always",
-  "std_locked_in", "std_locked_in_plain", "std_get_in_closed", "std_take_on", "std_take_inside", "std_take_person",
-  "std_drop_kept", "std_drop_kept_plain", "std_put_kept", "std_put_kept_plain",
-  // a locked thing says why it won't open, enter, push or pull: the lock's own words, but a refusal all the same
-  "std_locked"]);
+  "std_locked_in_plain", "std_get_in_closed", "std_take_on", "std_take_inside", "std_take_person",
+  "std_drop_kept", "std_drop_kept_plain", "std_put_kept", "std_put_kept_plain", "std_go_locked_plain"]);
 export default rules.map(r => (GENERIC.has(r.id) || r.id.startsWith("std_reply_") ? { ...r, generic: true } : r));
 
 // The standard answer that only shows what examining the thing shows: reading a thing with nothing else to answer it
