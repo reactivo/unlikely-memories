@@ -448,7 +448,7 @@ const objects = {
     talk: "\"A room?\" he says, without looking up. \"Ask, then.\"",
     topics: {
       room: { open: true, label: "a room", words: ["room", "rooms", "key", "bed", "sleep"], says: "\"Number 4,\" he says." },
-      train: { open: true, words: ["train", "tuesday"], says: "\"Guests go on the Tuesday train. They leave their luggage. It's all up in the attic.\"" },
+      train: { about: "timetable", words: ["train", "tuesday"], says: "\"Guests go on the Tuesday train. They leave their luggage. It's all up in the attic.\"" },
       default: "\"Couldn't say,\" he says. \"Saturday's paper doesn't mention it.\""
     } },
   room_key: { at: null, portable: true, name: "Room key", note: "Number 4.",
@@ -465,7 +465,7 @@ const objects = {
     talk: "\"Coffee?\" she says. It is the only question she asks.",
     topics: {
       monday: { label: "Monday", words: ["monday", "mondays", "archive", "archivist"], says: "\"The last Monday? Up at the town hall. Nine till five. The archivist won't give anything to anyone who can't prove they lost it.\"" },
-      train: { open: true, words: ["train", "tuesday"], says: "\"People have their last coffee here,\" she says. \"Then they go. I wash the cup.\"" },
+      train: { about: "timetable", words: ["train", "tuesday"], says: "\"People have their last coffee here,\" she says. \"Then they go. I wash the cup.\"" },
       coin: { about: "fountain", label: "coins", words: ["coin", "coins", "currency", "money"], says: "\"Old coins? In the fountain on the square. You'll see them when the water lamp comes on.\"" },
       coffee: { open: true, words: ["coffee", "cup", "drink"], says: "\"Black, small, hot,\" she says. \"Anything else is a conversation.\"" },
       default: "\"Coffee,\" she says. \"I'd know about coffee.\""

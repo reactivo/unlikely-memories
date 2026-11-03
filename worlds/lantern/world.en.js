@@ -285,8 +285,8 @@ const objects = {
     parts: [{ words: ["helmet", "cape"], name: "his helmet", says: "Fog has pooled in the crown of it. He hasn't noticed, or is too polite to." }], mentions: ["helmet", "cape"],
     talk: "\"Evening,\" says Constable Pye. \"You'll be the witness. Inquest's at midnight, in the court. I've got the persons present written down, if you want them.\"",
     topics: {
-      present: { open: true, label: "the persons present", words: ["persons", "present", "list", "suspects", "people", "notebook"], says: "\"Persons present at the last lamp this evening,\" he reads. \"Mr Voss, of the Company. Mrs Halloran, of the pies. The deceased. That's all the fog let me see.\"" },
-      fog: { open: true, label: "the fog", words: ["fog", "words", "word", "voices"], says: "\"Words hang in this fog till somebody hears them out. Known fact. You'd want a lamplighter's trumpet for it, and quiet. It's never quiet on the Row till the Bell shuts at eleven.\"" },
+      present: { about: "notebook", label: "the persons present", words: ["persons", "present", "list", "suspects", "people", "notebook"], says: "\"Persons present at the last lamp this evening,\" he reads. \"Mr Voss, of the Company. Mrs Halloran, of the pies. The deceased. That's all the fog let me see.\"" },
+      fog: { open: true, label: "the fog", words: ["fog", "words", "word", "voices"], opens: ["closing"], says: "\"Words hang in this fog till somebody hears them out. Known fact. You'd want a lamplighter's trumpet for it, and quiet. It's never quiet on the Row till the Bell shuts at eleven.\"" },
       fenn: { label: "Mr Fenn", words: ["fenn", "albert", "lamplighter", "death", "body", "deceased"], says: "\"Found him at the last lamp, sitting. Not a mark on him. He said good evening. I said good evening back. Then I wrote it down.\"" },
       voss: { label: "Mr Voss", words: ["voss", "company", "electric", "electricity"], says: "\"Said something unkind to Mr Fenn at the third lamp. Said it again to me, for the notebook. Proud of it, he was.\"" },
       halloran: { label: "Mrs Halloran", words: ["halloran", "pies", "pie"], says: "\"Mrs Halloran gave him his pie, same as every night. She's not said a word since. She never did say much.\"" },
@@ -336,7 +336,7 @@ const objects = {
       pie: { open: true, label: "a pie", words: ["pie", "pies", "food", "supper"], says: "\"Steak, and a bit of kidney,\" she says. \"Nobody asks what's in them. He never did.\"" },
       fenn: { label: "Mr Fenn", words: ["fenn", "albert", "lamplighter", "death"], says: "\"Forty years he had his pie here, and took it down to the last lamp, and lit her.\" She wipes the counter where it is already clean. \"I walked down with him tonight. First time in forty years.\"" },
       voss: { label: "Mr Voss", words: ["voss", "company", "electric"], says: "\"That Voss. Told Albert his lamps were finished, under my window, at the third lamp. Albert said thank you. He would.\"" },
-      fog: { open: true, label: "the fog", words: ["fog", "words", "word", "said"], says: "\"Whatever you say in that fog stays said,\" she says. \"That's why I never said much. Not in forty years.\"" },
+      fog: { about: "fog_lamp", label: "the fog", words: ["fog", "words", "word", "said"], says: "\"Whatever you say in that fog stays said,\" she says. \"That's why I never said much. Not in forty years.\"" },
       inquest: { about: "court", label: "the inquest", words: ["inquest", "court", "coroner", "midnight"], says: "\"I'll not go,\" she says. \"I've nothing to say.\" She has flour to the elbow, and she looks at it." },
       default: "\"I only do pies, love,\" says Mrs Halloran."
     } },
@@ -377,7 +377,7 @@ const objects = {
     talk: "\"Evening,\" says Mr Fenn, without getting up. \"I can't leave my post. Not till I'm relieved.\"",
     topics: {
       death: { open: true, label: "his death", words: ["death", "died", "dead", "murder", "killed", "who", "dying"], says: "\"Couldn't tell you who,\" he says. \"Wouldn't be fair, not before the inquest. Ask the fog. It was here.\"" },
-      fog: { open: true, label: "the fog", words: ["fog", "words", "word", "listen", "listening"], says: "\"Holds everything, this fog. Every word said in it hangs where it was said till somebody hears it out. I used to listen to the gas with my old trumpet. It's in the hut.\"" },
+      fog: { about: "fog_lamp", label: "the fog", words: ["fog", "words", "word", "listen", "listening"], says: "\"Holds everything, this fog. Every word said in it hangs where it was said till somebody hears it out. I used to listen to the gas with my old trumpet. It's in the hut.\"" },
       hut: { about: "hut_door", label: "his hut", words: ["hut", "key", "trumpet", "string"], says: "\"Key's round my neck. Take it. I shan't be going anywhere.\"" },
       lamp: { about: "dark_lamp", label: "the last lamp", words: ["lamp", "lamps", "light", "post", "pole", "relieved", "relieve"], says: "\"Twelve lamps every night, the last one last. Whoever lights her takes the post. That's how I had it off old Dacre, and he off his father.\"" },
       voss: { label: "Mr Voss", words: ["voss", "company", "electric"], says: "\"Mr Voss. Told me my lamps were finished. I said thank you. You do, to the Company.\"" },
@@ -421,7 +421,7 @@ const objects = {
     examine: "A neat man in a celluloid collar and a {bowler hat|bowler}, who looks at the dynamo the way other men look at their sons.",
     talk: "\"Voss, Electric Company,\" he says, and offers a hand you didn't ask for. \"On Monday the Row goes electric. You'll be wanting to ask me about Fenn. Everybody is.\"",
     topics: {
-      fenn: { open: true, label: "Mr Fenn", words: ["fenn", "albert", "lamplighter", "death", "said", "words"], says: "\"I told him straight, at his third lamp. Your lamps are finished, Fenn. Monday the Row goes electric.\" He sniffs. \"He said thank you and went on to the fourth. Thank you.\"" },
+      fenn: { label: "Mr Fenn", words: ["fenn", "albert", "lamplighter", "death", "said", "words"], says: "\"I told him straight, at his third lamp. Your lamps are finished, Fenn. Monday the Row goes electric.\" He sniffs. \"He said thank you and went on to the fourth. Thank you.\"" },
       alibi: { open: true, label: "this evening", words: ["evening", "alibi", "tonight", "where", "dynamo"], says: "\"I came straight back here to my dynamo, and here I've been. Ask it.\" The dynamo hums, as if it would rather not be asked." },
       electric: { open: true, label: "the electric", words: ["electric", "electricity", "monday", "bulb", "light"], says: "\"Monday,\" he says. \"Twelve electric lamps, all at once, from this room. Nobody will have to walk anywhere ever again.\"" },
       halloran: { label: "Mrs Halloran", words: ["halloran", "pies", "pie"], says: "\"The pie woman. Sweet on him forty years, and never once said so. You'd think she'd have said, at the end.\" He thinks about it. \"Maybe she did.\"" },
@@ -447,10 +447,10 @@ const objects = {
     parts: [{ words: ["bucket", "stick", "coat"], name: "her bucket", says: "Spoons, buttons, a doorknob, half a pair of spectacles. And at the bottom, something small and pale that she covers with her hand when you look." }], mentions: ["stick"],
     talk: "\"Finders,\" says Pip, without looking up. \"Ask me what I found, if you want.\"",
     topics: {
-      found: { open: true, label: "what she found", words: ["found", "finds", "bucket", "things", "mud", "find"], says: "\"Spoons. A button. Words, sometimes, when they drop in the river. They go hard in the mud, like biscuits. Nothing tonight.\" She looks up the steps. \"Tonight I heard.\"" },
-      heard: { open: true, label: "what she heard", words: ["heard", "hear", "voice", "lady", "tonight", "sound"], says: "\"A lady, up by the lamp. Kind voice. Floury, if a voice can be. She said something, soft. Then Mr Fenn sat down. I heard his knees go, like a gate.\"" },
+      found: { open: true, label: "what she found", words: ["found", "finds", "bucket", "things", "mud", "find"], opens: ["heard"], says: "\"Spoons. A button. Words, sometimes, when they drop in the river. They go hard in the mud, like biscuits. Nothing tonight.\" She looks up the steps. \"Tonight I heard.\"" },
+      heard: { label: "what she heard", words: ["heard", "hear", "voice", "lady", "tonight", "sound"], says: "\"A lady, up by the lamp. Kind voice. Floury, if a voice can be. She said something, soft. Then Mr Fenn sat down. I heard his knees go, like a gate.\"" },
       fenn: { label: "Mr Fenn", words: ["fenn", "albert", "lamplighter"], says: "\"He gave me a penny to hold his ladder. He didn't have a ladder. He liked the company.\"" },
-      river: { open: true, label: "the river", words: ["river", "thames", "water", "swim"], says: "\"Don't go in. It's colder than it looks and it doesn't give things back. Except to me.\"" },
+      river: { label: "the river", words: ["river", "thames", "water", "swim"], says: "\"Don't go in. It's colder than it looks and it doesn't give things back. Except to me.\"" },
       default: "\"Dunno,\" says Pip. \"It's not in the bucket.\""
     } },
   river: { at: "river_steps", name: "River", note: "Brown, in no hurry.",

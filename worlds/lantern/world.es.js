@@ -296,8 +296,8 @@ const objects = {
     parts: [{ words: ["casco", "capa"], name: "su casco", says: "La niebla se ha estancado en la copa. Él no se ha dado cuenta, o es demasiado educado para decirlo." }], mentions: ["casco", "capa"],
     talk: "«Buenas noches», dice el agente Pye. «A ti te toca declarar. La investigación es a medianoche, en el tribunal. Tengo apuntados a los presentes, si los quieres».",
     topics: {
-      present: { open: true, label: "los presentes", words: ["presentes", "presente", "personas", "lista", "sospechosos", "gente", "libreta"], says: "«Presentes junto al último farol esta noche», lee. «El señor Voss, de la Compañía. La señora Halloran, de los pasteles. El difunto. Es todo lo que la niebla me ha dejado ver»." },
-      fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "voces", "voz"], says: "«Las palabras se quedan colgadas en esta niebla hasta que alguien las oye hasta el final. Es sabido. Para eso hace falta la trompetilla de un farolero, y silencio. En la calle nunca hay silencio hasta que cierra The Bell, a las once»." },
+      present: { about: "notebook", label: "los presentes", words: ["presentes", "presente", "personas", "lista", "sospechosos", "gente", "libreta"], says: "«Presentes junto al último farol esta noche», lee. «El señor Voss, de la Compañía. La señora Halloran, de los pasteles. El difunto. Es todo lo que la niebla me ha dejado ver»." },
+      fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "voces", "voz"], opens: ["closing"], says: "«Las palabras se quedan colgadas en esta niebla hasta que alguien las oye hasta el final. Es sabido. Para eso hace falta la trompetilla de un farolero, y silencio. En la calle nunca hay silencio hasta que cierra The Bell, a las once»." },
       fenn: { label: "Fenn", words: ["fenn", "albert", "farolero", "muerte", "cuerpo", "difunto", "muerto"], says: "«Lo encontré en el último farol, sentado. Ni una marca. Dijo buenas noches. Yo dije buenas noches. Luego lo apunté»." },
       voss: { label: "Voss", words: ["voss", "compania", "electrica", "electricidad"], says: "«Le dijo algo desagradable al señor Fenn en el tercer farol. Me lo repitió a mí, para la libreta. Orgulloso, estaba»." },
       halloran: { label: "Halloran", words: ["halloran", "pasteles", "pastel", "pastelera"], says: "«La señora Halloran le dio su pastel, como todas las noches. No ha dicho una palabra desde entonces. Tampoco decía mucho nunca»." },
@@ -347,7 +347,7 @@ const objects = {
       pie: { open: true, label: "un pastel", words: ["pastel", "pasteles", "comida", "cena"], says: "«De carne, con un poco de riñón», dice. «Nadie pregunta qué llevan. Él nunca lo preguntó»." },
       fenn: { label: "Fenn", words: ["fenn", "albert", "farolero", "muerte"], says: "«Cuarenta años cenó aquí su pastel, y bajó con él hasta el último farol, y lo encendió». Pasa el trapo por el mostrador, donde ya está limpio. «Esta noche he bajado con él. La primera vez en cuarenta años»." },
       voss: { label: "Voss", words: ["voss", "compania", "electrica"], says: "«Ese Voss. Le dijo a Albert que sus faroles estaban acabados, bajo mi ventana, en el tercer farol. Albert le dio las gracias. Era de esperar»." },
-      fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "dicho"], says: "«Lo que se dice en esa niebla se queda dicho», dice. «Por eso yo nunca decía mucho. En cuarenta años»." },
+      fog: { about: "fog_lamp", label: "la niebla", words: ["niebla", "palabras", "palabra", "dicho"], says: "«Lo que se dice en esa niebla se queda dicho», dice. «Por eso yo nunca decía mucho. En cuarenta años»." },
       inquest: { about: "court", label: "la investigación", words: ["investigacion", "tribunal", "forense", "medianoche"], says: "«No iré», dice. «No tengo nada que decir». Tiene harina hasta los codos, y la mira." },
       default: "«Yo solo hago pasteles, criatura», dice la señora Halloran."
     } },
@@ -388,7 +388,7 @@ const objects = {
     talk: "«Buenas noches», dice el señor Fenn, sin levantarse. «No puedo dejar mi puesto. No hasta que me releven».",
     topics: {
       death: { open: true, label: "la muerte", words: ["muerte", "murio", "muerto", "asesinato", "matado", "quien", "morir"], says: "«No sabría decirte quién», dice. «No sería justo, no antes de la investigación. Pregunta a la niebla. Estaba aquí»." },
-      fog: { open: true, label: "la niebla", words: ["niebla", "palabras", "palabra", "escuchar", "escuchando"], says: "«Lo guarda todo, esta niebla. Cada palabra dicha en ella queda colgada donde se dijo hasta que alguien la oye hasta el final. Yo escuchaba el gas con mi vieja trompetilla. Está en la caseta»." },
+      fog: { about: "fog_lamp", label: "la niebla", words: ["niebla", "palabras", "palabra", "escuchar", "escuchando"], says: "«Lo guarda todo, esta niebla. Cada palabra dicha en ella queda colgada donde se dijo hasta que alguien la oye hasta el final. Yo escuchaba el gas con mi vieja trompetilla. Está en la caseta»." },
       hut: { about: "hut_door", label: "la caseta", words: ["caseta", "llave", "trompetilla", "cordel", "cuerda", "garita"], says: "«La llave está al cuello. Cógela. No voy a ir a ninguna parte»." },
       lamp: { about: "dark_lamp", label: "el último farol", words: ["farol", "faroles", "luz", "poste", "relevo", "relevar", "relevado"], says: "«Doce faroles cada noche, el último al final. Quien lo enciende se queda con el puesto. Así lo recibí yo del viejo Dacre, y él de su padre»." },
       voss: { label: "Voss", words: ["voss", "compania", "electrica"], says: "«El señor Voss. Me dijo que mis faroles estaban acabados. Le di las gracias. Es lo que se hace con la Compañía»." },
@@ -432,7 +432,7 @@ const objects = {
     examine: "Un hombre pulcro de cuello de celuloide y un {sombrero hongo|bowler}, que mira la dínamo como otros hombres miran a sus hijos.",
     talk: "«Voss, de la Compañía Eléctrica», dice, y te tiende una mano que no has pedido. «El lunes la calle se pasa a la electricidad. Querrás preguntarme por Fenn. Todo el mundo lo hace».",
     topics: {
-      fenn: { open: true, label: "Fenn", words: ["fenn", "albert", "farolero", "muerte", "dijo", "palabras"], says: "«Se lo dije claro, en su tercer farol. Se acabaron sus faroles, Fenn. El lunes la calle se pasa a la electricidad». Resopla. «Me dio las gracias y siguió hasta el cuarto. Las gracias»." },
+      fenn: { label: "Fenn", words: ["fenn", "albert", "farolero", "muerte", "dijo", "palabras"], says: "«Se lo dije claro, en su tercer farol. Se acabaron sus faroles, Fenn. El lunes la calle se pasa a la electricidad». Resopla. «Me dio las gracias y siguió hasta el cuarto. Las gracias»." },
       alibi: { open: true, label: "la coartada", words: ["coartada", "noche", "anoche", "tarde", "donde", "dinamo"], says: "«Volví directo aquí, a mi dínamo, y aquí he estado. Pregúntale a ella». La dínamo zumba, como si prefiriera que no le preguntaran." },
       electric: { open: true, label: "la electricidad", words: ["electricidad", "electrico", "lunes", "bombilla", "luz"], says: "«El lunes», dice. «Doce faroles eléctricos, todos a la vez, desde esta sala. Nadie tendrá que andar a ninguna parte nunca más»." },
       halloran: { label: "Halloran", words: ["halloran", "pasteles", "pastel"], says: "«La de los pasteles. Enamorada de él cuarenta años, y sin decírselo nunca. Cualquiera diría que se lo habría dicho al final». Lo piensa. «Quizá lo hizo»." },
@@ -458,10 +458,10 @@ const objects = {
     parts: [{ words: ["cubo", "palo", "abrigo"], name: "su cubo", says: "Cucharas, botones, un pomo de puerta, medio par de gafas. Y en el fondo, algo pequeño y pálido que tapa con la mano cuando lo miras." }], mentions: ["palo"],
     talk: "«Quien lo encuentra se lo queda», dice Pip, sin levantar la vista. «Pregúntame qué he encontrado, si quieres».",
     topics: {
-      found: { open: true, label: "los hallazgos", words: ["hallazgos", "hallazgo", "encontrado", "encontrar", "cubo", "cosas", "barro"], says: "«Cucharas. Un botón. Palabras, a veces, cuando caen al río. Se ponen duras en el barro, como galletas. Esta noche nada». Mira escalera arriba. «Esta noche oí»." },
-      heard: { open: true, label: "la voz", words: ["voz", "oyo", "oir", "oido", "dama", "señora", "senora", "sonido"], says: "«Una señora, arriba, junto al farol. Voz amable. Enharinada, si una voz puede estarlo. Dijo algo, bajito. Y el señor Fenn se sentó. Le oí crujir las rodillas, como una verja»." },
+      found: { open: true, label: "los hallazgos", words: ["hallazgos", "hallazgo", "encontrado", "encontrar", "cubo", "cosas", "barro"], opens: ["heard"], says: "«Cucharas. Un botón. Palabras, a veces, cuando caen al río. Se ponen duras en el barro, como galletas. Esta noche nada». Mira escalera arriba. «Esta noche oí»." },
+      heard: { label: "la voz", words: ["voz", "oyo", "oir", "oido", "dama", "señora", "senora", "sonido"], says: "«Una señora, arriba, junto al farol. Voz amable. Enharinada, si una voz puede estarlo. Dijo algo, bajito. Y el señor Fenn se sentó. Le oí crujir las rodillas, como una verja»." },
       fenn: { label: "Fenn", words: ["fenn", "albert", "farolero"], says: "«Me dio un penique por sostenerle la escalera. No tenía escalera. Le gustaba la compañía»." },
-      river: { open: true, label: "el río", words: ["rio", "tamesis", "agua", "nadar"], says: "«No te metas. El agua está más fría de lo que parece y no devuelve nada. Salvo a mí»." },
+      river: { label: "el río", words: ["rio", "tamesis", "agua", "nadar"], says: "«No te metas. El agua está más fría de lo que parece y no devuelve nada. Salvo a mí»." },
       default: "«Ni idea», dice Pip. «No está en el cubo»."
     } },
   river: { at: "river_steps", name: "Río", note: "Pardo, sin prisa.",

@@ -448,7 +448,7 @@ const objects = {
     talk: "«¿Una habitación?», dice, sin levantar la vista. «Pídela, entonces.»",
     topics: {
       room: { open: true, label: "una habitación", words: ["habitación", "habitacion", "habitaciones", "cuarto", "llave", "cama", "dormir"], says: "«La cuatro», dice." },
-      train: { open: true, words: ["tren", "martes"], says: "«Los huéspedes se van en el tren del martes. Dejan el equipaje. Está todo en el desván.»" },
+      train: { about: "timetable", words: ["tren", "martes"], says: "«Los huéspedes se van en el tren del martes. Dejan el equipaje. Está todo en el desván.»" },
       default: "«No sabría decirte», dice. «El periódico del sábado no lo menciona.»"
     } },
   room_key: { at: null, portable: true, name: "Llave de la habitación", note: "La cuatro.",
@@ -465,7 +465,7 @@ const objects = {
     talk: "«¿Café?», dice. Es la única pregunta que hace.",
     topics: {
       monday: { label: "lunes", words: ["lunes", "archivo", "archivera"], says: "«¿El último lunes? En el ayuntamiento. De nueve a cinco. La archivera no le da nada a quien no pruebe que lo perdió.»" },
-      train: { open: true, words: ["tren", "martes"], says: "«La gente toma aquí su último café», dice. «Luego se van. Yo lavo la taza.»" },
+      train: { about: "timetable", words: ["tren", "martes"], says: "«La gente toma aquí su último café», dice. «Luego se van. Yo lavo la taza.»" },
       coin: { about: "fountain", label: "monedas", words: ["moneda", "monedas", "dinero"], says: "«¿Monedas antiguas? En la fuente de la plaza. Las verás cuando se encienda la lámpara del agua.»" },
       coffee: { open: true, words: ["café", "cafe", "taza", "beber"], says: "«Solo, pequeño y caliente», dice. «Lo demás ya es conversación.»" },
       default: "«Café», dice. «De café sí entiendo.»"
