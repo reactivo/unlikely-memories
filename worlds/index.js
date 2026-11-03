@@ -19,6 +19,7 @@ import seaEs, { bible as seaBibleEs } from "./sea/world.es.js";
 import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js";
 import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js";
 import meridian, { bible as meridianBible } from "./meridian/world.en.js";
+import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js";
 import { parseShapes } from "../js/picture.js";
 
 export const WORLDS = {
@@ -26,7 +27,8 @@ export const WORLDS = {
   tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", model: "Claude Opus 5.5", effort: "medium", version: 7, minutes: null, bible: { es: tuesdayBibleEs }, text: { en: tuesday, es: tuesdayEs } },   // "The Train to Tuesday"
   hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", model: "Claude Opus 5.5", effort: "medium", version: 6, minutes: null, bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
   lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", model: "Claude Opus 5.5", effort: "high", version: 6, minutes: 53, bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } },      // "The Last Word on Lantern Row"
-  meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", model: "Claude Haiku 5.5", effort: "default", version: 3, minutes: 28, text: { en: meridian } }      // "Please Remain Present"
+  meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", model: "Claude Haiku 5.5", effort: "default", version: 3, minutes: 28, text: { en: meridian } },     // "Please Remain Present"
+  thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 1, minutes: 34, text: { en: thirdglass } }      // "The Third Glass"
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).
