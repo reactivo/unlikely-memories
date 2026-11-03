@@ -11,6 +11,8 @@
 //                                              `in: true` / `out: true` mark it as the way into / out of a place
 //                                              (a hut at the east end of the street): "in" / "out" take it. A way marked
 //                                              `in: true` also makes the way back, on the other side, the `out` (wayAt)
+//                                              `passage: true` marks a way that skips the grid inside one area (a looping
+//                                              corridor: js/space.js); the checker refuses one that does it unmarked
 //
 // A `connect` effect writes an exit too, and may carry the same fields beside `connect`, `dir` and `to` (connectedExit).
 

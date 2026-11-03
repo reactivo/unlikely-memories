@@ -770,7 +770,9 @@ const puzzles = {
                 hints: ["La lámpara solo quema lo que aceptes olvidar. Una de las cosas que llevas es una vida que no tuviste.", "En la linterna, dale a la lámpara la fotografía de la caseta 7."] },
   forget_shell: { where: "lantern", needs: ["shell", "row_out"], solve: ["quemar caracola"], ending: true,
                 clues: ["lamp", "letter", "cave_voice"],
-                hints: ["A la lámpara le da igual qué sea, con tal de que elijas. Una de las cosas que llevas es el mar hablando por ti, y el Ministerio todavía dentro.", "En la linterna, quema la caracola de la línea de la marea, y deja que el Ministerio te olvide."] }
+                hints: ["A la lámpara le da igual qué sea, con tal de que elijas. Una de las cosas que llevas es el mar hablando por ti, y el Ministerio todavía dentro.", "En la linterna, quema la caracola de la línea de la marea, y deja que el Ministerio te olvide."] },
+  drown: { where: "beach", needs: [], solve: ["nadar", "nadar", "nadar"], ending: true, clues: ["swim_hurt", "swim_hurt_last"],
+                hints: ["El mar te agarra el tobillo y te suelta, y cada vez tarda más en soltarte.", "Métete a nadar desde la playa tres veces; a la tercera, el mar se queda contigo."] }
 };
 
 // ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y de sus tres cosas, y las líneas que dice --------------------

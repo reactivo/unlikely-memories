@@ -283,7 +283,7 @@ export default {
           none: "Todavía no hay juegos en español." },
   labels: { directions: "DIRECCIONES", inv: "INVENTARIO", day: "Día", map: "Mapa" },
   // El mapa (js/map.js, ui/map.js): su hoja de estilos lo muestra en mayúsculas. `level(n)` nombra una planta que no es la baja.
-  map: { title: "Mapa", close: "Cerrar el mapa", hint: "Arrastra para mover el mapa", ground: "Planta baja",
+  map: { title: "Mapa", close: "Cerrar el mapa", hint: "Arrastra o pellizca el mapa", ground: "Planta baja",
          level: (n) => `Planta ${n < 0 ? "−" : ""}${Math.abs(n)}`, rooms: "Salas de esta planta", here: "estás aquí" },
   dirs: { n: "Norte", s: "Sur", e: "Este", w: "Oeste", u: "Arriba", d: "Abajo", in: "Dentro", out: "Fuera" }, noExit: "sin salida",
   // Los nombres de los botones de la brújula: su tooltip, lo que dice el lector de pantalla y lo que escribe un clic (el mapa camina con dirs, arriba).

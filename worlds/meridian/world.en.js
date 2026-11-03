@@ -238,7 +238,7 @@ export default {
       examine: "Your summons again, in the same words, in a newer typeface. Underneath, in smaller type: Presence may be confirmed in person, once.",
       sprite: sprites.slip },
 
-    { add: "room", id: "stairwell", name: "STAIRWELL", area: "block", at: [0, 1, 0],
+    { add: "room", id: "stairwell", name: "STAIRWELL", area: "block", at: [0, -1, 0],
       describe: [
         "The stairwell of the Meridian Block, concrete on every side, smelling of cold rain and of the lift that is not in it. Stairs climb past a {gate|stair_gate} towards the fourteenth floor, and go down towards the lobby.",
         "A black {cable|cable} hangs low over the flight and sparks each time the light stutters. The corridor is south, back the way you came."
@@ -274,7 +274,7 @@ export default {
       words: { nouns: ["cable", "wire"], adj: ["black"] },
       examine: "A black cable, thick as a wrist, hanging out of the ceiling and humming like a fridge. Every time the light stutters it sparks, and the sparks last a little longer than they should." },
 
-    { add: "room", id: "lobby", name: "LOBBY", area: "block", at: [0, 1, -1],
+    { add: "room", id: "lobby", name: "LOBBY", area: "block", at: [0, -1, -1],
       describe: [
         "The lobby of the Meridian Block, with a porter's counter nobody has manned since the porter was automated, a {bell} on it, and a {bench} bolted to the floor. The front is glass, from the floor to the high ceiling.",
         "Beyond the {glass|glass_front}, the street is lit by lamps that all flicker together, and a fog takes the far buildings a floor at a time. A sheet of paper is stuck to the glass: \"Under review.\""
@@ -311,7 +311,7 @@ export default {
       examine: "Bolted down, so that it can be sat on and not taken away.",
       enter: "You sit. The bench was bolted down for this, and holds you the way it was told to: firmly, and without asking where you are going." },
 
-    { add: "room", id: "registry", name: "REGISTRY", area: "block", at: [0, 1, 1],
+    { add: "room", id: "registry", name: "REGISTRY", area: "block", at: [0, -1, 1],
       describe: [
         "The Registry, fourteenth floor, where residents are confirmed. It is bright and quiet, the way a waiting room is when it expects you by name. Frosted {booths|booth} run down one wall, each with a green light on, except the last.",
         "A {terminal} shows PLEASE REMAIN PRESENT in a patient font. Beside it a {slot} is the width of a summons, and a {shredder} hums under a placard: \"Repeat presence is destroyed.\" The stairs go down."
@@ -406,6 +406,9 @@ export default {
       hints: ["The last booth is dark, and its chair has been kept for someone.", "Sit in the last booth."] },
     { add: "puzzle", id: "erase_presence", where: "registry", needs: ["slip", "open_gate"], solve: ["put slip in shredder"], ending: true,
       clues: ["shredder", "slot"],
-      hints: ["Something in this room is quieter than the slot, and it destroys.", "Put the slip in the shredder."] }
+      hints: ["Something in this room is quieter than the slot, and it destroys.", "Put the slip in the shredder."] },
+    { add: "puzzle", id: "step_into_shaft", where: "corridor", needs: [], solve: ["enter shaft"], ending: true,
+      clues: ["shaft", "summons_notice"],
+      hints: ["The lift shaft stands open on a warm dark, and its sign asks you kindly not to.", "Step into the lift shaft."] }
   ]
 };

@@ -23,6 +23,10 @@
 // Also: questions for words (BRIEF.md §8): an `ask` that no rule catches, and player.answers.<key> read where nothing asks "<key>",
 // are warned of (answerWarnings).
 //
+// Also: the cells add up (BRIEF.md §2): inside one area, a way north, south, east or west leads to the cell next door that way (x grows east,
+// y south: north is y − 1), or is marked `passage: true`; else it is a problem, as a taken cell is a refusal (cellProblems below). The map
+// draws a line, and a tap on a room walks, only between neighbouring cells, so a world with north drawn south loses both.
+//
 // Also: an exit with a condition (`{ to, if, closed }`) is well formed, and can open: the playthrough waits for the hour
 // of a timed one, and a way no property or hour could ever open is warned of (neverOpen below).
 //
@@ -44,9 +48,10 @@
 
 import { parse, normalise, inScope } from "./parser.js";
 import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js";
-import { placeOf, isAction } from "./use.js";
+import { placeOf, isAction, holderOf } from "./use.js";
 import { solveCommand } from "./narrator.js";
 import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js";
+import { nextCell } from "./space.js";
 import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
 import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite } from "./fields.js";
@@ -59,6 +64,24 @@ const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room
 const unmarked = (t) => String(t).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1");
 // A rule's effects with each named change it runs written out after it (one level: what the rule itself does).
 const withChanges = (state, effects) => (effects || []).flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]);
+// The cells add up: inside one area, each way north, south, east or west leads to the room in the cell next door that way, unless the
+// exit is marked `passage: true` (a looping corridor). Between areas, and up, down, in and out, a way is a passage by itself. One problem
+// for each exit that breaks it, saying where the room is and where that way's cell is.
+export function cellProblems(state) {
+  const rooms = state.world.rooms, found = [];
+  for (const [id, room] of Object.entries(rooms)) {
+    for (const dir of ["n", "s", "e", "w"]) {
+      const raw = room.exits?.[dir], to = exitTo(raw), there = typeof to === "string" ? rooms[to] : null;
+      if (!there?.at || !room.at || there.area !== room.area || (isExitObject(raw) && raw.passage === true)) continue;
+      const cell = nextCell(room, dir);
+      if (cell.every((v, i) => v === there.at[i])) continue;
+      found.push(`${id}: exit ${dir} leads to ${to}, at [${there.at.join(", ")}], but the cell ${dir} of ${id} [${room.at.join(", ")}] is [${cell.join(", ")}] ` +
+        `(x grows east, y south: north is y − 1): put ${to} there, or mark the exit passage: true if it skips the grid on purpose`);
+    }
+  }
+  return found;
+}
+
 // A "@key" as the pack's own text (any other value as it is).
 const packText = (x, pack) => (typeof x === "string" && x.startsWith("@") ? x.slice(1).split(".").reduce((v, k) => v?.[k], pack) : x);
 
@@ -112,6 +135,8 @@ export function check(state, pack, bible, { before = null } = {}) {
     ...state.rules.map(r => ({ where: r.id ?? "a rule", match: r.match, effects: r.do })),
     ...Object.entries(state.changes || {}).map(([name, effects]) => ({ where: "change " + name, effects }))]))
     if (!hasSprite(state.world.objects[h.id] ?? spriteOf(state, h.id))) problems.push(h.where === `objects/${h.id}` ? noSprite(h) : `${h.where}: ${noSprite(h)}`);
+
+  for (const why of cellProblems(state)) problems.push(why);
 
   // An exit with a condition: `{ to, if?, closed? }`: it leads to a room (or `true`: a rule answers), its `if` is
   // written like a rule's, and its `closed` is a line (or a list of lines to vary).
@@ -281,8 +306,20 @@ export function check(state, pack, bible, { before = null } = {}) {
       .map(({ effect: e, where }) => ({ id: e.set.split(".")[0], where, texts: [].concat(e.to ?? []) }))];
   for (const { id, where, texts } of roomTexts)
     for (const [label, oid] of texts.flatMap(marked))
-      if (state.world.objects[oid]?.portable)
-        problems.push(`${where === id ? id : `${where} (${id})`}: names {${label}${label === oid ? "" : "|" + oid}} in the room's description, but it can be taken: give it a \`here\` line instead (the game says where a thing lies once it has been moved)`);
+      if (state.world.objects[oid]?.portable) {
+        const holder = holderOf(arrived, oid);
+        problems.push(`${where === id ? id : `${where} (${id})`}: names {${label}${label === oid ? "" : "|" + oid}} in the room's description, but it can be taken: ${holder
+          ? `${holder} holds it, so name and mark it in ${holder}'s own lines (here, examine) instead`
+          : "give it a \`here\` line instead (the game says where a thing lies once it has been moved)"}`);
+      }
+  // A thing that can be taken and that a character holds (the goatskin on the camel's saddle) is shown by the character's own lines:
+  // its own `here` and an overlay show only a thing lying in the room. So their `here` or `examine` marks it, or nothing shows it,
+  // and it can't be clicked.
+  for (const [oid, o] of Object.entries(arrived.world.objects)) {
+    const holder = o.portable && holderOf(arrived, oid), h = holder && arrived.world.objects[holder];
+    if (h && ![].concat(h.here ?? [], h.examine ?? []).flatMap(marked).some(([, m]) => m === oid))
+      warnings.push(`${oid}: ${holder} holds it, but neither ${holder}'s here nor examine marks it ({…|${oid}}): nothing shows it, so it can't be clicked`);
+  }
 
   // Topics offered after talking (js/view.js): each idea something brings up (an `opens` or a `know` somewhere), or the topic
   // could never be offered. (Each label, clicked, asks that very topic: the parser counts the label among the topic's words.)
@@ -399,7 +436,8 @@ export function check(state, pack, bible, { before = null } = {}) {
   warnings.push(...neverWaits(never, arrived));
   if (problems.length) return { ok: false, problems, warnings, endings };
 
-  // Each ending, from a fresh start.
+  // Each ending, from a fresh start (and the pictures they end with).
+  const played = new Set();
   for (const [id, p] of Object.entries(puzzles)) {
     if (!p.ending) continue;
     const run = new Run(state, pack, puzzles, warnings, before);
@@ -407,8 +445,15 @@ export function check(state, pack, bible, { before = null } = {}) {
     if (run.problem) problems.push(`ending "${id}": ${run.problem}`);
     else if (!run.state.ended) problems.push(`ending "${id}": played to the end, but the story didn't end`);
     else if (!run.state.ending) problems.push(`ending "${id}": the story ended without a picture (end: true, picture: "…")`);
+    else played.add(run.state.ending);
     endings[id] = run.played;
   }
+  // Every ending is played: an `end` in a rule or a named change whose picture no `ending: true` puzzle reached (a bad ending
+  // reached by a rule alone, walking into the sand) was never checked. A death that ends with `died` is not one: that is how
+  // running out of health ends, whatever the hurt.
+  for (const { effect: e, where } of effectsOf(state))
+    if (e.end === true && typeof e.picture === "string" && e.picture !== "died" && !played.has(e.picture))
+      warnings.push(`${where}: ends the story with "${e.picture}", but no puzzle with ending: true reaches it, so that ending is never played: give it a puzzle (ending: true, its solve and hints)`);
   return { ok: !problems.length, problems, warnings, endings };
 }
 

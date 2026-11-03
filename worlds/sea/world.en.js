@@ -767,7 +767,9 @@ const puzzles = {
                 hints: ["The lamp burns only what you are willing to forget. One thing you carry is a life you did not have.", "In the lantern room, feed the photograph from hut 7 to the lamp."] },
   forget_shell: { where: "lantern", needs: ["shell", "row_out"], solve: ["burn shell"], ending: true,
                 clues: ["lamp", "letter", "cave_voice"],
-                hints: ["The lamp is not particular, only that you choose. One thing you carry is the sea speaking for you, and the Ministry still inside it.", "In the lantern room, burn the shell from the tide line, and let the Ministry forget you."] }
+                hints: ["The lamp is not particular, only that you choose. One thing you carry is the sea speaking for you, and the Ministry still inside it.", "In the lantern room, burn the shell from the tide line, and let the Ministry forget you."] },
+  drown: { where: "beach", needs: [], solve: ["swim", "swim", "swim"], ending: true, clues: ["swim_hurt", "swim_hurt_last"],
+                hints: ["The sea takes your ankle and lets go, and each time it holds on longer.", "Swim from the beach three times; the third time, the sea keeps you."] }
 };
 
 // ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says --------------------

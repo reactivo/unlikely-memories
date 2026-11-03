@@ -542,9 +542,12 @@ const met = (g, need) => (g.puzzles[need] ? solved(g, g.puzzles[need]) : g.seen.
 
 // The next hint: the first puzzle not yet solved whose needs are met (a step on the way before an ending), one
 // level more each time it's asked for: its own hint lines (the world's `hints`), then the commands that solve it.
+// An ending only once every step is solved, the first one written first: while a step waits for something still to be
+// found, the hint says so ("Not yet"), and never points at an ending (walking into the sand) instead.
 function nextHint(g) {
-  const open = Object.entries(g.puzzles || {}).filter(([, p]) => !solved(g, p) && (p.needs || []).every(n => met(g, n)));
-  const pick = open.find(([, p]) => !p.ending) || open[0];
+  const all = Object.entries(g.puzzles || {}), steps = all.filter(([, p]) => !p.ending);
+  const open = all.filter(([, p]) => !solved(g, p) && (p.needs || []).every(n => met(g, n)));
+  const pick = open.find(([, p]) => !p.ending) || (steps.every(([, p]) => solved(g, p)) ? open[0] : null);
   if (!pick) return { none: true };
   const [id, p] = pick, hints = p.hints || [];
   const level = Math.min((g.hinted[id] || 0) + 1, hints.length + 1);

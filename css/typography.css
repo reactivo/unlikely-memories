@@ -125,9 +125,10 @@
     text-transform: uppercase;
   }
 
-  /* The level's name in the map's location bar: the same capitals as a room, with the line height of interface text. */
+  /* The level's name in the map's location bar: the same size as the map's hint (.text-hint), so the bar reads as one line
+     of status, in capitals, with the line height of interface text. */
   .text-level {
-    font-size: var(--map-text);
+    font-size: var(--text-xs);
     line-height: var(--line-s);
     text-transform: uppercase;
   }

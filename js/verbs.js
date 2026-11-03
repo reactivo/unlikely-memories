@@ -106,6 +106,10 @@ const rules = [
     { id: `std_${verb}_kept_plain`, match: { verb }, if: [{ "$obj.droppable": false }, { "$obj.place": "player" }], do: [{ say: "@cantDrop" }] }
   ]),
 
+  // Taking what you already have: the stock "you already have it", before the thing's own `take` line (a refusal, for where
+  // it lies: "It's tied to the post." would be wrong in your hands).
+  { id: "std_take_have", match: { verb: "take" }, if: [{ "$obj.at": "player" }], do: [{ say: "@already" }] },
+
   // Answers by property: a thing answers a verb with its property of that name; a room answers a verb typed with
   // no object ("listen", "smell"); asking someone falls back to what they say when you talk to them.
   ...ANSWERED.map(a => ({ id: "std_answer_" + a, match: { verb: a }, if: [{ ["$obj." + a]: { "!=": null } }], do: [{ say: "$obj." + a }] })),
@@ -143,10 +147,9 @@ const rules = [
   // after a rule that asked for the default). Taking and dropping say nothing of their own: the engine's echo of what you gain
   // and lose ("You get the key", js/engine.js) is the whole reply, except taking out of something you carry, which gains
   // nothing and so says so itself.
-  // "Take X from Y" only when X is directly in Y.
+  // "Take X from Y" only when X is directly in Y. (Already carried: above, before the answers.)
   { id: "std_take_not_in", match: { verb: "take" }, if: [{ "$obj2": { "!=": null } }, { "$obj.at": { "!=": "$obj2" } }],
     do: [{ say: "@notInside", things: ["$obj", "$obj2"], vary: true }] },
-  { id: "std_take_have", match: { verb: "take" }, if: [{ "$obj.at": "player" }], do: [{ say: "@already" }] },
   { id: "std_take_on", match: { verb: "take" }, if: [{ "player.in": "$obj" }, { "$obj.enterable": "on" }, { "$obj.portable": true }], do: [{ say: "@getOffToTake", things: ["$obj"] }] },
   { id: "std_take_inside", match: { verb: "take" }, if: [{ "player.in": "$obj" }, { "$obj.portable": true }], do: [{ say: "@getOutToTake", things: ["$obj"] }] },
   { id: "std_take_person", match: { verb: "take" }, if: [{ "$obj.holder": { "!=": null } }, { "$obj.portable": true }, reachable], unlessAnswered: true,

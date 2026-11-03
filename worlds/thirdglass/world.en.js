@@ -177,7 +177,7 @@ export default {
       sprite: sprites.charcoal },
 
     // ---- the black tent -------------------------------------------------------------------------------------------
-    { add: "room", id: "tent", name: "THE BLACK TENT", area: "camp", at: [0, 1, 0],
+    { add: "room", id: "tent", name: "THE BLACK TENT", area: "camp", at: [0, -1, 0],
       describe: [
         "Inside it is dusk, whatever the hour. Rugs lie three deep, a brazier ticks, and a small enamel teapot has been about to boil since before you came.",
         "{Fadimata|fadimata} keeps the brazier, with her glasses lined up on a tin tray. A one-string {imzad} hangs from the tent pole, humming under its breath. The flap to the south is the way out."
@@ -216,6 +216,8 @@ export default {
           says: "\"She stands when she is expected somewhere,\" says Fadimata. \"She has not been expected anywhere for eleven years. We are all very good at waiting, in this camp. It is how we got here.\"" },
         rock: { open: true, label: "the red rock", words: ["rock", "cave", "caves", "painting", "painted", "paintings"],
           says: "\"My mother's mother sat in that cave until it was painted,\" says Fadimata. \"She was not an artist. Mind the flat stone beside the path, the one with the track. It is not shy, and it is not stone.\"" },
+        east: { open: true, label: "the east", words: ["east", "sand", "tracks", "dunes", "desert", "alone"],
+          says: "\"The sand to the east keeps whoever walks into it alone,\" says Fadimata. \"It is not unkind. It is only very thorough.\"" },
         aghali: { label: "Aghali", words: ["aghali", "driver", "boy"],
           says: "\"He is tying the same load. It is kinder to let him.\"" },
         default: "\"Drink,\" says Fadimata, which is what she says to most things."
@@ -248,7 +250,7 @@ export default {
       sprite: sprites.lamp },
 
     // ---- the camel lines --------------------------------------------------------------------------------------------
-    { add: "room", id: "lines", name: "CAMEL LINES", area: "camp", at: [0, -1, 0],
+    { add: "room", id: "lines", name: "CAMEL LINES", area: "camp", at: [0, 1, 0],
       describe: [
         "The camels are kept south of the camp in a long row, kneeling, all facing the same way. They have knelt since the well went quiet, and chew as though nothing were the matter.",
         "{Afternoon|afternoon}, the white lead camel, kneels at the end of the row beneath a full saddle. {Aghali|aghali} ties a load on the next one, undoes it, and ties it again. Washing hangs between two posts. The camp is north."
@@ -274,7 +276,7 @@ export default {
     { add: "object", id: "afternoon", at: "lines", name: "Afternoon", note: "Kneeling. Unmoved.",
       actions: ["Ride Afternoon"],
       words: { nouns: ["afternoon", "camel"], adj: ["white", "lead"], g: "f", proper: true },
-      examine: "A tall white dromedary, kneeling as if she had decided to. Her lip is long and her opinion of you is longer. An empty goatskin hangs from her saddle the way an unanswered question hangs.",
+      examine: "A tall white dromedary, kneeling as if she had decided to. Her lip is long and her opinion of you is longer. An empty {goatskin|skin} hangs from her saddle the way an unanswered question hangs.",
       give: "Afternoon looks at it as at a rumour.",
       topics: {
         standing: { open: true, label: "standing", words: ["stand", "standing", "rise", "up", "kneel", "kneeling", "walk", "go"],
@@ -355,7 +357,7 @@ export default {
     { add: "object", id: "flat_stone", at: "wadi", use: "touch", name: "Flat stone", note: "A track ends at it.",
       words: { nouns: ["stone", "slab"], adj: ["flat"] },
       examine: "A flat stone the size of a tray, the colour of the bed. The track beside it is one curved line, and it stops at the stone's edge and does not start again." },
-    { add: "room", id: "ridge", name: "THE RIDGE", area: "wadi", at: [0, 1, 0],
+    { add: "room", id: "ridge", name: "THE RIDGE", area: "wadi", at: [0, -1, 0],
       describe: [
         "The ridge is a long spine of broken stone, and the whole sand sea lies under it, ribbed like the roof of a mouth. The camp is a pinch of black seed in a pale dish, its shadows all pointing in.",
         "Far to the east, past where the dunes should stop, there is a smudge of green and a thread of smoke going straight up. Someone has kept that fire a very long time. A {cairn} marks the top."
@@ -403,7 +405,7 @@ export default {
       },
       alt: "A tall red rock with a dark crack at its foot, red painted cattle walking into it.",
       picture: pictures.mouth.picture },
-    { add: "room", id: "gallery", name: "THE PAINTED GALLERY", area: "cave", at: [0, 0, 0],
+    { add: "room", id: "gallery", name: "THE PAINTED GALLERY", area: "cave", at: [0, 0, -1],
       describe: [
         "Your light finds a long chamber painted from floor to roof in ochre and white: giraffes, a river with fish in it, dancers in rows. The paint moves when the flame does, and settles when it is still.",
         "At the far end, life-size, a {woman|painting} sits by a well with a small flame at her knee, facing the way you came in. A narrow way goes north, the sound of water is west, and the passage rises behind you."
@@ -428,7 +430,7 @@ export default {
       words: { nouns: ["woman", "painting", "figure"], adj: ["painted", "red"] },
       touch: "You lay a palm on her painted hand. The rock is cool and smooth, the kind that keeps what is pressed on it. Copying her would want something to press, and something to press with.",
       examine: "She is painted red and white, sitting upright, her hands open on her knees. Her eyes are two dots, and both are looking at the way in. The stone around her is fine and smooth, the kind that keeps what is pressed upon it, and it is worn pale below her where something has leaned for a very long time." },
-    { add: "room", id: "hands", name: "THE ROOM OF HANDS", area: "cave", at: [0, 1, 0],
+    { add: "room", id: "hands", name: "THE ROOM OF HANDS", area: "cave", at: [0, -1, -1],
       describe: [
         "A small round chamber, its walls and roof printed with hands: pigment blown round a palm, so that each hand is left pale. Children's hands, a hand with six fingers, a hand without a thumb, hundreds, all spread, all at the height of someone arriving.",
         "One {handprint} at eye level is exactly your size. The way out is south."
@@ -450,7 +452,7 @@ export default {
     { add: "object", id: "handprint", at: "hands", use: "touch", name: "Handprint", note: "Exactly your size.",
       words: { nouns: ["handprint", "print"], adj: ["pale", "your"] },
       examine: "A pale hand in a halo of red, spread at the height of your shoulder. Its fingers are the length of yours. It is not yours, and it is still slightly warm." },
-    { add: "room", id: "cistern", name: "THE CISTERN", area: "cave", at: [-1, 0, 0],
+    { add: "room", id: "cistern", name: "THE CISTERN", area: "cave", at: [-1, 0, -1],
       describe: [
         "A round chamber cut by water, with a pool in the middle so still that your light hangs in it twice. The air is cold and tastes of coins. A channel comes in under the gallery wall and stops at the pool's edge; nothing leaves.",
         "The {pool} is rain that fell before the camp and before the river, and it remembers every roof. A stone lip runs round it, worn smooth by people who came to be told things."
@@ -628,6 +630,9 @@ export default {
       hints: ["A caravan leaves when its bell rings, and the camel knows where.", "Give the bell to Afternoon, and ride her."] },
     { add: "puzzle", id: "stay", where: "tent", needs: [], solve: ["order tea", "drink tea", "order tea", "drink tea", "order tea", "drink tea"], ending: true,
       clues: ["tea", "fadimata"],
-      hints: ["Fadimata pours in threes. Most guests leave before the last.", "Order tea and drink it, three times, and stay."] }
+      hints: ["Fadimata pours in threes. Most guests leave before the last.", "Order tea and drink it, three times, and stay."] },
+    { add: "puzzle", id: "lost", where: "camp", needs: [], solve: ["go east"], ending: true,
+      clues: ["aghali", "fadimata"],
+      hints: ["The tracks go east into the sand and do not come back. Nobody walks east alone.", "Walk east from the camp, alone."] }
   ]
 };

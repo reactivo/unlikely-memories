@@ -38,7 +38,7 @@ export const FIELDS = {
   topic: ["words", "says", "about", "label", "open", "opens"],
   ambience: ["lines", "every", "chance", "if"],
   waitFor: ["time", "says", "if"],
-  exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking? }
+  exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "passage"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking?, passage? }
   picture: ["version", "draw", "cycles", "overlays"],
   rule: ["id", "match", "if", "do", "when", "every", "at", "chance", "then", "once", "again"],
   every: ["seconds", "turns"],

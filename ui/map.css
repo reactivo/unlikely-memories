@@ -1,6 +1,7 @@
 /* Map popup, opened from M on the compass or by MAP (ui/map.js). A popover in the browser's top layer: centred, over the
    game, which the backdrop dims. Inside: the map area (rooms, lines and stubs, moved by dragging) with the × at its
-   top left, and the location bar below it (the level's name, and how to move the map). A room's size is built from its text size
+   top left, and the location bar below it (the level's name, and how to move the map); the × and the bar have the same
+   padding, so the × lines up with the level's name. A room's size is built from its text size
    (tokens.css, --map-*), so it grows with it; the popup is --map-w wide at most, and fits a narrow window. It sits outside .layout, so its
    text style is a class of its own: .text-ui (css/typography.css), put on it in index.html; the room names, the level and the
    hint have theirs too. Root class `mapview`, not `map`: the compass's M button already has that one. */
@@ -50,8 +51,10 @@
     /* A hook for an animation later: map.js sets data-state to "open" or "closed" as the popup opens and closes. To fade it
        in, add here:   &[data-state="open"] { transition: opacity 200ms; @starting-style { opacity: 0; } }   */
 
-    /* The map area: fills what the location bar leaves, moved by dragging. The drawing's origin (the middle of your room) is
-       put in the middle of the area by map.js, and --pan-x / --pan-y move it from there. */
+    /* The map area: fills what the location bar leaves, moved by dragging and zoomed by pinching. The drawing's origin (the
+       middle of your room) is put in the middle of the area by map.js, --pan-x / --pan-y move it from there, and --zoom
+       (0.5 to 2, 1 when the map opens) scales the drawing around it. touch-action: none gives every finger to map.js, so
+       the browser neither scrolls nor zooms the page under a drag or a pinch. */
     & .area {
       position: relative;
       flex: 1 1 auto;
@@ -70,7 +73,7 @@
       position: absolute;
       width: 0;
       height: 0;
-      transform: translate(var(--pan-x, 0px), var(--pan-y, 0px));
+      transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)) scale(var(--zoom, 1));
     }
 
     /* A room: a box with its name on one line, cut with … when it doesn't fit (.text-room). map.js also sets its width and
@@ -126,21 +129,20 @@
       width: 1px;
     }
 
-    /* The × at the top left. */
+    /* The × at the top left: in the corner, its padding the space around it (the same as the location bar's), so the
+       whole padded box is what a finger taps. */
     & .close {
       position: absolute;
       z-index: 1;
-      top: var(--space-s);
-      left: var(--space-s);
-      width: var(--tile-max);
-      height: var(--tile-max);
+      top: 0;
+      left: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--close);
       background: none;
       border: 0;
-      padding: 0;
+      padding: var(--space-m);
       cursor: pointer;
     }
 
@@ -153,18 +155,19 @@
       outline-offset: 2px;
     }
 
-    /* The location bar: the level you are on at the left, how to move the map at the right. On a phone, one above the
-       other (the direction, alignment and gap come from layout.css; phone values here). */
+    /* The location bar: the level you are on at the left, how to move the map at the right, both in the same text size
+       (typography.css), one line of status. On a phone, one above the other (the direction, alignment and gap come from
+       layout.css; phone values here). */
     & .where {
       flex: none;
       margin: 0;
-      padding: var(--space-m) var(--space-l);
+      padding: var(--space-m);
       border-top: 1px solid var(--frame);
       display: flex;
       flex-direction: var(--where-direction, column);
       justify-content: space-between;
       align-items: var(--where-align, stretch);
-      gap: var(--where-gap, var(--space-m));
+      gap: var(--where-gap, var(--space-s));
     }
 
     & .where p {

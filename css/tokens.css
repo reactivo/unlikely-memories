@@ -117,7 +117,7 @@
     /* ---- The map's sizes (ui/map.css) ----
        ui/map.js reads these four to place the rooms, so they stay here, where it can find them. Everything is built
        from the text size of a room's name, so a bigger text means bigger rooms, gaps and stubs. */
-    --map-text:   var(--text-s);                 /* a room's name; the level's name too (their styles: typography.css) */
+    --map-text:   var(--text-s);                 /* a room's name (its style, .text-room: typography.css) */
     --map-room-w: calc(var(--map-text) * 12);    /* a room's width… */
     --map-room-h: calc(var(--map-text) * 4);     /* …and height */
     --map-gap:    calc(var(--map-text) * 2);     /* between rooms, where the lines run */
