@@ -18,11 +18,15 @@ export function tell(applied, state, pack) {
     if (e.say) {
       // name: a thing, named in this language; things: several, with their gender and number, in order
       // marked: each is a clickable mark of the thing ("Inside: a {crank}."), the name as the pack would write it
-      const arg = e.things ? e.things.map(id => (e.marked ? `{${listName(id, state, pack)}|${id}}` : listName(id, state, pack))) : e.name ? listName(e.name, state, pack) : e.arg;
+      // (an arg that is a pack key is the pack's text: the cause of a death the engine itself words, "@sleep.never")
+      const arg = e.things ? e.things.map(id => (e.marked ? `{${listName(id, state, pack)}|${id}}` : listName(id, state, pack))) : e.name ? listName(e.name, state, pack)
+                : typeof e.arg === "string" && e.arg.startsWith("@") ? text(e.arg, pack) : e.arg;
       const who = e.things ? e.things.map(id => whoOf(state.world.objects[id])) : e.who;
       // The death lines (the cause's words and one of the pack's lines, one paragraph) have their own style: red (log.css).
       let said = timed(text(e.say, pack, arg, e.pick, e.prev, who), state, pack, e.at, e.vals);
       if (e.confirm) said += " " + text("@yesNo", pack);                  // a question: "… <YES> / <NO>", always
+      // a question with its own answers (SLEEP's): each one clickable, the same way: "… <A SHORT NAP> / <UNTIL MORNING>"
+      if (Array.isArray(e.choices)) said += " " + e.choices.map(c => "`" + text(c, pack) + "`").join(" / ");
       // A blank line in a text starts a new paragraph (HELP's groups, LOAD's details), spaced like any other.
       String(said).split(/\n\s*\n/).forEach((part, i) =>
         out.push(clean({ text: part, style: e.say === "@hurt.dead" ? "death" : e.style, img: i === 0 ? e.img : undefined })));

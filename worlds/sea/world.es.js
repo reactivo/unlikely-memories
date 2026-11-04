@@ -167,6 +167,7 @@ const rooms = {
       "El muelle vuelve hacia el sur."
     ],
     exits: { s: "pier", n: true },
+    sleep: "En el extremo del muelle no, con el mar respirando bajo los tablones.",
     alt: "El final de un muelle de noche. Al otro lado del agua, un faro blanco con una franja roja se alza sobre una roca, con la linterna apagada.",
     overlayAlt: { boat: "Una pequeña barca azul está atada al poste." },
     scenery: [
@@ -236,6 +237,7 @@ const rooms = {
       "Por las puertas dobles del oeste llega un tintineo de cubiertos. Una escalera sube. El paseo marítimo queda al este."
     ],
     exits: { e: "promenade", w: "dining", u: "hallway" },
+    sleep: "En el vestíbulo no. En algún sitio de arriba hay una cama hecha para ti.",
     alt: "Un vestíbulo de hotel: un mostrador de recepción con una campanilla de latón, un tablero de llaves detrás, palmeras en macetas, puertas dobles luminosas a la izquierda y una escalera con alfombra roja a la derecha.",
     scenery: [
       { words: ["palmeras", "palmera", "macetones", "macetas", "maceta"], name: "las palmeras" }, { words: ["alfombra", "senderos", "suelo"], name: "la alfombra" },
@@ -252,6 +254,7 @@ const rooms = {
     ],
     exits: { e: "lobby" },
     ambience: { lines: ["Alguien propone un brindis. Todos levantan la copa. Nadie bebe.", "Un comensal se ríe de un chiste que se contó antes de que llegaras.", "La sal vuelve a dar la vuelta a la mesa."], every: [30, 70], chance: 0.8 },
+    sleep: "En la mesa no, entre doce comensales de etiqueta.",
     alt: "Una mesa larga de comedor en perspectiva, mantel blanco y velas, comensales de etiqueta a ambos lados bajo una araña. Una silla vacía en el extremo más cercano, con una tarjeta sobre el plato.",
     scenery: [
       { words: ["mesa", "mantel", "velas", "vela", "arana"], name: "la mesa" },
@@ -311,6 +314,7 @@ const rooms = {
       "La puerta está al este."
     ],
     exits: { e: { to: "square", out: true } },
+    sleep: "Sobre el mostrador no. El administrador tiene cartas que clasificar, y te clasificaría a ti.",
     alt: "Entre los barrotes de la reja de una oficina de correos: un administrador con gorra azul y gafas bajo una lámpara verde, y casillas llenas de cartas a su espalda.",
     scenery: [
       { words: ["mostrador", "mostradores", "reja", "barrotes"], name: "el mostrador" }, { words: ["casillas", "casilla", "cartas", "fechas"], name: "las casillas" },
@@ -324,6 +328,7 @@ const rooms = {
       "La plaza queda al oeste."
     ],
     exits: { w: { to: "square", out: true } },
+    sleep: "En el café no. El camarero te doblaría, como la servilleta.",
     alt: "Un pequeño café cálido: una cafetera humeante sobre el mostrador, mesas redondas de mármol, un camarero con delantal blanco doblando una servilleta, una ventana a la plaza oscura.",
     overlayAlt: { coffee: "Una taza de café humea sobre la mesa." },
     scenery: [
@@ -340,6 +345,7 @@ const rooms = {
     ],
     exits: { n: "square", s: true },
     ambience: { lines: ["El motor da una vuelta en su sueño.", "Un silbato suena, muy lejos, para otro tren.", "La señal del final de la vía pasa del rojo al rojo."], every: [40, 90], chance: 0.6 },
+    sleep: "En el andén no. El tren podría irse sin ti, o peor, contigo.",
     alt: "Un andén de noche bajo una marquesina. Un tren verde oscuro espera a la derecha con una puerta abierta. Un banco y un tablero blanco de horarios en el andén; una señal roja, lejos, al final de la vía.",
     scenery: [
       { words: ["anden", "marquesina"], name: "el andén" }, { words: ["banco"], name: "el banco" },
@@ -353,6 +359,7 @@ const rooms = {
       "El faro sube, blanco, hacia la oscuridad. Tiene la puerta abierta. Dentro, una escalera de hierro gira hacia arriba. La barca es la única manera de volver."
     ],
     exits: { u: "lantern", s: true },
+    sleep: "En la roca no. Las olas llegan de todos lados, y tarde o temprano alguna se quedaría.",
     alt: "Un alto faro blanco con franjas rojas visto desde abajo, con la linterna oscura contra las estrellas. La espuma rompe en la roca de su pie; la puerta está abierta.",
     overlayAlt: { boat: "La barca está atada a la argolla de amarre." },
     scenery: [

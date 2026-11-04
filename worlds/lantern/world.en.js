@@ -2,7 +2,7 @@
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, GUIDE.md for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js";
+import pictures, { endings, visions } from "./pictures.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -53,6 +53,12 @@ const endingPictures = {
   relieved: { alt: "Close up, the lantern of the last lamp, lit: four panes of yellow light round a white flame, the iron cap above, and the brass hook of a lamplighter's pole at the tap below.", picture: endings.relieved },
   blamed: { alt: "From far above, a flat grey sea of fog over London, chimney pots poking through it in rows, and one small hard white light where Lantern Row should be.", picture: endings.blamed },
   died: { alt: "Close up, a small brass birdcage in grey fog. The canary sits on its perch with its head tucked under its wing, and the fog comes in between the bars.", picture: endings.died }
+};
+
+// The hut's vision (`dream`, ARCHITECTURE.md §5 "Sleep"): sleeping in Mr Fenn's hut, his last round, once. Its picture is a world's
+// picture like an ending's (pictures.js, visions); what it says to a screen reader is said here.
+const visionPictures = {
+  fenn_dream: { alt: "A dream of Lantern Row in blue fog: gas lamps going away up the street, lit and yellow in the distance, the nearest two dark. At the foot of the nearest, a small man in a green cap sits on the kerb, his pole leaning by him, and a faint grey figure stands at his side.", picture: visions.fenn_dream }
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
@@ -114,6 +120,7 @@ const rooms = {
     ], every: [40, 80] },
     // The court sits at midnight: worth waiting for here whenever it isn't sitting.
     waitFor: { time: "next 00:00", says: "You wait by the court doors. The fog comes and stands beside you, and waits too.", if: [{ "time.hour": { between: [6, 24] } }] },
+    sleep: "Not in the street. Constable Pye would move you on.",
     alt: "A street of shop fronts in thick grey fog, seen from the middle of the cobbles: gas lamps going away as orange blurs, the Bell's red window on the left, the pie shop's yellow one on the right, the court's dark doors at the far end, and a policeman in a helmet standing on the right."
   },
   bell: {
@@ -136,6 +143,7 @@ const rooms = {
       "The fire settles. A man in a cap looks into it as if it owed him money.",
       "The door opens, the fog looks in, and somebody shuts the door on it."
     ], every: [35, 70] },
+    sleep: "Not at the Bell. Mr Cotter would sweep you out with the sawdust.",
     alt: "A low-beamed public house in silhouette: men in caps black against the red and orange glow of a coal fire on the left, a long dark bar, the landlord behind it holding up a glass."
   },
   pie_shop: {
@@ -151,6 +159,7 @@ const rooms = {
     ],
     mentions: ["flour"],
     smell: "Pastry and hot fat, and under them something sweeter: the smell of a kitchen where someone is always expected.",
+    sleep: "Not in a shop the width of a coat rack. Mrs Halloran would only put a pie in front of you.",
     alt: "A pie shop seen from above: a long brown counter with trays of golden pies in rows, the glowing mouth of an iron oven at the top, a steamed window along the bottom, and a woman in a white cap leaning over the counter on the right."
   },
   court: {
@@ -165,6 +174,7 @@ const rooms = {
       { words: ["chairs", "chair", "jury", "fog"], name: "the jury", says: "Twelve chairs in two rows. The fog has taken all of them and sits very still, the way a jury does when it has already decided to listen." }
     ],
     mentions: ["pen"],
+    sleep: "Not in court. Dr Mabbott does not hold with it.",
     alt: "Looking up from the witness box at a high green coroner's bench: a thin man in black above it with a pen, a green-shaded lamp beside him, and on the right twelve jury chairs with pale fog sitting in them."
   },
   last_lamp: {
@@ -191,6 +201,7 @@ const rooms = {
     ], every: [35, 70] },
     // Worth waiting for until the Bell shuts and the Row goes quiet.
     waitFor: { time: "next 23:00", says: "You wait by the last lamp with Mr Fenn. Neither of you says anything, which he prefers.", if: [{ "time.hour": { between: [11, 23] } }] },
+    sleep: "Not here, beside Mr Fenn. One of you should stay awake.",
     alt: "A wide view along a river wall in dark blue fog. On the left a tall iron lamp-post, unlit, its glass black; at its foot a small man in a cap sits on the kerb. On the right, a green wooden hut with its door. Far off up the Row, the faint glow of other lamps."
   },
   hut: {
@@ -205,6 +216,7 @@ const rooms = {
       { words: ["shelf", "tin", "matches"], name: "the shelf", says: "A plank on two brackets, holding the log book and a tin of matches nobody has needed in forty years." },
       { words: ["door", "hut"], name: "the door", says: "The hut door, open, and the last lamp outside it, west.", leads: "w" }
     ],
+    dream: { says: "Mr Fenn goes down the Row with his pole, lighting the lamps one by one, the last one last. At the twelfth he stops, because somebody beside him has said something kind, and he sits down to hear it. The fog keeps it for him.", picture: "fenn_dream", once: true },
     alt: "Inside a tiny wooden hut, looking at its back wall: three rows of old caps on nails, bright green at the top and greyer lower down, the last nail empty, and a shelf with an open log book and a red tin.",
     overlayAlt: { trumpet: "A dented brass ear trumpet lies on the floor." }
   },
@@ -225,6 +237,7 @@ const rooms = {
       "The bulb flickers once, and Mr Voss looks up at it, hurt.",
       "Under the floor, the Row's new wires hum to themselves, waiting for Monday."
     ], every: [40, 80] },
+    sleep: "Not with the dynamo humming at you like a man who knows he is right.",
     alt: "A brick room lit by one bare electric bulb: a big humming dynamo on the left, and on the right a man in a bowler hat at a desk with an open ledger."
   },
   river_steps: {
@@ -245,6 +258,7 @@ const rooms = {
       "Far out on the water a boat's bell rings, and nobody answers it.",
       "A word floats by on the current, face down."
     ], every: [35, 75] },
+    sleep: "Not on the steps, with the river going by below in no hurry.",
     alt: "Looking down from a river wall: stone steps going down on the left to a strip of black mud, a small girl in a big coat with a bucket on the mud, and the brown river filling the picture up to a far bank lost in fog."
   },
   bridge: {
@@ -700,6 +714,7 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    ...Object.entries(visionPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     // Drunk on porter (the third half at the Bell: doses 3): the Row sways and doubles, words come out slurred, and leaving a place you
     // sometimes take another way out. It wears off; a pie sobers you sooner.
     { add: "condition", id: "drunk", doses: 3, lasts: { seconds: [120, 180] }, starts: "You're drunk", ends: "You're sober again", status: "You're drunk on beer",

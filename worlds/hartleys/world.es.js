@@ -78,6 +78,7 @@ const rooms = {
     scenery: [{ words: ["mosaico", "caoba", "latón", "laton", "mostradores", "mostrador", "techo", "araña", "arana", "vestíbulo", "vestibulo"], name: "el vestíbulo", says: "Un mosaico de un barco a toda vela, gastado en la proa por cien años de gente que se ha puesto donde tú te pones." }],
     mentions: ["clavel"],
     ambience: { lines: ["En algún lugar suena una caja registradora, aunque nadie ha comprado nada.", "Una cápsula pasa por encima de ti, por su tubo, con prisa, como un pensamiento camino de alguien.", "La puerta giratoria da una vuelta vacía y se detiene."], every: [45, 90] },
+    sleep: "En la planta baja no, bajo la mirada del señor Gage.",
     alt: "Un gran vestíbulo de almacén: mostradores de caoba, latón y un suelo de mosaico con un barco. Un panel de directorio sobre un pie, un jefe de planta con un clavel y una puerta giratoria al frente."
   },
   perfumery: {
@@ -90,6 +91,7 @@ const rooms = {
     scenery: [{ words: ["frascos", "frasco", "mostradores", "mostrador", "coro", "perfumes", "botellas", "estantes"], name: "los frascos", says: "Frasquitos con etiquetas escritas a mano: EL ÚLTIMO DÍA DE LAS VACACIONES. UN PASILLO DE HOSPITAL POR LA NOCHE. LA NIEVE, ANTES DE CAER. No están en venta. Son la materia prima de Madame Corre." }],
     mentions: ["guantes", "etiqueta"],
     smell: "Veinte tardes a la vez, ninguna tuya, todas casi.",
+    sleep: "Entre los frascos no. Te despertarías oliendo a la tarde de otro.",
     alt: "Un mostrador de perfumería abarrotado de frasquitos en estantes de cristal. Una mujer alta con guantes blancos detrás; un solo frasco de muestra sobre el mostrador, delante."
   },
   gloves: {
@@ -123,6 +125,7 @@ const rooms = {
     ],
     exits: { s: "lift_lobby", u: true, d: false },
     scenery: [{ words: ["espejo", "banco", "terciopelo", "taburete", "techo", "botones", "boton", "botón", "reja", "ascensor"], name: "el ascensor", says: "No hay botones. Está el señor Pell, y la palanca, y una pequeña cerradura de latón junto al número 4. La reja está plegada, abierta al vestíbulo.", leads: "s" }],
+    sleep: "En el ascensor no. El señor Pell te subiría y te bajaría toda la noche.",
     alt: "El interior de un ascensor antiguo: un espejo, un banco de terciopelo rojo, una reja plegable de latón y un hombre de uniforme sentado en un taburete, con una mano cerca de una palanca de latón."
   },
   first_landing: {
@@ -144,6 +147,7 @@ const rooms = {
     ],
     exits: { e: "first_landing" },
     scenery: [{ words: ["cintas", "cinta", "carretes", "carrete", "botones", "cajones", "mostrador", "metro"], name: "las cintas", says: "Cintas de todos los colores, en carretes, y un metro de latón atornillado al borde del mostrador, gastado en la primera vara." }],
+    sleep: "En el mostrador de la señorita Thimble no. Te mediría dos veces.",
     alt: "Un mostrador de mercería con carretes de cinta de colores y cajoncitos de botones. Una mujer con un metro. Sobre ella, tubos de latón suben hasta el techo; una cápsula descansa en su soporte, bajo un tirador."
   },
   toys: {
@@ -186,6 +190,7 @@ const rooms = {
     ],
     exits: { e: "furniture" },
     scenery: [{ words: ["mesas", "mesa", "palmeras", "carrito", "pasteles", "campanas", "ventana", "tejados", "tetera"], name: "el salón de té", says: "Desde la ventana, los tejados de la ciudad se alejan en todas direcciones. Por encima de la tienda, una azotea que nadie visita." }],
+    sleep: "En el salón de té no. Dot solo te serviría otra taza.",
     alt: "Un salón de té: mesitas redondas con manteles blancos, palmeras en macetas, un carrito de pasteles con campanas de plata, una camarera con una tetera y una ventana alta sobre los tejados."
   },
   coats: {
@@ -198,6 +203,7 @@ const rooms = {
     scenery: [{ words: ["barras", "barra", "abrigos", "perchas"], name: "las barras", says: "Abrigos para todos los climas, y una barra al fondo para los climas que aún no se han inventado." }],
     mentions: ["abrigo"],
     ambience: { lines: ["Por el rabillo del ojo, un maniquí baja la mano.", "Una percha tintinea contra una barra, una vez, sin que nadie esté cerca.", "Los maniquíes están exactamente donde estaban. Casi lo podrías jurar."], every: [40, 80] },
+    sleep: "Con los maniquíes mirando, no. Se mueven cuando apartas la vista, y tú la apartarías durante horas.",
     alt: "Una sección de abrigos: barras de abrigos y una fila de maniquíes pálidos con abrigos y sombreros, todos de cara a la puerta."
   },
   basement: {

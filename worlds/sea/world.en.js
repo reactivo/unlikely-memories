@@ -164,6 +164,7 @@ const rooms = {
       "The pier leads back south."
     ],
     exits: { s: "pier", n: true },
+    sleep: "Not at the end of the pier, with the sea breathing under the boards.",
     alt: "The end of a pier at night. Across the water, a white lighthouse with a red band stands on a rock, its lantern dark.",
     overlayAlt: { boat: "A small blue rowing boat is tied to the post." },
     scenery: [
@@ -233,6 +234,7 @@ const rooms = {
       "Through double doors to the west, cutlery chimes. Stairs go up. The promenade is east."
     ],
     exits: { e: "promenade", w: "dining", u: "hallway" },
+    sleep: "Not in the lobby. Somewhere upstairs a bed is made for you.",
     alt: "A hotel lobby: a reception desk with a brass bell, a board of keys behind it, palms in pots, glowing double doors on the left and red-carpeted stairs on the right.",
     scenery: [
       { words: ["palms", "palm", "pots", "pot"], name: "the palms" }, { words: ["carpet", "paths", "floor"], name: "the carpet" },
@@ -249,6 +251,7 @@ const rooms = {
     ],
     exits: { e: "lobby" },
     ambience: { lines: ["Somebody proposes a toast. Everybody raises a glass. Nobody drinks.", "A guest laughs at a joke that was told before you arrived.", "The salt goes round the table again."], every: [30, 70], chance: 0.8 },
+    sleep: "Not at the table, among twelve guests in evening dress.",
     alt: "A long dining table in perspective, white cloth and candles, guests in evening dress along both sides under a chandelier. An empty chair at the near end has a card on its plate.",
     scenery: [
       { words: ["table", "cloth", "candles", "candle", "chandelier"], name: "the table" },
@@ -308,6 +311,7 @@ const rooms = {
       "The door is east."
     ],
     exits: { e: { to: "square", out: true } },
+    sleep: "Not across the counter. The postmaster has letters to sort, and would sort you.",
     alt: "Through the bars of a post office grille: a postmaster in a blue cap and spectacles under a green lamp, pigeonholes full of letters behind him.",
     scenery: [
       { words: ["counter", "counters", "grille", "bars"], name: "the counter" }, { words: ["pigeonholes", "letters", "dates"], name: "the pigeonholes" },
@@ -321,6 +325,7 @@ const rooms = {
       "The square is west."
     ],
     exits: { w: { to: "square", out: true } },
+    sleep: "Not at the café. The waiter would fold you, like the napkin.",
     alt: "A small warm café: a steaming coffee machine on the counter, round marble tables, a waiter in a white apron folding a napkin, a window on the dark square.",
     overlayAlt: { coffee: "A cup of coffee steams on the table." },
     scenery: [
@@ -337,6 +342,7 @@ const rooms = {
     ],
     exits: { n: "square", s: true },
     ambience: { lines: ["The engine turns over in its sleep.", "A whistle blows, very far away, for some other train.", "The signal at the end of the line changes from red to red."], every: [40, 90], chance: 0.6 },
+    sleep: "Not on the platform. The train might go without you, or worse, with you.",
     alt: "A station platform at night under a canopy. A dark green train waits on the right with an open door. A bench and a white timetable board on the platform; a red signal far down the line.",
     scenery: [
       { words: ["platform", "canopy"], name: "the platform" }, { words: ["bench"], name: "the bench" },
@@ -350,6 +356,7 @@ const rooms = {
       "The lighthouse goes up, white, into the dark. Its door is open. Inside, an iron staircase turns upward. The boat is the only way back."
     ],
     exits: { u: "lantern", s: true },
+    sleep: "Not on the rock. The waves arrive from every side, and sooner or later one of them would stay.",
     alt: "Looking up at a tall white lighthouse with red bands, its lantern dark against the stars. Foam breaks on the rock at its foot; the door is open.",
     overlayAlt: { boat: "The rowing boat is tied to the mooring ring." },
     scenery: [

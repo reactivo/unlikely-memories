@@ -62,6 +62,20 @@ export default {
   whatTo: (v) => `What do you want to ${v}?`,
   notHere: (w) => `You see no ${w} here.`,
   noWait: ["There's nothing here worth waiting for.", "Nothing here is coming.", "You could wait. Nothing here would come of it."],
+  // SLEEP (js/engine.js, `sleep`; ARCHITECTURE.md §5 "Sleep"): the question and its answers (each clickable, as the parser reads
+  // them: words.sleep), the dim line under it, and the lines of a sleep: eyes closed, a dream (the first line of a hint), the
+  // waking (d: { time "07:00", day, newDay: the day changed, hour }), the end of you (a sleep in a condition that hurts: then
+  // one of the death lines, `hurt.dead`) and where you can't (the opening, a question waiting, a conversation, a hold).
+  sleep: {
+    ask: "How long do you sleep?",
+    choices: { nap: "A short nap", few: "A few hours", morning: "Until morning" },
+    or: "Or say until when: \"sleep until 18:00\".",
+    close: "You close your eyes.",
+    dream: (s) => `In a dream, someone says: "${s}"`,
+    wake: (d) => `You wake. It is ${d.time}${d.newDay ? ", day " + d.day : ""}.`,
+    never: "You fall asleep, and do not wake.",
+    notNow: "This is no time to sleep."
+  },
   // The world's time in words, for [time] in a text: { hour, minute } → "a quarter past five".
   timeWords({ hour, minute }) {
     const n = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
@@ -443,6 +457,22 @@ export default {
       end: ["please", "anyway", "anyhow", "now", "for me", "thanks", "thank you", "if i can", "if possible"]
     },
     yes: ["yes", "y", "yeah", "yep", "ok", "okay", "sure"],
-    no: ["no", "n", "nope", "not"]
+    no: ["no", "n", "nope", "not"],
+    // How long a SLEEP lasts (js/parser.js, sleepLength), typed after the verb or as the answer to "How long do you sleep?": the
+    // three answers' names (nap: an hour; few: four; morning: until the next 07:00), "until" and a time of day ("until 18:00",
+    // "till 6 pm", "until noon"), a number and a unit ("3 hours", "an hour", "45 minutes", "3h"), and words that add nothing.
+    sleep: {
+      nap: ["a short nap", "short nap", "a quick nap", "quick nap", "a nap", "nap", "a little", "a while", "a bit"],
+      few: ["a few hours", "few hours", "some hours", "several hours", "a few"],
+      morning: ["until morning", "till morning", "til morning", "until the morning", "till the morning", "until tomorrow", "till tomorrow",
+                "until dawn", "till dawn", "until daybreak", "morning", "the morning", "all night", "the whole night", "through the night", "overnight"],
+      until: ["until", "till", "til", "untill"],
+      hours: ["hours", "hour", "hrs", "hr", "h"],
+      minutes: ["minutes", "minute", "mins", "min", "m"],
+      numbers: { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 },
+      am: ["am", "in the morning"], pm: ["pm", "in the afternoon", "in the evening", "at night"],
+      noon: ["noon", "midday"], midnight: ["midnight"],
+      filler: ["for", "about", "around", "just", "only", "please"]
+    }
   }
 };

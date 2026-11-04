@@ -7,12 +7,13 @@ import standardVerbs from "./verbs.js";
 import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js";
 import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js";
 import { parseShape, parseShapes } from "./picture.js";
-import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
+import { worldTime, parts, hhmm, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
 import * as opening from "./opening.js";
 import { translate as translateUse, placeOf, chainOf, shut, isAction, person, holderOf, noticed } from "./use.js";
 import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer, ENGINE_ECHOES, grammarOf, isLine, hasSprite } from "./fields.js";
 import { ACTIONS } from "./actions.js";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js";
+import { activeIds, keptFilters, declarationProblems, conditionTone, conditionClass } from "./conditions.js";
+import { kindOf, healOf, lengthOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js";
 import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js";
 import { spoken, slurring, slur, answerLine } from "./speech.js";
 import { movementNow, stray } from "./movement.js";
@@ -53,7 +54,7 @@ export function step(state, input) {
       if (answering(question, action)) open = question.then;
       else question = question.then;
     }
-    if (question && !question.yesNo) {
+    if (question && !choosing(question)) {
       if (answering(question, action)) {                        // the answer: kept, for rules now and later (player.answers)
         g.player.answers = { ...g.player.answers, [question.ask]: answerText(action.text) };
         action.text = g.player.answers[question.ask];
@@ -81,6 +82,7 @@ export function step(state, input) {
     for (const id of [action.obj2, action.obj]) if (id) {        // and the things mentioned lately, newest first,
       g.mentioned = [id, ...(g.mentioned || []).filter(x => x !== id)].slice(0, 6);   // for "lo" / "la" / "them"
     }
+    out.waiting = question;                                     // (what was waiting as this input came: SLEEP is refused over it)
     runAction(g, action, out, question);
     if (open && !g.pending.question && !g.ended) g.pending.question = open;
   }
@@ -98,10 +100,12 @@ export function step(state, input) {
   // What the world did on its own (scheduled and timed rules) is marked `aside`: shown set apart, like a stage direction
   // (ui/log.css), even when it falls due during your command, and its echoes with it.
   // What came into view in each of the two (`inView`, for the narrator to mark) goes after its story lines, before its echoes.
-  out.applied = [...echoesLast(out.applied.slice(0, n0), came0), ...echoesLast(out.applied.slice(n0), came1).map(e => ({ ...e, aside: true }))];
+  // Waking from a sleep (§5 `sleep`), the room is described after the waking's echoes, before what the world did meanwhile.
+  const woke = out.woke ? [{ describe: out.woke }] : [];
+  out.applied = [...echoesLast(out.applied.slice(0, n0), came0), ...woke, ...echoesLast(out.applied.slice(n0), came1).map(e => ({ ...e, aside: true }))];
   // A question for words asked now: the last line is the system's, in grey, "Type your answer." (every `ask` gets it).
   const asked = out.applied.findLast(e => "ask" in e);
-  if (asked && g.pending.question?.ask === asked.ask && !g.pending.question.yesNo)
+  if (asked && g.pending.question?.ask === asked.ask && !choosing(g.pending.question))
     out.applied.push({ say: "@typeAnswer", style: "sys", at: worldTime(g) });
   seeHere(g);                                                   // what's in the room has now been seen
   drawLongThings(g, out);                                       // a long thing's shape where it lies (G8)
@@ -112,7 +116,7 @@ export function step(state, input) {
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
   felt(g, out.applied);
-  const { viewed, lists, drawn, ...told } = out;   // (the moment's own bookkeeping)
+  const { viewed, lists, drawn, waiting, woke: _, ...told } = out;   // (the moment's own bookkeeping)
   return { next: g, ...told };
 }
 
@@ -223,14 +227,18 @@ const answering = (q, action) => !!q && action.verb === "answer" && action.quest
 export const ANSWER_LENGTH = 40;
 const answerText = (t) => (typeof t === "string" ? t.trim().slice(0, ANSWER_LENGTH) : "");
 
+// A question answered from a set of answers, not in words: a yes/no one (`confirm`), or SLEEP's "How long do you sleep?" (its
+// `choices`). Anything else typed drops it; a blank Enter does nothing; a session command drops it.
+const choosing = (q) => !!(q?.yesNo || q?.choices);
 // The question for words waiting (`ask`), if any: the one asked, or the one a yes/no question was asked over (`then`).
-export const askedFor = (state) => { const q = state.pending.question; return (q?.yesNo ? q.then : q) ?? null; };
+export const askedFor = (state) => { const q = state.pending.question; return (choosing(q) ? q.then : q) ?? null; };
 // Does an empty line count now? Only as the answer to a question for words waiting on top (`ask`). With nothing asked, at a
 // yes/no question (one asked over a question for words too: the yes/no one waits for yes or no) and after the end, a blank
 // Enter does nothing (js/main.js runCommand).
-export const takesBlank = (state) => !state.ended && !!state.pending.question && !state.pending.question.yesNo;
+export const takesBlank = (state) => !state.ended && !!state.pending.question && !choosing(state.pending.question);
 // The state with no yes/no question waiting, as a session command leaves it (UNDO, SAVE, MAP…): a question for words stays open.
-export const withoutYesNo = (state) => (state.pending.question?.yesNo ? { ...state, pending: { ...state.pending, question: state.pending.question.then ?? null } } : state);
+// (SLEEP's question is dropped the same way.)
+export const withoutYesNo = (state) => (choosing(state.pending.question) ? { ...state, pending: { ...state.pending, question: state.pending.question.then ?? null } } : state);
 
 // Ask the player something for the controller (undo, load…): a `confirm` effect applied now, outside any turn.
 // Returns { next, applied, refused }, like step().
@@ -709,6 +717,151 @@ function endCondition(g, id, action, out, key) {
   for (const f of d.filters || []) if (!kept.has(f)) apply(g, { unfilter: f }, action, out, key + ":unfilter");
 }
 
+// ---- Sleep ------------------------------------------------------------------------------------------------
+// The engine's own SLEEP (ARCHITECTURE.md §5, "Sleep"; the arithmetic: js/sleep.js). A world writes nothing for it: a room may
+// refuse it with a line of its own (`sleep`, the standard std_sleep_refused), a room or a thing you sleep in may give a vision
+// (`dream`), and a rule of its own may send you to sleep its own way ({ "sleep": "next 07:30" }: a bed taken once a day).
+//   chosen: what the player chose ({ name } | { until } | { minutes }, read by the parser), null (the question), or a `time`
+//   form from a world's rule. The player's own sleep is refused where it can't be; a world's rule has decided already.
+function sleep(g, chosen, action, out, key) {
+  const now = worldTime(g), theirs = typeof chosen === "string";
+  if (!theirs) {
+    if (sleepRefused(g, out)) {                                    // the stock "This is no time to sleep.": never offered
+      apply(g, { say: "@sleep.notNow" }, action, out, key + ":no");
+      out.answer = { ...out.answer, generic: true };
+      return;
+    }
+    if (!chosen) return askHowLong(g, now, out);
+  }
+  let ms;
+  if (theirs) {
+    const r = moveTo(chosen, now);
+    if (r.error) return out.refused.push({ effect: { sleep: chosen }, reason: r.error });
+    ms = r.to - now;                                   // (the world's own time: its bed takes you until morning, however far that is)
+  } else ms = lengthOf(chosen, now);                   // (the player's, at most LONGEST)
+  if (!(ms > 0)) return out.refused.push({ effect: { sleep: chosen }, reason: "sleep for how long? " + JSON.stringify(chosen) });
+  // "sleep in the bunk": in (or on) the thing named first, if it is one to get into, here and open to you
+  const o = !theirs && action.obj ? g.world.objects[action.obj] : null;
+  if (o?.enterable && placeOf(g, action.obj) === g.player.at && o.locked !== true && !(o.container && o.open === false)) g.player.in = action.obj;
+  fallAsleep(g, ms, action, out, key);
+}
+
+// Where the player can't sleep now (the stock refusal): in the opening; over a question waiting (other than SLEEP's own); in a
+// conversation (the person you are talking to is here with you); or while something holds you (a world's rule answers every way
+// out of here: seated at a dinner you can't politely leave). A room's own refusal, its `sleep` line, is the standard rule's, before.
+function sleepRefused(g, out) {
+  if (isFixed(g, g.player.at)) return true;
+  if (out.waiting && out.waiting.ask !== "sleep") return true;
+  const who = g.talkingTo;
+  if (who && g.world.objects[who] && person(g.world.objects[who]) && placeOf(g, who) === g.player.at) return true;
+  return held(g);
+}
+// Something holds you: the room has a way out, and every one of them is answered by a world's rule on going that isn't tied to one
+// direction (`match` with no `dir`: a hold reads a property its rules set, and answers every way while it holds).
+function held(g) {
+  const exits = g.world.rooms[g.player.at]?.exits || {}, dirs = Object.keys(exits).filter(d => exits[d]);
+  const rules = activeRules(g).filter(r => !r.fixed && isAction(r) && r.match && r.match.dir === undefined);
+  return dirs.length > 0 && dirs.every(dir => rules.some(r => fits(g, r, { verb: "go", dir })));
+}
+
+// "How long do you sleep?": the question, with its clickable answers (the narrator adds them, from the pack: `sleep.choices`),
+// then the dim line that says you may name a time. It waits in pending.question ({ ask: "sleep", choices }), answered from a set
+// like a yes/no one (`choosing`): the parser reads an answer as a SLEEP with its length; anything else drops it.
+function askHowLong(g, now, out) {
+  const choices = choicesAt(now);
+  g.pending.question = { ask: "sleep", choices };
+  out.applied.push({ say: "@sleep.ask", choices: choices.map(c => "@sleep.choices." + c), at: now });
+  out.applied.push({ say: "@sleep.or", style: "sys", at: now });
+}
+
+// The sleep itself, `ms` long (the player's at most LONGEST). The applied effects carry two marks for the screen (ui/scene.js plays the eyelids
+// and the dark between them, and the story is told in time with it, js/main.js): { sleep: <kind>, ms, wake, vision? } where the
+// eyes close, and { woke: true } where they open; what lies between is said in the dark (a dream, a vision's line).
+//   "You close your eyes." Then, in a harmful condition (one whose health hurts: poison, cold), you never wake: "You fall asleep, and
+//   do not wake.", and the death that follows is any death's (step(): its lines, its echo, the `died` ending). Otherwise, in the dark:
+//   a vision (the `dream` of the thing you are in, else of the room), or, in a sleep of a few hours or more, now and then a dream
+//   (DREAM_CHANCE: the first hint line of a puzzle the hints thing could hint now, each once). The clock moves on (what is scheduled
+//   in between runs after, js/engine.js runScheduled); "You wake. It is 07:00, day 2."; the conditions you are in live through the
+//   hours slept (sleptThrough); health comes back by the kind (healOf), if the last sleep that healed you is HEAL_GAP turns back;
+//   and step() describes the room, after the echoes.
+function fallAsleep(g, ms, action, out, key) {
+  const done = (x) => out.applied.push(x), now = worldTime(g), kind = kindOf(ms);
+  apply(g, { say: "@sleep.close" }, action, out, key + ":close");
+  if (activeIds(g).some(id => conditionClass(g.conditions?.[id]) === "harmful")) {
+    done({ sleep: kind, ms, wake: false });
+    return apply(g, { hurt: g.player.health, says: "@sleep.never" }, action, out, key + ":never");
+  }
+  const slept = (g.slept ??= {});                       // (made with the first sleep: a game that never sleeps has no key)
+  const vision = visionHere(g, slept);
+  const dream = !vision && kind !== "nap" && roll(g) < DREAM_CHANCE ? dreamNow(g, slept) : null;
+  done(clean({ sleep: kind, ms, wake: true, vision: vision?.d.picture && g.pictures[vision.d.picture] ? vision.d.picture : undefined }));
+  if (vision) {
+    if (vision.d.once === true) (slept.visions ??= []).push(vision.key);
+    apply(g, { say: vision.d.says }, action, out, key + ":vision");
+    if (vision.d.opens != null) apply(g, { know: vision.d.opens }, action, out, key + ":opens");
+  } else if (dream) {
+    (slept.dreamt ??= []).push(dream.id);
+    apply(g, { say: "@sleep.dream", arg: dream.text }, action, out, key + ":dream");
+  }
+  done({ woke: true });
+  g.time.shift = now + ms - g.clock;                    // the clock moves on (scheduled rules in between run after: runScheduled)
+  done({ time: now + ms, from: now });
+  const p0 = parts(now, g.time?.weekday), p = parts(now + ms, g.time?.weekday);
+  apply(g, { say: "@sleep.wake", arg: { time: hhmm(p), hour: p.hour, minute: p.minute, day: p.day, newDay: p.day !== p0.day } }, action, out, key + ":wake");
+  sleptThrough(g, ms, action, out, key);
+  const heals = healOf(kind);
+  if (heals && g.player.health < RANGES["player.health"][1] && !(slept.healed !== undefined && g.turn - slept.healed < HEAL_GAP)) {
+    apply(g, { heal: heals }, action, out, key + ":heal");
+    slept.healed = g.turn;
+  }
+  out.woke = g.player.at;
+}
+
+// The vision of where you sleep: the `dream` of the enterable thing you are in or on, else of the room; not one that is `once` and seen.
+function visionHere(g, slept) {
+  const room = g.world.rooms[g.player.at], thing = g.player.in ? g.world.objects[g.player.in] : null;
+  const fresh = (key, d) => d && typeof d === "object" && isLine(d.says) && !(d.once === true && (slept.visions || []).includes(key));
+  return fresh(g.player.in, thing?.dream) ? { key: g.player.in, d: thing.dream } : fresh(g.player.at, room?.dream) ? { key: g.player.at, d: room.dream } : null;
+}
+// A dream: one of the puzzles the hints thing could hint now (unsolved, its needs met, not an ending), with a hint line, never one
+// dreamt before, picked with the game's own numbers; its first hint line. The hints thing's own count is left alone (g.hinted).
+function dreamNow(g, slept) {
+  const pool = Object.entries(g.puzzles || {}).filter(([id, p]) => !p.ending && !solved(g, p) && (p.needs || []).every(n => met(g, n))
+    && Array.isArray(p.hints) && isLine(p.hints[0]) && !(slept.dreamt || []).includes(id));
+  if (!pool.length) return null;
+  const [id, p] = pool[rollBetween(g, 0, pool.length - 1)];
+  return { id, text: p.hints[0] };
+}
+
+// The conditions you are in live through the hours slept. They run on play time (state.clock), which a sleep doesn't move: so what
+// they would have done meanwhile is done here, and what is left of them is moved back by the hours slept (their times are play ms).
+//   neutral (no health: drunk): slept off by a sleep of SOBERS or more, or when its time runs out within the sleep;
+//   good (heals: warm): its heal ticks for the hours slept, within its time, as one heal with its line; it ends if its time runs out;
+//   harmful: never here (you don't wake: fallAsleep).
+// Turns don't pass while you sleep (it is one command), so what counts in turns goes on as it was.
+function sleptThrough(g, ms, action, out, key) {
+  const end = g.clock + ms;
+  for (const id of activeIds(g)) {
+    const d = g.conditions?.[id], c = g.player.conditions?.[id];
+    if (!d || !c) continue;
+    const kind = conditionClass(d);
+    if (kind === "neutral" && (ms >= SOBERS || (c.at !== undefined && c.at <= end))) { endCondition(g, id, action, out, key + ":" + id); continue; }
+    if (kind === "good" && c.tickAt !== undefined) {
+      const h = d.health, [min, max] = h.every.seconds || [0, 0];
+      let ticks = 0, t = c.tickAt;
+      while (h.every.seconds && t <= end && (c.at === undefined || t <= c.at)) { ticks++; t += rollBetween(g, min, max) * 1000; }
+      if (ticks) {
+        const says = Array.isArray(h.says) ? pickVariant(g, h.says, "condition:" + id) : h.says;
+        apply(g, { heal: ticks * h.heal, says }, action, out, key + ":" + id);
+        c.tickAt = t;
+      }
+    }
+    if (kind === "good" && c.at !== undefined && c.at <= end) { endCondition(g, id, action, out, key + ":" + id); continue; }
+    if (c.at !== undefined) c.at -= ms;                 // what is left of it is left after waking
+    if (c.tickAt !== undefined && kind === "good" && d.health?.every?.seconds) c.tickAt -= ms;
+  }
+}
+
 // A condition's hold on you as you act, before the action runs: words said come out slurred (js/speech.js) and are read so
 // by the rules; leaving a room, you may take another way (js/movement.js). Each says so in a line of its own first.
 function heldBy(g, action, out) {
@@ -968,6 +1121,10 @@ function apply(g, e, action, out, key) {
     // it doesn't run. Going back lets what's after it happen again. Going forward runs what it passes.
     if (/^\s*day/i.test(String(fill(g, e.time, action))) || r.to < now) g.time.seen = r.to;
     done(clean({ time: r.to, from: now, weekday: e.weekday }));
+  } else if ("sleep" in e) {                         // sleep (§5 "Sleep"): the standard SLEEP's ($sleep: what the player chose, or
+    // nothing yet: the question), or a world's own rule sending you to sleep to a time of its own ("next 07:30", a `time` form)
+    const v = e.sleep === "$sleep" ? action.sleep ?? null : fill(g, e.sleep, action);
+    sleep(g, v, action, out, key);
   } else if ("confirm" in e) {                       // a yes/no question, the same everywhere: it's said, followed by
     // <YES> / <NO> (the narrator adds them); the next input is read as the answer, which does `yes` or `no` (a
     // short "All right." when there's no `no`). Anything else typed instead drops the question.
@@ -976,7 +1133,7 @@ function apply(g, e, action, out, key) {
     const said = fill(g, e.confirm, action);
     if (said === null || said === undefined || said === "") return refuse("nothing to ask: " + e.confirm);
     // A question for words waiting (the session asks over it: UNDO, SAVE…) is kept under it, `then`, and stays open.
-    const under = g.pending.question && !g.pending.question.yesNo ? g.pending.question : g.pending.question?.then;
+    const under = g.pending.question && !choosing(g.pending.question) ? g.pending.question : g.pending.question?.then;
     g.pending.question = { ask: "confirm", yesNo: true, yes: e.yes, ...(e.no ? { no: e.no } : {}), trusted: !!out.trusted, ...(under ? { then: under } : {}) };
     const vals = propertyWords(g, said);
     done(clean({ say: said, confirm: true, style: e.style, arg: fill(g, e.arg, action), vals: Object.keys(vals).length ? vals : undefined, at: worldTime(g) }));

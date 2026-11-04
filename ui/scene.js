@@ -9,7 +9,7 @@
 
 import art from "../content/art.js";
 import { paintPicture, compose, overlaysShown, overlayAlt, RGB } from "./draw.js";
-import { CYCLES, FILTERS, MOVING, reactionOf } from "./effects.js";
+import { CYCLES, FILTERS, MOVING, reactionOf, sleepPicture, afterimageOf, darkField } from "./effects.js";
 import { parseFilter, inOrder, COUNTS } from "../js/filters.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
 import { text } from "../js/narrator.js";                  // "@key" → the pack's text, dotted keys too, as the story says it
@@ -40,6 +40,8 @@ export function mount(root) {
   let filters = [];              // the picture filters on (state.filters: js/filters.js), in the order they are drawn
   const since = new Map();       // when each filter on came on (its moving forms run from then)
   let moment = null;             // the moment now playing, once (a shake, a wave): { name, o: its tunables, at: when it began }
+  let run = null;                // a sleep playing (sleep(), below): the lids, the dark, and where it has got to
+  let field = null;              // the dark's own numbers, worked out the first time (ui/effects.js, darkField)
 
   // Paint (or reuse) a room's picture.
   function base(roomId, picture) {
@@ -84,6 +86,10 @@ export function mount(root) {
       if (FILTERS[name]) pic = FILTERS[name](pic, own ? moment.o : art.effects.filters[name], now - (own ? moment.at : since.get(f) ?? now), calm(), param);
     }
     if (moment && (calm() || now - moment.at >= moment.o.ms)) moment = null;   // the moment is over (this frame shows it still)
+    if (run) {                                                   // asleep: the lids and the dark, over everything (ui/effects.js)
+      if (!run.after && !run.visionPx && run.fade == null) run.after = afterimageOf(pic, run.o);   // (the room as the eyes close)
+      pic = sleepPicture(pic, run, now, run.o);
+    }
     out = pic.px;
     for (let k = 0; k < out.length; k++) {
       const [r, g, b] = pic.rgb[out[k]];
@@ -95,8 +101,9 @@ export function mount(root) {
   // Keep animating while a transition runs or cycles are moving (not while the tab is hidden: the browser
   // pauses animation frames by itself).
   function tick(now) {
+    if (run) advance(now);                                       // (it may end the sleep, and draw the picture woken to)
     const steps = stepsAt(now);
-    const moving = moment !== null || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
+    const moving = moment !== null || run !== null || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
     if (change || steps.join() !== lastSteps || moving) render(now, steps);   // nothing moved: leave the canvas as it is
     loop = (change || moving || (cycles.length && !calm())) ? requestAnimationFrame(tick) : 0;
   }
@@ -105,7 +112,76 @@ export function mount(root) {
   reducedMotion.addEventListener("change", motionChanged);
   new MutationObserver(motionChanged).observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });   // (see calm)
 
+  // ---- Sleep (INTERFACE.md §6c, "Sleep"; drawn by ui/effects.js, sleepPicture; its tunables: content/art.js, effects.sleep) ----
+  // Three phases: the lids close (their steps, eased; with reduce motion a plain fade to black), the dark (at least its own length,
+  // and until the dream or the vision has been told: the controller's `dark()` tells it and says how long that takes), and the lids
+  // open (`open()` first: the controller puts the picture woken to under them). Then `done()`. A sleep you don't wake from ends
+  // in the dark, which stays as the picture until the ending's comes in. `skip()` goes straight to the end.
+  function advance(now) {
+    const o = run.o, eased = (k) => (k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2);
+    const along = (steps, from) => {                             // where the lids are along their steps, and whether they are done
+      let t = now - run.t0, at = from;
+      for (const [to, ms] of steps) { if (t < ms) return { lid: at + (to - at) * eased(t / ms), over: false }; t -= ms; at = to; }
+      return { lid: at, over: true };
+    };
+    if (run.phase === "close") {
+      const r = run.fade != null ? { lid: 1, fade: Math.min(1, (now - run.t0) / o.calm.fade) } : along(run.plan.close, 0);
+      run.lid = r.lid; if (r.fade != null) run.fade = r.fade;
+      if (r.over || run.fade === 1) darkens(now);
+    }
+    if (run?.phase === "dark") {
+      const t = now - run.darkAt, left = run.darkEnd - now, ramp = (x, ms) => Math.max(0, Math.min(1, x / ms));
+      run.glow = Math.min(ramp(t, o.glowIn), ramp(left, o.glowOut));
+      run.vision = run.fade != null ? 1 : Math.min(ramp(t - o.glowIn, o.vision.fadeIn), ramp(left - o.glowOut, o.vision.fadeOut));
+      if (now >= run.darkEnd) {
+        if (!run.wake) return finish(false);
+        run.phase = "open"; run.t0 = now; run.glow = 0; run.vision = 0;
+        run.open?.();
+      }
+    }
+    if (run?.phase === "open") {
+      const r = run.fade != null ? { lid: 1, fade: Math.max(0, 1 - (now - run.t0) / o.calm.fade) } : along(run.plan.open, 1);
+      run.lid = r.lid; if (r.fade != null) run.fade = r.fade;
+      if (run.fade != null ? run.fade === 0 : r.over) finish(true);
+    }
+  }
+  // The lids are shut: the dark begins, and the controller tells what is said in it (`dark()`: how long until it has been told).
+  function darkens(now) {
+    const o = run.o, told = run.dark?.() ?? 0, fades = run.visionPx ? o.vision.fadeIn + o.vision.fadeOut : 0;
+    Object.assign(run, { phase: "dark", lid: 1, darkAt: now,
+      darkEnd: now + Math.max(run.plan.dark, told + o.afterText, o.glowIn + o.glowOut + fades) });
+  }
+  // The end of a sleep: woken, the lids gone; or not (a death), the dark kept as the picture, for the ending's to come in over.
+  function finish(woke) {
+    const { done } = run;
+    if (!woke) { frame = new Uint8Array(W * H).fill(run.o.colors.dark); cycles = []; }
+    run = null;
+    render(performance.now());
+    done?.();
+  }
+
   return {
+    // A sleep, played on the picture: { kind: "nap" | "few" | "morning" (js/sleep.js), vision: { id, picture } (a world's picture,
+    // shown in the dark) or null, wake: false when you don't wake, dark(), open(), done() }: see advance(). Returns { skip(), cancel() }.
+    // Never on a restore (the controller only plays a moment just played).
+    sleep({ kind, vision = null, wake = true, dark, open, done }) {
+      const o = art.effects.sleep;
+      field ??= darkField(W, H, o);
+      run = { o, plan: o[kind] || o.nap, wake, dark, open, done, phase: "close", t0: performance.now(), lid: 0, fade: calm() ? 0 : null,
+              glow: 0, darkAt: null, darkEnd: null, vision: 0, visionPx: vision ? base("vision:" + vision.id, vision.picture).px : null,
+              after: null, field };
+      const mine = run;
+      animate();
+      return {
+        skip() {                                                 // a tap, a click or a key: straight to waking (or to the end)
+          if (run !== mine) return;
+          if (run.phase === "close") run.dark?.();
+          if (run.wake && run.phase !== "open") run.open?.();
+          finish(run.wake);
+        },
+        cancel() { if (run === mine) { run = null; render(performance.now()); } }   // the game is left: no more of it, nothing told
+      };
+    },
     // Redraw when the room, its picture version or the overlays shown change; once the story has ended, when it
     // changes to the ending's own picture (a state with no such picture keeps the room's). A restore (new game,
     // undo, a loaded game) switches at once; the ending and a room each use their own named transition

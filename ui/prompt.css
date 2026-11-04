@@ -19,6 +19,14 @@
       color: var(--chevron);
     }
 
+    /* Asleep (ui/page.js: data-asleep on <html>, and the line inert): the line greyed, like the compass and the inventory, until
+       you wake. */
+    :root[data-asleep] & {
+      --chevron: var(--color-text-faint);
+      --typed:   var(--color-text-faint);
+      --cursor:  var(--color-text-faint);
+    }
+
     & .line {
       display: flex;
       align-items: center;

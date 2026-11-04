@@ -10,7 +10,11 @@
 //            story than fits between the open picture and the prompt: with nothing more to read there is no reason to fold.
 //            Only scrolling that follows a touch, a wheel or a key press since the story started or the room changed counts: a scroll
 //            nobody asked for (Safari keeping part of the list's scroll when a game starts) is the browser's, not the reader's, and
-//            never folds the picture (Diego, 29 Oct 2026: a new game always starts open).
+//            never folds the picture (Diego, 29 Oct 2026: a new game always starts open). The game's own scrolling doesn't count
+//            either, with one exception: following new text after a command (log.js calls follow(by)), when that moves the page
+//            down by FOLD_AFTER or more, folds it as the reader's scrolling would, and log.js aims the follow at the folded
+//            picture, so nothing jumps when the fold ends (Diego, 3 Nov 2026: following a talking point never folded it). A
+//            short answer, a room's glide, a new game, a loaded game and the world's own lines never fold it.
 //   Opens    on a new room (log.js calls room()), and when you tap it. Never because you scrolled down (slow scrolling down is
 //            what reading looks like, and an opening picture would cover the lines being read), nor at the end of the story,
 //            nor for new text, nor at the top (Diego, 27 Oct 2026: only a room and a tap open it).
@@ -24,7 +28,7 @@
 //            ui/scene.css.) One finger that hardly moves is a tap, one that moves is a drag, two are a pinch: they never mix.
 //
 // Unlike the other pieces, nothing here is drawn from the game's state: log.js, which knows when the story is at the present,
-// is given this and calls it. Mounted on the top (index.html), given the log.
+// is given this and calls it (room, scrolling, follow). Mounted on the top (index.html), given the log.
 
 // The scrolling that folds the picture. Diego, 26 Oct 2026: 120 felt "more intentional" than 30 or 90, then 200; then 120 and 90 once it folded both ways (27 Oct).
 const FOLD_AFTER = 90;    // px of scrolling in one direction, in a row, that fold the picture
@@ -116,12 +120,23 @@ export function mount(top, log) {
     if (own !== null) ownTimer = setTimeout(() => { own = null; lastY = scrollY; }, OWN_SCROLL);
   }
 
-  // Is there more story than fits between the open picture and the prompt?
+  // Is there more story than fits between the open picture and the prompt? (The open top ends at openH(): it is fixed at the
+  // window's top, and while you type, when it scrolls away with the story, it comes back there.)
   function storyOverflows() {
     const first = log.firstElementChild?.firstElementChild, last = log.lastElementChild?.lastElementChild;
     if (!first || !last) return false;
     const story = last.getBoundingClientRect().bottom - first.getBoundingClientRect().top;
-    return story > bottom.getBoundingClientRect().top - (top.getBoundingClientRect().top + openH());
+    return story > bottom.getBoundingClientRect().top - openH();
+  }
+
+  // The game follows new text after a command (log.js), moving the page down by `by` px: FOLD_AFTER or more folds the picture,
+  // as the reader's own scrolling would, if there is more story than fits. Says whether it folded now (log.js then aims the
+  // follow at the folded picture).
+  function follow(by) {
+    if (folded || !active() || by < FOLD_AFTER || !storyOverflows()) return false;
+    folded = true; intent = 0;
+    show();
+    return true;
   }
 
   function onScroll() {
@@ -223,5 +238,5 @@ export function mount(top, log) {
     show();
   }
 
-  return { open, room, scrolling };
+  return { open, room, scrolling, follow };
 }

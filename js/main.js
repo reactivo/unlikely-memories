@@ -64,11 +64,12 @@ let pendingWhich = null;                                 // "Which do you mean�
 let autosaving = null;                                   // the pending automatic save
 let freshFor = null;                                     // a world to open with a new game, read once by route()
 let turnStart = null;                                    // this turn's first paragraph: { el, entry } (see enteredRoom)
+let asleep = null;                                       // a sleep playing on the screen (sleepThrough): { shift, run }; nothing else moves meanwhile
 
 // What the pieces can ask the controller to do (clicks, Enter, options…).
 const on = {
   submit: (raw) => runCommand(raw),                      // Enter on the command line
-  canSend: () => !restarting,                            // no input while a new game is starting
+  canSend: () => !restarting && !asleep,                 // no input while a new game is starting, nor while you sleep
   command: (text) => runCommand(text, text.toLowerCase()),   // e.g. a compass click sends "North" (kept in the history as "north")
   useCommand: (text) => runCommand(sentenceCase(text)),  // a <COMMAND> in the story was clicked: run it at once
   showObject: (id, label) => examineObject(id, label),   // an object in the story was clicked: examine it
@@ -127,7 +128,7 @@ function redraw(reason) {
 // Every way of running a command comes through here (Enter, compass, story links, objects, choices), so this is
 // where it is remembered for ↑ / ↓: `kept` is what is stored (default: the command as run).
 function runCommand(raw, kept = raw) {
-  if (restarting) return;                                // a new game is about to start
+  if (restarting || asleep) return;                      // a new game is about to start; you are asleep
   ui.prompt.remember(kept);                              // (the history ignores empty lines)
   const blank = !raw.trim();
   if (blank && !takesBlank(state)) return;               // a blank Enter does nothing (unless a question for words waits: it is the answer)
@@ -143,7 +144,7 @@ function runCommand(raw, kept = raw) {
 // A room clicked on the map: walk there, one real move after another (js/map.js: every rule applies). Only the arrival is
 // shown (or where the walk stopped and what was said), after the typed trip as the echo. One turn: one UNDO takes it all back.
 function travel(room) {
-  if (restarting || state.ended) return;
+  if (restarting || asleep || state.ended) return;
   const pack = packOf(state), from = state.player.at, before = state;
   const trip = walk(withoutQuestion(state), room, pack, clock.now());   // a question waiting is dropped: a walk is moves, not an answer
   if (!trip) return;                                     // here already, or not on the map
@@ -206,6 +207,8 @@ function play(raw) {
     const { next, applied, refused } = step(state, { ...action, at: clock.now() });
     if (refused.length) console.warn("Effects refused by the engine:", refused);   // a rule asked for something impossible
     state = next;
+    const slept = applied.find(e => "sleep" in e);       // a sleep: told in time with the eyes closing and opening (the rest waits)
+    if (slept) return sleepThrough(applied, slept);
     show(story(applied, state, pack));                   // (USE alone also says what you could do with the thing)
     then = applied.find(e => e.session)?.session ?? then; // a question answered yes: something for the session
     if (applied.some(e => e.restart)) { again = true; break; }   // beginning again was chosen
@@ -221,6 +224,41 @@ function play(raw) {
   }
   if (again) restart({ said: true });                  // (BEGIN AGAIN: the engine has said againYes)
   else { schedule(); autosave(); }
+}
+
+// A sleep (js/engine.js, `sleep`; INTERFACE.md §6c, "Sleep"), told in time with the picture (ui/scene.js, sleep): what comes before
+// the eyes close ("You close your eyes."), then the eyes close; in the dark, what is said there (a dream, a vision's line), and the
+// dark lasts until it has been told; the picture woken to goes under the lids, they open, and then the waking (its line, the
+// echoes, the room) and everything the screen shows of the moment (redraw: the clock, the reactions, the inventory). A sleep you
+// don't wake from ends in the dark, then the death and the ending. Meanwhile the compass, the inventory and the command line are
+// locked and greyed (ui/page.js, asleep); a tap, a click or a key skips to waking. The title bar's clock keeps the time you fell
+// asleep at. Never on a restore: a loaded game, UNDO and a new game only show the story as it was told.
+function sleepThrough(applied, mark) {
+  const pack = packOf(state), i = applied.indexOf(mark), j = applied.findIndex(e => e.woke);
+  const before = applied.slice(0, i), dark = j < 0 ? [] : applied.slice(i + 1, j), after = applied.slice(j < 0 ? i + 1 : j + 1);
+  const picture = mark.vision && state.pictures?.[mark.vision];
+  show(story(before, state, pack));
+  ui.log.toEnd();
+  let told = false;
+  const tellDark = () => { if (told) return 0; told = true; show(story(dark, state, pack)); ui.log.toEnd(); return ui.log.busyFor(); };
+  const run = ui.scene.sleep({
+    kind: mark.sleep, wake: mark.wake !== false, vision: picture ? { id: mark.vision, picture: picture.picture } : null,
+    dark: tellDark,
+    open: () => ui.scene.update(shown, { state, pack, music: musicOn }, "restore"),   // the picture woken to, under the lids
+    done: () => {
+      tellDark();
+      asleep = null;
+      ui.page.asleep(false);
+      show(story(after, state, pack));
+      redraw("turn");
+      showTime();
+      schedule(); autosave();
+      ui.log.toEnd();
+      if (!state.ended) ui.prompt.focus();
+    }
+  });
+  asleep = { shift: shown?.state?.time?.shift ?? 0, run };
+  ui.page.asleep(true, () => run.skip());
 }
 
 // Nothing to do with the words (not a turn): a reply in the world's voice, varied ("You're not sure how to do
@@ -383,10 +421,10 @@ function schedule() {
 }
 
 // The world takes a turn on its own (a timed rule is due): no echo, no turn counted. It waits while you're
-// typing, while text is still appearing, or while a question is waiting for your answer.
+// typing, while text is still appearing, while a question is waiting for your answer, or while you sleep.
 function tick() {
   if (view !== "game") return;                           // (the list of games is showing)
-  if (ui.prompt.typing() || ui.log.busy() || state.pending.question) { timer = setTimeout(tick, QUIET_RETRY); return; }
+  if (ui.prompt.typing() || ui.log.busy() || state.pending.question || asleep) { timer = setTimeout(tick, QUIET_RETRY); return; }
   const follow = ui.log.atEnd();                         // only follow the new text if you were already there
   const from = state.player.at;
   turnStart = null;
@@ -411,8 +449,9 @@ function say(t, style = "") { show([{ text: t, style }]); }
 function echo(t) { note(ui.log.say(t, "cmd"), { text: t, style: "cmd" }); }
 // A paragraph just added: kept for saves, and remembered if it's the first of this turn.
 function note(el, entry) { keep(entry); turnStart ||= { el, entry }; }
-// The title bar shows the world's time: play time plus however far the story has moved it (js/time.js).
-function showTime() { ui.titlebar.showClock(clock.now() + (state?.time?.shift || 0)); }
+// The title bar shows the world's time: play time plus however far the story has moved it (js/time.js); while you sleep, the time you
+// fell asleep at (it jumps as you wake).
+function showTime() { ui.titlebar.showClock(clock.now() + (asleep ? asleep.shift : state?.time?.shift || 0)); }
 
 // What the player has just read: the room's text and the last few lines. Something named there that the game
 // can't answer about gets a neutral reply instead of "You see no … here" (js/parser.js, the safety net).
@@ -476,9 +515,11 @@ function route() {
   else if (view !== "game" || openId !== r.id) openWorld(r.id, r.fresh);
 }
 
-// Leave the game view: the game is saved, its clock and timer stop, and a new game that was about to start doesn't.
+// Leave the game view: the game is saved, its clock and timer stop, and a new game that was about to start doesn't; a sleep playing
+// stops where it is (the game is saved woken: the story of it is kept only as far as it was told).
 function leaveGame() {
   if (view !== "game") return;
+  if (asleep) { asleep.run.cancel(); asleep = null; ui.page.asleep(false); }
   clearTimeout(restartTimer); restarting = false;
   clearTimeout(timer);
   saveNow();
@@ -545,7 +586,7 @@ if (DEBUG_PANEL) {
     // One moment of effects through the engine (js/debug.js, moment), shown and kept like a move: UNDO takes it back, it is saved.
     // tell: false shows only what the world said on its own meanwhile; note: a dim line before it; undo: false keeps no UNDO step.
     run(effects, { tell = true, note, undo = true } = {}) {
-      if (view !== "game" || restarting || !state || state.ended) return;
+      if (view !== "game" || restarting || asleep || !state || state.ended) return;
       const before = state, from = state.player.at, pack = packOf(state);
       const r = debug.moment(state, effects, clock.now());
       if (r.refused.length) console.warn("Effects refused by the engine:", r.refused);

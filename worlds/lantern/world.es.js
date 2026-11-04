@@ -2,7 +2,7 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings } from "./pictures.js";
+import pictures, { endings, visions } from "./pictures.js";
 import sprites from "./sprites.js";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
@@ -65,6 +65,12 @@ const endingPictures = {
   died: { alt: "De cerca, una pequeña jaula de latón en la niebla gris. El canario está en su percha con la cabeza bajo el ala, y la niebla se cuela entre los barrotes.", picture: endings.died }
 };
 
+// La visión de la caseta (`dream`, ARCHITECTURE.md §5 «Sleep»): dormir en la caseta del señor Fenn, su última ronda, una vez. Su dibujo es
+// un dibujo del mundo como el de un final (pictures.js, visions); lo que dice a un lector de pantalla se dice aquí.
+const visionPictures = {
+  fenn_dream: { alt: "Un sueño de Lantern Row en una niebla azul: faroles de gas que se alejan calle arriba, encendidos y amarillos a lo lejos, los dos más cercanos apagados. Al pie del más cercano, un hombre menudo con una gorra verde está sentado en el bordillo, con la pértiga apoyada a su lado, y una figura gris y tenue de pie junto a él.", picture: visions.fenn_dream }
+};
+
 // ---- Salas -------------------------------------------------------------------------------------------------------------
 // Zona "cab": la apertura, a la que no se vuelve. Zona "row" (la x crece al este, la y al sur): el tribunal al norte de la
 // calle, The Bell al oeste y la tienda de pasteles al este; el último farol al sur, con la subestación al oeste, la
@@ -124,6 +130,7 @@ const rooms = {
     ], every: [40, 80] },
     // El tribunal se reúne a medianoche: vale la pena esperarla aquí siempre que no esté reunido.
     waitFor: { time: "next 00:00", says: "Esperas junto a las puertas del tribunal. La niebla viene y se pone a tu lado, y también espera.", if: [{ "time.hour": { between: [6, 24] } }] },
+    sleep: "En la calle no. El agente Pye te haría circular.",
     alt: "Una calle de fachadas de tiendas en espesa niebla gris, vista desde el centro de los adoquines: faroles de gas que se alejan como borrones naranjas, la ventana roja de The Bell a la izquierda, la amarilla de la tienda de pasteles a la derecha, las puertas oscuras del tribunal al fondo y, a la derecha, un policía con casco de pie."
   },
   bell: {
@@ -147,6 +154,7 @@ const rooms = {
       "El fuego se asienta. Un hombre de gorra lo mira como si le debiera dinero.",
       "La puerta se abre, la niebla se asoma, y alguien le cierra la puerta en las narices."
     ], every: [35, 70] },
+    sleep: "En The Bell no. El señor Cotter te barrería con el serrín.",
     alt: "Un pub de vigas bajas en silueta: hombres de gorra negros contra el resplandor rojo y naranja de un fuego de carbón a la izquierda, una larga barra oscura y, tras ella, el tabernero sosteniendo en alto un vaso."
   },
   pie_shop: {
@@ -162,6 +170,7 @@ const rooms = {
     ],
     mentions: ["señora Halloran", "harina"],
     smell: "Masa y grasa caliente, y debajo algo más dulce: el olor de una cocina donde siempre se espera a alguien.",
+    sleep: "No en una tienda tan ancha como un perchero. La señora Halloran solo te pondría un pastel delante.",
     alt: "Una tienda de pasteles vista desde arriba: un largo mostrador marrón con bandejas de pasteles dorados en filas, la boca encendida de un horno de hierro arriba, un escaparate empañado a lo largo del borde inferior y una mujer con gorro blanco inclinada sobre el mostrador, a la derecha."
   },
   court: {
@@ -176,6 +185,7 @@ const rooms = {
       { words: ["sillas", "silla", "jurado", "niebla"], name: "el jurado", says: "Doce sillas en dos filas. La niebla las ha ocupado todas y está muy quieta, como se queda un jurado que ya ha decidido escuchar." }
     ],
     mentions: ["doctor Mabbott", "pluma"],
+    sleep: "En el tribunal no. El doctor Mabbott no lo consentiría.",
     alt: "Mirando hacia arriba desde el estrado de testigos a un alto pupitre verde de forense: un hombre delgado de negro encima con una pluma, una lámpara de pantalla verde a su lado y, a la derecha, doce sillas de jurado con niebla pálida sentada en ellas."
   },
   last_lamp: {
@@ -202,6 +212,7 @@ const rooms = {
     ], every: [35, 70] },
     // Vale la pena esperar hasta que cierre The Bell y la calle se calle.
     waitFor: { time: "next 23:00", says: "Esperas junto al último farol con el señor Fenn. Ninguno de los dos dice nada, que es lo que él prefiere.", if: [{ "time.hour": { between: [11, 23] } }] },
+    sleep: "Aquí no, junto al señor Fenn. Uno de los dos debería seguir despierto.",
     alt: "Una vista amplia a lo largo de un muro de río en niebla azul oscura. A la izquierda, un alto poste de hierro con el farol apagado, el cristal negro; a su pie, un hombre menudo con gorra sentado en el bordillo. A la derecha, una caseta verde de madera con su puerta. A lo lejos, calle arriba, el débil resplandor de otros faroles."
   },
   hut: {
@@ -216,6 +227,7 @@ const rooms = {
       { words: ["estante", "balda", "lata", "cerillas", "fosforos"], name: "el estante", says: "Una tabla sobre dos escuadras, con el libro de registro y una lata de cerillas que nadie ha necesitado en cuarenta años." },
       { words: ["puerta", "caseta"], name: "la puerta", says: "La puerta de la caseta, abierta, y fuera, al oeste, el último farol.", leads: "w" }
     ],
+    dream: { says: "El señor Fenn baja por la calle con su pértiga, encendiendo los faroles uno a uno, el último al final. En el duodécimo se para, porque alguien a su lado le ha dicho algo amable, y se sienta a escucharlo. La niebla se lo guarda.", picture: "fenn_dream", once: true },
     alt: "Dentro de una caseta de madera diminuta, mirando a su pared del fondo: tres filas de gorras viejas en clavos, de un verde vivo arriba y más grises abajo, el último clavo vacío, y un estante con un libro de registro abierto y una lata roja.",
     overlayAlt: { trumpet: "Una trompetilla de latón abollada yace en el suelo." }
   },
@@ -236,6 +248,7 @@ const rooms = {
       "La bombilla parpadea una vez, y el señor Voss la mira, dolido.",
       "Bajo el suelo, los cables nuevos de la calle zumban para sí, esperando al lunes."
     ], every: [40, 80] },
+    sleep: "No con la dínamo zumbándote como un hombre que sabe que tiene razón.",
     alt: "Una sala de ladrillo iluminada por una sola bombilla eléctrica desnuda: una gran dínamo zumbante a la izquierda y, a la derecha, un hombre con sombrero hongo ante un escritorio con un libro de cuentas abierto."
   },
   river_steps: {
@@ -256,6 +269,7 @@ const rooms = {
       "Lejos, sobre el agua, suena la campana de un barco, y nadie le contesta.",
       "Una palabra pasa flotando con la corriente, boca abajo."
     ], every: [35, 75] },
+    sleep: "En la escalera no, con el río pasando abajo sin prisa.",
     alt: "Mirando hacia abajo desde un muro de río: una escalera de piedra baja a la izquierda hasta una franja de barro negro, una niña pequeña con un abrigo grande y un cubo sobre el barro, y el río pardo llenando el cuadro hasta una orilla lejana perdida en la niebla."
   },
   bridge: {
@@ -711,6 +725,7 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
+    ...Object.entries(visionPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
     // Borracho de porter (la tercera media en The Bell: doses 3): la calle se mece y se ve doble, las palabras salen trabadas y, al
     // salir de un sitio, a veces tomas otro camino. Se pasa solo; un pastel lo pasa antes.
     { add: "condition", id: "drunk", doses: 3, lasts: { seconds: [120, 180] }, starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera",

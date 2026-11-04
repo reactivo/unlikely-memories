@@ -7,7 +7,7 @@
 // one thing to take (the hints thing) and one carried (the intro), no word of the three things used by anything else. Its mechanics
 // are the engine's, pinned in tests/openings.test.js, not played here.
 //
-// Also: the ending's picture (BRIEF.md §7): every `end` effect names a picture the world has, a world that can hurt the player
+// Also: the ending's picture (BRIEF.md §7): every `end` effect (and every vision's `dream.picture`) names a picture the world has, a world that can hurt the player
 // has a `died` picture (the one the story ends with when health runs out), and each picture in `state.pictures` is well formed
 // and described (`alt`, in the world file: the ending's `add picture`). Every room's picture is held to the same drawing checks.
 //
@@ -543,6 +543,12 @@ function pictureProblems(state) {
   }
   for (const [id, c] of Object.entries(state.conditions || {})) if (c?.health && "hurt" in c.health) hurts ??= "condition " + id;
   if (hurts && !pictures.died) problems.push(`${hurts} can hurt the player, so the world needs a "died" picture (the ending when health runs out)`);
+  // A vision's picture (`dream: { picture }` on a room or a thing you sleep in: ARCHITECTURE.md §5 "Sleep") is one the world adds.
+  for (const [kind, all] of [["rooms", state.world.rooms], ["objects", state.world.objects]])
+    for (const [id, x] of Object.entries(all)) {
+      const pic = x?.dream?.picture;
+      if (typeof pic === "string" && !pictures[pic]) problems.push(`${kind}/${id}: its dream shows picture "${pic}", which the world doesn't have (add picture)`);
+    }
   for (const [id, p] of Object.entries(pictures)) {
     if (!described(p?.alt)) problems.push(`pictures/${id}: has no alt, the description of the picture for screen readers; give its add picture an alt in ${file}`);
     carried(`pictures/${id}`, p?.picture, "describe it as the add picture's alt");

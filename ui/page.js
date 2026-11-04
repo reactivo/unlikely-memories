@@ -1,7 +1,8 @@
 // Page-wide details that belong to no single piece: the page language, which view is shown (the list of games or the
 // game: css/layout.css reads data-view), whether the tab is visible (the game clock pauses while it's hidden), and when
 // the page is left (a waiting save is written), how much of the window the parts that stick take up (see followBars),
-// on phones, whether you are typing (see followTyping), and the background's flash when you are hurt or healed (see flash).
+// on phones, whether you are typing (see followTyping), the background's flash when you are hurt or healed (see flash), and what is
+// locked while you sleep (see sleeper).
 
 import { reactionOf } from "./effects.js";
 
@@ -80,6 +81,33 @@ function flash(root) {
   };
 }
 
+// While you sleep (INTERFACE.md §6c, "Sleep"; js/main.js, sleepThrough): data-asleep on <html>, and the compass, the inventory and the
+// command line locked (inert) and greyed (their own CSS reads data-asleep, as it reads the end's `over`). Nothing can be typed or
+// clicked: a tap, a click or any key only skips to waking (`skip`), once; the key's release and the click that follow are swallowed
+// too, so they don't act after you wake (Esc, a release, restarts). Scrolling the story still works. Returns lock(on, skip).
+function sleeper(root) {
+  const html = root.documentElement, locked = [".compass", ".inventory", ".prompt"].map(s => root.querySelector(s));
+  let on = false, skip = null, held = 0, done = null;
+  const swallow = (e) => { e.preventDefault(); e.stopPropagation(); };
+  const press = (e) => {
+    if (e.type === "keydown" && e.repeat) return swallow(e);
+    held++;
+    swallow(e);
+    if (on && skip) { const s = skip; skip = null; s(); }
+  };
+  const release = (e) => { swallow(e); held = Math.max(0, held - 1); if (!on && !held) { clearTimeout(done); done = setTimeout(finish, 50); } };   // (the click after it, too)
+  const types = { keydown: press, pointerdown: press, keyup: release, pointerup: release, click: swallow, input: swallow, keypress: swallow };
+  const listen = (add) => { for (const [t, f] of Object.entries(types)) (add ? window.addEventListener : window.removeEventListener).call(window, t, f, true); };
+  function finish() { clearTimeout(done); listen(false); held = 0; }
+  return (asleep, skipped) => {
+    on = asleep;
+    html.toggleAttribute("data-asleep", asleep);
+    for (const el of locked) if (el) el.inert = asleep;
+    if (asleep) { clearTimeout(done); skip = skipped; held = 0; listen(true); }
+    else { skip = null; clearTimeout(done); if (!held) finish(); else done = setTimeout(finish, 800); }   // (a release still to come: wait for it, a moment)
+  };
+}
+
 // Set up on the document. Returns update() and show().
 export function mount(root, on) {
   // The game puts the page where it should be itself (ui/log.js: a room's first line under the picture, the newest text). The
@@ -91,7 +119,10 @@ export function mount(root, on) {
   const measure = followBars(root);
   followTyping(root);
   const react = flash(root);
+  const lock = sleeper(root);
   return {
+    // While you sleep, and as you wake (see sleeper): asleep(true, skip), asleep(false).
+    asleep: (on, skip) => lock(on, skip),
     // Show one view, "home" or "game", in a language: an open panel (map, options) closes with the game.
     show(view, lang) {
       root.querySelectorAll(":popover-open").forEach(p => p.hidePopover());

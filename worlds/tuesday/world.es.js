@@ -92,6 +92,7 @@ const rooms = {
     exits: { e: "station_hall" },
     scenery: [{ words: ["estanterías", "estanterias", "estantería", "estanteria", "estantes", "paraguas", "guantes", "jaula", "vestido", "novia", "caja", "etiquetas", "fechas"], name: "las estanterías", says: "Cosas que la gente dejó de buscar. Cada una tiene una etiqueta, y cada etiqueta una fecha. Ninguna fecha es un lunes posterior al decreto." },
               { words: ["mostrador"], name: "el mostrador", says: "Un mostrador largo, gastado donde se ha apoyado un siglo de reclamantes." }],
+    sleep: "Entre los objetos perdidos no. El señor Ambrose te pondría una etiqueta.",
     alt: "Una sala larga de estanterías atestadas de paraguas, cajas y una jaula. Un mostrador con un libro de registro y un viejo empleado; un cajón húmedo junto a la pared."
   },
   station_hall: {
@@ -105,6 +106,7 @@ const rooms = {
     waitFor: { time: "next 21:00", says: "Esperas bajo el reloj. No miente en ningún minuto.", if: [hours(6, 21)] },
     scenery: [{ words: ["techo", "cristal", "azulejos", "azulejo", "vestíbulo", "vestibulo", "palomas", "paloma"], name: "el vestíbulo", says: "Azulejos verdes y crema, y un cristal tan alto que las palomas de debajo parecen pensamientos." }],
     mentions: ["reloj", "reja", "postigo"],
+    sleep: "Aquí no, bajo el reloj, con tanta gente que tiene un tren que coger.",
     alt: "Un vestíbulo de estación con azulejos verdes y crema bajo un techo de cristal. Un gran reloj con un calendario debajo y un aviso enmarcado. A la derecha, una ventanilla de billetes con reja de latón; en la pared de la izquierda, un horario."
   },
   waiting_room: {
@@ -131,6 +133,7 @@ const rooms = {
     mentions: ["caseta de señales"],
     // Vale la pena esperar mientras el tren no está; cuando ya ha estado, las palabras cambian (train_out).
     waitFor: { time: "next 23:30", says: "Esperas en el andén. Las horas vuelven como vuelven los trenes, todas de golpe.", if: [{ "train.at": { "!=": "platform" } }] },
+    sleep: "En el andén no, con los trenes.",
     alt: "Un único andén bajo una marquesina de hierro, con un banco y un panel de horarios colgado. Los raíles se curvan al este hacia un túnel; al oeste hay una caseta de señales."
   },
   platform_end: {
@@ -141,6 +144,7 @@ const rooms = {
     ],
     exits: { w: "platform", e: true },
     scenery: [{ words: ["cartel", "rampa", "raíles", "railes", "hombre"], name: "el cartel", says: "Nadie puede ir más allá. El cartel lo dice sin palabras, y por eso sabes que va en serio." }],
+    sleep: "Aquí no, con el túnel respirándote encima.",
     alt: "El final de un andén que baja en rampa hacia los raíles, los cuales se pierden en la boca oscura de un túnel. Un cartel de advertencia en un poste."
   },
   signal_box: {
@@ -151,6 +155,7 @@ const rooms = {
     ],
     exits: { e: { to: "platform", out: true } },
     scenery: [{ words: ["palancas", "palanca", "ventanas", "ventana", "pilotes", "escalones"], name: "las palancas", says: "Más altas que tú, pulidas en la empuñadura, y no te toca tirar de ellas." }],
+    sleep: "En la caseta de señales no. El guardagujas no ha cerrado los ojos en su turno ni una sola vez, y no va a consentir que tú lo hagas.",
     alt: "El interior de una caseta de señales: una hilera de palancas altas, ventanas por todas partes, un hombre en mangas de camisa con una mano en una palanca y un esquema de una sola línea en la pared."
   },
   square: {
@@ -173,6 +178,7 @@ const rooms = {
       closed: "El conserje carraspea. «Las habitaciones son para los huéspedes», dice. «Los huéspedes las piden.»" } },
     scenery: [{ words: ["mostrador", "periódico", "periodico", "vestíbulo", "vestibulo", "col", "cera", "recepción", "recepcion"], name: "el vestíbulo", says: "Latón, cera, un timbre que nadie toca. El periódico es el del sábado; los domingos no hay periódico, y tampoco hay lunes." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera estrecha que sube a las habitaciones.", leads: "u" }],
+    sleep: "En el vestíbulo no. Arriba hay habitaciones, para quien las pida.",
     alt: "Un vestíbulo de hotel estrecho con un mostrador de madera, un hombre leyendo el periódico tras él, ganchos con llaves en la pared y una escalera que sube a la derecha."
   },
   hotel_room: {
@@ -194,6 +200,7 @@ const rooms = {
     ],
     exits: { w: { to: "square", out: true } },
     scenery: [{ words: ["mesas", "mesa", "barra", "zinc", "radio", "vals", "sillas"], name: "el café", says: "El vals termina y vuelve a empezar sin una pausa, como alguien a quien nunca han interrumpido." }],
+    sleep: "En las mesas de Inés no. Te limpiaría alrededor.",
     alt: "Un pequeño café con mesas redondas, una barra de zinc y una radio en un estante. Una mujer limpia la barra. Una pizarra de tiza con la carta en la pared. Luz amarilla y cálida."
   },
   high_street: {
@@ -218,6 +225,7 @@ const rooms = {
     exits: { e: { to: "high_street", out: true }, u: "archive" },
     scenery: [{ words: ["escalera", "escaleras", "archivo"], name: "la escalera", says: "Una escalera de mármol, gastada en el centro, que sube al archivo.", leads: "u" },
               { words: ["ventanillas", "ventanilla", "mostradores", "mostrador", "mármol", "marmol", "cartel", "carteles", "quejas", "trámite", "tramite"], name: "las ventanillas", says: "Cada ventanilla tiene un timbre y un cartelito. MATRIMONIOS. DEFUNCIONES. TIEMPO. El timbre de QUEJAS se lo han llevado." }],
+    sleep: "Sobre el mármol no, delante de una ventanilla para cada trámite.",
     alt: "Un vestíbulo de mármol con una larga hilera de ventanillas vacías, una escalera que sube a la izquierda y dos carteles sobre pies."
   },
   archive: {
@@ -229,6 +237,7 @@ const rooms = {
     exits: { d: "town_hall" },
     scenery: [{ words: ["estanterías", "estanterias", "estantería", "estanteria", "registros", "registro", "libros", "polvo", "ventana", "mesa"], name: "las estanterías", says: "Cada año del pueblo, encuadernado y en orden. A las encuadernaciones les falta un día a la semana, y los huecos están tapados con cinta." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera de mármol que baja al vestíbulo.", leads: "d" }],
+    sleep: "Entre los registros no. La archivera te archivaría.",
     alt: "Una sala de estanterías altas llenas de registros encuadernados. Una mujer con una rebeca gris en una mesa bajo una ventana, con una lámpara a su lado."
   },
   clock_shop: {
@@ -241,6 +250,7 @@ const rooms = {
     scenery: [{ words: ["mostrador", "banco", "pinzas"], name: "el mostrador" },
               { words: ["relojes", "paredes", "tictac", "lupa", "esferas"], name: "los relojes", says: "Laten a velocidades distintas. Juntos suenan como una lluvia que no se decide." }],
     mentions: ["reloj del revés"],
+    sleep: "Aquí no, con todos los relojes de la pared llevando la hora de alguien.",
     alt: "Una tienda pequeña atestada de relojes de todos los tamaños en las paredes. Un anciano en un banco con una lupa de joyero; sobre el mostrador, un reloj con las manecillas girando al revés."
   },
   park: {
@@ -680,13 +690,14 @@ const rules = [
   { id: "restore_elsewhere", match: { verb: ["put", "attach", "stick"], obj: "monday_page" }, if: [holding("monday_page")],
     do: [{ say: "Quiere volver al sitio de donde la arrancaron: el calendario bajo el reloj de la estación." }] },
 
-  // El hotel: una habitación para quien la pide; dormir hasta la mañana.
+  // El hotel: una habitación para quien la pide; dormir hasta la mañana (el dormir del propio motor, hasta las siete y media: una vez al día).
   { id: "ask_room", match: { verb: "ask", obj: "porter", topic: "room" }, if: [{ "room_key.at": null }],
     do: [{ say: "«La cuatro», dice, y deja una llave sobre el mostrador sin levantar la vista. «El desayuno es los martes.»" }, { move: "room_key", to: "player" }] },
   { id: "order_room", match: { verb: "order", obj: ["room_key", "porter"] }, if: [at("hotel"), { "room_key.at": null }],
     do: [{ say: "«La cuatro», dice, y deja una llave sobre el mostrador sin levantar la vista. «El desayuno es los martes.»" }, { move: "room_key", to: "player" }] },
   { id: "sleep", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room"), { "bed.slept": { "!=": "$time.day" } }],
-    do: [{ say: "Te tumbas. La cama te recibe como si te hubiera estado esperando. Pasan trenes que no oyes. Cuando despiertas es de mañana, y la habitación huele a la tostada de otro." }, { time: "next 07:30" }, { set: "bed.slept", to: "$time.day" }] },
+    do: [{ say: "Te tumbas. La cama te recibe como si te hubiera estado esperando. Pasan trenes que no oyes." },
+         { sleep: "next 07:30" }, { say: "La habitación huele a la tostada de otro." }, { set: "bed.slept", to: "$time.day" }] },
   { id: "sleep_again", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room")],
     do: [{ say: "No tienes sueño. En esa cama ya se ha dormido hoy, y has sido tú." }] },
 
@@ -753,7 +764,6 @@ export default {
       { say: "En algún sitio un reloj da las siete y media, de la tarde, un domingo." }
     ] },
     // Verbos que este mundo necesita
-    { add: "word", verb: "sleep", reply: "Aquí no. Hay un hotel en la plaza." },
     { add: "word", verb: "buy", words: ["sacar billete", "saca billete", "saque billete", "saco billete", "sacar billetes", "sacar un billete", "saca un billete", "saque un billete", "saco un billete", "sacar el billete", "saca el billete"], reply: "Aquí nada está en venta, salvo en la ventanilla de billetes." },
     { add: "word", verb: "board", words: ["abordar", "aborda", "aborde", "abordo", "embarcarse", "embarcate"] },
     { add: "word", verb: "wind", words: ["rebobinar", "rebobina", "rebobine", "retroceder", "retrocede", "retroceda", "atrasar", "atrasa", "atrase"] },

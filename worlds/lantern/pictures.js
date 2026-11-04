@@ -538,3 +538,48 @@ export const endings = {
     cycles: [{ name: "the fog coming in", areas: ["wisp", "wisp2", "fog_in"], colors: [15, 7], style: "pingpong", ms: 4200 }]
   }
 };
+
+// Visions (a room's `dream`: what sleeping there shows in the dark, ARCHITECTURE.md §5 "Sleep"): drawn like an ending's picture.
+//   fenn_dream   (the hut's) eye level, looking along the Row; 70; the dark last lamp on the left third, Mr Fenn sitting at its foot with
+//                somebody faint beside him, the lit lamps going away into the fog; blue 9, as dreams are, and dim: it comes up out of the dark
+export const visions = {
+  // Mr Fenn's last round, as the hut remembers it: the lamps lit one by one going away up the Row, the last one dark, and him sitting
+  // down under it to hear out something kind.
+  fenn_dream: {
+    version: 1,
+    draw: `
+      rect fog 0,0,320,136 fade:1,0/0,0/0,136
+      ellipse haze 226,68,90,14 mix:,9@0.1
+      poly street 0,136 320,136 236,70 222,70 fade:8,0/0,70/0,136
+      line kerb 0,121 222,71 c1
+      line pole 38,132 48,40 c6
+      dots pole_flame 48,39 c9
+      line lamp1_post 54,132 54,30 c8
+      rect lamp1 47,20,14,11 0 e8
+      line lamp2_post 112,112 112,56 c8
+      rect lamp2 108,49,8,7 0 e8
+      ellipse glow3 150,63,11,9 mix:,14@0.2
+      line lamp3_post 150,98 150,66 c8
+      rect lamp3 148,61,5,5 mix:14,6@0.5
+      ellipse glow4 176,69,7,6 mix:,14@0.3
+      line lamp4_post 176,89 176,72 c8
+      dots lamp4 176,69 177,69 c14
+      ellipse glow5 194,71,5,4 mix:,14@0.35
+      line lamp5_post 194,82 194,73 c8
+      dots lamp5 194,71 c14
+      ellipse glow6 207,71,4,3 mix:,14@0.4
+      dots lamp6 207,71 c14
+      dots lamp7 216,70 c14
+      dots lamp8 222,69 c14
+      poly fenn_back 61,108 71,108 73,122 60,122 8
+      poly fenn_lap 60,119 83,119 83,125 60,126 8
+      poly fenn_shins 78,121 83,121 85,132 78,132 8
+      ellipse fenn_head 66,104,4,5 8
+      poly fenn_cap 61,100 71,100 72,97 62,96 2
+      poly kind_one 90,100 98,100 101,132 87,132 mix:,7@0.25
+      ellipse kind_head 94,95,4,5 mix:,7@0.25
+      ellipse wisp 130,104,96,7 mix:,9@0.1
+      ellipse wisp2 262,92,70,5 mix:,9@0.1
+    `
+  }
+};

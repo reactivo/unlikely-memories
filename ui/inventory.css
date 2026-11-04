@@ -55,8 +55,9 @@
       outline-offset: 2px;
     }
 
-    /* The story is over (inventory.js adds "over"): dim, no hover, no clicks. */
-    &.over .item {
+    /* The story is over (inventory.js adds "over"), or you are asleep (ui/page.js: data-asleep on <html>): dim, no hover, no clicks. */
+    &.over .item,
+    :root[data-asleep] & .item {
       opacity: var(--over-dim);
       cursor: default;
       pointer-events: none;

@@ -96,6 +96,14 @@ function read(text, state, words, seen = "", which = null, picks = []) {
     // the session asked over (UNDO while it waits: `then`).
     q = q.then ?? null;
   }
+  // SLEEP's question ("How long do you sleep?", engine: `choices`): a length is the answer, with or without the verb ("a short nap",
+  // "until morning", "sleep until 18:00", "3 hours"), read as that SLEEP; anything else goes on as a normal command (the engine
+  // drops the question).
+  if (q && q.choices) {
+    const chosen = sleepAnswer(said, W);
+    if (chosen) return { actions: [{ verb: "sleep", sleep: chosen }] };
+    q = null;
+  }
   // A question for words (engine: `ask`): whatever comes next is the answer, a word, a sentence, "look", nothing at all
   // (an empty line is an answer too: `blank`). Only the game's own commands, typed alone, are not:
   // the session's (UNDO, SAVE, LOAD, MAP…: the controller keeps the question open) and HELP.
@@ -249,7 +257,8 @@ function vocabulary(words) {
     scenery: words.scenery || {},
     parts: words.parts || {},                     // things an object's lines mention: { objectId: [{ words, name, says? }] }
     shown: new Map([...shown, ...Object.entries(words.shown || {})]),   // how the words that normalising changes were written
-    verbWord: Object.fromEntries(Object.entries(w0.verbs).map(([id, list]) => [id, list[0]]))   // "take" → "take", as the pack writes it
+    verbWord: Object.fromEntries(Object.entries(w0.verbs).map(([id, list]) => [id, list[0]])),   // "take" → "take", as the pack writes it
+    sleep: sleepWords(w0.sleep, nl, phrases)              // what says how long a SLEEP lasts (sleepLength)
   };
   v.topicWords = Object.values(words.topics || {}).flatMap(t => Object.values(t).flatMap(x => (x.words || []).flatMap(e => e.split(" "))));   // (a label of several words: each one is known)
   v.known = new Set([...v.verbs, ...v.meta, ...v.dirs, ...v.fillerStart, ...v.fillerEnd].flatMap(p => p.parts).concat(v.topicWords, Object.values(v.roomNames).flat())
@@ -391,6 +400,15 @@ function readCommand(tokens, state, W, recent) {
     const words = said.filter(t => !W.articles.has(t) && !W.preps.has(t));
     const r = words.length ? resolve(words, state, W, false, true) : {};
     return { actions: [{ verb, ...(r.id ? { obj: r.id, ...(r.absent ? { absent: [r.id] } : {}) } : {}), text: said.join(" ") }] };
+  }
+  // Sleeping ("sleep until 18:00", "sleep 3 hours", "nap", "sleep in the bunk"): how long, from the words that say it (the verb's own
+  // too: "nap" is a short one), and the thing the rest names, if it names one here. The engine decides the rest (js/engine.js, sleep).
+  if (verb === "sleep") {
+    const all = tokens.filter(t => !W.punct.has(t)), found = sleepLength(all, W);
+    const start = all.length - rest.filter(t => !W.punct.has(t)).length;   // (where the verb's own words end)
+    const left = all.filter((t, i) => i >= start && !found?.used.has(i) && !W.articles.has(t) && !W.preps.has(t) && !W.sleep?.filler.has(t));
+    const r = left.length ? resolve(left, state, W, false) : {};
+    return { actions: [{ verb, ...(r.id && !r.scenery ? { obj: r.id } : {}), ...(found ? { sleep: found.sleep } : {}) }] };
   }
   // Words said ("say hello", "shout her name"): what follows is speech, not a thing.
   if (verb && (ACTIONS[verb]?.speech || state.vocab?.[verb]?.speech) && rest.some(t => !W.punct.has(t)))
@@ -860,4 +878,71 @@ function answersAlone(verb, state) {
     if (m.obj !== undefined && !(Array.isArray(m.obj) && m.obj.includes(null))) return false;
     return holds(state, r.if, { verb });
   });
+}
+
+// ---- How long a sleep lasts ---------------------------------------------------------------------------------------
+// The pack's words for it (`words.sleep`), read like typed ones: the three names (nap, few, morning), "until" before a time of day,
+// the units after a number (hours, minutes), the numbers in words, a.m. and p.m., noon and midnight, and the words around them that
+// add nothing ("for"). Null for a pack with none.
+function sleepWords(S, nl, phrases) {
+  if (!S) return null;
+  const set = (x) => new Set(nl(x));
+  return { names: phrases({ nap: nl(S.nap), few: nl(S.few), morning: nl(S.morning) }), until: phrases({ u: nl(S.until) }),
+    hours: set(S.hours), minutes: set(S.minutes), am: phrases({ am: nl(S.am) }), pm: phrases({ pm: nl(S.pm) }),
+    noon: phrases({ noon: nl(S.noon) }), midnight: phrases({ midnight: nl(S.midnight) }), filler: set(S.filler),
+    numbers: Object.fromEntries(Object.entries(S.numbers || {}).map(([k, n]) => [nl([k])[0], n])) };
+}
+// What these words say of a sleep's length: { sleep, used } (the indexes of the words that said it), or null. sleep is
+// { until: minutes of the day } ("until 18:00", "till 6 pm", "hasta las seis de la tarde", "until noon"), { minutes } ("3 hours",
+// "an hour", "45 minutes", "3h") or { name } ("a short nap", "a few hours", "until morning"), tried in that order.
+function sleepLength(tokens, W) {
+  const S = W.sleep;
+  if (!S) return null;
+  const span = (from, len) => new Set(Array.from({ length: len }, (_, k) => from + k));
+  for (let i = 0; i < tokens.length; i++) {
+    const u = matchPhrase(tokens, i, S.until), at = u && clockAt(tokens, i + u.len, S);
+    if (at) return { sleep: { until: at.minutes }, used: span(i, u.len + at.len) };
+  }
+  for (let i = 0; i < tokens.length; i++) {
+    const glued = /^(\d{1,3})([a-z]+)$/.exec(tokens[i]), n = glued ? +glued[1] : numberOf(tokens[i], S);
+    const unit = glued ? glued[2] : tokens[i + 1], len = glued ? 1 : 2;
+    if (!(n > 0) || !unit) continue;
+    if (S.hours.has(unit)) return { sleep: { minutes: n * 60 }, used: span(i, len) };
+    if (S.minutes.has(unit)) return { sleep: { minutes: n }, used: span(i, len) };
+  }
+  for (let i = 0; i < tokens.length; i++) {
+    const m = matchPhrase(tokens, i, S.names);
+    if (m) return { sleep: { name: m.id }, used: span(i, m.len) };
+  }
+  return null;
+}
+// A number, in figures or in words ("3", "three", "tres", "an"), or null.
+const numberOf = (t, S) => (/^\d{1,3}$/.test(t) ? +t : S.numbers[t] ?? null);
+// A time of the day at tokens[i]: "18:00", "18", "six", "6pm", "6 pm", "seis de la tarde"; noon, midnight. { minutes, len } or null.
+function clockAt(tokens, i, S) {
+  const t = tokens[i];
+  if (t === undefined) return null;
+  for (const [list, h] of [[S.noon, 12], [S.midnight, 0]]) { const m = matchPhrase(tokens, i, list); if (m) return { minutes: h * 60, len: m.len }; }
+  let h = null, min = 0, len = 1, half = null, m;   // half: "am" or "pm", when the words say which
+  if ((m = /^(\d{1,2}):(\d{2})$/.exec(t))) { h = +m[1]; min = +m[2]; }
+  else if ((m = /^(\d{1,2})([a-z]+)$/.exec(t)) && (matchPhrase([m[2]], 0, S.am) || matchPhrase([m[2]], 0, S.pm))) { h = +m[1]; half = matchPhrase([m[2]], 0, S.pm) ? "pm" : "am"; }
+  else h = numberOf(t, S);
+  if (h === null || h > 24 || min > 59) return null;
+  if (!half) {
+    const pm = matchPhrase(tokens, i + 1, S.pm), am = !pm && matchPhrase(tokens, i + 1, S.am);
+    if (pm || am) { half = pm ? "pm" : "am"; len += (pm || am).len; }
+  }
+  if (half === "pm" && h < 12) h += 12;
+  if (half === "am" && h === 12) h = 0;
+  return { minutes: (h % 24) * 60 + min, len };
+}
+// The answer to SLEEP's question: words that say a length and nothing else (the verb, articles, prepositions and the words that
+// add nothing aside). Null when they say more, or no length.
+function sleepAnswer(tokens, W) {
+  const found = sleepLength(tokens, W);
+  if (!found) return null;
+  const verbs = new Set();
+  for (let i = 0; i < tokens.length; i++) { const v = matchPhrase(tokens, i, W.verbs); if (v?.id === "sleep") for (let k = 0; k < v.len; k++) verbs.add(i + k); }
+  const left = tokens.filter((t, i) => !found.used.has(i) && !verbs.has(i) && !W.articles.has(t) && !W.preps.has(t) && !W.sleep.filler.has(t));
+  return left.length ? null : found.sleep;
 }

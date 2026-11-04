@@ -69,9 +69,12 @@
       box-shadow: inset 0 0 0 2px var(--exit-hover-border);
     }
 
-    /* The story is over (compass.js adds "over"): all dim, no hover, no clicks. */
+    /* The story is over (compass.js adds "over"), or you are asleep (ui/page.js: data-asleep on <html>, and the compass inert):
+       all dim, no hover, no clicks. */
     &.over button,
-    &.over button.open {
+    &.over button.open,
+    :root[data-asleep] & button,
+    :root[data-asleep] & button.open {
       color: var(--over);
       cursor: default;
       pointer-events: none;

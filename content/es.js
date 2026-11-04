@@ -101,6 +101,20 @@ export default {
   whatTo: (v) => `¿Qué quieres ${v}?`,
   notHere: (w) => `No ves «${w}» por aquí.`,
   noWait: ["Aquí no hay nada que valga la pena esperar.", "Aquí no va a venir nada.", "Podrías esperar. Aquí no saldría nada de ello."],
+  // DORMIR (js/engine.js, `sleep`; ARCHITECTURE.md §5 "Sleep"): la pregunta y sus respuestas (cada una se puede pulsar, como las lee
+  // el parser: words.sleep), la línea tenue de debajo, y las líneas de un sueño: los ojos cerrados, un sueño (la primera línea de una
+  // pista), el despertar (d: { time "07:00", day, newDay: cambió el día, hour }: «Es la 01:20» a la una), el final (dormirse en una
+  // condición que hace daño: luego una de las líneas de muerte, `hurt.dead`) y dónde no se puede.
+  sleep: {
+    ask: "¿Cuánto duermes?",
+    choices: { nap: "Una cabezada", few: "Unas horas", morning: "Hasta la mañana" },
+    or: "O di hasta cuándo: «duerme hasta las 18:00».",
+    close: "Cierras los ojos.",
+    dream: (s) => `En sueños, alguien te dice: «${s}»`,
+    wake: (d) => `Te despiertas. ${d.hour === 1 ? "Es la" : "Son las"} ${d.time}${d.newDay ? " del día " + d.day : ""}.`,
+    never: "Te duermes, y ya no despiertas.",
+    notNow: "No es momento de dormir."
+  },
   // La hora del mundo en palabras, para [time] en un texto: { hour, minute } → "las cinco y cuarto".
   timeWords({ hour, minute }) {
     const n = ["", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce",
@@ -431,7 +445,8 @@ export default {
       lie: ["tumbarse", "tumbate", "tumbese", "me tumbo", "acostarse", "acuestate", "echarse", "echate", "tenderse",
             "tiendete"],
       stand: ["levantarse", "levantate", "levantese", "me levanto", "ponerse de pie", "ponte de pie", "incorporarse"],
-      sleep: ["dormir", "duerme", "duerma", "duermo", "dormirse", "duermete", "echar una siesta", "descansar", "descansa"],
+      sleep: ["dormir", "duerme", "duerma", "duermo", "dormirse", "duermete", "echar una siesta", "echa una siesta", "echar una cabezada",
+              "echa una cabezada", "descansar", "descansa"],
       wake: ["despertar", "despierta", "despierte", "despertarse", "despiertate"],
       wait: ["esperar", "espera", "espere", "espero", "z", "aguardar", "aguarda", "quedarse", "quedate"],
       talk: ["hablar", "habla", "hable", "hablo", "hablar con", "habla con", "charlar", "charla", "conversar",
@@ -552,6 +567,22 @@ export default {
       end: ["por favor", "de todos modos", "de todas formas", "igualmente", "ahora", "ya", "gracias", "si puedo", "si es posible"]
     },
     yes: ["si", "s", "vale", "ok", "claro", "venga"],
-    no: ["no", "n", "nada"]
+    no: ["no", "n", "nada"],
+    // Cuánto dura un DORMIR (js/parser.js, sleepLength), tras el verbo o como respuesta a «¿Cuánto duermes?»: los nombres de las tres
+    // respuestas (nap: una hora; few: cuatro; morning: hasta las 07:00 siguientes), «hasta» y una hora del día («hasta las 18:00»,
+    // «hasta las seis de la tarde», «hasta mediodía»), un número y una unidad («3 horas», «una hora», «45 minutos») y palabras de más.
+    sleep: {
+      nap: ["una cabezada", "cabezada", "una siesta", "siesta", "una siestecita", "un rato", "un ratito", "un poco"],
+      few: ["unas horas", "unas cuantas horas", "unas pocas horas", "algunas horas", "varias horas"],
+      morning: ["hasta la mañana", "hasta mañana", "hasta por la mañana", "hasta el amanecer", "hasta el alba", "mañana", "la mañana",
+                "toda la noche", "la noche entera", "la noche"],
+      until: ["hasta las", "hasta la", "hasta"],
+      hours: ["horas", "hora", "h"],
+      minutes: ["minutos", "minuto", "min", "m"],
+      numbers: { un: 1, una: 1, uno: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12 },
+      am: ["de la mañana", "de la madrugada"], pm: ["de la tarde", "de la noche"],
+      noon: ["mediodía", "el mediodía"], midnight: ["medianoche", "la medianoche"],
+      filler: ["durante", "por", "como", "solo", "sólo", "unas", "favor"]
+    }
   }
 };

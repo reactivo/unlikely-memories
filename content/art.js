@@ -82,6 +82,41 @@ export default {
       hurt: { filter: "shake", ms: 1000, shakes: 6, ease: 1.5 },
       // Healed: one calm ripple down the picture, long after the flash has gone.
       heal: { filter: "wave", ms: 2100 }
+    },
+    // Sleep (INTERFACE.md §6c, "Sleep"; ui/scene.js plays it, ui/effects.js draws it, on the picture only): two black eyelids close
+    // over the picture, the dark between them, and the lids open again to wake. One of three, by the sleep's kind (js/sleep.js: a
+    // nap under 2 hours, a few hours under 6, until morning). All sizes in picture pixels, all times in ms unless said.
+    sleep: {
+      // The lids, each kind: `close` and `open` are steps [where the lids go (0 open … 1 shut), ms], one after another, each eased
+      // (slow in, slow out); `dark`, how long the dark lasts at least. Until morning flutters: half shut, a breath, then shut;
+      // waking, most of the way open, a breath, then open.
+      nap:     { close: [[1, 1600]], dark: 2000, open: [[0, 1600]] },
+      few:     { close: [[1, 2200]], dark: 4000, open: [[0, 2200]] },
+      morning: { close: [[0.55, 1400], [0.45, 500], [1, 1600]], dark: 6000, open: [[0.7, 1500], [0.85, 500], [0, 2000]] },
+      // The dark lasts at least until the dream or the vision has been told, and this much longer, to read it.
+      afterText: 1500,
+      // The lids' edge: `curve`, how much higher it sits at the sides than in the middle (a gentle arc); `soft`, half the width of
+      // its dithered edge; `over`, how far past the middle each lid goes when shut, so they meet with no gap.
+      lid: { curve: 6, soft: 3, over: 6 },
+      // The dark is not quite black: `glowIn` and `glowOut`, how long it takes to come and to go (at the start and the end of the
+      // dark, the lids shut). Colours are palette numbers (content/art.js, palette): the dark, its grey, and the rare warm speck.
+      glowIn: 300, glowOut: 700,
+      colors: { dark: 0, grey: 8, warm: 6 },
+      // Specks: a few pixels, each glowing and fading slowly at its own pace. `lit` [min, max] seconds one glows for; `share`, how
+      // many pixels are lit at a time (1 in 300); `warm`, the share of them that glow warm brown instead of grey.
+      specks: { lit: [1.2, 2.4], share: 1 / 300, warm: 1 / 15 },
+      // The afterimage: the room's brightest parts (its picture's luminance, blurred `blur` pixels each way, above `from` of its
+      // brightest), dithered in grey at `strength`, fading with a time constant of `fade` seconds (gone in about 2.5 s); then a
+      // darker patch where they were, where nothing glows: it comes in from `hole.at` seconds over `hole.rise`, and fades over
+      // `hole.fade`.
+      afterimage: { blur: 5, from: 0.5, strength: 0.38, fade: 1.4, hole: { at: 1.5, rise: 2, fade: 6 } },
+      // One very faint wide band of grey, closing slowly in on the middle: it starts `from` out (1 the middle of an edge), moves in
+      // `speed` a second, is `width` wide, as strong as `strength` at most, reached over `rise` seconds.
+      band: { from: 1.15, speed: 0.07, width: 0.22, strength: 0.09, rise: 3 },
+      // A vision's picture (a world's `dream`): it fades in from the dark and back out before waking, by the dither, over these.
+      vision: { fadeIn: 1200, fadeOut: 1200 },
+      // With reduce motion: a plain fade to black over `fade`, and back (a vision's picture shown still, in the dark).
+      calm: { fade: 700 }
     }
   }
 };

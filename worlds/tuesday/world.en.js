@@ -91,6 +91,7 @@ const rooms = {
     exits: { e: "station_hall" },
     scenery: [{ words: ["shelves", "shelf", "umbrellas", "gloves", "birdcage", "dress", "wedding", "box", "labels", "label"], name: "the shelves", says: "Things people stopped looking for. Each has a label, and each label a date. None of the dates is a Monday after the decree." },
               { words: ["counter"], name: "the counter", says: "A long counter, scarred where a century of claimants have leaned." }],
+    sleep: "Not among the lost things. Mr Ambrose would only label you.",
     alt: "A long room of shelves crowded with umbrellas, boxes and a birdcage. A counter with a ledger and an old clerk; a damp crate by the wall."
   },
   station_hall: {
@@ -104,6 +105,7 @@ const rooms = {
     waitFor: { time: "next 21:00", says: "You wait under the clock. It is honest about every minute.", if: [hours(6, 21)] },
     scenery: [{ words: ["roof", "glass", "tiles", "tiled", "hall"], name: "the hall", says: "Green and cream tiles, and glass so high that the pigeons under it look like thoughts." }],
     mentions: ["calendar", "grille", "shutter"],
+    sleep: "Not here, under the clock, with everyone's trains to catch.",
     alt: "A station hall with green and cream tiles under a glass roof. A big clock with a calendar below it and a framed notice. A ticket window with a brass grille on the right; a timetable on the left wall."
   },
   waiting_room: {
@@ -130,6 +132,7 @@ const rooms = {
     mentions: ["signal box"],
     // Worth waiting for while the train isn't in; once it has been, the words change (train_out).
     waitFor: { time: "next 23:30", says: "You wait on the platform. The hours come round the way trains do, all at once.", if: [{ "train.at": { "!=": "platform" } }] },
+    sleep: "Not on the platform, with the trains.",
     alt: "A single platform under an iron canopy, with a bench and a hanging timetable board. The rails curve east into a tunnel; a signal box stands to the west."
   },
   platform_end: {
@@ -140,6 +143,7 @@ const rooms = {
     ],
     exits: { w: "platform", e: true },
     scenery: [{ words: ["sign", "slope", "rails", "man"], name: "the sign", says: "No one may go further. The sign says it without words, which is how you know it means it." }],
+    sleep: "Not here, with the tunnel breathing on you.",
     alt: "The end of a platform sloping down to the rails, which run into the dark mouth of a tunnel. A warning sign on a post."
   },
   signal_box: {
@@ -150,6 +154,7 @@ const rooms = {
     ],
     exits: { e: { to: "platform", out: true } },
     scenery: [{ words: ["levers", "lever", "windows", "window", "stilts", "steps"], name: "the levers", says: "Taller than you, polished at the grip, and not yours to pull." }],
+    sleep: "Not in the signal box. The signalman has never once closed his eyes on duty, and he won't have you doing it.",
     alt: "Inside a signal box: a row of tall levers, windows all round, a man in shirtsleeves with one hand on a lever, a diagram of a single line on the wall."
   },
   square: {
@@ -172,6 +177,7 @@ const rooms = {
       closed: "The porter clears his throat. \"Rooms are for guests,\" he says. \"Guests ask.\"" } },
     scenery: [{ words: ["desk", "paper", "newspaper", "lobby", "cabbage", "polish"], name: "the lobby", says: "Brass, polish, a bell nobody rings. The paper is Saturday's; on Sunday there's no paper, and there's no Monday." },
               { words: ["stairs", "staircase"], name: "the stairs", says: "Narrow stairs going up to the rooms.", leads: "u" }],
+    sleep: "Not in the lobby. There are rooms upstairs, for the asking.",
     alt: "A narrow hotel lobby with a wooden desk, a man reading a newspaper behind it, key hooks on the wall, and a staircase going up on the right."
   },
   hotel_room: {
@@ -193,6 +199,7 @@ const rooms = {
     ],
     exits: { w: { to: "square", out: true } },
     scenery: [{ words: ["tables", "table", "counter", "zinc", "radio", "waltz", "chairs"], name: "the café", says: "The waltz ends and begins again without a pause, like a person who has never been interrupted." }],
+    sleep: "Not at Inés's tables. She would only wipe round you.",
     alt: "A small café with round tables, a zinc counter and a radio on a shelf. A woman wipes the counter. A chalk menu board on the wall. Warm yellow light."
   },
   high_street: {
@@ -218,6 +225,7 @@ const rooms = {
     exits: { e: { to: "high_street", out: true }, u: "archive" },
     scenery: [{ words: ["stairs", "archive", "staircase"], name: "the stairs", says: "Marble stairs, worn in the middle, going up to the archive.", leads: "u" },
               { words: ["counter", "counters", "marble", "sign", "signs", "complaints"], name: "the counters", says: "Each counter has a bell and a small sign. MARRIAGES. DEATHS. WEATHER. The bell for COMPLAINTS has been taken away." }],
+    sleep: "Not on the marble, in front of a counter for everything.",
     alt: "A marble hall with a long row of empty counters, a staircase going up on the left, and two signs on stands."
   },
   archive: {
@@ -229,6 +237,7 @@ const rooms = {
     exits: { d: "town_hall" },
     scenery: [{ words: ["shelves", "ledgers", "dust", "window", "desk"], name: "the shelves", says: "Every year of the town, bound, in order. The bindings skip one day a week, and the gaps have been taped." },
               { words: ["stairs", "staircase"], name: "the stairs", says: "Marble stairs going down to the hall.", leads: "d" }],
+    sleep: "Not among the ledgers. The archivist would file you.",
     alt: "A room of tall shelves full of bound ledgers. A woman in a grey cardigan at a desk under a window, a lamp beside her."
   },
   clock_shop: {
@@ -241,6 +250,7 @@ const rooms = {
     scenery: [{ words: ["counter", "bench", "tweezers"], name: "the counter" },
               { words: ["clocks", "walls", "ticking", "lens", "faces"], name: "the clocks", says: "They tick at different speeds. Together they sound like rain that can't decide." }],
     mentions: ["backwards clock"],
+    sleep: "Not here, with every clock on the wall keeping somebody's time.",
     alt: "A small shop crowded with clocks of every size on the walls. An old man at a bench with a jeweller's lens; on the counter, one clock with its hands going the wrong way."
   },
   park: {
@@ -672,11 +682,12 @@ const rules = [
   { id: "restore_elsewhere", match: { verb: ["put", "attach", "stick"], obj: "monday_page" }, if: [holding("monday_page")],
     do: [{ say: "It wants to go back where it was torn from: the calendar under the station clock." }] },
 
-  // The hotel: a room for the asking; sleep until morning.
+  // The hotel: a room for the asking; sleep until morning (the engine's own sleep, to half past seven: once a day).
   { id: "ask_room", match: { verb: "ask", obj: "porter", topic: "room" }, if: [{ "room_key.at": null }],
     do: [{ say: "\"Number 4,\" he says, and puts a key on the desk without looking up. \"Breakfast is on Tuesdays.\"" }, { move: "room_key", to: "player" }] },
   { id: "sleep", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room"), { "bed.slept": { "!=": "$time.day" } }],
-    do: [{ say: "You lie down. The bed fits you as if it had been waiting. Trains you don't hear go by. When you wake it is morning, and the room smells of someone else's toast." }, { time: "next 07:30" }, { set: "bed.slept", to: "$time.day" }] },
+    do: [{ say: "You lie down. The bed fits you as if it had been waiting. Trains you don't hear go by." },
+         { sleep: "next 07:30" }, { say: "The room smells of someone else's toast." }, { set: "bed.slept", to: "$time.day" }] },
   { id: "sleep_again", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room")],
     do: [{ say: "You are not tired. The bed has been slept in already today, and by you." }] },
 
@@ -742,7 +753,6 @@ export default {
       { say: "Somewhere a clock strikes half past seven, in the evening, on a Sunday." }
     ] },
     // Verbs this world needs
-    { add: "word", verb: "sleep", reply: "Not here. There's a hotel on the square." },
     { add: "word", verb: "buy", reply: "Nothing here is for sale, except at the ticket window." },
     { add: "word", verb: "board", words: ["board", "catch"] },
     { add: "word", verb: "wind", words: ["wind", "wind up", "wind back"] },

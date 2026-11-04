@@ -85,6 +85,13 @@ const rules = [
     do: [{ say: "$here.waitFor.says" }, { time: "$here.waitFor.time" }] },
   { id: "std_wait_nothing", match: { verb: "wait" }, if: [{ "$text": { "!=": null } }], do: [{ say: "@noWait", vary: true }] },
 
+  // Sleeping (the engine's own `sleep`: js/engine.js, ARCHITECTURE.md §5 "Sleep"). A room where you can't sleep says so in its own
+  // line (`sleep`, a plain fact: "Not on the platform, with the trains."), whatever the command names, after a world's own rules;
+  // then a thing's own `sleep` line and a world's reply for the verb (`add word`), below; then the engine (std_sleep): refused in
+  // the opening, over a question, in a conversation or a hold (the stock "This is no time to sleep."); with no length yet, "How long
+  // do you sleep?"; else the sleep.
+  { id: "std_sleep_refused", match: { verb: "sleep" }, if: [{ "$here.sleep": { "!=": null } }, { "$here.fixed": { "!=": true } }], do: [{ say: "$here.sleep" }] },
+
   // A thing that comes from someone or something (`from`, decisions 40, 44, 45): ORDER it, BUY it, ASK FOR it or ASK its source FOR it
   // (or about it), where its source is, and it comes (the engine's `bring`: js/engine.js, wanted and bring): set in front of you, or
   // into your hands if it can be carried, with its `brought` line; `times` times, each once the last is gone (while the last is
@@ -208,6 +215,7 @@ const rules = [
   // or one of the pack's: lantern's "There is porter at the Bell…" for ORDER). A reply, like the pack's: nothing is offered for it.
   // Not in the opening: nothing a world adds reaches it.
   { id: "std_reply_word", match: {}, if: [{ "$word.reply": { "!=": null } }, { "$here.fixed": { "!=": true } }], do: [{ say: "$word.reply" }] },
+  { id: "std_sleep", match: { verb: "sleep" }, do: [{ sleep: "$sleep" }] },
 
   // Every other action: its standard reply (and read, when there's nothing to read).
   ...Object.keys(ACTIONS).filter(a => !BUILT_IN.has(a) || a === "read")

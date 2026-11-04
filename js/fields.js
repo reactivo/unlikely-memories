@@ -17,11 +17,11 @@ import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js";
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
-const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "ambience", "waitFor", "placeholder", ...ANSWERED];
+const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
   "here", "lies", "words", "sprite", "floorSprite", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
-  "requires", "spends", "lacking", ...ANSWERED];
+  "requires", "spends", "lacking", "dream", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
 
 export const FIELDS = {
@@ -38,6 +38,7 @@ export const FIELDS = {
   topic: ["words", "says", "about", "label", "open", "opens"],
   ambience: ["lines", "every", "chance", "if"],
   waitFor: ["time", "says", "if"],
+  dream: ["says", "picture", "opens", "once"],      // a vision, sleeping here (a room) or in it (an enterable thing): its line, its picture, the ideas it brings up
   exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "passage"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking?, passage? }
   picture: ["version", "draw", "cycles", "overlays"],
   rule: ["id", "match", "if", "do", "when", "every", "at", "chance", "then", "once", "again"],
@@ -67,6 +68,7 @@ export const FIELDS = {
     change: ["change", "optional"],
     draw: ["draw", "add", "remove", "replace", "restyle", "cycles", "overlays"],
     time: ["time", "weekday"],
+    sleep: ["sleep"],                                          // the engine's own sleep, to a time a world's rule says (a `time` form)
     confirm: ["confirm", "yes", "no", "style", "arg"],
     ask: ["ask"],
     end: ["end", "picture"], know: ["know"], hint: ["hint"], restart: ["restart"], session: ["session"],
@@ -560,6 +562,16 @@ export function checkSet(state, set) {
       for (const [key, topic] of Object.entries(isObject(t.topics) ? t.topics : {})) if (isObject(topic)) fields(piece, topic, FIELDS.topic, `topic "${key}"`, null, t);
     }
     fields(piece, t.waitFor, FIELDS.waitFor, "waitFor", null, t);
+    // A vision (`dream`, ARCHITECTURE.md §5 "Sleep"): its line, and what else it may carry (its picture is the checker's: js/check.js)
+    if (t.dream !== undefined) {
+      if (!isObject(t.dream) || !isLine(t.dream.says)) note(piece, `dream is a vision, { says: its line, picture?, opens?, once? }, not ${JSON.stringify(t.dream)}`, t);
+      else {
+        fields(piece, t.dream, FIELDS.dream, "dream", null, t);
+        if (t.dream.picture !== undefined && !(typeof t.dream.picture === "string" && t.dream.picture.trim())) note(piece, `dream: picture is the id of a picture the world adds (add picture), not ${JSON.stringify(t.dream.picture)}`, t);
+        if (t.dream.once !== undefined && t.dream.once !== true) note(piece, `dream: once is true (it comes only the first time), not ${JSON.stringify(t.dream.once)}; leave it out for one that always comes`, t);
+      }
+      if (kind === "object" && t.enterable == null) note(piece, "dream is a vision for sleeping in or on a thing: it needs enterable (\"in\" or \"on\")", t);
+    }
     wellFormed(piece, t.waitFor?.if, t, "waitFor: if");
     conditions(piece, t.waitFor?.if, t);
     for (const [k, v] of Object.entries(t)) {                     // a declared property carried inline: its value in range

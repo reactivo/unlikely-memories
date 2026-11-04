@@ -150,6 +150,7 @@ export default {
         { words: ["label"], name: "the shelf label", says: "The label reads: \"Manual override. See drawer.\" It is older than the drawer." },
         { words: ["stairs", "steps"], name: "the stairs", leads: "d", says: "Stone steps going down to the cellar, the cold coming up them to meet you." }
       ],
+      sleep: "Not in the Records Office. Mrs Hale would file you under Pending.",
       alt: "A desk and ledgers seen from above, one lamp lit on the desk and a drawer open in its front.",
       picture: pictures.records.picture },
     { add: "object", id: "archivist", at: "records", name: "Mrs Hale", note: "Sorting cards.",
@@ -260,6 +261,7 @@ export default {
         ],
         every: [30, 60], chance: 0.6
       },
+      sleep: "Not under that cable, with the light stuttering.",
       alt: "The stairs seen through the bars of a gate, a black cable sparking from the ceiling above them.",
       picture: pictures.stairwell.picture },
     { add: "object", id: "stair_gate", at: "stairwell", name: "Gate", note: "Shut, across the stairs.",
@@ -329,6 +331,7 @@ export default {
         ],
         every: [35, 70], chance: 0.6
       },
+      sleep: "PLEASE REMAIN PRESENT, says the terminal. You remain present.",
       alt: "A terminal screen close up, its text lines in green and a cursor waiting in a gap, a slot and a shredder below.",
       picture: pictures.registry.picture },
     { add: "object", id: "terminal", at: "registry", name: "Terminal", note: "Waiting for a tick.",

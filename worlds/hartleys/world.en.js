@@ -77,6 +77,7 @@ const rooms = {
     scenery: [{ words: ["mosaic", "mahogany", "brass", "counters", "ceiling", "chandelier"], name: "the hall", says: "A mosaic of a ship in full sail, worn through at the bow by a hundred years of people standing where you stand." }],
     mentions: ["carnation"],
     ambience: { lines: ["Somewhere a till rings, though nobody has bought anything.", "A cash canister goes overhead in its tube, hurrying, like a thought on its way to someone.", "The revolving door turns once, empty, and stops."], every: [45, 90] },
+    sleep: "Not on the shop floor, under Mr Gage's eye.",
     alt: "A grand store hall: mahogany counters, brass, a mosaic floor of a ship. A directory board on a stand, a floorwalker with a carnation, and a revolving door at the front."
   },
   perfumery: {
@@ -89,6 +90,7 @@ const rooms = {
     scenery: [{ words: ["bottles", "bottle", "counters", "counter", "choir", "perfume", "perfumes"], name: "the bottles", says: "Small bottles with handwritten labels: THE LAST DAY OF THE HOLIDAYS. A HOSPITAL CORRIDOR AT NIGHT. SNOW, BEFORE IT FALLS. They are not for sale. They are what Madame Corre makes things from." }],
     mentions: ["gloves", "label"],
     smell: "Twenty afternoons at once, none of them yours, all of them nearly.",
+    sleep: "Not among the bottles. You would wake smelling of somebody else's afternoon.",
     alt: "A perfume counter crowded with small bottles on glass shelves. A tall woman in white gloves stands behind it; a single tester bottle on the counter in front."
   },
   gloves: {
@@ -121,6 +123,7 @@ const rooms = {
     ],
     exits: { s: "lift_lobby", u: true, d: false },
     scenery: [{ words: ["mirror", "bench", "velvet", "stool", "ceiling", "buttons", "button", "gate", "lift"], name: "the lift", says: "There are no buttons. There is Mr Pell, and the lever, and a small brass keyhole beside the number 4. The gate is folded open onto the lobby.", leads: "s" }],
+    sleep: "Not in the lift. Mr Pell would take you up and down all night.",
     alt: "Inside an old lift: a mirror, a red velvet bench, a folding brass gate, and a man in a uniform on a stool, one hand near a brass lever."
   },
   first_landing: {
@@ -142,6 +145,7 @@ const rooms = {
     ],
     exits: { e: "first_landing" },
     scenery: [{ words: ["ribbons", "ribbon", "reels", "reel", "buttons", "drawers", "counter", "tape"], name: "the ribbons", says: "Every colour, on reels, and a brass tape measure screwed to the edge of the counter, worn smooth in the first yard." }],
+    sleep: "Not at Miss Thimble's counter. She would measure you twice.",
     alt: "A haberdashery counter with reels of coloured ribbon and small drawers of buttons. A woman with a tape measure. Above her, brass tubes run up into the ceiling; a canister sits in a cradle below a handle."
   },
   toys: {
@@ -185,6 +189,7 @@ const rooms = {
     ],
     exits: { e: "furniture" },
     scenery: [{ words: ["tables", "table", "palms", "trolley", "cakes", "domes", "window", "roofs", "pot"], name: "the tea room", says: "From the window, the roofs of the town go away in every direction. Above the store, a roof garden nobody visits." }],
+    sleep: "Not in the tea room. Dot would only pour you another cup.",
     alt: "A tea room: small round tables with white cloths, potted palms, a cake trolley with silver domes, a waitress with a teapot, and a tall window onto rooftops."
   },
   coats: {
@@ -197,6 +202,7 @@ const rooms = {
     scenery: [{ words: ["rails", "rail", "coats", "hangers"], name: "the rails", says: "Coats for every weather, and one rail at the end for weathers that haven't been invented." }],
     mentions: ["coat"],
     ambience: { lines: ["Out of the corner of your eye, a mannequin lowers its hand.", "A hanger rings against a rail, once, though nobody is near it.", "The mannequins are exactly where they were. You are almost sure."], every: [40, 80] },
+    sleep: "Not with the mannequins watching. They move when you look away, and you would be looking away for hours.",
     alt: "A coat department: rails of coats and a row of pale mannequins in coats and hats, all facing the doorway."
   },
   basement: {
