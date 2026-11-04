@@ -7,6 +7,7 @@ import { worldTime, parts, hhmm } from "./time.js";
 import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./fields.js";
 import { activeIds, conditionTone } from "./conditions.js";
 import { placeOf, noticed } from "./use.js";
+import { isMover } from "./movers.js";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -47,7 +48,7 @@ export function tell(applied, state, pack) {
     if (e.describe === "inventory") out.push({ text: inventory(state, pack) });
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
     else if (e.describe === "status") out.push(statusLine(state, pack), ...conditionsLine(state, pack));
-    else if (e.describe) out.push(...describe(state, e.describe, pack));
+    else if (e.describe) out.push(...describe(state, e.describe, pack, e.without));   // (without: what came in after it, js/movers.js)
     if (e.inView) out.push(...cameIntoView(out, part, e.inView, state, pack));   // what came into view: marked, or said where it lies
     if (e.aside) for (let i = from; i < out.length; i++) out[i] = { ...out[i], style: styled(out[i].style) };   // the world's own: set apart
   }
@@ -161,12 +162,14 @@ export function solveCommand(command, pack) {
 
 // A room's description: its paragraphs, then a line for each object lying there whose `here` is in force (hereNow) or that has its own
 // `lies` line and has been taken (liesNow), then one line for what can be taken and lies there with neither ("There is a {coin} and a
-// {key} here.": lyingLine), then where you are in it.
-export function describe(state, roomId, pack) {
+// {key} here.": lyingLine), then where you are in it. A thing that moves (js/movers.js) has its `here` line marked, if the world didn't
+// mark it, since it is somewhere else each time; one that came in after the description, in the same moment, is left out (`without`:
+// its own line says it comes in).
+export function describe(state, roomId, pack, without = []) {
   const room = state.world.rooms[roomId];
   const lines = room.describe.map(k => ({ text: timed(text(k, pack), state, pack) }));
-  for (const [id, o] of Object.entries(state.world.objects)) if (o.at === roomId && (hereNow(state, id) || liesNow(state, id)))
-    lines.push({ text: timed(text(hereNow(state, id) ? o.here : o.lies, pack), state, pack) });
+  for (const [id, o] of Object.entries(state.world.objects)) if (o.at === roomId && (hereNow(state, id) || liesNow(state, id)) && !without.includes(id))
+    lines.push({ text: isMover(o) && hereNow(state, id) ? markedLine(o.here, id, state, pack) : timed(text(hereNow(state, id) ? o.here : o.lies, pack), state, pack) });
   const loose = lyingIn(state, roomId);
   if (loose.length) lines.push({ text: lyingLine(loose, state, pack) });
   const inside = state.player.in && state.world.objects[state.player.in];        // you're in or on something here
@@ -178,7 +181,7 @@ export function describe(state, roomId, pack) {
 // Is a thing's `here` line said where it lies? A thing that can be taken: until it is first taken (decision 33, Inform's initial
 // appearance: the line is for where it starts, "lies on the desk"; once it has been in your hands, wherever it is put down again, the
 // stock line says it lies there). A rule of the world that moves it before then (the oars that slide out of the hut) keeps it. A thing
-// that can't be taken, a person or a fixture: always (they come and go by the world's rules, and the world writes their line).
+// that can't be taken, a person or a fixture: always (one that moves is moved by the game, js/movers.js, and the world writes its line).
 export function hereNow(state, id) {
   const o = state.world.objects[id];
   return !!o?.here && (o.portable !== true || !state.seen?.held?.includes(id));

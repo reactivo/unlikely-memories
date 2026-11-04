@@ -107,6 +107,7 @@ const rooms = {
     scenery: [{ words: ["techo", "cristal", "azulejos", "azulejo", "vestíbulo", "vestibulo", "palomas", "paloma"], name: "el vestíbulo", says: "Azulejos verdes y crema, y un cristal tan alto que las palomas de debajo parecen pensamientos." }],
     mentions: ["reloj", "reja", "postigo"],
     sleep: "Aquí no, bajo el reloj, con tanta gente que tiene un tren que coger.",
+    overlayAlt: { booking_clerk: "El postigo de la ventanilla está levantado: tras la reja, una mujer de uniforme azul espera con su sacabocados." },
     alt: "Un vestíbulo de estación con azulejos verdes y crema bajo un techo de cristal. Un gran reloj con un calendario debajo y un aviso enmarcado. A la derecha, una ventanilla de billetes con reja de latón; en la pared de la izquierda, un horario."
   },
   waiting_room: {
@@ -370,7 +371,12 @@ const objects = {
     words: { nouns: ["ventanilla", "taquilla", "reja", "rejilla", "postigo", "cartel", "tarjeta"], adj: ["billetes", "billete", "latón", "laton"], g: "f" },
     examine: "Una reja de latón, un postigo y un cartel: BILLETES DESDE LAS 21:00. UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA.",
     mentions: ["reja", "postigo", "cartel"] },
+  // Cumple el horario de la ventanilla (de nueve de la noche a seis de la mañana): el juego la mueve, dice cuándo llega y se va, y la dibuja.
   booking_clerk: { at: null, name: "Taquillera", note: "Tras la reja.",
+    places: [{ at: "station_hall", if: [hours(21, 6)] }],
+    arrives: "Se levanta el postigo de la ventanilla de billetes. Una mujer tras la reja dispone su sacabocados.",
+    leaves: "Baja el postigo de la ventanilla de billetes, y el sacabocados con él.",
+    sprite: sprites.booking_clerk, floorSprite: sprites.booking_clerk_floor,
     words: { nouns: ["taquillera", "mujer", "empleada"], adj: ["billetes", "billete"], g: "f" },
     examine: "Una mujer con un sacabocados y ninguna expresión de sobra.",
     here: "El postigo está levantado. Tras la reja, la {taquillera|booking_clerk} espera con su sacabocados.",
@@ -626,10 +632,6 @@ const rules = [
   // La ventanilla de billetes tiene su horario (de nueve de la noche a seis de la mañana).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
     do: [{ say: "El postigo está levantado. Tras la reja, la taquillera espera con su sacabocados. El cartel dice: UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA." }] },
-  // La taquillera está en su ventanilla mientras está abierta.
-  { id: "clerk_in", when: "at", at: "21:00", do: [{ move: "booking_clerk", to: "station_hall" }] },
-  { id: "clerk_in_say", when: "at", at: "21:00", if: [at("station_hall")], do: [{ say: "Se levanta el postigo de la ventanilla de billetes. Una mujer tras la reja dispone su sacabocados." }] },
-  { id: "clerk_out", when: "at", at: "06:00", do: [{ move: "booking_clerk", to: null }] },
 
   // Las monedas de la fuente: solo con la lámpara bajo el agua encendida (de ocho de la tarde a siete de la mañana).
   { id: "coin_dark", match: { verb: ["take", "search", "examine"], obj: ["coin", "fountain"] }, if: [at("square"), notHours(20, 7), { "coin.at": "fountain" }],

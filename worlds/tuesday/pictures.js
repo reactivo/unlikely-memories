@@ -126,7 +126,10 @@ export default {
       line - 278,64 278,98 c14
       line - 290,64 290,98 c14
       rect - 236,96,60,8 14
-    `
+    `,
+    overlays: [
+      { object: "booking_clerk", at: [242, 64] }
+    ]
   },
 
   // ---- WAITING ROOM: close and dim; the stove, the woman on her bench, the booth's curtain ----------------------

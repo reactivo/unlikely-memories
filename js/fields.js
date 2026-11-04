@@ -13,6 +13,7 @@ import { PARTS, LINES } from "./opening.js";
 import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js";
 import { DIRECTIONS } from "./space.js";
 import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
@@ -21,7 +22,7 @@ const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "s
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
   "here", "lies", "words", "sprite", "floorSprite", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
-  "requires", "spends", "lacking", "dream", ...ANSWERED];
+  "requires", "spends", "lacking", "dream", "places", "rounds", "arrives", "leaves", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
 
 export const FIELDS = {
@@ -39,6 +40,11 @@ export const FIELDS = {
   ambience: ["lines", "every", "chance", "if"],
   waitFor: ["time", "says", "if"],
   dream: ["says", "picture", "opens", "once"],      // a vision, sleeping here (a room) or in it (an enterable thing): its line, its picture, the ideas it brings up
+  // A thing that moves (js/movers.js): one of its `places` ({ at, if?, within? }: `within` for a follower), and its `rounds` (with
+  // `every` in seconds: { seconds: [min, max] }); it may have both.
+  place: PLACE_FIELDS,
+  rounds: ROUNDS_FIELDS,
+  roundsEvery: ["seconds"],
   exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "passage"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking?, passage? }
   picture: ["version", "draw", "cycles", "overlays"],
   rule: ["id", "match", "if", "do", "when", "every", "at", "chance", "then", "once", "again"],
@@ -559,6 +565,14 @@ export function checkSet(state, set) {
       paying(piece, "", t, t);
       if (t.requires !== undefined && t.from === undefined) note(piece, `requires is for a thing that comes from someone or something (it needs from), or for a way`, t);
       for (const p of Array.isArray(t.parts) ? t.parts : []) fields(piece, p, FIELDS.part, "part", null, t);
+      // A thing that moves (js/movers.js): its facts' shape, each place's fields and conditions, its round's fields.
+      for (const why of shapeProblems(t)) note(piece, why, t);
+      (Array.isArray(t.places) ? t.places : []).forEach((p, i) => {
+        fields(piece, p, FIELDS.place, `places ${i + 1}`, null, t);
+        if (isObject(p) && Array.isArray(p.if)) { wellFormed(piece, p.if, t, `places ${i + 1}: if`); conditions(piece, p.if, t); }
+      });
+      fields(piece, t.rounds, FIELDS.rounds, "rounds", null, t);
+      fields(piece, t.rounds?.every, FIELDS.roundsEvery, "rounds: every", null, t);
       for (const [key, topic] of Object.entries(isObject(t.topics) ? t.topics : {})) if (isObject(topic)) fields(piece, topic, FIELDS.topic, `topic "${key}"`, null, t);
     }
     fields(piece, t.waitFor, FIELDS.waitFor, "waitFor", null, t);

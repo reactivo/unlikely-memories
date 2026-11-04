@@ -106,6 +106,7 @@ const rooms = {
     scenery: [{ words: ["roof", "glass", "tiles", "tiled", "hall"], name: "the hall", says: "Green and cream tiles, and glass so high that the pigeons under it look like thoughts." }],
     mentions: ["calendar", "grille", "shutter"],
     sleep: "Not here, under the clock, with everyone's trains to catch.",
+    overlayAlt: { booking_clerk: "The ticket window's shutter is up: behind the grille, a woman in a blue uniform waits with her punch." },
     alt: "A station hall with green and cream tiles under a glass roof. A big clock with a calendar below it and a framed notice. A ticket window with a brass grille on the right; a timetable on the left wall."
   },
   waiting_room: {
@@ -370,7 +371,12 @@ const objects = {
     words: { nouns: ["window", "grille", "shutter", "card"], adj: ["ticket", "booking", "brass"] },
     examine: "A brass grille, a shutter, and a card: TICKETS FROM 21:00. ONE FARE: ONE COIN. OLD CURRENCY ONLY.",
     mentions: ["grille", "shutter", "card"] },
+  // She keeps the window's hours (nine at night to six in the morning): the game moves her, says her coming and going, and draws her.
   booking_clerk: { at: null, name: "Booking clerk", note: "Behind the grille.",
+    places: [{ at: "station_hall", if: [hours(21, 6)] }],
+    arrives: "The shutter of the ticket window goes up. A woman behind the grille sets out her punch.",
+    leaves: "The shutter of the ticket window comes down, and the punch with it.",
+    sprite: sprites.booking_clerk, floorSprite: sprites.booking_clerk_floor,
     words: { nouns: ["clerk", "woman"], adj: ["booking", "ticket"] },
     examine: "A woman with a ticket punch and no expression to spare.",
     here: "The shutter is up. Behind the grille, the {booking clerk|booking_clerk} waits with her punch.",
@@ -620,10 +626,6 @@ const rules = [
   // The ticket window keeps its hours (nine in the evening to six in the morning).
   { id: "window_open_look", match: { verb: "examine", obj: "window" }, if: [hours(21, 6)],
     do: [{ say: "The shutter is up. Behind the grille, the booking clerk waits with her punch. The card says: ONE FARE: ONE COIN. OLD CURRENCY ONLY." }] },
-  // The booking clerk is at her window while it's open.
-  { id: "clerk_in", when: "at", at: "21:00", do: [{ move: "booking_clerk", to: "station_hall" }] },
-  { id: "clerk_in_say", when: "at", at: "21:00", if: [at("station_hall")], do: [{ say: "The shutter of the ticket window goes up. A woman behind the grille sets out her punch." }] },
-  { id: "clerk_out", when: "at", at: "06:00", do: [{ move: "booking_clerk", to: null }] },
 
   // The fountain's coins: only when the lamp under the water is lit (eight in the evening to seven in the morning).
   { id: "coin_dark", match: { verb: ["take", "search", "examine"], obj: ["coin", "fountain"] }, if: [at("square"), notHours(20, 7), { "coin.at": "fountain" }],

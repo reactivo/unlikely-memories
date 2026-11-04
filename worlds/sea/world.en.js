@@ -206,6 +206,7 @@ const rooms = {
       "West, the Hotel Miramar keeps its door open. East, a carousel turns with nobody on it. The square is south; the dunes, north."
     ],
     exits: { n: "dunes", s: "square", w: { to: "lobby", in: true }, e: "carousel" },
+    overlayAlt: { cat: "A grey cat sits on the promenade, between the hotel and the lamps." },
     alt: "A seaside promenade at night: white railings in front, three lit lamps, a tall hotel on the left with one window lit and its door open, a striped carousel on the right.",
     scenery: [
       { words: ["railings", "railing", "rail"], name: "the railings" }, { words: ["lamps", "lamp", "light", "lights"], name: "the lamps" },
@@ -235,6 +236,7 @@ const rooms = {
     ],
     exits: { e: "promenade", w: "dining", u: "hallway" },
     sleep: "Not in the lobby. Somewhere upstairs a bed is made for you.",
+    overlayAlt: { cat: "A grey cat sits on the carpet in front of the desk." },
     alt: "A hotel lobby: a reception desk with a brass bell, a board of keys behind it, palms in pots, glowing double doors on the left and red-carpeted stairs on the right.",
     scenery: [
       { words: ["palms", "palm", "pots", "pot"], name: "the palms" }, { words: ["carpet", "paths", "floor"], name: "the carpet" },
@@ -252,6 +254,7 @@ const rooms = {
     exits: { e: "lobby" },
     ambience: { lines: ["Somebody proposes a toast. Everybody raises a glass. Nobody drinks.", "A guest laughs at a joke that was told before you arrived.", "The salt goes round the table again."], every: [30, 70], chance: 0.8 },
     sleep: "Not at the table, among twelve guests in evening dress.",
+    overlayAlt: { cat: "A grey cat sits on the back of the empty chair." },
     alt: "A long dining table in perspective, white cloth and candles, guests in evening dress along both sides under a chandelier. An empty chair at the near end has a card on its plate.",
     scenery: [
       { words: ["table", "cloth", "candles", "candle", "chandelier"], name: "the table" },
@@ -266,6 +269,7 @@ const rooms = {
       "{Door 11|door11} stands ajar, its key still in the lock. The stairs lead down."
     ],
     exits: { d: "lobby", w: { to: "room11", in: true } },
+    overlayAlt: { cat: "A grey cat sits on the red carpet." },
     alt: "A warm hotel corridor in perspective, brown walls and a red carpet, doors on both sides. The nearest door on the left is ajar, light at its edge.",
     scenery: [
       { words: ["doors", "corridor", "hall", "hallway"], name: "the doors" }, { words: ["carpet", "floor", "runner"], name: "the carpet" },
@@ -295,6 +299,7 @@ const rooms = {
       "The post office is west. A café is east, lit. The station is south; the promenade, north."
     ],
     exits: { n: "promenade", w: "post_office", e: "cafe", s: "station" },
+    overlayAlt: { cat: "A grey cat sits on the rim of the dry fountain." },
     ambience: { lines: ["A pigeon walks the whole way round the fountain and stops where it started.", "The pendulum behind the clock face goes on swinging. The hands don't move.", "Someone in a shut shop turns a sign from \"Closed\" to \"Closed.\""] },
     alt: "A town square at night: a town hall with a clock tower at a quarter past five, a dry fountain, shuttered shops on the left with a blue post office door, a lit café on the right. Pigeons on the cobbles.",
     scenery: [
@@ -312,6 +317,7 @@ const rooms = {
     ],
     exits: { e: { to: "square", out: true } },
     sleep: "Not across the counter. The postmaster has letters to sort, and would sort you.",
+    overlayAlt: { cat: "A grey cat sits on the counter, beside the grille." },
     alt: "Through the bars of a post office grille: a postmaster in a blue cap and spectacles under a green lamp, pigeonholes full of letters behind him.",
     scenery: [
       { words: ["counter", "counters", "grille", "bars"], name: "the counter" }, { words: ["pigeonholes", "letters", "dates"], name: "the pigeonholes" },
@@ -487,6 +493,7 @@ const objects = {
       postmaster: { words: ["postmaster", "post", "letters", "parcel"], says: "\"The postmaster?\" says a woman in green. \"He'll give you nothing without a name. Unless the sea vouches for you. It does, sometimes.\"" },
       lighthouse: { about: "lighthouse_far", words: ["lighthouse", "lamp", "light"], says: "\"The lighthouse,\" says a man, to nobody. \"My brother lit it once. He burned his wedding ring. Couldn't remember why he'd ever minded.\"" },
       hut: { words: ["hut", "huts", "7", "seven"], says: "\"Hut 7,\" says someone. \"Such a pretty colour. Who painted it, do you think?\" Nobody knows. Everybody looks at you." },
+      cat: { about: "cat", words: ["admiral", "cat", "tom"], says: "\"Admiral?\" says a man in a velvet jacket. \"He only walks with people who belong here. Everybody knows that. Even the post office.\"" },
       default: "They consider it politely, and go back to their dessert."
     },
     talk: [
@@ -503,6 +510,25 @@ const objects = {
   card: { at: "dining", name: "Card", note: "A place card.",
     words: { nouns: ["card"], adj: ["place", "name"] },
     examine: "A place card. A name has been written on it and rubbed out so many times the card has worn thin." },
+  // Admiral, the hotel cat: he wanders the lobby, the dining room and the first floor, a room at a time, every few commands; once
+  // stroked, he follows you round the hotel and the town (as far as the post office, where he vouches for you), and waits for you
+  // wherever you go beyond; shooed, he goes back to wandering the hotel. The game moves him, says his coming and going, and draws
+  // him (an overlay in each of the six pictures).
+  cat: { at: "lobby", name: "Admiral", note: "The hotel cat.", actions: ["Stroke Admiral"],
+    rounds: { rooms: ["lobby", "dining", "hallway"], every: [3, 6], random: true },
+    places: [{ at: "player", if: [{ "cat.stroked": true }], within: ["lobby", "dining", "hallway", "promenade", "square", "post_office"] }],
+    sprite: sprites.cat, floorSprite: sprites.cat_floor,
+    words: { nouns: ["admiral", "cat", "tom", "tag", "collar"], adj: ["grey", "gray", "hotel", "old", "brass"], g: "m", proper: true },
+    here: "{Admiral|cat}, the hotel cat, sits washing a paw, as if he had always been there.",
+    arrives: ["Admiral, the hotel cat, strolls in and sits down, as if you had kept him waiting.",
+              "A grey cat comes in without hurrying. The brass tag on his collar says ADMIRAL."],
+    leaves: ["Admiral gets up, stretches, and goes, with somewhere better to be.",
+             "Admiral has had enough of you for now. He leaves, tail up."],
+    examine: "A big grey cat with a white bib and a torn ear. On his collar, a brass tag like the ones on the hotel's keys: ADMIRAL. He looks at you as if you were late, again.",
+    touch: "You stroke him. Admiral leans into your hand and purrs, as if you had done this every evening for years.",
+    take: "Admiral pours himself out of your arms and sits a little way off, offended.",
+    talk: "Admiral listens with one ear, and answers with a slow blink.",
+    give: "Admiral sniffs it, and looks at you as if you had brought the wrong thing again." },
   door11: { at: "hallway", name: "Door 11", note: "Ajar, the key in the lock.", door: "w",
     words: { nouns: ["door", "11", "eleven", "room"], adj: ["ajar", "open", "number"] },
     examine: "Number 11, in brass. It stands ajar. The key in the lock has a tag with the hotel's name, worn smooth." },
@@ -530,6 +556,7 @@ const objects = {
     topics: {
       name: { open: true, label: "my name", words: ["name", "names", "my"], says: "\"Names are the sea's business,\" he says. \"It gives them back, when it's ready. Not before.\"" },
       sea: { open: true, words: ["sea", "shell", "beach"], says: "\"The sea knows where everyone's from,\" he says. \"It listens at the door.\"" },
+      cat: { about: "cat", words: ["admiral", "cat", "tom"], says: "\"Admiral?\" He almost smiles. \"He doesn't walk with just anybody. Bring him by, if he'll come.\"" },
       default: "He looks at you over his spectacles. \"That isn't post.\""
     },
     words: { nouns: ["postmaster", "postman", "man", "clerk"], adj: ["old"] },
@@ -631,6 +658,9 @@ const changes = {
     { say: "The shell burns with a small blue flame, and the loudspeaker in it says \"You are\" and nothing else. The light goes out over the water. On the beach, the green door closes, and is a piece of driftwood." },
     { say: "In the town, the clock moves: a quarter past five, twenty past. Monday is coming, and nobody here knows what happens on Monday. Across the water, from somewhere near the door, your name comes back to you." },
     { end: true, picture: "shell" }],
+  // The hotel cat vouches for you at the post office.
+  cat_vouches: [{ set: "postmaster.gave", to: true }, { move: "parcel", to: "player" },
+    { say: "\"Admiral,\" says the postmaster. He comes round the counter and scratches the torn ear. \"If he walks with you, you're from here.\" He takes a small {parcel} from a pigeonhole and puts it in your hands." }],
   // The last line of every ending.
   over: []
 };
@@ -717,11 +747,31 @@ const rules = [
     do: [{ set: "player.seated", to: false }, { say: "You stand. Nobody minds. Nobody notices. It is surprisingly easy, which is somehow worse." }] },
   { id: "letter_read", match: { verb: ["read", "examine"], obj: "letter" }, once: true,
     do: [{ say: "$obj.examine" }] },
+  // The hotel cat: stroked once, he follows you (his `places`); after that, his own touch line.
+  { id: "cat_stroke", match: { verb: "touch", obj: "cat" }, if: [{ "cat.stroked": { "!=": true } }],
+    do: [{ set: "cat.stroked", to: true },
+         { say: "You stroke him. Admiral leans into your hand and purrs, as if you had done this every evening for years. Then he gets up and stays at your heels: he's coming with you." }] },
+  // Shooed, he stops following you (`cat.stroked` false) and goes back to his round of the hotel: at once from outside it, the
+  // game moving him (this line says he goes, so the game adds none of its own); inside it, he sits a while first, and his
+  // line says so. Not following you, he stays where he is.
+  { id: "cat_shoo_hotel", match: { verb: "shoo", obj: "cat" }, if: [{ "cat.stroked": true }, { "player.at": { in: ["lobby", "dining", "hallway"] } }],
+    do: [{ set: "cat.stroked", to: false },
+         { say: "You shoo him. Admiral gives you a long look, as if you had said something unforgivable, then sits down where he is and turns his back on you. He'll go when he's ready." }] },
+  { id: "cat_shoo", match: { verb: "shoo", obj: "cat" }, if: [{ "cat.stroked": true }],
+    do: [{ set: "cat.stroked", to: false },
+         { say: "You shoo him. Admiral gives you a long look, as if you had said something unforgivable, and goes off with his tail up, back to his hotel." }] },
+  { id: "cat_shoo_home", match: { verb: "shoo", obj: "cat" },
+    do: [{ say: "Admiral doesn't move. Nobody shoos Admiral out of his own hotel." }] },
 
-  // -- The post office: no name, no post; the shell vouches for you ---------------------------------------------
+  // -- The post office: no name, no post; the shell vouches for you, or the hotel cat ---------------------------
   { id: "post_shell", match: { verb: ["give", "show"], obj: "shell" }, if: [at("post_office"), holding("shell"), { "postmaster.gave": { "!=": true } }],
     do: [{ set: "postmaster.gave", to: true }, { move: "parcel", to: "player" },
          { say: "He holds the shell to his ear and listens for a long time. \"Level minus four,\" he says at last. \"We've had something for you for years.\" He hands back the shell, and slides a small {parcel} under the grille." }] },
+  // ... or the hotel cat does, walking in with you.
+  { id: "post_cat", match: { verb: ["talk", "ask", "say"], obj: [null, "postmaster"] }, if: [at("post_office"), { "cat.at": "post_office" }, { "postmaster.gave": { "!=": true } }],
+    do: [{ change: "cat_vouches" }] },
+  { id: "post_cat_show", match: { verb: ["give", "show"], obj: "cat" }, if: [at("post_office"), { "cat.at": "post_office" }, { "postmaster.gave": { "!=": true } }],
+    do: [{ change: "cat_vouches" }] },
   { id: "post_talk_done", match: { verb: ["talk", "ask", "say"], obj: [null, "postmaster"] }, if: [at("post_office"), { "postmaster.gave": true }, notAsking],
     do: [{ say: "\"That's everything that was yours,\" he says. \"The rest is still addressed to somebody else.\"" }] },
   { id: "post_talk", match: { verb: ["talk", "ask", "say"], obj: [null, "postmaster"] }, if: [at("post_office"), notAsking],
@@ -761,7 +811,10 @@ const puzzles = {
   vouch:      { where: "post_office", needs: ["shell"], solve: ["give shell to postmaster"], gives: ["parcel"],
                 clues: ["letter", "guests", "post_talk"],
                 hints: ["The postmaster gives nothing to anyone without a name, but he trusts the sea. Something the tide left on the sand might speak for you.", "Carry the pale shell from the tide line to the post office and let the postmaster hear it."] },
-  open_parcel: { needs: ["parcel"], solve: ["open parcel"], gives: ["key"], clues: ["parcel", "post_shell"],
+  vouch_cat:  { where: "post_office", needs: [], solve: ["stroke admiral", "show admiral to postmaster"], gives: ["parcel"],
+                clues: ["guests", "post_talk", "cat"],
+                hints: ["The postmaster wants someone to vouch for where you're from. At the hotel they say Admiral walks only with people who belong here.", "Stroke Admiral, the hotel cat, and he will follow you; take him to the post office and speak to the postmaster."] },
+  open_parcel: { needs: ["parcel"], solve: ["open parcel"], gives: ["key"], clues: ["parcel", "post_shell", "post_cat"],
                 hints: ["The parcel is addressed in your handwriting, and the string is only string.", "Undo the parcel in your hands; what is inside is small and brass."] },
   open_hut:   { where: "huts", needs: ["key"], solve: ["unlock hut with key"], gives: ["oars", "photograph"],
                 clues: ["letter", "cave_voice", "hut"],
@@ -798,7 +851,8 @@ export default {
   properties: {
     "beach_door.driftwood": { type: "boolean", start: false },   // the green door has turned to driftwood
     "player.seated": { type: "boolean", start: false },   // you are sitting at the dining table
-    "postmaster.gave": { type: "boolean", start: false }   // the postmaster has handed over the parcel
+    "postmaster.gave": { type: "boolean", start: false },   // the postmaster has handed over the parcel
+    "cat.stroked": { type: "boolean", start: false }   // you have stroked Admiral: he follows you
   },
   facts: [
     "Behind the green door: a beach at night, a seaside town on an endless Sunday, a dark lighthouse.",
@@ -817,6 +871,7 @@ export default {
     { add: "word", verb: "swim", words: ["swim", "bathe", "dive", "wade", "go swimming", "swim in"], object: "optional", reply: "There's no water here to swim in." },
     { add: "word", verb: "burn", words: ["burn", "set fire to", "set alight", "incinerate", "sacrifice", "forget"], reply: "You have nothing to burn it with." },
     { add: "word", verb: "ride", words: ["ride", "mount", "ride on", "get on"] },
+    { add: "word", verb: "shoo", words: ["shoo", "scat", "shoo away", "send away"], reply: "There's nothing here to shoo." },
 
     // Puzzles (descriptions, for the checker)
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

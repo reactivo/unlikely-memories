@@ -143,6 +143,15 @@ export function tripWords(path, pack) {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+// A step's effects as a walk reads them: a thing that follows you (js/movers.js, `places` "player") coming in after you is no reason to
+// stop, so its line, and what it keeps out of the description or marks in it, are left out (it is in the room's description then).
+function passing(applied) {
+  const followers = applied.filter(e => e.follows).map(e => e.follows);
+  if (!followers.length) return applied;
+  const keep = (ids) => ids.filter(id => !followers.includes(id));
+  return applied.filter(e => !e.follows).map(e => (e.without ? { ...e, without: keep(e.without) } : e.inView ? { ...e, inView: keep(e.inView) } : e));
+}
+
 // Do two lists of story paragraphs say the same?
 const same = (a, b) => a.length === b.length && a.every((p, i) => p.text === b[i].text && (p.style ?? "") === (b[i].style ?? ""));
 
@@ -165,7 +174,7 @@ export function walk(state, roomId, pack, at) {
     if (r.refused.length) console.warn("Effects refused by the engine:", r.refused);   // as in play
     s = r.next;
     const said = story(r.applied, s, pack), moved = s.player.at !== before.player.at;
-    const plain = moved && same(said, describe(s, s.player.at, pack));   // only the room's own description
+    const plain = moved && same(story(passing(r.applied), s, pack), describe(s, s.player.at, pack));   // only the room's own description
     const last = i === path.length - 1;
     if (plain && !last && !s.ended && !s.pending.question) { passed = true; continue; }
     // Stuck in a room whose text wasn't shown: tell where we are before what stopped us.

@@ -268,6 +268,29 @@ export default {
             proper.length ? `${common.length ? "También" : "Aquí"} ${proper.length > 1 || proper[0][1]?.pl ? "están" : "está"} ${yList(proper.map(([x, v]) => un(x, v)))}.` : ""]
       .filter(Boolean).join(" ");
   },
+  // Algo que se mueve (js/movers.js), al llegar adonde estás o al irse de donde estás, si no tiene frase `arrives` / `leaves` propia:
+  // por el camino por el que viene o se va, según las salidas (`none`: ninguna salida une las dos salas, o viene de ninguna parte o sale
+  // del juego). n = [su nombre, en una frase], w = [su género, número y marca].
+  moving: {
+    arrives: {
+      n: (n, w) => `${El(n[0], w[0])} ${num(w[0], "llega", "llegan")} del norte.`, s: (n, w) => `${El(n[0], w[0])} ${num(w[0], "llega", "llegan")} del sur.`,
+      e: (n, w) => `${El(n[0], w[0])} ${num(w[0], "llega", "llegan")} del este.`, w: (n, w) => `${El(n[0], w[0])} ${num(w[0], "llega", "llegan")} del oeste.`,
+      u: (n, w) => `${El(n[0], w[0])} ${num(w[0], "baja", "bajan")} de arriba.`, d: (n, w) => `${El(n[0], w[0])} ${num(w[0], "sube", "suben")} de abajo.`,
+      in: (n, w) => `${El(n[0], w[0])} ${num(w[0], "sale", "salen")} de dentro.`, out: (n, w) => `${El(n[0], w[0])} ${num(w[0], "entra", "entran")} de fuera.`,
+      none: (n, w) => `${El(n[0], w[0])} ${num(w[0], "llega", "llegan")}.`
+    },
+    leaves: {
+      n: (n, w) => `${El(n[0], w[0])} se ${num(w[0], "va", "van")} hacia el norte.`, s: (n, w) => `${El(n[0], w[0])} se ${num(w[0], "va", "van")} hacia el sur.`,
+      e: (n, w) => `${El(n[0], w[0])} se ${num(w[0], "va", "van")} hacia el este.`, w: (n, w) => `${El(n[0], w[0])} se ${num(w[0], "va", "van")} hacia el oeste.`,
+      u: (n, w) => `${El(n[0], w[0])} ${num(w[0], "sube", "suben")}.`, d: (n, w) => `${El(n[0], w[0])} ${num(w[0], "baja", "bajan")}.`,
+      in: (n, w) => `${El(n[0], w[0])} ${num(w[0], "entra", "entran")}.`, out: (n, w) => `${El(n[0], w[0])} ${num(w[0], "sale", "salen")}.`,
+      none: (n, w) => `${El(n[0], w[0])} se ${num(w[0], "ha", "han")} ido.`
+    },
+    // Siguiéndote (un lugar "player"): al entrar contigo, en lugar de su `arrives`; y al quedarse donde está cuando entras en una sala
+    // a la que no te sigue (fuera de su `within`).
+    follows: (n, w) => `${El(n[0], w[0])} ${num(w[0], "viene", "vienen")} contigo.`,
+    stays: (n, w) => `${El(n[0], w[0])} se ${num(w[0], "queda", "quedan")} atrás.`
+  },
   cantOpen: "Eso no es algo que se pueda abrir.", cantClose: "Eso no es algo que se pueda cerrar.",   // sin tapa: abierto siempre (`open: "always"`)
   alreadyOpen: (n, w) => `${El(n[0], w[0])} ya ${num(w[0], "está", "están")} abiert${ending(w[0])}.`,
   alreadyClosed: (n, w) => `${El(n[0], w[0])} ya ${num(w[0], "está", "están")} cerrad${ending(w[0])}.`,

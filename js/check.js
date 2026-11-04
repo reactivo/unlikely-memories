@@ -38,11 +38,13 @@
 // A puzzle: { where?, needs: [thing or puzzle ids], solve: [commands], gives?: [things], reaches?: room,
 //             ending?: true, clues: [object, rule or puzzle ids], time?: "next 22:00" }
 // `time`: when it can be solved; the checker moves the world's clock there first (a player would play on, or wait).
+// Two puzzles that give the same thing are two ways to it: each ending takes the first written, and a way no ending took is played
+// too, in the first ending that needs what it gives (endings["<ending>/<puzzle>"]).
 //
 // Also, given the bible (the third argument): its blurb is 110–160 characters and its thumbnail names one of the world's room pictures
 // (never an ending's or `died`) with a whole-number x from 0 to 95 (bibleProblems below; GUIDE.md §1). Without a bible these aren't looked at.
 //
-//   check(state, pack, bible?, { before? }) → { ok, problems: [...], warnings: [...], endings: { id: [commands played] } }
+//   check(state, pack, bible?, { before? }) → { ok, problems: [...], warnings: [...], endings: { id (or "id/way"): [commands played] } }
 //   before(state, command, puzzle): called before each command a puzzle's `solve` types, with the state it is typed in (for the
 //   tests that try other commands there: tests/use.test.js, "use A with B" both ways). Never changes the run.
 
@@ -54,9 +56,10 @@ import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js"
 import { nextCell } from "./space.js";
 import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
-import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite } from "./fields.js";
+import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, isLine } from "./fields.js";
 import art from "../content/art.js";
 import { filterProblem } from "./filters.js";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems, placeNow, placeHolding, inSeconds } from "./movers.js";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -363,6 +366,9 @@ export function check(state, pack, bible, { before = null } = {}) {
     }
   }
 
+  // A thing that moves (js/movers.js; BRIEF.md §8, "Things that move"): its facts, its here line, its sprite and its overlays.
+  moverChecks(state, problems, warnings);
+
   // Harm is fair (GUIDE.md §3, §4): health (5 to 0) is lost with `hurt` and the rule's own line (`says`), then the game's
   // echo, never by setting it; and a hit is a whole number from 1 to 5 (1 ordinary, 2–3 serious, 4 very rare, 5 an instant
   // death, which comes with an `end` in the same rule). A hit is never held back: there is no warning turn.
@@ -437,16 +443,25 @@ export function check(state, pack, bible, { before = null } = {}) {
   if (problems.length) return { ok: false, problems, warnings, endings };
 
   // Each ending, from a fresh start (and the pictures they end with).
-  const played = new Set();
-  for (const [id, p] of Object.entries(puzzles)) {
-    if (!p.ending) continue;
-    const run = new Run(state, pack, puzzles, warnings, before);
+  const played = new Set(), runs = [];
+  const play = (name, id, prefer) => {
+    const run = new Run(state, pack, puzzles, warnings, before, prefer);
     run.solve(id);
-    if (run.problem) problems.push(`ending "${id}": ${run.problem}`);
-    else if (!run.state.ended) problems.push(`ending "${id}": played to the end, but the story didn't end`);
-    else if (!run.state.ending) problems.push(`ending "${id}": the story ended without a picture (end: true, picture: "…")`);
+    if (run.problem) problems.push(`ending "${name}": ${run.problem}`);
+    else if (!run.state.ended) problems.push(`ending "${name}": played to the end, but the story didn't end`);
+    else if (!run.state.ending) problems.push(`ending "${name}": the story ended without a picture (end: true, picture: "…")`);
     else played.add(run.state.ending);
-    endings[id] = run.played;
+    endings[name] = run.played;
+    runs.push({ id, solved: run.solved });
+  };
+  for (const [id, p] of Object.entries(puzzles)) if (p.ending) play(id, id);
+  // Another way to the same thing (two puzzles give it: the shell or the cat gets you the parcel): the endings above take the way
+  // written first; a puzzle no ending took is played too, in the first ending that took another way to what it gives, as
+  // "<ending>/<puzzle>". A puzzle that gives nothing an ending needs is not played.
+  for (const [alt, q] of Object.entries(puzzles)) {
+    if (q.ending || runs.some(r => r.solved.has(alt))) continue;
+    const thing = (q.gives || []).find(g => runs.some(r => [...r.solved].some(x => (puzzles[x]?.gives || []).includes(g))));
+    if (thing) { const via = runs.find(r => [...r.solved].some(x => (puzzles[x]?.gives || []).includes(thing))); play(`${via.id}/${alt}`, via.id, { [thing]: alt }); }
   }
   // Every ending is played: an `end` in a rule or a named change whose picture no `ending: true` puzzle reached (a bad ending
   // reached by a rule alone, walking into the sand) was never checked. A death that ends with `died` is not one: that is how
@@ -603,6 +618,34 @@ function limited(r, state) {
   const takes = all.some(x => x && (typeof x.remove === "string" || "move" in x));
   const asks = (Array.isArray(r.if) ? r.if : r.if ? [r.if] : []).flatMap(c => c && typeof c === "object" ? Object.keys(c) : []);
   return takes || asks.some(k => sets.has(k));
+}
+
+// ---- Things that move ---------------------------------------------------------------------------------------------------
+// A person or a thing that moves (`places`, `rounds` or both, js/movers.js): the right shape, naming rooms the world has (never the
+// opening's), its conditions well formed; a `here` line (said when you find it) and a sprite (drawn in the pictures), and not one you can
+// take; and in the picture of every room it can be in (its places' rooms, a follower's `within`, its round's rooms), an overlay for it
+// (its `overlayAlt` is checked with every overlay's, pictureProblems). A follower with no `within` can be in any room you can: a room
+// whose picture has no overlay for it is a warning, since it is there, and named, but not drawn.
+function moverChecks(state, problems, warnings) {
+  const rooms = state.world.rooms, opening = state.opening?.room;
+  const overlay = (r, id) => (rooms[r]?.picture?.overlays || []).some(x => x?.object === id);
+  const add = (r, id) => `add { "object": "${id}", "at": [x, y] } to its overlays, and overlayAlt.${id} to the room`;
+  for (const id of moverIds(state)) {
+    const o = state.world.objects[id];
+    for (const why of moverProblems(o, rooms)) problems.push(`${id}: ${why}`);
+    (Array.isArray(o.places) ? o.places : []).forEach((p, i) => { for (const why of conditionProblems(p?.if)) problems.push(`${id}: places ${i + 1}: if: ${why}`); });
+    if (!isLine(o.here)) problems.push(`${id}: moves, but has no here line: the line said when you find it ("The cat sits on the piano, as if it had always been there.")`);
+    if (!hasSprite(o)) problems.push(`${id}: moves, but has no sprite: it is drawn in the picture of each room it can be in`);
+    if (o.portable === true) problems.push(`${id}: moves, so it can't be one you take (portable: true): the game moves it, and would take it out of your hands`);
+    for (const r of roomsOf(o)) {
+      if (r === FOLLOWS || !rooms[r]) continue;
+      if (r === opening) problems.push(`${id}: can be in ${r}, the opening: nothing moves in or out of the opening`);
+      else if (rooms[r].picture && !overlay(r, id)) problems.push(`${id}: can be in ${r}, but its picture has no overlay for ${id}: ${add(r, id)}`);
+    }
+    if (followsAnywhere(o)) for (const r of Object.keys(rooms))
+      if (r !== opening && rooms[r].area !== rooms[opening]?.area && rooms[r].picture && !overlay(r, id))
+        warnings.push(`${id}: follows you, but ${r}'s picture has no overlay for it: there it is with you, and named, but not drawn (${add(r, id)})`);
+  }
 }
 
 // ---- Exits that wait, and exits that can never open -----------------------------------------------------------------
@@ -813,7 +856,7 @@ export function clockMentions(raw) {
 
 // Every player-facing text of a world: [{ where, field, text }]. Not pictures or their descriptions (`alt`).
 const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "lies", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines", "again", "already", "brought", "eat", "drink",
-  "starts", "ends", "status", "answer"]);   // (the last four: a condition's lines)
+  "starts", "ends", "status", "answer", "arrives", "leaves"]);   // (starts…answer: a condition's lines; arrives, leaves: a thing that moves)
 const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "words", "mentions", "if", "match", "id", "name", "label"]);
 function worldTexts(state, pack) {
   const out = [];
@@ -1301,8 +1344,9 @@ function checkOpening(state, pack) {
 
 // One playthrough towards a goal.
 class Run {
-  constructor(state, pack, puzzles, warnings = [], before = null) {
-    this.state = state; this.pack = pack; this.puzzles = puzzles; this.warnings = warnings; this.before = before;
+  // prefer: { thing: puzzle }, the way to get a thing that more than one puzzle gives (else the first written).
+  constructor(state, pack, puzzles, warnings = [], before = null, prefer = {}) {
+    this.state = state; this.pack = pack; this.puzzles = puzzles; this.warnings = warnings; this.before = before; this.prefer = prefer;
     this.solved = new Set(); this.played = []; this.problem = null; this.clock = 0;
   }
 
@@ -1337,18 +1381,62 @@ class Run {
       if (r.refused.length) return this.fail(`"${id}": ${r.refused[0].reason}`);
       this.state = r.next;
     }
-    for (const c of p.solve) { if (this.before && !this.problem) this.before(this.state, solveCommand(c, this.pack), id); this.type(c); }
+    // (a thing that moves, found in another room for one command: the next is typed back where the puzzle is, as a player would go back)
+    p.solve.forEach((c, i) => {
+      const room = this.state.player.at;
+      this.meet(c, id);
+      const went = this.state.player.at !== room;
+      if (this.before && !this.problem) this.before(this.state, solveCommand(c, this.pack), id);
+      this.type(c);
+      if (went && i < p.solve.length - 1 && !this.state.ended) this.go(room);
+    });
     if (this.problem) return;
     const s = this.state;
     for (const g of p.gives || []) if (!s.world.objects[g] || !inScope(s, g)) return this.fail(`solving "${id}" should give "${g}", but it isn't to hand`);
     if (p.reaches && s.player.at !== p.reaches) return this.fail(`solving "${id}" should reach ${p.reaches}, but you're in ${s.player.at}`);
   }
 
+  // A thing that moves, needed by a command of a puzzle (the command's thing or its second, or the source either comes from: "buy
+  // ticket" needs the clerk), is found as a player would find it: waited for where its round comes by (turns, or the play time to its
+  // next step), while none of its places holds; for a `places` one, the clock moved to the soonest hour it is here (as a puzzle's `time`
+  // is); else gone to, where it is now. A command that needs none, or one already here, changes nothing.
+  meet(command, puzzle) {
+    if (this.problem) return;
+    const s = this.state, away = moverIds(s).filter(id => s.world.objects[id].at !== s.player.at);
+    if (!away.length) return;
+    const all = structuredClone(s);
+    for (const id of away) all.world.objects[id].at = s.player.at;            // (everything that moves, here: what the command names)
+    const needed = new Set();
+    for (const a of parse(solveCommand(command, this.pack), all, this.pack).actions || [])
+      for (const x of [a.obj, a.obj2]) for (const y of [x, all.world.objects[x]?.from]) if (away.includes(y)) needed.add(y);
+    for (const id of needed) this.find(id, puzzle, command);
+  }
+  find(id, puzzle, command) {
+    const wait = this.pack.words.verbs.wait[0], thing = () => this.state.world.objects[id];
+    for (let tries = 0; tries < 200 && !this.problem && thing().at !== this.state.player.at; tries++) {
+      const o = thing(), here = this.state.player.at, rec = this.state.movers?.[id];
+      if (o.rounds?.rooms?.includes(here) && !(o.places && placeHolding(this.state, o, holds))) {   // it comes round: wait for it
+        if (inSeconds(o.rounds) && rec?.due > this.clock + 1000) this.clock = rec.due - 1000;   // (the play time to its next step)
+        this.type(wait);
+        continue;
+      }
+      if (o.places) {                                                          // the soonest hour one of its places is here
+        const now = worldTime(this.state), hours = [...Array(24).keys()].map(h => [moveTo(`next ${h}:00`, now).to, h]).sort((a, b) => a[0] - b[0]);
+        const later = hours.map(([, h]) => atHour(this.state, h)).find(x => x && placeNow(x, x.world.objects[id], holds) === here);
+        if (later) { this.state = later; continue; }
+      }
+      if (o.at && this.state.world.rooms[o.at] && o.at !== here) { this.go(o.at); continue; }   // where it is now
+      break;
+    }
+    if (!this.problem && thing().at !== this.state.player.at)
+      this.fail(`"${command}" (${puzzle}) needs ${id}, which moves, but it can't be found where the command is typed, nor waited for`);
+  }
+
   // Get a thing: if a puzzle gives it, solve that; then pick it up wherever it lies.
   get(thing, forPuzzle) {
     if (this.problem || this.state.player.carrying.includes(thing)) return;
-    const giver = Object.entries(this.puzzles).find(([, p]) => (p.gives || []).includes(thing));
-    if (giver) this.solve(giver[0]);
+    const giver = this.prefer[thing] ?? Object.entries(this.puzzles).find(([, p]) => (p.gives || []).includes(thing))?.[0];
+    if (giver) this.solve(giver);
     if (this.problem || this.state.player.carrying.includes(thing)) return;
     const o = this.state.world.objects[thing];
     const place = placeOf(this.state, thing);

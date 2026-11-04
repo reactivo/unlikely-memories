@@ -209,6 +209,7 @@ const rooms = {
       "Al oeste, el hotel Miramar tiene la puerta abierta. Al este, un tiovivo gira sin nadie encima. La plaza queda al sur; las dunas, al norte."
     ],
     exits: { n: "dunes", s: "square", w: { to: "lobby", in: true }, e: "carousel" },
+    overlayAlt: { cat: "Un gato gris está sentado en el paseo, entre el hotel y las farolas." },
     alt: "Un paseo marítimo de noche: barandillas blancas delante, tres farolas encendidas, un hotel alto a la izquierda con una ventana iluminada y la puerta abierta, un tiovivo a rayas a la derecha.",
     scenery: [
       { words: ["barandillas", "barandilla", "baranda"], name: "las barandillas" }, { words: ["farolas", "farola", "luces", "luz", "lamparas"], name: "las farolas" },
@@ -238,6 +239,7 @@ const rooms = {
     ],
     exits: { e: "promenade", w: "dining", u: "hallway" },
     sleep: "En el vestíbulo no. En algún sitio de arriba hay una cama hecha para ti.",
+    overlayAlt: { cat: "Un gato gris está sentado en la alfombra, delante del mostrador." },
     alt: "Un vestíbulo de hotel: un mostrador de recepción con una campanilla de latón, un tablero de llaves detrás, palmeras en macetas, puertas dobles luminosas a la izquierda y una escalera con alfombra roja a la derecha.",
     scenery: [
       { words: ["palmeras", "palmera", "macetones", "macetas", "maceta"], name: "las palmeras" }, { words: ["alfombra", "senderos", "suelo"], name: "la alfombra" },
@@ -255,6 +257,7 @@ const rooms = {
     exits: { e: "lobby" },
     ambience: { lines: ["Alguien propone un brindis. Todos levantan la copa. Nadie bebe.", "Un comensal se ríe de un chiste que se contó antes de que llegaras.", "La sal vuelve a dar la vuelta a la mesa."], every: [30, 70], chance: 0.8 },
     sleep: "En la mesa no, entre doce comensales de etiqueta.",
+    overlayAlt: { cat: "Un gato gris está sentado en el respaldo de la silla vacía." },
     alt: "Una mesa larga de comedor en perspectiva, mantel blanco y velas, comensales de etiqueta a ambos lados bajo una araña. Una silla vacía en el extremo más cercano, con una tarjeta sobre el plato.",
     scenery: [
       { words: ["mesa", "mantel", "velas", "vela", "arana"], name: "la mesa" },
@@ -269,6 +272,7 @@ const rooms = {
       "La {puerta 11|door11} está entornada, con la llave todavía en la cerradura. La escalera baja."
     ],
     exits: { d: "lobby", w: { to: "room11", in: true } },
+    overlayAlt: { cat: "Un gato gris está sentado en la alfombra roja." },
     alt: "Un cálido pasillo de hotel en perspectiva, paredes marrones y alfombra roja, puertas a ambos lados. La puerta más cercana de la izquierda está entornada, con luz en el borde.",
     scenery: [
       { words: ["puertas", "pasillo"], name: "las puertas" }, { words: ["alfombra", "suelo"], name: "la alfombra" },
@@ -298,6 +302,7 @@ const rooms = {
       "Correos está al oeste. Al este, un café iluminado. La estación queda al sur; el paseo marítimo, al norte."
     ],
     exits: { n: "promenade", w: "post_office", e: "cafe", s: "station" },
+    overlayAlt: { cat: "Un gato gris está sentado en el borde de la fuente seca." },
     ambience: { lines: ["Una paloma da la vuelta entera a la fuente y se detiene donde empezó.", "El péndulo tras la esfera del reloj sigue oscilando. Las agujas no se mueven.", "Alguien, en una tienda cerrada, da la vuelta a un cartel: de «Cerrado» a «Cerrado por cierre»."] },
     alt: "Una plaza de noche: un ayuntamiento con una torre de reloj que marca las cinco y cuarto, una fuente seca, tiendas con las persianas bajadas a la izquierda, con la puerta azul de Correos, y un café iluminado a la derecha. Palomas sobre los adoquines.",
     scenery: [
@@ -315,6 +320,7 @@ const rooms = {
     ],
     exits: { e: { to: "square", out: true } },
     sleep: "Sobre el mostrador no. El administrador tiene cartas que clasificar, y te clasificaría a ti.",
+    overlayAlt: { cat: "Un gato gris está sentado en el mostrador, junto a la reja." },
     alt: "Entre los barrotes de la reja de una oficina de correos: un administrador con gorra azul y gafas bajo una lámpara verde, y casillas llenas de cartas a su espalda.",
     scenery: [
       { words: ["mostrador", "mostradores", "reja", "barrotes"], name: "el mostrador" }, { words: ["casillas", "casilla", "cartas", "fechas"], name: "las casillas" },
@@ -490,6 +496,7 @@ const objects = {
       postmaster: { words: ["administrador", "correos", "cartas", "paquete", "cartero"], says: "«¿El administrador?», dice una mujer de verde. «No te dará nada sin un nombre. A menos que el mar responda por ti. A veces responde»." },
       lighthouse: { about: "lighthouse_far", words: ["faro", "lampara", "luz"], says: "«El faro», dice un hombre, a nadie. «Mi hermano lo encendió una vez. Quemó su anillo de boda. Ya no recordaba por qué le había importado nunca»." },
       hut: { words: ["caseta", "casetas", "7", "siete"], says: "«La caseta 7», dice alguien. «Qué color tan bonito. ¿Quién la habrá pintado?» Nadie lo sabe. Todos te miran." },
+      cat: { about: "cat", words: ["almirante", "gato", "minino"], says: "«¿Almirante?», dice un hombre con chaqueta de terciopelo. «Solo va con la gente que es de aquí. Eso lo sabe todo el mundo. Hasta en Correos»." },
       default: "Lo consideran con educación y vuelven a su postre."
     },
     talk: [
@@ -506,6 +513,25 @@ const objects = {
   card: { at: "dining", name: "Tarjeta", note: "Una tarjeta de sitio.",
     words: { nouns: ["tarjeta", "cartulina"], adj: ["sitio", "nombre"], g: "f" },
     examine: "Una tarjeta de sitio. Han escrito un nombre y lo han borrado tantas veces que la cartulina se ha gastado hasta quedarse fina." },
+  // Almirante, el gato del hotel: va y viene por el vestíbulo, el comedor y el primer piso, una sala cada vez, cada pocas órdenes; una
+  // vez acariciado, te sigue por el hotel y el pueblo (hasta Correos, donde responde por ti), y te espera si vas más allá; espantado,
+  // vuelve a sus vueltas por el hotel. El juego lo mueve, dice cuándo llega y se va, y lo dibuja (una capa en cada uno de los seis
+  // dibujos).
+  cat: { at: "lobby", name: "Almirante", note: "El gato del hotel.", actions: ["Acariciar a Almirante"],
+    rounds: { rooms: ["lobby", "dining", "hallway"], every: [3, 6], random: true },
+    places: [{ at: "player", if: [{ "cat.stroked": true }], within: ["lobby", "dining", "hallway", "promenade", "square", "post_office"] }],
+    sprite: sprites.cat, floorSprite: sprites.cat_floor,
+    words: { nouns: ["almirante", "gato", "minino", "chapa", "collar"], adj: ["gris", "hotel", "viejo", "laton"], g: "m", proper: true },
+    here: "{Almirante|cat}, el gato del hotel, se lava una pata, como si siempre hubiera estado ahí.",
+    arrives: ["Almirante, el gato del hotel, entra sin prisa y se sienta, como si lo hubieras hecho esperar.",
+              "Entra un gato gris, sin prisa. La chapa de latón del collar dice ALMIRANTE."],
+    leaves: ["Almirante se levanta, se estira y se va, con mejores cosas que hacer.",
+             "Almirante ya ha tenido bastante de ti por ahora. Se va con la cola en alto."],
+    examine: "Un gato gris y grande, con la pechera blanca y una oreja rota. En el collar, una chapa de latón como las de las llaves del hotel: ALMIRANTE. Te mira como si llegaras tarde, otra vez.",
+    touch: "Lo acaricias. Almirante se apoya en tu mano y ronronea, como si lo hubieras hecho todas las tardes durante años.",
+    take: "Almirante se te escurre de los brazos y se sienta un poco más allá, ofendido.",
+    talk: "Almirante te escucha con una oreja y te contesta con un parpadeo lento.",
+    give: "Almirante lo olfatea y te mira como si le hubieras vuelto a traer lo que no era." },
   door11: { at: "hallway", name: "Puerta 11", note: "Entornada, con la llave en la cerradura.", door: "w",
     words: { nouns: ["puerta", "11", "once", "habitacion"], adj: ["entornada", "abierta", "numero"], g: "f" },
     examine: "El número 11, en latón. Está entornada. La llave de la cerradura lleva una chapa con el nombre del hotel, gastada de tanto tacto." },
@@ -533,6 +559,7 @@ const objects = {
     topics: {
       name: { open: true, label: "mi nombre", words: ["nombre", "nombres"], says: "«Los nombres son cosa del mar», dice. «Los devuelve cuando está listo. No antes»." },
       sea: { open: true, words: ["mar", "caracola", "playa"], says: "«El mar sabe de dónde es cada uno», dice. «Escucha detrás de la puerta»." },
+      cat: { about: "cat", words: ["almirante", "gato", "minino"], says: "«¿Almirante?» Casi sonríe. «No va con cualquiera. Tráemelo, si quiere venir»." },
       default: "Te mira por encima de las gafas. «Eso no es correo»."
     },
     words: { nouns: ["administrador", "funcionario", "cartero", "empleado", "hombre", "señor", "senor"], adj: ["viejo", "correos"], g: "m" },
@@ -634,6 +661,9 @@ const changes = {
     { say: "La caracola arde con una llama azul y pequeña, y el altavoz que lleva dentro dice «Estás» y nada más. La luz sale por encima del agua. En la playa, la puerta verde se cierra y es un trozo de madera de deriva." },
     { say: "En el pueblo, el reloj se mueve: las cinco y cuarto, las cinco y veinte. Se acerca el lunes, y nadie aquí sabe qué pasa los lunes. Al otro lado del agua, desde algún lugar cerca de la puerta, tu nombre vuelve a ti." },
     { end: true, picture: "shell" }],
+  // El gato del hotel responde por ti en Correos.
+  cat_vouches: [{ set: "postmaster.gave", to: true }, { move: "parcel", to: "player" },
+    { say: "«Almirante», dice el administrador. Sale de detrás del mostrador y le rasca la oreja rota. «Si va contigo, eres de aquí». Luego saca de una casilla un {paquete|parcel} pequeño y te lo pone en las manos." }],
   // La última línea de todos los finales.
   over: []
 };
@@ -720,11 +750,31 @@ const rules = [
     do: [{ set: "player.seated", to: false }, { say: "Te levantas. Nadie se opone. Nadie lo nota. Es sorprendentemente fácil, lo cual, de algún modo, es peor." }] },
   { id: "letter_read", match: { verb: ["read", "examine"], obj: "letter" }, once: true,
     do: [{ say: "$obj.examine" }] },
+  // El gato del hotel: la primera vez que lo acaricias, te sigue (sus `places`); después, su propia frase de `touch`.
+  { id: "cat_stroke", match: { verb: "touch", obj: "cat" }, if: [{ "cat.stroked": { "!=": true } }],
+    do: [{ set: "cat.stroked", to: true },
+         { say: "Lo acaricias. Almirante se apoya en tu mano y ronronea, como si lo hubieras hecho todas las tardes durante años. Luego se levanta y se te pega a los talones: se viene contigo." }] },
+  // Espantado, deja de seguirte (`cat.stroked` a false) y vuelve a su ronda por el hotel: enseguida si estás fuera, lo mueve el
+  // juego (esta línea dice que se va, así que el juego no añade la suya); dentro, se queda un rato antes, y su línea lo dice.
+  // Si no te sigue, no se mueve de donde está.
+  { id: "cat_shoo_hotel", match: { verb: "shoo", obj: "cat" }, if: [{ "cat.stroked": true }, { "player.at": { in: ["lobby", "dining", "hallway"] } }],
+    do: [{ set: "cat.stroked", to: false },
+         { say: "Lo espantas. Almirante te mira largo rato, como si le hubieras dicho algo imperdonable, y luego se sienta donde está y te da la espalda. Ya se irá cuando le parezca." }] },
+  { id: "cat_shoo", match: { verb: "shoo", obj: "cat" }, if: [{ "cat.stroked": true }],
+    do: [{ set: "cat.stroked", to: false },
+         { say: "Lo espantas. Almirante te mira largo rato, como si le hubieras dicho algo imperdonable, y se va con la cola en alto, de vuelta a su hotel." }] },
+  { id: "cat_shoo_home", match: { verb: "shoo", obj: "cat" },
+    do: [{ say: "Almirante no se mueve. A Almirante nadie lo echa de su propio hotel." }] },
 
-  // -- Correos: sin nombre no hay correo; la caracola responde por ti -----------------------------------------------
+  // -- Correos: sin nombre no hay correo; la caracola responde por ti, o el gato del hotel ---------------------------
   { id: "post_shell", match: { verb: ["give", "show"], obj: "shell" }, if: [at("post_office"), holding("shell"), { "postmaster.gave": { "!=": true } }],
     do: [{ set: "postmaster.gave", to: true }, { move: "parcel", to: "player" },
          { say: "Se lleva la caracola al oído y escucha un buen rato. «Planta menos cuatro», dice por fin. «Hace años que tenemos algo para ti». Te devuelve la caracola y desliza bajo la reja un {paquete|parcel} pequeño." }] },
+  // ... o el gato del hotel, que entra contigo.
+  { id: "post_cat", match: { verb: ["talk", "ask", "say"], obj: [null, "postmaster"] }, if: [at("post_office"), { "cat.at": "post_office" }, { "postmaster.gave": { "!=": true } }],
+    do: [{ change: "cat_vouches" }] },
+  { id: "post_cat_show", match: { verb: ["give", "show"], obj: "cat" }, if: [at("post_office"), { "cat.at": "post_office" }, { "postmaster.gave": { "!=": true } }],
+    do: [{ change: "cat_vouches" }] },
   { id: "post_talk_done", match: { verb: ["talk", "ask", "say"], obj: [null, "postmaster"] }, if: [at("post_office"), { "postmaster.gave": true }, notAsking],
     do: [{ say: "«Eso es todo lo que era tuyo», dice. «Lo demás sigue dirigido a otro»." }] },
   { id: "post_talk", match: { verb: ["talk", "ask", "say"], obj: [null, "postmaster"] }, if: [at("post_office"), notAsking],
@@ -764,7 +814,10 @@ const puzzles = {
   vouch:      { where: "post_office", needs: ["shell"], solve: ["dar caracola a administrador"], gives: ["parcel"],
                 clues: ["letter", "guests", "post_talk"],
                 hints: ["El administrador no da nada a quien no tiene nombre, pero se fía del mar. Algo que la marea dejó en la arena podría responder por ti.", "Lleva la caracola pálida de la línea de la marea hasta Correos y deja que el administrador la escuche."] },
-  open_parcel: { needs: ["parcel"], solve: ["abrir paquete"], gives: ["key"], clues: ["parcel", "post_shell"],
+  vouch_cat:  { where: "post_office", needs: [], solve: ["acariciar a almirante", "enseñar almirante a administrador"], gives: ["parcel"],
+                clues: ["guests", "post_talk", "cat"],
+                hints: ["El administrador quiere que alguien responda de dónde vienes. En el hotel dicen que Almirante solo va con la gente que es de aquí.", "Acaricia a Almirante, el gato del hotel, y te seguirá; llévalo a Correos y habla con el administrador."] },
+  open_parcel: { needs: ["parcel"], solve: ["abrir paquete"], gives: ["key"], clues: ["parcel", "post_shell", "post_cat"],
                 hints: ["El paquete está dirigido con tu letra, y el cordel es solo cordel.", "Deshaz el paquete entre las manos; lo que hay dentro es pequeño y de latón."] },
   open_hut:   { where: "huts", needs: ["key"], solve: ["abrir caseta con llave"], gives: ["oars", "photograph"],
                 clues: ["letter", "cave_voice", "hut"],
@@ -801,7 +854,8 @@ export default {
   properties: {
     "beach_door.driftwood": { type: "boolean", start: false },   // la puerta verde se ha vuelto madera de deriva
     "player.seated": { type: "boolean", start: false },   // estás sentado a la mesa del comedor
-    "postmaster.gave": { type: "boolean", start: false }   // el administrador ha entregado el paquete
+    "postmaster.gave": { type: "boolean", start: false },   // el administrador ha entregado el paquete
+    "cat.stroked": { type: "boolean", start: false }   // has acariciado a Almirante: te sigue
   },
   facts: [
     "Tras la puerta verde: una playa de noche, un pueblo de costa en un domingo sin fin, un faro apagado.",
@@ -820,6 +874,7 @@ export default {
     { add: "word", verb: "swim", words: ["nadar", "nada", "nade", "nado", "bañarse", "bañate", "me baño", "darse un baño", "zambullirse", "zambullete", "bucear", "bucea", "vadear", "vadea", "ir a nadar", "nadar en", "nada en"], object: "optional", reply: "Aquí no hay agua en la que nadar." },
     { add: "word", verb: "burn", words: ["quemar", "quema", "queme", "quemo", "incinerar", "incinera", "prender fuego a", "prende fuego a", "dar fuego a", "da fuego a", "sacrificar", "sacrifica", "olvidar", "olvida", "olvide", "olvido"], reply: "No tienes con qué quemarlo." },
     { add: "word", verb: "ride", words: ["cabalgar", "cabalga", "cabalgo", "dar una vuelta", "da una vuelta", "dar vueltas", "da vueltas"] },
+    { add: "word", verb: "shoo", words: ["espantar", "espanta", "espante", "espanto", "ahuyentar", "ahuyenta", "ahuyente", "ahuyento", "zape"], reply: "Aquí no hay nada que espantar." },
 
     // Puzles (descripciones, para el verificador)
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

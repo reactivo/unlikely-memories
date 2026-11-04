@@ -387,6 +387,9 @@ export default {
     `,
     cycles: [
       {name: "carousel lights", areas: ["bulbs"], colors: [14,6], style: "rotate", ms: 500}
+    ],
+    overlays: [
+      { object: "cat", at: [120, 92] }
     ]
   },
 
@@ -498,7 +501,10 @@ export default {
       poly - 215,82 232,60 236,64 10
       ellipse chandelier 160,6,22,4 14
       ellipse glow 160,8,50,12 mix:,14@0.12
-    `
+    `,
+    overlays: [
+      { object: "cat", at: [100, 100] }
+    ]
   },
 
   // ---- THE DINING ROOM: the long table, the guests, the empty chair ------------------------------------------------
@@ -545,6 +551,9 @@ export default {
     `,
     cycles: [
       {name: "candles", areas: ["flames"], colors: [14,12], style: "flicker", ms: [300,1400]}
+    ],
+    overlays: [
+      { object: "cat", at: [154, 103] }
     ]
   },
 
@@ -580,6 +589,9 @@ export default {
     `,
     cycles: [
       {name: "sconces", areas: ["sconces", "sconces2", "sconces3", "sconces4"], colors: [14,6], style: "flicker", ms: [2000,8000]}
+    ],
+    overlays: [
+      { object: "cat", at: [150, 104] }
     ]
   },
 
@@ -649,7 +661,10 @@ export default {
       rect - 156,94,8,22 7 e0
       ellipse - 160,94,14,4 7 e0
       dots pigeons 90,118 92,118 96,122 98,122 226,128 228,128 236,124 238,124 244,130 c7
-    `
+    `,
+    overlays: [
+      { object: "cat", at: [182, 98] }
+    ]
   },
 
   // ---- POST OFFICE: through the grille, the postmaster and his pigeonholes ----------------------------------------
@@ -710,7 +725,10 @@ export default {
       line - 256,42 256,112 c7
       rect counter 0,112,320,24 fade:6,0/0,112/0,136 e0
       line - 0,112 320,112 c14
-    `
+    `,
+    overlays: [
+      { object: "cat", at: [262, 99] }
+    ]
   },
 
   // ---- THE CAFÉ: four tables, the waiter folding a napkin, the coffee machine sighing ---------------------------

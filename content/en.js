@@ -237,6 +237,29 @@ export default {
             proper.length ? `${listOf(proper.map(([x]) => x), " and ")} ${proper.length > 1 || proper[0][1]?.pl ? "are" : "is"} here${common.length ? " too" : ""}.` : ""]
       .filter(Boolean).join(" ");
   },
+  // A thing that moves (js/movers.js), coming where you are or going from where you are, when it has no `arrives` / `leaves` line of
+  // its own: by the way it came from or goes, as the exits say (`none`: no exit joins the two rooms, or it comes from nowhere or goes
+  // out of play). n = [its name, in a sentence], w = [its gender, number and mark].
+  moving: {
+    arrives: {
+      n: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} in from the north.`, s: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} in from the south.`,
+      e: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} in from the east.`, w: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} in from the west.`,
+      u: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} down from above.`, d: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} up from below.`,
+      in: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} out from inside.`, out: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} in from outside.`,
+      none: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} in.`
+    },
+    leaves: {
+      n: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} off north.`, s: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} off south.`,
+      e: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} off east.`, w: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} off west.`,
+      u: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} up.`, d: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} down.`,
+      in: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} in.`, out: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "go" : "goes"} out.`,
+      none: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} gone.`
+    },
+    // Following you (a place "player"): coming in with you, in place of its `arrives`; and staying where it is as you go into a room
+    // it doesn't follow you into (outside its `within`).
+    follows: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "come" : "comes"} with you.`,
+    stays: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "stay" : "stays"} behind.`
+  },
   cantOpen: "That isn't something you can open.", cantClose: "That isn't something you can close.",   // no lid: open for good (`open: "always"`)
   alreadyOpen: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} already open.`,
   alreadyClosed: (n, w) => `${The(n[0], w[0])} ${w[0]?.pl ? "are" : "is"} already closed.`,
