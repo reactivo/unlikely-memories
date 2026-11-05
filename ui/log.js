@@ -179,12 +179,13 @@ export function mount(root, on, header) {
     moved("held: put back");
     resync(y);
   }
-  // Safari on an iPhone can go on PAINTING the page at another place than the one it reports: after a new game started
-  // from further down the list of games, the page said it was at its top (scrollY 0, the first line under the picture by
-  // its numbers) while it showed the story a little higher, its first line under the picture, and taps landed on what
-  // the numbers said was there (the command line opened the directions). Putting it back where it already is changes
-  // nothing for Safari, so it is moved one pixel and back, a frame apart, which makes it paint where it reports (Diego's
-  // iPhone, 4 Nov 2026).
+  // Safari on an iPhone (iOS 26) can ignore a scroll back to the top while the page is only a little way down, within a sticky
+  // element's reach (WebKit bug 304489; our bottom is sticky), and go on SHOWING the page there while it reports the top:
+  // after a new game started from further down the list of games, the page said it was at its top (scrollY 0, the first line
+  // under the picture by its numbers) while it showed the story a little higher, its first line under the picture, and taps
+  // landed where the numbers said things were (the command line opened the directions, the menu took several taps). So it
+  // is moved one pixel and back, a frame apart, which makes Safari show it where it reports. Proven on Diego's iPhone, 4 Nov
+  // 2026, with the debug panel's switch: off, all three came back; on, none.
   let resyncing = false;
   function resync(y) {
     if (resyncing || document.documentElement.hasAttribute("data-debug-no-nudge")) return;   // (the debug panel can turn it off, to test it)

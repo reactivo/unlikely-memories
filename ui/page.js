@@ -21,9 +21,9 @@ const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 //                story starts, and where a new room's first line goes. (While you type that top lets go and scrolls with the
 //                story, absolute instead of fixed, over the same spacer: still measured the same way, so nothing moves.)
 //   --bottom-h   the bottom's height
-//   (Not the window's height: the page uses 100dvh. Measuring innerHeight instead, 0.28.1, broke the iPhone: there it shrinks
-//   when the keyboard opens, so the page's height changed under the finger as you tapped the command line, and the tap
-//   opened the directions; the debug panel's buttons stopped answering while you typed. Diego, 4 Nov 2026.)
+//   (Not the window's height: the page uses 100dvh. 0.28.1 measured innerHeight instead, to fix a new game's first screen on the
+//   iPhone; it didn't (the cause was Safari ignoring a scroll back to the top: ui/log.js, resync), and on an iPhone innerHeight
+//   shrinks when the keyboard opens (714 to 406), so the page's height would change under the finger. Undone in 0.28.3.)
 function followBars(root) {   // returns update(): measure now
   const html = root.documentElement, top = root.querySelector(".top"), bottom = root.querySelector(".bottom");
   const picture = top.querySelector(".picture");
