@@ -187,7 +187,7 @@ export function mount(root, on, header) {
   // iPhone, 4 Nov 2026).
   let resyncing = false;
   function resync(y) {
-    if (resyncing) return;
+    if (resyncing || document.documentElement.hasAttribute("data-debug-no-nudge")) return;   // (the debug panel can turn it off, to test it)
     resyncing = true;
     requestAnimationFrame(() => {
       window.scrollTo({ top: y > 0 ? y - 1 : y + 1, behavior: "instant" });

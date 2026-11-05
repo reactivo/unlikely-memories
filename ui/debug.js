@@ -20,7 +20,7 @@ import { parts, hhmm } from "../js/time.js";
 import { text } from "../js/narrator.js";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
-const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, motion: "system", rules: false, wholeMap: false };
+const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, nudge: true, motion: "system", rules: false, wholeMap: false };
 const SECTIONS = ["picture", "events", "travel", "inventory", "time", "inspect", "page", "settings"];
 
 // What this device remembers, or null (nothing, or storage blocked).
@@ -136,6 +136,7 @@ export function mount(dev) {
   function apply() {
     html.toggleAttribute("data-debug-instant", !!v?.instant);   // ui/debug.css: no fading in of story text
     html.toggleAttribute("data-debug-rules", !!v?.rules);       // ui/debug.css: the rule lines show
+    html.toggleAttribute("data-debug-no-nudge", v ? v.nudge === false : false);   // ui/log.js, resync: off only to test it
     if (v && v.motion !== "system") html.dataset.motion = v.motion === "reduce" ? "reduce" : "full";   // ui/scene.js, calm()
     else delete html.dataset.motion;
     root.toggleAttribute("data-collapsed", !!v?.collapsed);
@@ -306,6 +307,9 @@ export function mount(dev) {
     const langs = dev.languages();
     return [
       check("instant text", v.instant, (on) => { if (!v) return; v.instant = on; keep(v); apply(); }),
+      // The one-pixel nudge that makes Safari on an iPhone draw the page where it says it is, after the game puts it back
+      // (ui/log.js, resync). Off, to test whether it is what fixes a new game's first screen.
+      check("Safari nudge", v.nudge !== false, (on) => { if (!v) return; v.nudge = on; keep(v); apply(); }),
       row("Reduce motion", motion),
       // (a new game, so it works after the end too)
       row("Language", ...langs.map(l => button(l.toUpperCase(), () => { const now = s(); if (now && l !== now.lang) dev.language(l); }, l === st.lang, "lang:" + l))),
