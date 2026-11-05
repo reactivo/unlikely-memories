@@ -21,10 +21,9 @@ const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 //                story starts, and where a new room's first line goes. (While you type that top lets go and scrolls with the
 //                story, absolute instead of fixed, over the same spacer: still measured the same way, so nothing moves.)
 //   --bottom-h   the bottom's height
-//   --view-h     the window's visible height as the page measures it (innerHeight), used instead of 100dvh where the page's own
-//                height depends on it: Safari on an iPhone, with its bar floating at the bottom, made 100dvh a little taller than
-//                what shows, so every new game could scroll a few pixels and started with its first line under the picture
-//                (Diego, 4 Nov 2026).
+//   (Not the window's height: the page uses 100dvh. Measuring innerHeight instead, 0.28.1, broke the iPhone: there it shrinks
+//   when the keyboard opens, so the page's height changed under the finger as you tapped the command line, and the tap
+//   opened the directions; the debug panel's buttons stopped answering while you typed. Diego, 4 Nov 2026.)
 function followBars(root) {   // returns update(): measure now
   const html = root.documentElement, top = root.querySelector(".top"), bottom = root.querySelector(".bottom");
   const picture = top.querySelector(".picture");
@@ -46,13 +45,11 @@ function followBars(root) {   // returns update(): measure now
                  : position === "sticky" ? top.getBoundingClientRect().height : 0;
     put("--top-h", height);
     put("--bottom-h", bottom.getBoundingClientRect().height);
-    put("--view-h", window.innerHeight);
   }
   const watch = new ResizeObserver(update);   // (also when the game is shown: the page is not drawn while the list of games shows)
   watch.observe(top);
   watch.observe(bottom);
   window.addEventListener("resize", update);  // (the top can start or stop sticking without its size changing)
-  window.visualViewport?.addEventListener("resize", update);
   root.fonts?.ready.then(update);
   // Safari settles its bars after the page has loaded, sometimes without telling: measure again once it has.
   window.addEventListener("load", () => { update(); setTimeout(update, 300); setTimeout(update, 1000); });
