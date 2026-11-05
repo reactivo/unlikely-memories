@@ -171,12 +171,32 @@ export function mount(root, on, header) {
   }
   const holding = () => anchor?.hold && !gliding && !typing() && root.getClientRects().length > 0;   // (not under the list of games)
   function settle() {
-    if (!holding()) return;
+    if (resyncing || !holding()) return;
     const y = Math.max(0, Math.min(anchor.at(), document.documentElement.scrollHeight - innerHeight));
     if (Math.abs(window.scrollY - y) < 2) return;
     window.scrollTo({ top: y, behavior: "instant" });
     header.scrolling(y);
     moved("held: put back");
+    resync(y);
+  }
+  // Safari on an iPhone can go on PAINTING the page at another place than the one it reports: after a new game started
+  // from further down the list of games, the page said it was at its top (scrollY 0, the first line under the picture by
+  // its numbers) while it showed the story a little higher, its first line under the picture, and taps landed on what
+  // the numbers said was there (the command line opened the directions). Putting it back where it already is changes
+  // nothing for Safari, so it is moved one pixel and back, a frame apart, which makes it paint where it reports (Diego's
+  // iPhone, 4 Nov 2026).
+  let resyncing = false;
+  function resync(y) {
+    if (resyncing) return;
+    resyncing = true;
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: y > 0 ? y - 1 : y + 1, behavior: "instant" });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: y, behavior: "instant" });
+        header.scrolling(y);
+        resyncing = false;
+      });
+    });
   }
   window.addEventListener("scroll", () => { lastScroll = Math.round(window.scrollY); wasAtEnd = atEnd(); settle(); }, { passive: true });
   window.addEventListener("resize", settle);                      // (after ui/page.js has measured the bars: it was mounted first)
@@ -197,6 +217,8 @@ export function mount(root, on, header) {
     header.scrolling(0);
     anchor = { hold: true, at: () => 0 };
     moved("new game: top");
+    resync(0);
+    setTimeout(() => { if (holding()) resync(0); }, 400);   // (again once Safari has settled: its leftover scroll comes late)
     clearTimeout(shotTimer);
     shotTimer = setTimeout(() => { firstScreen = measurePage(); }, 2000);
   }
