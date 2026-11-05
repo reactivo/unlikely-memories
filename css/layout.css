@@ -144,7 +144,7 @@
     flex-direction: column;
     width: 100%;
     max-width: var(--column);
-    min-height: 100dvh;
+    min-height: var(--view-h, 100dvh);   /* (measured: ui/page.js) */
     margin-inline: auto;
     box-sizing: border-box;
   }

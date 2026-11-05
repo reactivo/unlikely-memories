@@ -583,6 +583,7 @@ if (DEBUG_PANEL) {
     state: () => (view === "game" ? state : null),
     pack: () => (state ? packOf(state) : null),
     now: () => clock.now(),
+    page: () => ui.log.page(),                         // the page's measurements (ui/log.js)
     // One moment of effects through the engine (js/debug.js, moment), shown and kept like a move: UNDO takes it back, it is saved.
     // tell: false shows only what the world said on its own meanwhile; note: a dim line before it; undo: false keeps no UNDO step.
     run(effects, { tell = true, note, undo = true } = {}) {

@@ -21,7 +21,7 @@ import { text } from "../js/narrator.js";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
 const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, motion: "system", rules: false, wholeMap: false };
-const SECTIONS = ["picture", "events", "travel", "inventory", "time", "inspect", "settings"];
+const SECTIONS = ["picture", "events", "travel", "inventory", "time", "inspect", "page", "settings"];
 
 // What this device remembers, or null (nothing, or storage blocked).
 function recall() {
@@ -283,6 +283,18 @@ export function mount(dev) {
     fact("turn", st.turn + (st.ended ? " (ended)" : ""));
     return [dl, check("show rule ids", v.rules, (on) => { if (!v) return; v.rules = on; keep(v); apply(); })];
   }
+  // The page: how far it is scrolled, the window's height, where the top ends and the story starts, and what last moved it;
+  // now, and as it was 2 s after the last new game (ui/log.js, page). For layout bugs on a phone (Safari's first screen).
+  function page() {
+    const { first, now } = dev.page();
+    const block = (title, m) => {
+      const dl = el("dl", "facts");
+      for (const [k, val] of Object.entries(m)) dl.append(el("dt", "", k), el("dd", "", String(val)));
+      return [el("p", "note", title), dl];
+    };
+    return [...(first ? block("2 s after the new game", first) : [el("p", "note", "Start a new game to record its first screen.")]),
+            ...block("Now", now)];
+  }
   function settings(st) {
     const motion = el("select", "", undefined, { "aria-label": "Reduce motion" });
     for (const [val, label] of [["system", "as the system"], ["reduce", "on"], ["full", "off"]]) {
@@ -317,7 +329,7 @@ export function mount(dev) {
     const st = s();
     if (!v || !st) return;
     const pack = dev.pack();
-    const make = { picture, events, travel, inventory, inspect, settings };
+    const make = { picture, events, travel, inventory, inspect, page, settings };
     for (const id of SECTIONS) {
       if (id === "time") time(st);
       else morph(parts$[id], make[id](st, pack));

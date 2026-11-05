@@ -125,6 +125,7 @@ export function mount(root, on, header) {
     if (asked && header.follow(Math.min(target, max) - window.scrollY)) target = Math.max(0, endTarget(first, last, window.scrollY));
     window.scrollTo({ top: target, behavior: instant || calm.matches ? "instant" : "smooth" });
     header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)
+    moved("follow");
     anchor = instant ? { hold: true, at: () => endTarget(first, last, 0) }
                      : { hold: false, y: target, at: () => endTarget(first, last, window.scrollY) };
   }
@@ -163,6 +164,7 @@ export function mount(root, on, header) {
   //     so if the newest text was in view, the page moves just enough to show its last line above them (never back up: keepEnd);
   //   - the font finishing loading: the follow is redone, but only if the page hasn't moved since.
   let anchor = null;             // { hold, at(), y (following: where it put the page) }
+  let firstScreen = null, shotTimer = 0, lastMove = "—", lastScroll = null;   // (the debug panel's Page section: page(), below)
   let wasAtEnd = true;
   for (const kind of ["touchstart", "pointerdown", "wheel", "keydown"]) {
     window.addEventListener(kind, () => { anchor = null; }, { passive: true, capture: true });   // you, not the browser
@@ -174,8 +176,9 @@ export function mount(root, on, header) {
     if (Math.abs(window.scrollY - y) < 2) return;
     window.scrollTo({ top: y, behavior: "instant" });
     header.scrolling(y);
+    moved("held: put back");
   }
-  window.addEventListener("scroll", () => { wasAtEnd = atEnd(); settle(); }, { passive: true });
+  window.addEventListener("scroll", () => { lastScroll = Math.round(window.scrollY); wasAtEnd = atEnd(); settle(); }, { passive: true });
   window.addEventListener("resize", settle);                      // (after ui/page.js has measured the bars: it was mounted first)
   function keepEnd() {
     const last = lastLine();
@@ -193,6 +196,32 @@ export function mount(root, on, header) {
     window.scrollTo(0, 0);
     header.scrolling(0);
     anchor = { hold: true, at: () => 0 };
+    moved("new game: top");
+    clearTimeout(shotTimer);
+    shotTimer = setTimeout(() => { firstScreen = measurePage(); }, 2000);
+  }
+
+  // For the debug panel's Page section (ui/debug.js): the page as it is now, as it was 2 s after the last new game (before
+  // anything is touched: opening the keyboard changes the layout), and what last moved it. Measured, not kept in the state.
+  function moved(by) { lastMove = by + " (to " + Math.round(window.scrollY) + ")"; }
+  function measurePage() {
+    const html = document.documentElement, vv = window.visualViewport, n = (x) => Math.round(x * 10) / 10;
+    const probe = document.createElement("div");
+    probe.style.cssText = "position:absolute;top:0;width:0;height:100dvh;visibility:hidden;pointer-events:none";
+    document.body.append(probe);
+    const dvh = probe.getBoundingClientRect().height;
+    probe.remove();
+    const first = root.querySelector("p"), t = top.getBoundingClientRect();
+    return {
+      "scrolled": n(window.scrollY) + " of " + n(html.scrollHeight - innerHeight),
+      "window": n(innerHeight) + " (100dvh " + n(dvh) + ")",
+      "visible": vv ? n(vv.height) + " from " + n(vv.offsetTop) : "—",
+      "top": "ends " + n(t.bottom) + ", --top-h " + getComputedStyle(html).getPropertyValue("--top-h").trim(),
+      "first line": first ? "at " + n(first.getBoundingClientRect().top) : "—",
+      "held": anchor?.hold ? "yes" : "no",
+      "last moved": lastMove,
+      "last scroll": lastScroll === null ? "—" : "to " + lastScroll
+    };
   }
 
   // While you type on a phone (ui/page.js) the page is in its normal flow, and only the browser knows where its keyboard and
@@ -319,6 +348,7 @@ export function mount(root, on, header) {
     setTimeout(done, 1200);                                       // in case the browser has no scrollend
     window.scrollTo({ top: target, behavior: calm.matches ? "instant" : "smooth" });
     header.scrolling(target);                                     // (the glide is not the reader scrolling: it never folds the picture)
+    moved("new room");
   }
 
   // Add a paragraph to the story (to the current visit). Returns it.
@@ -414,6 +444,8 @@ export function mount(root, on, header) {
     busyFor() { return Math.max(0, revealAt - performance.now()); },
     // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.
     clear() { root.innerHTML = ""; unseen = null; toTop(); header.room(); },
+    // The page's measurements, for the debug panel: { first (2 s after the last new game, or null), now }.
+    page() { return { first: firstScreen, now: measurePage() }; },
     // What is in the story now counts as seen (a new story, shown from the top: the next follow shows only what comes after it).
     seen() { unseen = null; },
     // Bring the newest command and its answer into view (smoothly; instant = true: at once).
