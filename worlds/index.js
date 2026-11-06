@@ -20,6 +20,7 @@ import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js";
 import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js";
 import meridian, { bible as meridianBible } from "./meridian/world.en.js";
 import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js";
+import deadhour, { bible as deadhourBible } from "./deadhour/world.en.js";
 import { parseShapes } from "../js/picture.js";
 
 export const WORLDS = {
@@ -28,7 +29,8 @@ export const WORLDS = {
   hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", model: "Claude Opus 5.5", effort: "medium", version: 7, minutes: null, bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
   lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", model: "Claude Opus 5.5", effort: "high", version: 8, minutes: 53, bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } },      // "The Last Word on Lantern Row"
   meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", model: "Claude Haiku 5.5", effort: "default", version: 5, minutes: 28, text: { en: meridian } },     // "Please Remain Present"
-  thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 3, minutes: 34, text: { en: thirdglass } }      // "The Third Glass"
+  thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 3, minutes: 34, text: { en: thirdglass } },     // "The Third Glass"
+  deadhour: { title: deadhourBible.title, blurb: deadhourBible.blurb, thumbnail: deadhourBible.thumbnail, made: "2026-11-06", model: "Claude Sonnet 5.5", effort: "medium", version: 1, minutes: 19, text: { en: deadhour } }      // "The Dead Hour at Pylon Nine"
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).
