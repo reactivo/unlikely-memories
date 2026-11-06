@@ -26,7 +26,7 @@ export function newState({ lang, health = 5, seed = newSeed(), sequel = true, pr
     const r = applyChangeSet(state, world, { protect, fields: "warn" });
     if (r.warnings?.length) console.warn(`The world${sequel === true ? ` "${id}"` : ""} has ${r.warnings.length} warning(s):\n  ` + r.warnings.join("\n  "));
     if (!r.refused.length) return { ...r.next, worldId: sequel === true ? id : null };
-    console.warn("The world was refused:", r.refused);
+    console.warn(refusalReport(r.refused, sequel === true ? id : null), r.refused);
   }
   return nowhere(state);
 }
@@ -91,6 +91,20 @@ function blank({ lang, health, seed }) {
     ended: false,                  // the story has ended (the `end` effect)
     ending: null                   // the picture the story ended with: an id of `pictures`, or null (no picture named)
   };
+}
+
+// Why a world was refused, as lines a person reads first: "The world "x" was refused (2 reasons):" and one line per reason,
+// "rooms/salter: …", before the refused effects themselves (which follow in the console, for the detail). An effect is
+// named by what it adds and its id (rooms/salter, rules/dog-attacks), or by its kind when the reason doesn't say.
+export function refusalReport(refused, id = null) {
+  const where = (e) => !e || typeof e !== "object" ? null
+    : e.add ? `${e.add}s/${e.add === "rule" ? e.rule?.id : e.add === "word" ? e.verb : e.id}`
+    : "opening" in e ? `opening (${e.opening})` : Object.keys(e)[0] ?? null;
+  const lines = refused.map(({ effect, reason }) => {
+    const w = where(effect);
+    return w && !String(reason).startsWith(w) ? `${w}: ${reason}` : String(reason);
+  });
+  return `The world${id ? ` "${id}"` : ""} was refused (${refused.length} reason${refused.length === 1 ? "" : "s"}):\n  ${lines.join("\n  ")}\nThe refused effects:`;
 }
 
 // No world to play (this language has none yet, or it was refused): one room, with its text from the language pack.

@@ -1442,8 +1442,8 @@ function fixedTarget(g, e, action) {
 const idKind = (g, id) => (g.world.rooms[id] ? "room" : g.world.objects[id] ? "object" : g.puzzles?.[id] ? "puzzle" : null);
 // The reason an id can't be used for a new room, object or puzzle, or null when it is free.
 const idTaken = (g, kind, id) => {
-  const has = idKind(g, id);
-  return has ? `can't add ${kind} "${id}": that id is already ${has === "object" ? "an" : "a"} ${has}, and ids are unique across rooms, objects and puzzles` : null;
+  const has = idKind(g, id), name = has === "room" ? g.world.rooms[id].name : has === "object" ? g.world.objects[id].name : null;
+  return has ? `can't add ${kind} "${id}": that id is already ${has === "object" ? "an" : "a"} ${has}${typeof name === "string" ? ` ("${name}")` : ""}, and ids are unique across rooms, objects and puzzles; rename one of them` : null;
 };
 
 // Add a room (in a free cell of an area), an object, a rule, a named change, a puzzle or a word.

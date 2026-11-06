@@ -325,13 +325,15 @@ export function checkSet(state, set) {
   };
 
   // Ids are unique across rooms, objects and puzzles: one the game has already, or an earlier effect of this set adds, is a finding.
-  const taken = new Map([...Object.keys(state.world.rooms).map(id => [id, "room"]), ...Object.keys(state.world.objects).map(id => [id, "object"]),
-                         ...Object.keys(state.puzzles || {}).map(id => [id, "puzzle"])]);
+  // Each taken id keeps its kind and its name, so a clash names the other thing too (which room it is), not only the id.
+  const taken = new Map([...Object.entries(state.world.rooms).map(([id, r]) => [id, { kind: "room", name: r.name }]),
+                         ...Object.entries(state.world.objects).map(([id, o]) => [id, { kind: "object", name: o.name }]),
+                         ...Object.keys(state.puzzles || {}).map(id => [id, { kind: "puzzle" }])]);
   const claim = (piece, kind, e) => {
     if (typeof e.id !== "string") return;
     const was = taken.get(e.id);
-    if (was) note(piece, `id "${e.id}" is already ${was === "object" ? "an" : "a"} ${was}: ids are unique across rooms, objects and puzzles`, e);
-    else taken.set(e.id, kind);
+    if (was) note(piece, `id "${e.id}" is already ${was.kind === "object" ? "an" : "a"} ${was.kind}${typeof was.name === "string" ? ` ("${was.name}")` : ""}: ids are unique across rooms, objects and puzzles; rename one of them`, e);
+    else taken.set(e.id, { kind, name: e.name });
   };
 
   // The fields of one piece: any not in the list (nor a property declared for this very thing) is unknown.
