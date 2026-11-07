@@ -1,0 +1,10 @@
+Silver, by Poppy Works (2019). https://poppyworks.itch.io/silver
+
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+Credit: "Silver font by Poppy Works".
+
+Changes made: Silver-Latin.woff is a subset of the original Silver.ttf, keeping Latin (U+0000-024F), general punctuation,
+currency, letterlike symbols, arrows, mathematical operators, geometric shapes and two music notes, converted to WOFF.
+The letters themselves are unchanged.
+
+Per the author's page: projects with a total spend or earnings over 100,000 USD must contact hello@poppy.works for a licence.

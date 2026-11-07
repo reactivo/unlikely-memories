@@ -34,7 +34,7 @@
     --edges: calc(-1 * var(--space-xs)) 0 0 var(--color-bg), var(--space-xs) 0 0 var(--color-bg);
 
     /* The two lines of fade above the prompt, and the same space left empty after the newest text. */
-    --fade: calc(var(--text-m) * var(--line-xxs) * 2);
+    --fade: calc(var(--log-text) * var(--log-line) * 2);   /* (two lines of the story: typography.css) */
 
     /* The three breakpoints, always written exactly like this (CSS variables can't be used inside media queries), only in
        this file and tokens.css; the scripts ui/map.js and ui/tabs.js ask the same question as the second:

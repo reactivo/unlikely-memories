@@ -18,10 +18,14 @@
 import * as debug from "../js/debug.js";
 import { parts, hhmm } from "../js/time.js";
 import { text } from "../js/narrator.js";
+import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
-const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, nudge: true, motion: "system", rules: false, wholeMap: false };
-const SECTIONS = ["picture", "events", "travel", "inventory", "time", "inspect", "page", "settings"];
+// font, logRem, logLine, letter: the Typography section's (null: the font's own value). (logRem: the story's size in rem; until
+// 5 Nov 2026 it was a size in px, under another name, which is now ignored.)
+const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, nudge: true, motion: "system", rules: false, wholeMap: false,
+                   font: DEFAULT_FONT, logRem: null, logLine: null, letter: null };
+const SECTIONS = ["picture", "events", "travel", "inventory", "time", "inspect", "page", "typography", "settings"];
 
 // What this device remembers, or null (nothing, or storage blocked).
 function recall() {
@@ -146,7 +150,19 @@ export function mount(dev) {
     if (v && v.x !== null && v.y !== null) place(v.x, v.y);
     else { root.removeAttribute("data-placed"); root.style.removeProperty("--debug-x"); root.style.removeProperty("--debug-y"); }
     for (const d of body.querySelectorAll("details")) d.open = !!v?.sections[d.dataset.section];
+    type();
   }
+  // The Typography section, on the page: the font (js/fonts.js: data-font on <html>, its CSS loaded once) and the story's size and
+  // line height, inline on <html> (--log-text, --log-line: css/typography.css) when changed from the font's own. Closed (v null):
+  // m5x7 and its own values. Never part of the game or its saves.
+  function type() {
+    const font = v?.font ?? DEFAULT_FONT;
+    setInline("--log-text", v?.logRem != null ? v.logRem + "rem" : null);
+    setInline("--log-line", v?.logLine != null ? String(v.logLine) : null);
+    setInline("--letter-spacing", v?.letter != null ? v.letter + "em" : null);
+    useFont(font).then(() => { if ((v?.font ?? DEFAULT_FONT) === font) fields(); });
+  }
+  const setInline = (name, value) => { if (value === null) html.style.removeProperty(name); else html.style.setProperty(name, value); };
   // Put the panel's top left corner at (x, y), kept on screen (at least its title bar).
   function place(x, y) {
     const w = root.offsetWidth || 320, h = bar.offsetHeight || 32;
@@ -271,6 +287,41 @@ export function mount(dev) {
     if (document.activeElement !== hour) hour.value = now.hour;
     for (const c of [day, hour, setTime]) c.disabled = !!st.ended;
   }
+  // The Typography section is made once too (its fields keep what you type); fields() brings it up to date.
+  const probe = el("span", "text-log", undefined, { hidden: "", "aria-hidden": "true" });   // the story's style, to read its values
+  const fontList = el("select", "", undefined, { "aria-label": "Font", "data-key": "font" });
+  for (const f of FONTS) fontList.append(el("option", "", f.name, { value: f.id }));
+  fontList.addEventListener("change", () => { if (!v) return; v.font = fontList.value; v.logRem = v.logLine = v.letter = null; keep(v); type(); });
+  // A number field with − and + buttons: `get()` the value shown, `set(n)` a new one (null: the font's own), `step` and `places`;
+  // `any`: zero and negative values too (letter spacing), otherwise only above zero.
+  function stepper(label, step, places, get, set, any = false) {
+    const input = el("input", "", undefined, { type: "number", step: String(step), ...(any ? {} : { min: String(step) }), inputmode: "decimal", "aria-label": label });
+    const round = (n) => Math.round(n / step) * step;
+    const put = (n) => { if (!v || !Number.isFinite(n) || (!any && !(n > 0))) return; set(+n.toFixed(places) || 0); keep(v); type(); };
+    input.addEventListener("change", () => put(parseFloat(input.value)));
+    const minus = button("−", () => put(round(get() - step)), undefined, "minus:" + label);
+    const plus = button("+", () => put(round(get() + step)), undefined, "plus:" + label);
+    minus.setAttribute("aria-label", label + " smaller"); plus.setAttribute("aria-label", label + " larger");
+    return { input, row: row(label, minus, input, plus), show: () => { if (document.activeElement !== input) input.value = get().toFixed(places); } };
+  }
+  // The story's values as the page has them now (the inline ones, or the font's own).
+  const now = () => {
+    const cs = getComputedStyle(probe), size = parseFloat(cs.fontSize), lh = cs.lineHeight, root = parseFloat(getComputedStyle(html).fontSize) || 16;
+    // Letter spacing: the token as written (em, or 0), read from <html>, where the body inherits it.
+    return { size, rem: size / root, line: lh.endsWith("px") ? parseFloat(lh) / size : parseFloat(lh), letter: parseFloat(getComputedStyle(html).getPropertyValue("--letter-spacing")) || 0 };
+  };
+  // In rem, like the font sizes (tokens.css): a step of 0.005rem is 0.08px at the usual 16px.
+  const size = stepper("Story text size (rem)", 0.005, 3, () => now().rem, (n) => { v.logRem = n; });
+  const line = stepper("Story line height", 0.01, 2, () => now().line, (n) => { v.logLine = n; });
+  // The page's letter spacing (--letter-spacing, css/typography.css: every text, the story and the interface alike), in em.
+  const letter = stepper("Letter spacing (em)", 0.01, 2, () => now().letter, (n) => { v.letter = n; }, true);
+  const reset = button("Reset to the font's defaults", () => { if (!v) return; v.logRem = v.logLine = v.letter = null; keep(v); type(); }, undefined, "type-reset");
+  parts$.typography.append(probe, row("Font", fontList), size.row, line.row, letter.row, row("", reset),
+    el("p", "note", "Not saved with the game. × puts m5x7 back."));
+  function fields() {
+    if (document.activeElement !== fontList) fontList.value = v?.font ?? DEFAULT_FONT;
+    size.show(); line.show(); letter.show();
+  }
   function inspect(st) {
     const dl = el("dl", "facts");
     const fact = (k, val) => dl.append(el("dt", "", k), el("dd", k === "clock" ? "clock" : "", val === "" ? "—" : String(val)));
@@ -336,6 +387,7 @@ export function mount(dev) {
     const make = { picture, events, travel, inventory, inspect, page, settings };
     for (const id of SECTIONS) {
       if (id === "time") time(st);
+      else if (id === "typography") fields();
       else morph(parts$[id], make[id](st, pack));
     }
     ended.hidden = !st.ended;

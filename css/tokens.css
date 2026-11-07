@@ -80,13 +80,15 @@
     --reaction-heal:       12%;   /* of --color-healed, rising and falling */
 
     /* ---- Text sizes ----
-       Phones first, windows big enough for the strip further down. Plain pixels; browser zoom still scales them.
+       Phones first, windows big enough for the strip further down. In rem (Diego, 5 Nov 2026: all font sizes relative), so
+       they follow the browser's default text size; at its usual 16px they are the pixel sizes beside them. Browser zoom
+       scales them too. (Spacing and fixed sizes stay in pixels: they are layout, not text.)
        Which text uses which size: the .text-* classes in typography.css. */
-    --text-xs: 16px;
-    --text-s:  20px;
-    --text-m:  28px;
-    --text-l:  32px;
-    --text-xl: 48px;
+    --text-xs: 1rem;   /* 16px */
+    --text-s:  1.25rem;   /* 20px */
+    --text-m:  1.75rem;   /* 28px */
+    --text-l:  2rem;   /* 32px */
+    --text-xl: 3rem;   /* 48px */
 
 
     /* ---- Line heights ----
@@ -147,10 +149,10 @@
      css/layout.css, ui/map.js and ui/tabs.js (CSS variables can't be used inside media queries). */
   @media (min-width: 760px) and (min-height: 560px) {
     :root {
-      --text-s:  24px;
-      --text-m:  32px;
-      --text-l:  40px;
-      --text-xl: 64px;
+      --text-s:  1.5rem;   /* 24px */
+      --text-m:  2rem;   /* 32px */
+      --text-l:  2.5rem;   /* 40px */
+      --text-xl: 4rem;   /* 64px */
     }
   }
 }

@@ -1,0 +1,36 @@
+/* PIXELIFY SANS by Stefie Justprince, SIL Open Font License 1.1 (fonts/PixelifySans-OFL.txt; FONTS.md at the top of the
+   project). A proportional pixel-style font (Google Fonts); its Regular weight. Chosen with data-font="pixelify-sans" on <html>
+   (js/fonts.js loads this file only then).
+
+   Overrides the font tokens (css/typography.css) and the sizes and line heights (css/tokens.css), at every breakpoint. Not in
+   a layer, so it wins over every layer whatever order a browser gives them (in the typography layer, iPhone Safari kept
+   tokens.css's sizes, 4 Nov 2026). Sizes in rem (pixels in the comments, at the usual 16px).
+
+   Not drawn on a strict grid of font pixels (its outlines have soft steps), so there is no one sharp size: picked by eye,
+   capitals 0.7em, 14px at 20px. Accented capitals reach 0.85em, descenders 0.19em. */
+
+@font-face { font-family: "Pixelify Sans"; src: url("../../fonts/PixelifySans-Regular.woff2") format("woff2"); }
+
+:root[data-font="pixelify-sans"] {
+  --font-game: "Pixelify Sans", ui-monospace, monospace;
+  --letter-spacing: 0.01em;
+  /* (font smoothing as m5x7's, none: its steps stay crisp; the soft edges in its outlines are the font's own) */
+
+  /* The story: 20px, 1.3 (26px): accented capitals clear the descenders above. */
+  --log-text: 1.25rem;           /* 20px */
+  --log-line: 1.3;
+
+  --text-xs: 0.875rem;           /* 14px */
+  --text-s:  0.875rem;
+  --text-m:  1.25rem;            /* 20px */
+  --text-l:  1.5rem;             /* 24px */
+  --text-xl: 2.25rem;            /* 36px */
+  --line-xxs: 1.2;
+
+  --object-sign-top:  -.15em;
+  --object-sign-left: .05em;
+
+  /* The capitals' top on a story line: half the leading, (1.3 - 1.2) / 2, then the ascent less the capitals, 0.92 - 0.7:
+     0.27em. */
+  --figure-nudge: 0.27em;
+}

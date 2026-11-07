@@ -1,0 +1,38 @@
+/* SILVER by Poppy Works, CC BY 4.0: credit "Silver font by Poppy Works" (fonts/Silver-LICENSE.txt; FONTS.md at the top of the
+   project). A proportional pixel font. The game's copy is a subset (Latin and punctuation, as WOFF, 13 KB; the original is
+   3.7 MB with CJK). Chosen with data-font="silver" on <html> (js/fonts.js loads this file only then).
+
+   Overrides the font tokens (css/typography.css) and the sizes and line heights (css/tokens.css), at every breakpoint. Not in
+   a layer, so it wins over every layer whatever order a browser gives them (in the typography layer, iPhone Safari kept
+   tokens.css's sizes, 4 Nov 2026). Sizes in rem (pixels in the comments, at the usual 16px).
+
+   The grid: 1900 units per em, one font pixel is 100 units: 19 font pixels to the em, but small letters in it: capitals 9
+   pixels, accented capitals 12, descenders 2. Sharp at multiples of 19px. At 28.5px a font pixel is 1.5 CSS pixels
+   (3 device pixels on a 2× screen) and the capitals are 13.5px, about m5x7's in the strip layout (14px at 32px). */
+
+@font-face { font-family: "Silver"; src: url("../../fonts/Silver-Latin.woff") format("woff"); }
+
+:root[data-font="silver"] {
+  --font-game: "Silver", ui-monospace, monospace;
+  --font-smoothing: none;
+  --letter-spacing: 0;           /* its own spacing already leaves a pixel between letters */
+
+  /* The story: 28.5px, 16 font pixels a line, 16/19 (24px): accented capitals (12) and descenders (2) with 2 to spare. */
+  --log-text: 1.78125rem;        /* 28.5px */
+  --log-line: 0.8421;
+
+  /* The interface at the story's size; small text at 19px (one CSS pixel a font pixel). */
+  --text-xs: 1.1875rem;          /* 19px */
+  --text-s:  1.1875rem;
+  --text-m:  1.78125rem;         /* 28.5px */
+  --text-l:  2.375rem;           /* 38px */
+  --text-xl: 3.5625rem;          /* 57px */
+  --line-xxs: 0.8421;
+
+  --object-sign-top:  -.1em;
+  --object-sign-left: .05em;
+
+  /* The capitals' top on a story line: the line (0.8421em) is shorter than the font's box (1200 + 900 units, 1.1053em), so the
+     baseline sits at (0.8421 - 1.1053) / 2 + 1200/1900 = 0.5em; the capitals' top 900/1900 above it: 0.03em. */
+  --figure-nudge: 0.03em;
+}

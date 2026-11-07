@@ -4,8 +4,9 @@
    --text-* and --line-* values in tokens.css. Each style is used by putting its class on the element (in index.html or
    in the script that makes it); the pieces (ui/*.css) never set a font size, line height or capitals themselves. */
 
-/* The game's font: m5x7 by Daniel Linssen (CC0), a proportional pixel font. The other pixel fonts in fonts/ are not
-   declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
+/* The game's font: m5x7 by Daniel Linssen (CC0), a proportional pixel font. Other fonts can be tried in its place, each with
+   its own file in css/fonts/ (loaded only when chosen: js/fonts.js), which overrides the tokens below and tokens.css's sizes
+   and line heights under :root[data-font="<id>"]. The old computers' fonts in fonts/ are not declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
   src: url("../fonts/m5x7-patched.ttf") format("truetype");   /* m5x7 with its capital and x heights written in (FONTS.md, in the fonts folder at the top of the project) */
@@ -20,7 +21,7 @@
 
     --font-smoothing: none;   /* -webkit-font-smoothing, set once on the body: no anti-aliasing, so the pixel letters stay sharp */
 
-    --letter-spacing: .01em;  /* set once on the body: the same for all text (story, landing page, interface). Em, so it follows the text size. Tune by eye */
+    --letter-spacing: .01em;  /* every text's letter spacing (below), in em of its own size: the story, landing page and interface alike. Tune by eye */
 
     /* The object marker + (ui/log.css): space top and left. Em, because they follow the
        text they are in. Tune by eye. */
@@ -30,17 +31,28 @@
     /* How far the picture of an object (ui/log.css) moves down, so its top lines up with the top of the capitals
        beside it: the space m5x7 leaves above its capitals on a story line. */
     --figure-nudge: 0.2em;
+
+    /* The story's own size and line height (.text-log and .text-echo, below; the fade above the prompt, css/layout.css): the
+       interface's by default, their own tokens so that a font (css/fonts/) or the debug panel's Typography section can tune the
+       story without touching the rest of the text. The panel sets them inline on <html>. */
+    --log-text: var(--text-m);
+    --log-line: var(--line-xxs);
   }
 
   body {
     -webkit-font-smoothing: var(--font-smoothing);   /* inherited by the whole page, popovers included */
-    letter-spacing: var(--letter-spacing);            /* the same */
+  }
+
+  /* Letter spacing on every element, not once on the body: an em is turned into pixels where it is set, and the pixels are what
+     is inherited, so set on the body (16px) every text got 0.16px whatever its size. Set on each element, it is .01em of that
+     element's own size: 0.28px in the 28px story (Diego, 5 Nov 2026). Zero specificity: any piece may still set its own. */
+  :where(body, body *, body *::before, body *::after) {
+    letter-spacing: var(--letter-spacing);
   }
 
   /* Buttons, fields and headings start with the browser's own font and capitals; make them use the text around them. */
   :where(button, input, h1, h2, h3) {
     font: inherit;
-    letter-spacing: inherit;
     text-transform: inherit;
   }
 
@@ -49,8 +61,8 @@
 
   /* The story log: everything the game writes and your echoed commands (ui/log.css). Tight lines. */
   .text-log {
-    font-size: var(--text-m);
-    line-height: var(--line-xxs);
+    font-size: var(--log-text);
+    line-height: var(--log-line);
   }
 
   /* Running text on the landing page (a card's blurb, "no games"). */
@@ -89,8 +101,8 @@
 
   /* An echo under the story text (INTERFACE.md §6c): the story's own size and line height, in sentence case. */
   .text-echo {
-    font-size: var(--text-m);
-    line-height: var(--line-xxs);
+    font-size: var(--log-text);
+    line-height: var(--log-line);
   }
 
   /* The map's hint under the popup (how to move the map). */
