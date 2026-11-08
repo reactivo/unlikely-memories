@@ -175,22 +175,22 @@ export default {
     materials: {
       metal:   { kind: "chime",   ratio: 3.5, bright: 0.45, attack: 0, release: 1.4, octave: 5, level: 0.5 },   // a bright cling, a long slightly inharmonic ring
       glass:   { kind: "struck",  ratio: 7,   bright: 0.25, attack: 0, release: 0.35, octave: 6, level: 1.6 },   // high, clean, short
-      wood:    { kind: "knock",   ratio: 1,   bright: 0.6,  attack: 0, release: 0.3, octave: 3, level: 0.3 },  // a hollow knock
-      paper:   { kind: "brush",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 4, level: 2.4, length: 0.16 },   // a soft rustle (cloth too)
-      stone:   { kind: "clack",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 5, level: 1.6 },    // a dry clack or clink (ceramic, shell)
-      soft:    { kind: "struck",  ratio: 1,   bright: 0.08, attack: 0, release: 0.12, octave: 3, level: 0.7 },  // a muted thud (food, leather, a cat)
-      generic: { kind: "plucked", ratio: 1,   bright: 0.12, attack: 0, release: 0.2, octave: 4, level: 0.9 }    // no material, or one not here
+      wood:    { kind: "tock",    octave: 4, level: 0.22 },                                                     // a hollow knock (the sounds' own kind, below)
+      paper:   { kind: "brush",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 4, level: 2.8, length: 0.16 },   // a soft rustle (cloth too)
+      stone:   { kind: "clack",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 5, level: 4 },    // a dry clack or clink (ceramic, shell)
+      soft:    { kind: "struck",  ratio: 1,   bright: 0.08, attack: 0, release: 0.12, octave: 4, level: 1.3 },  // a muted thud (food, leather, a cat)
+      generic: { kind: "plucked", ratio: 1,   bright: 0.12, attack: 0, release: 0.2, octave: 4, level: 1.2 }    // no material, or one not here
     },
     // The other instruments, each a kind of the music's and its numbers.
     voices: {
-      crunch:  { kind: "clack",   ratio: 1,   bright: 0.9,  attack: 0, release: 0.1, level: 1.5 },    // eating
-      gulp:    { kind: "struck",  ratio: 1,   bright: 0.05, attack: 0, release: 0.14, level: 0.7 },   // drinking (a low note sliding up)
-      thud:    { kind: "knock",   ratio: 1,   bright: 1,    attack: 0, release: 0.3, level: 0.35 },    // a hurt
-      body:    { kind: "struck",  ratio: 0.5, bright: 0.2,  attack: 0, release: 0.5, level: 0.35 },    // under the thud
+      crunch:  { kind: "clack",   ratio: 1,   bright: 0.9,  attack: 0, release: 0.1, level: 2.6 },    // eating
+      gulp:    { kind: "struck",  ratio: 1,   bright: 0.05, attack: 0, release: 0.14, level: 1.2 },   // drinking (a low note sliding up)
+      thump:   { kind: "thump",   level: 0.7 },                                                         // a hurt; a door shutting
       shimmer: { kind: "chime",   ratio: 3,   bright: 0.12, attack: 0, release: 1.2 },    // a heal
       colour:  { kind: "plucked", ratio: 2,   bright: 0.25, attack: 0, release: 0.6, level: 0.75 },    // a condition starting or ending
-      creak:   { kind: "reed",    ratio: 3.5, bright: 0.5,  attack: 0.04, release: 0.15 },   // a door opening
-      latch:   { kind: "clack",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.1, level: 2.2 },    // a lock turning, a locked door rattling
+      creak:   { kind: "creak",   level: 0.6,                                                          // a door's hinges
+                 as: { metal: { rate: 3, bands: [[1500, 10, 1], [3100, 12, 0.5], [4700, 12, 0.3]] } } },   // a gate's: higher, thinner
+      latch:   { kind: "clack",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.1, level: 5 },    // a lock turning, a locked door rattling
       slide:   { kind: "brush",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.2, level: 2 },    // a lid or a drawer
       bell:    { kind: "struck",  ratio: 3,   bright: 0.35, attack: 0, release: 0.9, level: 0.65 }     // a puzzle solved
     },
@@ -202,21 +202,35 @@ export default {
       lose:     [{ play: "material", step: 5 }, { play: "material", step: 1, at: 0.08 }],                    // put down: falls
       eat:      [{ play: "crunch", step: 3, octave: 5 }, { play: "crunch", step: 1, octave: 5, at: 0.09 },
                  { play: "crunch", step: 2, octave: 5, at: 0.2, level: 0.8 }],
-      drink:    [{ play: "gulp", step: 1, to: 3, octave: 3, length: 0.12 }, { play: "gulp", step: 1, to: 3, octave: 3, at: 0.24, length: 0.12, level: 0.8 }],
-      hurt:     [{ play: "thud", step: 1, octave: 2 }, { play: "body", step: 1, octave: 2, length: 0.3 }],
+      drink:    [{ play: "gulp", step: 1, to: 3, octave: 4, length: 0.12 }, { play: "gulp", step: 1, to: 3, octave: 4, at: 0.24, length: 0.12, level: 0.8 }],
+      hurt:     [{ play: "thump", step: 1, octave: 2 }],
       heal:     [{ play: "shimmer", step: 1, octave: 5, level: 0.6 }, { play: "shimmer", step: 3, octave: 5, at: 0.06, level: 0.6 },
                  { play: "shimmer", step: 5, octave: 5, at: 0.12, level: 0.6 }, { play: "shimmer", step: 8, octave: 5, at: 0.18, level: 0.6 }],
       down:     [{ play: "colour", step: 3, octave: 4 }, { play: "colour", step: 1, octave: 4, at: 0.11 }],    // a harmful condition starts
       up:       [{ play: "colour", step: 1, octave: 4 }, { play: "colour", step: 3, octave: 4, at: 0.11 }],    // a good one starts, a harmful one ends
       sideways: [{ play: "colour", step: 2, octave: 4 }, { play: "colour", step: 2, octave: 4, at: 0.11 }],    // a neutral one
-      open:     [{ play: "creak", step: 1, to: 2, octave: 3, length: 0.3, level: 0.5 }, { play: "material", step: 1, shift: -1, at: 0.28 }],   // a door opens
-      close:    [{ play: "material", step: 1, shift: -1 }, { play: "material", step: 1, shift: -1, at: 0.06, level: 0.5 }],                  // a door closes
+      open:     [{ play: "latch", step: 5, octave: 5, level: 0.6 }, { play: "creak", step: 1, to: 3, octave: 3, at: 0.06, length: 0.8 }],   // a door opens: the latch, the hinges
+      close:    [{ play: "creak", step: 3, to: 1, octave: 3, length: 0.3, level: 0.7 }, { play: "material", step: 1, shift: -1, at: 0.28 },
+                 { play: "thump", step: 1, octave: 2, at: 0.28, level: 0.6 }, { play: "latch", step: 5, octave: 5, at: 0.34, level: 0.5 }],    // a door closes: hinges, the shut, the latch
       unlock:   [{ play: "latch", step: 5, octave: 5 }, { play: "material", step: 1, shift: -1, at: 0.1 }],                                 // a door unlocks
       rattle:   [{ play: "latch", step: 1, octave: 4 }, { play: "latch", step: 2, octave: 4, at: 0.07 }, { play: "latch", step: 1, octave: 4, at: 0.14 }],   // a locked door
       lid:      [{ play: "slide", step: 3, octave: 4, length: 0.14 }, { play: "material", step: 3, at: 0.12 }],                            // a container opens
       solved:   [{ play: "bell", step: 5, octave: 4 }, { play: "bell", step: 8, octave: 4, at: 0.09 }, { play: "bell", step: 10, octave: 4, at: 0.18 },
                  { play: "bell", step: 12, octave: 4, at: 0.27, length: 0.6 }]                                  // the old games' "points"
     },
-    length: 0.25                                  // a note's length when it says none
+    length: 0.25,                                 // a note's length when it says none
+    // The sounds' own kinds (ui/sound/sounds.js), not the music's: their weight in the middle, where a phone's speaker plays.
+    kinds: {
+      // A wooden knock: the board's modes [× the pitch, level, fall], starting `drop` sharp and settling over `glide`; the hit's click.
+      tock:  { level: 1, modes: [[1, 0.8, 0.045], [2.71, 0.45, 0.02], [4.9, 0.2, 0.01]], drop: 1.06, glide: 0.015,
+               click: { band: 2400, q: 1.2, level: 0.35, tc: 0.004 } },
+      // A blow: a low body falling from `from` × the pitch, a triangle `mid.ratio` above it, a dull punch of noise.
+      thump: { level: 1, body: { level: 0.35, tc: 0.12, from: 1.8, glide: 0.06 }, mid: { ratio: 3, level: 0.5, tc: 0.07 },
+               punch: { band: 600, q: 0.9, level: 1, tc: 0.04 } },
+      // A creak: a buzz at `rate` × the pitch, drawn through `points`, wandering (each point: the last × wander[0] + random ×
+      // wander[1]), its strength fluttering down by up to `flutter`, rough with noise under [Hz] at [× the pitch]; through `bands`.
+      creak: { level: 1, rate: 1.6, points: 40, wander: [0.8, 0.1], flutter: 0.5, grain: [40, 0.6], attack: 0.05, release: 0.08,
+               bands: [[850, 6, 1], [1700, 7, 0.6], [2900, 8, 0.35]] }
+    }
   }
 };
