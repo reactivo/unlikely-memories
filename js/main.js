@@ -459,8 +459,12 @@ function echo(t) { note(ui.log.say(t, "cmd"), { text: t, style: "cmd" }); }
 // A paragraph just added: kept for saves, and remembered if it's the first of this turn.
 function note(el, entry) { keep(entry); turnStart ||= { el, entry }; }
 // The title bar shows the world's time: play time plus however far the story has moved it (js/time.js); while you sleep, the time you
-// fell asleep at (it jumps as you wake).
-function showTime() { ui.titlebar.showClock(clock.now() + (asleep ? asleep.shift : state?.time?.shift || 0)); }
+// fell asleep at (it jumps as you wake). The music hears it too (night: ui/sound.js).
+function showTime() {
+  const ms = clock.now() + (asleep ? asleep.shift : state?.time?.shift || 0);
+  ui.titlebar.showClock(ms);
+  ui.sound.clock(ms);
+}
 
 // What the player has just read: the room's text and the last few lines. Something named there that the game
 // can't answer about gets a neutral reply instead of "You see no … here" (js/parser.js, the safety net).
@@ -500,9 +504,10 @@ function restart({ ask = false, said = false, id } = {}) {
 // A new game: the clock from zero, a fresh state in the chosen language, the opening room described, saved at once.
 // id: which world (the one in the address; beginning again keeps it).
 function begin(id) {
-  clock.reset(); showTime();
+  clock.reset();
   state = newState({ lang, id });
   state = step(state, { tick: true, at: clock.now() }).next;   // wake the world: timed rules start counting
+  showTime();                                            // (its own time: the music starts at night if the world does)
   history = []; transcript = [];
   ui.log.clear(); ui.prompt.clear();
   show(describe(state, state.player.at, packOf(state)));

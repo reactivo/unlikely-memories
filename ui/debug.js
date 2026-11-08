@@ -9,7 +9,7 @@
 //   dev.now()               play time now (ms), for the live clock
 //   dev.run(effects, opts)  one moment of these effects (js/debug.js, moment): told in the story (opts.note: a dim line first),
 //                           kept for UNDO and saved; opts.tell false: only what the world said on its own is told; opts.undo false
-//   dev.sound()             the music playing (ui/sound.js, debug): info(), theme(), mute(part, on), muted()
+//   dev.sound()             the music playing (ui/sound.js, debug): info(), theme(), ending(death), wake(), mute(part, on), muted()
 //   dev.languages()         the languages this world is written in
 //   dev.language(lang)      a new game of this world in that language
 //
@@ -226,14 +226,17 @@ export function mount(dev) {
       row("Reaction", ...["hurt", "heal"].map(k => play(k, () => debug.reaction(k), null, "reaction:" + k, undefined, st, quiet)))
     ];
   }
-  // The music: what the world's music is here (js/debug.js, music), what plays now (the player: dev.sound()), the theme now, the
-  // lines, the room tone or the theme muted (the player's, not the game's: never saved), and what the reader skipped or changed.
+  // The music: what the world's music is here (js/debug.js, music), what plays now (the player: dev.sound()), night or day, the
+  // theme now, the reactions tried (the ending, the death ending, waking: the player's alone, the story goes on; the music comes
+  // back with the next move), the lines, the room tone or the theme muted (the player's, not the game's: never saved), and what
+  // the reader skipped or changed.
   function music(st) {
     const m = debug.music(st), snd = dev.sound(), info = snd.info(), muted = snd.muted();
     if (!m) return [el("p", "note", "This world has no music.")];
     const dl = el("dl", "facts");
     const fact = (k, val, cls = "") => dl.append(el("dt", "", k), el("dd", cls, String(val)));
-    fact("playing", nowPlaying(info), "music-now");
+    fact("playing", nowPlaying(info, st), "music-now");
+    fact("night", nightText(info), "music-night");
     fact("mode", m.mode + " in " + m.key + ", tempo " + m.tempo);
     fact("colour", m.colour.replace("_", " "));
     fact("room", st.player.at + ": " + m.tone + ", " + (m.own ? m.lines + " own line" + (m.lines === 1 ? "" : "s") : "the world's lines"));
@@ -242,15 +245,24 @@ export function mount(dev) {
     for (const n of m.notes) notes.append(el("p", "note", n));
     if (!m.notes.length) notes.append(el("p", "note", "Read as written: no notes."));
     return [dl,
-      row("Theme", button("play now", () => { snd.theme(); draw(); }, undefined, "music:theme", !info?.playing)),
+      row("Theme", button("play now", () => { snd.theme(); draw(); }, undefined, "music:theme", !info?.playing || !!info.ending)),
+      row("Try", ...[["ending", () => snd.ending(false)], ["death ending", () => snd.ending(true)], ["wake", () => snd.wake()]]
+        .map(([label, go]) => button(label, () => { go(); draw(); }, undefined, "music:" + label, !info?.playing || !!info.ending))),
       row("Mute", ...["lines", "tone", "theme"].map(p => button(p, () => { snd.mute(p, !snd.muted()[p]); draw(); }, muted[p], "mute:" + p))),
       notes];
   }
-  // What plays now, in a few words: off, resting, the theme's part playing, or when its next turn comes.
-  function nowPlaying(info) {
-    if (!info || !info.playing) return "off (♫)";
-    const th = info.theme, part = th && info.now < th.end ? "the theme (" + th.part + ") playing" : "the theme (" + info.nextPart + ") in " + Math.max(0, Math.round(info.themeNext - info.now)) + " s";
-    return (info.state !== "running" ? info.state + " · " : "") + (info.resting ? "resting: only the room tone · " : "") + part;
+  // Night, as the player has it (the world's clock: ui/sound.js).
+  const nightText = (info) => (!info?.playing ? "–" : info.night ? "on: the lines thinned, the theme lower" : "off");
+  // What plays now, in a few words: off, silent after the end, resting, the theme's part playing, or when its next turn comes;
+  // an ending under way.
+  function nowPlaying(info, st) {
+    if (!info) return "off (♫)";
+    if (!info.playing) return st?.ended ? "silent: the story has ended" : "off (♫)";
+    const e = info.ending, th = info.theme, when = (t) => Math.max(0, Math.round(t - info.now)) + " s";
+    const part = e ? (e.death ? "the death ending: " : "the ending: ") + (!e.theme ? "the lines fading, then silence"
+        : info.now < e.at ? "the lines fading, the theme in " + when(e.at) : "the theme (whole) playing, then silence")
+      : th && info.now < th.end ? "the theme (" + th.part + ") playing" : "the theme (" + info.nextPart + ") in " + when(info.themeNext);
+    return (info.state !== "running" ? info.state + " · " : "") + (info.hushed ? "hushed (asleep) · " : "") + (info.resting ? "resting: only the room tone · " : "") + part;
   }
   function events(st) {
     const n = [1, 2, 3, 4, 5], h = st.player.health, list = debug.conditions(st);
@@ -404,7 +416,11 @@ export function mount(dev) {
   setInterval(() => {
     const st = s(), out = parts$.inspect.querySelector("dd.clock"), playing = parts$.music.querySelector("dd.music-now");
     if (v && !v.collapsed && st && out) out.textContent = clockText(st);
-    if (v && !v.collapsed && st && playing) playing.textContent = nowPlaying(dev.sound().info());
+    if (v && !v.collapsed && st && playing) {
+      const info = dev.sound().info();
+      playing.textContent = nowPlaying(info, st);
+      parts$.music.querySelector("dd.music-night").textContent = nightText(info);
+    }
   }, 500);
 
   // Draw every section from the state, after every change of the game (morph: only what differs changes on the page).

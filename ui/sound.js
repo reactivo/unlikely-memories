@@ -1,8 +1,15 @@
 // Sound: the world's music, drawn from the state like the picture (MUSIC.md §5–§7; ARCHITECTURE.md §7, "Music"). With ♫ on
-// it plays the world's music (state.music, read by js/music.js) in the room you are in, crossfading as you move; the end of the
-// story and sleep fade it out and back (their own reactions come later: docs/music/PLAN.md, stage 5). A world with no music
-// plays nothing. It decides nothing about the game, never touches the state, and its randomness (the player's: ui/sound/) is
-// never the game's. The sound itself is ui/sound/player.js, shared with the test bench; this piece only follows the game.
+// it plays the world's music (state.music, read by js/music.js) in the room you are in, crossfading as you move. A world with no
+// music plays nothing. It decides nothing about the game, never touches the state, and its randomness (the player's: ui/sound/) is
+// never the game's. The sound itself is ui/sound/player.js, shared with the test bench; this piece only follows the game, and
+// tells the player what it needs in the player's words (content/music.js, reactions; docs/music/PLAN.md, stage 5):
+//   - The story ends (`ended`): the ending (the lines fade, the world's whole theme once, then silence); the death ending (the
+//     `died` ending, or no health left): the same, the theme slower and lower. Silence after it until the story goes on again (a
+//     new game, or UNDO), when the music starts as on arriving, the theme first. Reached on a restore (a loaded game), or with ♫
+//     turned on after it: silence, never the ending's theme late.
+//   - Sleep (js/main.js, sleepThrough, tells it: asleep()): everything fades out under the lids and back as you wake, the whole
+//     theme a few seconds later.
+//   - Night by the world's clock (js/main.js tells it the time shown on the title bar: clock()): the lines thinned, the theme lower.
 //
 // The browser's rules (MUSIC.md §7):
 //   - The audio is made and woken inside the ♫ tap: on.music() → redraw() → update() runs synchronously, nothing awaited.
@@ -17,15 +24,27 @@
 
 import S from "../content/music.js";
 import { musicOf } from "../js/music.js";
+import { parts } from "../js/time.js";
 import { createPlayer, openAudio } from "./sound/player.js";
 
-// Set up the sound (it has no element). Returns update(), asleep(), leave() and `debug` (for the debug panel's Music section).
+// The death ending: the engine's own (`died`, when health runs out) or a world's ending of that name; or no health left.
+const died = (state) => state.ending === "died" || state.player.health <= 0;
+// Night by the world's clock (ms since day 1, 00:00): from `from` o'clock to `to` (through midnight when from > to).
+export function nightAt(ms) {
+  const h = parts(ms).hour, { from, to } = S.reactions.night;
+  return from > to ? h >= from || h < to : h >= from && h < to;
+}
+
+// Set up the sound (it has no element). Returns update(), asleep(), clock(), leave() and `debug` (for the debug panel's Music
+// section).
 export function mount(on) {
   let ctx = null, player = null;
   let want = false;              // ♫, as last drawn
   let ours = false;              // the context was suspended by us (♫ off, a hidden tab, the game left): not the system
   let state = null;              // the game now (null: no game on the page)
   let asleep = false, hushed = false;
+  let ended = false;             // the story's end has been followed (its ending played, or silence): nothing plays until it goes on
+  let night = false;             // the world's clock is at night (clock())
   let music = null, sig = null;  // the world's music as read, and what it was read from (a signature of the state's music)
   let from = {};                 // the state's parts it was last read from, to read again only when one changes
   let playing = null;            // the signature the player was started with
@@ -65,17 +84,24 @@ export function mount(on) {
     clearTimeout(rest);
     rest = setTimeout(() => { if (ctx?.state === "running" && !(want && state)) { ours = true; ctx.suspend(); } }, (S.master.off + 0.5) * 1000);
   }
-  // Play what the state says: the world's music in this room, hushed at the end of the story and while asleep.
-  function follow() {
+  // Play what the state says: the world's music in this room; hushed while asleep; at night, lower and sparser; at the end of the
+  // story, the ending once (not on a restore: `reason`, the redraw's), then silence; when it goes on again, the music afresh.
+  function follow(reason) {
     if (!want || !state || !ctx) return;
     read();
     if (!music) { if (player?.playing) player.stop(); playing = null; return; }   // a world with no music: nothing
     player ??= createPlayer(ctx, S);
+    if (asleep !== hushed) { hushed = asleep; player.hush(asleep); }
+    player.night(night);
+    if (state.ended) {
+      if (!ended && player.playing) reason === "restore" ? player.stop() : player.ending({ death: died(state) });
+      ended = true;
+      return;
+    }
+    if (ended) { ended = false; playing = null; }          // the story goes on (a new game, UNDO): the music as on arriving
     const room = state.player.at;
     if (playing !== sig || !player.playing) { player.play(music, room); playing = sig; }
     else player.room(room);
-    const hush = !!state.ended || asleep;
-    if (hush !== hushed) { hushed = hush; player.hush(hush); }
   }
 
   // With ♫ on but the audio not allowed to start yet (a page loaded without a tap, ♫ remembered on), the first tap or key
@@ -90,23 +116,37 @@ export function mount(on) {
 
   return {
     // ♫ switched, the room, the world's music, the end: follow them.
-    update(prev, next) {
+    update(prev, next, reason) {
       state = next.state;
       if (next.music !== want) {
         want = next.music;
         if (!want) return quiet();
       }
       if (want && (!ctx || (ctx.state !== "running" && !document.hidden))) wake();
-      follow();
+      follow(reason);
     },
-    // While you sleep (js/main.js, sleepThrough), and as you wake: the music fades out and back.
-    asleep(on) { asleep = !!on; follow(); },
+    // While you sleep (js/main.js, sleepThrough), and as you wake: the music fades out and back, the whole theme soon after.
+    asleep(on) {
+      const woke = asleep && !on;
+      asleep = !!on; follow();
+      if (woke && want && state && !state.ended && player?.playing) player.wake();
+    },
+    // The world's time now (ms; the title bar's: js/main.js, showTime): night or day for the music.
+    clock(ms) {
+      const n = nightAt(ms);
+      if (n === night) return;
+      night = n;
+      if (want && player) player.night(n);
+    },
     // The game is left (the list of games shows): silence until a game is drawn again.
-    leave() { state = null; asleep = false; quiet(); },
-    // For the debug panel's Music section: what plays, the theme now, and the lines, the tone or the theme muted.
+    leave() { state = null; asleep = false; ended = false; quiet(); },
+    // For the debug panel's Music section: what plays, the theme now, the reactions tried (the ending, the death ending, waking:
+    // the player's alone, the game untouched), and the lines, the tone or the theme muted.
     debug: {
       info: () => (player && want ? player.info() : null),
       theme: () => player?.theme() ?? null,
+      ending: (death) => player?.ending({ death }) ?? null,
+      wake: () => player?.wake() ?? false,
       mute: (part, on) => player?.mute(part, on),
       muted: () => player?.muted() ?? { lines: false, tone: false, theme: false }
     }

@@ -42,7 +42,8 @@
 // too, in the first ending that needs what it gives (endings["<ending>/<puzzle>"]).
 //
 // Also: the world's music (MUSIC.md §4) is never a problem: what the forgiving reader (js/music.js) skipped or brought into range is
-// listed as warnings, "music: …", and nothing else about music is looked at.
+// listed as warnings, "music: …", and a world with no `add music` is warned of once (NO_MUSIC: every world has music, BRIEF.md §7b);
+// nothing else about music is looked at.
 //
 // Also, given the bible (the third argument): its blurb is 110–160 characters and its thumbnail names one of the world's room pictures
 // (never an ending's or `died`) with a whole-number x from 0 to 95 (bibleProblems below; GUIDE.md §1). Without a bible these aren't looked at.
@@ -67,6 +68,8 @@ import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as mov
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
+// The one warning for a world with no music (BRIEF.md §7b): the engine plays nothing for it.
+export const NO_MUSIC = "music: the world has no `add music`, so it plays nothing; every world has its music (BRIEF.md §7b)";
 // A text with its objects' markup taken out ({tin of mints|tin} → tin of mints).
 const unmarked = (t) => String(t).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1");
 // A rule's effects with each named change it runs written out after it (one level: what the rule itself does).
@@ -95,6 +98,7 @@ const packText = (x, pack) => (typeof x === "string" && x.startsWith("@") ? x.sl
 export function check(state, pack, bible, { before = null } = {}) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)
   for (const n of musicOf(state)?.notes ?? []) warnings.push(`music: ${n.text}`);   // what the music's reader did: never a problem
+  if (state.music == null) warnings.push(NO_MUSIC);                                   // every world has music: warned, never a problem
   // The opening's way on `reaches: "entrance"`: wherever the world says it leads.
   // (With no world yet, there's nowhere for it to lead: the opening's puzzles are left out.)
   const puzzles = Object.fromEntries(Object.entries(state.puzzles || {})

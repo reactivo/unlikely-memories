@@ -26,8 +26,21 @@ export default {
     every: 60,                                    // …by a timer this often (ms)
     toneStop: 0.1, colourStop: 8, release: 12     // after a fade: the tone stops, the colour's sources stop, the nodes are let go
   },
-  // The end of the story and sleep (stage 2: simply out and back; their own reactions come later, docs/music/PLAN.md stage 5).
-  hush: { out: 3, back: 4 },
+  // ---- Reactions (MUSIC.md §5; docs/music/PLAN.md stage 5): the engine's answer to the story, the same for every world -------
+  reactions: {
+    // An ending (any): the lines fade out over `out` while the room tone fades with the picture (`tone`, the ending's slow
+    // dissolve: ui/transitions.js); after a breath the world's whole theme plays once, as written, with its chords; then the
+    // music fades out over `after` and stays silent until a new game. A death: the theme as the `death.variant` plays it
+    // (js/music.js, variant: "slower", half as long again) and `death.octave` octaves lower (brought into range, 1 to 5).
+    ending: { out: 3, tone: 2, breath: 1.5, after: 4, death: { variant: "slower", octave: -1 } },
+    // Sleep: everything fades out under the eyelids over `out` and back over `back` as you wake; the whole theme `theme` seconds
+    // after waking, then the usual schedule.
+    sleep: { out: 3, back: 4, theme: 5 },
+    // Night, by the world's clock, from `from` o'clock to `to`: each line plays one pass in `every` (whole passes, each line in its
+    // turn, so a line keeps its shape), and the theme `octave` octaves lower (brought into range). It changes with each line's next
+    // pass and the theme's next turn, never at once.
+    night: { from: 20, to: 6, every: 2, octave: -1 }
+  },
 
   // ---- The theme (MUSIC.md §2.15–16) ------------------------------------------------------------------------------------------
   theme: {

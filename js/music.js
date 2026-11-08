@@ -10,6 +10,7 @@
 //   musicOf(state) → { music, notes }, or null for a world with no music (state.music, and each room's own `music`)
 //   sceneOf(music, roomId) → { id, tone, lines, colour, own, ownTone, ownColour, theme: { mel, how, label } | null }
 //   freqOf(music, step, octave) → the pitch in Hz of a step of the world's mode, in its key
+//   variant(mel, how, play), shiftOctave(mel, k) → a theme changed (a room's variant; an octave down at night or for a death)
 // (The theme's turns, whole, question, whole, answer, are the player's schedule: content/music.js.)
 
 // ---- The constants -------------------------------------------------------------------------------------------------
@@ -248,6 +249,12 @@ export function variant(mel, how, play) {
     return { ...mapLine(mel, slow), chords: mapLine(mel.chords, slow) };
   }
   return mel;
+}
+// A theme moved by k octaves, its chords with it (the engine's reactions: night, a death); an octave out of 1–5 is brought into
+// range, as the reader brings it.
+export function shiftOctave(mel, k) {
+  const move = (l) => l && { ...l, octave: clamp(l.octave + k, ...LIMITS.octave) };
+  return { ...move(mel), chords: move(mel.chords) };
 }
 // The theme in a room (MUSIC.md §2.15–16): its own tune if it has one; a variant, chosen from the world and the room, if it
 // has music of its own (lines or a tone); otherwise the theme as written. null when there is no theme.

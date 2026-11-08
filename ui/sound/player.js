@@ -1,17 +1,20 @@
 // The player (MUSIC.md §5): a world's music played from what js/music.js reads, with the engine's frame. Scenes (a room's lines,
 // tone and colour, crossfaded from the room before), the lines' scheduler on the audio clock, the theme's schedule and its turns
-// (whole, question, whole, answer), comes and goes, and the frame itself (levels, the low-pass, the compressor, the echo).
+// (whole, question, whole, answer), comes and goes, the reactions (an ending, waking, night) and the frame itself (levels, the
+// low-pass, the compressor, the echo).
 // Plain functions of an AudioContext: no globals, no knowledge of the game (it is given a world's music and a room, never the
-// state), so the test bench (tools/music/) plays exactly what the game plays. It never pauses by itself when the page looks
-// hidden: the game's piece (ui/sound.js) does that, the bench must not (MUSIC.md §7). Every number is the spec's (content/music.js).
+// state; it is told "an ending", "a death", "night", "awake", never why), so the test bench (tools/music/) plays exactly what the
+// game plays. It never pauses by itself when the page looks hidden: the game's piece (ui/sound.js) does that, the bench must not
+// (MUSIC.md §7). Every number is the spec's (content/music.js).
 //
 // Two halves:
 //   createClockwork(S, random) — what plays when, as numbers: pure, no audio, driven by a clock it is given (tests/sound.test.js).
 //   createPlayer(ctx, S, opts) — the clockwork made sound: { play(music, room), room(id), stop(fade), theme(), hush(on),
-//                                mute(part, on), comes(on), volume(part, v), hear(music, name), info(), level() }
+//                                ending({ death }), wake(), night(on), mute(part, on), comes(on), volume(part, v),
+//                                hear(music, name), info(), level() }
 // And openAudio(ctx): the AudioContext made or woken inside a tap (the rules browsers set: MUSIC.md §7).
 
-import { sceneOf, themePart, freqOf } from "../../js/music.js";
+import { sceneOf, themePart, freqOf, variant, shiftOctave } from "../../js/music.js";
 import { makeKit, playEvent, note, gain, filt, chain } from "./synth.js";
 import { makeTone } from "./tones.js";
 import { makeColour } from "./colours.js";
@@ -19,24 +22,30 @@ import { makeColour } from "./colours.js";
 // ---- The clockwork: what plays when ------------------------------------------------------------------------------------------
 
 // A scene's lines, ready to play from t0: each starts at its first note (not a rest), one after another `stagger` apart, so
-// something sounds at once. A line with nothing sounding is left out (it would only be silence).
+// something sounds at once. A line with nothing sounding is left out (it would only be silence). Each is the k-th, on its first
+// pass (once round the line), not quiet.
 export function linesFrom(lines, t0, S) {
   return lines.filter(l => l.sounding).map((line, k) => {
     let i = 0;
     while (line.events[i].rest) i++;
-    return { line, i, next: t0 + S.scene.first + k * S.scene.stagger, played: [] };
+    return { line, k, i, next: t0 + S.scene.first + k * S.scene.stagger, pass: 0, quiet: false, played: [] };
   });
 }
 
-// The events of a line due before `ahead`, each at its time; the line's place moves on (it loops at its own length).
-export function due(cursor, ahead, beat) {
+// The events of a line due before `ahead`, each at its time; the line's place moves on (it loops at its own length). Each time
+// round is a pass: as one begins, `quiet(cursor)` says whether the line sits it out (night's thinning), and a quiet pass's events
+// go by unplayed. Whole passes, so a line that plays keeps its shape.
+export function due(cursor, ahead, beat, quiet = () => false) {
   const out = [], { line } = cursor;
   while (cursor.next < ahead) {
     const e = line.events[cursor.i];
-    out.push({ e, i: cursor.i, t: cursor.next, beats: e.beats });
-    cursor.played.push({ t: cursor.next, i: cursor.i }); if (cursor.played.length > 8) cursor.played.shift();
+    if (!cursor.quiet) {
+      out.push({ e, i: cursor.i, t: cursor.next, beats: e.beats });
+      cursor.played.push({ t: cursor.next, i: cursor.i }); if (cursor.played.length > 8) cursor.played.shift();
+    }
     cursor.next += e.beats * beat;
     cursor.i = (cursor.i + 1) % line.events.length;
+    if (cursor.i === 0) { cursor.pass++; cursor.quiet = quiet(cursor); }
   }
   return out;
 }
@@ -63,44 +72,84 @@ export function themeTimes(mel, part, t0, beat) {
 }
 
 // What plays when, from a clock it is given (seconds): the scene (a room's music), its lines as they come due, the theme a few
-// seconds after the start, after a rest and every 100 to 160 s between, and comes and goes. `random` is the player's own (the
-// gaps between themes), never the game's.
+// seconds after the start, after a rest and every 100 to 160 s between, and comes and goes; and the reactions it is told of
+// (S.reactions): an ending (the whole theme once, then nothing), waking (the whole theme first), night (the lines thinned, the
+// theme lower). `random` is the player's own (the gaps between themes), never the game's.
 export function createClockwork(S, random = Math.random) {
   let music = null, scene = null, theme = null, themeNext = Infinity, count = 0, cycle = 0, resting = false, comes = true;
-  const parts = S.theme.parts;
+  let night = false, ended = null, wakePart = null;
+  const parts = S.theme.parts, R = S.reactions;
+  // At night a line sits out all but one pass in `every`, each line in its turn (so they don't all fall quiet together).
+  const thin = (c) => night && (c.pass + c.k) % R.night.every !== 0;
   const sceneAt = (roomId, now) => {
-    const sc = sceneOf(music, roomId), t0 = now + S.scene.lead;
-    return { id: roomId, sc, t0, lines: linesFrom(sc.lines, t0, S), share: 1 / Math.sqrt(Math.max(1, sc.lines.length)), box: sc.colour === "music_box" };
+    const sc = sceneOf(music, roomId), t0 = now + S.scene.lead, lines = linesFrom(sc.lines, t0, S);
+    for (const l of lines) l.quiet = thin(l);
+    return { id: roomId, sc, t0, lines, share: 1 / Math.sqrt(Math.max(1, sc.lines.length)), box: sc.colour === "music_box" };
   };
   const clock = {
     get music() { return music; },
     get scene() { return scene; },
     get theme() { return theme; },                 // the theme last played: { room, label, how, part, mel, notes, chords, end }
     get themeNext() { return themeNext; },
-    get nextPart() { return parts[count % parts.length]; },
+    get nextPart() { return wakePart ?? parts[count % parts.length]; },
     get resting() { return resting; },
+    get night() { return night; },
+    get ended() { return ended; },                 // the ending under way: { death, lines, at, theme, over, played, done }, or null
     // A world's music starts in a room: its theme from the first turn, `first` seconds from now.
-    start(m, roomId, now) { music = m; theme = null; count = 0; themeNext = now + S.theme.first; scene = sceneAt(roomId, now); return scene; },
-    // Another room: a new scene; the theme's schedule goes on.
-    room(roomId, now) { scene = sceneAt(roomId, now); return scene; },
+    start(m, roomId, now) { music = m; theme = null; count = 0; ended = null; wakePart = null; themeNext = now + S.theme.first; scene = sceneAt(roomId, now); return scene; },
+    // Another room: a new scene; the theme's schedule goes on. (Not once the story has ended: the ending plays on.)
+    room(roomId, now) { if (!ended) scene = sceneAt(roomId, now); return scene; },
     // Comes and goes on or off, its cycle from now (a fresh start: not resting).
     comes(on, now) { comes = on; cycle = now; },
-    stop() { music = null; scene = null; theme = null; themeNext = Infinity; resting = false; },
-    // The theme now (its next turn), in the room's way (as written, a variant, or its own tune); null when there is none.
+    stop() { music = null; scene = null; theme = null; themeNext = Infinity; resting = false; ended = null; wakePart = null; },
+    // Night on or off: each line from its next pass, the theme from its next turn.
+    setNight(on) { night = !!on; },
+    // The story has ended: the lines go on for `out` seconds (fading), then after a breath the world's whole theme, as written
+    // (a death: as its variant plays it, an octave lower), with its chords, once; then `done`. Nothing else is due after it.
+    end(now, death = false) {
+      if (!music || !scene || ended) return ended;
+      const E = R.ending, at = now + E.out + E.breath, m = music.melody;
+      let th = null;
+      if (m) {
+        const mel = death ? shiftOctave(variant(m, E.death.variant), E.death.octave) : m;
+        th = { room: scene.id, label: death ? "the theme, at a death" : "the theme, at the ending", how: death ? "death" : "ending", part: "whole", mel,
+               ...themeTimes(mel, "whole", at, music.beat) };
+      }
+      ended = { death: !!death, lines: now + E.out, at, theme: th, over: th ? th.end : at, played: false, done: false };
+      themeNext = Infinity; resting = false; wakePart = null;
+      return ended;
+    },
+    // Awake again (after a sleep): out of any rest, the comes-and-goes cycle from now, and the whole theme `sleep.theme` seconds
+    // from now, then its turns as before. → false once the story has ended (nothing to wake).
+    wake(now) {
+      if (!scene || ended) return false;
+      resting = false; cycle = now; themeNext = now + R.sleep.theme; wakePart = "whole";
+      return true;
+    },
+    // The theme now (its next turn, or the whole after waking), in the room's way (as written, a variant, or its own tune), an
+    // octave down at night; null when there is none.
     playTheme(now) {
       const th = scene?.sc.theme;
-      if (!th) return null;
-      const part = parts[count % parts.length], plan = themeTimes(th.mel, part, now + S.theme.lead, music.beat);
-      theme = { room: scene.id, label: th.label, how: th.how, part, mel: th.mel, ...plan };
-      count++;
+      if (!th || ended) return null;
+      const part = wakePart ?? parts[count % parts.length], mel = night ? shiftOctave(th.mel, R.night.octave) : th.mel;
+      const plan = themeTimes(mel, part, now + S.theme.lead, music.beat);
+      theme = { room: scene.id, label: th.label + (night ? ", lower (night)" : ""), how: th.how, part, mel, ...plan };
+      if (wakePart) wakePart = null; else count++;
       themeNext = plan.end + S.theme.gap[0] + random() * (S.theme.gap[1] - S.theme.gap[0]);
       return theme;
     },
     // Everything due by now + `ahead`: { notes: [{ line, e, i, t, beats }], rest: true / false when the music goes or comes
-    // back (undefined: no change), theme: a part of the theme starting now, or null }.
+    // back (undefined: no change), theme: a part of the theme starting now (or soon, at an ending), or null, over: true once,
+    // when an ending's theme has ended (silence from now) }.
     advance(now) {
       const out = { notes: [], rest: undefined, theme: null }, ahead = now + S.scene.ahead;
-      if (scene) for (const l of scene.lines) for (const n of due(l, ahead, music.beat)) out.notes.push({ line: l.line, ...n });
+      if (scene && !(ended && now >= ended.lines))
+        for (const l of scene.lines) for (const n of due(l, ahead, music.beat, thin)) out.notes.push({ line: l.line, ...n });
+      if (ended) {
+        if (ended.theme && !ended.played && ahead >= ended.at) { ended.played = true; out.theme = theme = ended.theme; }
+        if (!ended.done && now >= ended.over) { ended.done = true; out.over = true; }
+        return out;
+      }
       const want = comes && restingAt(now, cycle, S.comes);
       if (want !== resting) { resting = want; out.rest = want; if (!want) themeNext = now + S.theme.back; }
       if (!resting && scene && now >= themeNext && !(theme && now < theme.end)) out.theme = clock.playTheme(now);
@@ -148,7 +197,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
 
   const clock = createClockwork(S, random);
   const mutes = { lines: false, tone: false, theme: false };
-  let current = null, timer = null, playing = false, comesOn = comes;
+  let current = null, timer = null, playing = false, comesOn = comes, hushOn = false;
 
   // A scene's sound: its buses (the lines and the theme through the colour, the tone apart), faded in over the crossfade.
   function startScene(scene) {
@@ -183,7 +232,19 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     if (current.toneTo < ahead) { const a = Math.max(current.toneTo, now); current.room.tick(a, ahead); current.colour.tick(a, ahead); current.toneTo = ahead; }
     if (out.rest !== undefined) gate.gain.setTargetAtTime(out.rest ? 0 : 1, now, S.comes.fade);
     if (out.theme) sound(out.theme);
+    if (out.over) stop(S.reactions.ending.after);            // the ending's theme is over: silence (until play() again)
   }
+  // Silence, fading out.
+  function stop(fade = S.master.off) {
+    if (!playing) return;
+    playing = false;
+    clearInterval(timer); timer = null;
+    fadeTo(master.gain, 0, fade);
+    if (current) stopScene(current, fade);
+    current = null; clock.stop();
+  }
+  // The comes-and-goes gate open again (an ending's theme and waking are heard even if the music was resting).
+  const ungate = () => { const t = ctx.currentTime; gate.gain.cancelScheduledValues(t); gate.gain.setTargetAtTime(1, t, S.comes.fade); };
   const fadeTo = (param, v, secs) => { const t = ctx.currentTime; param.cancelScheduledValues(t); param.setValueAtTime(param.value, t); param.linearRampToValueAtTime(v, t + secs); };
 
   return {
@@ -203,20 +264,13 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     },
     // Another room of the same world: crossfaded.
     room(roomId) {
-      if (!playing || clock.scene?.id === roomId) return;
+      if (!playing || clock.ended || clock.scene?.id === roomId) return;
       stopScene(current, S.scene.crossfade);
       current = startScene(clock.room(roomId, ctx.currentTime));
       tick();
     },
     // Silence, fading out.
-    stop(fade = S.master.off) {
-      if (!playing) return;
-      playing = false;
-      clearInterval(timer); timer = null;
-      fadeTo(master.gain, 0, fade);
-      if (current) stopScene(current, fade);
-      current = null; clock.stop();
-    },
+    stop,
     // The theme now (its next turn), unless it is playing already. → the part played, or null.
     theme() {
       if (!playing || (clock.theme && ctx.currentTime < clock.theme.end)) return null;
@@ -224,8 +278,27 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
       if (th) sound(th);
       return th;
     },
-    // Everything faded out (the end of the story, sleep) and back in; the music goes on underneath.
-    hush(on) { fadeTo(hushed.gain, on ? 0 : 1, on ? S.hush.out : S.hush.back); },
+    // Everything faded out (sleep) and back in; the music goes on underneath.
+    hush(on) { const H = S.reactions.sleep; hushOn = !!on; fadeTo(hushed.gain, on ? 0 : 1, on ? H.out : H.back); },
+    // An ending (S.reactions.ending): the lines fade out, the room tone with the picture, then the world's whole theme once (a
+    // death: slower and lower), then silence; play() starts the music again. → the ending (clockwork, end), or null.
+    ending({ death = false } = {}) {
+      if (!playing || !current || clock.ended) return null;
+      const E = S.reactions.ending, e = clock.end(ctx.currentTime, death);
+      fadeTo(current.lines.gain, 0, E.out);
+      fadeTo(current.tbus.gain, 0, E.tone);
+      ungate();
+      tick();
+      return e;
+    },
+    // Awake again: the whole theme a few seconds from now, then its turns as before. → whether it will come.
+    wake() {
+      if (!playing || !clock.wake(ctx.currentTime)) return false;
+      ungate();
+      return true;
+    },
+    // Night (S.reactions.night): the lines thinned from each one's next pass, the theme lower from its next turn.
+    night(on) { clock.setNight(on); },
     // The lines, the room tone or the theme silenced, or heard again (the debug panel).
     mute(part, on) {
       if (!(part in mutes)) return;
@@ -246,7 +319,8 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     // What plays now: for the bench's page and the debug panel.
     info() {
       return { playing, now: ctx.currentTime, state: ctx.state, music: clock.music, scene: clock.scene, theme: clock.theme,
-               themeNext: clock.themeNext, nextPart: clock.nextPart, resting: clock.resting, mutes: { ...mutes } };
+               themeNext: clock.themeNext, nextPart: clock.nextPart, resting: clock.resting, hushed: hushOn, night: clock.night, ending: clock.ended,
+               mutes: { ...mutes } };
     },
     // The peak level leaving the page now, in dB (-99: nothing).
     level() {
