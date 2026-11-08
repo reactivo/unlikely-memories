@@ -5,7 +5,7 @@
 
 export default {
   // ---- The frame: what everything goes through ------------------------------------------------------------------------------
-  master: { level: 1, off: 1.5 },                 // the level while playing (the meter's targets set the levels: `loudness`); the fade when ♫ goes off
+  master: { level: 1, off: 1.5 },                 // the level while playing (the loudness targets set the levels: `loudness`); the fade when ♫ goes off
   lowpass: { frequency: 3200, q: 0.5 },            // a gentle low-pass over everything
   compressor: { threshold: -18, ratio: 3 },
   // The echo: a convolution reverb made from noise when the audio starts (no file): its length, how fast it dies (the power of
@@ -14,7 +14,7 @@ export default {
   // Each room tone's share of echo (MUSIC.md §3: a hall and a cave long, rain short); a tone not here gets `spaceDefault`.
   space: { fog: 0.35, rain: 0.15, wind: 0.4, water: 0.35, cave: 0.85, hall: 0.75, hum: 0.12, crowd: 0.2, fire: 0.18, silence: 0.3 },
   spaceDefault: 0.3,
-  // The music, the room tone and the sounds, each a bus before the frame: even ground (the meter's targets set the balance,
+  // The music, the room tone and the sounds, each a bus before the frame: even ground (the loudness targets set the balance,
   // `loudness`); the bench's sliders start here, and the sound panel's will (docs/sound/PLAN.md, build 2).
   buses: { music: 1, tone: 1, sounds: 1 },
 
@@ -26,6 +26,8 @@ export default {
     stagger: 3,                                   // each next line starts this much after the one before (so something sounds at once)
     ahead: 0.5,                                   // notes are scheduled this far ahead on the audio clock…
     every: 60,                                    // …by a timer this often (ms)
+    late: 1,                                      // a line's note due longer ago than this is let go (the page was held up), not played late
+    voices: 64,                                   // at most this many of the lines' notes sounding at once (a phone's budget); past it, let go
     toneStop: 0.1, colourStop: 8, release: 12     // after a fade: the tone stops, the colour's sources stop, the nodes are let go
   },
   // ---- Reactions (MUSIC.md §5; docs/music/PLAN.md stages 5–6): the engine's answer to the story, the same for every world ----
@@ -141,7 +143,7 @@ export default {
 
   // ---- Colours (MUSIC.md §2.19, §2.21): how the world's music reaches the player; the room tone stays as it is ----------------
   colours: {
-    // (Each colour's level is the meter's: the reference notes through it brought to their loudness clean. MUSIC.md §6c.)
+    // (Each colour's gain comes from its level: the reference notes through it brought to their loudness clean. MUSIC.md §6c.)
     shaper: 1024,                                 // the saturation curve's points
     gramophone: { highpass: 280, lowpass: 3400, drive: 1.3, delay: 0.012, warble: [0.55, 0.0025],
                   crackle: { highpass: 2500, level: [0.03, 0.09], every: [0.05, 0.35], start: 0.1, hold: 0.001, tc: 0.003 },
@@ -160,7 +162,7 @@ export default {
   // ---- Sounds (docs/sound/PLAN.md, build 1): a short sound for a moment the screen already shows -------------------------------
   // The game's piece (ui/sound.js, soundsOf) reads the moment's list into plain terms, { kind, material, weight }; the player plays
   // them (ui/sound/sounds.js) in the world's key and mode (its music's; a world with no music, `key`), on their own bus beside the
-  // music's, about level with the theme (the meter's `loudness.targets.sounds`; the sound panel's sliders will set the balance).
+  // music's, about level with the theme (`loudness.targets.sounds`; the sound panel's sliders will set the balance).
   // One table, `moments`: each kind → its notes. A note: `play` an instrument of `voices`, or "material" (the thing's: `materials`,
   // `generic` for none or a word not there; `shift` octaves from the material's own); `step` of the mode, `to` a step it slides to,
   // `octave` (a voice's), `at` seconds after the sound starts, `length` seconds, `level` (its level within the moment). The
@@ -287,18 +289,18 @@ export default {
     }
   },
 
-  // ---- Even loudness (docs/sound/PLAN.md, build 1b; MUSIC.md §6c): the game measures every part itself ---------------------------
-  // Each part (a world's instrument at an octave, a room tone, a colour, a sound's instrument) is rendered offline by the code that
-  // plays it, its perceived loudness measured (ui/sound/loudness.js: the loudest 400 ms, K-weighted, and again through a phone's
-  // 300 Hz high-pass; the mean of the two in dB) and brought to its target, in dB, as it would leave the speakers before the frame's
-  // compressor. Remembered on the device; until a part is measured it plays at its written level, then glides to its gain.
+  // ---- Even loudness (docs/sound/PLAN.md, build 1b and the sound review; MUSIC.md §6c): every part at about the same loudness ----
+  // Each part (a world's instrument at an octave, a room tone, a colour, a sound's instrument) has a level, measured once when it is
+  // made by rendering it offline with the code that plays it (ui/sound/measure.js; ui/sound/loudness.js: the loudest 400 ms,
+  // K-weighted, and again through a phone's 300 Hz high-pass; the mean of the two in dB): the shared parts and the shipped worlds by
+  // the developer's tool, a world the game's AI writes as it is made. While playing, each part is brought to its target with plain
+  // arithmetic, as it would leave the speakers before the frame's compressor; nothing is measured.
   loudness: {
     // The targets, in dB: the music's notes (where its instruments sat, median, before: the music as loud as Diego approved it); a
     // rhythm line's noises, quiet under them (MUSIC.md §2.19); the room tones, under the music; the sounds, level with the theme.
     targets: { notes: -29, rhythm: -45, tones: -40, sounds: -29 },
-    glide: 1.5,                                   // the glide from the written level to the measured one, in seconds
     limits: 24,                                   // a gain is kept within ± this many dB (a part that measures as silence keeps its level)
-    gap: 40,                                      // between renders, in ms (so a phone never stutters)
+    renders: 5,                                   // a part with chance in it (noise, a room tone, a door's layers) is measured this many times over
     // What each colour is matched against: these notes, clean and through it (in `sounds.key`), one every `each` seconds, `length` long.
     reference: { each: 1.2, length: 0.8, notes: [
       { inst: { kind: "plucked", ratio: 2, bright: 0.3, attack: 0, release: 1 }, octave: 3, steps: [1, 5] },

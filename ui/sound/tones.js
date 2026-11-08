@@ -3,13 +3,14 @@
 // no globals, no knowledge of the game. Every number is the spec's (content/music.js, `tones`). The events' randomness is the
 // player's own, never the game's.
 //
-//   makeTone(kit, name, dest) → { tick(from, to), stop(t) }   tick schedules the small events between two audio times
+//   makeTone(kit, name, dest, level) → { tick(from, to), stop(t) }   at `level` (its gain from its level: ui/sound/loudness.js); tick
+//                                                                    schedules the small events between two audio times
 
 import { src, filt, gain, lfo, chain } from "./synth.js";
 
-export function makeTone(kit, name, dest) {
+export function makeTone(kit, name, dest, level = 1) {
   const { ctx, S, noise } = kit, T = S.tones[name] || {};
-  const out = gain(ctx, 1); out.connect(dest);
+  const out = gain(ctx, level); out.connect(dest);
   const stops = [], ticks = [], keep = (...n) => stops.push(...n);
   // Events at random times between two audio times, `every` [least, spread] apart, the first `start` × random in.
   const events = (from, to, start, [least, spread], fn) => { for (let t = from + Math.random() * start; t < to; t += least + Math.random() * spread) fn(t); };

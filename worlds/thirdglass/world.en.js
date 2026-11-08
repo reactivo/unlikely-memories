@@ -3,6 +3,7 @@
 
 import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js";
 import music, { rooms as roomMusic } from "./music.js";
+import levels from "./levels.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -93,7 +94,7 @@ export default {
   effects: [
     { time: "day 1 03:30" },
 
-    { add: "music", ...music },   // the music (music.js); each room's own as its `music`
+    { add: "music", ...music, levels },   // the music (music.js; its levels, levels.js, generated); each room's own as its `music`
 
     // ---- the opening: the sand sea, a door standing in its frame ------------------------------------------------
     { add: "room", id: "dunes", name: "THE SAND SEA", area: "erg", at: [0, 0, 0],

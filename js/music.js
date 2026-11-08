@@ -6,7 +6,8 @@
 // Nothing here is ever refused (MUSIC.md §2.4): what can't be read is skipped or given a default, a number out of range is
 // brought into range, and each of these is a note ({ text, warn? }), which the checker lists as a warning.
 //
-//   readMusic(raw, worldId, roomIds) → { music, notes }   raw: { music: the world's part, rooms: { room id: the room's part } }
+//   readMusic(raw, worldId, roomIds) → { music, notes }   raw: { music: the world's part, rooms: { room id: the room's part } };
+//                                                          the world's part may carry its `levels` (MUSIC.md §6c), kept as they are
 //   musicOf(state) → { music, notes }, or null for a world with no music (state.music, and each room's own `music`)
 //   sceneOf(music, roomId) → { id, tone, lines, colour, own, ownTone, ownColour, theme: { mel, how, label } | null }
 //   freqOf(music, step, octave) → the pitch in Hz of a step of the world's mode, in its key
@@ -207,10 +208,21 @@ export function readMusic(raw, worldId, roomIds = []) {
     return l;
   };
 
+  // The levels (MUSIC.md §6c): each part's measured loudness, { key: [full, phone] }, written by the step that makes the world (never by
+  // the AI: ui/sound/measure.js). One that isn't two numbers is left out; a part with none plays as written.
+  const levels = {};
+  if (m.levels !== undefined) {
+    const given = isObject(m.levels) ? m.levels : {};
+    if (!isObject(m.levels)) notes.push({ text: "levels: not a table of parts, left out", warn: true });
+    for (const [k, v] of Object.entries(given)) {
+      if (Array.isArray(v) && v.length === 2 && v.every(Number.isFinite)) levels[k] = [v[0], v[1]];
+      else notes.push({ text: `levels: "${k}" is not two numbers, left out`, warn: true });
+    }
+  }
   const worldTone = tone(m.tone, "world"), worldLines = lines(m.lines, "world"), world = colour(m.colour, "world", worldId);
   const music = { worldId, mode, key: KEYS[root], scale: `${KEYS[root]} ${mode}`, root, steps: MODES[mode], tempo, beat: 60 / tempo, instruments,
     tone: worldTone ?? "silence", lines: worldLines, colour: world.colour ?? "clean",
-    melody: melody(m.melody, "theme"), rooms: {}, modeChoices, colourChoices: world.choices };
+    melody: melody(m.melody, "theme"), rooms: {}, modeChoices, colourChoices: world.choices, levels };
   if (!music.melody) notes.push({ text: "no theme" });
   for (const [id, given] of Object.entries(isObject(data.rooms) ? data.rooms : {})) {
     if (!roomIds.includes(id)) { notes.push({ text: `room "${id}" is not in the world: ignored`, warn: true }); continue; }

@@ -25,8 +25,10 @@ const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "n
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
   "requires", "spends", "lacking", "dream", "places", "rounds", "arrives", "leaves", "material", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
-// The world's music (`add music`) and a room's own (its `music` field): MUSIC.md §4, read by js/music.js.
+// The world's music (`add music`) and a room's own (its `music` field): MUSIC.md §4, read by js/music.js. The world's may also carry
+// `levels`, its parts' measured loudness, written by the step that makes the world, never by the AI (MUSIC.md §6c; not in BRIEF).
 const MUSIC = ["mode", "tempo", "colour", "instruments", "tone", "lines", "melody"];
+const LEVELS = "levels";
 
 export const FIELDS = {
   changeSet: ["because", "facts", "effects", "opening", "properties"],
@@ -95,7 +97,7 @@ export const FIELDS = {
     "add change": ["add", "id", "effects"],
     "add puzzle": ["add", "id", ...PUZZLE],
     "add picture": ["add", "id", "picture", "alt"],
-    "add music": ["add", ...MUSIC],
+    "add music": ["add", ...MUSIC, LEVELS],
     "add word": ["add", "verb", "words", "object", "absent", "speech", "reply"],
     "add condition": ["add", "id", ...CONDITION_FIELDS],
     "remove object": ["remove", "id"],
@@ -417,7 +419,7 @@ export function checkSet(state, set) {
       return note(piece, `an echo of kind "${e.kind}" is the engine's own: the game itself says what you gain and lose`, e, true);
     const named = { "add room": "rooms/", "add object": "objects/", "add rule": "rules/", "add change": "changes/", "add puzzle": "puzzles/", "add word": "words/", "add picture": "pictures/", "add condition": "conditions/" }[kind];
     if (named) piece = named + (kind === "add rule" ? e.rule?.id : kind === "add word" ? e.verb : e.id);
-    if (kind === "add music") { const { add, ...own } = e; return music("music", own, FIELDS.music, e); }   // the world's music: only warned
+    if (kind === "add music") { const { add, ...own } = e; return music("music", own, [...FIELDS.music, LEVELS], e); }   // the world's music: only warned
     if (["add room", "add object", "add puzzle"].includes(kind)) claim(piece, kind.slice(4), e);
     if (kind === "remove object" && typeof e.id === "string") taken.delete(e.id);
     if (kind === "add room" || kind === "add object") {

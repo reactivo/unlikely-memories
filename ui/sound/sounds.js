@@ -10,9 +10,9 @@
 //   everySound(O)              → every { kind, version } the spec can play (each moment, each version of each): what is measured
 //   planOf(list, key, S) → [{ kind, inst, octave, f, toF, t, dur, share }]   what plays, as numbers: t from the first sound's start;
 //                                                                              a sound may name its `version` (the bench, to compare)
-//   playSounds(kit, dest, list, key, t0, trim)                                 the plan made sound, from audio time t0; trim(p): each
-//                                                                              note's gain from the meter (ui/sound/loudness.js), 1 if none
-//   playNote(kit, dest, p, t)                                                  one planned note, at audio time t (the meter plays it alone)
+//   playSounds(kit, dest, list, key, t0, gain)                                 the plan made sound, from audio time t0; gain(p): each
+//                                                                              note's from its level (ui/sound/loudness.js), 1 if none
+//   playNote(kit, dest, p, t)                                                  one planned note, at audio time t (measured alone too)
 
 import { freqOf } from "../../js/music.js";
 import { note, filt } from "./synth.js";
@@ -50,9 +50,9 @@ export function planOf(list, key, S) {
   return out;
 }
 
-// The plan made sound, on `dest`, from audio time t0, each note at its share × its trim (the meter's gain for its instrument).
-export function playSounds(kit, dest, list, key, t0, trim = () => 1) {
-  for (const p of planOf(list, key, kit.S)) playNote(kit, dest, { ...p, share: p.share * trim(p) }, t0 + p.t);
+// The plan made sound, on `dest`, from audio time t0, each note at its share × its gain (its instrument's level).
+export function playSounds(kit, dest, list, key, t0, gain = () => 1) {
+  for (const p of planOf(list, key, kit.S)) playNote(kit, dest, { ...p, share: p.share * gain(p) }, t0 + p.t);
 }
 // One planned note at audio time t. Steady: the music's shared pitch (unwell, the wobble: kit.pitch) is the music's, not theirs.
 export function playNote(kit, dest, p, t) {
@@ -166,7 +166,7 @@ function adlib(kit, dest, inst, f, t, dur, share) {
     const t0 = t + from * tick, release = I.release * ring, end = t + to * tick + release * 8 + 0.02;
     const car = ctx.createOscillator(), mod = ctx.createOscillator(), depth = ctx.createGain(), env = ctx.createGain();
     if (I.wave && I.wave !== "sine") car.setPeriodicWave(kit.waves[I.wave]);
-    const [re, im] = feedbackHarmonics(I.feedback ?? 0, K.waves); mod.setPeriodicWave(ctx.createPeriodicWave(re, im));
+    mod.setPeriodicWave(kit.periodic("feedback " + (I.feedback ?? 0), () => feedbackHarmonics(I.feedback ?? 0, K.waves)));   // (once a context)
     const grit = ctx.createBufferSource(), gg = ctx.createGain(); grit.buffer = kit.noise.white; grit.loop = true;
     grit.connect(gg); gg.connect(mod.frequency); mod.connect(depth); depth.connect(car.frequency); car.connect(env); env.connect(out);
     env.gain.setValueAtTime(0, t0);

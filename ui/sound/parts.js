@@ -1,7 +1,7 @@
-// The parts the meter measures (ui/sound/loudness.js; MUSIC.md §6c): each a thing that makes sound on its own, with its key (made
-// from its numbers, so a part is measured once per device whatever world it is in), its group (its target: content/music.js,
-// `loudness`) and how to play it alone, with the same code the player plays it with live, through the same low-pass. Plain
-// functions of the spec and a world's music: no globals, no knowledge of the game.
+// The parts (MUSIC.md §6c): each a thing that makes sound on its own and has a level (ui/sound/loudness.js), with its key (made from
+// its numbers, so the same part in two worlds is one key), its group (its target: content/music.js, `loudness`) and how to play it
+// alone for the measuring (ui/sound/measure.js), with the same code the player plays it with live, through the same low-pass. Plain
+// functions of the spec and a world's music: no globals, no knowledge of the game. The player only needs the keys.
 //
 //   instrumentPart(S, music, inst, octave, box, name)  a world's instrument at an octave (box: as the music box plays it): its notes
 //                                                     1, 3 and 5 in the world's key and mode, one a slice (a noise kind: eight
@@ -12,17 +12,19 @@
 //   colourPart(S, name)                                the reference notes through a colour (its gain: the reference's loudness less
 //                                                      its own)
 //   soundParts(S, key)                                 every sound's instrument at the octave the table plays it (`sounds.moments`
-//                                                      and every one of `sounds.versions`, each material), in a key ({ root, steps }: a world's, or the spec's);
-//                                                      soundId(p) finds a planned note's. In each world's key: a sound whose notes
-//                                                      sit near 300 Hz comes out up to 4 dB louder a few semitones up (a phone hears it)
-//   musicParts(S, music, roomIds)                      a world's parts, room by room in the order given: each scene's instruments,
-//                                                      tone and colour (with its reference); then its sounds, in its key
+//                                                      and every one of `sounds.versions`, each material), in a key ({ root, steps }:
+//                                                      a world's, or the spec's); soundId(p) finds a planned note's. In each world's
+//                                                      key: a sound whose notes sit near 300 Hz comes out up to 4 dB louder a few
+//                                                      semitones up (a phone hears it)
+//   musicParts(S, music, roomIds)                      a world's parts, room by room in the order given: each scene's instruments
+//                                                      (its theme's also an octave lower, as night, worse than unwell and a death
+//                                                      play it), tone and colour (with its reference); then its sounds, in its key
 //   fixedParts(S)                                      the parts every world shares: the room tones, the colours, and the sounds in
 //                                                      the spec's key (a world with no music)
 // A part: { key, group: "notes" | "rhythm" | "tones" | "sounds" | "colours" | "reference", label, seconds, slices, play(ctx, dest), ref?,
-// heavy? (a door or eating version: its render ten times the others', so a device keeps the seed's result: loudness.js) }.
+// chance (randomness in its sound: measured several times over) }.
 
-import { NOISES, TONES, COLOURS, freqOf, themeIn } from "../../js/music.js";
+import { NOISES, TONES, COLOURS, LIMITS, freqOf, themeIn } from "../../js/music.js";
 import { makeKit, note, filt } from "./synth.js";
 import { makeTone } from "./tones.js";
 import { makeColour } from "./colours.js";
@@ -34,7 +36,7 @@ const lead = 0.02;                                 // each slice's sound starts 
 // A part with chance in its sound (noise, a door's or a crunch's random layers) is played this many times, one a slice, `each` apart at least, and their
 // loudness averaged: measured five times over, every part then moved by about 0.3 dB at most (sd) — MUSIC.md §6c.
 const CHANCE = 8, EACH = 0.6;
-// A door or eating version (`adlib`, `foley`: a whole sound whose layers, waits and grains are all picked each play) twice as many.
+// A door or eating version (`adlib`, `foley`: a whole sound whose layers, waits and grains are all picked each play): twice as many.
 const WHOLE = ["adlib", "foley"];
 
 // What a note of this instrument is (the music box's own when it plays it): decaying or held, and whether chance is in its sound.
@@ -54,7 +56,7 @@ export function instrumentPart(S, music, inst, octave, box = false, name = inst.
   const numbers = { inst: { kind, ratio, bright, attack, release }, freqs: freqs.slice(0, 3), steps: steps.length, box: box && !noise ? S.box : undefined,
     spec: { note: S.note, kind: S.kinds[kind], noises: noise ? S.noises : undefined, lowpass: S.lowpass, waves: S.waves } };
   return { key: keyOf("instrument", numbers), group: noise ? "rhythm" : "notes", label: `${name} (${kind}, octave ${octave}${box && !noise ? ", music box" : ""})`,
-    seconds: each * steps.length, slices: steps.length, held, noise,
+    seconds: each * steps.length, slices: steps.length, held, noise, chance: noise || held,
     play(ctx, dest) {
       const kit = makeKit(ctx, S), lp = lowpass(ctx, S); lp.connect(dest);
       freqs.forEach((f, k) => note(kit, lp, inst, f, k * each + lead, len, 1, { box }));
@@ -72,7 +74,7 @@ export function toneSeconds(T) {
 export function tonePart(S, name) {
   const seconds = toneSeconds(S.tones[name]);
   return { key: keyOf("tone", { name, tone: S.tones[name], lowpass: S.lowpass, noise: S.noiseSeconds }), group: "tones", label: name.replace("_", " "),
-    seconds, slices: Math.max(2, Math.round(seconds / 4)),
+    seconds, slices: Math.max(2, Math.round(seconds / 4)), chance: true,
     play(ctx, dest) {
       const kit = makeKit(ctx, S), lp = lowpass(ctx, S); lp.connect(dest);
       makeTone(kit, name, lp).tick(0, seconds);
@@ -89,7 +91,7 @@ function referenceNotes(S) {
 export function referencePart(S, box = false) {
   const notes = referenceNotes(S), each = S.loudness.reference.each, seconds = each * notes.length;
   return { key: keyOf("reference", { ref: S.loudness.reference, box: box ? S.box : undefined, note: S.note, kinds: S.kinds, lowpass: S.lowpass, waves: S.waves }),
-    group: "reference", label: "the reference notes" + (box ? " (music box)" : ""), seconds, slices: notes.length, notes,
+    group: "reference", label: "the reference notes" + (box ? " (music box)" : ""), seconds, slices: notes.length, notes, chance: true,
     play(ctx, dest, into) {
       const kit = makeKit(ctx, S), lp = lowpass(ctx, S); lp.connect(dest);
       const to = into ? into(kit, lp) : lp;
@@ -99,7 +101,7 @@ export function referencePart(S, box = false) {
 export function colourPart(S, name) {
   const ref = referencePart(S, name === "music_box");
   return { key: keyOf("colour", { name, colour: S.colours[name], shaper: S.colours.shaper, ref: ref.key }), group: "colours", label: name.replace("_", " "),
-    ref: ref.key, refPart: ref, seconds: ref.seconds, slices: ref.slices,
+    ref: ref.key, refPart: ref, seconds: ref.seconds, slices: ref.slices, chance: true,
     play(ctx, dest) {
       ref.play(ctx, dest, (kit, lp) => { const c = makeColour(kit, name); c.output.connect(lp); c.tick(0, ref.seconds); return c.input; });
     } };
@@ -120,8 +122,7 @@ export function soundParts(S, key = S.sounds.key) {
     const chance = NOISES.includes(p.inst.kind) || EFFECTS.includes(p.inst.kind) || !!S.kinds[p.inst.kind]?.breath;
     const n = chance ? CHANCE * (WHOLE.includes(p.inst.kind) ? 2 : 1) : 1, each = chance ? Math.max(EACH, p.dur + 0.35) : Math.max(1, p.dur + 0.5), one = { ...p, share: 1 };
     byId.set(id, { key: keyOf("sound", { id, dur: p.dur, toF: p.toF, f: p.f, spec: { note: S.note, noises: S.noises, kinds: O.kinds, lowpass: O.lowpass, kind: S.kinds[p.inst.kind] } }),
-      group: "sounds", label: `${describe(O, p.inst)} (${p.inst.kind}${p.f === undefined ? "" : `, octave ${p.octave}`})`, seconds: each * n, slices: n, note: one, dur: p.dur, id,
-      heavy: WHOLE.includes(p.inst.kind),
+      group: "sounds", label: `${describe(O, p.inst)} (${p.inst.kind}${p.f === undefined ? "" : `, octave ${p.octave}`})`, seconds: each * n, slices: n, note: one, dur: p.dur, id, chance,
       play(ctx, dest) {
         const kit = makeKit(ctx, S), lp = lowpass(ctx, S, O.lowpass); lp.connect(dest);
         for (let k = 0; k < n; k++) playNote(kit, lp, one, k * each + lead);
@@ -140,6 +141,11 @@ function describe(O, inst) {
   return "?";
 }
 
+// The octaves a theme moves by (S.reactions: lower at night, worse than unwell, at a death), as js/music.js's shiftOctave brings
+// them into range.
+const shiftsOf = (S) => [...new Set([0, S.reactions.night.octave, S.reactions.unwell.worse.octave, S.reactions.ending.death.octave])];
+const within = (o) => Math.min(LIMITS.octave[1], Math.max(LIMITS.octave[0], o));
+
 export function musicParts(S, music, roomIds = []) {
   const out = new Map(), add = (p) => { if (p && !out.has(p.key)) out.set(p.key, p); };
   const inst = (name, octave, box) => { const i = music.instruments[name]; if (i) add(instrumentPart(S, music, i, octave, box, name)); };
@@ -148,7 +154,7 @@ export function musicParts(S, music, roomIds = []) {
     const lines = r.lines ?? music.lines;
     for (const l of lines) inst(l.play, l.octave, box);
     const th = themeIn(music, id)?.mel;
-    if (th) { inst(th.play, th.octave, box); if (th.chords) inst(th.chords.play, th.chords.octave, box); }
+    if (th) for (const k of shiftsOf(S)) { inst(th.play, within(th.octave + k), box); if (th.chords) inst(th.chords.play, within(th.chords.octave + k), box); }
     if (tone && tone !== "silence" && S.tones[tone]) add(tonePart(S, tone));
     if (colour && colour !== "clean" && S.colours[colour]) { const c = colourPart(S, colour); add(c.refPart); add(c); }
   }

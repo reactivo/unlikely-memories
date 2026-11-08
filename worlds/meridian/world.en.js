@@ -4,6 +4,7 @@
 
 import pictures, { endings as endingPictures } from "./pictures.js";
 import music, { rooms as roomMusic } from "./music.js";
+import levels from "./levels.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -67,7 +68,7 @@ export default {
   effects: [
     { time: "day 1 06:40" },
 
-    { add: "music", ...music },   // the music (music.js); each room's own as its `music`
+    { add: "music", ...music, levels },   // the music (music.js; its levels, levels.js, generated); each room's own as its `music`
 
     // ---- the opening: a fenced yard, its way on the one door, in ----------------------------------------------
     { add: "room", id: "yard", name: "SERVICE YARD", area: "yard", at: [0, 0, 0],

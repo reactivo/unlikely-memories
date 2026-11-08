@@ -9,6 +9,7 @@
 
 import pictures, { endings } from "./pictures.js";
 import music, { rooms as roomMusic } from "./music.js";
+import levels from "./levels.js";
 import sprites from "./sprites.js";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
@@ -887,7 +888,7 @@ export default {
 
     // Salas, objetos y reglas
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    { add: "music", ...music },   // la música (music.js, la misma en los dos idiomas); la de cada sala, en su `music`
+    { add: "music", ...music, levels },   // la música (music.js, la misma en los dos idiomas; sus niveles, levels.js, generados); la de cada sala, en su `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),

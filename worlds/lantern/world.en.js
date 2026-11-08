@@ -4,6 +4,7 @@
 
 import pictures, { endings, visions } from "./pictures.js";
 import music, { rooms as roomMusic } from "./music.js";
+import levels from "./levels.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -723,7 +724,7 @@ export default {
     { add: "condition", id: "drunk", doses: 3, lasts: { seconds: [120, 180] }, starts: "You're drunk", ends: "You're sober again", status: "You're drunk on beer",
       filters: ["sway", "ghost"], speech: { slur: true },
       movement: { chance: 0.3, says: ["Your feet take you another way than the one you meant.", "You set off one way, and the fog turns you round."] } },
-    { add: "music", ...music },   // the music (music.js, shared by both languages); each room's own as its `music`
+    { add: "music", ...music, levels },   // the music (music.js, shared by both languages; its levels, levels.js, generated); each room's own as its `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))

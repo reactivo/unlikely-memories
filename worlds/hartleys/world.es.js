@@ -5,6 +5,7 @@
 
 import pictures, { endings } from "./pictures.js";
 import music, { rooms as roomMusic } from "./music.js";
+import levels from "./levels.js";
 import sprites from "./sprites.js";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
@@ -563,7 +564,7 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    { add: "music", ...music },   // la música (music.js, la misma en los dos idiomas); la de cada sala, en su `music`
+    { add: "music", ...music, levels },   // la música (music.js, la misma en los dos idiomas; sus niveles, levels.js, generados); la de cada sala, en su `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "lift_ticket", at: null, portable: true, material: "paper", name: "Volante de cita", note: "Cuarta planta.", heldActions: ["Mostrar volante a Pell"],

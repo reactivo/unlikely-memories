@@ -1,11 +1,9 @@
-// Even loudness (docs/sound/PLAN.md, build 1b; MUSIC.md §6c): one meter for everything that makes music or sound. Each part (a
-// world's instrument at an octave, a room tone, a colour, a sound's instrument) is rendered on an OfflineAudioContext by the same
-// code that plays it live, its perceived loudness measured, and the gain that brings it to its target returned. Each part is
-// measured once per device: remembered in memory and saved in the browser's storage, keyed by the part's numbers and the meter's
-// version. Until a part is measured it plays at its written level; a render that fails or isn't supported leaves it there. It knows
-// nothing of the game or of music: it is given a key and a function that plays the part, `play(ctx, dest)`.
+// Even loudness (MUSIC.md §6c): the meter's arithmetic, the parts' keys, and the levels every part plays at. Each part (a world's
+// instrument at an octave, a room tone, a colour, a sound's instrument) has a level: its perceived loudness, measured once when it is
+// made (ui/sound/measure.js: the developer's tool for the shared parts and the shipped worlds, the world-making step for a world the
+// game's AI writes), as [full range, phone] in dB. The player turns a level into a gain with plain arithmetic and never measures
+// anything. All of it is pure (it runs in Node: tests/loudness.test.js).
 //
-// The arithmetic is pure (it runs in Node: tests/loudness.test.js):
 //   coeffs(type, f, q, gainDb, rate)   a biquad's coefficients (the Audio EQ Cookbook's): "highpass", "highshelf"
 //   run(x, c)                          samples through a biquad
 //   loudest(x, rate, window)           the loudest mean square over `window` seconds
@@ -17,19 +15,12 @@
 //   combine(full, phone)               → the one loudness the gain is set from: their mean in dB, but never more than `most` dB
 //                                      under the full range (MUSIC.md §6c, why)
 //   gainFor(loudness, target, limits)  → the linear gain that brings it to the target, kept within ± limits dB
-//   keyOf(what, numbers)               → the cache key: the meter's version, what it is, a hash of its numbers
+//   keyOf(what, numbers)               → a part's key: the meter's version, what it is, a hash of its numbers
 //   toDb(ms)                           mean square → dB
-// The meter (browser):
-//   createMeter(opts) → { known(key), failed(key), gainOf(key, target), measure(key, play, seconds, slices), want(parts, first), on(fn), info() }
-//   opts.seed: { key: [full, phone] }, results measured by the developer's tool and shipped with the game (content/loudness.seed.js),
-//   used until this device has measured the part itself (its own result wins); a key that doesn't match (the numbers changed) has none.
-//   a part: { key, play(ctx, dest), seconds, slices, heavy? }: play makes the whole render, slice k starting at k × seconds / slices;
-//   opts.held: render nothing until release() (on an iPhone, until the tap that opens the audio: the audio session's type, `playback`,
-//   is set before any context exists, else the page obeys silent mode: 8 November 2026)
-//   `heavy`: too heavy to render on a phone (an iPhone froze, 8 November 2026): the seed's result, never measured here unless the seed lacks it
+//   createLevels(S, ...tables)         → { gain(part), level(key), has(key) }: the levels at play time, from tables of
+//                                      { key: [full, phone] } (the shared ones, content/levels.js; a world's, its music's `levels`)
 
 export const VERSION = 1;                         // change it when the meter or the code that plays a part changes: all is measured again
-export const STORE = "parser-loudness";           // the browser's storage, one entry: { v, parts: { key: [full, phone] } }
 
 // ---- The arithmetic -------------------------------------------------------------------------------------------------------------
 export const toDb = (ms) => 10 * Math.log10(ms + 1e-12);
@@ -110,110 +101,21 @@ export function stable(v) {
 }
 export const keyOf = (what, numbers) => `v${VERSION}:${what}:${hash(stable(numbers))}`;
 
-// ---- The meter (browser) ----------------------------------------------------------------------------------------------------------
-// opts: { storage (localStorage, or null), Offline (the OfflineAudioContext constructor; found if not given), rate (Hz), gap (ms
-// between renders, so a phone never stutters), limits (± dB), now () → ms, seed ({ key: [full, phone] }) }.
-export function createMeter(opts = {}) {
-  const rate = opts.rate ?? 44100, gap = opts.gap ?? 40, limits = opts.limits ?? 24, now = opts.now ?? (() => performance.now());
-  const Offline = opts.Offline !== undefined ? opts.Offline
-    : typeof window !== "undefined" ? (window.OfflineAudioContext || window.webkitOfflineAudioContext || null) : null;
-  const storage = opts.storage !== undefined ? opts.storage : (() => { try { return window.localStorage; } catch (e) { return null; } })();
-  const parts = new Map();                         // key → { full, phone, loudness, from: "storage" | "fresh" } (or { failed: true })
-  const seeds = new Map();                         // key → { full, phone, loudness, from: "seed" }: until this device measures it
-  for (const [k, v] of Object.entries(opts.seed || {}))
-    if (Array.isArray(v) && v.length === 2 && v.every(Number.isFinite)) seeds.set(k, { full: v[0], phone: v[1], loudness: combine(v[0], v[1]), from: "seed" });
-  const own = (key) => { const p = parts.get(key); return p && !p.failed ? p : null; };
-  const best = (key) => own(key) ?? seeds.get(key) ?? null;    // this device's result, else the seed's
-  const queue = [], queued = new Set(), listeners = [];
-  let held = !!opts.held, busy = false, saveTimer = null, ms = 0, renders = 0, audio = 0;   // (audio: seconds of sound rendered)
+// A level as written in a table: [full, phone], two numbers in dB.
+export const isLevel = (v) => Array.isArray(v) && v.length === 2 && v.every(Number.isFinite);
 
-  try {                                            // what this device measured before (this version only)
-    const saved = storage && JSON.parse(storage.getItem(STORE) || "null");
-    if (saved && saved.v === VERSION && saved.parts) for (const [k, v] of Object.entries(saved.parts))
-      if (Array.isArray(v) && v.length === 2 && v.every(Number.isFinite)) parts.set(k, { full: v[0], phone: v[1], loudness: combine(v[0], v[1]), from: "storage" });
-  } catch (e) {}
-  function save() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      try {
-        if (!storage) return;
-        const out = {};
-        for (const [k, p] of parts) if (!p.failed) out[k] = [Math.round(p.full * 100) / 100, Math.round(p.phone * 100) / 100];
-        storage.setItem(STORE, JSON.stringify({ v: VERSION, parts: out }));
-      } catch (e) {}
-    }, 500);
-  }
-
-  // Render `seconds` of the part and measure it, in `slices`. → its record (or { failed }).
-  async function measure(key, play, seconds = 3, slices = 1) {
-    if (parts.has(key) && !parts.get(key).failed) return parts.get(key);
-    const t0 = now();
-    let rec;
-    try {
-      if (!Offline) throw new Error("no OfflineAudioContext");
-      const ctx = new Offline(1, Math.ceil(rate * seconds), rate);       // the three-argument form: Safari's prefixed one takes only this
-      play(ctx, ctx.destination);
-      const buf = await new Promise((resolve, reject) => {
-        ctx.oncomplete = (e) => resolve(e.renderedBuffer);                // (old Safari: an event, no promise)
-        const p = ctx.startRendering();
-        if (p && p.then) p.then(resolve, reject);
-      });
-      const { full, phone } = await slicesOf(buf.getChannelData(0), buf.sampleRate, slices);
-      rec = { full, phone, loudness: combine(full, phone), from: "fresh" };
-    } catch (e) {
-      rec = { failed: true, why: String(e && e.message || e) };
-    }
-    ms += now() - t0; renders++; audio += seconds;
-    parts.set(key, rec);
-    if (!rec.failed) save();
-    for (const fn of listeners) { try { fn(key, rec); } catch (e) {} }
-    return rec;
-  }
-
-  // Each slice weighed in its own task (a long render's arithmetic never holds the page for long).
-  async function slicesOf(x, sr, n) {
-    const len = Math.floor(x.length / n);
-    let full = 0, phone = 0;
-    for (let k = 0; k < n; k++) {
-      if (k) await new Promise(r => setTimeout(r, 0));
-      const w = weigh(x.subarray(k * len, (k + 1) * len), sr); full += w.full / n; phone += w.phone / n;
-    }
-    return { full: toDb(full), phone: toDb(phone) };
-  }
-
-  // In the background, one at a time, `gap` ms apart: parts not yet known ({ key, play, seconds, slices }); `first`: ahead of the rest.
-  function want(list, first = false) {
-    const fresh = list.filter(p => !parts.has(p.key) && !queued.has(p.key) && !(p.heavy && seeds.has(p.key)));
-    for (const p of fresh) queued.add(p.key);
-    if (first) queue.unshift(...fresh); else queue.push(...fresh);
-    pump();
-  }
-  function pump() {
-    if (held || busy || !queue.length) return;
-    busy = true;
-    const p = queue.shift();
-    measure(p.key, p.play, p.seconds, p.slices).finally(() => {
-      queued.delete(p.key);
-      setTimeout(() => { busy = false; pump(); }, gap);
-    });
-  }
-
+// ---- The levels at play time --------------------------------------------------------------------------------------------------
+// The tables are read in order, the first that has a key wins. A part's gain: its group's target (S.loudness.targets; a colour's,
+// its reference notes' loudness, clean) less its loudness, within ± limits; null for a part with no level (it plays as written).
+export function createLevels(S, ...tables) {
+  const level = (key) => { for (const t of tables) if (t && isLevel(t[key])) return t[key]; return null; };
+  const loudness = (key) => { const l = level(key); return l ? combine(l[0], l[1]) : null; };
+  const targetOf = (part) => (part.group === "colours" ? loudness(part.ref) : S.loudness.targets[part.group] ?? null);
   return {
-    known: best,
-    measured: own,
-    failed: (key) => !!parts.get(key)?.failed,
-    // The gain for a part, or null while it isn't measured (or failed): then its written level.
-    gainOf(key, target) { const p = best(key); return p ? gainFor(p.loudness, target, limits) : null; },
-    measure, want,
-    release() { if (held) { held = false; pump(); } },
-    on(fn) { listeners.push(fn); return () => listeners.splice(listeners.indexOf(fn), 1); },
-    get busy() { return busy || queue.length > 0; },
-    // How many parts are known (from storage, measured fresh, failed), how many wait, and the time spent rendering (ms).
-    info() {
-      let stored = 0, fresh = 0, failed = 0, seeded = 0;
-      for (const p of parts.values()) p.failed ? failed++ : p.from === "storage" ? stored++ : fresh++;
-      for (const k of seeds.keys()) if (!own(k)) seeded++;
-      return { stored, fresh, failed, seeded, pending: queue.length + (busy ? 1 : 0), renders, ms: Math.round(ms), audio: Math.round(audio), supported: !!Offline };
+    level, loudness, has: (key) => !!level(key), targetOf,
+    gain(part) {
+      const l = loudness(part.key), t = targetOf(part);
+      return l == null || t == null ? null : gainFor(l, t, S.loudness.limits);
     }
   };
 }

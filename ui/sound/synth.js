@@ -3,10 +3,13 @@
 // slides and scoops, chords and arpeggios, and the music box. Plain functions of an AudioContext and its nodes: no globals, no
 // knowledge of the game. Every number is the spec's (content/music.js), passed in as `kit.S`.
 //
-//   makeKit(ctx, S) → kit: { ctx, S, noise: { white, pink, brown }, waves }   made once per context (the slow part); the player
-//                                                                               adds `pitch`, a node in cents every note follows
-//   playEvent(kit, dest, music, inst, e, octave, t, beats, share, box)          one event of a line or a theme, at time t
-//   note(kit, dest, inst, f, t, dur, share, opts)                                one note: opts { toF, scoop, box }
+//   makeKit(ctx, S) → kit: { ctx, S, noise: { white, pink, brown }, waves, periodic(id, harmonics) }   made once per context (the
+//                                                                               slow part); periodic: any other periodic wave, made
+//                                                                               once for the context; the player adds `pitch`, a node
+//                                                                               in cents every note follows
+//   playEvent(kit, dest, music, inst, e, octave, t, beats, share, box)          one event of a line or a theme, at time t → its
+//                                                                               notes' end times
+//   note(kit, dest, inst, f, t, dur, share, opts)                                one note: opts { toF, scoop, box } → when it ends
 // And the small helpers the tones and colours are built from: src, filt, gain, lfo, chain.
 //
 // The randomness here (noise, where a loop starts, a breath's rate) is the player's own, never the game's.
@@ -28,11 +31,12 @@ export function makeKit(ctx, S) {
     p[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + x * 0.5362) * 0.11; b6 = x * 0.115926;
     last = (last + 0.02 * x) / 1.02; br[i] = last * 3.5;
   }
-  const waves = {};
+  const waves = {}, made = new Map();
   for (const [name, [re, im]] of Object.entries(harmonicsOf(S.waves))) waves[name] = ctx.createPeriodicWave(re, im);
-  return { ctx, S, noise: { white, pink, brown }, waves };
+  const periodic = (id, harmonics) => { if (!made.has(id)) { const [re, im] = harmonics(); made.set(id, ctx.createPeriodicWave(re, im)); } return made.get(id); };
+  return { ctx, S, noise: { white, pink, brown }, waves, periodic };
 }
-// The waveforms' harmonics, worked out once for the page (the meter makes a kit for every part it measures: ui/sound/loudness.js).
+// The waveforms' harmonics, worked out once for the page (the measuring makes a kit for every part it renders: ui/sound/measure.js).
 const harmonics = new Map();
 function harmonicsOf({ samples: N, harmonics: H }) {
   const id = N + ":" + H;
@@ -64,12 +68,13 @@ export function chain(...n) { for (let i = 0; i < n.length - 1; i++) n[i].connec
 // ---- Events --------------------------------------------------------------------------------------------------------------------
 // One event of a line or a theme at time t, `beats` long: a rest plays nothing; a slide, a scoop, or both (~5~3); an arpeggio
 // (the beats split between its notes); a chord (its notes together, each softer: 1/√n). `box`: through the music box.
+// → its notes' end times (the player counts them: its budget of notes sounding at once).
 export function playEvent(kit, dest, music, inst, e, octave, t, beats, share, box = false) {
-  if (e.rest) return;
+  if (e.rest) return [];
   const dur = beats * music.beat, n = e.steps.length, f = (st) => freqOf(music, st, octave);
-  if (e.to !== undefined || e.scoop) return note(kit, dest, inst, f(e.steps[0]), t, dur, share, { toF: e.to !== undefined ? f(e.to) : undefined, scoop: !!e.scoop, box });
-  if (e.arp) e.steps.forEach((st, k) => note(kit, dest, inst, f(st), t + k * dur / n, dur / n, share, { box }));
-  else e.steps.forEach(st => note(kit, dest, inst, f(st), t, dur, share / Math.sqrt(n), { box }));
+  if (e.to !== undefined || e.scoop) return [note(kit, dest, inst, f(e.steps[0]), t, dur, share, { toF: e.to !== undefined ? f(e.to) : undefined, scoop: !!e.scoop, box })];
+  if (e.arp) return e.steps.map((st, k) => note(kit, dest, inst, f(st), t + k * dur / n, dur / n, share, { box }));
+  return e.steps.map(st => note(kit, dest, inst, f(st), t, dur, share / Math.sqrt(n), { box }));
 }
 
 // ---- One note (MUSIC.md §3) in its kind, with the engine's frame (§5) ---------------------------------------------------------
@@ -154,6 +159,7 @@ export function note(kit, dest, inst, f, t, dur, share = 1, opts = {}) {
     amp.disconnect(); depth.disconnect(); out.disconnect(); extra.forEach(x => x.disconnect());
     if (pitch) for (const o of tuned) pitch.disconnect(o.detune);
   };
+  return end;
 }
 
 // The rhythm kinds (MUSIC.md §2.19): noise or a falling blip, quiet; the step only tilts them higher or lower.
@@ -183,4 +189,5 @@ function noiseNote(kit, dest, inst, f, t, dur, share) {
     s.connect(bf); bf.connect(g); g.connect(out); s.start(t, Math.random() * Z.burst.offset); s.stop(t + len + 0.5);
   } else if (k === "drip") { const T = Z.drip, p = at(T.blip); blip(p, p * T.fall, t, L * T.level, T.tc); }
   setTimeout(() => out.disconnect(), Math.max(1000, (t - ctx.currentTime + Z.release) * 1000));
+  return t + Z.release;
 }

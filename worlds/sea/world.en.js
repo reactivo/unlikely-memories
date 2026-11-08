@@ -7,6 +7,7 @@
 
 import pictures, { endings } from "./pictures.js";
 import music, { rooms as roomMusic } from "./music.js";
+import levels from "./levels.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
@@ -884,7 +885,7 @@ export default {
 
     // Rooms, objects and rules
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    { add: "music", ...music },   // the music (music.js, shared by both languages); each room's own as its `music`
+    { add: "music", ...music, levels },   // the music (music.js, shared by both languages; its levels, levels.js, generated); each room's own as its `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),

@@ -233,7 +233,7 @@ export function mount(dev) {
   // back with the next move), the lines, the room tone or the theme muted (the player's, not the game's: never saved), and what
   // the reader skipped or changed. And the sounds (docs/sound/PLAN.md), each kind and each material tried on the player alone, in
   // this world's key (a world with no music too): a material is picked up, and is the one the kinds that have one are played with.
-  // And the measuring (docs/sound/PLAN.md, build 1b): how many parts are measured, from storage or fresh, and the limiter.
+  // And the levels (MUSIC.md §6c): how many the world has of its own and how many are shared, any part with none, and the limiter.
   let tried = "wood";
   function music(st) {
     const m = debug.music(st), snd = dev.sound(), info = snd.info(), muted = snd.muted();
@@ -282,14 +282,13 @@ export function mount(dev) {
   }
   // The theme last played, as the player played it (its label says how: a variant, lower at night, slower and lower unwell, echoed).
   const themeText = (info) => (!info?.theme ? "–" : info.theme.label + " (" + info.theme.part + "), " + Math.round(info.theme.end - (info.theme.notes[0]?.t ?? info.theme.end)) + " s");
-  // The meter (ui/sound/loudness.js): how many parts are measured, from the device's storage or fresh, how many wait (and play at the
-  // shipped seed's levels meanwhile); and the most the limiter has pulled down (it should barely act).
+  // The levels every part plays at (measured when they were made, never while playing: MUSIC.md §6c): the world's own and the shared
+  // ones, any of its parts with none (there should be none: each plays as written); and the most the limiter has pulled down (it
+  // should barely act).
   function loudnessText(info) {
-    if (!info?.loudness) return "–";
-    const L = info.loudness, n = L.stored + L.fresh, lim = Math.round(-(info.limiter?.deepest ?? 0) * 10) / 10;
-    if (!L.supported) return "not measured (no offline audio): written levels";
-    return `${n} part${n === 1 ? "" : "s"} measured (${L.stored} from storage, ${L.fresh} fresh${L.failed ? `, ${L.failed} failed` : ""})` +
-      (L.pending ? `, ${L.pending} waiting` : "") + (L.seeded ? `, ${L.seeded} at the seed's levels meanwhile` : "") +
+    if (!info?.levels) return "–";
+    const L = info.levels, lim = Math.round(-(info.limiter?.deepest ?? 0) * 10) / 10;
+    return `levels: ${L.own} of this world's, ${L.shared} shared` + (L.missing.length ? `; ${L.missing.length} with none (as written)` : "; none missing") +
       `; limiter ${lim ? "−" + lim + " dB at most" : "untouched"}`;
   }
   // The sounds the player was last told to play (a moment's, or tried here), and how long ago.
