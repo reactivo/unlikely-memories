@@ -23,7 +23,8 @@
 //   createMeter(opts) → { known(key), failed(key), gainOf(key, target), measure(key, play, seconds, slices), want(parts, first), on(fn), info() }
 //   opts.seed: { key: [full, phone] }, results measured by the developer's tool and shipped with the game (content/loudness.seed.js),
 //   used until this device has measured the part itself (its own result wins); a key that doesn't match (the numbers changed) has none.
-//   a part: { key, play(ctx, dest), seconds, slices }: play makes the whole render, slice k starting at k × seconds / slices
+//   a part: { key, play(ctx, dest), seconds, slices, heavy? }: play makes the whole render, slice k starting at k × seconds / slices;
+//   `heavy`: too heavy to render on a phone (an iPhone froze, 8 November 2026): the seed's result, never measured here unless the seed lacks it
 
 export const VERSION = 1;                         // change it when the meter or the code that plays a part changes: all is measured again
 export const STORE = "parser-loudness";           // the browser's storage, one entry: { v, parts: { key: [full, phone] } }
@@ -180,7 +181,7 @@ export function createMeter(opts = {}) {
 
   // In the background, one at a time, `gap` ms apart: parts not yet known ({ key, play, seconds, slices }); `first`: ahead of the rest.
   function want(list, first = false) {
-    const fresh = list.filter(p => !parts.has(p.key) && !queued.has(p.key));
+    const fresh = list.filter(p => !parts.has(p.key) && !queued.has(p.key) && !(p.heavy && seeds.has(p.key)));
     for (const p of fresh) queued.add(p.key);
     if (first) queue.unshift(...fresh); else queue.push(...fresh);
     pump();

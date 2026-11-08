@@ -19,7 +19,8 @@
 //                                                      tone and colour (with its reference); then its sounds, in its key
 //   fixedParts(S)                                      the parts every world shares: the room tones, the colours, and the sounds in
 //                                                      the spec's key (a world with no music)
-// A part: { key, group: "notes" | "rhythm" | "tones" | "sounds" | "colours" | "reference", label, seconds, slices, play(ctx, dest), ref? }.
+// A part: { key, group: "notes" | "rhythm" | "tones" | "sounds" | "colours" | "reference", label, seconds, slices, play(ctx, dest), ref?,
+// heavy? (a door or eating version: its render ten times the others', so a device keeps the seed's result: loudness.js) }.
 
 import { NOISES, TONES, COLOURS, freqOf, themeIn } from "../../js/music.js";
 import { makeKit, note, filt } from "./synth.js";
@@ -120,6 +121,7 @@ export function soundParts(S, key = S.sounds.key) {
     const n = chance ? CHANCE * (WHOLE.includes(p.inst.kind) ? 2 : 1) : 1, each = chance ? Math.max(EACH, p.dur + 0.35) : Math.max(1, p.dur + 0.5), one = { ...p, share: 1 };
     byId.set(id, { key: keyOf("sound", { id, dur: p.dur, toF: p.toF, f: p.f, spec: { note: S.note, noises: S.noises, kinds: O.kinds, lowpass: O.lowpass, kind: S.kinds[p.inst.kind] } }),
       group: "sounds", label: `${describe(O, p.inst)} (${p.inst.kind}${p.f === undefined ? "" : `, octave ${p.octave}`})`, seconds: each * n, slices: n, note: one, dur: p.dur, id,
+      heavy: WHOLE.includes(p.inst.kind),
       play(ctx, dest) {
         const kit = makeKit(ctx, S), lp = lowpass(ctx, S, O.lowpass); lp.connect(dest);
         for (let k = 0; k < n; k++) playNote(kit, lp, one, k * each + lead);
