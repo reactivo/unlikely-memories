@@ -207,10 +207,10 @@ export function createClockwork(S, random = Math.random) {
 export function openAudio(existing) {
   let ctx = existing;
   if (!ctx) {
-    const ua = navigator.userAgent, apple = /iPhone|iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-    if (apple && navigator.audioSession) { try { navigator.audioSession.type = "playback"; } catch (e) {} }
+    if (appleMobile() && navigator.audioSession) { try { navigator.audioSession.type = "playback"; } catch (e) {} }
     ctx = new (window.AudioContext || window.webkitAudioContext)();
   }
+  opened = true; if (shared) shared.release();                   // the meter may render now: the session's type is set
   const b = ctx.createBuffer(1, 1, ctx.sampleRate), sb = ctx.createBufferSource(); sb.buffer = b; sb.connect(ctx.destination); sb.start();
   if (ctx.state !== "running") ctx.resume().catch(() => {});      // (whether it runs is the caller's to watch: ctx.state)
   return ctx;
@@ -219,8 +219,12 @@ export function openAudio(existing) {
 // The meter every player on the page shares (a fresh player after a dead context keeps what was measured), with the shipped seed
 // (content/loudness.seed.js: every shared part and the shipped worlds' instruments, measured by tools/music/seed.py) as the levels
 // until this device has measured each part itself.
-let shared = null;
-export const meterOf = (S) => (shared ??= createMeter({ gap: S.loudness.gap, limits: S.loudness.limits, seed: SEED.parts }));
+let shared = null, opened = false;
+// An iPhone or iPad (an iPad says "Macintosh" and has a touch screen). There the meter renders nothing before openAudio: an offline
+// context made first fixed the audio session as the default, and silent mode muted everything (8 November 2026).
+export const appleMobile = () => typeof navigator !== "undefined" &&
+  (/iPhone|iPad/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
+export const meterOf = (S) => (shared ??= createMeter({ held: appleMobile() && !opened, gap: S.loudness.gap, limits: S.loudness.limits, seed: SEED.parts }));
 // A part's target (S.loudness.targets; a colour's: its reference's loudness, clean) and its gain now (null: not measured, its
 // written level).
 export const targetOf = (meter, S, part) => (part.group === "colours" ? meter.known(part.ref)?.loudness ?? null : S.loudness.targets[part.group] ?? null);

@@ -24,6 +24,8 @@
 //   opts.seed: { key: [full, phone] }, results measured by the developer's tool and shipped with the game (content/loudness.seed.js),
 //   used until this device has measured the part itself (its own result wins); a key that doesn't match (the numbers changed) has none.
 //   a part: { key, play(ctx, dest), seconds, slices, heavy? }: play makes the whole render, slice k starting at k × seconds / slices;
+//   opts.held: render nothing until release() (on an iPhone, until the tap that opens the audio: the audio session's type, `playback`,
+//   is set before any context exists, else the page obeys silent mode: 8 November 2026)
 //   `heavy`: too heavy to render on a phone (an iPhone froze, 8 November 2026): the seed's result, never measured here unless the seed lacks it
 
 export const VERSION = 1;                         // change it when the meter or the code that plays a part changes: all is measured again
@@ -123,7 +125,7 @@ export function createMeter(opts = {}) {
   const own = (key) => { const p = parts.get(key); return p && !p.failed ? p : null; };
   const best = (key) => own(key) ?? seeds.get(key) ?? null;    // this device's result, else the seed's
   const queue = [], queued = new Set(), listeners = [];
-  let busy = false, saveTimer = null, ms = 0, renders = 0, audio = 0;   // (audio: seconds of sound rendered)
+  let held = !!opts.held, busy = false, saveTimer = null, ms = 0, renders = 0, audio = 0;   // (audio: seconds of sound rendered)
 
   try {                                            // what this device measured before (this version only)
     const saved = storage && JSON.parse(storage.getItem(STORE) || "null");
@@ -187,7 +189,7 @@ export function createMeter(opts = {}) {
     pump();
   }
   function pump() {
-    if (busy || !queue.length) return;
+    if (held || busy || !queue.length) return;
     busy = true;
     const p = queue.shift();
     measure(p.key, p.play, p.seconds, p.slices).finally(() => {
@@ -203,6 +205,7 @@ export function createMeter(opts = {}) {
     // The gain for a part, or null while it isn't measured (or failed): then its written level.
     gainOf(key, target) { const p = best(key); return p ? gainFor(p.loudness, target, limits) : null; },
     measure, want,
+    release() { if (held) { held = false; pump(); } },
     on(fn) { listeners.push(fn); return () => listeners.splice(listeners.indexOf(fn), 1); },
     get busy() { return busy || queue.length > 0; },
     // How many parts are known (from storage, measured fresh, failed), how many wait, and the time spent rendering (ms).
