@@ -233,6 +233,7 @@ export function mount(dev) {
   // back with the next move), the lines, the room tone or the theme muted (the player's, not the game's: never saved), and what
   // the reader skipped or changed. And the sounds (docs/sound/PLAN.md), each kind and each material tried on the player alone, in
   // this world's key (a world with no music too): a material is picked up, and is the one the kinds that have one are played with.
+  // And the measuring (docs/sound/PLAN.md, build 1b): how many parts are measured, from storage or fresh, and the limiter.
   let tried = "wood";
   function music(st) {
     const m = debug.music(st), snd = dev.sound(), info = snd.info(), muted = snd.muted();
@@ -248,6 +249,7 @@ export function mount(dev) {
     fact("filters", filtersText(info), "music-filters");
     fact("last theme", themeText(info), "music-theme");
     fact("last sounds", soundsText(info), "music-sounds");
+    fact("loudness", loudnessText(info), "music-loudness");
     fact("mode", m.mode + " in " + m.key + ", tempo " + m.tempo);
     fact("colour", m.colour.replace("_", " "));
     fact("room", st.player.at + ": " + m.tone + ", " + (m.own ? m.lines + " own line" + (m.lines === 1 ? "" : "s") : "the world's lines"));
@@ -280,6 +282,16 @@ export function mount(dev) {
   }
   // The theme last played, as the player played it (its label says how: a variant, lower at night, slower and lower unwell, echoed).
   const themeText = (info) => (!info?.theme ? "–" : info.theme.label + " (" + info.theme.part + "), " + Math.round(info.theme.end - (info.theme.notes[0]?.t ?? info.theme.end)) + " s");
+  // The meter (ui/sound/loudness.js): how many parts are measured, from the device's storage or fresh, how many wait (and play at the
+  // shipped seed's levels meanwhile); and the most the limiter has pulled down (it should barely act).
+  function loudnessText(info) {
+    if (!info?.loudness) return "–";
+    const L = info.loudness, n = L.stored + L.fresh, lim = Math.round(-(info.limiter?.deepest ?? 0) * 10) / 10;
+    if (!L.supported) return "not measured (no offline audio): written levels";
+    return `${n} part${n === 1 ? "" : "s"} measured (${L.stored} from storage, ${L.fresh} fresh${L.failed ? `, ${L.failed} failed` : ""})` +
+      (L.pending ? `, ${L.pending} waiting` : "") + (L.seeded ? `, ${L.seeded} at the seed's levels meanwhile` : "") +
+      `; limiter ${lim ? "−" + lim + " dB at most" : "untouched"}`;
+  }
   // The sounds the player was last told to play (a moment's, or tried here), and how long ago.
   const soundsText = (info) => (!info?.sounds ? "–" : info.sounds.kinds.join(", ") + ", " + Math.max(0, Math.round(info.now - info.sounds.at)) + " s ago");
   // What plays now, in a few words: off, silent after the end, resting, the theme's part playing, or when its next turn comes;
@@ -453,6 +465,7 @@ export function mount(dev) {
       parts$.music.querySelector("dd.music-filters").textContent = filtersText(info);
       parts$.music.querySelector("dd.music-theme").textContent = themeText(info);
       parts$.music.querySelector("dd.music-sounds").textContent = soundsText(info);
+      parts$.music.querySelector("dd.music-loudness").textContent = loudnessText(info);
     }
   }, 500);
 

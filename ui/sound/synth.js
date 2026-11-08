@@ -28,9 +28,17 @@ export function makeKit(ctx, S) {
     p[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + x * 0.5362) * 0.11; b6 = x * 0.115926;
     last = (last + 0.02 * x) / 1.02; br[i] = last * 3.5;
   }
-  const { samples: N, harmonics: H } = S.waves, waves = {};
+  const waves = {};
+  for (const [name, [re, im]] of Object.entries(harmonicsOf(S.waves))) waves[name] = ctx.createPeriodicWave(re, im);
+  return { ctx, S, noise: { white, pink, brown }, waves };
+}
+// The waveforms' harmonics, worked out once for the page (the meter makes a kit for every part it measures: ui/sound/loudness.js).
+const harmonics = new Map();
+function harmonicsOf({ samples: N, harmonics: H }) {
+  const id = N + ":" + H;
+  if (harmonics.has(id)) return harmonics.get(id);
   const shape = { half: (x) => Math.max(0, Math.sin(x)), abs: (x) => Math.abs(Math.sin(x)),
-    quarter: (x) => ((x % Math.PI) < Math.PI / 2 ? Math.abs(Math.sin(x)) : 0) };
+    quarter: (x) => ((x % Math.PI) < Math.PI / 2 ? Math.abs(Math.sin(x)) : 0) }, out = {};
   for (const [name, fn] of Object.entries(shape)) {
     const re = new Float32Array(H), im = new Float32Array(H);
     for (let k = 1; k < H; k++) {
@@ -38,9 +46,10 @@ export function makeKit(ctx, S) {
       for (let n = 0; n < N; n++) { const x = 2 * Math.PI * n / N, v = fn(x); a += v * Math.cos(k * x); b += v * Math.sin(k * x); }
       re[k] = a * 2 / N; im[k] = b * 2 / N;
     }
-    waves[name] = ctx.createPeriodicWave(re, im);
+    out[name] = [re, im];
   }
-  return { ctx, S, noise: { white, pink, brown }, waves };
+  harmonics.set(id, out);
+  return out;
 }
 
 // ---- Small helpers -------------------------------------------------------------------------------------------------------------

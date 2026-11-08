@@ -5,7 +5,7 @@
 
 export default {
   // ---- The frame: what everything goes through ------------------------------------------------------------------------------
-  master: { level: 0.9, off: 1.5 },               // the level while playing; the fade when ♫ goes off (or the bench's Stop)
+  master: { level: 1, off: 1.5 },                 // the level while playing (the meter's targets set the levels: `loudness`); the fade when ♫ goes off
   lowpass: { frequency: 3200, q: 0.5 },            // a gentle low-pass over everything
   compressor: { threshold: -18, ratio: 3 },
   // The echo: a convolution reverb made from noise when the audio starts (no file): its length, how fast it dies (the power of
@@ -14,7 +14,9 @@ export default {
   // Each room tone's share of echo (MUSIC.md §3: a hall and a cave long, rain short); a tone not here gets `spaceDefault`.
   space: { fog: 0.35, rain: 0.15, wind: 0.4, water: 0.35, cave: 0.85, hall: 0.75, hum: 0.12, crowd: 0.2, fire: 0.18, silence: 0.3 },
   spaceDefault: 0.3,
-  buses: { music: 0.8, tone: 0.7 },               // the music and the room tone, before the frame (the bench's sliders start here)
+  // The music, the room tone and the sounds, each a bus before the frame: even ground (the meter's targets set the balance,
+  // `loudness`); the bench's sliders start here, and the sound panel's will (docs/sound/PLAN.md, build 2).
+  buses: { music: 1, tone: 1, sounds: 1 },
 
   // ---- Scenes: a room's music, crossfaded -------------------------------------------------------------------------------------
   scene: {
@@ -139,8 +141,7 @@ export default {
 
   // ---- Colours (MUSIC.md §2.19, §2.21): how the world's music reaches the player; the room tone stays as it is ----------------
   colours: {
-    // Each colour's level, matched to clean by measuring the same lines through each (MUSIC.md §2.21).
-    level: { gramophone: 0.61, radio: 0.54, music_box: 0.73, far_away: 1.24, through_wall: 1.04, underwater: 1.15 },
+    // (Each colour's level is the meter's: the reference notes through it brought to their loudness clean. MUSIC.md §6c.)
     shaper: 1024,                                 // the saturation curve's points
     gramophone: { highpass: 280, lowpass: 3400, drive: 1.3, delay: 0.012, warble: [0.55, 0.0025],
                   crackle: { highpass: 2500, level: [0.03, 0.09], every: [0.05, 0.35], start: 0.1, hold: 0.001, tc: 0.003 },
@@ -159,13 +160,13 @@ export default {
   // ---- Sounds (docs/sound/PLAN.md, build 1): a short sound for a moment the screen already shows -------------------------------
   // The game's piece (ui/sound.js, soundsOf) reads the moment's list into plain terms, { kind, material, weight }; the player plays
   // them (ui/sound/sounds.js) in the world's key and mode (its music's; a world with no music, `key`), on their own bus beside the
-  // music's, about level with the theme (the sound panel's sliders will set the balance). One table, `moments`: each kind → its
-  // notes. A note: `play` an instrument of `voices`, or "material" (the thing's: `materials`, `generic` for none or a word not
-  // there; `shift` octaves from the material's own); `step` of the mode, `to` a step it slides to, `octave` (a voice's), `at` seconds
-  // after the sound starts, `length` seconds, `level` (× the instrument's). The instruments are the music's kinds (MUSIC.md §3),
-  // the noise kinds too, with the music's numbers (`note`, `noises`).
+  // music's, about level with the theme (the meter's `loudness.targets.sounds`; the sound panel's sliders will set the balance).
+  // One table, `moments`: each kind → its notes. A note: `play` an instrument of `voices`, or "material" (the thing's: `materials`,
+  // `generic` for none or a word not there; `shift` octaves from the material's own); `step` of the mode, `to` a step it slides to,
+  // `octave` (a voice's), `at` seconds after the sound starts, `length` seconds, `level` (its level within the moment). The
+  // instruments are the music's kinds (MUSIC.md §3), the noise kinds too, with the music's numbers (`note`, `noises`), and the
+  // sounds' own (`kinds`); each one's loudness is the meter's (an instrument at an octave, measured once: MUSIC.md §6c).
   sounds: {
-    level: 0.75,                                  // the sounds' bus, beside the music's (buses.music × master.level ≈ 0.7)
     lowpass: 4200,                                // a gentle low-pass over them
     spacing: 0.12,                                // several in one moment: each this long after the one before, in the list's order
     most: 4,                                      // at most this many in a moment (the first ones)
@@ -173,26 +174,26 @@ export default {
     key: { root: 0, steps: [0, 2, 4, 5, 7, 9, 11] },   // a world with no music: C major
     // What a thing is made of (its `material`, BRIEF §8): the kind it sounds with and its shape. Picked up rises, put down falls.
     materials: {
-      metal:   { kind: "chime",   ratio: 3.5, bright: 0.45, attack: 0, release: 1.4, octave: 5, level: 0.5 },   // a bright cling, a long slightly inharmonic ring
-      glass:   { kind: "struck",  ratio: 7,   bright: 0.25, attack: 0, release: 0.35, octave: 6, level: 1.6 },   // high, clean, short
-      wood:    { kind: "tock",    octave: 4, level: 0.22 },                                                     // a hollow knock (the sounds' own kind, below)
-      paper:   { kind: "brush",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 4, level: 2.8, length: 0.16 },   // a soft rustle (cloth too)
-      stone:   { kind: "clack",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 5, level: 4 },    // a dry clack or clink (ceramic, shell)
-      soft:    { kind: "struck",  ratio: 1,   bright: 0.08, attack: 0, release: 0.12, octave: 4, level: 1.3 },  // a muted thud (food, leather, a cat)
-      generic: { kind: "plucked", ratio: 1,   bright: 0.12, attack: 0, release: 0.2, octave: 4, level: 1.2 }    // no material, or one not here
+      metal:   { kind: "chime",   ratio: 3.5, bright: 0.45, attack: 0, release: 1.4, octave: 5 },   // a bright cling, a long slightly inharmonic ring
+      glass:   { kind: "struck",  ratio: 7,   bright: 0.25, attack: 0, release: 0.35, octave: 6 },   // high, clean, short
+      wood:    { kind: "tock",    octave: 4 },                                                     // a hollow knock (the sounds' own kind, below)
+      paper:   { kind: "brush",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 4, length: 0.16 },   // a soft rustle (cloth too)
+      stone:   { kind: "clack",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 5 },    // a dry clack or clink (ceramic, shell)
+      soft:    { kind: "struck",  ratio: 1,   bright: 0.08, attack: 0, release: 0.12, octave: 4 },  // a muted thud (food, leather, a cat)
+      generic: { kind: "plucked", ratio: 1,   bright: 0.12, attack: 0, release: 0.2, octave: 4 }    // no material, or one not here
     },
     // The other instruments, each a kind of the music's and its numbers.
     voices: {
-      crunch:  { kind: "clack",   ratio: 1,   bright: 0.9,  attack: 0, release: 0.1, level: 2.6 },    // eating
-      gulp:    { kind: "struck",  ratio: 1,   bright: 0.05, attack: 0, release: 0.14, level: 1.2 },   // drinking (a low note sliding up)
-      thump:   { kind: "thump",   level: 0.7 },                                                         // a hurt; a door shutting
+      crunch:  { kind: "clack",   ratio: 1,   bright: 0.9,  attack: 0, release: 0.1 },    // eating
+      gulp:    { kind: "struck",  ratio: 1,   bright: 0.05, attack: 0, release: 0.14 },   // drinking (a low note sliding up)
+      thump:   { kind: "thump" },                                                         // a hurt; a door shutting
       shimmer: { kind: "chime",   ratio: 3,   bright: 0.12, attack: 0, release: 1.2 },    // a heal
-      colour:  { kind: "plucked", ratio: 2,   bright: 0.25, attack: 0, release: 0.6, level: 0.75 },    // a condition starting or ending
-      creak:   { kind: "creak",   level: 0.6,                                                          // a door's hinges
+      colour:  { kind: "plucked", ratio: 2,   bright: 0.25, attack: 0, release: 0.6 },    // a condition starting or ending
+      creak:   { kind: "creak",                                                          // a door's hinges
                  as: { metal: { rate: 3, bands: [[1500, 10, 1], [3100, 12, 0.5], [4700, 12, 0.3]] } } },   // a gate's: higher, thinner
-      latch:   { kind: "clack",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.1, level: 5 },    // a lock turning, a locked door rattling
-      slide:   { kind: "brush",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.2, level: 2 },    // a lid or a drawer
-      bell:    { kind: "struck",  ratio: 3,   bright: 0.35, attack: 0, release: 0.9, level: 0.65 }     // a puzzle solved
+      latch:   { kind: "clack",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.1 },    // a lock turning, a locked door rattling
+      slide:   { kind: "brush",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.2 },    // a lid or a drawer
+      bell:    { kind: "struck",  ratio: 3,   bright: 0.35, attack: 0, release: 0.9 }     // a puzzle solved
     },
     // A hurt's weight, by the hit (how much health it took): its level × (base + per × (hit − 1)), the hit at most `most`.
     weight: { base: 0.7, per: 0.2, most: 5 },
@@ -222,15 +223,36 @@ export default {
     // The sounds' own kinds (ui/sound/sounds.js), not the music's: their weight in the middle, where a phone's speaker plays.
     kinds: {
       // A wooden knock: the board's modes [× the pitch, level, fall], starting `drop` sharp and settling over `glide`; the hit's click.
-      tock:  { level: 1, modes: [[1, 0.8, 0.045], [2.71, 0.45, 0.02], [4.9, 0.2, 0.01]], drop: 1.06, glide: 0.015,
+      tock:  { modes: [[1, 0.8, 0.045], [2.71, 0.45, 0.02], [4.9, 0.2, 0.01]], drop: 1.06, glide: 0.015,
                click: { band: 2400, q: 1.2, level: 0.35, tc: 0.004 } },
       // A blow: a low body falling from `from` × the pitch, a triangle `mid.ratio` above it, a dull punch of noise.
-      thump: { level: 1, body: { level: 0.35, tc: 0.12, from: 1.8, glide: 0.06 }, mid: { ratio: 3, level: 0.5, tc: 0.07 },
+      thump: { body: { level: 0.35, tc: 0.12, from: 1.8, glide: 0.06 }, mid: { ratio: 3, level: 0.5, tc: 0.07 },
                punch: { band: 600, q: 0.9, level: 1, tc: 0.04 } },
       // A creak: a buzz at `rate` × the pitch, drawn through `points`, wandering (each point: the last × wander[0] + random ×
       // wander[1]), its strength fluttering down by up to `flutter`, rough with noise under [Hz] at [× the pitch]; through `bands`.
-      creak: { level: 1, rate: 1.6, points: 40, wander: [0.8, 0.1], flutter: 0.5, grain: [40, 0.6], attack: 0.05, release: 0.08,
+      creak: { rate: 1.6, points: 40, wander: [0.8, 0.1], flutter: 0.5, grain: [40, 0.6], attack: 0.05, release: 0.08,
                bands: [[850, 6, 1], [1700, 7, 0.6], [2900, 8, 0.35]] }
     }
+  },
+
+  // ---- Even loudness (docs/sound/PLAN.md, build 1b; MUSIC.md §6c): the game measures every part itself ---------------------------
+  // Each part (a world's instrument at an octave, a room tone, a colour, a sound's instrument) is rendered offline by the code that
+  // plays it, its perceived loudness measured (ui/sound/loudness.js: the loudest 400 ms, K-weighted, and again through a phone's
+  // 300 Hz high-pass; the mean of the two in dB) and brought to its target, in dB, as it would leave the speakers before the frame's
+  // compressor. Remembered on the device; until a part is measured it plays at its written level, then glides to its gain.
+  loudness: {
+    // The targets, in dB: the music's notes (where its instruments sat, median, before: the music as loud as Diego approved it); a
+    // rhythm line's noises, quiet under them (MUSIC.md §2.19); the room tones, under the music; the sounds, level with the theme.
+    targets: { notes: -29, rhythm: -45, tones: -40, sounds: -29 },
+    glide: 1.5,                                   // the glide from the written level to the measured one, in seconds
+    limits: 24,                                   // a gain is kept within ± this many dB (a part that measures as silence keeps its level)
+    gap: 40,                                      // between renders, in ms (so a phone never stutters)
+    // What each colour is matched against: these notes, clean and through it (in `sounds.key`), one every `each` seconds, `length` long.
+    reference: { each: 1.2, length: 0.8, notes: [
+      { inst: { kind: "plucked", ratio: 2, bright: 0.3, attack: 0, release: 1 }, octave: 3, steps: [1, 5] },
+      { inst: { kind: "plucked", ratio: 2, bright: 0.3, attack: 0, release: 1 }, octave: 4, steps: [1, 5] },
+      { inst: { kind: "bowed", ratio: 1, bright: 0.25, attack: 0.3, release: 1.5 }, octave: 3, steps: [3, 8] }] },
+    // One gentle limiter at the very end, only so stacked sounds never clip: it should almost never act.
+    limiter: { threshold: -3, knee: 0, ratio: 20, attack: 0.002, release: 0.15 }
   }
 };

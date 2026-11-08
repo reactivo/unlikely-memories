@@ -23,6 +23,8 @@
 //     engine's `solved` mark). Only while ♫ is on and the audio runs; never on a restore, UNDO, a load or a new game (the
 //     controller hands it only moments played, as the reactions: ui/effects.js, reactionOf); a world with no music plays them in
 //     the spec's key. While you sleep the controller holds the moment until you wake.
+//   - Even loudness (docs/sound/PLAN.md, build 1b): every part plays at the gain the page's meter measured for it (ui/sound/loudness.js,
+//     in the player); measured in the background when the audio starts and when a world plays, once per device (saved in its storage).
 //
 // The browser's rules (MUSIC.md §7):
 //   - The audio is made and woken inside the ♫ tap: on.music() → redraw() → update() runs synchronously, nothing awaited.
@@ -160,7 +162,7 @@ export function mount(on) {
     clearTimeout(rest);
     if (ctx && tap && ctx.state !== "running" && (ran || ctx.state === "closed")) {
       const old = ctx;
-      player?.stop(0); player = null; playing = null; hushed = false;
+      player?.stop(0); player?.close(); player = null; playing = null; hushed = false;
       ctx = null; ran = false;
       old.close().catch(() => {});
     }
@@ -269,7 +271,9 @@ export function mount(on) {
       // A sound tried (the player's alone: the game untouched), in this world's key: { kind, material, weight }; the kinds and the
       // materials there are to try.
       sound: (s) => { if (want && player && state) { read(); player.sounds([s], keyOf()); } },
-      kinds: SOUND_KINDS, materials: MATERIALS
+      kinds: SOUND_KINDS, materials: MATERIALS,
+      // The measuring (ui/sound/loudness.js): this world's parts and the shared ones, with what the meter has of each.
+      loudness: () => (player && state ? (read(), player.parts(music, [state.player.at, ...Object.keys(music?.rooms ?? {})])) : [])
     }
   };
 }

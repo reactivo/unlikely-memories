@@ -11,7 +11,12 @@
 //   createClockwork(S, random) — what plays when, as numbers: pure, no audio, driven by a clock it is given (tests/sound.test.js).
 //   createPlayer(ctx, S, opts) — the clockwork made sound: { play(music, room), room(id), stop(fade), theme(), hush(on),
 //                                ending({ death }), wake(), night(on), unwell(level), wobble(on), echo(on), mute(part, on),
-//                                comes(on), volume(part, v), hear(music, name), sounds(list, key), info(), level() }
+//                                comes(on), volume(part, v), hear(music, name), sounds(list, key), info(), level(), parts(music, rooms),
+//                                close() }
+//                                Every part plays at the meter's gain (ui/sound/loudness.js, ui/sound/parts.js; MUSIC.md §6c): its
+//                                written level until it is measured, then a short glide to the measured gain.
+//   meterOf(S), partsOf(meter, S, music, rooms), measureWorld(meter, S, music, room), targetOf / gainOf(meter, S, part): the page's
+//                                loudness meter and what it has (the bench reads them before any sound is made).
 //   pitchOf(level, wobble, S) — the shared pitch for a level of unwell and the wobble, as numbers (cents, Hz).
 // And openAudio(ctx): the AudioContext made or woken inside a tap (the rules browsers set: MUSIC.md §7).
 
@@ -20,6 +25,9 @@ import { makeKit, playEvent, note, gain, filt, chain } from "./synth.js";
 import { makeTone } from "./tones.js";
 import { makeColour } from "./colours.js";
 import { playSounds } from "./sounds.js";
+import { createMeter } from "./loudness.js";
+import SEED from "../../content/loudness.seed.js";
+import { instrumentPart, tonePart, colourPart, soundParts, soundId, musicParts, fixedParts } from "./parts.js";
 
 // ---- The clockwork: what plays when ------------------------------------------------------------------------------------------
 
@@ -208,19 +216,51 @@ export function openAudio(existing) {
   return ctx;
 }
 
-// The player on a context. opts.comes: comes and goes on (the game) or off (the bench's default); opts.random: the player's own.
-export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}) {
+// The meter every player on the page shares (a fresh player after a dead context keeps what was measured), with the shipped seed
+// (content/loudness.seed.js: every shared part and the shipped worlds' instruments, measured by tools/music/seed.py) as the levels
+// until this device has measured each part itself.
+let shared = null;
+export const meterOf = (S) => (shared ??= createMeter({ gap: S.loudness.gap, limits: S.loudness.limits, seed: SEED.parts }));
+// A part's target (S.loudness.targets; a colour's: its reference's loudness, clean) and its gain now (null: not measured, its
+// written level).
+export const targetOf = (meter, S, part) => (part.group === "colours" ? meter.known(part.ref)?.loudness ?? null : S.loudness.targets[part.group] ?? null);
+export const gainOf = (meter, S, part) => { const t = targetOf(meter, S, part); return t == null ? null : meter.gainOf(part.key, t); };
+// Every part of a world (in the order of its rooms given, then the ones every world shares) with what the meter has of it: { label,
+// group, key, target, full, phone, loudness (dB, at its written level), gain (dB), from: "storage" | "fresh" | null }. The bench's.
+export function partsOf(meter, S, music, roomIds = []) {
+  const list = [...(music ? musicParts(S, music, roomIds) : []), ...fixedParts(S)];
+  return list.filter((p, i) => list.findIndex(q => q.key === p.key) === i).map(p => {
+    const k = meter.known(p.key), g = gainOf(meter, S, p);
+    return { label: p.label, group: p.group, key: p.key, target: targetOf(meter, S, p), full: k?.full ?? null, phone: k?.phone ?? null,
+             loudness: k?.loudness ?? null, gain: g == null ? null : 20 * Math.log10(g), from: k?.from ?? null, failed: !k && !!meter.failed?.(p.key) };
+  });
+}
+// A world's parts, measured in the background: the room you are in first, then its sounds (in its key), the other rooms, the rest every
+// world shares.
+export function measureWorld(meter, S, music, roomId) {
+  meter.want(musicParts(S, music, [roomId]).filter(p => p.group !== "sounds"), true);
+  meter.want([...soundParts(S, { root: music.root, steps: music.steps }).values()]);
+  meter.want(musicParts(S, music, Object.keys(music.rooms)));
+  meter.want(fixedParts(S));
+}
+
+// The player on a context. opts.comes: comes and goes on (the game) or off (the bench's default); opts.random: the player's own;
+// opts.meter: the loudness meter (the page's shared one by default).
+export function createPlayer(ctx, S, { comes = true, random = Math.random, meter = meterOf(S) } = {}) {
   const kit = makeKit(ctx, S);
   // The frame: mix → low-pass → compressor → hush → master → out → speakers; the echo from the mix back into the low-pass; the
   // music through the gate (comes and goes) into the mix, the room tone straight in. The sounds (S.sounds) on a bus of their own,
   // through their own low-pass, straight to `out`: heard whether the music plays or not (a world with no music, after an ending),
-  // never hushed (they come after waking) nor faded with the music.
+  // never hushed (they come after waking) nor faded with the music. Last, one gentle limiter (S.loudness.limiter), only so stacked
+  // sounds never clip.
   const master = gain(ctx, 0), hushed = gain(ctx, 1), out = gain(ctx, 1);
   const lp = filt(ctx, "lowpass", S.lowpass.frequency, S.lowpass.q);
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = S.compressor.threshold; comp.ratio.value = S.compressor.ratio;
-  chain(lp, comp, hushed, master, out); out.connect(ctx.destination);
-  const meter = ctx.createAnalyser(); meter.fftSize = 1024; out.connect(meter);
-  const sfx = gain(ctx, S.sounds.level); chain(sfx, filt(ctx, "lowpass", S.sounds.lowpass, S.lowpass.q), out);
+  const L = S.loudness.limiter, limiter = ctx.createDynamicsCompressor();
+  limiter.threshold.value = L.threshold; limiter.knee.value = L.knee; limiter.ratio.value = L.ratio; limiter.attack.value = L.attack; limiter.release.value = L.release;
+  chain(lp, comp, hushed, master, out, limiter); limiter.connect(ctx.destination);
+  const scope = ctx.createAnalyser(); scope.fftSize = 1024; limiter.connect(scope);
+  const sfx = gain(ctx, S.buses.sounds); chain(sfx, filt(ctx, "lowpass", S.sounds.lowpass, S.lowpass.q), out);
   const mix = gain(ctx, 1); mix.connect(lp);
   const R = S.reverb, len = Math.floor(ctx.sampleRate * R.seconds), ir = ctx.createBuffer(2, len, ctx.sampleRate);
   for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, R.decay); }
@@ -247,6 +287,60 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     fadeTo(flat.offset, p.flat, p.glide.flat); fadeTo(drift.gain, p.drift[1], p.glide.flat); fadeTo(wob.gain, p.wobble[1], p.glide.wobble);
   }
 
+  // ---- Loudness (MUSIC.md §6c): every part through a trim, a gain node at the meter's gain (its written level, 1, until measured;
+  // then a glide); a part not yet measured is measured in the background, ahead of the rest.
+  const trims = new Map();                                   // key → { part, nodes }: the trims now in use
+  const gainNow = (part) => gainOf(meter, S, part);
+  function trim(part, into) {
+    let t = trims.get(part.key);
+    if (!t) trims.set(part.key, t = { part, nodes: new Set() });
+    const v = gainNow(part), g = gain(ctx, v ?? 1); g.connect(into); t.nodes.add(g);
+    if (v == null) meter.want(part.refPart ? [part.refPart, part] : [part], true);
+    return g;
+  }
+  function untrim(part, g) { trims.get(part.key)?.nodes.delete(g); g.disconnect(); }
+  const unsubscribe = meter.on((key) => {                    // measured: its trims glide to the gain (a colour's when its reference is)
+    for (const t of trims.values()) if (t.part.key === key || t.part.ref === key) {
+      const v = gainNow(t.part);
+      if (v != null) for (const g of t.nodes) { try { fadeTo(g.gain, v, S.loudness.glide); } catch (e) {} }
+    }
+  });
+  // A world's instrument at an octave (as the music box plays it, or not): its part, made once.
+  const instruments = new WeakMap();
+  function instrumentOf(music, inst, octave, box) {
+    let m = instruments.get(inst);
+    if (!m) instruments.set(inst, m = new Map());
+    const id = octave + (box ? "b" : "");
+    if (!m.has(id)) m.set(id, instrumentPart(S, music, inst, octave, box, Object.keys(music.instruments).find(n => music.instruments[n] === inst)));
+    return m.get(id);
+  }
+  // The trim a scene's note goes through: one per instrument and octave on each of its buses (the lines, the theme).
+  function via(a, bus, inst, octave) {
+    const part = instrumentOf(clock.music, inst, octave, a.scene.box), id = bus + " " + part.key;
+    let g = a.trims.get(id);
+    if (!g) { g = trim(part, a[bus]); a.trims.set(id, g); a.owned.push([part, g]); }
+    return g;
+  }
+  // A sound's note: its instrument's gain in this key; until that is measured, the same instrument's in C (the seed's: within a few
+  // dB), else 1.
+  function soundGain(p, key) {
+    const part = soundParts(S, key).get(soundId(p));
+    if (!part) return 1;
+    const v = gainNow(part);
+    if (v != null) return v;
+    meter.want([part], true);
+    const inC = soundParts(S).get(soundId(p));
+    return (inC && gainNow(inC)) ?? 1;
+  }
+  // When the audio starts: the parts every world shares, in the background (a world's own when it plays: measureWorld); after the
+  // tap's own task, which has enough to do.
+  setTimeout(() => { meter.want([...soundParts(S).values()]); meter.want(fixedParts(S)); }, 0);
+  // The most the limiter has pulled down, in dB (info: it should barely act), from `settle` s after the player is made: Chromium's
+  // compressor reports a large reduction as it starts, whatever it is given (a quiet sine alone: -16 dB, back to 0 within 2 s).
+  let deepest = 0;
+  const settle = ctx.currentTime + 3;
+  const reduction = () => (typeof limiter.reduction === "number" ? limiter.reduction : limiter.reduction?.value ?? 0);   // (old Safari: a param)
+
   const clock = createClockwork(S, random);
   const mutes = { lines: false, tone: false, theme: false };
   let current = null, timer = null, playing = false, comesOn = comes, hushOn = false;
@@ -257,31 +351,36 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     const t0 = scene.t0, C = S.scene.crossfade;
     const bus = gain(ctx, 0), lines = gain(ctx, mutes.lines ? 0 : 1), theme = gain(ctx, mutes.theme ? 0 : 1);
     const tbus = gain(ctx, 0), tone = gain(ctx, mutes.tone ? 0 : 1), colour = makeColour(kit, scene.sc.colour);
-    lines.connect(bus); theme.connect(bus); bus.connect(colour.input); colour.output.connect(musicBus);
+    const owned = [], own = (part, into) => { const g = trim(part, into); owned.push([part, g]); return g; };
+    lines.connect(bus); theme.connect(bus); bus.connect(colour.input);
+    colour.output.connect(S.colours[scene.sc.colour] ? own(colourPart(S, scene.sc.colour), musicBus) : musicBus);
     tbus.connect(tone); tone.connect(toneBus);
     for (const b of [bus, tbus]) { b.gain.setValueAtTime(0, t0); b.gain.linearRampToValueAtTime(1, t0 + C); }
     wet.gain.setTargetAtTime(S.space[scene.sc.tone] ?? S.spaceDefault, t0, R.follow);
-    return { scene, bus, lines, theme, tbus, tone, room: makeTone(kit, scene.sc.tone, tbus), colour, toneTo: t0 };
+    const into = S.tones[scene.sc.tone] && scene.sc.tone !== "silence" ? own(tonePart(S, scene.sc.tone), tbus) : tbus;
+    return { scene, bus, lines, theme, tbus, tone, room: makeTone(kit, scene.sc.tone, into), colour, toneTo: t0, trims: new Map(), owned };
   }
   function stopScene(a, fade) {
     const t = ctx.currentTime, P = S.scene;
     for (const b of [a.bus, a.tbus]) { b.gain.cancelScheduledValues(t); b.gain.setValueAtTime(b.gain.value, t); b.gain.linearRampToValueAtTime(0, t + fade); }
     a.room.stop(t + fade + P.toneStop); a.colour.stop(t + fade + P.colourStop);
-    setTimeout(() => { for (const n of [a.bus, a.tbus, a.lines, a.theme, a.tone]) n.disconnect(); }, (fade + P.release) * 1000);
+    setTimeout(() => { for (const n of [a.bus, a.tbus, a.lines, a.theme, a.tone]) n.disconnect(); for (const [part, g] of a.owned) untrim(part, g); }, (fade + P.release) * 1000);
   }
   // A part of the theme, on the scene's theme bus, its chords under it.
   function sound(th) {
     const m = clock.music, inst = m.instruments[th.mel.play], box = current.scene.box;
-    for (const n of th.notes) playEvent(kit, current.theme, m, inst, n.e, th.mel.octave, n.t, n.beats, 1, box);
-    if (th.echo) for (const n of th.notes) playEvent(kit, current.theme, m, inst, n.e, th.mel.octave, n.t + th.echo.after, n.beats, th.echo.level, box);
-    const c = th.mel.chords;
-    if (c) for (const n of th.chords) playEvent(kit, current.theme, m, m.instruments[c.play], n.e, c.octave, n.t, n.beats, S.theme.chords, box);
+    const to = via(current, "theme", inst, th.mel.octave);
+    for (const n of th.notes) playEvent(kit, to, m, inst, n.e, th.mel.octave, n.t, n.beats, 1, box);
+    if (th.echo) for (const n of th.notes) playEvent(kit, to, m, inst, n.e, th.mel.octave, n.t + th.echo.after, n.beats, th.echo.level, box);
+    const c = th.mel.chords, ci = c && m.instruments[c.play];
+    if (c) { const under = via(current, "theme", ci, c.octave); for (const n of th.chords) playEvent(kit, under, m, ci, n.e, c.octave, n.t, n.beats, S.theme.chords, box); }
   }
   // The scheduler, every `every` ms: what is due, made sound.
   function tick() {
     if (!current) return;
     const now = ctx.currentTime, out = clock.advance(now), m = clock.music, sc = current.scene;
-    for (const n of out.notes) playEvent(kit, current.lines, m, m.instruments[n.line.play], n.e, n.line.octave, n.t, n.beats, sc.share, sc.box);
+    for (const n of out.notes) { const inst = m.instruments[n.line.play]; playEvent(kit, via(current, "lines", inst, n.line.octave), m, inst, n.e, n.line.octave, n.t, n.beats, sc.share, sc.box); }
+    if (ctx.currentTime > settle) deepest = Math.min(deepest, reduction());
     const ahead = now + S.scene.ahead;
     if (current.toneTo < ahead) { const a = Math.max(current.toneTo, now); current.room.tick(a, ahead); current.colour.tick(a, ahead); current.toneTo = ahead; }
     if (out.rest !== undefined) gate.gain.setTargetAtTime(out.rest ? 0 : 1, now, S.comes.fade);
@@ -313,6 +412,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
         clock.comes(comesOn, now); gate.gain.cancelScheduledValues(now); gate.gain.setValueAtTime(1, now);
       }
       if (current) stopScene(current, S.scene.crossfade);
+      setTimeout(() => measureWorld(meter, S, music, roomId), 0);
       current = startScene(clock.start(music, roomId, now));
       retune();
       clearInterval(timer); timer = setInterval(tick, S.scene.every); tick();
@@ -370,19 +470,21 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     },
     muted: () => ({ ...mutes }),
     comes(on) { comesOn = !!on; clock.comes(comesOn, ctx.currentTime); },
-    // The music's or the room tone's level (the bench's sliders).
-    volume(part, v) { (part === "tone" ? toneBus : musicBus).gain.setTargetAtTime(v, ctx.currentTime, 0.1); },
-    // An instrument alone (the bench's Hear): steps 1, 3, 5, straight to the music bus.
+    // The music's, the room tone's or the sounds' level (the bench's sliders).
+    volume(part, v) { ({ tone: toneBus, sounds: sfx }[part] ?? musicBus).gain.setTargetAtTime(v, ctx.currentTime, 0.1); },
+    // An instrument alone (the bench's Hear): steps 1, 3, 5, straight to the music bus, at its gain at that octave.
     hear(music, name) {
       const H = S.hear, t = ctx.currentTime + 0.05, inst = music.instruments[name];
       if (!playing) { master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(S.master.level, t); }
-      H.steps.forEach((st, k) => note(kit, musicBus, inst, freqOf(music, st, H.octave), t + k * H.gap, H.length));
+      const part = instrumentOf(music, inst, H.octave, false), g = trim(part, musicBus);
+      H.steps.forEach((st, k) => note(kit, g, inst, freqOf(music, st, H.octave), t + k * H.gap, H.length));
+      setTimeout(() => untrim(part, g), (H.steps.length * H.gap + 8) * 1000);
     },
     // Sounds (ui/sound/sounds.js): each { kind, material, weight }, in the list's order, a little apart, in the key given
     // ({ root, steps }: the world's music's, or S.sounds.key). Whether the music plays or not.
     sounds(list, key = S.sounds.key) {
       if (!list.length) return;
-      playSounds(kit, sfx, list, key, ctx.currentTime + S.sounds.lead);
+      playSounds(kit, sfx, list, key, ctx.currentTime + S.sounds.lead, (p) => soundGain(p, key));
       lastSounds = { kinds: list.slice(0, S.sounds.most).map(s => s.kind + (s.material ? " (" + s.material + ")" : "")), at: ctx.currentTime };
     },
     // What plays now: for the bench's page and the debug panel.
@@ -391,11 +493,17 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
                themeNext: clock.themeNext, nextPart: clock.nextPart, resting: clock.resting, hushed: hushOn, night: clock.night, ending: clock.ended,
                unwell: clock.unwell, wobble: clock.wobble, echo: clock.echo, pitch: clock.pitch,
                tuning: { flat: flat.offset.value, wobble: wob.gain.value },   // the pitch as it is now, in cents (mid-glide too)
-               mutes: { ...mutes }, sounds: lastSounds };
+               mutes: { ...mutes }, sounds: lastSounds,
+               loudness: meter.info(), limiter: { now: reduction(), deepest } };
     },
+    // Every part of a world with what the meter has of it (partsOf).
+    parts: (music, roomIds = []) => partsOf(meter, S, music, roomIds),
+    meter,
+    // Let go of the meter (a player replaced): its trims no longer follow it.
+    close() { unsubscribe(); },
     // The peak level leaving the page now, in dB (-99: nothing).
     level() {
-      const a = new Float32Array(meter.fftSize); meter.getFloatTimeDomainData(a);
+      const a = new Float32Array(scope.fftSize); scope.getFloatTimeDomainData(a);
       let peak = 0; for (const v of a) peak = Math.max(peak, Math.abs(v));
       return peak > 0 ? 20 * Math.log10(peak) : -99;
     }

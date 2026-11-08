@@ -5,8 +5,10 @@
 // a key, `{ root, steps }` (the world's music's, js/music.js; or the spec's `sounds.key`). Every number is the spec's
 // (content/music.js, `sounds`: one table, `moments`, from a kind to its notes). Any randomness is the synth's, never the game's.
 //
-//   planOf(list, key, S) → [{ kind, inst, f, toF, t, dur, share }]   what plays, as numbers: t from the first sound's start (no audio)
-//   playSounds(kit, dest, list, key, t0)                              the plan made sound, from audio time t0
+//   planOf(list, key, S) → [{ kind, inst, octave, f, toF, t, dur, share }]   what plays, as numbers: t from the first sound's start
+//   playSounds(kit, dest, list, key, t0, trim)                                 the plan made sound, from audio time t0; trim(p): each
+//                                                                              note's gain from the meter (ui/sound/loudness.js), 1 if none
+//   playNote(kit, dest, p, t)                                                  one planned note, at audio time t (the meter plays it alone)
 
 import { freqOf } from "../../js/music.js";
 import { note, filt } from "./synth.js";
@@ -27,23 +29,23 @@ export function planOf(list, key, S) {
       if (!voice) continue;
       const inst = !own && voice.as?.[s.material] ? { ...voice, ...voice.as[s.material] } : voice;   // a voice's shape for this material
       const octave = own ? m.octave + (n.shift ?? 0) : n.octave ?? 4;
-      out.push({ kind: s.kind, inst, f: pitch(n.step, octave), toF: n.to !== undefined ? pitch(n.to, octave) : undefined,
+      out.push({ kind: s.kind, inst, octave, f: pitch(n.step, octave), toF: n.to !== undefined ? pitch(n.to, octave) : undefined,
                  t: k * O.spacing + (n.at ?? 0), dur: n.length ?? inst.length ?? O.length,
-                 share: (inst.level ?? 1) * (n.level ?? 1) * weight });
+                 share: (n.level ?? 1) * weight });
     }
   });
   return out;
 }
 
-// The plan made sound, on `dest`, from audio time t0.
-// Steady: the music's shared pitch (unwell, the wobble: kit.pitch) is the music's, not theirs.
-export function playSounds(kit, dest, list, key, t0) {
-  const steady = { ...kit, pitch: null };
-  for (const p of planOf(list, key, kit.S)) {
-    const own = EFFECTS[p.inst.kind];
-    if (own) own(kit, dest, p.inst, p.f, t0 + p.t, p.dur, p.share, p.toF);
-    else note(steady, dest, p.inst, p.f, t0 + p.t, p.dur, p.share, { toF: p.toF });
-  }
+// The plan made sound, on `dest`, from audio time t0, each note at its share × its trim (the meter's gain for its instrument).
+export function playSounds(kit, dest, list, key, t0, trim = () => 1) {
+  for (const p of planOf(list, key, kit.S)) playNote(kit, dest, { ...p, share: p.share * trim(p) }, t0 + p.t);
+}
+// One planned note at audio time t. Steady: the music's shared pitch (unwell, the wobble: kit.pitch) is the music's, not theirs.
+export function playNote(kit, dest, p, t) {
+  const own = EFFECTS[p.inst.kind];
+  if (own) own(kit, dest, p.inst, p.f, t, p.dur, p.share, p.toF);
+  else note({ ...kit, pitch: null }, dest, p.inst, p.f, t, p.dur, p.share, { toF: p.toF });
 }
 
 // ---- The sounds' own kinds (not the music's): a wooden knock, a body blow, a hinge's creak --------------------------------------
@@ -67,18 +69,17 @@ function hiss(kit, out, type, freq, q, t, level, tc, buf = kit.noise.white) {
 // Each sound's own gain into the bus, let go once it has died away.
 const outOf = (ctx, dest, level, t) => { const g = ctx.createGain(); g.gain.value = level; g.connect(dest);
   setTimeout(() => g.disconnect(), Math.max(1000, (t - ctx.currentTime + 3) * 1000)); return g; };
-const levelOf = (S, inst, share) => S.sounds.kinds[inst.kind].level * share;   // the kind's level × the note's share
 
 // A hollow wooden knock: the board's two modes (f and f × `modes[1]`), quick to die, and the click of the hit.
 function tock(kit, dest, inst, f, t, dur, share) {
-  const { ctx, S } = kit, K = S.sounds.kinds.tock, out = outOf(ctx, dest, levelOf(S, inst, share), t);
+  const { ctx, S } = kit, K = S.sounds.kinds.tock, out = outOf(ctx, dest, share, t);
   K.modes.forEach(([ratio, level, tc]) => ring(ctx, out, f * ratio, t, level, tc, f * ratio * K.drop, K.glide));
   hiss(kit, out, "bandpass", K.click.band, K.click.q, t, K.click.level, K.click.tc);
 }
 
 // A blow to the body: a low thump falling in pitch, with a dull punch in the middle (where small speakers hear it).
 function thump(kit, dest, inst, f, t, dur, share) {
-  const { ctx, S } = kit, K = S.sounds.kinds.thump, out = outOf(ctx, dest, levelOf(S, inst, share), t);
+  const { ctx, S } = kit, K = S.sounds.kinds.thump, out = outOf(ctx, dest, share, t);
   ring(ctx, out, f, t, K.body.level, K.body.tc, f * K.body.from, K.body.glide);
   ring(ctx, out, f * K.mid.ratio, t, K.mid.level, K.mid.tc, f * K.mid.ratio * K.body.from, K.body.glide, "triangle");
   hiss(kit, out, "bandpass", K.punch.band, K.punch.q, t, K.punch.level, K.punch.tc, kit.noise.pink);
@@ -87,7 +88,7 @@ function thump(kit, dest, inst, f, t, dur, share) {
 // A hinge's creak: friction sticking and slipping, a rough buzz whose pitch wanders (from f towards toF, never steady) and whose
 // strength flutters, rough with slow noise in its pitch, heard through the door's resonances (`bands`: [Hz, q, level]; a metal gate's are higher and narrower).
 function creak(kit, dest, inst, f, t, dur, share, toF = f) {
-  const { ctx, S } = kit, K = S.sounds.kinds.creak, out = outOf(ctx, dest, levelOf(S, inst, share), t);
+  const { ctx, S } = kit, K = S.sounds.kinds.creak, out = outOf(ctx, dest, share, t);
   const n = K.points, path = new Float32Array(n), amp = new Float32Array(n);
   let wander = 0;
   for (let i = 0; i < n; i++) {
