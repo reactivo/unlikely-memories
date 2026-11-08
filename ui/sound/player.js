@@ -220,11 +220,14 @@ export function openAudio(existing) {
 // (content/loudness.seed.js: every shared part and the shipped worlds' instruments, measured by tools/music/seed.py) as the levels
 // until this device has measured each part itself.
 let shared = null, opened = false;
+// For now an iPhone or iPad measures nothing itself (Offline: null): the seed's levels, else the written ones. The game there ran a
+// while with the sound on, then froze and the page reloaded (8 November 2026), likely the meter's renders (memory); until the sound's
+// review settles it.
 // An iPhone or iPad (an iPad says "Macintosh" and has a touch screen). There the meter renders nothing before openAudio: an offline
 // context made first fixed the audio session as the default, and silent mode muted everything (8 November 2026).
 export const appleMobile = () => typeof navigator !== "undefined" &&
   (/iPhone|iPad/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
-export const meterOf = (S) => (shared ??= createMeter({ held: appleMobile() && !opened, gap: S.loudness.gap, limits: S.loudness.limits, seed: SEED.parts }));
+export const meterOf = (S) => (shared ??= createMeter({ held: appleMobile() && !opened, Offline: appleMobile() ? null : undefined, gap: S.loudness.gap, limits: S.loudness.limits, seed: SEED.parts }));
 // A part's target (S.loudness.targets; a colour's: its reference's loudness, clean) and its gain now (null: not measured, its
 // written level).
 export const targetOf = (meter, S, part) => (part.group === "colours" ? meter.known(part.ref)?.loudness ?? null : S.loudness.targets[part.group] ?? null);
