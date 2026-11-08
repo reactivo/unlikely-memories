@@ -41,6 +41,9 @@
 // Two puzzles that give the same thing are two ways to it: each ending takes the first written, and a way no ending took is played
 // too, in the first ending that needs what it gives (endings["<ending>/<puzzle>"]).
 //
+// Also: the world's music (MUSIC.md §4) is never a problem: what the forgiving reader (js/music.js) skipped or brought into range is
+// listed as warnings, "music: …", and nothing else about music is looked at.
+//
 // Also, given the bible (the third argument): its blurb is 110–160 characters and its thumbnail names one of the world's room pictures
 // (never an ending's or `died`) with a whole-number x from 0 to 95 (bibleProblems below; GUIDE.md §1). Without a bible these aren't looked at.
 //
@@ -57,6 +60,7 @@ import { nextCell } from "./space.js";
 import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
 import { FIELDS, TEXT_WORDS, PROPERTY_WORD, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, isLine } from "./fields.js";
+import { musicOf } from "./music.js";
 import art from "../content/art.js";
 import { filterProblem } from "./filters.js";
 import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems, placeNow, placeHolding, inSeconds } from "./movers.js";
@@ -90,6 +94,7 @@ const packText = (x, pack) => (typeof x === "string" && x.startsWith("@") ? x.sl
 
 export function check(state, pack, bible, { before = null } = {}) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)
+  for (const n of musicOf(state)?.notes ?? []) warnings.push(`music: ${n.text}`);   // what the music's reader did: never a problem
   // The opening's way on `reaches: "entrance"`: wherever the world says it leads.
   // (With no world yet, there's nowhere for it to lead: the opening's puzzles are left out.)
   const puzzles = Object.fromEntries(Object.entries(state.puzzles || {})

@@ -2,6 +2,7 @@
 // (BRIEF.md). One change set, all or nothing; plain data, no shortcuts.
 
 import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -24,6 +25,8 @@ export const bible = {
     "Nobody who walks east alone into the sand sea has been seen to come back; the tracks all point the same way."
   ],
   opening: "A night desert of identical dunes: a shell that murmurs the sea that was here (the hints), a cord of knots in your pocket (the intro), a door standing in its frame with no wall (the way on).",
+  music: "patient hushed mode; a one-string imzad and a tea glass struck three times; the brazier ticking, heard from " +
+    "across the sand",
   start: { day: 1, time: "06:10" },
   characters: [
     "Fadimata, the camp's eldest, who pours tea in threes and never asks why you came.",
@@ -89,6 +92,8 @@ export default {
   opening,
   effects: [
     { time: "day 1 03:30" },
+
+    { add: "music", ...music },   // the music (music.js); each room's own as its `music`
 
     // ---- the opening: the sand sea, a door standing in its frame ------------------------------------------------
     { add: "room", id: "dunes", name: "THE SAND SEA", area: "erg", at: [0, 0, 0],
@@ -200,7 +205,7 @@ export default {
       },
       alt: "The inside of a black tent: rugs, a glowing brazier with a teapot, an old woman, a lamp on a shelf.",
       overlayAlt: { lamp: "A little clay lamp stands on the shelf." },
-      picture: pictures.tent.picture },
+      picture: pictures.tent.picture, music: roomMusic.tent },
     { add: "object", id: "fadimata", at: "tent", name: "Fadimata", note: "Pouring, unhurried.",
       words: { nouns: ["fadimata", "elder"], adj: ["old"], g: "f", proper: true },
       examine: "Small, unveiled and upright, with silver at her wrists and an expression of immense settled patience. When she pours, the tea falls in one long clean arc that does not splash.",
@@ -377,7 +382,7 @@ export default {
         every: [35, 70], chance: 0.6
       },
       alt: "A high ridge looking down on a pale dish of sand, with a tiny camp in it, a stone cairn, and a thread of smoke far off.",
-      picture: pictures.ridge.picture },
+      picture: pictures.ridge.picture, music: roomMusic.ridge },
     { add: "object", id: "cairn", at: "ridge", name: "Cairn", note: "A stone from everyone.",
       touch: "You lay a hand on the stones. Each is warm, and each fits a hand that is not yours. You take yours away as a courtesy.",
       words: { nouns: ["cairn", "stones"], adj: ["stone"] },
@@ -426,7 +431,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A long cave chamber painted with giraffes and dancers, and at its end a life-size woman sitting by a well.",
-      picture: pictures.gallery.picture },
+      picture: pictures.gallery.picture, music: roomMusic.gallery },
     { add: "object", id: "painting", at: "gallery", use: "touch", name: "Painted woman", note: "Waiting, facing the way in.",
       words: { nouns: ["woman", "painting", "figure"], adj: ["painted", "red"] },
       touch: "You lay a palm on her painted hand. The rock is cool and smooth, the kind that keeps what is pressed on it. Copying her would want something to press, and something to press with.",
@@ -449,7 +454,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A small round cave covered in hundreds of pale handprints on a red wall.",
-      picture: pictures.hands.picture },
+      picture: pictures.hands.picture, music: roomMusic.hands },
     { add: "object", id: "handprint", at: "hands", use: "touch", name: "Handprint", note: "Exactly your size.",
       words: { nouns: ["handprint", "print"], adj: ["pale", "your"] },
       examine: "A pale hand in a halo of red, spread at the height of your shoulder. Its fingers are the length of yours. It is not yours, and it is still slightly warm." },
@@ -471,7 +476,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A round cave chamber with a still pool in the middle, lit from above, and a stone lip round it.",
-      picture: pictures.cistern.picture },
+      picture: pictures.cistern.picture, music: roomMusic.cistern },
     { add: "object", id: "pool", at: "cistern", container: true, open: "always", name: "Pool", note: "Old rain, very still.",
       words: { nouns: ["pool", "water", "cistern", "rain"], adj: ["still", "old"] },
       listen: "You listen. The pool is saying something slowly, in a language made entirely of vowels, and you almost have it.",

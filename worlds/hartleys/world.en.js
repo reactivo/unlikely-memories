@@ -3,6 +3,7 @@
 // for the pictures). One change set, applied after the opening, all or nothing.
 
 import pictures, { endings } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -18,6 +19,8 @@ export const bible = {
   start: "Saturday, 17:10, on the ground floor.",
   opening: "The arcade behind the store, at ten to five: a wireless (hints), a " +
     "shopping list you already carry (why you came). The revolving door is the way in.",
+  music: "an unhurried palm-court waltz; perfume bottles that sing, the cash railway's brass and canisters, a lift bell " +
+    "for a floor nobody asked for; a store that plays on past closing",
   rules: [
     "Everything at Hartley's has a price, and the price is a memory.",
     "Payment goes to the cash office by tube, and only by tube.",
@@ -560,7 +563,8 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // the music (music.js, shared by both languages); each room's own as its `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", heldActions: ["Show ticket to Mr Pell"],
       words: { nouns: ["ticket", "appointment"], adj: ["pink", "appointment", "lift"] }, ...item("lift_ticket"),

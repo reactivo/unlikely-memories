@@ -8,6 +8,7 @@
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
 import pictures, { endings } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
@@ -24,6 +25,8 @@ export const bible = {
   opening: "Pasillo 7-B del Ministerio, una mañana de lunes: un buzón de " +
     "sugerencias (las pistas), un memorando que ya llevas encima (por qué has venido). La puertecita verde que respira " +
     "es el camino.",
+  music: "un vals de salón de té en mixolidio, que se ha quedado en las cinco y cuarto; una radio en las dunas y la caja " +
+    "de música del tiovivo; el mar que respira sobre la arena",
   rules: [
     "Una vez entregado, tu nombre se queda con la puerta. Nadie aquí puede devolvértelo.",
     "Siempre son las cinco y cuarto de un domingo. A nadie del pueblo le parece raro.",
@@ -884,7 +887,8 @@ export default {
 
     // Salas, objetos y reglas
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // la música (music.js, la misma en los dos idiomas); la de cada sala, en su `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),
 

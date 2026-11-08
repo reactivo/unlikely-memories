@@ -3,6 +3,7 @@
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
 import pictures, { endings as endingPictures } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ export const bible = {
     "The lifts are out of order; the stairs are the only way up that anyone admits to."
   ],
   opening: "A fenced service yard behind the Meridian Block: an intercom on its cord (the hints), a summons in your pocket (the intro), the one service door in (the way on).",
+  music: "slow waltz; a harmonium asking politely, one beat short; a stair clock that is not right; a radiator told to wait",
   start: { day: 1, time: "06:50", weekday: "mon" },
   characters: ["Mrs Hale, the Archivist, who keeps the paper and sorts cards nobody has asked for."],
   endings: ["present (the slip goes in the slot)", "booth (present in person: you sit in the last booth)", "erased (the slip goes in the shredder)", "shaft (a step into the dark)"],
@@ -65,6 +67,8 @@ export default {
   effects: [
     { time: "day 1 06:40" },
 
+    { add: "music", ...music },   // the music (music.js); each room's own as its `music`
+
     // ---- the opening: a fenced yard, its way on the one door, in ----------------------------------------------
     { add: "room", id: "yard", name: "SERVICE YARD", area: "yard", at: [0, 0, 0],
       describe: [
@@ -87,7 +91,7 @@ export default {
       },
       alt: "A fenced yard looking up at a single steel service door in the back wall, a tarpaulin and bins at the sides.",
       overlayAlt: { intercom: "An intercom hangs on its cord beside the door." },
-      picture: pictures.yard.picture },
+      picture: pictures.yard.picture, music: roomMusic.yard },
     { add: "object", id: "intercom", at: "yard", portable: true, name: "Intercom", note: "Humming on its cord.",
       here: "Beside the door's frame an {intercom} hangs on a coiled cord, humming a little, the way a thing does when someone at the other end is about to speak.",
       words: { nouns: ["intercom", "receiver", "handset"], adj: ["grey"] },
@@ -152,7 +156,7 @@ export default {
       ],
       sleep: "Not in the Records Office. Mrs Hale would file you under Pending.",
       alt: "A desk and ledgers seen from above, one lamp lit on the desk and a drawer open in its front.",
-      picture: pictures.records.picture },
+      picture: pictures.records.picture, music: roomMusic.records },
     { add: "object", id: "archivist", at: "records", name: "Mrs Hale", note: "Sorting cards.",
       words: { nouns: ["mrs", "hale", "archivist"], adj: [], g: "f", proper: true },
       topics: {
@@ -186,7 +190,7 @@ export default {
         { words: ["pipes"], name: "the pipes", says: "They are cold, and they go on a long way in both directions, which pipes should not." }
       ],
       alt: "The old generator far off in a damp cellar, a single bulb lit at the far end.",
-      picture: pictures.cellar.picture },
+      picture: pictures.cellar.picture, music: roomMusic.cellar },
     { add: "object", id: "generator", at: "cellar", name: "Generator", note: "Quiet.", opens: ["audit"],
       words: { nouns: ["generator", "switch"], adj: ["old"] }, use: "switch_on",
       examine: "A brass plate says it supplies the Registry lights and the lift motors. Under it, in pencil: Last serviced 1987. Its switch is set to ON.",
@@ -202,7 +206,7 @@ export default {
       exits: { w: "corridor", e: "staff" },
       alt: "A steaming urn on a long counter, seen looking up from the canteen floor, and a vending machine by the door.",
       overlayAlt: { biscuit: "A biscuit sits on a saucer by the urn." },
-      picture: pictures.canteen.picture },
+      picture: pictures.canteen.picture, music: roomMusic.canteen },
     { add: "object", id: "urn", at: "canteen", name: "Urn", note: "Gurgling.",
       words: { nouns: ["urn", "tap", "water"], adj: ["hot"] }, use: "drink",
       examine: "Hot water, a tap, and a mirror of steam. It has been on for a long time and is still waiting for the first cup." },
@@ -296,7 +300,7 @@ export default {
         every: [35, 70], chance: 0.6
       },
       alt: "The lobby's glass front, sealed with a strip across it, the fog-lit city beyond and a flicker of lamps.",
-      picture: pictures.lobby.picture },
+      picture: pictures.lobby.picture, music: roomMusic.lobby },
     { add: "object", id: "glass_front", at: "lobby", name: "Glass front", note: "Sealed.", actions: ["Look through glass"],
       words: { nouns: ["glass", "front glass", "front", "seal"], adj: [] },
       examine: "Thick glass with a wire in it. The seal across the middle is new, which is the only new thing in the room. Through it the city stands in the fog, waiting to be confirmed.",
@@ -333,7 +337,7 @@ export default {
       },
       sleep: "PLEASE REMAIN PRESENT, says the terminal. You remain present.",
       alt: "A terminal screen close up, its text lines in green and a cursor waiting in a gap, a slot and a shredder below.",
-      picture: pictures.registry.picture },
+      picture: pictures.registry.picture, music: roomMusic.registry },
     { add: "object", id: "terminal", at: "registry", name: "Terminal", note: "Waiting for a tick.",
       words: { nouns: ["terminal", "screen"], adj: ["desk"] },
       examine: "The screen shows the register: columns of names, each with a small green tick. There is a gap where a tick should be, and a cursor waiting in it, patient as a dog.",

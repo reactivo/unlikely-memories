@@ -259,10 +259,10 @@ export function ask(state, effect) {
 // about a field the engine doesn't know or a property that isn't declared (js/fields.js): "warn" (a world: it still
 // loads, the findings come back as `warnings` and are kept in state.warnings) or "refuse" (the AI's: the set is
 // refused with the reasons). Either way an effect or an operator only the engine writes (`restart`, `hint`…, `holds`: ENGINE_ONLY) refuses the
-// set. Without it the set isn't checked (the engine's and the tests' own sets).
+// set, and an unknown field inside music only warns (MUSIC.md §2.4). Without it the set isn't checked (the engine's and the tests' own sets).
 export function applyChangeSet(state, set, { protect = true, fields = null } = {}) {
   const found = fields ? checkSet(state, set) : [];
-  const refusing = fields === "refuse" ? found : found.filter(f => f.refuse);   // the engine's own effects: refused in a world too
+  const refusing = found.filter(f => f.refuse || (fields === "refuse" && !f.warn));   // the engine's own effects: refused in a world too; music never
   if (refusing.length)
     return { next: state, applied: [], refused: refusing.map(f => ({ effect: f.effect ?? null, reason: `${f.piece}: ${f.text}` })) };
   const g = structuredClone(state);
@@ -273,7 +273,7 @@ export function applyChangeSet(state, set, { protect = true, fields = null } = {
   if (out.refused.length) return { next: state, applied: [], refused: out.refused };
   drawLongThings(g, null);                                      // the pictures as the world starts: a long thing not at home isn't drawn
   placeMovers(g);                                               // and each thing that moves where its fact says (a time jump too)
-  const warnings = fields === "warn" ? found.map(f => `${f.piece}: ${f.text}`) : [];
+  const warnings = found.filter(f => fields === "warn" || f.warn).map(f => `${f.piece}: ${f.text}`);
   if (warnings.length) g.warnings = [...(g.warnings || []), ...warnings];
   const { lists, drawn, ...told } = out;
   return { next: g, ...told, warnings };
@@ -1446,7 +1446,7 @@ const idTaken = (g, kind, id) => {
   return has ? `can't add ${kind} "${id}": that id is already ${has === "object" ? "an" : "a"} ${has}${typeof name === "string" ? ` ("${name}")` : ""}, and ids are unique across rooms, objects and puzzles; rename one of them` : null;
 };
 
-// Add a room (in a free cell of an area), an object, a rule, a named change, a puzzle or a word.
+// Add a room (in a free cell of an area), an object, a rule, a named change, a picture, the world's music, a puzzle, a condition or a word.
 function addThing(g, e, refuse, done) {
   if (e.add === "room") {
     const { add, id, ...props } = e;
@@ -1494,6 +1494,9 @@ function addThing(g, e, refuse, done) {
     const read = typeof picture.draw === "string" ? readPicture(picture) : structuredClone({ version: 1, ...picture });
     if (typeof read === "string") return refuse(`picture ${id}: ${read}`);
     g.pictures[id] = { ...(alt !== undefined ? { alt } : {}), picture: read };
+  } else if (e.add === "music") {                  // the world's music (MUSIC.md §4): kept as written, never refused (js/music.js reads it
+    const { add, ...music } = e;                   // forgivingly when it plays); a second one replaces the first
+    g.music = structuredClone(music);              // (made with the first: a game saved before music loads unchanged, with none)
   } else if (e.add === "puzzle") {                 // a puzzle described as data (GUIDE.md §3; checked by js/check.js)
     const { add, id, ...props } = e;
     if (!id || !Array.isArray(props.solve) || !props.solve.length) return refuse("a puzzle needs an id and the commands that solve it");

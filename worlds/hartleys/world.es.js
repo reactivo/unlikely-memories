@@ -4,6 +4,7 @@
 // sprites son los de la versión inglesa; solo cambia lo que lleva lenguaje.
 
 import pictures, { endings } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
@@ -19,6 +20,9 @@ export const bible = {
   start: "Sábado, 17:10, en la planta baja.",
   opening: "El pasaje de atrás de los almacenes, a las cinco menos diez: una " +
     "radio (pistas), una lista de la compra que ya llevas (por qué viniste). La puerta giratoria es la entrada.",
+  music: "un vals de salón de té sin prisas; frascos de perfume que cantan, el latón y los cartuchos del correo " +
+    "neumático, el timbre del ascensor en una planta que nadie ha pedido; unos almacenes que siguen sonando después del " +
+    "cierre",
   rules: [
     "Todo en Hartley's tiene un precio, y el precio es un recuerdo.",
     "Los pagos van a la caja por tubo, y solo por tubo.",
@@ -559,7 +563,8 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // la música (music.js, la misma en los dos idiomas); la de cada sala, en su `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "lift_ticket", at: null, portable: true, name: "Volante de cita", note: "Cuarta planta.", heldActions: ["Mostrar volante a Pell"],
       words: { nouns: ["volante", "cita", "billete", "ticket", "resguardo"], adj: ["rosa", "cita", "ascensor", "previa", "de"], g: "m" }, ...item("lift_ticket"),

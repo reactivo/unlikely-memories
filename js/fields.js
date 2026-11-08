@@ -6,7 +6,8 @@
 //   checkSet(state, set) → [{ piece, text, effect?, refuse? }]   "rules/dog-attacks", `uses "dog.angr", not declared (…)`
 // A finding marked `refuse` (an effect, an operator or a kind of echo only the engine writes: ENGINE_ONLY, ENGINE_ONLY_OPERATORS,
 // ENGINE_ECHOES) refuses the
-// set even where the others only warn.
+// set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
+// where the others refuse: nothing about music is ever refused.
 
 import { ANSWERED } from "./verbs.js";
 import { PARTS, LINES } from "./opening.js";
@@ -18,12 +19,14 @@ import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js";
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
-const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
+const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "music", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
   "here", "lies", "words", "sprite", "floorSprite", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
   "requires", "spends", "lacking", "dream", "places", "rounds", "arrives", "leaves", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
+// The world's music (`add music`) and a room's own (its `music` field): MUSIC.md §4, read by js/music.js.
+const MUSIC = ["mode", "tempo", "colour", "instruments", "tone", "lines", "melody"];
 
 export const FIELDS = {
   changeSet: ["because", "facts", "effects", "opening", "properties"],
@@ -47,6 +50,13 @@ export const FIELDS = {
   roundsEvery: ["seconds"],
   exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "passage"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking?, passage? }
   picture: ["version", "draw", "cycles", "overlays"],
+  // Music (MUSIC.md §4): the world's, a room's, an instrument, a line, the theme and its chords. An unknown field inside music
+  // only warns (MUSIC.md §2.4), in a world and in what the AI proposes alike.
+  music: MUSIC,
+  roomMusic: ["tone", "colour", "lines", "melody"],
+  instrument: ["kind", "ratio", "bright", "attack", "release"],
+  musicLine: ["play", "octave", "notes"],
+  melody: ["play", "octave", "notes", "words", "shape", "chords"],
   rule: ["id", "match", "if", "do", "when", "every", "at", "chance", "then", "once", "again"],
   every: ["seconds", "turns"],
   match: ["verb", "obj", "obj2", "dir", "prep", "topic", "text", "scenery", "absent", "question", "value", "blank"],
@@ -85,6 +95,7 @@ export const FIELDS = {
     "add change": ["add", "id", "effects"],
     "add puzzle": ["add", "id", ...PUZZLE],
     "add picture": ["add", "id", "picture", "alt"],
+    "add music": ["add", ...MUSIC],
     "add word": ["add", "verb", "words", "object", "absent", "speech", "reply"],
     "add condition": ["add", "id", ...CONDITION_FIELDS],
     "remove object": ["remove", "id"],
@@ -320,8 +331,8 @@ export function checkSet(state, set) {
   const objects = new Set([...Object.keys(state.world.objects), ...adds("object")]);
   const rooms = new Set([...Object.keys(state.world.rooms), ...adds("room")]);
   const kindOf = (id) => id === "player" || id === "game" || id === "time" ? id : objects.has(id) ? "object" : rooms.has(id) ? "room" : null;
-  const note = (piece, text, effect, refuse) => {
-    if (!found.some(f => f.piece === piece && f.text === text)) found.push({ piece, text, ...(effect ? { effect } : {}), ...(refuse ? { refuse } : {}) });
+  const note = (piece, text, effect, refuse, warn) => {
+    if (!found.some(f => f.piece === piece && f.text === text)) found.push({ piece, text, ...(effect ? { effect } : {}), ...(refuse ? { refuse } : {}), ...(warn ? { warn } : {}) });
   };
 
   // Ids are unique across rooms, objects and puzzles: one the game has already, or an earlier effect of this set adds, is a finding.
@@ -344,6 +355,21 @@ export function checkSet(state, set) {
       const near = suggest(k, [...list, ...Object.keys(declared).filter(d => id && d.startsWith(id + ".")).map(d => d.slice(id.length + 1))]);
       note(piece, `${label ? label + " has unknown" : "unknown"} field "${k}"${near}`, effect ?? x);
     }
+  };
+
+  // Music, the world's (`add music`) or a room's: unknown fields at every level only warn (MUSIC.md §2.4). What its values
+  // say is the reader's (js/music.js), which never refuses either: the checker lists its notes.
+  const music = (piece, m, list, effect) => {
+    if (!isObject(m)) return;
+    const only = (x, names, label) => {
+      if (!isObject(x)) return;
+      for (const k of Object.keys(x)) if (!names.includes(k)) note(piece, `${label} has unknown field "${k}"${suggest(k, names)}`, effect, false, true);
+    };
+    only(m, list, "music");
+    for (const [name, i] of Object.entries(isObject(m.instruments) ? m.instruments : {})) only(i, FIELDS.instrument, `music: instrument ${name}`);
+    (Array.isArray(m.lines) ? m.lines : []).forEach((l, i) => only(l, FIELDS.musicLine, `music: line ${i + 1}`));
+    only(m.melody, FIELDS.melody, "music: melody");
+    if (isObject(m.melody)) only(m.melody.chords, FIELDS.musicLine, "music: melody chords");
   };
 
   // A property used by a path ("dog.anger", "$obj.talk", "player.health"): the engine's own, or declared.
@@ -391,6 +417,7 @@ export function checkSet(state, set) {
       return note(piece, `an echo of kind "${e.kind}" is the engine's own: the game itself says what you gain and lose`, e, true);
     const named = { "add room": "rooms/", "add object": "objects/", "add rule": "rules/", "add change": "changes/", "add puzzle": "puzzles/", "add word": "words/", "add picture": "pictures/", "add condition": "conditions/" }[kind];
     if (named) piece = named + (kind === "add rule" ? e.rule?.id : kind === "add word" ? e.verb : e.id);
+    if (kind === "add music") { const { add, ...own } = e; return music("music", own, FIELDS.music, e); }   // the world's music: only warned
     if (["add room", "add object", "add puzzle"].includes(kind)) claim(piece, kind.slice(4), e);
     if (kind === "remove object" && typeof e.id === "string") taken.delete(e.id);
     if (kind === "add room" || kind === "add object") {
@@ -519,6 +546,7 @@ export function checkSet(state, set) {
         if (marked.length > 1) note(piece, `exits ${marked.join(" and ")} are all marked ${way}: true; only one exit of a room is the way ${way}`, t);
       }
       if (isObject(t.picture)) fields(piece, t.picture, FIELDS.picture, "picture", null, t);
+      music(piece, t.music, FIELDS.roomMusic, t);                // a room's own music: only warned
     } else {
       fields(piece, t.words, FIELDS.words, "words", null, t);
       // `proper` and `open` take only their values: anything else is refused, a world's set too (the one check for them)

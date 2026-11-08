@@ -2,6 +2,7 @@
 // (BRIEF.md). One change set, all or nothing; plain data, no shortcuts.
 
 import pictures, { endings as endingPictures } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -24,6 +25,8 @@ export const bible = {
     "The smoke has no height. Everybody in it is exactly as high as where they are going."
   ],
   opening: "A hired floater tied to a mooring mast in the smoke: an ear trumpet that listens to the Exchange (the hints), a punched card summoning you (the intro), a gangway out into the smoke (the way on).",
+  music: "slow harmonic minor; a wheezing ear trumpet and a plucked spring; the Exchange heard on a set left on, a meter " +
+    "ticking for a fare nobody pays",
   start: { day: 1, time: "22:40", weekday: "thu" },
   characters: [
     "Inspector Vane, Constabulary Hand number nine, stopped at the rail of Pylon Nine with one hand raised.",
@@ -88,6 +91,8 @@ export default {
   opening,
   effects: [
     { time: "day 1 22:30" },
+
+    { add: "music", ...music },   // the music (music.js); each room's own as its `music`
 
     // ---- the opening: a hired floater in the smoke ---------------------------------------------------------------
     { add: "room", id: "skycab", name: "THE SKYCAB", area: "dock", at: [0, 0, 0],
@@ -262,7 +267,7 @@ export default {
         every: [30, 70], chance: 0.7
       },
       alt: "A market lane seen from above: red awnings over stalls, a barrow with a head on it, lamps hung from a great black pylon.",
-      picture: pictures.market.picture },
+      picture: pictures.market.picture, music: roomMusic.market },
     { add: "object", id: "market_steps", at: "market", name: "Steps", note: "Up to the platform.", leads: "u",
       words: { nouns: ["steps", "stairs"], adj: ["iron"] },
       examine: "The iron steps go up to the pylon through a hole in its belly. Pennies are wedged in the gaps between the treads, left by people who did not come back down to collect them." },
@@ -300,7 +305,7 @@ export default {
         every: [30, 70], chance: 0.7
       },
       alt: "A close view of a mender's workbench under a green lamp: a brass hand held in a vice, springs hung on strings behind.",
-      picture: pictures.salter.picture },
+      picture: pictures.salter.picture, music: roomMusic.repairs },
     { add: "object", id: "salter", at: "repairs", name: "Mrs Salter", note: "Filing, unhurried.",
       give: "\"Keep it, dear,\" says Mrs Salter. \"I have more than I can mend.\"",
       words: { nouns: ["salter", "mrs", "mender", "woman"], adj: ["old"], g: "f", proper: true },
@@ -400,7 +405,7 @@ export default {
         every: [25, 55], chance: 0.7
       },
       alt: "Looking down from a catwalk onto huge meshed brass wheels in the dark, with a white plume of steam leaking from a pipe.",
-      picture: pictures.gears.picture },
+      picture: pictures.gears.picture, music: roomMusic.gears },
     { add: "object", id: "pipe", at: "gears", name: "Steam pipe", note: "Split, and weeping.",
       words: { nouns: ["pipe", "steam", "split"], adj: ["steam", "split"] },
       examine: "A steam pipe as thick as a thigh, split along a seam, with steam coming out of the split in a thin white sheet. The metal either side of the split is the colour of a hot coin.",
@@ -419,7 +424,7 @@ export default {
       ],
       alt: "A huge milk-glass clock face seen from behind, lit pale yellow, with stacked brass drums before it and a great bell above.",
       overlayAlt: { cog: "A brass cog lies on a shelf at the right." },
-      picture: pictures.face.picture },
+      picture: pictures.face.picture, music: roomMusic.face },
     { add: "object", id: "chronometer", at: "face", container: true, open: "always", name: "Chronometer", note: "Ticking in tens.",
       words: { nouns: ["chronometer", "clock", "drums", "gap"], adj: ["great", "brass"] },
       examine: "A stack of brass drums taller than a house, ticking in tens. One drum has a gap in it exactly the shape of whatever is missing, and the others lean towards the gap a little, the way people do at a funeral.",

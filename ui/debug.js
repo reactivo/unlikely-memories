@@ -9,6 +9,7 @@
 //   dev.now()               play time now (ms), for the live clock
 //   dev.run(effects, opts)  one moment of these effects (js/debug.js, moment): told in the story (opts.note: a dim line first),
 //                           kept for UNDO and saved; opts.tell false: only what the world said on its own is told; opts.undo false
+//   dev.sound()             the music playing (ui/sound.js, debug): info(), theme(), mute(part, on), muted()
 //   dev.languages()         the languages this world is written in
 //   dev.language(lang)      a new game of this world in that language
 //
@@ -25,7 +26,7 @@ const KEY = "parser-debug";   // what this device remembers (js/main.js reads it
 // 5 Nov 2026 it was a size in px, under another name, which is now ignored.)
 const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, nudge: true, motion: "system", rules: false, wholeMap: false,
                    font: DEFAULT_FONT, logRem: null, logLine: null, letter: null };
-const SECTIONS = ["picture", "events", "travel", "inventory", "time", "inspect", "page", "typography", "settings"];
+const SECTIONS = ["picture", "music", "events", "travel", "inventory", "time", "inspect", "page", "typography", "settings"];
 
 // What this device remembers, or null (nothing, or storage blocked).
 function recall() {
@@ -225,6 +226,32 @@ export function mount(dev) {
       row("Reaction", ...["hurt", "heal"].map(k => play(k, () => debug.reaction(k), null, "reaction:" + k, undefined, st, quiet)))
     ];
   }
+  // The music: what the world's music is here (js/debug.js, music), what plays now (the player: dev.sound()), the theme now, the
+  // lines, the room tone or the theme muted (the player's, not the game's: never saved), and what the reader skipped or changed.
+  function music(st) {
+    const m = debug.music(st), snd = dev.sound(), info = snd.info(), muted = snd.muted();
+    if (!m) return [el("p", "note", "This world has no music.")];
+    const dl = el("dl", "facts");
+    const fact = (k, val, cls = "") => dl.append(el("dt", "", k), el("dd", cls, String(val)));
+    fact("playing", nowPlaying(info), "music-now");
+    fact("mode", m.mode + " in " + m.key + ", tempo " + m.tempo);
+    fact("colour", m.colour.replace("_", " "));
+    fact("room", st.player.at + ": " + m.tone + ", " + (m.own ? m.lines + " own line" + (m.lines === 1 ? "" : "s") : "the world's lines"));
+    fact("theme here", m.theme);
+    const notes = el("div", "notes");
+    for (const n of m.notes) notes.append(el("p", "note", n));
+    if (!m.notes.length) notes.append(el("p", "note", "Read as written: no notes."));
+    return [dl,
+      row("Theme", button("play now", () => { snd.theme(); draw(); }, undefined, "music:theme", !info?.playing)),
+      row("Mute", ...["lines", "tone", "theme"].map(p => button(p, () => { snd.mute(p, !snd.muted()[p]); draw(); }, muted[p], "mute:" + p))),
+      notes];
+  }
+  // What plays now, in a few words: off, resting, the theme's part playing, or when its next turn comes.
+  function nowPlaying(info) {
+    if (!info || !info.playing) return "off (♫)";
+    const th = info.theme, part = th && info.now < th.end ? "the theme (" + th.part + ") playing" : "the theme (" + info.nextPart + ") in " + Math.max(0, Math.round(info.themeNext - info.now)) + " s";
+    return (info.state !== "running" ? info.state + " · " : "") + (info.resting ? "resting: only the room tone · " : "") + part;
+  }
   function events(st) {
     const n = [1, 2, 3, 4, 5], h = st.player.health, list = debug.conditions(st);
     const out = [
@@ -375,8 +402,9 @@ export function mount(dev) {
     return "day " + p.day + " " + hhmm(p) + ":" + String(p.second).padStart(2, "0") + (p.weekday ? " (" + p.weekday + ")" : "");
   }
   setInterval(() => {
-    const st = s(), out = parts$.inspect.querySelector("dd.clock");
+    const st = s(), out = parts$.inspect.querySelector("dd.clock"), playing = parts$.music.querySelector("dd.music-now");
     if (v && !v.collapsed && st && out) out.textContent = clockText(st);
+    if (v && !v.collapsed && st && playing) playing.textContent = nowPlaying(dev.sound().info());
   }, 500);
 
   // Draw every section from the state, after every change of the game (morph: only what differs changes on the page).
@@ -384,7 +412,7 @@ export function mount(dev) {
     const st = s();
     if (!v || !st) return;
     const pack = dev.pack();
-    const make = { picture, events, travel, inventory, inspect, page, settings };
+    const make = { picture, music, events, travel, inventory, inspect, page, settings };
     for (const id of SECTIONS) {
       if (id === "time") time(st);
       else if (id === "typography") fields();

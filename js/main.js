@@ -32,6 +32,7 @@ import * as tools from "../ui/tools.js";
 import * as tabs from "../ui/tabs.js";
 import * as keys from "../ui/keys.js";
 import * as home from "../ui/home.js";
+import * as sound from "../ui/sound.js";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -74,7 +75,12 @@ const on = {
   useCommand: (text) => runCommand(sentenceCase(text)),  // a <COMMAND> in the story was clicked: run it at once
   showObject: (id, label) => examineObject(id, label),   // an object in the story was clicked: examine it
   showItem: (id) => examineObject(id, listName(id, state, packOf(state)), true),   // an inventory item was clicked: the same
-  music: () => { musicOn = !musicOn; store("parser-music", musicOn ? "on" : "off"); redraw(); },
+  music: () => { musicOn = !musicOn; store("parser-music", musicOn ? "on" : "off"); redraw(); },   // (redraw at once: the audio starts inside the tap)
+  musicStopped: () => {                                  // the system took the sound away (a call, the player's own music): ♫ shows off,
+    if (!musicOn) return;                                // and the next tap starts it again (the remembered switch stays the player's)
+    musicOn = false;
+    if (view === "game") redraw();
+  },
   homeLanguage: (l) => setHomeLang(l),                   // EN · ES on the list of games
   quit: () => quit(),                                    // "Quit" in options (or the QUIT command): back to the list of games
   play: (id, fresh = false) => {                        // CONTINUE / NEW GAME on a card: the address changes, route() follows
@@ -106,7 +112,8 @@ const ui = {
   tabs: tabs.mount($(".tabs")),
   keys: keys.mount(document),
   options: options.mount($(".options"), on),
-  map: map.mount($("#map-panel"), on)
+  map: map.mount($("#map-panel"), on),
+  sound: sound.mount(on)                                 // the music: no element, drawn from the state like the rest (ui/sound.js)
 };
 const landing = home.mount($(".home"), on);              // the list of games: not drawn from the game's state, so apart from ui
 
@@ -249,6 +256,7 @@ function sleepThrough(applied, mark) {
       tellDark();
       asleep = null;
       ui.page.asleep(false);
+      ui.sound.asleep(false);
       show(story(after, state, pack));
       redraw("turn");
       showTime();
@@ -259,6 +267,7 @@ function sleepThrough(applied, mark) {
   });
   asleep = { shift: shown?.state?.time?.shift ?? 0, run };
   ui.page.asleep(true, () => run.skip());
+  ui.sound.asleep(true);                                 // the music fades out under the lids, and back as you wake
 }
 
 // Nothing to do with the words (not a turn): a reply in the world's voice, varied ("You're not sure how to do
@@ -524,6 +533,7 @@ function leaveGame() {
   clearTimeout(timer);
   saveNow();
   clock.pause();
+  ui.sound.leave();                                      // the music stops with the game (and plays again when one is drawn)
 }
 
 // Show the list of games: one card per world written in this language, CONTINUE beside NEW GAME on those with a saved game.
@@ -583,6 +593,7 @@ if (DEBUG_PANEL) {
     state: () => (view === "game" ? state : null),
     pack: () => (state ? packOf(state) : null),
     now: () => clock.now(),
+    sound: () => ui.sound.debug,                       // the music playing (ui/sound.js, debug): its Music section
     page: () => ui.log.page(),                         // the page's measurements (ui/log.js)
     // One moment of effects through the engine (js/debug.js, moment), shown and kept like a move: UNDO takes it back, it is saved.
     // tell: false shows only what the world said on its own meanwhile; note: a dim line before it; undo: false keeps no UNDO step.

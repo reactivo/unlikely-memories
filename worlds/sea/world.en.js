@@ -6,6 +6,7 @@
 // shown to the player.
 
 import pictures, { endings } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
@@ -21,6 +22,8 @@ export const bible = {
   tone: "WRITING-DIRECTION.md: the everyday, slightly wrong; calm, concise, with echoes of what could have been.",
   opening: "Corridor 7-B at the Ministry, a Monday morning: a suggestion box (hints), a " +
     "memo you already carry (why you came). The small green door that breathes is the way on.",
+  music: "a palm-court waltz in mixolydian, slowed to a quarter past five; a radio in the dunes and the carousel's music " +
+    "box; the sea breathing on the sand",
   rules: [
     "Once given, your name stays with the door. Nobody here can give it back.",
     "It is always a quarter past five on a Sunday. Nobody in the town finds anything strange.",
@@ -881,7 +884,8 @@ export default {
 
     // Rooms, objects and rules
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // the music (music.js, shared by both languages); each room's own as its `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),
 

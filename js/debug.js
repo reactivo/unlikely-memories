@@ -8,6 +8,7 @@ import { parse } from "./parser.js";
 import { text, listName } from "./narrator.js";
 import { ORDER, PARAMS, MOMENTS } from "./filters.js";
 import { levelName } from "./map.js";
+import { musicOf, sceneOf } from "./music.js";
 
 // What you type at the prompt to open the panel. Read before the parser: never a turn, never echoed, never kept.
 export const COMMAND = "/debug";
@@ -42,6 +43,19 @@ export const filter = (spec, on = true) => [on ? { filter: spec } : { unfilter: 
 // The hurt or heal reaction alone (the picture's jolt or ripple and the page's flash): a health echo with no change to health,
 // which the engine counts as a hurt or a heal (felt, js/engine.js). The panel doesn't tell it in the story.
 export const reaction = (kind) => [{ echo: "(debug)", kind: kind === "hurt" ? "hurt" : "healed" }];
+
+// ---- Music -----------------------------------------------------------------------------------------------------------------
+
+// What the world's music is here, as the reader has it (js/music.js): the picks, the room's tone, colour and lines, the theme
+// here (as written, a variant, or its own tune), and the reader's notes; null for a world with no music. (What is playing now,
+// and the theme's turn, are the player's: ui/sound.js, debug.)
+export function music(state) {
+  const read = musicOf(state);
+  if (!read) return null;
+  const { music: m, notes } = read, sc = sceneOf(m, state.player.at);
+  return { mode: m.mode, key: m.key, tempo: m.tempo, colour: sc.colour, tone: sc.tone, lines: sc.lines.length, own: sc.own,
+           theme: sc.theme ? sc.theme.label : "none", notes: notes.map(n => n.text) };
+}
 
 // ---- Events ----------------------------------------------------------------------------------------------------------------
 

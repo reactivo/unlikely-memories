@@ -3,6 +3,7 @@
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
 import pictures, { endings, visions } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
@@ -20,6 +21,8 @@ export const bible = {
   opening: "Dentro de un coche de punto detenido en la niebla: un canario en " +
     "una jaula (pistas), una citación que ya llevas (por qué has venido). La niebla al otro lado de las portezuelas " +
     "plegables es el camino.",
+  music: "vals de salón lento en menor armónica; el aliento de una llama de gas, un arpa de faroles y las botas de un " +
+    "agente; un disco viejo que sigue sonando en la niebla",
   rules: [
     "Las palabras dichas en la niebla quedan colgadas donde se dijeron hasta que alguien las oye hasta el final.",
     "Los muertos conservan su puesto hasta que alguien los releva.",
@@ -731,7 +734,8 @@ export default {
     { add: "condition", id: "drunk", doses: 3, lasts: { seconds: [120, 180] }, starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera",
       status: "La cerveza se te ha subido a la cabeza", filters: ["sway", "ghost"], speech: { slur: true },
       movement: { chance: 0.3, says: ["Los pies te llevan por otro camino del que querías.", "Echas a andar hacia un lado, y la niebla te da la vuelta."] } },
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // la música (music.js, la misma en los dos idiomas); la de cada sala, en su `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))
   ]

@@ -3,6 +3,7 @@
 // for the pictures). One change set, applied after the opening, all or nothing.
 
 import pictures, { endings } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -17,6 +18,7 @@ export const bible = {
   start: "Sunday, 19:30, in the station's lost property office.",
   opening: "A halt on a branch line, Sunday evening: a cocoa tin on a string (hints), a " +
     "diary leaf you already carry (why you came). The one carriage's open door is the way on.",
+  music: "slow lydian; a ledger cello and a plucked birdcage wire; an honest station clock that skips one tick in seven",
   rules: [
     "Monday was abolished by decree. The town goes from Sunday night to Tuesday by train.",
     "Whatever is left in the lost property office waits for whoever can say whose it is.",
@@ -764,7 +766,8 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // the music (music.js, shared by both languages); each room's own as its `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "ticket", at: null, portable: true,
       from: "window", if: [hours(21, 6)], requires: "coin", spends: true,   // the window sells it in its hours, for the old coin; shut, BUY (the ticket, the window) says `again`

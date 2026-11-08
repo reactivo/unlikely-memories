@@ -1,0 +1,127 @@
+// The music spec (MUSIC.md §3 and §5): every tunable of how the engine plays a world's music, in one place, as content/art.js is
+// the pictures'. The player (ui/sound/, ui/sound.js) and the test bench (tools/music/) read it; nothing else needs to know. A world
+// writes none of this: it writes only its notes (js/music.js reads them). Times are in seconds, levels are gains (1 = unchanged),
+// frequencies in Hz. These are the numbers Diego approved by ear on the bench's eighth and ninth runs (7 November 2026).
+
+export default {
+  // ---- The frame: what everything goes through ------------------------------------------------------------------------------
+  master: { level: 0.9, off: 1.5 },               // the level while playing; the fade when ♫ goes off (or the bench's Stop)
+  lowpass: { frequency: 3200, q: 0.5 },            // a gentle low-pass over everything
+  compressor: { threshold: -18, ratio: 3 },
+  // The echo: a convolution reverb made from noise when the audio starts (no file): its length, how fast it dies (the power of
+  // its fall), the share of it before any room tone sets its own, and how quickly a new room's share is reached (time constant).
+  reverb: { seconds: 4.5, decay: 3.2, wet: 0.35, follow: 1.5 },
+  // Each room tone's share of echo (MUSIC.md §3: a hall and a cave long, rain short); a tone not here gets `spaceDefault`.
+  space: { fog: 0.35, rain: 0.15, wind: 0.4, water: 0.35, cave: 0.85, hall: 0.75, hum: 0.12, crowd: 0.2, fire: 0.18, silence: 0.3 },
+  spaceDefault: 0.3,
+  buses: { music: 0.8, tone: 0.7 },               // the music and the room tone, before the frame (the bench's sliders start here)
+
+  // ---- Scenes: a room's music, crossfaded -------------------------------------------------------------------------------------
+  scene: {
+    crossfade: 4,                                 // the old room fades out and the new one in over this
+    lead: 0.05,                                   // a new scene starts this far ahead of now
+    first: 0.4,                                   // its first line's first note, after the start
+    stagger: 3,                                   // each next line starts this much after the one before (so something sounds at once)
+    ahead: 0.5,                                   // notes are scheduled this far ahead on the audio clock…
+    every: 60,                                    // …by a timer this often (ms)
+    toneStop: 0.1, colourStop: 8, release: 12     // after a fade: the tone stops, the colour's sources stop, the nodes are let go
+  },
+  // The end of the story and sleep (stage 2: simply out and back; their own reactions come later, docs/music/PLAN.md stage 5).
+  hush: { out: 3, back: 4 },
+
+  // ---- The theme (MUSIC.md §2.15–16) ------------------------------------------------------------------------------------------
+  theme: {
+    first: 6,                                     // after the music starts
+    back: 4,                                      // after the music comes back from a rest
+    gap: [100, 160],                              // between plays (games may last 15 to 20 minutes)
+    parts: ["whole", "question", "whole", "answer"],   // in turn, and round again
+    lead: 0.1,                                    // its first note, after it is due
+    chords: 0.7                                   // its accompaniment's level beside it
+  },
+  // Comes and goes (MUSIC.md §2.8): this long of music, then this long of only the room tone; the gate's time constant.
+  comes: { on: 120, off: 60, fade: 2 },
+
+  // ---- Notes (MUSIC.md §3, §5) ------------------------------------------------------------------------------------------------
+  note: {
+    level: 0.16,                                  // a note's level, before the rest below
+    low: 160, lowBoost: 1.4,                      // notes under `low` a little louder
+    high: 600, highCurve: 0.9,                    // notes above `high` softer the higher they go: × (high / f) ^ highCurve
+    held: 0.6,                                    // held kinds softer than struck ones
+    octaveUnder: 220,                             // under this a note is low: struck and plucked get an octave above (at `octaveGain`),
+    octaveGain: 0.5,                              // and a held one fades after `lowCap` instead of `cap`
+    cap: 8, lowCap: 4,                            // a held note fades after this, whatever its beats say
+    attack: 0.004, heldAttack: 0.02,              // a struck note's attack; the least a held note's can be
+    shortRelease: 1.2,                            // a short kind's (plucked) release at most
+    index: { sine: 2.2, other: 1.2 },             // the modulation's depth: bright × pitch × this
+    struck: { depth: 1.6, settle: 0.25, fall: 6, fallShort: 12, amp: 4, tail: 1.8 },   // depth from and to; release / fall; release / amp; end
+    breath: { sustain: 0.8, depthFrom: 0.6, depthTo: 0.4, swell: 3, swellMin: 0.01, amp: 4, tail: 1.8,
+              rate: [0.12, 0.08], depth: 0.12 },  // a held note: its swell, its depth, and its breathing (an LFO: rate + random × spread)
+    vibrato: { rate: [4.5, 1], in: 0.4 },         // rate + random × spread; reached this long after the attack
+    tremolo: 5.5,
+    breathNoise: { band: 2, top: 6000, q: 6, level: 4, offset: 3 },   // blown: noise around (pitch × band), × level × the kind's breath
+    partial: { level: 0.35, fall: 6 },            // a chime's partial: its level, and release / fall
+    slide: { least: 0.06, along: 0.85 },          // a slide reaches its note at this share of the note (at least this long)
+    scoop: { from: 0.93, time: 0.14 }             // a scoop rises from this share of the pitch over this long
+  },
+  // The kinds (MUSIC.md §3): each one's OPL2 waveform and envelope. decay: struck (rings at once and dies); else held.
+  kinds: {
+    struck:  { wave: "sine",    decay: true },
+    plucked: { wave: "half",    decay: true, short: true },
+    chime:   { wave: "sine",    decay: true, partial: 2.76 },
+    bowed:   { wave: "abs",     vibrato: 0.006, minAttack: 0.25 },
+    blown:   { wave: "sine",    breath: 0.35, vibrato: 0.003 },
+    reed:    { wave: "quarter", tremolo: 0.12 }
+  },
+  waves: { samples: 2048, harmonics: 48 },        // the OPL2's waveforms as periodic waves
+  noiseSeconds: 4,                                // the noise buffers (white, pink, brown) made when the audio starts
+  // The rhythm kinds (MUSIC.md §2.19): noise or a falling blip, quiet; the step only tilts them. level × share × (base + bright × by).
+  noises: {
+    level: 0.22, base: 0.6, by: 0.8, release: 1.5,
+    tick:  { band: [4, 1500, 8000], q: 2, tc: 0.012, len: 0.1 },
+    knock: { blip: [0.5, 60, 300], fall: 0.6, level: 1.6, tc: 0.05, thud: { lowpass: 400, q: 0.7, tc: 0.03 } },
+    clack: { band: [3, 900, 4000], q: 3, tc: 0.015, len: 0.1, second: { after: 0.045, band: [3.3, 900, 4400], level: 0.8 } },
+    brush: { band: [3, 800, 5000], q: 0.8, level: 0.8, rise: 0.03, longest: 0.4, tc: 0.08 },
+    drip:  { blip: [4, 800, 3000], fall: 0.55, level: 0.9, tc: 0.03 },
+    burst: { len: 0.25, offset: 3 }, blipGlide: 0.08, blipLen: 0.5
+  },
+  // A music box (the colour): every note as a small struck tine, an octave up (at most `top`).
+  box: { kind: "struck", ratio: 5, bright: 0.25, release: 1.8, up: 2, top: 4000 },
+
+  // ---- Room tones (MUSIC.md §3): filtered noise and a few small random events -------------------------------------------------
+  // sway: an LFO [rate, depth] on a level; sweep: on a filter's frequency; every: [least, random spread] between events.
+  tones: {
+    fog:   { noise: "brown", lowpass: 750, level: 0.32, sway: [0.06, 0.1] },
+    rain:  { hiss: { highpass: 1200, lowpass: 6500, level: 0.035 }, roof: { lowpass: 300, level: 0.1 },
+             drops: { band: 2600, q: 4, level: [0.15, 0.35], every: [0.03, 0.12], start: 0.05, hold: 0.002, tc: 0.012 } },
+    wind:  { band: 520, q: 1.3, level: 0.12, sweep: [0.045, 260], sway: [0.07, 0.06] },
+    water: { lowpass: 650, level: 0.2, sway: [0.17, 0.09], lap: { band: 1300, q: 1.2, level: 0.025, sway: [0.23, 0.02] } },
+    cave:  { lowpass: 220, level: 0.08,
+             drips: { every: [0.8, 2.5], start: 1, pitch: [900, 900], fall: 0.55, glide: 0.09, level: 0.07, hold: 0.005, tc: 0.03, len: 0.3 } },
+    hall:  { lowpass: 220, level: 0.05 },
+    hum:   { hz: 50, lowpass: 420, q: 2, level: 0.028, sweep: [0.13, 40], second: { hz: 100, level: 0.02 } },
+    crowd: { band: 520, q: 0.9, level: 0.09, chatter: { band: 1500, q: 2.5, level: 0.03 },
+             every: 0.25, murmur: [0.05, 0.09], murmurTc: 0.25, chatterTo: 0.06, chatterTc: 0.15 },
+    fire:  { lowpass: 260, level: 0.25, sway: [0.3, 0.05],
+             crackle: { highpass: 1800, level: [0.05, 0.2], every: [0.08, 0.6], start: 0.3, hold: 0.001, tc: [0.006, 0.01] } },
+    silence: {}
+  },
+
+  // ---- Colours (MUSIC.md §2.19, §2.21): how the world's music reaches the player; the room tone stays as it is ----------------
+  colours: {
+    // Each colour's level, matched to clean by measuring the same lines through each (MUSIC.md §2.21).
+    level: { gramophone: 0.61, radio: 0.54, music_box: 0.73, far_away: 1.24, through_wall: 1.04, underwater: 1.15 },
+    shaper: 1024,                                 // the saturation curve's points
+    gramophone: { highpass: 280, lowpass: 3400, drive: 1.3, delay: 0.012, warble: [0.55, 0.0025],
+                  crackle: { highpass: 2500, level: [0.03, 0.09], every: [0.05, 0.35], start: 0.1, hold: 0.001, tc: 0.003 },
+                  hiss: { highpass: 4000, level: 0.006 } },
+    radio: { highpass: 650, peak: { frequency: 1600, q: 1, gain: 3 }, lowpass: 2600, drive: 1.6, delay: 0.005, warble: [6, 0.0004],
+             hiss: { band: 3000, q: 0.5, level: 0.012, sway: [0.07, 0.008] } },
+    music_box: { highpass: 500 },
+    far_away: { lowpass: 1000, dry: 0.6, echo: { delay: 0.33, feedback: 0.45, lowpass: 1200, level: 0.5 } },
+    through_wall: { lowpass: 420, shelf: { frequency: 200, gain: 4 } },
+    underwater: { delay: 0.02, lowpass: 550, warble: [0.25, 0.006], sweep: [0.15, 200] }
+  },
+
+  // ---- The bench's Hear button: an instrument alone, steps 1, 3, 5 ------------------------------------------------------------
+  hear: { steps: [1, 3, 5], octave: 4, gap: 0.9, length: 0.8 }
+};

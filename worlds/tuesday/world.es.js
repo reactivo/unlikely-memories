@@ -4,6 +4,7 @@
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
 import pictures, { endings } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- La biblia del juego -------------------------------------------------------------------------------------------
@@ -19,6 +20,8 @@ export const bible = {
   opening: "Un apeadero de vía secundaria, un domingo por la tarde: una lata de " +
     "cacao con un cordel (las pistas), una página de agenda que ya llevas encima (por qué has venido). La puerta abierta del " +
     "único vagón es el camino.",
+  music: "lidio, despacio; el violonchelo del libro de registro y un alambre de jaula pulsado; el reloj honrado de la " +
+    "estación, que se salta un tic de cada siete",
   rules: [
     "El lunes quedó abolido por decreto. El pueblo pasa del domingo por la noche al martes en tren.",
     "Lo que queda en la oficina de objetos perdidos espera a quien sepa decir de quién es.",
@@ -775,7 +778,8 @@ export default {
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // la música (music.js, la misma en los dos idiomas); la de cada sala, en su `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "ticket", at: null, portable: true,
       from: "window", if: [hours(21, 6)], requires: "coin", spends: true,   // la ventanilla lo vende en su horario, por la moneda antigua; cerrada, COMPRAR (el billete, la ventanilla) dice `again`

@@ -3,6 +3,7 @@
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
 import pictures, { endings, visions } from "./pictures.js";
+import music, { rooms as roomMusic } from "./music.js";
 import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
@@ -19,6 +20,8 @@ export const bible = {
   start: "Thursday, 22:30, on Lantern Row (the opening, in the cab, at 22:20).",
   opening: "Inside a hansom cab stopped in the fog: a canary in a cage (hints), a " +
     "summons you already carry (why you came). The fog outside the folding doors is the way on.",
+  music: "slow harmonic-minor parlour waltz; a gas jet's breath, a harp of street lamps and a constable's boots; an old " +
+    "record playing on in the fog",
   rules: [
     "Words said in the fog hang where they were said until someone hears them out.",
     "The dead keep their posts until someone relieves them.",
@@ -720,7 +723,8 @@ export default {
     { add: "condition", id: "drunk", doses: 3, lasts: { seconds: [120, 180] }, starts: "You're drunk", ends: "You're sober again", status: "You're drunk on beer",
       filters: ["sway", "ghost"], speech: { slur: true },
       movement: { chance: 0.3, says: ["Your feet take you another way than the one you meant.", "You set off one way, and the fog turns you round."] } },
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id] })),
+    { add: "music", ...music },   // the music (music.js, shared by both languages); each room's own as its `music`
+    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))
   ]
