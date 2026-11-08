@@ -23,7 +23,7 @@ const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "s
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
   "here", "lies", "words", "sprite", "floorSprite", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
-  "requires", "spends", "lacking", "dream", "places", "rounds", "arrives", "leaves", ...ANSWERED];
+  "requires", "spends", "lacking", "dream", "places", "rounds", "arrives", "leaves", "material", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
 // The world's music (`add music`) and a room's own (its `music` field): MUSIC.md §4, read by js/music.js.
 const MUSIC = ["mode", "tempo", "colour", "instruments", "tone", "lines", "melody"];

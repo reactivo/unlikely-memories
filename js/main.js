@@ -161,6 +161,7 @@ function travel(room) {
   keepForUndo(before);
   state = trip.next;
   show(trip.paragraphs);
+  heard(trip.applied, before);
   redraw("turn");
   enteredRoom(from);
   schedule(); autosave();
@@ -211,12 +212,13 @@ function play(raw) {
   if (!answering) keepForUndo(state);
   let again = false, then = null;
   for (const action of parsed.actions) {
-    const { next, applied, refused } = step(state, { ...action, at: clock.now() });
+    const was = state, { next, applied, refused } = step(state, { ...action, at: clock.now() });
     if (refused.length) console.warn("Effects refused by the engine:", refused);   // a rule asked for something impossible
     state = next;
     const slept = applied.find(e => "sleep" in e);       // a sleep: told in time with the eyes closing and opening (the rest waits)
-    if (slept) return sleepThrough(applied, slept);
+    if (slept) return sleepThrough(applied, slept, was);
     show(story(applied, state, pack));                   // (USE alone also says what you could do with the thing)
+    heard(applied, was);
     then = applied.find(e => e.session)?.session ?? then; // a question answered yes: something for the session
     if (applied.some(e => e.restart)) { again = true; break; }   // beginning again was chosen
     if (state.pending.question) break;                   // a question was asked: the rest waits for the answer
@@ -239,8 +241,9 @@ function play(raw) {
 // echoes, the room) and everything the screen shows of the moment (redraw: the clock, the reactions, the inventory). A sleep you
 // don't wake from ends in the dark, then the death and the ending. Meanwhile the compass, the inventory and the command line are
 // locked and greyed (ui/page.js, asleep); a tap, a click or a key skips to waking. The title bar's clock keeps the time you fell
-// asleep at. Never on a restore: a loaded game, UNDO and a new game only show the story as it was told.
-function sleepThrough(applied, mark) {
+// asleep at. Never on a restore: a loaded game, UNDO and a new game only show the story as it was told. The moment's sounds come
+// once you wake (`was`: the game before it).
+function sleepThrough(applied, mark, was) {
   const pack = packOf(state), i = applied.indexOf(mark), j = applied.findIndex(e => e.woke);
   const before = applied.slice(0, i), dark = j < 0 ? [] : applied.slice(i + 1, j), after = applied.slice(j < 0 ? i + 1 : j + 1);
   const picture = mark.vision && state.pictures?.[mark.vision];
@@ -258,6 +261,7 @@ function sleepThrough(applied, mark) {
       ui.page.asleep(false);
       ui.sound.asleep(false);
       show(story(after, state, pack));
+      heard(applied, was);
       redraw("turn");
       showTime();
       schedule(); autosave();
@@ -437,9 +441,10 @@ function tick() {
   const follow = ui.log.atEnd();                         // only follow the new text if you were already there
   const from = state.player.at;
   turnStart = null;
-  const { next, applied } = step(state, { tick: true, at: clock.now() });
+  const was = state, { next, applied } = step(state, { tick: true, at: clock.now() });
   state = next;
   show(tell(applied, state, packOf(state)));             // (all of it the world's own: set apart, "aside", by the engine's mark)
+  heard(applied, was);
   redraw("tick");
   enteredRoom(from);
   if (follow) ui.log.toEnd();
@@ -453,6 +458,9 @@ function tick() {
 function show(paragraphs) {
   for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, false, p.level, p.slot), p);
 }
+// A moment's sounds (ui/sound.js, moment): its list, handed over as the log's paragraphs are, with the game before it (`was`) and
+// after (the state now). Only for a moment played: a restore, UNDO, a load and a new game hand over none.
+function heard(applied, was) { ui.sound.moment(applied, state, was); }
 // One line of text (a reply, a note) and an echoed command, kept in the transcript too.
 function say(t, style = "") { show([{ text: t, style }]); }
 function echo(t) { note(ui.log.say(t, "cmd"), { text: t, style: "cmd" }); }
@@ -612,6 +620,7 @@ if (DEBUG_PANEL) {
       state = r.next; turnStart = null; pendingWhich = null;
       if (tell && note) say(note, "sys");
       show(story(tell ? r.applied : r.applied.filter(e => e.aside), state, pack));
+      heard(r.applied, before);
       redraw("turn");
       enteredRoom(from);
       schedule(); autosave();

@@ -284,11 +284,11 @@ const rooms = {
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
   // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
-  canary: { at: "cab", portable: true, name: "Canary", note: "Watching the fog for you.",
+  canary: { at: "cab", portable: true, material: "metal", name: "Canary", note: "Watching the fog for you.",
     words: { nouns: ["canary", "bird", "cage"], adj: ["yellow", "brass", "small", "little"] }, ...item("canary"),
     here: "From a hook in the roof hangs a {canary} in a small brass cage, watching the fog for you.",
     examine: "A yellow canary in a brass cage the size of a hat. Miners take them underground to tell them when the air goes bad. This one has been brought to London, where it has a great deal to say." },
-  summons: { at: "player", portable: true, name: "Summons", note: "Folded, official.",
+  summons: { at: "player", portable: true, material: "paper", name: "Summons", note: "Folded, official.",
     words: { nouns: ["summons"], adj: ["folded", "official"] }, ...item("summons"),
     examine: "\"You are called as witness to the inquest into the death of Albert Fenn, lamplighter, of Lantern Row. The court sits at midnight.\" Under the seal, in another hand, smaller: \"The deceased will be present.\"" },
   cab_fog: { at: "cab", name: "Fog", note: "The only way on.",
@@ -313,7 +313,7 @@ const objects = {
   notebook: { at: "pye", name: "Notebook", note: "Persons present.",
     words: { nouns: ["notebook", "list"], adj: ["constable's", "police", "black"] },
     examine: "In a careful hand: \"Persons present at the last lamp, this evening: Mr Voss (Electric Co.). Mrs Halloran (pies). The deceased.\" Underneath, smaller: \"Fog very thick. Could not see faces. Heard a voice.\"" },
-  court_doors: { at: "row", name: "Court doors", note: "The inquest sits at midnight.", door: "n",
+  court_doors: { at: "row", material: "wood", name: "Court doors", note: "The inquest sits at midnight.", door: "n",
     words: { nouns: ["doors", "door", "card"], adj: ["court", "oak", "coroner's"] },
     examine: "Oak doors with a card pinned to them: \"Inquest. A. Fenn, lamplighter. Midnight.\" They open when the court sits, and not before." },
 
@@ -402,7 +402,7 @@ const objects = {
       inquest: { open: true, label: "the inquest", words: ["inquest", "court", "coroner", "midnight"], says: "\"Midnight. I'll not be attending. Can't leave my post.\"" },
       default: "\"Couldn't say,\" says Mr Fenn. \"I only did the lamps.\""
     } },
-  hut_key: { at: "fenn", portable: true, name: "Hut key", note: "On a string.", actions: ["Take key"],
+  hut_key: { at: "fenn", portable: true, material: "metal", name: "Hut key", note: "On a string.", actions: ["Take key"],
     words: { nouns: ["key", "string"], adj: ["hut", "iron", "small"] }, ...item("hut_key"),
     lies: "A small iron {key|hut_key} on a string lies where you left it.",
     examine: "A small iron key on a length of string, warm from a neck that isn't any more." },
@@ -413,18 +413,18 @@ const objects = {
   fog_lamp: { at: "last_lamp", name: "Fog", note: "Murmuring, word by word.", actions: ["Listen to fog"],
     words: { nouns: ["fog", "murmur", "murmuring", "mist"], adj: ["thick"] },
     examine: "The fog is thickest here, and it murmurs: a word, half a word, too faint to make out, all of them said here and none of them heard yet." },
-  hut_door: { at: "last_lamp", name: "Hut door", note: "Mr Fenn's.", door: "e",
+  hut_door: { at: "last_lamp", material: "wood", name: "Hut door", note: "Mr Fenn's.", door: "e",
     words: { nouns: ["door", "hut"], adj: ["hut", "wooden", "green"] },
     examine: "The door of a wooden hut the size of a wardrobe, painted green a great many times. Locked: it wants Mr Fenn's key.",
     locked: true, lock: { key: "hut_key", says: "The hut door is locked. It wants Mr Fenn's key.",
       opens: "The key turns as if it has done it every night for forty years. The hut door swings open on a smell of gas and paraffin.", then: "hut_opened" } },
 
   // The hut
-  trumpet: { at: "hut", portable: true, name: "Ear trumpet", note: "For listening to gas.", heldActions: ["Listen to trumpet"],
+  trumpet: { at: "hut", portable: true, material: "metal", name: "Ear trumpet", note: "For listening to gas.", heldActions: ["Listen to trumpet"],
     words: { nouns: ["trumpet"], adj: ["ear", "brass", "dented"] }, ...item("trumpet"),
     here: "There is a dented brass {ear trumpet|trumpet} here.",
     examine: "A brass ear trumpet, dented, the kind the old lamplighters held to a lamp to hear whether the gas was breathing. Inside the bell of it, the brass is bright, as if it had been listening to something warm." },
-  pole: { at: "hut", portable: true, shape: ["pole_shape", "pole_flame"], name: "Lamplighter's pole", note: "Still burning.",
+  pole: { at: "hut", portable: true, shape: ["pole_shape", "pole_flame"], material: "wood", name: "Lamplighter's pole", note: "Still burning.",
     words: { nouns: ["pole", "flame", "hook"], adj: ["lamplighter's", "long", "brass"] }, ...item("pole"),
     here: "Mr Fenn's long {pole} leans here, its little blue flame still burning.",
     examine: "A long pole with a brass hook for the tap and a small blue flame at the tip that has not gone out in forty years. It is heavier at the end that did the work." },
@@ -480,7 +480,7 @@ const objects = {
     examine: "Cold stone, wet with fog. From here you can see the shape the fog makes over the Row: thickest round the last lamp, and round the chimney of the pie shop, leaning towards it like someone listening." },
 
   // What comes to hand later
-  last_words: { at: null, portable: true, name: "Last words", note: "Cupped in your hands.", heldActions: ["Give words to Dr Mabbott"],
+  last_words: { at: null, portable: true, material: "soft", name: "Last words", note: "Cupped in your hands.", heldActions: ["Give words to Dr Mabbott"],
     words: { nouns: ["words", "sentence"], adj: ["last", "warm"], pl: true }, ...item("last_words"),
     lies: "The {last words|last_words} lie here, faintly warm.",
     examine: "\"Leave it, Albert. Sit down a minute. Nobody will miss one lamp.\" A woman's voice, low and warm, with flour on it. The words are still a little warm, and they smell of pastry." }

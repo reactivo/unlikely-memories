@@ -247,11 +247,11 @@ const rooms = {
 // ---- Cosas -----------------------------------------------------------------------------------------------------------------
 const objects = {
   // La apertura: la cosa que se coge, la que ya llevas y el camino hacia dentro (BRIEF.md §3).
-  wireless: { at: "pavement", portable: true, name: "Radio", note: "Anunciando las secciones.",
+  wireless: { at: "pavement", portable: true, material: "stone", name: "Radio", note: "Anunciando las secciones.",
     words: { nouns: ["radio", "transistor", "aparato", "receptor", "emisora"], adj: ["crema", "pequeña", "pequena", "vieja"], g: "f" }, ...item("wireless"),
     here: "En la repisa del escaparate más cercano, una {radio|wireless} pequeña murmura para sí.",
     examine: "Una radio color crema, del tamaño de una hogaza, sintonizada entre dos emisoras. Una voz de mujer anuncia las secciones de Hartley's, planta por planta, y vuelve a empezar por arriba." },
-  shopping_list: { at: "player", portable: true, name: "Lista de la compra", note: "Casi borrada.",
+  shopping_list: { at: "player", portable: true, material: "paper", name: "Lista de la compra", note: "Casi borrada.",
     words: { nouns: ["lista", "papelito", "apunte"], adj: ["compra", "lapiz", "doblada"], g: "f" }, ...item("shopping_list"),
     examine: "Con tu propio lápiz: «Algo que debería recordar». Debajo, borrada tantas veces que el papel se ha gastado hasta romperse, una segunda línea." },
   street_door: { at: "pavement", name: "Puerta giratoria", note: "Girando, sin nadie dentro.",
@@ -296,7 +296,7 @@ const objects = {
   tester: { at: "perfumery", name: "Muestra", note: "N.º 7.", actions: ["Oler muestra"], opens: ["price"],
     words: { nouns: ["muestra", "probador", "tester", "perfume", "pulverizador", "atomizador", "etiqueta", "pera", "frasco"], adj: ["cristal", "número", "numero", "siete", "de"], g: "f" },
     examine: "Un frasco de cristal tallado con una pera de goma. La etiqueta dice: N.º 7. UNA TARDE EN CASA. Y debajo, más pequeño: PRECIO A CONSULTAR." },
-  memory: { at: null, portable: true, name: "Recuerdo", note: "Una tarde embotellada.", heldActions: ["Abrir recuerdo"],
+  memory: { at: null, portable: true, material: "glass", name: "Recuerdo", note: "Una tarde embotellada.", heldActions: ["Abrir recuerdo"],
     words: { nouns: ["recuerdo", "frasquito", "frasco", "botellita", "tapón", "tapon", "corcho"], adj: ["pequeño", "pequeno", "taponado"], g: "m" }, ...item("memory"),
     lies: "Un {frasquito|memory} con tapón de corcho está aquí, con una tarde dentro.",
     examine: "Un frasquito con tapón de corcho. Dentro, muy pequeños, la lluvia en la ventana de una cocina y alguien a quien querías, dormido en una butaca. Está tibio al sostenerlo.",
@@ -308,7 +308,7 @@ const objects = {
     examine: "Un guante de cabritilla color crema, izquierdo, con los dedos cerrados en torno a algo. Está tibio, como una mano que acabara de sostener otra.",
     take: "No se deja llevar. Prefiere que le den la mano.",
     talk: "El guante no dice nada. Los dedos se mueven apenas, como los de una mano que espera que se la tomen." },
-  roof_key: { at: null, portable: true, name: "Llave de la azotea", note: "Larga, de latón, arreglada.",
+  roof_key: { at: null, portable: true, material: "metal", name: "Llave de la azotea", note: "Larga, de latón, arreglada.",
     words: { nouns: ["llave", "llavín", "llavin"], adj: ["azotea", "latón", "laton", "larga", "arreglada", "de"], g: "f" }, ...item("roof_key"),
     lies: "Una {llave|roof_key} larga de latón yace aquí, con una etiqueta que dice AZOTEA.",
     examine: "Una llave larga de latón con una etiqueta de papel: AZOTEA. ARREGLADA. La han arreglado con tanto cuidado que cuesta decir dónde." },
@@ -341,7 +341,7 @@ const objects = {
   tubes: { at: "haberdashery", name: "Tubos", note: "El correo neumático.",
     words: { nouns: ["tubos", "tubo", "correo", "tuberías", "tuberia", "tuberias"], adj: ["latón", "laton", "caja", "neumático", "neumatico", "de"], g: "m", pl: true },
     examine: "Tubos de latón, pulidos por el aire que corre dentro. De vez en cuando uno aspira, con fuerza, y toda la planta lo oye. Se llevan lo que se les ofrece: una manga, un guante, los dedos. La señorita Thimble dice que se lleva los dedos, y no parece que bromee." },
-  canister: { at: "haberdashery", container: true, open: "always", name: "Cápsula", note: "En su soporte.", actions: ["Tirar del tirador"],
+  canister: { at: "haberdashery", container: true, open: "always", material: "metal", name: "Cápsula", note: "En su soporte.", actions: ["Tirar del tirador"],
     words: { nouns: ["cápsula", "capsula", "cilindro", "soporte", "cartucho"], adj: ["latón", "laton", "caja", "de"], g: "f" },
     examine: "Una cápsula de latón con fieltro en cada extremo, abierta, esperando algo que llevar. Ha ido a la caja y ha vuelto más veces de las que nadie ha ido a ninguna parte." },
   handle: { at: "haberdashery", name: "Tirador", note: "Envía la cápsula.", actions: ["Tirar del tirador"],
@@ -354,7 +354,7 @@ const objects = {
     examine: "Un oso marrón de cuerda, con una llave en la espalda y una oreja cosida otra vez con un color que no es el suyo. Tiene botones por ojos, y han visto mucho de la primera planta." },
 
   // Segunda planta
-  roof_door: { at: "second_landing", name: "Puerta de la azotea", note: "Cerrada por invierno.", opens: ["roof"],
+  roof_door: { at: "second_landing", material: "wood", name: "Puerta de la azotea", note: "Cerrada por invierno.", opens: ["roof"],
     words: { nouns: ["puerta", "letrero", "cartel", "rótulo", "rotulo"], adj: ["azotea", "jardín", "jardin", "pintada", "de"], g: "f" },
     examine: "Una puerta pintada al final de un tramo corto. JARDÍN DE LA AZOTEA, CERRADO POR INVIERNO. Cerrada con llave; el ojo de la cerradura es largo y color latón, como si echara algo de menos.",
     door: "u", shut: "Subes el tramo corto hasta la puerta de la azotea. Cerrada con llave. La cerradura pide una llave larga de latón.",
@@ -566,7 +566,7 @@ export default {
     { add: "music", ...music },   // la música (music.js, la misma en los dos idiomas); la de cada sala, en su `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    { add: "object", id: "lift_ticket", at: null, portable: true, name: "Volante de cita", note: "Cuarta planta.", heldActions: ["Mostrar volante a Pell"],
+    { add: "object", id: "lift_ticket", at: null, portable: true, material: "paper", name: "Volante de cita", note: "Cuarta planta.", heldActions: ["Mostrar volante a Pell"],
       words: { nouns: ["volante", "cita", "billete", "ticket", "resguardo"], adj: ["rosa", "cita", "ascensor", "previa", "de"], g: "m" }, ...item("lift_ticket"),
       lies: "Un {volante|lift_ticket} rosa yace aquí.",
       examine: "Un volante rosa: HARTLEY'S. CUARTA PLANTA. UNA CITA. PAGADO. Al dorso, con la letra de la caja: UNA TARDE, EN CASA, CON LLUVIA." },

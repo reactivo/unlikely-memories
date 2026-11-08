@@ -42,6 +42,7 @@ export function step(state, input) {
   g.clock = at;
   const startedIn = g.player.at;
   const held0 = holding(g);                                     // what you hold as the moment starts (its echoes: holdingEchoes)
+  const solved0 = solvedNow(g);                                 // the puzzles solved as it starts (its marks: solvedMarks)
   let question = null;                                         // the question this input may be answering
   let open = null;                                              // a question for words that stays open after this input
   if (!tick) {
@@ -111,6 +112,7 @@ export function step(state, input) {
     out.applied.push({ say: "@typeAnswer", style: "sys", at: worldTime(g) });
   seeHere(g);                                                   // what's in the room has now been seen
   drawLongThings(g, out);                                       // a long thing's shape where it lies (G8)
+  solvedMarks(g, solved0, out);                                 // the puzzles this moment solved (never shown as text)
   if (g.player.health <= 0 && !g.ended) {                        // out of health: the story ends, whatever the world
     if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its line was said when the health went)
       apply(g, { say: "@hurt.dead", vary: true }, {}, out, "died");
@@ -220,6 +222,16 @@ function holdingEchoes(g, before, after, out) {
   const line = (kind, id, t) => out.applied.push(clean({ echo: "@echo." + kind, kind, thing: id, name: t.name, who: t.who, sprite: t.sprite, at: worldTime(g) }));
   for (const [id, t] of before) if (!after.has(id)) line("lost", id, t);
   for (const [id, t] of after) if (!before.has(id)) line("gained", id, t);
+}
+
+// ---- Puzzles solved ---------------------------------------------------------------------------------------------
+// The puzzles solved now (solved, below), not the endings: an ending is the story's end, and the music's (MUSIC.md §5).
+const solvedNow = (g) => new Set(Object.entries(g.puzzles || {}).filter(([, p]) => !p.ending && solved(g, p)).map(([id]) => id));
+// One mark for each puzzle solved since the moment started, as what you hold is compared: `{ solved: <the puzzle's id> }`, at the
+// end of the moment's list. Never shown as text (the narrator and the log draw nothing from it); the sound's jingle reads it
+// (ui/sound.js, docs/sound/PLAN.md). Only in a moment played: a restore, UNDO or a load runs no step, so it never marks one.
+function solvedMarks(g, before, out) {
+  for (const id of solvedNow(g)) if (!before.has(id)) out.applied.push({ solved: id });
 }
 
 // Is this action the answer to that question? (A yes/no question's answer is `{ verb: "answer", question: "confirm", value }`;

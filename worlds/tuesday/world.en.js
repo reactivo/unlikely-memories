@@ -319,11 +319,11 @@ const rooms = {
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
   // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
-  tin: { at: "halt", portable: true, name: "Cocoa tin", note: "Someone at the other end.",
+  tin: { at: "halt", portable: true, material: "metal", name: "Cocoa tin", note: "Someone at the other end.",
     words: { nouns: ["tin", "string", "cocoa"], adj: ["cocoa", "cold", "long"] }, ...item("tin"),
     here: "On the bench a cocoa {tin} sends its string off the end of the platform.",
     examine: "A cocoa tin with a hole punched in the base and a length of string running out of it, along the platform and over the edge into the dark. The string is taut, as if something were on the other end." },
-  diary_leaf: { at: "player", portable: true, name: "Diary leaf", note: "Ruled for a week.",
+  diary_leaf: { at: "player", portable: true, material: "paper", name: "Diary leaf", note: "Ruled for a week.",
     words: { nouns: ["leaf", "diary"], adj: ["folded", "yellow", "ruled", "diary"] }, ...item("diary_leaf"),
     examine: "A diary leaf, ruled for a week. Sunday and Tuesday are filled in, in your hand; where Monday should be is a clean, careful gap, rubbed through to the next page." },
   carriage_door: { at: "halt", name: "Carriage door", note: "Open, and waiting.", actions: ["Enter carriage"],
@@ -398,7 +398,7 @@ const objects = {
     mentions: ["stool", "button", "notice"] },
   button: { at: "booth", name: "Button", note: "Red, worn pale.", actions: ["Push button"],
     words: { nouns: ["button"], adj: ["red"] }, examine: "A red button, worn pale in the middle." },
-  photograph: { at: null, portable: true, name: "Photograph", note: "Tomorrow's, still wet.",
+  photograph: { at: null, portable: true, material: "paper", name: "Photograph", note: "Tomorrow's, still wet.",
     words: { nouns: ["photograph", "photo", "picture", "strip"], adj: ["wet"] }, ...item("photograph"),
     examine: "A strip of four photographs, still wet, in daylight: the town hall steps, then a woman in a grey cardigan upstairs at a window, holding up a calendar page that says MONDAY. In the last frame you are taking it." },
   oduya: { at: "waiting_room", name: "Mrs Oduya", note: "Waiting, with a suitcase.",
@@ -451,7 +451,7 @@ const objects = {
     words: { nouns: ["fountain", "basin", "water"], adj: ["stone"] },
     examine: "A stone basin, the water still. Coins lie on the bottom, a currency nobody uses now. A little lamp is set into the floor of the basin.",
     parts: [{ words: ["lamp", "bottom"], name: "the lamp under the water", says: "A brass lamp in the floor of the basin. Lit at eight, with the others." }], mentions: ["coins"] },
-  coin: { at: "fountain", portable: true, name: "Old coin", note: "The old currency.",
+  coin: { at: "fountain", portable: true, material: "metal", name: "Old coin", note: "The old currency.",
     words: { nouns: ["coin", "coins", "money", "currency"], adj: ["old"] }, ...item("coin"),
     examine: "A heavy old coin. On one side, a profile with its eyes shut. On the other, the week, with all seven days." },
   statue: { at: "square", name: "Statue", note: "The Minister.",
@@ -469,7 +469,7 @@ const objects = {
       train: { about: "timetable", words: ["train", "tuesday"], says: "\"Guests go on the Tuesday train. They leave their luggage. It's all up in the attic.\"" },
       default: "\"Couldn't say,\" he says. \"Saturday's paper doesn't mention it.\""
     } },
-  room_key: { at: null, portable: true, name: "Room key", note: "Number 4.",
+  room_key: { at: null, portable: true, material: "metal", name: "Room key", note: "Number 4.",
     words: { nouns: ["key"], adj: ["room", "hotel", "brass"] }, ...item("room_key"),
     examine: "A brass key on a wooden pear with a 4 burnt into it." },
   bed: { at: "hotel_room", name: "Bed", note: "Turned down.", actions: ["Sleep"],
@@ -513,7 +513,7 @@ const objects = {
       umbrella: { words: ["umbrella", "tag", "desk"], says: "\"Something you lost,\" she says. \"Not something you've heard about.\"" },
       default: "She looks it up, under a letter of her own choosing, and finds nothing."
     } },
-  monday_page: { at: null, portable: true, name: "Monday", note: "The last one.", heldActions: ["Put Monday on calendar"],
+  monday_page: { at: null, portable: true, material: "paper", name: "Monday", note: "The last one.", heldActions: ["Put Monday on calendar"],
     words: { nouns: ["monday", "page"], adj: ["last", "calendar"], proper: true }, ...item("monday_page"),
     examine: "A calendar page: MONDAY, in black, with nothing written under it. It is heavier than paper should be. It is all still to do." },
 
@@ -775,7 +775,7 @@ export default {
       lacking: "\"One fare, one coin,\" says the clerk. \"The old sort.\"",
       already: "You have one already. One is all anyone needs.",
       again: "The shutter is down. The card says: TICKETS FROM 21:00.",
-      name: "Ticket", note: "Tuesday. One way.",
+      material: "paper", name: "Ticket", note: "Tuesday. One way.",
       words: { nouns: ["ticket"], adj: ["train", "tuesday"] }, ...item("ticket"),
       examine: "A stiff card ticket: TUESDAY, SINGLE. Punched twice. On the back: NOT VALID FOR RETURN, BECAUSE THERE ISN'T ONE." },
     ...rules.map((rule) => ({ add: "rule", rule }))

@@ -160,25 +160,27 @@ const same = (a, b) => a.length === b.length && a.every((p, i) => p.text === b[i
 // It stops when a step is refused or anything is said beyond the room's own description (an event, a warning, damage, a
 // guard's line), or the story ends or asks something. Rooms passed through silently are not told.
 //   null (nothing to walk: the room you are in, or not on the map)
-//   or { next, paragraphs, path, reached, stopped } with the state after, the story to show, the whole route, whether
-//   you arrived, and how many steps were taken.
+//   or { next, paragraphs, path, reached, stopped, applied } with the state after, the story to show, the whole route, whether
+//   you arrived, how many steps were taken, and every step's effects in order (the moment's list, for its sounds: ui/sound.js).
 // `at` is the game time, as for step(). One state comes out, so one UNDO takes the whole trip back.
 export function walk(state, roomId, pack, at) {
   const path = routeTo(state, roomId);
   if (!path?.length) return null;
   let s = state, passed = false;                              // passed: we are in a room whose text wasn't shown
+  const applied = [];
   for (let i = 0; i < path.length; i++) {
     const before = s, parsed = parse(pack.dirs[path[i]], s, pack);
-    if (!parsed.actions) return { next: s, paragraphs: passed ? describe(s, s.player.at, pack) : [], path, reached: false, stopped: i };
+    if (!parsed.actions) return { next: s, paragraphs: passed ? describe(s, s.player.at, pack) : [], path, reached: false, stopped: i, applied };
     const r = step(s, { ...parsed.actions[0], at });
     if (r.refused.length) console.warn("Effects refused by the engine:", r.refused);   // as in play
     s = r.next;
+    applied.push(...r.applied);
     const said = story(r.applied, s, pack), moved = s.player.at !== before.player.at;
     const plain = moved && same(story(passing(r.applied), s, pack), describe(s, s.player.at, pack));   // only the room's own description
     const last = i === path.length - 1;
     if (plain && !last && !s.ended && !s.pending.question) { passed = true; continue; }
     // Stuck in a room whose text wasn't shown: tell where we are before what stopped us.
     const paragraphs = !moved && passed ? [...describe(before, before.player.at, pack), ...said] : said;
-    return { next: s, paragraphs, path, reached: plain && last, stopped: i + 1 };
+    return { next: s, paragraphs, path, reached: plain && last, stopped: i + 1, applied };
   }
 }

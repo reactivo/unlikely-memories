@@ -247,11 +247,11 @@ const rooms = {
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
   // The opening: the thing to take, the one you carry, and the way in (BRIEF.md §3).
-  wireless: { at: "pavement", portable: true, name: "Wireless", note: "Reading out the departments.",
+  wireless: { at: "pavement", portable: true, material: "stone", name: "Wireless", note: "Reading out the departments.",
     words: { nouns: ["wireless", "radio"], adj: ["cream", "small"] }, ...item("wireless"),
     here: "On the sill of the nearest window a small {wireless} murmurs to itself.",
     examine: "A cream wireless the size of a loaf, tuned between two stations. A woman's voice reads out the departments of Hartley's, one floor at a time, and starts again at the top." },
-  shopping_list: { at: "player", portable: true, name: "Shopping list", note: "Mostly rubbed out.",
+  shopping_list: { at: "player", portable: true, material: "paper", name: "Shopping list", note: "Mostly rubbed out.",
     words: { nouns: ["list"], adj: ["shopping", "pencil", "folded"] }, ...item("shopping_list"),
     examine: "In your own pencil: \"Something I should remember.\" Under it, rubbed out so often the paper has worn through, a second line." },
   street_door: { at: "pavement", name: "Revolving door", note: "Turning, with nobody in it.",
@@ -296,7 +296,7 @@ const objects = {
   tester: { at: "perfumery", name: "Tester", note: "No. 7.", actions: ["Smell tester"], opens: ["price"],
     words: { nouns: ["tester", "label", "atomiser", "atomizer", "spray"], adj: ["perfume", "number", "seven"] },
     examine: "A crystal tester with a rubber bulb. The label says: NO. 7. AN AFTERNOON INDOORS. And below, smaller: PRICE ON REQUEST." },
-  memory: { at: null, portable: true, name: "Memory", note: "An afternoon, stoppered.", heldActions: ["Open memory"],
+  memory: { at: null, portable: true, material: "glass", name: "Memory", note: "An afternoon, stoppered.", heldActions: ["Open memory"],
     words: { nouns: ["memory", "bottle", "phial", "stopper", "cork"], adj: ["small", "little", "stoppered", "my"] }, ...item("memory"),
     lies: "A small stoppered {bottle|memory} stands here, with an afternoon in it.",
     examine: "A little bottle stoppered with cork. Inside, very small, rain on a kitchen window and someone you loved, asleep in a chair. It is warm to hold.",
@@ -308,7 +308,7 @@ const objects = {
     examine: "A cream kid glove, a left one, with its fingers closed around something. It is warm, like a hand that has just been holding another.",
     take: "It won't be carried. It would rather be held.",
     talk: "The glove says nothing. Its fingers stir a little, like a hand waiting to be taken." },
-  roof_key: { at: null, portable: true, name: "Roof key", note: "Long, brass, mended.",
+  roof_key: { at: null, portable: true, material: "metal", name: "Roof key", note: "Long, brass, mended.",
     words: { nouns: ["key", "latchkey"], adj: ["roof", "brass", "long", "mended"] }, ...item("roof_key"),
     lies: "A long brass {key|roof_key} lies here, labelled ROOF.",
     examine: "A long brass key with a paper label: ROOF. MENDED. It has been mended so carefully that it's hard to say where." },
@@ -341,7 +341,7 @@ const objects = {
   tubes: { at: "haberdashery", name: "Tubes", note: "The cash railway.",
     words: { nouns: ["tubes", "tube", "railway", "pipes"], adj: ["brass", "cash", "pneumatic"] },
     examine: "Brass tubes, polished by the air rushing through them. Every now and then one breathes in, hard, and the whole floor hears it. They take what is offered: a sleeve, a glove, fingers. Miss Thimble says it takes fingers, and does not look as though she were joking." },
-  canister: { at: "haberdashery", container: true, open: "always", name: "Canister", note: "In its cradle.", actions: ["Pull handle"],
+  canister: { at: "haberdashery", container: true, open: "always", material: "metal", name: "Canister", note: "In its cradle.", actions: ["Pull handle"],
     words: { nouns: ["canister", "cylinder", "cradle", "carrier"], adj: ["brass", "cash"] },
     examine: "A brass canister with felt at each end, open, waiting for something to carry. It has been to the cash office and back more times than anyone has been anywhere." },
   handle: { at: "haberdashery", name: "Handle", note: "Sends the canister.", actions: ["Pull handle"],
@@ -354,7 +354,7 @@ const objects = {
     examine: "A brown clockwork bear with a winding handle in its back and one ear sewn on again in the wrong colour. Its eyes are buttons, and they have seen a great deal of the first floor." },
 
   // Second floor
-  roof_door: { at: "second_landing", name: "Roof door", note: "Closed for the winter.", opens: ["roof"],
+  roof_door: { at: "second_landing", material: "wood", name: "Roof door", note: "Closed for the winter.", opens: ["roof"],
     words: { nouns: ["door", "sign"], adj: ["roof", "garden", "painted"] },
     examine: "A painted door at the top of a short flight. ROOF GARDEN, CLOSED FOR THE WINTER. Locked; the keyhole is long and brass-coloured, as if it missed something.",
     door: "u", shut: "You go up the short flight to the roof door. Locked. The keyhole wants a long brass key.",
@@ -566,7 +566,7 @@ export default {
     { add: "music", ...music },   // the music (music.js, shared by both languages); each room's own as its `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    { add: "object", id: "lift_ticket", at: null, portable: true, name: "Appointment ticket", note: "Fourth floor.", heldActions: ["Show ticket to Mr Pell"],
+    { add: "object", id: "lift_ticket", at: null, portable: true, material: "paper", name: "Appointment ticket", note: "Fourth floor.", heldActions: ["Show ticket to Mr Pell"],
       words: { nouns: ["ticket", "appointment"], adj: ["pink", "appointment", "lift"] }, ...item("lift_ticket"),
       lies: "A pink {ticket|lift_ticket} lies here.",
       examine: "A pink ticket: HARTLEY'S. FOURTH FLOOR. ONE APPOINTMENT. PAID. On the back, in the cash office's hand: ONE AFTERNOON, INDOORS, WITH RAIN." },

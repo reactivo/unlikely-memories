@@ -295,11 +295,11 @@ const rooms = {
 // ---- Objetos -----------------------------------------------------------------------------------------------------------
 const objects = {
   // La apertura: la cosa que coger, la que ya llevas y el camino (BRIEF.md §3).
-  canary: { at: "cab", portable: true, name: "Canario", note: "Vigilando la niebla por ti.",
+  canary: { at: "cab", portable: true, material: "metal", name: "Canario", note: "Vigilando la niebla por ti.",
     words: { nouns: ["canario", "pajaro", "ave", "jaula", "pajarito"], adj: ["amarillo", "laton", "pequeno", "pequeño", "dorado"], g: "m" }, ...item("canary"),
     here: "De un gancho del techo cuelga un {canario|canary} en una pequeña jaula de latón, vigilando la niebla por ti.",
     examine: "Un canario amarillo en una jaula de latón del tamaño de un sombrero. Los mineros los bajan a la mina para saber cuándo el aire se echa a perder. A este lo han traído a Londres, donde tiene mucho que decir." },
-  summons: { at: "player", portable: true, name: "Citación", note: "Doblada, oficial.",
+  summons: { at: "player", portable: true, material: "paper", name: "Citación", note: "Doblada, oficial.",
     words: { nouns: ["citacion", "citatorio", "papel", "documento", "carta"], adj: ["doblada", "oficial", "judicial"], g: "f" }, ...item("summons"),
     examine: "«Se cita como testigo en la investigación de la muerte de Albert Fenn, farolero, de Lantern Row. El tribunal se reúne a medianoche». Bajo el sello, con otra letra, más pequeña: «El difunto estará presente»." },
   cab_fog: { at: "cab", name: "Niebla", note: "El único camino.",
@@ -324,7 +324,7 @@ const objects = {
   notebook: { at: "pye", name: "Libreta", note: "Los presentes.",
     words: { nouns: ["libreta", "cuaderno", "lista"], adj: ["agente", "policia", "negra"], g: "f" },
     examine: "Con letra cuidada: «Presentes en el último farol, esta noche: señor Voss (Cía. Eléctrica). Señora Halloran (pasteles). El difunto». Debajo, más pequeño: «Niebla muy espesa. No se veían caras. Se oyó una voz»." },
-  court_doors: { at: "row", name: "Puertas del tribunal", note: "La investigación es a medianoche.", door: "n",
+  court_doors: { at: "row", material: "wood", name: "Puertas del tribunal", note: "La investigación es a medianoche.", door: "n",
     words: { nouns: ["puertas", "puerta", "cartulina", "cartel", "aviso"], adj: ["tribunal", "roble", "forense"], g: "f", pl: true },
     examine: "Puertas de roble con una cartulina clavada: «Investigación. A. Fenn, farolero. Medianoche». Se abren cuando el tribunal se reúne, y no antes." },
 
@@ -413,7 +413,7 @@ const objects = {
       inquest: { open: true, label: "la investigación", words: ["investigacion", "tribunal", "forense", "medianoche"], says: "«Medianoche. No asistiré. No puedo dejar mi puesto»." },
       default: "«No sabría decirte», dice el señor Fenn. «Yo solo hacía los faroles»."
     } },
-  hut_key: { at: "fenn", portable: true, name: "Llave de la caseta", note: "En un cordel.", actions: ["Coger llave"],
+  hut_key: { at: "fenn", portable: true, material: "metal", name: "Llave de la caseta", note: "En un cordel.", actions: ["Coger llave"],
     words: { nouns: ["llave", "cordel", "cuerda", "cordon"], adj: ["caseta", "hierro", "pequena", "pequeña"], g: "f" }, ...item("hut_key"),
     lies: "Una pequeña {llave|hut_key} de hierro, en su cordel, está donde la dejaste.",
     examine: "Una pequeña llave de hierro en un trozo de cordel, tibia de un cuello que ya no es." },
@@ -424,18 +424,18 @@ const objects = {
   fog_lamp: { at: "last_lamp", name: "Niebla", note: "Murmurando, palabra a palabra.", actions: ["Escuchar niebla"],
     words: { nouns: ["niebla", "murmullo", "murmullos", "bruma"], adj: ["espesa"], g: "f" },
     examine: "La niebla es aquí más espesa, y murmura: una palabra, media palabra, demasiado débiles para entenderlas, todas dichas aquí y ninguna oída todavía." },
-  hut_door: { at: "last_lamp", name: "Puerta de la caseta", note: "La del señor Fenn.", door: "e",
+  hut_door: { at: "last_lamp", material: "wood", name: "Puerta de la caseta", note: "La del señor Fenn.", door: "e",
     words: { nouns: ["puerta", "caseta", "garita"], adj: ["madera", "verde"], g: "f" },
     examine: "La puerta de una caseta de madera del tamaño de un armario, pintada de verde muchas veces. Cerrada con llave: necesita la llave del señor Fenn.",
     locked: true, lock: { key: "hut_key", says: "La puerta de la caseta está cerrada con llave. Necesita la llave del señor Fenn.",
       opens: "La llave gira como si lo hiciera todas las noches desde hace cuarenta años. La puerta de la caseta se abre sobre un olor a gas y a parafina.", then: "hut_opened" } },
 
   // La caseta
-  trumpet: { at: "hut", portable: true, name: "Trompetilla", note: "Para escuchar el gas.", heldActions: ["Escuchar trompetilla"],
+  trumpet: { at: "hut", portable: true, material: "metal", name: "Trompetilla", note: "Para escuchar el gas.", heldActions: ["Escuchar trompetilla"],
     words: { nouns: ["trompetilla", "trompeta"], adj: ["laton", "abollada", "acustica"], g: "f" }, ...item("trumpet"),
     here: "Hay una {trompetilla|trumpet} de latón, abollada.",
     examine: "Una trompetilla de latón, abollada, de las que los viejos faroleros acercaban a un farol para saber si el gas respiraba. Por dentro del pabellón el latón brilla, como si hubiera estado escuchando algo tibio." },
-  pole: { at: "hut", portable: true, shape: ["pole_shape", "pole_flame"], name: "Pértiga del farolero", note: "Todavía encendida.",
+  pole: { at: "hut", portable: true, shape: ["pole_shape", "pole_flame"], material: "wood", name: "Pértiga del farolero", note: "Todavía encendida.",
     words: { nouns: ["pertiga", "llama", "gancho", "vara"], adj: ["farolero", "larga", "laton", "azul", "de", "del"], g: "f" }, ...item("pole"),
     here: "La larga {pértiga|pole} del señor Fenn está apoyada aquí, con su pequeña llama azul todavía encendida.",
     examine: "Una larga pértiga con un gancho de latón para la llave del gas y una pequeña llama azul en la punta que no se ha apagado en cuarenta años. Pesa más en el extremo que hizo el trabajo." },
@@ -491,7 +491,7 @@ const objects = {
     examine: "Piedra fría, mojada de niebla. Desde aquí se ve la forma que hace la niebla sobre la calle: más espesa alrededor del último farol, y alrededor de la chimenea de la tienda de pasteles, inclinada hacia ella como alguien que escucha." },
 
   // Lo que llega a las manos más tarde
-  last_words: { at: null, portable: true, name: "Últimas palabras", note: "Entre tus manos juntas.", heldActions: ["Dar palabras a Mabbott"],
+  last_words: { at: null, portable: true, material: "soft", name: "Últimas palabras", note: "Entre tus manos juntas.", heldActions: ["Dar palabras a Mabbott"],
     words: { nouns: ["palabras", "palabra", "frase", "oracion"], adj: ["ultimas", "ultima", "tibias", "tibia"], g: "f", pl: true }, ...item("last_words"),
     lies: "Las {últimas palabras|last_words} están aquí, todavía algo tibias.",
     examine: "«Déjalo, Albert. Siéntate un momento. Nadie echará de menos un farol». Una voz de mujer, grave y cálida, con harina encima. Las palabras aún están un poco tibias, y huelen a masa." }

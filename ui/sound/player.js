@@ -11,7 +11,7 @@
 //   createClockwork(S, random) — what plays when, as numbers: pure, no audio, driven by a clock it is given (tests/sound.test.js).
 //   createPlayer(ctx, S, opts) — the clockwork made sound: { play(music, room), room(id), stop(fade), theme(), hush(on),
 //                                ending({ death }), wake(), night(on), unwell(level), wobble(on), echo(on), mute(part, on),
-//                                comes(on), volume(part, v), hear(music, name), info(), level() }
+//                                comes(on), volume(part, v), hear(music, name), sounds(list, key), info(), level() }
 //   pitchOf(level, wobble, S) — the shared pitch for a level of unwell and the wobble, as numbers (cents, Hz).
 // And openAudio(ctx): the AudioContext made or woken inside a tap (the rules browsers set: MUSIC.md §7).
 
@@ -19,6 +19,7 @@ import { sceneOf, themePart, freqOf, variant, shiftOctave } from "../../js/music
 import { makeKit, playEvent, note, gain, filt, chain } from "./synth.js";
 import { makeTone } from "./tones.js";
 import { makeColour } from "./colours.js";
+import { playSounds } from "./sounds.js";
 
 // ---- The clockwork: what plays when ------------------------------------------------------------------------------------------
 
@@ -210,13 +211,16 @@ export function openAudio(existing) {
 // The player on a context. opts.comes: comes and goes on (the game) or off (the bench's default); opts.random: the player's own.
 export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}) {
   const kit = makeKit(ctx, S);
-  // The frame: mix → low-pass → compressor → hush → master → speakers; the echo from the mix back into the low-pass; the music
-  // through the gate (comes and goes) into the mix, the room tone straight in.
-  const master = gain(ctx, 0), hushed = gain(ctx, 1);
+  // The frame: mix → low-pass → compressor → hush → master → out → speakers; the echo from the mix back into the low-pass; the
+  // music through the gate (comes and goes) into the mix, the room tone straight in. The sounds (S.sounds) on a bus of their own,
+  // through their own low-pass, straight to `out`: heard whether the music plays or not (a world with no music, after an ending),
+  // never hushed (they come after waking) nor faded with the music.
+  const master = gain(ctx, 0), hushed = gain(ctx, 1), out = gain(ctx, 1);
   const lp = filt(ctx, "lowpass", S.lowpass.frequency, S.lowpass.q);
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = S.compressor.threshold; comp.ratio.value = S.compressor.ratio;
-  chain(lp, comp, hushed, master); master.connect(ctx.destination);
-  const meter = ctx.createAnalyser(); meter.fftSize = 1024; master.connect(meter);
+  chain(lp, comp, hushed, master, out); out.connect(ctx.destination);
+  const meter = ctx.createAnalyser(); meter.fftSize = 1024; out.connect(meter);
+  const sfx = gain(ctx, S.sounds.level); chain(sfx, filt(ctx, "lowpass", S.sounds.lowpass, S.lowpass.q), out);
   const mix = gain(ctx, 1); mix.connect(lp);
   const R = S.reverb, len = Math.floor(ctx.sampleRate * R.seconds), ir = ctx.createBuffer(2, len, ctx.sampleRate);
   for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, R.decay); }
@@ -246,6 +250,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
   const clock = createClockwork(S, random);
   const mutes = { lines: false, tone: false, theme: false };
   let current = null, timer = null, playing = false, comesOn = comes, hushOn = false;
+  let lastSounds = null;                                     // the sounds last played: { kinds, at } (info: the debug panel's)
 
   // A scene's sound: its buses (the lines and the theme through the colour, the tone apart), faded in over the crossfade.
   function startScene(scene) {
@@ -373,13 +378,20 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
       if (!playing) { master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(S.master.level, t); }
       H.steps.forEach((st, k) => note(kit, musicBus, inst, freqOf(music, st, H.octave), t + k * H.gap, H.length));
     },
+    // Sounds (ui/sound/sounds.js): each { kind, material, weight }, in the list's order, a little apart, in the key given
+    // ({ root, steps }: the world's music's, or S.sounds.key). Whether the music plays or not.
+    sounds(list, key = S.sounds.key) {
+      if (!list.length) return;
+      playSounds(kit, sfx, list, key, ctx.currentTime + S.sounds.lead);
+      lastSounds = { kinds: list.slice(0, S.sounds.most).map(s => s.kind + (s.material ? " (" + s.material + ")" : "")), at: ctx.currentTime };
+    },
     // What plays now: for the bench's page and the debug panel.
     info() {
       return { playing, now: ctx.currentTime, state: ctx.state, music: clock.music, scene: clock.scene, theme: clock.theme,
                themeNext: clock.themeNext, nextPart: clock.nextPart, resting: clock.resting, hushed: hushOn, night: clock.night, ending: clock.ended,
                unwell: clock.unwell, wobble: clock.wobble, echo: clock.echo, pitch: clock.pitch,
                tuning: { flat: flat.offset.value, wobble: wob.gain.value },   // the pitch as it is now, in cents (mid-glide too)
-               mutes: { ...mutes } };
+               mutes: { ...mutes }, sounds: lastSounds };
     },
     // The peak level leaving the page now, in dB (-99: nothing).
     level() {

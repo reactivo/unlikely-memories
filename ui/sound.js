@@ -15,6 +15,14 @@
 //   - The picture's filters that are on (state.filters, whatever turned them on: a condition's `filters` or a `filter` effect),
 //     through one table (content/music.js, reactions.filters): sway → the wobble, ghost → the echo; the others, nothing yet.
 //     A world writes nothing for any of it.
+//   - The sounds (docs/sound/PLAN.md, build 1): the controller hands it each moment's list as it hands the log (moment()), and it
+//     reads it into plain terms (soundsOf: one entry a sound, { kind, material, weight }), which the player plays in the world's
+//     key and mode (ui/sound/sounds.js; content/music.js, sounds). Only what the screen already shows: a thing you get or lose
+//     (its `material`), something eaten or drunk, a hurt (its weight by the hit) or a heal, a condition starting or ending (in the
+//     colour of its echo), a door opening, closing, unlocking or refusing (locked), a container opening, a puzzle solved (the
+//     engine's `solved` mark). Only while ♫ is on and the audio runs; never on a restore, UNDO, a load or a new game (the
+//     controller hands it only moments played, as the reactions: ui/effects.js, reactionOf); a world with no music plays them in
+//     the spec's key. While you sleep the controller holds the moment until you wake.
 //
 // The browser's rules (MUSIC.md §7):
 //   - The audio is made and woken inside the ♫ tap: on.music() → redraw() → update() runs synchronously, nothing awaited.
@@ -64,8 +72,59 @@ export function effectsOf(filters = []) {
   return Object.fromEntries(Object.values(S.reactions.filters).map(e => [e, on.has(e)]));
 }
 
-// Set up the sound (it has no element). Returns update(), asleep(), clock(), leave() and `debug` (for the debug panel's Music
-// section).
+// What a moment's list sounds like, in plain terms (docs/sound/PLAN.md, build 1: one entry a sound, in the list's order):
+//   get / lose       a thing you now have, or no longer have (its `gained` / `lost` echo), with its material
+//   eat / drink      a consumable thing gone out of play this moment (the engine's EAT and DRINK move it to nowhere; held, its
+//                    `lost` echo is this, not a put down): drink when it has a `drink` line and no `eat` line, else eat
+//   hurt / heal      a health echo: a hurt with its weight, the hit (how much health it took, from the health before the moment,
+//                    `was`, echo by echo); a heal, at full health too (the green flash)
+//   down / up / sideways   a condition's echo, by its colour (its `tone`: hurt, healed, neutral; js/conditions.js)
+//   open / close / unlock  a door (a thing with `door`): set open or shut, or unlocked, with its material
+//   lid              a container opened (set open, or unlocked), with its material
+//   rattle           a locked door refusing: one of its own lines said (`shut`, its lock's `says`), or the stock "locked" with it
+//                    in the room
+//   solved           a puzzle solved (the engine's mark, never an ending's)
+// `now` is the game after the moment, `was` before it (both read only); a thing's material is its own word, as written.
+export function soundsOf(applied, now, was = now) {
+  const things = now.world.objects, old = was.world.objects;
+  const thing = (id) => things[id] ?? old[id] ?? {};
+  const material = (id) => thing(id).material;
+  const gone = new Set(applied.filter(e => "move" in e && e.to === null && thing(e.move).consumable === true).map(e => e.move));
+  const lockedDoors = Object.entries(things).filter(([, o]) => o.door != null && o.locked === true && o.at === now.player.at);
+  const refused = (e) => lockedDoors.find(([id, o]) => e.say === o.shut || e.say === o.lock?.says || (e.say === "@locked" && (!e.things || e.things.includes(id))));
+  const out = [];
+  let health = was.player.health;
+  const level = (e) => (typeof e.level === "number" ? e.level : health);   // (a health echo's level: where it lands)
+  for (const e of applied) {
+    if ("echo" in e) {
+      if (e.kind === "gained") out.push({ kind: "get", material: material(e.thing) });
+      else if (e.kind === "lost" && !gone.has(e.thing)) out.push({ kind: "lose", material: material(e.thing) });
+      else if (e.kind === "hurt") { const to = level(e); out.push({ kind: "hurt", weight: Math.max(1, health - to) }); health = to; }
+      else if (e.kind === "healed") { out.push({ kind: "heal" }); health = level(e); }
+      else if (e.kind === "condition") out.push({ kind: e.tone === "hurt" ? "down" : e.tone === "healed" ? "up" : "sideways" });
+    } else if ("move" in e && gone.has(e.move)) {
+      const o = thing(e.move);
+      out.push({ kind: o.drink != null && o.eat == null ? "drink" : "eat" });
+    } else if ("unlock" in e) {
+      const o = thing(e.unlock);
+      if (o.door != null) out.push({ kind: "unlock", material: o.material });
+      else if (o.container) out.push({ kind: "lid", material: o.material });
+    } else if (typeof e.set === "string" && /^[^.]+\.open$/.test(e.set) && things[e.set.split(".")[0]]) {
+      const o = things[e.set.split(".")[0]];
+      if (o.door != null && typeof e.to === "boolean") out.push({ kind: e.to ? "open" : "close", material: o.material });
+      else if (o.container && e.to === true) out.push({ kind: "lid", material: o.material });
+    } else if ("say" in e && refused(e)) out.push({ kind: "rattle", material: thing(refused(e)[0]).material });
+    else if ("solved" in e) out.push({ kind: "solved" });
+  }
+  return out;
+}
+
+// The sounds a debug panel or a bench can try, each kind of the spec's table, and the materials.
+export const SOUND_KINDS = Object.keys(S.sounds.moments);
+export const MATERIALS = Object.keys(S.sounds.materials).filter(m => m !== "generic");
+
+// Set up the sound (it has no element). Returns update(), moment(), asleep(), clock(), leave() and `debug` (for the debug panel's
+// Music section).
 export function mount(on) {
   let ctx = null, player = null;
   let want = false;              // ♫, as last drawn
@@ -91,6 +150,9 @@ export function mount(on) {
     const s = state.music == null ? null : JSON.stringify([state.worldId, state.music, own]);
     if (s !== sig) { sig = s; music = s ? musicOf(state).music : null; }
   }
+
+  // The key the sounds play in: the world's music's, or the spec's for a world with none.
+  const keyOf = () => (music ? { root: music.root, steps: music.steps } : S.sounds.key);
 
   // Make or wake the audio. In a tap (`tap`: ♫ turned on, the first tap or key anywhere), a context that has run and isn't running
   // now is not trusted: it is closed and a fresh one made, with a fresh player (iOS can leave an interrupted one dead for good).
@@ -132,8 +194,8 @@ export function mount(on) {
   function follow(reason) {
     if (!want || !state || !ctx) return;
     read();
-    if (!music) { if (player?.playing) player.stop(); playing = null; return; }   // a world with no music: nothing
-    player ??= createPlayer(ctx, S);
+    player ??= createPlayer(ctx, S);                       // (made with no music too: its sounds still play)
+    if (!music) { if (player.playing) player.stop(); playing = null; return; }   // a world with no music: no music
     if (asleep !== hushed) { hushed = asleep; player.hush(asleep); }
     player.night(night);
     if (state.ended) {
@@ -173,6 +235,13 @@ export function mount(on) {
       if (want && (!ctx || (ctx.state !== "running" && !document.hidden))) wake(tapped);
       follow(reason);
     },
+    // A moment played (js/main.js: a command, the world on its own, a walk, the debug panel's; a sleep's once you wake): its list, as
+    // the log gets it, `now` the game after it and `was` before. Its sounds, if ♫ is on and the audio runs.
+    moment(applied, now, was) {
+      if (!want || !player || ctx?.state !== "running" || !now) return;
+      state = now; read();
+      player.sounds(soundsOf(applied, now, was), keyOf());
+    },
     // While you sleep (js/main.js, sleepThrough), and as you wake: the music fades out and back, the whole theme soon after.
     asleep(on) {
       const woke = asleep && !on;
@@ -196,7 +265,11 @@ export function mount(on) {
       ending: (death) => player?.ending({ death }) ?? null,
       wake: () => player?.wake() ?? false,
       mute: (part, on) => player?.mute(part, on),
-      muted: () => player?.muted() ?? { lines: false, tone: false, theme: false }
+      muted: () => player?.muted() ?? { lines: false, tone: false, theme: false },
+      // A sound tried (the player's alone: the game untouched), in this world's key: { kind, material, weight }; the kinds and the
+      // materials there are to try.
+      sound: (s) => { if (want && player && state) { read(); player.sounds([s], keyOf()); } },
+      kinds: SOUND_KINDS, materials: MATERIALS
     }
   };
 }

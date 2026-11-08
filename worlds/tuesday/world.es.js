@@ -320,11 +320,11 @@ const rooms = {
 // ---- Objetos ---------------------------------------------------------------------------------------------------------------
 const objects = {
   // La apertura: la cosa que se coge, la que llevas, y el camino (BRIEF.md §3).
-  tin: { at: "halt", portable: true, name: "Lata de cacao", note: "Alguien al otro lado.",
+  tin: { at: "halt", portable: true, material: "metal", name: "Lata de cacao", note: "Alguien al otro lado.",
     words: { nouns: ["lata", "cordel", "cuerda", "cacao", "bote"], adj: ["cacao", "fría", "fria", "larga"], g: "f" }, ...item("tin"),
     here: "Sobre el banco, una {lata|tin} de cacao tiende su cordel más allá del borde del andén.",
     examine: "Una lata de cacao con un agujero en el fondo y un cordel que sale de él, a lo largo del andén y por el borde hacia la oscuridad. El cordel está tenso, como si hubiera algo en el otro extremo." },
-  diary_leaf: { at: "player", portable: true, name: "Página de agenda", note: "Rayada para una semana.",
+  diary_leaf: { at: "player", portable: true, material: "paper", name: "Página de agenda", note: "Rayada para una semana.",
     words: { nouns: ["página", "pagina", "agenda", "diario"], adj: ["hoja", "doblada", "amarilla", "rayada"], g: "f" }, ...item("diary_leaf"),
     examine: "Una página de agenda, rayada para una semana. El domingo y el martes están escritos, de tu puño y letra; donde debería estar el lunes hay un hueco limpio y cuidadoso, frotado hasta gastar el papel." },
   carriage_door: { at: "halt", name: "Puerta del vagón", note: "Abierta, esperando.",
@@ -399,7 +399,7 @@ const objects = {
     mentions: ["taburete", "botón"] },
   button: { at: "booth", name: "Botón", note: "Rojo, gastado.", actions: ["Pulsar botón"],
     words: { nouns: ["botón", "boton", "pulsador"], adj: ["rojo"], g: "m" }, examine: "Un botón rojo, gastado y pálido en el centro." },
-  photograph: { at: null, portable: true, name: "Fotografía", note: "De mañana, aún mojada.",
+  photograph: { at: null, portable: true, material: "paper", name: "Fotografía", note: "De mañana, aún mojada.",
     words: { nouns: ["fotografía", "fotografia", "foto", "fotos", "tira"], adj: ["mojada", "húmeda", "humeda"], g: "f" }, ...item("photograph"),
     examine: "Una tira de cuatro fotografías, todavía mojada, a la luz del día: los escalones del ayuntamiento; luego una mujer con rebeca gris, arriba, en una ventana, enseñando una hoja de calendario que dice LUNES. En el último fotograma la coges tú." },
   oduya: { at: "waiting_room", name: "Señora Oduya", note: "Esperando, con una maleta.",
@@ -452,7 +452,7 @@ const objects = {
     words: { nouns: ["fuente", "pilón", "pilon", "agua"], adj: ["piedra"], g: "f" },
     examine: "Un pilón de piedra con el agua quieta. En el fondo hay monedas, de una moneda que ya nadie usa. En el suelo del pilón hay empotrada una lamparita.",
     parts: [{ words: ["lámpara", "lampara", "lamparita", "fondo"], name: "la lámpara bajo el agua", says: "Una lámpara de latón en el fondo del pilón. Se enciende a las ocho, con las demás." }], mentions: ["monedas", "lámpara"] },
-  coin: { at: "fountain", portable: true, name: "Moneda antigua", note: "La moneda de antes.",
+  coin: { at: "fountain", portable: true, material: "metal", name: "Moneda antigua", note: "La moneda de antes.",
     words: { nouns: ["moneda", "monedas", "dinero", "pieza"], adj: ["antigua", "vieja", "pesada"], g: "f" }, ...item("coin"),
     examine: "Una moneda antigua y pesada. Por una cara, un perfil con los ojos cerrados. Por la otra, la semana, con sus siete días." },
   statue: { at: "square", name: "Estatua", note: "El Ministro.",
@@ -470,7 +470,7 @@ const objects = {
       train: { about: "timetable", words: ["tren", "martes"], says: "«Los huéspedes se van en el tren del martes. Dejan el equipaje. Está todo en el desván.»" },
       default: "«No sabría decirte», dice. «El periódico del sábado no lo menciona.»"
     } },
-  room_key: { at: null, portable: true, name: "Llave de la habitación", note: "La cuatro.",
+  room_key: { at: null, portable: true, material: "metal", name: "Llave de la habitación", note: "La cuatro.",
     words: { nouns: ["llave", "habitación", "habitacion", "cuarto"], adj: ["hotel", "latón", "laton"], g: "f" }, ...item("room_key"),
     examine: "Una llave de latón colgada de una pera de madera con un 4 marcado a fuego." },
   bed: { at: "hotel_room", name: "Cama", note: "Abierta.", actions: ["Dormir"],
@@ -514,7 +514,7 @@ const objects = {
       umbrella: { words: ["paraguas", "etiqueta", "mesa"], says: "«Algo que perdiste», dice. «No algo de lo que te hayan hablado.»" },
       default: "Lo busca bajo una letra que elige ella, y no encuentra nada."
     } },
-  monday_page: { at: null, portable: true, name: "Lunes", note: "El último.", heldActions: ["Poner lunes en calendario"],
+  monday_page: { at: null, portable: true, material: "paper", name: "Lunes", note: "El último.", heldActions: ["Poner lunes en calendario"],
     words: { nouns: ["lunes", "hoja"], adj: ["último", "ultimo", "última", "ultima", "calendario", "página", "pagina"], g: "m" }, ...item("monday_page"),
     examine: "Una hoja de calendario: LUNES, en negro, sin nada escrito debajo. Pesa más de lo que debería pesar un papel. Está todo por hacer." },
 
@@ -787,7 +787,7 @@ export default {
       lacking: "«Un viaje, una moneda», dice la taquillera. «De las antiguas.»",
       already: "Ya tienes uno. Con uno basta.",
       again: "El postigo está bajado. El cartel dice: BILLETES DESDE LAS 21:00.",
-      name: "Billete", note: "Martes. Solo ida.",
+      material: "paper", name: "Billete", note: "Martes. Solo ida.",
       words: { nouns: ["billete", "tarjeta", "boleto"], adj: ["tren", "martes", "cartón", "carton"], g: "m" }, ...item("ticket"),
       examine: "Un billete de cartón rígido: MARTES, SOLO IDA. Picado dos veces. En el reverso: NO VÁLIDO PARA VUELTA, PORQUE NO LA HAY." },
     ...rules.map((rule) => ({ add: "rule", rule }))

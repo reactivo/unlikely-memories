@@ -154,5 +154,69 @@ export default {
   },
 
   // ---- The bench's Hear button: an instrument alone, steps 1, 3, 5 ------------------------------------------------------------
-  hear: { steps: [1, 3, 5], octave: 4, gap: 0.9, length: 0.8 }
+  hear: { steps: [1, 3, 5], octave: 4, gap: 0.9, length: 0.8 },
+
+  // ---- Sounds (docs/sound/PLAN.md, build 1): a short sound for a moment the screen already shows -------------------------------
+  // The game's piece (ui/sound.js, soundsOf) reads the moment's list into plain terms, { kind, material, weight }; the player plays
+  // them (ui/sound/sounds.js) in the world's key and mode (its music's; a world with no music, `key`), on their own bus beside the
+  // music's, about level with the theme (the sound panel's sliders will set the balance). One table, `moments`: each kind → its
+  // notes. A note: `play` an instrument of `voices`, or "material" (the thing's: `materials`, `generic` for none or a word not
+  // there; `shift` octaves from the material's own); `step` of the mode, `to` a step it slides to, `octave` (a voice's), `at` seconds
+  // after the sound starts, `length` seconds, `level` (× the instrument's). The instruments are the music's kinds (MUSIC.md §3),
+  // the noise kinds too, with the music's numbers (`note`, `noises`).
+  sounds: {
+    level: 0.75,                                  // the sounds' bus, beside the music's (buses.music × master.level ≈ 0.7)
+    lowpass: 4200,                                // a gentle low-pass over them
+    spacing: 0.12,                                // several in one moment: each this long after the one before, in the list's order
+    most: 4,                                      // at most this many in a moment (the first ones)
+    lead: 0.03,                                   // the first one this far ahead of now
+    key: { root: 0, steps: [0, 2, 4, 5, 7, 9, 11] },   // a world with no music: C major
+    // What a thing is made of (its `material`, BRIEF §8): the kind it sounds with and its shape. Picked up rises, put down falls.
+    materials: {
+      metal:   { kind: "chime",   ratio: 3.5, bright: 0.45, attack: 0, release: 1.4, octave: 5, level: 0.5 },   // a bright cling, a long slightly inharmonic ring
+      glass:   { kind: "struck",  ratio: 7,   bright: 0.25, attack: 0, release: 0.35, octave: 6, level: 1.6 },   // high, clean, short
+      wood:    { kind: "knock",   ratio: 1,   bright: 0.6,  attack: 0, release: 0.3, octave: 3, level: 0.3 },  // a hollow knock
+      paper:   { kind: "brush",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 4, level: 2.4, length: 0.16 },   // a soft rustle (cloth too)
+      stone:   { kind: "clack",   ratio: 1,   bright: 0.5,  attack: 0, release: 0.2, octave: 5, level: 1.6 },    // a dry clack or clink (ceramic, shell)
+      soft:    { kind: "struck",  ratio: 1,   bright: 0.08, attack: 0, release: 0.12, octave: 3, level: 0.7 },  // a muted thud (food, leather, a cat)
+      generic: { kind: "plucked", ratio: 1,   bright: 0.12, attack: 0, release: 0.2, octave: 4, level: 0.9 }    // no material, or one not here
+    },
+    // The other instruments, each a kind of the music's and its numbers.
+    voices: {
+      crunch:  { kind: "clack",   ratio: 1,   bright: 0.9,  attack: 0, release: 0.1, level: 1.5 },    // eating
+      gulp:    { kind: "struck",  ratio: 1,   bright: 0.05, attack: 0, release: 0.14, level: 0.7 },   // drinking (a low note sliding up)
+      thud:    { kind: "knock",   ratio: 1,   bright: 1,    attack: 0, release: 0.3, level: 0.35 },    // a hurt
+      body:    { kind: "struck",  ratio: 0.5, bright: 0.2,  attack: 0, release: 0.5, level: 0.35 },    // under the thud
+      shimmer: { kind: "chime",   ratio: 3,   bright: 0.12, attack: 0, release: 1.2 },    // a heal
+      colour:  { kind: "plucked", ratio: 2,   bright: 0.25, attack: 0, release: 0.6, level: 0.75 },    // a condition starting or ending
+      creak:   { kind: "reed",    ratio: 3.5, bright: 0.5,  attack: 0.04, release: 0.15 },   // a door opening
+      latch:   { kind: "clack",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.1, level: 2.2 },    // a lock turning, a locked door rattling
+      slide:   { kind: "brush",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.2, level: 2 },    // a lid or a drawer
+      bell:    { kind: "struck",  ratio: 3,   bright: 0.35, attack: 0, release: 0.9, level: 0.65 }     // a puzzle solved
+    },
+    // A hurt's weight, by the hit (how much health it took): its level × (base + per × (hit − 1)), the hit at most `most`.
+    weight: { base: 0.7, per: 0.2, most: 5 },
+    // The one table: each moment's kind → its notes.
+    moments: {
+      get:      [{ play: "material", step: 1 }, { play: "material", step: 5, at: 0.08 }],                    // picked up: rises
+      lose:     [{ play: "material", step: 5 }, { play: "material", step: 1, at: 0.08 }],                    // put down: falls
+      eat:      [{ play: "crunch", step: 3, octave: 5 }, { play: "crunch", step: 1, octave: 5, at: 0.09 },
+                 { play: "crunch", step: 2, octave: 5, at: 0.2, level: 0.8 }],
+      drink:    [{ play: "gulp", step: 1, to: 3, octave: 3, length: 0.12 }, { play: "gulp", step: 1, to: 3, octave: 3, at: 0.24, length: 0.12, level: 0.8 }],
+      hurt:     [{ play: "thud", step: 1, octave: 2 }, { play: "body", step: 1, octave: 2, length: 0.3 }],
+      heal:     [{ play: "shimmer", step: 1, octave: 5, level: 0.6 }, { play: "shimmer", step: 3, octave: 5, at: 0.06, level: 0.6 },
+                 { play: "shimmer", step: 5, octave: 5, at: 0.12, level: 0.6 }, { play: "shimmer", step: 8, octave: 5, at: 0.18, level: 0.6 }],
+      down:     [{ play: "colour", step: 3, octave: 4 }, { play: "colour", step: 1, octave: 4, at: 0.11 }],    // a harmful condition starts
+      up:       [{ play: "colour", step: 1, octave: 4 }, { play: "colour", step: 3, octave: 4, at: 0.11 }],    // a good one starts, a harmful one ends
+      sideways: [{ play: "colour", step: 2, octave: 4 }, { play: "colour", step: 2, octave: 4, at: 0.11 }],    // a neutral one
+      open:     [{ play: "creak", step: 1, to: 2, octave: 3, length: 0.3, level: 0.5 }, { play: "material", step: 1, shift: -1, at: 0.28 }],   // a door opens
+      close:    [{ play: "material", step: 1, shift: -1 }, { play: "material", step: 1, shift: -1, at: 0.06, level: 0.5 }],                  // a door closes
+      unlock:   [{ play: "latch", step: 5, octave: 5 }, { play: "material", step: 1, shift: -1, at: 0.1 }],                                 // a door unlocks
+      rattle:   [{ play: "latch", step: 1, octave: 4 }, { play: "latch", step: 2, octave: 4, at: 0.07 }, { play: "latch", step: 1, octave: 4, at: 0.14 }],   // a locked door
+      lid:      [{ play: "slide", step: 3, octave: 4, length: 0.14 }, { play: "material", step: 3, at: 0.12 }],                            // a container opens
+      solved:   [{ play: "bell", step: 5, octave: 4 }, { play: "bell", step: 8, octave: 4, at: 0.09 }, { play: "bell", step: 10, octave: 4, at: 0.18 },
+                 { play: "bell", step: 12, octave: 4, at: 0.27, length: 0.6 }]                                  // the old games' "points"
+    },
+    length: 0.25                                  // a note's length when it says none
+  }
 };
