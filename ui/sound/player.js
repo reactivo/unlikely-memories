@@ -1,17 +1,18 @@
 // The player (MUSIC.md §5): a world's music played from what js/music.js reads, with the engine's frame. Scenes (a room's lines,
 // tone and colour, crossfaded from the room before), the lines' scheduler on the audio clock, the theme's schedule and its turns
-// (whole, question, whole, answer), comes and goes, the reactions (an ending, waking, night) and the frame itself (levels, the
-// low-pass, the compressor, the echo).
+// (whole, question, whole, answer), comes and goes, the reactions (an ending, waking, night, unwell, the wobble and the echo)
+// and the frame itself (levels, the low-pass, the compressor, the reverb, the shared pitch every note follows).
 // Plain functions of an AudioContext: no globals, no knowledge of the game (it is given a world's music and a room, never the
-// state; it is told "an ending", "a death", "night", "awake", never why), so the test bench (tools/music/) plays exactly what the
+// state; it is told "an ending", "a death", "night", "awake", "unwell", "wobble", "echo", never why), so the test bench (tools/music/) plays exactly what the
 // game plays. It never pauses by itself when the page looks hidden: the game's piece (ui/sound.js) does that, the bench must not
 // (MUSIC.md §7). Every number is the spec's (content/music.js).
 //
 // Two halves:
 //   createClockwork(S, random) — what plays when, as numbers: pure, no audio, driven by a clock it is given (tests/sound.test.js).
 //   createPlayer(ctx, S, opts) — the clockwork made sound: { play(music, room), room(id), stop(fade), theme(), hush(on),
-//                                ending({ death }), wake(), night(on), mute(part, on), comes(on), volume(part, v),
-//                                hear(music, name), info(), level() }
+//                                ending({ death }), wake(), night(on), unwell(level), wobble(on), echo(on), mute(part, on),
+//                                comes(on), volume(part, v), hear(music, name), info(), level() }
+//   pitchOf(level, wobble, S) — the shared pitch for a level of unwell and the wobble, as numbers (cents, Hz).
 // And openAudio(ctx): the AudioContext made or woken inside a tap (the rules browsers set: MUSIC.md §7).
 
 import { sceneOf, themePart, freqOf, variant, shiftOctave } from "../../js/music.js";
@@ -71,16 +72,30 @@ export function themeTimes(mel, part, t0, beat) {
   return { notes, chords, end: t0 + (b1 - b0) * beat };
 }
 
+// The pitch every note follows (S.reactions): unwell (level 1 or 2) sits `detune` cents flat with a slow drift; the wobble sways
+// it ± `depth` cents. As numbers: { flat, drift: [rate, depth], wobble: [rate, depth], glide: { flat, wobble } }; all 0 when well
+// and steady (and at an ending, whose theme is as written).
+export function pitchOf(level, wobble, S) {
+  const U = S.reactions.unwell, W = S.reactions.wobble;
+  return { flat: level ? U.detune : 0, drift: [U.drift[0], level ? U.drift[1] : 0], wobble: [W.rate, wobble ? W.depth : 0],
+           glide: { flat: U.glide, wobble: W.glide } };
+}
+
 // What plays when, from a clock it is given (seconds): the scene (a room's music), its lines as they come due, the theme a few
 // seconds after the start, after a rest and every 100 to 160 s between, and comes and goes; and the reactions it is told of
 // (S.reactions): an ending (the whole theme once, then nothing), waking (the whole theme first), night (the lines thinned, the
-// theme lower). `random` is the player's own (the gaps between themes), never the game's.
+// theme lower), unwell (level 1: the lines thinned as at night; level 2: the theme slower and lower too; the detune is the
+// player's, from `pitch`), the wobble (only the pitch) and the echo (the theme's tune again a beat late). Each line changes from
+// its next pass, the theme from its next turn; an ending's theme is untouched by any of them. `random` is the player's own (the
+// gaps between themes), never the game's.
 export function createClockwork(S, random = Math.random) {
   let music = null, scene = null, theme = null, themeNext = Infinity, count = 0, cycle = 0, resting = false, comes = true;
-  let night = false, ended = null, wakePart = null;
+  let night = false, ended = null, wakePart = null, unwell = 0, wobble = false, echo = false;
   const parts = S.theme.parts, R = S.reactions;
-  // At night a line sits out all but one pass in `every`, each line in its turn (so they don't all fall quiet together).
-  const thin = (c) => night && (c.pass + c.k) % R.night.every !== 0;
+  // At night, or unwell, a line sits out all but one pass in `every`, each line in its turn (so they don't all fall quiet
+  // together); both at once thin it no further than the sparser of the two.
+  const every = () => Math.max(night ? R.night.every : 1, unwell ? R.unwell.every : 1);
+  const thin = (c) => { const n = every(); return n > 1 && (c.pass + c.k) % n !== 0; };
   const sceneAt = (roomId, now) => {
     const sc = sceneOf(music, roomId), t0 = now + S.scene.lead, lines = linesFrom(sc.lines, t0, S);
     for (const l of lines) l.quiet = thin(l);
@@ -95,6 +110,11 @@ export function createClockwork(S, random = Math.random) {
     get resting() { return resting; },
     get night() { return night; },
     get ended() { return ended; },                 // the ending under way: { death, lines, at, theme, over, played, done }, or null
+    get unwell() { return unwell; },               // 0 well, 1 unwell, 2 worse
+    get wobble() { return wobble; },
+    get echo() { return echo; },
+    // The pitch every note follows now (pitchOf): steady at an ending, whatever it was told.
+    get pitch() { return ended ? pitchOf(0, false, S) : pitchOf(unwell, wobble, S); },
     // A world's music starts in a room: its theme from the first turn, `first` seconds from now.
     start(m, roomId, now) { music = m; theme = null; count = 0; ended = null; wakePart = null; themeNext = now + S.theme.first; scene = sceneAt(roomId, now); return scene; },
     // Another room: a new scene; the theme's schedule goes on. (Not once the story has ended: the ending plays on.)
@@ -104,6 +124,11 @@ export function createClockwork(S, random = Math.random) {
     stop() { music = null; scene = null; theme = null; themeNext = Infinity; resting = false; ended = null; wakePart = null; },
     // Night on or off: each line from its next pass, the theme from its next turn.
     setNight(on) { night = !!on; },
+    // Unwell (0, 1, 2), the wobble, the echo: the lines from each one's next pass, the theme from its next turn, the pitch as the
+    // player glides it.
+    setUnwell(level) { unwell = Math.max(0, Math.min(2, level | 0)); },
+    setWobble(on) { wobble = !!on; },
+    setEcho(on) { echo = !!on; },
     // The story has ended: the lines go on for `out` seconds (fading), then after a breath the world's whole theme, as written
     // (a death: as its variant plays it, an octave lower), with its chords, once; then `done`. Nothing else is due after it.
     end(now, death = false) {
@@ -126,14 +151,20 @@ export function createClockwork(S, random = Math.random) {
       resting = false; cycle = now; themeNext = now + R.sleep.theme; wakePart = "whole";
       return true;
     },
-    // The theme now (its next turn, or the whole after waking), in the room's way (as written, a variant, or its own tune), an
-    // octave down at night; null when there is none.
+    // The theme now (its next turn, or the whole after waking), in the room's way (as written, a variant, or its own tune); worse
+    // than unwell, slower (once: a room's slower variant stays as it is); an octave down at night or worse than unwell (one in
+    // all, never two); with the echo, its tune again a beat late (`echo`: { after, level }, or null); null when there is none.
     playTheme(now) {
       const th = scene?.sc.theme;
       if (!th || ended) return null;
-      const part = wakePart ?? parts[count % parts.length], mel = night ? shiftOctave(th.mel, R.night.octave) : th.mel;
+      const part = wakePart ?? parts[count % parts.length], V = R.unwell.worse, worse = unwell >= 2;
+      let mel = worse && th.how !== V.variant ? variant(th.mel, V.variant) : th.mel;
+      const down = Math.min(night ? R.night.octave : 0, worse ? V.octave : 0);
+      if (down) mel = shiftOctave(mel, down);
       const plan = themeTimes(mel, part, now + S.theme.lead, music.beat);
-      theme = { room: scene.id, label: th.label + (night ? ", lower (night)" : ""), how: th.how, part, mel, ...plan };
+      const why = [worse && "slower and lower (unwell)", night && !worse && "lower (night)", echo && "echoed"].filter(Boolean);
+      theme = { room: scene.id, label: th.label + why.map(w => ", " + w).join(""), how: th.how, part, mel, ...plan,
+                echo: echo ? { after: R.echo.beats * music.beat, level: R.echo.level } : null };
       if (wakePart) wakePart = null; else count++;
       themeNext = plan.end + S.theme.gap[0] + random() * (S.theme.gap[1] - S.theme.gap[0]);
       return theme;
@@ -195,6 +226,23 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
   const musicBus = gain(ctx, S.buses.music); musicBus.connect(gate);
   const toneBus = gain(ctx, S.buses.tone); toneBus.connect(mix);
 
+  // The pitch every note follows (pitchOf): a steady offset (unwell's detune), a very slow drift and the wobble, summed into each
+  // note's detune (synth.js, note: kit.pitch).
+  const flat = ctx.createConstantSource(); flat.offset.value = 0; flat.start();
+  const pitch = gain(ctx, 1); flat.connect(pitch);
+  const drift = gain(ctx, 0), wob = gain(ctx, 0);
+  lfoOf(S.reactions.unwell.drift[0], drift); lfoOf(S.reactions.wobble.rate, wob);
+  drift.connect(pitch); wob.connect(pitch);
+  kit.pitch = pitch;
+  function lfoOf(rate, to) { const o = ctx.createOscillator(); o.frequency.value = rate; o.connect(to); o.start(); return o; }
+  let pitched = "";                                          // the pitch last glided to (so a redraw doesn't restart the glide)
+  function retune() {
+    const p = clock.pitch, key = JSON.stringify(p);
+    if (key === pitched) return;
+    pitched = key;
+    fadeTo(flat.offset, p.flat, p.glide.flat); fadeTo(drift.gain, p.drift[1], p.glide.flat); fadeTo(wob.gain, p.wobble[1], p.glide.wobble);
+  }
+
   const clock = createClockwork(S, random);
   const mutes = { lines: false, tone: false, theme: false };
   let current = null, timer = null, playing = false, comesOn = comes, hushOn = false;
@@ -220,6 +268,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
   function sound(th) {
     const m = clock.music, inst = m.instruments[th.mel.play], box = current.scene.box;
     for (const n of th.notes) playEvent(kit, current.theme, m, inst, n.e, th.mel.octave, n.t, n.beats, 1, box);
+    if (th.echo) for (const n of th.notes) playEvent(kit, current.theme, m, inst, n.e, th.mel.octave, n.t + th.echo.after, n.beats, th.echo.level, box);
     const c = th.mel.chords;
     if (c) for (const n of th.chords) playEvent(kit, current.theme, m, m.instruments[c.play], n.e, c.octave, n.t, n.beats, S.theme.chords, box);
   }
@@ -260,6 +309,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
       }
       if (current) stopScene(current, S.scene.crossfade);
       current = startScene(clock.start(music, roomId, now));
+      retune();
       clearInterval(timer); timer = setInterval(tick, S.scene.every); tick();
     },
     // Another room of the same world: crossfaded.
@@ -287,6 +337,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
       const E = S.reactions.ending, e = clock.end(ctx.currentTime, death);
       fadeTo(current.lines.gain, 0, E.out);
       fadeTo(current.tbus.gain, 0, E.tone);
+      retune();                                              // steady: the ending's theme as written
       ungate();
       tick();
       return e;
@@ -299,6 +350,12 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     },
     // Night (S.reactions.night): the lines thinned from each one's next pass, the theme lower from its next turn.
     night(on) { clock.setNight(on); },
+    // Unwell (S.reactions.unwell): 0 well; 1 the lines thinned, every note a little flat; 2 the theme slower and lower too.
+    unwell(level) { clock.setUnwell(level); retune(); },
+    // The wobble (S.reactions.wobble): the pitch of everything sways together, now, with a short glide.
+    wobble(on) { clock.setWobble(on); retune(); },
+    // The echo (S.reactions.echo): the theme's tune again a beat late, quieter, from its next turn.
+    echo(on) { clock.setEcho(on); },
     // The lines, the room tone or the theme silenced, or heard again (the debug panel).
     mute(part, on) {
       if (!(part in mutes)) return;
@@ -320,6 +377,8 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
     info() {
       return { playing, now: ctx.currentTime, state: ctx.state, music: clock.music, scene: clock.scene, theme: clock.theme,
                themeNext: clock.themeNext, nextPart: clock.nextPart, resting: clock.resting, hushed: hushOn, night: clock.night, ending: clock.ended,
+               unwell: clock.unwell, wobble: clock.wobble, echo: clock.echo, pitch: clock.pitch,
+               tuning: { flat: flat.offset.value, wobble: wob.gain.value },   // the pitch as it is now, in cents (mid-glide too)
                mutes: { ...mutes } };
     },
     // The peak level leaving the page now, in dB (-99: nothing).

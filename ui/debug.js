@@ -226,7 +226,8 @@ export function mount(dev) {
       row("Reaction", ...["hurt", "heal"].map(k => play(k, () => debug.reaction(k), null, "reaction:" + k, undefined, st, quiet)))
     ];
   }
-  // The music: what the world's music is here (js/debug.js, music), what plays now (the player: dev.sound()), night or day, the
+  // The music: what the world's music is here (js/debug.js, music), what plays now (the player: dev.sound()), night or day, unwell
+  // and the filters as the music has them (the wobble, the echo; tried with the Events and Picture sections), the
   // theme now, the reactions tried (the ending, the death ending, waking: the player's alone, the story goes on; the music comes
   // back with the next move), the lines, the room tone or the theme muted (the player's, not the game's: never saved), and what
   // the reader skipped or changed.
@@ -237,6 +238,9 @@ export function mount(dev) {
     const fact = (k, val, cls = "") => dl.append(el("dt", "", k), el("dd", cls, String(val)));
     fact("playing", nowPlaying(info, st), "music-now");
     fact("night", nightText(info), "music-night");
+    fact("unwell", unwellText(info), "music-unwell");
+    fact("filters", filtersText(info), "music-filters");
+    fact("last theme", themeText(info), "music-theme");
     fact("mode", m.mode + " in " + m.key + ", tempo " + m.tempo);
     fact("colour", m.colour.replace("_", " "));
     fact("room", st.player.at + ": " + m.tone + ", " + (m.own ? m.lines + " own line" + (m.lines === 1 ? "" : "s") : "the world's lines"));
@@ -253,6 +257,21 @@ export function mount(dev) {
   }
   // Night, as the player has it (the world's clock: ui/sound.js).
   const nightText = (info) => (!info?.playing ? "–" : info.night ? "on: the lines thinned, the theme lower" : "off");
+  // Unwell (health: ui/sound.js), and the picture's filters as the music has them (the wobble, the echo), as the player has them.
+  // (With the pitch as it is now: how flat, how wide the wobble, mid-glide too.)
+  function unwellText(info) {
+    if (!info?.playing) return "–";
+    const c = Math.round(-info.tuning.flat), flat = c ? c + " cents flat" : "";
+    return info.unwell ? info.unwell + ": the lines thinned, " + (flat || "in tune") + (info.unwell > 1 ? ", the theme slower and lower" : "")
+      : "off" + (flat ? " (" + flat + ", gliding back)" : "");
+  }
+  function filtersText(info) {
+    if (!info?.playing) return "–";
+    const w = Math.round(info.tuning.wobble);
+    return "wobble " + (info.wobble ? "on" : "off") + (w ? " (±" + w + " cents)" : "") + " · echo " + (info.echo ? "on" : "off");
+  }
+  // The theme last played, as the player played it (its label says how: a variant, lower at night, slower and lower unwell, echoed).
+  const themeText = (info) => (!info?.theme ? "–" : info.theme.label + " (" + info.theme.part + "), " + Math.round(info.theme.end - (info.theme.notes[0]?.t ?? info.theme.end)) + " s");
   // What plays now, in a few words: off, silent after the end, resting, the theme's part playing, or when its next turn comes;
   // an ending under way.
   function nowPlaying(info, st) {
@@ -420,6 +439,9 @@ export function mount(dev) {
       const info = dev.sound().info();
       playing.textContent = nowPlaying(info, st);
       parts$.music.querySelector("dd.music-night").textContent = nightText(info);
+      parts$.music.querySelector("dd.music-unwell").textContent = unwellText(info);
+      parts$.music.querySelector("dd.music-filters").textContent = filtersText(info);
+      parts$.music.querySelector("dd.music-theme").textContent = themeText(info);
     }
   }, 500);
 

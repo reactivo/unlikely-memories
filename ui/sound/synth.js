@@ -3,7 +3,8 @@
 // slides and scoops, chords and arpeggios, and the music box. Plain functions of an AudioContext and its nodes: no globals, no
 // knowledge of the game. Every number is the spec's (content/music.js), passed in as `kit.S`.
 //
-//   makeKit(ctx, S) → kit: { ctx, S, noise: { white, pink, brown }, waves }   made once per context (the slow part)
+//   makeKit(ctx, S) → kit: { ctx, S, noise: { white, pink, brown }, waves }   made once per context (the slow part); the player
+//                                                                               adds `pitch`, a node in cents every note follows
 //   playEvent(kit, dest, music, inst, e, octave, t, beats, share, box)          one event of a line or a theme, at time t
 //   note(kit, dest, inst, f, t, dur, share, opts)                                one note: opts { toF, scoop, box }
 // And the small helpers the tones and colours are built from: src, filt, gain, lfo, chain.
@@ -64,7 +65,8 @@ export function playEvent(kit, dest, music, inst, e, octave, t, beats, share, bo
 
 // ---- One note (MUSIC.md §3) in its kind, with the engine's frame (§5) ---------------------------------------------------------
 // Held notes softer than struck, breathing, fading after the cap (low ones sooner); notes above `high` softer the higher; low
-// struck and plucked notes get an octave above, so a phone or laptop speaker can play them; held low notes don't.
+// struck and plucked notes get an octave above, so a phone or laptop speaker can play them; held low notes don't. Its oscillators
+// (not its LFOs) follow `kit.pitch` when there is one: the player's shared detune (unwell, the wobble), in cents.
 export function note(kit, dest, inst, f, t, dur, share = 1, opts = {}) {
   const { ctx, S } = kit, N = S.note;
   if (NOISES.includes(inst.kind)) return noiseNote(kit, dest, inst, f, t, dur, share);
@@ -91,7 +93,7 @@ export function note(kit, dest, inst, f, t, dur, share = 1, opts = {}) {
   const idx = bright * f * (K.wave === "sine" ? N.index.sine : N.index.other);
   mod.connect(depth); depth.connect(car.frequency);
   car.connect(amp); amp.connect(out); out.connect(dest);
-  const oscs = [car, mod], extra = [];
+  const oscs = [car, mod], extra = [], tuned = [car, mod];
   amp.gain.setValueAtTime(0, t); amp.gain.linearRampToValueAtTime(level, t + attack);
   let end;
   if (decay) {
@@ -101,12 +103,12 @@ export function note(kit, dest, inst, f, t, dur, share = 1, opts = {}) {
     end = t + attack + rel * D.tail;
     if (low) {                                                     // an octave above, so a small speaker can play it
       const o2 = ctx.createOscillator(), g2 = gain(ctx, N.octaveGain); o2.frequency.value = f * 2;
-      o2.connect(g2); g2.connect(amp); oscs.push(o2);
+      o2.connect(g2); g2.connect(amp); oscs.push(o2); tuned.push(o2);
     }
     if (K.partial) {                                               // a chime's out-of-tune partial, dying sooner
       const o3 = ctx.createOscillator(), g3 = ctx.createGain(); o3.frequency.value = f * K.partial;
       g3.gain.setValueAtTime(N.partial.level, t); g3.gain.setTargetAtTime(0, t, rel / N.partial.fall);
-      o3.connect(g3); g3.connect(amp); oscs.push(o3);
+      o3.connect(g3); g3.connect(amp); oscs.push(o3); tuned.push(o3);
     }
   } else {
     const B = N.breath;
@@ -136,8 +138,13 @@ export function note(kit, dest, inst, f, t, dur, share = 1, opts = {}) {
       n.connect(bp); bp.connect(ng); ng.connect(out); n.start(t, Math.random() * R.offset); n.stop(end); extra.push(ng);
     }
   }
+  const pitch = kit.pitch;
+  if (pitch) for (const o of tuned) pitch.connect(o.detune);
   for (const o of oscs) { o.start(t); o.stop(end); }
-  car.onended = () => { amp.disconnect(); depth.disconnect(); out.disconnect(); extra.forEach(x => x.disconnect()); };
+  car.onended = () => {
+    amp.disconnect(); depth.disconnect(); out.disconnect(); extra.forEach(x => x.disconnect());
+    if (pitch) for (const o of tuned) pitch.disconnect(o.detune);
+  };
 }
 
 // The rhythm kinds (MUSIC.md §2.19): noise or a falling blip, quiet; the step only tilts them higher or lower.

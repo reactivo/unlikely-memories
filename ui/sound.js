@@ -10,29 +10,58 @@
 //   - Sleep (js/main.js, sleepThrough, tells it: asleep()): everything fades out under the lids and back as you wake, the whole
 //     theme a few seconds later.
 //   - Night by the world's clock (js/main.js tells it the time shown on the title bar: clock()): the lines thinned, the theme lower.
+//   - Health (docs/music/PLAN.md, stage 6): at 2 and below, unwell (the lines thinned, everything slightly flat); at 1, worse (the
+//     theme slower and lower too); healed above it, well again. At 0 the story has ended: the ending takes over.
+//   - The picture's filters that are on (state.filters, whatever turned them on: a condition's `filters` or a `filter` effect),
+//     through one table (content/music.js, reactions.filters): sway → the wobble, ghost → the echo; the others, nothing yet.
+//     A world writes nothing for any of it.
 //
 // The browser's rules (MUSIC.md §7):
 //   - The audio is made and woken inside the ♫ tap: on.music() → redraw() → update() runs synchronously, nothing awaited.
 //     With ♫ remembered on, a page loaded without a tap can't start it: the first tap or key anywhere does (and each redraw
 //     tries, which is enough where the browser remembers an earlier tap).
-//   - When the system takes the sound away (a call, the player's own music: the context `interrupted`, or suspended not by us),
-//     the piece tells the controller (on.musicStopped()) and ♫ shows off; the next ♫ tap starts it again. It never resumes by itself.
-//   - A hidden tab suspends it, and a visible one resumes it (the game clock pauses too); if it doesn't run again, ♫ shows off.
+//   - When the system takes the sound away while the page stays in view (a call, the player's own music: the context
+//     `interrupted`, or suspended not by us), the piece tells the controller (on.musicStopped()) and ♫ shows off; the next ♫ tap
+//     starts it again. It never resumes by itself.
+//   - Leaving the page is never the system taking the sound: on iOS the context goes `interrupted` as you switch away, before the
+//     page is hidden, so a context that stops is judged only after `LEAVING` ms, and not at all if by then the page is hidden or
+//     gone (pagehide). A hidden tab suspends it, and a visible one (or pageshow) tries to resume it (the game clock pauses too);
+//     ♫ stays on, and if it doesn't run again, the first tap or key anywhere starts it.
 //     This lives here, in the game's piece, never in the player: the bench must not pause (a claude.ai artifact can look hidden
 //     while it is in view).
+//   - A dead context is replaced inside the tap: on iOS a context that was interrupted can stay `interrupted` or `suspended` for
+//     good however often it is resumed. So in a tap (♫ turned on, or the first tap or key anywhere), a context that has run and
+//     isn't running now (or is closed) is closed and a fresh one made, synchronously, with a fresh player that plays the room as
+//     on arriving, the theme first. A context that has never run (made before any tap) is only resumed.
 //   - ♫ off fades it out and then suspends the context: nothing runs while the music is off.
 
 import S from "../content/music.js";
 import { musicOf } from "../js/music.js";
 import { parts } from "../js/time.js";
+import { parseFilter } from "../js/filters.js";
 import { createPlayer, openAudio } from "./sound/player.js";
 
 // The death ending: the engine's own (`died`, when health runs out) or a world's ending of that name; or no health left.
 const died = (state) => state.ending === "died" || state.player.health <= 0;
+// How long a context that stopped by itself is given before it counts as the system taking the sound (ms): long enough for the
+// page to say it is being left (iOS interrupts the context first).
+const LEAVING = 1000;
 // Night by the world's clock (ms since day 1, 00:00): from `from` o'clock to `to` (through midnight when from > to).
 export function nightAt(ms) {
   const h = parts(ms).hour, { from, to } = S.reactions.night;
   return from > to ? h >= from || h < to : h >= from && h < to;
+}
+
+// How unwell the player is, from their health (S.reactions.unwell): 0 well, 1 unwell (at `at` and below), 2 worse (at `worse.at`).
+export function unwellAt(health) {
+  const U = S.reactions.unwell;
+  return health <= U.worse.at ? 2 : health <= U.at ? 1 : 0;
+}
+// What the music does for the picture's filters on (S.reactions.filters): { wobble: true / false, echo: … }, each of the table's
+// effects, on when a filter that maps to it is on ("tint:cold" is read as "tint").
+export function effectsOf(filters = []) {
+  const on = new Set(filters.map(f => S.reactions.filters[parseFilter(f).name]).filter(Boolean));
+  return Object.fromEntries(Object.values(S.reactions.filters).map(e => [e, on.has(e)]));
 }
 
 // Set up the sound (it has no element). Returns update(), asleep(), clock(), leave() and `debug` (for the debug panel's Music
@@ -49,6 +78,9 @@ export function mount(on) {
   let from = {};                 // the state's parts it was last read from, to read again only when one changes
   let playing = null;            // the signature the player was started with
   let rest = null;               // the timer that suspends the context once the music has faded out
+  let ran = false;               // the context now has run (so, not running now, it is dead or ours: a tap replaces it)
+  let verdict = null;            // the timer that judges a context that stopped by itself (LEAVING)
+  let gone = false;              // the page is being left (pagehide), or hidden
 
   // The world's music, read again when the state's music or rooms change (a later change set may rewrite it).
   function read() {
@@ -60,14 +92,24 @@ export function mount(on) {
     if (s !== sig) { sig = s; music = s ? musicOf(state).music : null; }
   }
 
-  // Make or wake the audio (inside a tap, when there is one).
-  function wake() {
+  // Make or wake the audio. In a tap (`tap`: ♫ turned on, the first tap or key anywhere), a context that has run and isn't running
+  // now is not trusted: it is closed and a fresh one made, with a fresh player (iOS can leave an interrupted one dead for good).
+  function wake(tap = false) {
     clearTimeout(rest);
+    if (ctx && tap && ctx.state !== "running" && (ran || ctx.state === "closed")) {
+      const old = ctx;
+      player?.stop(0); player = null; playing = null; hushed = false;
+      ctx = null; ran = false;
+      old.close().catch(() => {});
+    }
     if (!ctx) {
-      ctx = openAudio();
-      ctx.addEventListener("statechange", () => {
-        if (ctx.state === "running") ours = false;
-        else if (!ours && want) stopped();                     // the system took the sound away
+      const c = ctx = openAudio(); ours = false; ran = c.state === "running";
+      c.addEventListener("statechange", () => {
+        if (c !== ctx) return;                                   // a context replaced (closing): not ours to judge
+        if (c.state === "running") { ours = false; ran = true; return; }
+        if (ours || !want) return;
+        clearTimeout(verdict);                                   // stopped by itself: the system, unless the page is being left
+        verdict = setTimeout(() => { if (c === ctx && c.state !== "running" && !ours && want && !gone && !document.hidden) stopped(); }, LEAVING);
       });
     } else if (ctx.state !== "running") openAudio(ctx);
   }
@@ -84,8 +126,9 @@ export function mount(on) {
     clearTimeout(rest);
     rest = setTimeout(() => { if (ctx?.state === "running" && !(want && state)) { ours = true; ctx.suspend(); } }, (S.master.off + 0.5) * 1000);
   }
-  // Play what the state says: the world's music in this room; hushed while asleep; at night, lower and sparser; at the end of the
-  // story, the ending once (not on a restore: `reason`, the redraw's), then silence; when it goes on again, the music afresh.
+  // Play what the state says: the world's music in this room; hushed while asleep; at night, lower and sparser; unwell, wobbling,
+  // echoed as health and the filters say; at the end of the story, the ending once (not on a restore: `reason`, the redraw's),
+  // then silence; when it goes on again, the music afresh.
   function follow(reason) {
     if (!want || !state || !ctx) return;
     read();
@@ -99,30 +142,35 @@ export function mount(on) {
       return;
     }
     if (ended) { ended = false; playing = null; }          // the story goes on (a new game, UNDO): the music as on arriving
+    player.unwell(unwellAt(state.player.health));
+    for (const [effect, on] of Object.entries(effectsOf(state.filters))) player[effect](on);
     const room = state.player.at;
     if (playing !== sig || !player.playing) { player.play(music, room); playing = sig; }
     else player.room(room);
   }
 
-  // With ♫ on but the audio not allowed to start yet (a page loaded without a tap, ♫ remembered on), the first tap or key
-  // anywhere starts it, whatever it does in the game.
-  const gesture = () => { if (want && state && ctx && ctx.state !== "running" && !document.hidden) { wake(); follow(); } };
+  // With ♫ on but the audio not allowed to start yet (a page loaded without a tap, ♫ remembered on, or back on the page with the
+  // context not running again), the first tap or key
+  // anywhere starts it, whatever it does in the game (a dead context replaced: wake).
+  const gesture = () => { if (want && state && ctx && ctx.state !== "running" && !document.hidden) { wake(true); follow(); } };
   for (const type of ["click", "keydown", "touchend"]) document.addEventListener(type, gesture, true);
-  document.addEventListener("visibilitychange", () => {
-    if (!ctx) return;
-    if (document.hidden) { if (ctx.state === "running") { ours = true; ctx.suspend(); } }
-    else if (want && state) ctx.resume().then(() => { if (ctx.state !== "running") stopped(); }, stopped);
-  });
+  // Leaving the page: suspended (ours), ♫ untouched. Back: resumed if it will; if not, ♫ stays on and the first tap starts it.
+  const away = () => { gone = true; if (ctx?.state === "running") { ours = true; ctx.suspend(); } };
+  const back = () => { gone = false; if (ctx && want && state && ctx.state !== "running") ctx.resume().catch(() => {}); };
+  document.addEventListener("visibilitychange", () => (document.hidden ? away() : back()));
+  window.addEventListener("pagehide", away);
+  window.addEventListener("pageshow", () => { if (!document.hidden) back(); });
 
   return {
     // ♫ switched, the room, the world's music, the end: follow them.
     update(prev, next, reason) {
       state = next.state;
+      const tapped = next.music && !want;                       // ♫ turned on: a tap (or a page loaded with ♫ remembered on)
       if (next.music !== want) {
         want = next.music;
         if (!want) return quiet();
       }
-      if (want && (!ctx || (ctx.state !== "running" && !document.hidden))) wake();
+      if (want && (!ctx || (ctx.state !== "running" && !document.hidden))) wake(tapped);
       follow(reason);
     },
     // While you sleep (js/main.js, sleepThrough), and as you wake: the music fades out and back, the whole theme soon after.

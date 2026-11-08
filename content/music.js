@@ -26,7 +26,7 @@ export default {
     every: 60,                                    // …by a timer this often (ms)
     toneStop: 0.1, colourStop: 8, release: 12     // after a fade: the tone stops, the colour's sources stop, the nodes are let go
   },
-  // ---- Reactions (MUSIC.md §5; docs/music/PLAN.md stage 5): the engine's answer to the story, the same for every world -------
+  // ---- Reactions (MUSIC.md §5; docs/music/PLAN.md stages 5–6): the engine's answer to the story, the same for every world ----
   reactions: {
     // An ending (any): the lines fade out over `out` while the room tone fades with the picture (`tone`, the ending's slow
     // dissolve: ui/transitions.js); after a breath the world's whole theme plays once, as written, with its chords; then the
@@ -39,7 +39,25 @@ export default {
     // Night, by the world's clock, from `from` o'clock to `to`: each line plays one pass in `every` (whole passes, each line in its
     // turn, so a line keeps its shape), and the theme `octave` octaves lower (brought into range). It changes with each line's next
     // pass and the theme's next turn, never at once.
-    night: { from: 20, to: 6, every: 2, octave: -1 }
+    night: { from: 20, to: 6, every: 2, octave: -1 },
+    // Unwell (docs/music/PLAN.md stage 6), from the player's health: at `at` and below (level 1), each line plays one pass in `every`
+    // as at night (with night too, still one in `every`), and every note of the lines and the theme sits `detune` cents flat, drifting
+    // ± `drift[1]` cents at `drift[0]` Hz, so it sounds unwell rather than wrong; the detune comes and goes over `glide` seconds. At
+    // `worse` and below (level 2) the theme also comes as `worse.variant` plays it (slower) and `worse.octave` octaves lower (with
+    // night, that many in all, never more). Each line from its next pass, the theme from its next turn. At 0 the story has ended:
+    // the ending's reaction takes over, and nothing of this touches it.
+    unwell: { at: 2, every: 2, detune: -12, drift: [0.04, 3], glide: 4, worse: { at: 1, variant: "slower", octave: -1 } },
+    // The picture's filters that are on (state.filters, whatever turned them on) → what the music does while they are: the audio
+    // twin of the picture filter. Filters not here (tint, vignette, mosaic, static, shake, wave) do nothing to the music for now;
+    // a sound for one is added here, with its numbers below (each effect is the player's method of that name: ui/sound/player.js).
+    // Reduced motion changes nothing (it is about movement on screen).
+    filters: { sway: "wobble", ghost: "echo" },
+    // The wobble: the pitch of every note sways together, a slow shared vibrato of ± `depth` cents at `rate` Hz, starting and stopping
+    // over `glide` seconds.
+    wobble: { rate: 0.3, depth: 20, glide: 1 },
+    // The echo: the theme's tune (not its chords, not the lines) played again `beats` beats late on the same instrument, at `level`
+    // (0.35: about −9 dB). From the theme's next turn.
+    echo: { beats: 1, level: 0.35 }
   },
 
   // ---- The theme (MUSIC.md §2.15–16) ------------------------------------------------------------------------------------------
