@@ -160,14 +160,14 @@ export function solveCommand(command, pack) {
   });
 }
 
-// A room's description: its paragraphs, then a line for each object lying there whose `here` is in force (hereNow) or that has its own
+// A room's description: its paragraphs (a skeleton room, BRIEF.md §1, has its `placeholder` line instead), then a line for each object lying there whose `here` is in force (hereNow) or that has its own
 // `lies` line and has been taken (liesNow), then one line for what can be taken and lies there with neither ("There is a {coin} and a
 // {key} here.": lyingLine), then where you are in it. A thing that moves (js/movers.js) has its `here` line marked, if the world didn't
 // mark it, since it is somewhere else each time; one that came in after the description, in the same moment, is left out (`without`:
 // its own line says it comes in).
 export function describe(state, roomId, pack, without = []) {
   const room = state.world.rooms[roomId];
-  const lines = room.describe.map(k => ({ text: timed(text(k, pack), state, pack) }));
+  const lines = [].concat(room.describe ?? room.placeholder ?? []).map(k => ({ text: timed(text(k, pack), state, pack) }));
   for (const [id, o] of Object.entries(state.world.objects)) if (o.at === roomId && (hereNow(state, id) || liesNow(state, id)) && !without.includes(id))
     lines.push({ text: isMover(o) && hereNow(state, id) ? markedLine(o.here, id, state, pack) : timed(text(hereNow(state, id) ? o.here : o.lies, pack), state, pack) });
   const loose = lyingIn(state, roomId);

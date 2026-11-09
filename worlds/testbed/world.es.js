@@ -267,7 +267,6 @@ const rooms = {
   "tb-closet": {
     name: "ARMARIO", area: "hub", at: [0, 0, 2],
     placeholder: "Un armario con nada dentro, todavía.",
-    describe: ["Un armario con nada dentro, todavía: una sala dejada en esqueleto, con una línea de relleno, para demostrar que el motor la acepta.", "Los accesos están fuera."],
     exits: { out: "tb-ways" },
     alt: "El interior de un armario: tablas desnudas y una fina línea de luz bajo la puerta.",
     overlayAlt: {}
@@ -753,6 +752,7 @@ const rules = [
   { id: "verdict_other", match: { verb: "answer", question: "verdict" },
     do: [{ say: "«[player.answers.verdict]», dice la señora Oduya, y lo prueba en el margen. «No. Ese no es quien debe»." }] },
   { id: "think_ledger", match: { verb: "think", obj: "ledger" }, do: [{ say: "Piensas en el libro mayor, y te viene a la cabeza una deuda.", style: "sys" }, { know: "debt" }] },
+  { id: "think_absent", match: { verb: "think", absent: "wire" }, do: [{ say: "Piensas en el alambre, pero no está aquí." }] },
   { id: "ask_default", match: { verb: "ask", obj: "dot" }, if: [{ "$topic": null }], do: [{ say: "Dot espera a que le preguntes por algo." }] },
   { id: "read_ledger", match: { verb: "read", obj: "ledger" }, do: [{ say: "$ledger.examine", img: "coin" }] },
   { id: "tear_scrap", match: { verb: "attack", obj: "scrap" }, do: [{ say: "Rompes el trozo, y la media palabra desaparece." }, { remove: "object", id: "scrap" }] },

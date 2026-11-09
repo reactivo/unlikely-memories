@@ -424,9 +424,14 @@ const spent = (g, r) => !!(r.once && g.fired?.[r.id]);
 const fits = (g, r, action) => !spent(g, r) && matches(r.match, action) && holds(g, r.if, action);
 
 // Does the action match? Every key in `match` must equal the action's, or be one of a list ({} matches any action).
-// null in a list means "none": { obj: [null, "boat"] } matches "row" and "row boat".
+// null in a list means "none": { obj: [null, "boat"] } matches "row" and "row boat". An action's value that is itself a list (`absent`:
+// the things named that aren't here) matches when that list holds the rule's value, or any of the rule's list.
 function matches(match = {}, action) {
-  return Object.entries(match).every(([k, v]) => Array.isArray(v) ? v.includes(action[k] ?? null) : action[k] === v);
+  return Object.entries(match).every(([k, v]) => {
+    const have = action[k];
+    if (Array.isArray(have)) return Array.isArray(v) ? v.some(x => have.includes(x)) : have.includes(v);
+    return Array.isArray(v) ? v.includes(have ?? null) : have === v;
+  });
 }
 
 // Do all the conditions hold? Each is { path: value } (equal) or { path: { operator: value } }. The operator

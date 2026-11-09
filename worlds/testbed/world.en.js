@@ -271,7 +271,6 @@ const rooms = {
   "tb-closet": {
     name: "CLOSET", area: "hub", at: [0, 0, 2],
     placeholder: "A cupboard with nothing in it yet.",
-    describe: ["A cupboard with nothing in it yet: a room kept as a skeleton, with a placeholder line, to show the engine accepts one.", "The ways are out."],
     exits: { out: "tb-ways" },
     alt: "The inside of a cupboard: bare boards and a thin line of light under the door.",
     overlayAlt: {}
@@ -758,6 +757,7 @@ const rules = [
   { id: "verdict_other", match: { verb: "answer", question: "verdict" },
     do: [{ say: "\"[player.answers.verdict],\" says Mrs Oduya, and tries it in the margin. \"No. That is not who owes.\"" }] },
   { id: "think_ledger", match: { verb: "think", obj: "ledger" }, do: [{ say: "You think about the ledger, and a debt comes to mind.", style: "sys" }, { know: "debt" }] },
+  { id: "think_absent", match: { verb: "think", absent: "wire" }, do: [{ say: "You think about the wire, but it is not here to be thought about." }] },
   { id: "ask_default", match: { verb: "ask", obj: "dot" }, if: [{ "$topic": null }], do: [{ say: "Dot waits to be asked about something." }] },
   { id: "read_ledger", match: { verb: "read", obj: "ledger" }, do: [{ say: "$ledger.examine", img: "coin" }] },
   { id: "tear_scrap", match: { verb: "attack", obj: "scrap" }, do: [{ say: "You tear the scrap, and the half word is gone." }, { remove: "object", id: "scrap" }] },
