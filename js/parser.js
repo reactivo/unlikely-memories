@@ -486,9 +486,11 @@ function readCommand(tokens, state, W, recent) {
       const who = partner(state, W);
       if (who) {
         const forIt = W.askFor.has(rest[0]);                        // "ask for tea": the "for" is kept (decision 51)
-        const topic = topicOf(phrases.flatMap(p => p.words), W.topics[who], W) || "?";
+        // ASK FOR a thing that comes from them asks for it, even when a topic of theirs has its words (her menu says "tea")
+        const last = phrases.at(-1), mine = forIt && fromThem(last.words, who, state, W);
+        const topic = mine ? "?" : topicOf(phrases.flatMap(p => p.words), W.topics[who], W) || "?";
         // no topic for it: the thing asked about, if the last words name one (here or not), as "ask Dot about X" has it
-        const last = phrases.at(-1), thing = topic === "?" ? resolve(last.words, state, W, false, true) : {};
+        const thing = mine || (topic === "?" ? resolve(last.words, state, W, false, true) : {});
         const about = thing.id && !thing.scenery && thing.id !== who && state.world.objects[thing.id]
           ? { prep: last.prep ?? (W.preps.has(rest[0]) ? rest[0] : null), obj2: thing.id, ...(thing.absent ? { absent: [thing.id] } : {}) }
           : { prep: forIt ? rest[0] : null };
@@ -509,7 +511,7 @@ function readCommand(tokens, state, W, recent) {
   for (const ph of phrases) {
     // Asking someone about something: their topics first, by their words ("ask the waiter about the lighthouse");
     // something nobody has a topic for is still a question, answered by their default.
-    if (verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]]) {
+    if (verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]] && !(W.askFor.has(ph.prep) && fromThem(ph.words, objs[0], state, W))) {
       topic = topicOf(ph.words, W.topics[objs[0]], W);
       if (topic) { prep = ph.prep; continue; }
     }
@@ -945,4 +947,11 @@ function sleepAnswer(tokens, W) {
   for (let i = 0; i < tokens.length; i++) { const v = matchPhrase(tokens, i, W.verbs); if (v?.id === "sleep") for (let k = 0; k < v.len; k++) verbs.add(i + k); }
   const left = tokens.filter((t, i) => !found.used.has(i) && !verbs.has(i) && !W.articles.has(t) && !W.preps.has(t) && !W.sleep.filler.has(t));
   return left.length ? null : found.sleep;
+}
+
+// The thing the words name, when it comes from `who` (`from`, decision 40), here or not: what ASK FOR asks for, before any topic of theirs
+// with the same words ("ask Dot for tea" is her tea, not her menu, whose words say "tea"). Null otherwise.
+function fromThem(words, who, state, W) {
+  const r = resolve(words, state, W, false, true);
+  return r.id && !r.scenery && state.world.objects[r.id]?.from === who ? r : null;
 }
