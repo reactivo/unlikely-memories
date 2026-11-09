@@ -26,6 +26,7 @@ import * as prompt from "../ui/prompt.js";
 import * as compass from "../ui/compass.js";
 import * as inventory from "../ui/inventory.js";
 import * as options from "../ui/options.js";
+import * as soundpanel from "../ui/soundpanel.js";
 import * as map from "../ui/map.js";
 import * as page from "../ui/page.js";
 import * as tools from "../ui/tools.js";
@@ -47,7 +48,7 @@ const TRANSCRIPT = 40;        // story paragraphs kept with a save, shown again 
 const LANGS = Object.keys(LANG_PACKS);
 const browserLang = (navigator.language || "en").slice(0, 2).toLowerCase();
 let lang = LANGS.includes(load("parser-lang")) ? load("parser-lang") : LANGS.includes(browserLang) ? browserLang : "en";
-let musicOn = load("parser-music") === "on";             // remembered music switch, off by default
+let mix = soundpanel.readMix(load(soundpanel.KEY), load("parser-music"));   // the sound: the three sliders and the mute, as remembered (a first visit: the spec's)
 let state = null;                                        // the current game: everything it knows (none while the list of games shows)
 let view = "home";                                       // which view the page shows: "home" (the list of games) or "game"
 let openId = null;                                       // the world in the game view
@@ -75,10 +76,11 @@ const on = {
   useCommand: (text) => runCommand(sentenceCase(text)),  // a <COMMAND> in the story was clicked: run it at once
   showObject: (id, label) => examineObject(id, label),   // an object in the story was clicked: examine it
   showItem: (id) => examineObject(id, listName(id, state, packOf(state)), true),   // an inventory item was clicked: the same
-  music: () => { musicOn = !musicOn; store("parser-music", musicOn ? "on" : "off"); redraw(); },   // (redraw at once: the audio starts inside the tap)
-  musicStopped: () => {                                  // the system took the sound away (a call, the player's own music): ♫ shows off,
-    if (!musicOn) return;                                // and the next tap starts it again (the remembered switch stays the player's)
-    musicOn = false;
+  soundMoved: (part, v) => setMix(soundpanel.moved(mix, part, v)),   // a slider of the sound panel moved
+  soundToggled: () => setMix(soundpanel.toggled(mix)),   // its Mute all / Unmute all was pressed
+  musicStopped: () => {                                  // the system took the sound away (a call, the player's own music): ♫ shows muted;
+    if (mix.muted) return;                               // the sliders keep their places, and Unmute starts it again (the remembered mute
+    mix = { ...mix, muted: true };                       // stays as it was: this is the system's, not the player's)
     if (view === "game") redraw();
   },
   homeLanguage: (l) => setHomeLang(l),                   // EN · ES on the list of games
@@ -113,7 +115,8 @@ const ui = {
   keys: keys.mount(document),
   options: options.mount($(".options"), on),
   map: map.mount($("#map-panel"), on),
-  sound: sound.mount(on)                                 // the music: no element, drawn from the state like the rest (ui/sound.js)
+  soundpanel: soundpanel.mount($(".sound-panel"), on),
+  sound: sound.mount(on)                               // the music: no element, drawn from the state like the rest (ui/sound.js)
 };
 const landing = home.mount($(".home"), on);              // the list of games: not drawn from the game's state, so apart from ui
 
@@ -121,11 +124,14 @@ const landing = home.mount($(".home"), on);              // the list of games: n
 // Esc: restart the game (it asks first, in the story).
 ui.keys.add({ key: "Escape", when: () => view === "game" && !restarting, release: () => on.restart() });   // (not on the list of games)
 
-// Redraw the screen: each piece gets the state (plus the language pack and the music switch) and updates what changed since
-// last time. reason: "turn" (a command), "tick" (the world on its own), "restore" (new game, undo, load: no
-// animation).
+// A change in the sound panel: remembered on this device and drawn at once (the audio starts inside the tap).
+function setMix(next) { mix = next; store(soundpanel.KEY, JSON.stringify(mix)); redraw("tap"); }
+
+// Redraw the screen: each piece gets the state (plus the language pack and the sound: `mix`, the sliders and the mute, and `music`,
+// whether anything can be heard) and updates what changed since last time. reason: "turn" (a command), "tick" (the world on its
+// own), "restore" (new game, undo, load: no animation), "tap" (the sound panel).
 function redraw(reason) {
-  const next = { state, pack: packOf(state), music: musicOn };
+  const next = { state, pack: packOf(state), music: soundpanel.audible(mix), mix };
   for (const piece of Object.values(ui)) piece.update(shown, next, reason);
   shown = next;
 }
@@ -254,7 +260,7 @@ function sleepThrough(applied, mark, was) {
   const run = ui.scene.sleep({
     kind: mark.sleep, wake: mark.wake !== false, vision: picture ? { id: mark.vision, picture: picture.picture } : null,
     dark: tellDark,
-    open: () => ui.scene.update(shown, { state, pack, music: musicOn }, "restore"),   // the picture woken to, under the lids
+    open: () => ui.scene.update(shown, { state, pack, music: soundpanel.audible(mix), mix }, "restore"),   // the picture woken to, under the lids
     done: () => {
       tellDark();
       asleep = null;

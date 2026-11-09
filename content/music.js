@@ -15,8 +15,12 @@ export default {
   space: { fog: 0.35, rain: 0.15, wind: 0.4, water: 0.35, cave: 0.85, hall: 0.75, hum: 0.12, crowd: 0.2, fire: 0.18, silence: 0.3 },
   spaceDefault: 0.3,
   // The music, the room tone and the sounds, each a bus before the frame: even ground (the loudness targets set the balance,
-  // `loudness`); the bench's sliders start here, and the sound panel's will (docs/sound/PLAN.md, build 2).
+  // `loudness`); the bench's sliders start here, and the sound panel's (below) multiply them: at 100 a part plays exactly so.
   buses: { music: 1, tone: 1, sounds: 1 },
+  // The sound panel (ui/soundpanel.js; docs/sound/PLAN.md, build 2): a slider's 0 to 100 gives its bus the gain (v / 100) ** exponent
+  // of its level above (the one loudness curve: 2 feels even to the ear, 1 is straight); where each slider starts on a first visit
+  // (the room tone's and the sounds' at today's level, the music a little under).
+  panel: { exponent: 2, defaults: { music: 70, tone: 100, sounds: 100 } },
 
   // ---- Scenes: a room's music, crossfaded -------------------------------------------------------------------------------------
   scene: {

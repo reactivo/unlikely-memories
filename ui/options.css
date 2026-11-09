@@ -1,8 +1,9 @@
-/* Options popover, opened from ≡ (ui/tools.css). Placed under the button, right edges aligned (options.js).
+/* Options popover, opened from ≡ (ui/tools.css), and the sound panel opened from ♫ (ui/soundpanel.css adds its sliders). Placed under
+   the button, right edges aligned (ui/popup.js).
    Framed with a line in the surface colour. It lives in the browser's top layer, outside .layout, so its text style
    is a class of its own: .text-ui (css/typography.css), put on it in index.html. */
 @layer ui {
-  .options {
+  :is(.options, .sound-panel) {
     /* Colours in the options panel, by meaning. */
     --frame:        var(--color-surface);     /* the border */
     --heading:      var(--color-text-dim);    /* OPTIONS */

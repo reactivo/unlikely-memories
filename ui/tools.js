@@ -1,18 +1,19 @@
-// Tools: the ♫ music button and the ≡ options button (which opens the options panel by itself: index.html).
+// Tools: the ♫ sound button and the ≡ options button. Each opens its panel by itself (popovertarget: index.html; ui/soundpanel.js,
+// ui/options.js); ♫ shows faint while nothing can be heard.
 
 // Set up the tools on their element. Returns update().
-export function mount(root, on) {
+export function mount(root) {
   const music = root.querySelector("#music"), options = root.querySelector("#options");
-  music.addEventListener("click", () => { on.music(); on.focus(); });
   return {
-    // The labels on a language change; the music button when it's switched.
+    // The labels on a language change; the sound button when it goes on or off.
     update(prev, next) {
       const t = next.pack, langChanged = !prev || prev.state.lang !== next.state.lang;
       if (langChanged) { options.title = t.options; options.setAttribute("aria-label", t.options); }
       if (langChanged || prev.music !== next.music) {
-        music.setAttribute("aria-pressed", next.music ? "true" : "false");
-        music.setAttribute("aria-label", t.music);
-        music.title = t.music + ": " + (next.music ? t.on : t.off);
+        const label = next.music ? t.music : t.music + ": " + t.off;
+        music.toggleAttribute("data-off", !next.music);
+        music.setAttribute("aria-label", label);
+        music.title = label;
       }
     }
   };

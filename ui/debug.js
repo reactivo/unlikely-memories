@@ -250,6 +250,7 @@ export function mount(dev) {
     fact("last theme", themeText(info), "music-theme");
     fact("last sounds", soundsText(info), "music-sounds");
     fact("loudness", loudnessText(info), "music-loudness");
+    fact("buses", busesText(info), "music-buses");
     fact("mode", m.mode + " in " + m.key + ", tempo " + m.tempo);
     fact("colour", m.colour.replace("_", " "));
     fact("room", st.player.at + ": " + m.tone + ", " + (m.own ? m.lines + " own line" + (m.lines === 1 ? "" : "s") : "the world's lines"));
@@ -291,6 +292,8 @@ export function mount(dev) {
     return `levels: ${L.own} of this world's, ${L.shared} shared` + (L.missing.length ? `; ${L.missing.length} with none (as written)` : "; none missing") +
       `; limiter ${lim ? "−" + lim + " dB at most" : "untouched"}`;
   }
+  // The gains of the music, room tone and sounds buses, as the sound panel's sliders set them (1 at 100: ui/soundpanel.js).
+  const busesText = (info) => (!info?.buses ? "–" : `music ${info.buses.music.toFixed(3)} · room ${info.buses.tone.toFixed(3)} · sounds ${info.buses.sounds.toFixed(3)}`);
   // The sounds the player was last told to play (a moment's, or tried here), and how long ago.
   const soundsText = (info) => (!info?.sounds ? "–" : info.sounds.kinds.join(", ") + ", " + Math.max(0, Math.round(info.now - info.sounds.at)) + " s ago");
   // What plays now, in a few words: off, silent after the end, resting, the theme's part playing, or when its next turn comes;
@@ -465,6 +468,7 @@ export function mount(dev) {
       parts$.music.querySelector("dd.music-theme").textContent = themeText(info);
       parts$.music.querySelector("dd.music-sounds").textContent = soundsText(info);
       parts$.music.querySelector("dd.music-loudness").textContent = loudnessText(info);
+      parts$.music.querySelector("dd.music-buses").textContent = busesText(info);
     }
   }, 500);
 

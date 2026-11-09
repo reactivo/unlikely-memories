@@ -228,8 +228,9 @@ export function levelsOf(S, music = null) {
   return { ...levels, missing: () => (music ? musicParts(S, music, Object.keys(music.rooms)).filter(p => !levels.has(p.key) || (p.ref && !levels.has(p.ref))).map(p => p.label) : []) };
 }
 
-// The player on a context. opts.comes: comes and goes on (the game) or off (the bench's default); opts.random: the player's own.
-export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}) {
+// The player on a context. opts.comes: comes and goes on (the game) or off (the bench's default); opts.random: the player's own;
+// opts.buses: the music's, the room tone's and the sounds' gains to start at (the game's: the sound panel's sliders, ui/soundpanel.js; default the spec's).
+export function createPlayer(ctx, S, { comes = true, random = Math.random, buses = S.buses } = {}) {
   const kit = makeKit(ctx, S);
 
   // ---- The frame, made once: mix → low-pass → compressor → hush → master → out → limiter → speakers. The echo from the mix back
@@ -244,15 +245,15 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
   limiter.threshold.value = L.threshold; limiter.knee.value = L.knee; limiter.ratio.value = L.ratio; limiter.attack.value = L.attack; limiter.release.value = L.release;
   chain(lp, comp, hushed, master, out, limiter); limiter.connect(ctx.destination);
   const scope = ctx.createAnalyser(); scope.fftSize = 1024; limiter.connect(scope);
-  const sfx = gain(ctx, S.buses.sounds); chain(sfx, filt(ctx, "lowpass", S.sounds.lowpass, S.lowpass.q), out);
+  const sfx = gain(ctx, buses.sounds); chain(sfx, filt(ctx, "lowpass", S.sounds.lowpass, S.lowpass.q), out);
   const mix = gain(ctx, 1); mix.connect(lp);
   const R = S.reverb, len = Math.floor(ctx.sampleRate * R.seconds), ir = ctx.createBuffer(2, len, ctx.sampleRate);
   for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, R.decay); }
   const rev = ctx.createConvolver(); rev.buffer = ir; const wet = gain(ctx, R.wet);
   mix.connect(rev); rev.connect(wet); wet.connect(lp);
   const gate = gain(ctx, 1); gate.connect(mix);
-  const musicBus = gain(ctx, S.buses.music); musicBus.connect(gate);
-  const toneBus = gain(ctx, S.buses.tone); toneBus.connect(mix);
+  const musicBus = gain(ctx, buses.music); musicBus.connect(gate);
+  const toneBus = gain(ctx, buses.tone); toneBus.connect(mix);
 
   // ---- The pitch every note follows (pitchOf): a steady offset (unwell's detune), a very slow drift and the wobble, summed into
   // each note's detune (synth.js, note: kit.pitch).
@@ -464,6 +465,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random } = {}
                unwell: clock.unwell, wobble: clock.wobble, echo: clock.echo, pitch: clock.pitch,
                tuning: { flat: flat.offset.value, wobble: wob.gain.value },   // the pitch as it is now, in cents (mid-glide too)
                mutes: { ...mutes }, sounds: lastSounds, levels: levelsInfo(), limiter: { now: reduction(), deepest },
+               buses: { music: musicBus.gain.value, tone: toneBus.gain.value, sounds: sfx.gain.value },   // the sound panel's sliders as gains, mid-glide too
                voices: { now: voices.ends.filter(x => x > ctx.currentTime).length, peak: voices.peak, over: voices.over } };
     },
     // The peak level leaving the page now, in dB (-99: nothing).

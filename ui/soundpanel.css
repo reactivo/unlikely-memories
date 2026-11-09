@@ -1,0 +1,22 @@
+/* The sound panel's three sliders (ui/soundpanel.js): native <input type="range">, a label above each, the browser's own track and
+   thumb in the game's text colour. The frame, heading and the Mute all button are the options popover's (ui/options.css). */
+@layer ui {
+  .sound-panel {
+    & .sliders {
+      display: grid;
+      gap: var(--space-s);
+      margin: 0 0 var(--space-m);
+      min-width: 12rem;
+    }
+
+    & input[type="range"] {
+      width: 100%;
+      accent-color: var(--color-text);
+    }
+
+    & input[type="range"]:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+  }
+}

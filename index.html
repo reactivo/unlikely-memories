@@ -35,6 +35,7 @@
 <link rel="stylesheet" href="ui/tools.css">
 <link rel="stylesheet" href="ui/tabs.css">
 <link rel="stylesheet" href="ui/options.css">
+<link rel="stylesheet" href="ui/soundpanel.css">
 <link rel="stylesheet" href="ui/map.css">
 <link rel="stylesheet" href="ui/home.css">
 <script type="module" src="js/main.js"></script>
@@ -128,7 +129,7 @@
          by the tabs below. -->
     <div class="strip">
       <div class="tools text-button">
-        <button type="button" class="tool" id="music" aria-pressed="false" aria-label="Music" title="Music: off"><span class="icon" style="mask-image: url(img/icons/icon-music.svg)"></span></button>
+        <button type="button" class="tool" id="music" popovertarget="sound-panel" aria-label="Music" title="Music"><span class="icon" style="mask-image: url(img/icons/icon-music.svg)"></span></button>
         <button type="button" class="tool" id="options" popovertarget="options-panel" aria-label="Options" title="Options"><span class="icon" style="mask-image: url(img/icons/icon-menu.svg)"></span></button>
       </div>
       <section class="panel text-ui exits" id="exits-panel" popover aria-labelledby="tab-exits">
@@ -169,6 +170,17 @@
     <button type="button" class="action" id="restart-game">Restart game</button>
     <button type="button" class="action" id="quit-game">Quit</button>
   </div>
+</div>
+
+<!-- Sound: a popover like the options, opened by the ♫ button (ui/soundpanel.js): three native sliders and one button. -->
+<div id="sound-panel" class="sound-panel text-ui" popover role="dialog" aria-labelledby="sound-title">
+  <h2 id="sound-title">SOUND</h2>
+  <div class="sliders">
+    <label for="sound-music" id="label-music">Music</label><input type="range" id="sound-music" min="0" max="100">
+    <label for="sound-tone" id="label-tone">Room</label><input type="range" id="sound-tone" min="0" max="100">
+    <label for="sound-sounds" id="label-sounds">Sounds</label><input type="range" id="sound-sounds" min="0" max="100">
+  </div>
+  <button type="button" class="action" id="sound-toggle">Mute all</button>
 </div>
 
 <!-- The map: a popover (HTML popover API) opened by the M in the middle of the compass, or by the MAP command. Non-modal like
