@@ -29,7 +29,7 @@ export function mount(root) {
   canvas.width = W; canvas.height = H;                           // the picture's own pixels (the markup says so too)
   const ctx = canvas.getContext("2d");
   const image = ctx.createImageData(W, H);                      // the canvas is the picture at its own 320×136
-  const painted = new Map();     // painted pictures, by room + version (painting is the slow part)
+  const painted = new Map();     // painted pictures, by room + version (painting is the slow part); only valid within one game: see forget()
   let frame = null;              // the picture now (palette numbers), without cycling
   let from = null;               // the picture being changed from, during a transition
   let change = null;             // the running transition: { shows, start, ms }
@@ -48,6 +48,15 @@ export function mount(root) {
     const key = roomId + "#" + picture.version;
     if (!painted.has(key)) painted.set(key, paintPicture(picture.draw, W, H));
     return painted.get(key);
+  }
+
+  // Forget everything drawn of a game, to draw afresh. A room id and a picture version are only the same picture within one game:
+  // two worlds share room ids (both "corridor", version 1), and after UNDO or a load a version can be another edit's. So whenever the
+  // game is replaced (a restore: a new game, UNDO, a loaded game, and the first draw of a view) nothing drawn before is kept.
+  function forget() {
+    painted.clear();
+    drawnKey = null; frame = null; from = null; change = null; cycles = []; lastSteps = ""; moment = null;
+    since.clear(); filters = [];
   }
 
   // Prepare the picture's cycles: for each, the pixels it moves and where each starts in its colour list.
@@ -196,6 +205,7 @@ export function mount(root) {
       // The picture filters on (none on an ending's picture: it is a shot of its own), and a new moment to play (below).
       const on = end ? [] : inOrder((s.filters || []).filter(f => FILTERS[parseFilter(f).name]));
       const key = where + "#" + picture.version + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
+      if (!prev || reason === "restore") forget();
       const played = playing(prev, next, reason, !!end);
       if (played) moment = played;
       if (key === drawnKey) return moment ? animate() : undefined;

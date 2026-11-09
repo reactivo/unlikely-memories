@@ -414,12 +414,20 @@ function saveNow() { if (!state?.worldId) return; autosave(true); saves.putNow(s
 // Write the automatic save that is waiting, if one is (the tab hidden, the page left).
 function flushSave() { if (autosaving) saveNow(); }
 
+// A game is replaced (a new game, a continued or loaded one): what the controller kept of the game before goes, apart from its
+// state (set by the caller): the moves UNDO takes back, the story kept with saves, and the memory of the last turn (OOPS, "Which do
+// you mean…?", where this turn began). The pieces on the screen forget theirs when they are told to "restore" (redraw).
+function forgetGame() {
+  history = []; transcript = [];
+  lastInput = null; lastUnknown = null; pendingWhich = null; turnStart = null;
+}
+
 // Continue a saved game: its state, its clock, its story so far (shown at once), no undo history.
 function restore(r) {
+  forgetGame();
   state = r.state; lang = state.lang;
-  history = [];
   clock.reset(r.played ?? state.clock); showTime();   // play time as it was when saved
-  ui.log.clear(); transcript = []; ui.prompt.clear();
+  ui.log.clear(); ui.prompt.clear();
   ui.prompt.hint(ui.log.markup(packOf(state).hint), 0, false);   // not shown; it comes back if you're idle
   for (const p of r.transcript || []) {
     const el = ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, true, p.level, p.slot);
@@ -519,10 +527,10 @@ function restart({ ask = false, said = false, id } = {}) {
 // id: which world (the one in the address; beginning again keeps it).
 function begin(id) {
   clock.reset();
+  forgetGame();
   state = newState({ lang, id });
   state = step(state, { tick: true, at: clock.now() }).next;   // wake the world: timed rules start counting
   showTime();                                            // (its own time: the music starts at night if the world does)
-  history = []; transcript = [];
   ui.log.clear(); ui.prompt.clear();
   show(describe(state, state.player.at, packOf(state)));
   ui.log.seen();                                         // (the opening is shown from the top: what's followed next is only what comes after it)
