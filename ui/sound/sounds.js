@@ -3,13 +3,9 @@
 // (ui/sound/synth.js, `note`) in the world's key and mode. Plain functions of the kit and a destination: no globals, no knowledge
 // of the game. They are told what to play in plain terms, `{ kind, material, weight }` (ui/sound.js, soundsOf, reads the moment), and
 // a key, `{ root, steps }` (the world's music's, js/music.js; or the spec's `sounds.key`). Every number is the spec's
-// (content/music.js, `sounds`: one table, `moments`, from a kind to its notes; and for a door opening or closing and eating, three
-// `versions` of each, `pick` the one the game plays). Any randomness is the synth's, never the game's.
+// (content/music.js, `sounds`: one table, `moments`, from a kind to its notes). Any randomness is the synth's, never the game's.
 //
-//   notesOf(O, kind, version)  → a kind's notes: its version's (the one given, else the spec's `pick`), else the table's
-//   everySound(O)              → every { kind, version } the spec can play (each moment, each version of each): what is measured
-//   planOf(list, key, S) → [{ kind, inst, octave, f, toF, t, dur, share }]   what plays, as numbers: t from the first sound's start;
-//                                                                              a sound may name its `version` (the bench, to compare)
+//   planOf(list, key, S) → [{ kind, inst, octave, f, toF, t, dur, share }]   what plays, as numbers: t from the first sound's start
 //   playSounds(kit, dest, list, key, t0, gain)                                 the plan made sound, from audio time t0; gain(p): each
 //                                                                              note's from its level (ui/sound/loudness.js), 1 if none
 //   playNote(kit, dest, p, t)                                                  one planned note, at audio time t (measured alone too)
@@ -20,20 +16,12 @@ import { note, filt } from "./synth.js";
 // A material's instrument: the spec's, or the generic one for none or a word it doesn't have.
 export const materialOf = (name, S) => S.sounds.materials[name] ?? S.sounds.materials.generic;
 
-// A kind's notes: a door opening or closing and eating have versions (MUSIC.md §6b), the one given or the spec's pick.
-export const notesOf = (O, kind, version) => O.versions?.[kind]?.[version ?? O.pick?.[kind]] ?? O.moments[kind];
-export function everySound(O) {
-  const out = Object.keys(O.moments).map(kind => ({ kind }));
-  for (const [kind, vs] of Object.entries(O.versions ?? {})) for (const version of Object.keys(vs)) out.push({ kind, version });
-  return out;
-}
-
 // The notes of each sound in a moment, in its order, `spacing` apart, at most `most`. A kind the table doesn't have plays nothing.
-// A note with no `step` has no pitch from the key: its kind makes its own (the versions' fixed contours, the noise of B and C).
+// A note with no `step` has no pitch from the key: its kind makes its own (a door's or a mouthful's noise).
 export function planOf(list, key, S) {
   const O = S.sounds, out = [], pitch = (step, octave) => freqOf(key, step, octave);
   list.slice(0, O.most).forEach((s, k) => {
-    const notes = notesOf(O, s.kind, s.version);
+    const notes = O.moments[s.kind];
     if (!notes) return;
     const m = materialOf(s.material, S);
     const W = O.weight, weight = s.kind === "hurt" ? W.base + W.per * (Math.min(W.most, Math.max(1, s.weight ?? 1)) - 1) : 1;
@@ -61,11 +49,11 @@ export function playNote(kit, dest, p, t) {
   else note({ ...kit, pitch: null }, dest, p.inst, p.f, t, p.dur, p.share, { toF: p.toF });
 }
 
-// ---- The sounds' own kinds (not the music's): a wooden knock, a body blow, and the versions' two (below) -------------------------
+// ---- The sounds' own kinds (not the music's): a wooden knock, a body blow, and a door or a mouthful (foley, below) --------------
 // Each: (kit, dest, inst, f, t, dur, share, toF). Their numbers are the spec's (`sounds.kinds`, and the voice's own), their
 // randomness the player's.
 // Small speakers (a phone's, a laptop's) play little under 300 Hz, so each has its weight in the middle, where they do.
-const EFFECTS = { tock, thump, adlib, foley };
+const EFFECTS = { tock, thump, foley };
 
 // A decaying sine from `from` to `f` (over `glide`), `tc` its fall.
 function ring(ctx, out, f, t, level, tc, from = f, glide = 0.02, type = "sine") {
@@ -99,105 +87,15 @@ function thump(kit, dest, inst, f, t, dur, share) {
   hiss(kit, out, "bandpass", K.punch.band, K.punch.q, t, K.punch.level, K.punch.tc, kit.noise.pink);
 }
 
-// ---- The door and eating versions (MUSIC.md §6b): three ways of each, side by side, until Diego picks one by ear ----------------
-// Neither has a note of the world's key: the AdLib way draws its own pitches, the other two are noise. A material colours a door's
-// sound with two numbers (a voice's shape for it, `as`): `bright` (× its frequencies, or its FM index) and `ring` (× how long it rings).
+// ---- A door, a mouthful (MUSIC.md §6b): `foley`, noise and timing, no note of the world's key -----------------------------------
+// A material colours a door's sound with two numbers (a voice's shape for it, `as`): `bright` (× its frequencies) and `ring` (× how
+// long it rings).
 const pick = (v) => (Array.isArray(v) ? v[0] + Math.random() * (v[1] - v[0]) : v);
 const count = (v) => Math.round(pick(v));
 
-// A: the AdLib way (Commander Keen 4–6, Wolfenstein 3-D; moddingwiki.shikadi.net/wiki/Adlib_sound_effect): one FM instrument on one
-// channel, and a stream of pitch values written `rate` (140) times a second: each a byte, the OPL2's f-number in the sound's octave
-// (`block`: Hz = byte × clock / 2^(20 − block)); a zero cuts the note (key off), the next value starts it again (key on, its envelope
-// from the top); a value held is one note. The stream here is drawn from segments, each a contour in Hz turned into bytes tick by
-// tick: { from, to, ticks, jitter (± share, each tick), gaps (each tick's chance of a zero, but the first), set (the instrument's numbers changed
-// for it) } or { off: ticks }; [least, most] anywhere is picked each play. The instrument: carrier and modulator multiples of the
-// pitch (`car`, `mod`), the depth (`index` × the modulator's pitch), an envelope (attack, decay to `sustain`, release: time
-// constants; a metal door's decay and release × `ring`), and the modulator's self-feedback, the grit (below).
-//
-// The feedback: on the OPL2 the modulator's own output, the mean of its last two samples × β, is added to its phase; past β ≈ 2 it
-// never settles and the sine becomes a noise-like buzz. Web Audio has no one-sample loop, so it is emulated in two parts: one cycle
-// of the feedback worked out in code at the instrument's β (`feedback`; the cycle after a few turns, a snapshot of the chaos when it
-// doesn't settle) and played as the modulator's periodic wave; and white noise in the modulator's pitch (`grit` × its pitch), the
-// cycle-to-cycle wandering a periodic wave can't have.
-const fbHarmonics = new Map();
-function feedbackHarmonics(beta, { samples: N, harmonics: H, cycles }) {
-  const id = [beta, N, H, cycles].join(":");
-  if (fbHarmonics.has(id)) return fbHarmonics.get(id);
-  const y = new Float32Array(N);
-  let y1 = 0, y2 = 0;
-  for (let c = 0; c < cycles; c++) for (let n = 0; n < N; n++) { const v = Math.sin(2 * Math.PI * n / N + beta * (y1 + y2) / 2); y2 = y1; y1 = v; y[n] = v; }
-  const re = new Float32Array(H), im = new Float32Array(H);
-  for (let k = 1; k < H; k++) {
-    let a = 0, b = 0;
-    for (let n = 0; n < N; n++) { const x = 2 * Math.PI * k * n / N; a += y[n] * Math.cos(x); b += y[n] * Math.sin(x); }
-    re[k] = a * 2 / N; im[k] = b * 2 / N;
-  }
-  fbHarmonics.set(id, [re, im]);
-  return [re, im];
-}
-// The stream, tick by tick: [{ byte, inst }] (byte 0: off), from the segments, picked afresh each play.
-export function streamOf(inst, step) {
-  const out = [];
-  for (const seg of inst.stream) {
-    if (seg.off !== undefined) { for (let i = count(seg.off); i > 0; i--) out.push({ byte: 0 }); continue; }
-    const n = Math.max(1, count(seg.ticks)), from = pick(seg.from), to = pick(seg.to ?? seg.from), own = { ...inst, ...seg.set };
-    for (let i = 0; i < n; i++) {
-      const hz = from * Math.pow(to / from, n > 1 ? i / (n - 1) : 0) * (1 + (Math.random() * 2 - 1) * (seg.jitter ?? 0));
-      out.push({ byte: i && Math.random() < (seg.gaps ?? 0) ? 0 : Math.max(1, Math.min(255, Math.round(hz / step))), inst: own, seg });
-    }
-  }
-  return out;
-}
-function adlib(kit, dest, inst, f, t, dur, share) {
-  const { ctx, S } = kit, K = S.sounds.kinds.adlib, out = outOf(ctx, dest, share, t);
-  const step = K.clock / Math.pow(2, 20 - inst.block), tick = 1 / K.rate, ticks = streamOf(inst, step);
-  const bright = inst.bright ?? 1, ring = inst.ring ?? 1;
-  // Each segment its own voice (an instrument change between them, as a game would rewrite the registers); within it, the notes
-  // keyed on and off by the stream.
-  let i = 0;
-  while (i < ticks.length) {
-    if (!ticks[i].byte) { i++; continue; }
-    const seg = ticks[i].seg, I = ticks[i].inst, from = i;   // (a segment's own zeros, its gaps, stay in its voice)
-    let to = i; while (to < ticks.length && ticks[to].seg === seg) to++;
-    voice(I, from, to);
-    i = to;
-  }
-  function voice(I, from, to) {
-    const t0 = t + from * tick, release = I.release * ring, end = t + to * tick + release * 8 + 0.02;
-    const car = ctx.createOscillator(), mod = ctx.createOscillator(), depth = ctx.createGain(), env = ctx.createGain();
-    if (I.wave && I.wave !== "sine") car.setPeriodicWave(kit.waves[I.wave]);
-    mod.setPeriodicWave(kit.periodic("feedback " + (I.feedback ?? 0), () => feedbackHarmonics(I.feedback ?? 0, K.waves)));   // (once a context)
-    const grit = ctx.createBufferSource(), gg = ctx.createGain(); grit.buffer = kit.noise.white; grit.loop = true;
-    grit.connect(gg); gg.connect(mod.frequency); mod.connect(depth); depth.connect(car.frequency); car.connect(env); env.connect(out);
-    env.gain.setValueAtTime(0, t0);
-    const decay = I.decay * ring, attack = I.attack;
-    let last = -1, on = false;
-    const keyOff = (at) => { env.gain.setTargetAtTime(0, at, release); on = false; };
-    for (let k = from; k < to; k++) {
-      const at = t + k * tick, b = ticks[k].byte;
-      if (!b) { if (on) keyOff(at); last = 0; continue; }
-      if (b !== last) {                                          // a game wrote the chip only when the value changed
-        const hz = b * step;
-        car.frequency.setValueAtTime(hz * I.car, at); mod.frequency.setValueAtTime(hz * I.mod, at);
-        depth.gain.setValueAtTime(I.index * bright * hz * I.mod, at); gg.gain.setValueAtTime((I.grit ?? 0) * hz * I.mod, at);
-      }
-      if (!on) {                                                 // key on: the envelope from the top
-        on = true;
-        let len = 0; while (k + len < to && ticks[k + len].byte) len++;
-        env.gain.setTargetAtTime(1, at, attack);
-        if (len * tick > attack * 4) env.gain.setTargetAtTime(I.sustain, at + attack * 4, decay);
-      }
-      last = b;
-    }
-    if (on) keyOff(t + to * tick);
-    for (const o of [car, mod]) { o.start(t0); o.stop(end); }
-    grit.start(t0, Math.random() * 3); grit.stop(end);
-  }
-}
-
-// B and C: `foley`, a door or a mouthful as layers, each at `at` seconds after the sound starts or `after` seconds after the layer
-// before it (so the latch keeps its distance from the thunk: the "ka-chunk" that makes it a door): `click`, `whoosh`, `thunk`,
-// `grains`, `fm`. Every time, place, frequency and level is picked within its range each play.
+// A door or a mouthful as layers, each at `at` seconds after the sound starts or `after` seconds after the layer before it (so the
+// latch keeps its distance from the thunk: the "ka-chunk" that makes it a door): `click`, `whoosh`, `thunk`, `grains`. Every time,
+// place, frequency and level is picked within its range each play.
 function foley(kit, dest, inst, f, t, dur, share) {
   const { ctx } = kit, out = outOf(ctx, dest, share, t), c = { bright: inst.bright ?? 1, ring: inst.ring ?? 1 };
   let prev = t;
@@ -249,8 +147,7 @@ const LAYERS = {
   // A crunch: `bites` bites, `bite` seconds each, `gap` apart; in each, tiny fractures of noise (a grain: a few ms through one of
   // `bands`, [Hz, q], at random), irregular (each the next after a random wait, a quarter to 1.75 of the mean: never a long hole
   // or a pile-up, so one play is about as loud as the next), `density` grains a second from the first to the last (dense, then
-  // thinning), mostly quiet and a few loud (a level × random ^ `skew`); the first of a bite × `first`. `grid`: grains on a grid of
-  // that many a second (C's stylised crunch, the AdLib's 140); `onset`: an FM crack as each bite starts (C).
+  // thinning), mostly quiet and a few loud (a level × random ^ `skew`); the first of a bite × `first`.
   grains(kit, out, L, t) {
     const { ctx } = kit, bands = L.bands.map(([hz, q]) => {
       const s = ctx.createBufferSource(), bp = filt(ctx, "bandpass", Math.min(top, hz * pick([0.92, 1.08])), q), g = ctx.createGain();
@@ -260,10 +157,8 @@ const LAYERS = {
     let start = t;
     for (let b = 0; b < n; b++) {
       const len = pick(L.bite), [d0, d1] = L.density;
-      if (L.onset) LAYERS.fm(kit, out, L.onset, start, { bright: 1, ring: 1 });
       for (let x = 0, k = 0; x < len; k++) {
-        let at = start + x;
-        if (L.grid) at = t + Math.round((at - t) * L.grid) / L.grid;
+        const at = start + x;
         const lv = pick(L.level) * Math.random() ** (L.skew ?? 2) * (k === 0 ? L.first ?? 1 : 1) * (1 - 0.4 * x / len);
         grains.push({ at, lv, band: Math.floor(Math.random() * bands.length), tc: pick(L.tc) });
         x += (0.25 + 1.5 * Math.random()) / (d0 * Math.pow(d1 / d0, x / len));
@@ -276,17 +171,5 @@ const LAYERS = {
       p.setTargetAtTime(g.lv, g.at, 0.0003); p.setTargetAtTime(0, g.at + 0.0009, g.tc);
     }
     for (const { s } of bands) { s.start(t, Math.random() * 3); s.stop(start + 0.1); }
-  },
-  // A touch of FM (C): a carrier gliding from `f` to `to` over `glide`, its modulator `ratio` above, `index` deep, dying over `tc`:
-  // a clean click up high, or a body under the thunk down low. A metal door's brighter (× the index) and longer.
-  fm(kit, out, L, t, { bright, ring: rings }) {
-    const { ctx } = kit, f0 = pick(L.f), f1 = pick(L.to ?? L.f), tc = pick(L.tc) * rings, glide = L.glide ?? 0.03, end = t + tc * 8 + 0.05;
-    const car = ctx.createOscillator(), mod = ctx.createOscillator(), depth = ctx.createGain(), g = ctx.createGain();
-    car.frequency.setValueAtTime(f0, t); car.frequency.exponentialRampToValueAtTime(f1, t + glide);
-    mod.frequency.setValueAtTime(f0 * L.ratio, t); mod.frequency.exponentialRampToValueAtTime(f1 * L.ratio, t + glide);
-    depth.gain.setValueAtTime(L.index * bright * f0 * L.ratio, t); depth.gain.setTargetAtTime(L.index * bright * f1 * L.ratio * 0.3, t, tc);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pick(L.level), t + 0.001); g.gain.setTargetAtTime(0, t + 0.002, tc);
-    mod.connect(depth); depth.connect(car.frequency); car.connect(g); g.connect(out);
-    for (const o of [car, mod]) { o.start(t); o.stop(end); }
   }
 };

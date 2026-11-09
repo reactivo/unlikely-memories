@@ -165,7 +165,8 @@ export default {
   // music's, about level with the theme (`loudness.targets.sounds`; the sound panel's sliders will set the balance).
   // One table, `moments`: each kind → its notes. A note: `play` an instrument of `voices`, or "material" (the thing's: `materials`,
   // `generic` for none or a word not there; `shift` octaves from the material's own); `step` of the mode, `to` a step it slides to,
-  // `octave` (a voice's), `at` seconds after the sound starts, `length` seconds, `level` (its level within the moment). The
+  // `octave` (a voice's), `at` seconds after the sound starts, `length` seconds, `level` (its level within the moment); a note with
+  // no `step` has no pitch from the key (a door, eating: its kind makes its own sound). The
   // instruments are the music's kinds (MUSIC.md §3), the noise kinds too, with the music's numbers (`note`, `noises`), and the
   // sounds' own (`kinds`); each one's loudness is the meter's (an instrument at an octave, measured once: MUSIC.md §6c).
   sounds: {
@@ -193,58 +194,24 @@ export default {
       latch:   { kind: "clack",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.1 },    // a lock turning, a locked door rattling
       slide:   { kind: "brush",   ratio: 1,   bright: 0.3,  attack: 0, release: 0.2 },    // a lid or a drawer
       bell:    { kind: "struck",  ratio: 3,   bright: 0.35, attack: 0, release: 0.9 },    // a puzzle solved
-      // The door and eating versions (MUSIC.md §6b; `versions` below): each a whole sound, one instrument of the sounds' own kinds,
-      // measured and evened as one. No note of the world's key in any. `length`: how long it lasts, about (the meter's slices).
-      // A, the AdLib way (`adlib`): an FM instrument and a stream of pitches 140 times a second, in the OPL2's octave `block`.
-      openA:  { kind: "adlib", block: 7, car: 1, mod: 1, index: 1.4, feedback: 2.4, grit: 0.3, attack: 0.001, decay: 0.05, sustain: 0.55, release: 0.01, length: 0.35,
-                stream: [{ from: [1350, 1500], ticks: 2, set: { index: 3, feedback: 3, decay: 0.006, sustain: 0 } },   // the click
-                         { off: [3, 5] },
-                         { from: [200, 240], to: [430, 500], ticks: [16, 20], jitter: 0.12, gaps: 0.1 }],               // a rising, gritty jitter
-                as: { metal: { car: 2, ring: 2 } } },
-      closeA: { kind: "adlib", block: 6, car: 1, mod: 1, index: 1.6, feedback: 3.2, grit: 0.45, attack: 0.001, decay: 0.06, sustain: 0.6, release: 0.008, length: 0.4,
-                stream: [{ from: [640, 720], to: [200, 240], ticks: [8, 10], jitter: 0.05 },                         // the swing: a gritty quick sweep down
-                         { off: [2, 3] },                                                                          // cut
-                         { from: [290, 320], to: [80, 95], ticks: [13, 16], jitter: 0.02,                         // the thunk: a tom dropping
-                           set: { feedback: 1, grit: 0.04, index: 1.1, decay: 0.05, sustain: 0.2, release: 0.03 } }],
-                as: { metal: { bright: 1.8, ring: 3, car: 2 } } },
-      eatA:   { kind: "adlib", block: 6, car: 1, mod: 3, index: 2.4, feedback: 3.6, grit: 0.6, attack: 0.001, decay: 0.02, sustain: 0.15, release: 0.005, length: 1.15,
-                stream: [{ from: [520, 640], to: [380, 460], ticks: [18, 24], jitter: 0.3, gaps: 0.45 }, { off: [34, 44] },   // three bites: the stream
-                         { from: [520, 640], to: [380, 460], ticks: [16, 22], jitter: 0.3, gaps: 0.45 }, { off: [34, 44] },   // flicking on and off at
-                         { from: [480, 600], to: [360, 440], ticks: [10, 14], jitter: 0.3, gaps: 0.5 }] },                    // irregular ticks
-      // B, realistic (`foley`): noise textures and timing, no pitch. Layers: `click`, `whoosh`, `thunk`, `grains` (ui/sound/sounds.js).
-      openB:  { kind: "foley", length: 0.65, layers: [
+      // A door opening, a door closing, eating (MUSIC.md §6b): realistic (`foley`), noise and timing, no pitch, no note of the world's
+      // key; each a whole sound, measured and evened as one. Layers: `click`, `whoosh`, `thunk`, `grains` (ui/sound/sounds.js).
+      // `length`: how long it lasts, about (the meter's slices). `as`: a metal door's shape.
+      swing:  { kind: "foley", length: 0.65, layers: [
                 { type: "click", bands: [[2600, 1.4, 1], [900, 1, 0.35]], level: [0.8, 1], tc: 0.004, count: 2, gap: [0.012, 0.02], decay: 0.55 },   // the handle
                 { type: "click", after: [0.06, 0.1], bands: [[3400, 1.8, 1], [1200, 1, 0.3]], level: [0.6, 0.8], tc: 0.003 },                    // the latch let go
                 { type: "whoosh", after: [0.02, 0.05], length: [0.38, 0.48], band: [260, 650, 320], q: 0.8, rise: 0.4, level: [0.2, 0.26] }],   // the swing's air
                 as: { metal: { bright: 1.6, ring: 3 } } },
-      closeB: { kind: "foley", length: 0.7, layers: [
+      clunk:  { kind: "foley", length: 0.7, layers: [
                 { type: "whoosh", length: [0.2, 0.26], band: [300, 900, 600], q: 0.8, rise: 0.8, level: [0.8, 1] },                            // the air pushed
                 { type: "thunk", after: [0.19, 0.23], modes: 18, range: [70, 560], tc: [0.006, 0.02], level: [0.4, 1], drop: 1.04, spread: 0.008,              // wood on the frame
                   noise: { lowpass: 900, level: 0.7, tc: 0.025 }, crack: { band: 1400, q: 1, level: 0.5, tc: 0.004 } },
                 { type: "click", after: [0.05, 0.09], bands: [[3200, 1.8, 1], [1100, 1, 0.3]], level: [0.8, 1], tc: 0.003, count: 2,         // the latch: "ka-chunk"
                   gap: [0.008, 0.014], decay: 0.4 }],
                 as: { metal: { bright: 1.9, ring: 4, length: 1 } } },
-      eatB:   { kind: "foley", length: 1.3, layers: [
-                { type: "grains", bites: [2, 3], bite: [0.18, 0.22], gap: [0.26, 0.36], density: [320, 40],
-                  bands: [[1600, 2.5], [2400, 3], [3300, 3], [4300, 3.5]], tc: [0.0006, 0.0025], level: [0.3, 1], skew: 1, first: 1.5 }] },
-      // C, in between (`foley` with a touch of FM): the same timing, a cleaner click, an FM body under the thunk, a crunch on a grid.
-      openC:  { kind: "foley", length: 0.6, layers: [
-                { type: "fm", f: [2300, 2500], to: 1900, ratio: 1.41, index: 0.7, tc: 0.006, level: [0.5, 0.6] },                               // the handle: a clean click
-                { type: "click", after: 0, bands: [[2600, 1.4, 1]], level: [0.3, 0.4], tc: 0.003 },
-                { type: "fm", after: [0.06, 0.09], f: [2900, 3100], to: 2500, ratio: 1.41, index: 0.7, tc: 0.005, level: [0.4, 0.5] },        // the latch
-                { type: "whoosh", after: [0.02, 0.05], length: [0.32, 0.4], band: [300, 720, 380], q: 1.3, rise: 0.4, level: [0.45, 0.55] }],
-                as: { metal: { bright: 1.6, ring: 3 } } },
-      closeC: { kind: "foley", length: 0.7, layers: [
-                { type: "whoosh", length: [0.2, 0.24], band: [320, 900, 650], q: 1.3, rise: 0.8, level: [0.7, 0.85] },
-                { type: "thunk", after: [0.19, 0.22], modes: 8, range: [90, 500], tc: [0.012, 0.04], level: [0.4, 0.9], drop: 1.04, spread: 0.003,
-                  noise: { lowpass: 800, level: 0.6, tc: 0.02 } },
-                { type: "fm", after: 0, f: [165, 180], to: 95, glide: 0.05, ratio: 1, index: 0.7, tc: 0.045, level: [0.35, 0.45] },               // the body: a touch of FM
-                { type: "fm", after: [0.05, 0.08], f: [2900, 3100], to: 2500, ratio: 1.41, index: 0.7, tc: 0.005, level: [0.35, 0.45] }],     // the latch, clean
-                as: { metal: { bright: 1.8, ring: 2.5, length: 1 } } },
-      eatC:   { kind: "foley", length: 1.3, layers: [
-                { type: "grains", bites: [2, 3], bite: [0.16, 0.22], gap: [0.28, 0.36], density: [260, 50], grid: 140,
-                  bands: [[2000, 6], [3200, 6]], tc: [0.001, 0.003], level: [0.4, 1], first: 1.5,
-                  onset: { f: [900, 1000], to: 500, ratio: 3.5, index: 2, tc: 0.008, level: 0.1 } }] }
+      crunch: { kind: "foley", length: 0.85, layers: [                                                                // two bites: "chomp-chomp"
+                { type: "grains", bites: 2, bite: [0.18, 0.22], gap: [0.26, 0.36], density: [320, 40],
+                  bands: [[1600, 2.5], [2400, 3], [3300, 3], [4300, 3.5]], tc: [0.0006, 0.0025], level: [0.3, 1], skew: 1, first: 1.5 }] }
     },
     // A hurt's weight, by the hit (how much health it took): its level × (base + per × (hit − 1)), the hit at most `most`.
     weight: { base: 0.7, per: 0.2, most: 5 },
@@ -252,6 +219,7 @@ export default {
     moments: {
       get:      [{ play: "material", step: 1 }, { play: "material", step: 5, at: 0.08 }],                    // picked up: rises
       lose:     [{ play: "material", step: 5 }, { play: "material", step: 1, at: 0.08 }],                    // put down: falls
+      eat:      [{ play: "crunch" }],                                                                       // no step: in no key
       drink:    [{ play: "gulp", step: 1, to: 3, octave: 4, length: 0.12 }, { play: "gulp", step: 1, to: 3, octave: 4, at: 0.24, length: 0.12, level: 0.8 }],
       hurt:     [{ play: "thump", step: 1, octave: 2 }],
       heal:     [{ play: "shimmer", step: 1, octave: 5, level: 0.6 }, { play: "shimmer", step: 3, octave: 5, at: 0.06, level: 0.6 },
@@ -259,22 +227,15 @@ export default {
       down:     [{ play: "colour", step: 3, octave: 4 }, { play: "colour", step: 1, octave: 4, at: 0.11 }],    // a harmful condition starts
       up:       [{ play: "colour", step: 1, octave: 4 }, { play: "colour", step: 3, octave: 4, at: 0.11 }],    // a good one starts, a harmful one ends
       sideways: [{ play: "colour", step: 2, octave: 4 }, { play: "colour", step: 2, octave: 4, at: 0.11 }],    // a neutral one
+      open:     [{ play: "swing" }],                                                                        // a door opens (its material: `as`)
+      close:    [{ play: "clunk" }],                                                                        // a door closes
       unlock:   [{ play: "latch", step: 5, octave: 5 }, { play: "material", step: 1, shift: -1, at: 0.1 }],                                 // a door unlocks
       rattle:   [{ play: "latch", step: 1, octave: 4 }, { play: "latch", step: 2, octave: 4, at: 0.07 }, { play: "latch", step: 1, octave: 4, at: 0.14 }],   // a locked door
       lid:      [{ play: "slide", step: 3, octave: 4, length: 0.14 }, { play: "material", step: 3, at: 0.12 }],                            // a container opens
       solved:   [{ play: "bell", step: 5, octave: 4 }, { play: "bell", step: 8, octave: 4, at: 0.09 }, { play: "bell", step: 10, octave: 4, at: 0.18 },
                  { play: "bell", step: 12, octave: 4, at: 0.27, length: 0.6 }]                                  // the old games' "points"
     },
-    // A door opening, a door closing and eating: three versions of each, side by side on the bench, for Diego to pick by ear (8
-    // November 2026: the first ones sounded "really weird"). A: the AdLib way; B: realistic; C: in between (MUSIC.md §6b). Each a
-    // moment's notes, as `moments`; `pick` is the one the game plays (a one-word change), and the others can then go.
-    versions: {
-      open:  { a: [{ play: "openA" }],  b: [{ play: "openB" }],  c: [{ play: "openC" }] },
-      close: { a: [{ play: "closeA" }], b: [{ play: "closeB" }], c: [{ play: "closeC" }] },
-      eat:   { a: [{ play: "eatA" }],   b: [{ play: "eatB" }],   c: [{ play: "eatC" }] }
-    },
-    pick: { open: "b", close: "b", eat: "b" },
-    length: 0.25,                                 // a note's length when it says none
+    length: 0.25,                                // a note's length when it says none
     // The sounds' own kinds (ui/sound/sounds.js), not the music's: their weight in the middle, where a phone's speaker plays.
     kinds: {
       // A wooden knock: the board's modes [× the pitch, level, fall], starting `drop` sharp and settling over `glide`; the hit's click.
@@ -282,10 +243,7 @@ export default {
                click: { band: 2400, q: 1.2, level: 0.35, tc: 0.004 } },
       // A blow: a low body falling from `from` × the pitch, a triangle `mid.ratio` above it, a dull punch of noise.
       thump: { body: { level: 0.35, tc: 0.12, from: 1.8, glide: 0.06 }, mid: { ratio: 3, level: 0.5, tc: 0.07 },
-               punch: { band: 600, q: 0.9, level: 1, tc: 0.04 } },
-      // The AdLib way's stream (the versions' A): `rate` values a second, each the f-number in the sound's octave on the OPL2's
-      // `clock` (Hz = value × clock / 2^(20 − block)); the modulator's feedback worked out over `waves.cycles` turns of `samples`.
-      adlib: { rate: 140, clock: 49716, waves: { samples: 1024, harmonics: 64, cycles: 8 } }
+               punch: { band: 600, q: 0.9, level: 1, tc: 0.04 } }
     }
   },
 

@@ -11,9 +11,9 @@
 //                                                      matched to
 //   colourPart(S, name)                                the reference notes through a colour (its gain: the reference's loudness less
 //                                                      its own)
-//   soundParts(S, key)                                 every sound's instrument at the octave the table plays it (`sounds.moments`
-//                                                      and every one of `sounds.versions`, each material), in a key ({ root, steps }:
-//                                                      a world's, or the spec's); soundId(p) finds a planned note's. In each world's
+//   soundParts(S, key)                                 every sound's instrument at the octave the table plays it (`sounds.moments`,
+//                                                      each material), in a key ({ root, steps }: a world's, or the spec's);
+//                                                      soundId(p) finds a planned note's. In each world's
 //                                                      key: a sound whose notes sit near 300 Hz comes out up to 4 dB louder a few
 //                                                      semitones up (a phone hears it)
 //   musicParts(S, music, roomIds)                      a world's parts, room by room in the order given: each scene's instruments
@@ -28,7 +28,7 @@ import { NOISES, TONES, COLOURS, LIMITS, freqOf, themeIn } from "../../js/music.
 import { makeKit, note, filt } from "./synth.js";
 import { makeTone } from "./tones.js";
 import { makeColour } from "./colours.js";
-import { planOf, playNote, everySound } from "./sounds.js";
+import { planOf, playNote } from "./sounds.js";
 import { keyOf, stable } from "./loudness.js";
 
 const lowpass = (ctx, S, f = S.lowpass.frequency) => filt(ctx, "lowpass", f, S.lowpass.q);
@@ -36,8 +36,8 @@ const lead = 0.02;                                 // each slice's sound starts 
 // A part with chance in its sound (noise, a door's or a crunch's random layers) is played this many times, one a slice, `each` apart at least, and their
 // loudness averaged: measured five times over, every part then moved by about 0.3 dB at most (sd) — MUSIC.md §6c.
 const CHANCE = 8, EACH = 0.6;
-// A door or eating version (`adlib`, `foley`: a whole sound whose layers, waits and grains are all picked each play): twice as many.
-const WHOLE = ["adlib", "foley"];
+// A door or eating (`foley`: a whole sound whose layers, waits and grains are all picked each play): twice as many.
+const WHOLE = ["foley"];
 
 // What a note of this instrument is (the music box's own when it plays it): decaying or held, and whether chance is in its sound.
 function shape(S, inst, box) {
@@ -109,14 +109,14 @@ export function colourPart(S, name) {
 
 // A planned sound note's part: its instrument at its octave.
 export const soundId = (p) => stable({ inst: p.inst, octave: p.octave });
-const EFFECTS = ["tock", "thump", "adlib", "foley"];
+const EFFECTS = ["tock", "thump", "foley"];
 const soundCache = new WeakMap();
 export function soundParts(S, key = S.sounds.key) {
   const cache = soundCache.get(S) ?? soundCache.set(S, new Map()).get(S), id0 = stable({ root: key.root, steps: key.steps });
   if (cache.has(id0)) return cache.get(id0);
   const O = S.sounds, byId = new Map();
   const materials = [...Object.keys(O.materials), undefined];
-  for (const s of everySound(O)) for (const material of materials) for (const p of planOf([{ ...s, material }], key, S)) {
+  for (const kind of Object.keys(O.moments)) for (const material of materials) for (const p of planOf([{ kind, material }], key, S)) {
     const id = soundId(p);
     if (byId.has(id)) continue;
     const chance = NOISES.includes(p.inst.kind) || EFFECTS.includes(p.inst.kind) || !!S.kinds[p.inst.kind]?.breath;

@@ -121,9 +121,8 @@ export function soundsOf(applied, now, was = now) {
   return out;
 }
 
-// The sounds a debug panel or a bench can try, each kind of the spec's table (a door opening or closing and eating: the version
-// picked, `sounds.pick`), and the materials.
-export const SOUND_KINDS = [...new Set([...Object.keys(S.sounds.moments), ...Object.keys(S.sounds.versions)])];
+// The sounds a debug panel or a bench can try, each kind of the spec's table, and the materials.
+export const SOUND_KINDS = Object.keys(S.sounds.moments);
 export const MATERIALS = Object.keys(S.sounds.materials).filter(m => m !== "generic");
 
 // Set up the sound (it has no element). Returns update(), moment(), asleep(), clock(), leave() and `debug` (for the debug panel's

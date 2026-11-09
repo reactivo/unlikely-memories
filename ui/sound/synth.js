@@ -3,10 +3,8 @@
 // slides and scoops, chords and arpeggios, and the music box. Plain functions of an AudioContext and its nodes: no globals, no
 // knowledge of the game. Every number is the spec's (content/music.js), passed in as `kit.S`.
 //
-//   makeKit(ctx, S) → kit: { ctx, S, noise: { white, pink, brown }, waves, periodic(id, harmonics) }   made once per context (the
-//                                                                               slow part); periodic: any other periodic wave, made
-//                                                                               once for the context; the player adds `pitch`, a node
-//                                                                               in cents every note follows
+//   makeKit(ctx, S) → kit: { ctx, S, noise: { white, pink, brown }, waves }    made once per context (the slow part); the player
+//                                                                               adds `pitch`, a node in cents every note follows
 //   playEvent(kit, dest, music, inst, e, octave, t, beats, share, box)          one event of a line or a theme, at time t → its
 //                                                                               notes' end times
 //   note(kit, dest, inst, f, t, dur, share, opts)                                one note: opts { toF, scoop, box } → when it ends
@@ -31,10 +29,9 @@ export function makeKit(ctx, S) {
     p[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + x * 0.5362) * 0.11; b6 = x * 0.115926;
     last = (last + 0.02 * x) / 1.02; br[i] = last * 3.5;
   }
-  const waves = {}, made = new Map();
+  const waves = {};
   for (const [name, [re, im]] of Object.entries(harmonicsOf(S.waves))) waves[name] = ctx.createPeriodicWave(re, im);
-  const periodic = (id, harmonics) => { if (!made.has(id)) { const [re, im] = harmonics(); made.set(id, ctx.createPeriodicWave(re, im)); } return made.get(id); };
-  return { ctx, S, noise: { white, pink, brown }, waves, periodic };
+  return { ctx, S, noise: { white, pink, brown }, waves };
 }
 // The waveforms' harmonics, worked out once for the page (the measuring makes a kit for every part it renders: ui/sound/measure.js).
 const harmonics = new Map();
