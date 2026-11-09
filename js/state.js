@@ -21,7 +21,9 @@ export const FORMAT = 17;   // 14: tension 0–5 and health 5–0. 15: health on
 // protect: false leaves the opening open to change (only for tests that use it as a scratch room).
 export function newState({ lang, health = 5, seed = newSeed(), sequel = true, protect = true, id = DEFAULT }) {
   const state = blank({ lang, health, seed });
-  const world = sequel === true ? worldFor(lang, id) : sequel || null;
+  // A copy of the world's change set: the game's rooms and things never share a list or an object with the world's module, so changing
+  // one (a test, a rule) can never change the world itself for the next game (worlds are plain JSON: tests/worlds.test.js).
+  const world = sequel === true ? structuredClone(worldFor(lang, id)) : sequel ? structuredClone(sequel) : null;
   if (world) {
     const r = applyChangeSet(state, world, { protect, fields: "warn" });
     if (r.warnings?.length) console.warn(`The world${sequel === true ? ` "${id}"` : ""} has ${r.warnings.length} warning(s):\n  ` + r.warnings.join("\n  "));
