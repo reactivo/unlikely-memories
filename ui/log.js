@@ -190,11 +190,17 @@ export function mount(root, on, header) {
   function resync(y) {
     if (resyncing || document.documentElement.hasAttribute("data-debug-no-nudge")) return;   // (the debug panel can turn it off, to test it)
     resyncing = true;
+    // The nudge belongs to the anchor it was made for. If a follow takes over meanwhile (toEnd sets a new anchor: a command
+    // typed or clicked in the frame or two between the steps), the second scroll, an instant one back to y, would cancel the
+    // follow's smooth scroll on its first frame: the page stayed where it was and the answer was left below the story (found
+    // by tests/follow.py at 1100x720, one run in three: the page had been moved a little by the command line taking the focus,
+    // settle() put it back, and the command came in before the nudge ended). So then the nudge is dropped, not finished.
+    const mine = anchor, taken = () => anchor && anchor !== mine;
     requestAnimationFrame(() => {
+      if (taken()) { resyncing = false; return; }
       window.scrollTo({ top: y > 0 ? y - 1 : y + 1, behavior: "instant" });
       requestAnimationFrame(() => {
-        window.scrollTo({ top: y, behavior: "instant" });
-        header.scrolling(y);
+        if (!taken()) { window.scrollTo({ top: y, behavior: "instant" }); header.scrolling(y); }
         resyncing = false;
       });
     });
