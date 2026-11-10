@@ -100,7 +100,10 @@ function fillColor(f, x, y) {
   if (f.mix) return lit(x, y, f.level) ? f.mix[1] : f.mix[0];
   if (f.fade) {
     const [fx, fy] = f.from, [tx, ty] = f.to, dx = tx - fx, dy = ty - fy;
-    const level = Math.max(0, Math.min(1, ((x - fx) * dx + (y - fy) * dy) / (dx * dx + dy * dy)));
+    let level = Math.max(0, Math.min(1, ((x - fx) * dx + (y - fy) * dy) / (dx * dx + dy * dy)));
+    // A fade into nothing (one empty colour) is a glow or a spill: its coloured end is at most half dense, thinning to nothing.
+    if (f.fade[1] === null && f.fade[0] !== null) level = 0.5 + level / 2;
+    else if (f.fade[0] === null && f.fade[1] !== null) level = level / 2;
     return lit(x, y, level) ? f.fade[1] : f.fade[0];
   }
   if (f.stripes) return f.stripes[y & 1];

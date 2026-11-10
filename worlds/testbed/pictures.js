@@ -14,6 +14,7 @@
 //   tb-lane     far away; 62; the lit window at the end, a tenth of the width; yellow 14 on black
 //   tb-ways     eye level, looking in; 94; the wheel on the back wall, the shutter and the chute at the sides; cyan 3
 //   tb-annex    eye level down a long room; 70, vanishing at x 160; the shelves converging, the pole along the floor; magenta 5
+//               (a runner on the floor drawn with vp and x,y@t points; a yellow glow that fades into nothing)
 //   tb-landing  looking up; 120; the stairs going up the back wall, narrow and tall; light grey 7
 //   tb-chute    through something; the tube's round mouth, a bright disc at the far end; dark grey 8
 //   tb-closet   close-up; none; bare boards and a strip of light under the door; brown 6
@@ -345,6 +346,10 @@ export default {
       line hook_chain 160,0 160,36 c14
       ellipse hook_ring 160,38,4,4 none e14
       poly pole_shape 40,128 280,120 282,124 42,132 6 e0
+      vp 160,70
+      poly runner 140,136@1 180,136@1 180,136@0.55 140,136@0.55 3 e0
+      line runner_seam 160,136@1 160,136@0.55 c11
+      rect floor_glow 0,100,320,36 fade:,14/0,100/0,136
       dots dust 60,96 140,110 240,100 c7
     `,
     overlays: []

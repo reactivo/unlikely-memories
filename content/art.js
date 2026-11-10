@@ -16,8 +16,8 @@ export default {
     maxShapes: 200,
     edits: ["add", "remove", "replace", "restyle"]
   },
-  viewpoints: ["eye level, looking in", "looking up", "looking down", "from above", "from far above",
-               "wide landscape", "far away", "close-up", "silhouette", "through something"],
+  viewpoints: ["eye level", "wide landscape", "far away", "looking up at something outdoors",
+               "looking down at an angle from the rim"],   // BRIEF.md §7, "Viewpoints"
   instructionsLanguage: "en",
 
   // Picture effects (ui/scene.js, ui/effects.js). Change them here; nothing else needs to know. (Transitions: ui/transitions.js.)

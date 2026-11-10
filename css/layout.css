@@ -3,14 +3,6 @@
    The numbers that shape the page are in the first blocks below. Then the page itself. Then, last, the pieces that look
    different on phones and on bigger windows: this file sets a few variables on them, and each piece's own CSS
    (ui/*.css) uses them. A piece never positions itself on the page and never has its own media query. */
-/* How folded the picture is on an upright phone: 0 open … 1 folded (ui/fold.js sets it on .top; the picture's shape follows it,
-   below). Registered as a number so that it can be animated: @property is global, so it lives outside the layers. */
-@property --p {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0;
-}
-
 @layer layout {
   :root {
     /* The page's side padding. */
@@ -45,8 +37,8 @@
                                                      the story, no tabs, bigger text (tokens.css). Anything smaller,
                                                      a phone turned sideways too, gets the phone layout.
          (width < 760px) and (height >= 560px)       an upright phone: the phone layout with a picture that sticks (the
-                                                     first one, without the second), and there it also folds (the third
-                                                     block below; ui/fold.js asks the CSS whether it does, it has no copy).
+                                                     first one, without the second), and there it is the crop (the third
+                                                     block below; ui/crop.js asks the CSS whether it is, it has no copy).
        Everything is written for phones first; the bigger layout overrides it.
          phones   the story takes the whole width; ♫ ≡ go beside the title bar; directions and inventory open from two
                   tabs at the bottom; text is smaller. */
@@ -114,16 +106,15 @@
      Phones: ♫ ≡ sit beside the title bar, inside the top; directions and inventory become panels opened from two tabs
      under the prompt, inside the bottom (ui/tabs.css).
 
-     Upright phones (under 760px wide, at least 560px tall) fold the picture. The picture is tall there, a crop of the
-     middle of the scene (--picture-crop, tokens.css); reading back, it folds to the whole scene (ui/fold.js decides when,
-     CSS does the shape). For that the top is fixed, not sticky: its height changes without moving the text, and the story
-     starts under a spacer as tall as the top is when open (--top-h, measured by ui/page.js).
+     Upright phones (under 760px wide, at least 560px tall) always show the picture as a tall crop of the middle of the
+     scene (--picture-crop, tokens.css), never folded. The top is fixed there, not sticky (a later change may make it
+     sticky), and the story starts under a spacer as tall as the top (--top-h, measured by ui/page.js).
 
      Phones while you type (ui/page.js sets data-typing on <html> while the command line has focus on a touch screen):
      nothing is pinned, and nothing else changes. Title bar, picture, story and prompt are one ordinary page in its normal
      flow, and the browser brings the prompt up above its own keyboard and bars, as on any web form; nothing is measured
      (following the browsers' numbers fought their own scrolling). When you stop typing everything is pinned again, the
-     picture folded or open as it was. */
+     picture as it was. */
 
   /* Two views of one page (INTERFACE.md §13): the controller sets data-view on the page ("home", the list of games, or
      "game") and only that one shows. Before it sets one, the list's page shows. */
@@ -188,15 +179,11 @@
     }
   }
 
-  /* Upright phones: the folding picture. The top is FIXED, so its height can change (the picture folds and opens) without
-     moving the text, and the story starts below it, under a spacer as tall as the top is when OPEN (--top-h: ui/page.js
-     measures it; it is the same whether the picture is open or folded, so nothing under it ever shifts). The top is as wide
-     as the column and centred, as it was in the page's flow. The title bar and ♫ ≡ do not change, only the picture does.
-     --p (0 open … 1 folded, set on the top by ui/fold.js) gives the picture its shape, a blend of the crop and the whole
-     scene, and animates (--duration-fold), so the picture's shape, the crop's sideways offset (ui/scene.css) and the space it
-     leaves are always worked out from the same moving number. Reduced motion: it snaps. */
+  /* Upright phones: the picture is always the crop. The top is FIXED, and the story starts below it, under a spacer as tall as
+     the top (--top-h: ui/page.js measures it). The top is as wide as the column and centred, as it was in the page's flow.
+     The picture's shape is the crop's (--picture-crop), and never changes. */
   @media (width < 760px) and (height >= 560px) {
-    /* The picture takes at most 40% of the window's height (as above), now counted open, the taller shape: the column narrows
+    /* The picture takes at most 40% of the window's height (as above), counted as the crop, the taller shape: the column narrows
        to match. A phone is limited by its width, so this only bites on low windows (a tablet's 700 × 600). */
     :root {
       --column: min(100%, calc(40dvh * var(--picture-crop)));
@@ -211,33 +198,19 @@
       box-sizing: border-box;
       /* (A fixed box measures a percentage against the window, not the page's padding: so the padding is taken off by hand.) */
       width: min(var(--column), 100vw - max(var(--gutter), env(safe-area-inset-left, 0px)) - max(var(--gutter), env(safe-area-inset-right, 0px)));
-      transition: --p var(--duration-fold) ease-out;
     }
 
     .log {
       padding-top: var(--top-h, 0px);
     }
 
-    /* The picture (ui/scene.css reads these): the box's shape, and a sideways drag of the open picture that shows what the
-       crop hides (ui/fold.js; up and down still scroll the page). */
+    /* The picture (ui/scene.css reads these): the box's shape, and a sideways drag that shows what the crop hides (ui/crop.js;
+       up and down still scroll the page). The picture takes the whole finger (none), so a sideways drag is never taken over
+       halfway by the page's vertical scrolling; up and down are scrolled from the story, as under a toolbar. */
     .picture {
-      --picture-ratio: calc(var(--picture-crop) + (320 / 136 - var(--picture-crop)) * var(--p));
-      /* Open: the picture takes the whole finger (none), so a sideways drag is never taken over halfway by the page's
-         vertical scrolling; up and down are scrolled from the story, as under a toolbar. Folded there's nothing to drag,
-         so a swipe on it scrolls the page (pan-y). (ui/fold.js marks the top data-folded.) */
+      --picture-ratio: var(--picture-crop);
       --picture-touch: none;
       --picture-cursor: grab;
-    }
-
-    .top[data-folded] .picture {
-      --picture-touch: pan-y;
-      --picture-cursor: inherit;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .top {
-        transition: none;
-      }
     }
   }
 
@@ -272,7 +245,7 @@
   /* Typing on a phone (see "Phones while you type" above): the top and the bottom only stop sticking, where they are, and
      nothing else changes (the browser decides where to scroll as you tap: a page changing shape then landed it in the wrong
      place, Diego's iPhone, 28 Oct 2026). On an upright phone the fixed top is placed where it sits at the top of the page,
-     over its spacer (ui/page.js and ui/fold.js treat it as the fixed top). The bottom stays at the end of the page, after
+     over its spacer (ui/page.js treats it as the fixed top). The bottom stays at the end of the page, after
      the room's space, and its tabs go behind the keyboard. */
   :root[data-typing] {
     & .top {

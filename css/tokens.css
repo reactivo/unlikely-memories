@@ -13,9 +13,8 @@
    accident. (base.css is the one exception: it is not in a layer, see the note there.) */
 @layer tokens, base, typography, layout, ui, utilities;
 
-/* The folding picture on upright phones (css/layout.css, ui/fold.js) has two numbers here: its crop, --picture-crop (with the
-   shared sizes), and the time it takes to fold, --duration-fold (with the durations). The crop is registered as a number so
-   that ui/page.js can read it, to add up the open picture's height. (@property is global: it lives outside the layers.) */
+/* The picture on upright phones (css/layout.css, ui/crop.js) is always a crop of the scene: its shape is --picture-crop (with
+   the shared sizes), registered as a number so that it can be read. (@property is global: it lives outside the layers.) */
 @property --picture-crop {
   syntax: "<number>";
   inherits: true;
@@ -127,7 +126,6 @@
     --duration-arrive:      420ms;   /* an item appearing in its inventory slot (ui/inventory.css) */
     --duration-depart:      300ms;   /* an item leaving its slot (ui/inventory.css) */
     --duration-exit-change: 720ms;   /* an exit that opens or closes blinks (ui/compass.css) */
-    --duration-fold:        250ms;   /* the picture on an upright phone folds to the whole scene, or opens to its crop (css/layout.css) */
     --duration-hurt:        500ms;   /* hurt: the page background flashes red at once and fades back over this time (css/base.css) */
     --duration-heal:        1.4s;    /* healed: the page background rises to green and fades back over this time (css/base.css) */
     --duration-cursor:      1.06s;   /* the command line's block cursor blinks once (ui/prompt.css) */

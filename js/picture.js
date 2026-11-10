@@ -12,6 +12,10 @@
 //           stripes:a,b (in mix and fade, an empty colour leaves what's underneath: mix:,14@0.3)
 //   cN  the colour of a line or dots        eN  a 1-pixel edge in colour N        after:id  (in edits only)
 // rect: x,y,width,height · ellipse: cx,cy,rx,ry · poly, line, dots: x,y points. Blank lines and # notes are ignored.
+//
+// Perspective: a line "vp x,y" sets the picture's vanishing point (not a shape, not counted towards the 200). After it, a point
+// of a poly, line or dots may be written x,y@t: (x,y) slid towards the vanishing point, both coordinates, rounded; t = 1 is
+// the point itself, t = 0 the vanishing point:   vp 160,60   poly wall 40,120@1 40,120@0.5 ...   rect and ellipse take plain numbers.
 // Pure: no page, no state.
 
 const SHAPES = ["rect", "poly", "ellipse", "line", "dots"];
@@ -70,13 +74,35 @@ export function parseShape(line) {
 // Several lines → a drawing list, or the problems with their line numbers.
 export function parseShapes(text) {
   const shapes = [], problems = [];
+  let vp = null;
   text.split("\n").forEach((line, n) => {
     const clean = line.replace(/#.*$/, "").trim();
     if (!clean) return;
-    try { shapes.push(parseShape(clean)); } catch (e) { problems.push(`line ${n + 1}: ${e.message}`); }
+    try {
+      if (/^vp(\s|$)/.test(clean)) {
+        const v = /^vp\s+(-?[\d.]+),(-?[\d.]+)$/.exec(clean);
+        if (!v) throw new Error("vp needs x,y (vp 160,60)");
+        vp = [num(v[1]), num(v[2])];
+        return;
+      }
+      const t = clean.split(/\s+/);
+      const flat = t.map((tok, i) => {
+        if (i < 2 || !isDepth(tok)) return tok;
+        if (t[0] === "rect" || t[0] === "ellipse") throw new Error(`a ${t[0]} takes plain numbers, not "${tok}"`);
+        const m = /^(-?[\d.]+),(-?[\d.]+)@(.*)$/.exec(tok);
+        if (!m) throw new Error(`"${tok}" should be x,y@t`);
+        if (!vp) throw new Error(`"${tok}": @t before any vp line`);
+        const k = /^\d*\.?\d+$/.test(m[3]) ? Number(m[3]) : NaN;
+        if (!(k >= 0 && k <= 1)) throw new Error(`"${tok}": @t needs a number from 0 to 1`);
+        return [vp[0] + (num(m[1]) - vp[0]) * k, vp[1] + (num(m[2]) - vp[1]) * k].map(Math.round).join(",");
+      });
+      shapes.push(parseShape(flat.join(" ")));
+    } catch (e) { problems.push(`line ${n + 1}: ${e.message}`); }
   });
   return { shapes, problems };
 }
+// A point written with @ (a fill's own "@" starts with mix:).
+const isDepth = (tok) => /^-?[\d.]/.test(tok) && tok.includes("@");
 
 // A shape → its line (for converting JSON drawing lists, and for showing a picture to the AI).
 export function formatShape(s) {

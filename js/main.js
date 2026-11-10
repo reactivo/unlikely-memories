@@ -20,7 +20,7 @@ import { load, store } from "./prefs.js";
 import { itemSVG } from "../ui/sprite.js";
 import * as titlebar from "../ui/titlebar.js";
 import * as scene from "../ui/scene.js";
-import * as fold from "../ui/fold.js";
+import * as crop from "../ui/crop.js";
 import * as log from "../ui/log.js";
 import * as prompt from "../ui/prompt.js";
 import * as compass from "../ui/compass.js";
@@ -101,12 +101,12 @@ const on = {
 
 // Set up each piece once, on its element in index.html.
 const $ = (sel) => document.querySelector(sel);
-const header = fold.mount($(".top"), $(".log"));        // the folding picture on upright phones: not drawn from the state; the log tells it when to open
+const pictureCrop = crop.mount($(".top"));              // the picture's crop on upright phones (drag, pinch): not drawn from the state; the log tells it when a room starts
 const ui = {
   page: page.mount(document, on),
   titlebar: titlebar.mount($(".titlebar")),
   scene: scene.mount($(".picture")),
-  log: log.mount($(".log"), on, header),
+  log: log.mount($(".log"), on, pictureCrop),
   prompt: prompt.mount($(".prompt"), on),
   compass: compass.mount($(".compass"), on),
   inventory: inventory.mount($(".inventory"), on),

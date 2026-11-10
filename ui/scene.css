@@ -2,12 +2,12 @@
    (320 x 136, ui/scene.js) and stretched with hard edges, at any window size.
 
    The box is the picture's own shape (320 / 136) unless css/layout.css gives it another (--picture-ratio: on an upright phone,
-   a taller one, so the picture shows a crop of the middle of the scene, and folds to the whole scene when you read back). The
+   a taller one, so the picture shows a crop of the middle of the scene). The
    canvas always fills the box's height and is as wide as that makes it (--fit times the box's width), centred, so a taller box
-   trims the sides. A sideways drag (--pan, -1 … 1, set by ui/fold.js) moves the crop: -1 shows the scene's right edge, 0 the
+   trims the sides. A sideways drag (--pan, -1 … 1, set by ui/crop.js) moves the crop: -1 shows the scene's right edge, 0 the
    middle, 1 its left edge. The offset is worked out here, in CSS, from the box's shape at that moment (so it shrinks exactly as
    the box widens and the canvas always covers the box), and it is the canvas's `left`, not a transform: never animated on its
-   own (that made the drag jitter and left a gap at the edge in mid-fold), and with no --picture-ratio the canvas is exactly the
+   own (that made the drag jitter and left a gap at the edge), and with no --picture-ratio the canvas is exactly the
    box, at the same place, so the picture is drawn as it always was. */
 @layer ui {
   .picture {
@@ -32,7 +32,7 @@
       image-rendering: crisp-edges;
       image-rendering: pixelated;
 
-      /* Pinch to zoom on the open picture of an upright phone (ui/fold.js sets these on the picture): how much bigger, and
+      /* Pinch to zoom on the picture of an upright phone (ui/crop.js sets these on the picture): how much bigger, and
          where it has moved, from the canvas's own top left corner. Without them the canvas is untouched. */
       transform-origin: 0 0;
       transform: translate(var(--zoom-x, 0px), var(--zoom-y, 0px)) scale(var(--zoom, 1));

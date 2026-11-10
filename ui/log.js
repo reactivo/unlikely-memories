@@ -15,9 +15,8 @@
 // Where the game puts the page (a new story's top, a room's first line, a loaded game's newest text) is its anchor, and
 // stays put until you scroll, touch or type: whatever moves the page on its own before that puts it back (settle, below).
 //
-// The picture on an upright phone folds when you scroll and opens for a new room (ui/fold.js). This file tells it when a room is
-// entered (newVisit opens it), which scrolling is ours (that never folds it), and when following new text after a command moves
-// the page a long way down (toEnd: that folds it, as your own scrolling would).
+// The picture on an upright phone is always the crop (ui/crop.js). This file tells it when a room is entered (newVisit: the
+// crop starts in the middle).
 //
 // Once the story has ended, the objects in it do nothing (the log gets the class "over", log.css); its commands still work,
 // so `Begin again` does.
@@ -38,13 +37,13 @@ const PHRASE_END = /[^,;:.!?…]*[,;:.!?…]+["»”]?\s*|[^,;:.!?…]+$/g;
 // Punctuation right after a marker ("tin of mints+,"): kept on the same line as it, never wrapped on its own.
 const GLUED = /^[,;:.!?…)\]"»”']+/;
 
-// Set up the log on its element, with the folding picture (ui/fold.js) it tells when the story is at the present. Returns
+// Set up the log on its element, with the picture's crop (ui/crop.js) it tells when a room starts. Returns
 // update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), toEnd() and atEnd().
 // What goes in the small inventory slot of a line's `slot` ({ sprite: rows }): the sprite as SVG, or null when there is none
 // to draw (no slot, an empty one, a sprite with no rows). Null: the line has no slot at all, just its words.
 export const slotArt = (slot) => (slot && typeof slot === "object" ? spriteSVG(slot.sprite) : null);
 
-export function mount(root, on, header) {
+export function mount(root, on, crop) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   let gliding = false;           // the page is gliding to a new visit: don't follow new text meanwhile
   let glides = 0;                // (which glide is the latest: only its own end ends it)
@@ -52,22 +51,17 @@ export function mount(root, on, header) {
   let followed = null;           // the first paragraph the last toEnd showed (a suggestion after an answer is shown from it too)
   const calm = matchMedia("(prefers-reduced-motion: reduce)");
   const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
-  const picture = top.querySelector(".picture");
 
   // Where the story shows. Its top edge: under the top, if it sticks (ui/page.js reports --top-h as 0 when it scrolls
-  // away with the story). On an upright phone the top is fixed and its picture folds and opens: open, the edge is below the
-  // OPEN top, its place plus --top-h (the height it has open, even while it is still opening: a new room opens it); folded,
-  // it is under the FOLDED top, the picture the whole scene's shape (320 × 136), even while it is still folding: a follow that
-  // folds it aims there, so nothing jumps when the fold ends (toEnd). (Not used while you type: keepLine.) Its bottom edge: where
+  // away with the story). On an upright phone the top is fixed: the edge is below it, its place plus --top-h.
+  // (Not used while you type: keepLine.) Its bottom edge: where
   // the bottom begins, less the empty space kept after the newest text, so that text ends above the fade.
   const topEdge = () => {
     const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h"));
     if (!(h > 0)) return 0;
     const r = top.getBoundingClientRect();
     if (getComputedStyle(top).position !== "fixed") return r.bottom;
-    if (!top.hasAttribute("data-folded")) return r.top + h;
-    const p = picture.getBoundingClientRect();
-    return r.bottom - p.height + p.width * 136 / 320;
+    return r.top + h;
   };
   const bottomEdge = () => bottom.getBoundingClientRect().top;
   const fade = () => parseFloat(getComputedStyle(root).paddingBottom) || 0;
@@ -98,10 +92,6 @@ export function mount(root, on, header) {
   // under the top, so you read the answer from its start. instant: no scroll animation, for a game being restored (main.js),
   // which goes to its newest text and is held there (the anchor, below) until you scroll, touch or type. The answer's whole
   // height exists as soon as it is added (it only fades in), so this can measure at once.
-  // On an upright phone, following what a command said a long way down (FOLD_AFTER, ui/fold.js) folds the open picture, as if
-  // you had scrolled, and the follow is worked out again for the folded picture: an answer taller than the space then starts
-  // just under it, a shorter one ends above the fade (Diego, 3 Nov 2026). Not a restored game, nor the world's own lines said
-  // on their own (.aside: you gave no command).
   function toEnd(instant) {
     const last = lastLine();
     if (gliding || !last) return;
@@ -118,13 +108,9 @@ export function mount(root, on, header) {
     const first = fresh ?? exchangeStart(root.lastElementChild);
     unseen = null;
     followed = first;
-    const asked = !instant && !first.classList.contains("aside");   // (after a command: it may fold the picture)
-    if (typing()) { keepLine(first, asked); return; }
+    if (typing()) { keepLine(first); return; }
     let target = Math.max(0, endTarget(first, last, window.scrollY));
-    const max = document.documentElement.scrollHeight - innerHeight;
-    if (asked && header.follow(Math.min(target, max) - window.scrollY)) target = Math.max(0, endTarget(first, last, window.scrollY));
     window.scrollTo({ top: target, behavior: instant || calm.matches ? "instant" : "smooth" });
-    header.scrolling(target);                                     // (that scrolling is ours, not the reader's: it never folds the picture)
     moved("follow");
     anchor = instant ? { hold: true, at: () => endTarget(first, last, 0) }
                      : { hold: false, y: target, at: () => endTarget(first, last, window.scrollY) };
@@ -175,7 +161,6 @@ export function mount(root, on, header) {
     const y = Math.max(0, Math.min(anchor.at(), document.documentElement.scrollHeight - innerHeight));
     if (Math.abs(window.scrollY - y) < 2) return;
     window.scrollTo({ top: y, behavior: "instant" });
-    header.scrolling(y);
     moved("held: put back");
     resync(y);
   }
@@ -200,7 +185,7 @@ export function mount(root, on, header) {
       if (taken()) { resyncing = false; return; }
       window.scrollTo({ top: y > 0 ? y - 1 : y + 1, behavior: "instant" });
       requestAnimationFrame(() => {
-        if (!taken()) { window.scrollTo({ top: y, behavior: "instant" }); header.scrolling(y); }
+        if (!taken()) { window.scrollTo({ top: y, behavior: "instant" }); }
         resyncing = false;
       });
     });
@@ -215,13 +200,11 @@ export function mount(root, on, header) {
     if (end > to) {
       const target = window.scrollY + end - to;
       window.scrollTo({ top: target, behavior: "instant" });
-      header.scrolling(target);
     }
   }
   // A new story starts at the top, and is held there (the anchor: Safari keeping the list's scroll, above).
   function toTop() {
     window.scrollTo(0, 0);
-    header.scrolling(0);
     anchor = { hold: true, at: () => 0 };
     moved("new game: top");
     resync(0);
@@ -271,15 +254,14 @@ export function mount(root, on, header) {
   // (Fits: in the space the browser shows the prompt in, the view less the page's scroll padding, css/base.css: it keeps that much
   // clear above and below whatever it scrolls to. Measured against the whole view, an exchange a little shorter than it but taller
   // than that space put the prompt there and cut off your command at the top, up to the bottom's height: Fadimata's long answer
-  // about the tea, 4 Nov 2026.) asked: after a command, so a long way down folds the picture (toEnd); the top has scrolled away
-  // with the story meanwhile, so nothing else changes, and when you stop typing it is pinned again, folded.
-  function keepLine(first, asked) {
+  // about the tea, 4 Nov 2026.) The top has scrolled away with the story meanwhile, so nothing else changes, and when you stop
+  // typing it is pinned again.
+  function keepLine(first) {
     if (!first) return;
     const view = seen(), behavior = calm.matches ? "instant" : "smooth", html = getComputedStyle(document.documentElement);
     const above = parseFloat(html.scrollPaddingTop) || 0, below = parseFloat(html.scrollPaddingBottom) || 0;
     const a = first.getBoundingClientRect().top, b = prompt.getBoundingClientRect().bottom;
     const tall = b - a > view.bottom - view.top - above - below;
-    if (asked) header.follow(tall ? a - view.top - above : b - view.bottom + below);   // (how far down the browser will move it)
     (tall ? first : prompt).scrollIntoView({ block: tall ? "start" : "end", behavior });
   }
   // Typing ends (ui/page.js): the prompt sticks again. Held (a new story, a room, a loaded game, and you haven't done anything
@@ -294,7 +276,6 @@ export function mount(root, on, header) {
     if (anchor && !anchor.hold && !gliding && Math.abs(window.scrollY - anchor.y) < 2) {
       const y = Math.max(0, anchor.at());
       window.scrollTo({ top: y, behavior: "instant" });
-      header.scrolling(y);
       anchor.y = y;
     }
   });
@@ -363,7 +344,7 @@ export function mount(root, on, header) {
     }
     // Typing on a phone: the keyboard closes, so the room starts as a new page, with its picture (Diego, 28 Oct 2026).
     if (typing()) document.activeElement?.blur();
-    header.room();                                                // a new room opens the picture, its crop in the middle
+    crop.room();                                                  // a new room: the picture's crop starts in the middle
     unseen = null;                                                // (the glide shows it, from its first line)
     if (instant) return;
     // Held there (the anchor, above) until you scroll, touch or type: the room's first line under the picture, never its end.
@@ -376,7 +357,6 @@ export function mount(root, on, header) {
     document.addEventListener("scrollend", done, { once: true });
     setTimeout(done, 1200);                                       // in case the browser has no scrollend
     window.scrollTo({ top: target, behavior: calm.matches ? "instant" : "smooth" });
-    header.scrolling(target);                                     // (the glide is not the reader scrolling: it never folds the picture)
     moved("new room");
   }
 
@@ -472,7 +452,7 @@ export function mount(root, on, header) {
     // How long until all of it has appeared (ms; 0 if nothing is fading in).
     busyFor() { return Math.max(0, revealAt - performance.now()); },
     // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.
-    clear() { root.innerHTML = ""; unseen = null; toTop(); header.room(); },
+    clear() { root.innerHTML = ""; unseen = null; toTop(); crop.room(); },
     // The page's measurements, for the debug panel: { first (2 s after the last new game, or null), now }.
     page() { return { first: firstScreen, now: measurePage() }; },
     // What is in the story now counts as seen (a new story, shown from the top: the next follow shows only what comes after it).
@@ -486,7 +466,7 @@ export function mount(root, on, header) {
       const last = root.lastElementChild?.lastElementChild;
       if (last && last.dataset.suggest === text) return;
       // It belongs to the answer just shown: following it shows that answer again from its start, not from the suggestion
-      // (which scrolled the command and the object's picture under the folded picture: Diego, 27 Oct 2026). Only once that
+      // (which scrolled the command and the object's picture under the picture: Diego, 27 Oct 2026). Only once that
       // answer has been followed (a clicked object: the examine was followed first). An answer not followed yet (the topics
       // line after Talk or Ask comes before its command is followed) is followed with its suggestion, from its own first line:
       // reaching back to the follow before it showed an old line at the top, from a room or two back (the opening's last
