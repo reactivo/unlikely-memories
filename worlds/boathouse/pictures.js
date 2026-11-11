@@ -6,10 +6,13 @@
 //
 // The shot list, written before drawing (viewpoint, facing and vanishing point; palette; light; gradients and their causes;
 // subject and columns; wings):
-//   car        eye level through the car's front, facing north down the tunnel, one-point, vp 213,62; cellar; one light, the roof
-//              lamp at x107 (halo 10/20/35% on flat walls and ceiling only); ONE gradient, the floor dark grey to black away from
-//              the lamp; subject the grille on the bright arch on x213, the lamp on x107; wings: car posts, a strap, a red plate,
-//              bench ends
+//   car        eye level inside the car, facing north along the tunnel, one-point view, vp 213,66 (the arch on the
+//              right third); palette cellar; light = the one roof lamp at x~112 (warm pool on floor and bench), the
+//              bright arch a small flat shape; one gradient = tunnel brick fading cold blue by distance; subject =
+//              bright arch with grille 180-224, second thing = lamp 100-124 and wet window 47-100; left wing: notice,
+//              strap, bench; right wing: bench, route map, grab pole.
+//              (redrawn 11 November 2026 under the cellar palette's new wording: the lamp's warm light near it, blue only
+//              in the half-light beyond)
 //   quay       wide landscape over the lake, facing north, vp 107,64 (the jetty); goldenhour; one low sun in the west (a flat
 //              disc, x58, no halo); gradients: the sky (12 up to 14 at the horizon) and the lake (14 to 6, the reflection fading
 //              with the angle); everything else flat; solid cast shadows to the right; subject the jetty on x107 and the boathouse
@@ -55,69 +58,119 @@ export default {
   car: {
     version: 1,
     draw: `
-      vp 213,62
-      poly wall_l 0,0@1 0,136@1 0,136@0.17 0,0@0.17 1
-      poly wall_r 320,0@1 320,136@1 320,136@0.17 320,0@0.17 1
-      poly ceil 0,0@1 320,0@1 320,0@0.17 0,0@0.17 8
-      poly floor 0,136@1 320,136@1 320,136@0.17 0,136@0.17 fade:8,0/107,136/213,76
-      poly arch_sky 178,66 178,58 184,53 196,51 213,50 230,51 233,58 233,66 fade:12,14/213,50/213,66
-      rect arch_lake 178,66,55,10 mix:1,9@0.3
-      poly island_far 202,67 208,63 214,62 222,64 228,67 0
-      line island_post 214,62 214,55 c0
-      rect island_lamp 213,53,3,3 6
-      rect grille 178,52,31,24 mix:0,8@0.45
-      line grille_a 184,52 184,76 c8
-      line grille_b 191,52 191,76 c8
-      line grille_c 198,52 198,76 c8
-      line grille_d 205,52 205,76 c8
-      line grille_rail 178,60 209,60 c8
-      line grille_lit 178,52 178,76 c14
-      rect arch_post_l 172,52,5,24 8 e0
-      rect arch_post_r 232,52,5,24 8 e0
-      poly arch_lintel 170,53 182,48 213,46 244,48 238,53 213,51 184,53 8
-      line rail_l 120,136@1 120,136@0.17 c6
-      line rail_r 306,136@1 306,136@0.17 c6
-      line cable 213,136@1 213,136@0.17 c1
-      line sleeper_a 120,136@0.85 306,136@0.85 c6
-      line sleeper_b 120,136@0.62 306,136@0.62 c6
-      line sleeper_c 120,136@0.44 306,136@0.44 c6
-      line sleeper_d 120,136@0.3 306,136@0.3 c6
-      line ring_a 0,136@0.75 0,0@0.75 320,0@0.75 320,136@0.75 c8
-      line ring_b 0,136@0.5 0,0@0.5 320,0@0.5 320,136@0.5 c8
-      line ring_c 0,136@0.33 0,0@0.33 320,0@0.33 320,136@0.33 c8
-      line brick_l1 0,26@1 0,26@0.17 c8
-      line brick_l2 0,64@1 0,64@0.17 c8
-      line brick_l3 0,104@1 0,104@0.17 c8
-      line brick_r1 320,34@1 320,34@0.17 c8
-      line brick_r2 320,72@1 320,72@0.17 c8
-      line brick_r3 320,112@1 320,112@0.17 c8
-      dots soot_l 66,30 82,52 74,84 120,40 134,62 c0
-      dots soot_r 270,36 252,60 280,90 244,76 c0
-      line scratch_boat 124,52 132,56 144,52 c8
-      line scratch_boat2 132,50 132,41 c8
-      poly window_r 320,50@0.55 320,50@0.42 320,90@0.42 320,90@0.55 0 e8
-      poly bench_l 0,102 92,98 104,136 0,136 6 e0
-      poly bench_r 320,102 238,98 228,136 320,136 6 e0
-      line bench_l_lit 0,102 92,98 c14
-      line slat_l1 0,113 98,109 c0
-      line slat_l2 0,124 102,121 c0
-      line slat_r1 320,113 232,109 c0
-      line slat_r2 320,124 229,121 c0
-      rect post_l 0,0,17,136 6 e0
-      rect post_r 303,0,17,136 6 e0
-      poly roof_beam 0,0 320,0 320,10 0,13 6 e0
-      line strap 8,13 8,40 c0
-      rect strap_loop 5,40,6,9 0 e6
-      rect plate_r 309,40,9,12 4 e0
-      line plate_lines 311,44 316,44 c0
-      line plate_lines2 311,48 316,48 c0
-      ellipse halo_c 107,29,34,28 mix:,14@0.1
-      ellipse halo_b 107,29,22,18 mix:,14@0.2
-      ellipse halo_a 107,29,12,10 mix:,14@0.35
-      line lamp_cord 107,13 107,24 c0
-      rect lamp_cage 103,23,9,3 6 e0
-      ellipse lamp 107,29,4,5 14 e8
-      dots drips 98,68 99,74 99,80 c14
+      vp 213,66
+      rect endwall 170,52,64,28 mix:8,1@0.5 e0
+      poly tunnel_ceil 0,0@0.5 320,0@0.5 320,0@0.2 0,0@0.2 mix:0,1@0.3
+      poly tunnel_floor 0,136@0.5 320,136@0.5 320,136@0.2 0,136@0.2 mix:1,0@0.5
+      poly brickwork_l 0,0@0.5 0,136@0.5 0,136@0.2 0,0@0.2 fade:8,1/106,0/170,0
+      poly brickwork_r 320,0@0.5 320,136@0.5 320,136@0.2 320,0@0.2 fade:8,1/266,0/234,0
+      poly arch 180,80 180,64 183,58 190,55 202,54 214,55 221,58 224,64 224,80 14 e8
+      poly outside_a 186,80 186,72 190,68 195,72 195,80 6
+      rect outside_b 207,74,11,6 6
+      line arch_rim 180,64 183,58 190,55 202,54 214,55 221,58 224,64 c0
+      line grille 184,60 184,80 c0
+      line grille_2 190,56 190,80 c0
+      line grille_3 197,55 197,80 c0
+      line grille_4 203,54 203,80 c0
+      line grille_5 210,55 210,80 c0
+      line grille_6 217,57 217,80 c0
+      line grille_7 222,60 222,80 c0
+      line grille_h1 180,66 224,66 c0
+      line grille_h2 180,73 224,73 c0
+      ellipse arch_glow 202,82,26,2 mix:,14@0.35
+      ellipse arch_glow2 202,82,14,1 mix:,14@0.5
+      line rail_l 130,136@0.5 130,136@0.2 c6
+      line rail_r 190,136@0.5 190,136@0.2 c6
+      line cable 160,136@0.5 160,136@0.2 c8
+      line cable2 161,136@0.5 161,136@0.2 c8
+      dots cable_glints 160,136@0.46 160,136@0.38 160,136@0.3 160,136@0.24 c14
+      line - 0,28@0.5 0,28@0.2 c0
+      line - 0,56@0.5 0,56@0.2 c0
+      line - 0,84@0.5 0,84@0.2 c0
+      line - 0,112@0.5 0,112@0.2 c0
+      line - 0,28@0.42 0,56@0.42 c0
+      line - 0,56@0.33 0,84@0.33 c0
+      line - 0,84@0.4 0,112@0.4 c0
+      line - 320,40@0.5 320,40@0.2 c0
+      line - 320,70@0.5 320,70@0.2 c0
+      line - 320,100@0.5 320,100@0.2 c0
+      line - 320,40@0.4 320,70@0.4 c0
+      line - 320,70@0.3 320,100@0.3 c0
+      line - 60,0@0.5 60,0@0.2 c0
+      line - 160,0@0.5 160,0@0.2 c0
+      line - 260,0@0.5 260,0@0.2 c0
+      line wet_l 140,40 138,62 c0
+      line wet_r 250,42 252,68 c0
+      poly drip_stone 195,46 199,46 197,50 8
+      poly - 176,48 179,48 177,52 8
+      dots drips 197,53 197,61 197,70 197,79 c14
+      dots splash 194,86 200,86 195,88 c14
+      poly roof 0,0@1 320,0@1 320,0@0.5 0,0@0.5 mix:6,0@0.5
+      poly floor 0,136@1 320,136@1 320,136@0.5 0,136@0.5 mix:6,0@0.4
+      poly wall_l 0,0@1 0,136@1 0,136@0.5 0,0@0.5 6
+      poly wall_r 320,0@1 320,136@1 320,136@0.5 320,0@0.5 mix:6,0@0.35
+      line - 70,0@1 70,0@0.5 c0
+      line - 160,0@1 160,0@0.5 c0
+      line - 250,0@1 250,0@0.5 c0
+      line - 0,0@0.8 320,0@0.8 c0
+      line - 0,0@0.62 320,0@0.62 c0
+      line - 80,136@1 80,136@0.5 c0
+      line - 160,136@1 160,136@0.5 c0
+      line - 240,136@1 240,136@0.5 c0
+      line - 0,136@0.75 320,136@0.75 c0
+      line - 0,0@0.85 0,136@0.85 c0
+      line - 320,0@0.9 320,136@0.9 c0
+      line - 320,0@0.62 320,136@0.62 c0
+      poly window 0,24@0.8 0,66@0.8 0,66@0.53 0,24@0.53 6 e0
+      poly glass 0,28@0.77 0,62@0.77 0,62@0.56 0,28@0.56 mix:8,1@0.3 e0
+      line - 0,36@0.77 0,36@0.56 c0
+      line - 0,46@0.77 0,46@0.56 c0
+      line - 0,55@0.77 0,55@0.56 c0
+      dots rain 60,44 63,52 70,48 78,55 84,47 c14
+      line sill 0,66@0.8 0,66@0.53 c14
+      poly bench_back_l 0,74@1 0,104@1 0,104@0.5 0,74@0.5 mix:6,0@0.5 e0
+      line - 0,84@1 0,84@0.5 c0
+      line - 0,95@1 0,95@0.5 c0
+      poly bench_l 0,104@1 46,104@1 46,104@0.5 0,104@0.5 6 e0
+      line - 14,104@1 14,104@0.5 c0
+      line - 30,104@1 30,104@0.5 c0
+      poly seat_front_l 46,104@1 46,111@1 46,111@0.5 46,104@0.5 mix:6,0@0.55 e0
+      poly - 46,111@1 46,136@1 46,136@0.5 46,111@0.5 0
+      poly - 44,111@1 47,111@1 47,136@1 44,136@1 6 e0
+      poly - 44,111@0.56 47,111@0.56 47,136@0.56 44,136@0.56 6 e0
+      line seat_edge_l 46,104@1 46,104@0.5 c14
+      poly bench_back_r 320,74@1 320,104@1 320,104@0.5 320,74@0.5 mix:6,0@0.65 e0
+      line - 320,84@1 320,84@0.5 c0
+      line - 320,95@1 320,95@0.5 c0
+      poly bench_r 320,104@1 274,104@1 274,104@0.5 320,104@0.5 mix:6,0@0.4 e0
+      line - 296,104@1 296,104@0.5 c0
+      poly seat_front_r 274,104@1 274,111@1 274,111@0.5 274,104@0.5 mix:6,0@0.7 e0
+      poly - 274,111@1 274,136@1 274,136@0.5 274,111@0.5 0
+      poly notice 0,30@0.96 0,46@0.96 0,46@0.88 0,30@0.88 4 e0
+      line - 0,36@0.95 0,36@0.89 c0
+      line - 0,41@0.95 0,41@0.89 c0
+      poly map 309,30 309,57 283,59 283,40 8 e0
+      line - 288,50 296,46 304,50 c1
+      dots - 288,50 296,46 304,50 c14
+      line strap 58,0 58,30 c0
+      rect strap_grip 55,30,7,3 8 e0
+      poly post_l 0,0@0.5 12,0@0.5 12,136@0.5 0,136@0.5 6 e0
+      poly post_r 308,0@0.5 320,0@0.5 320,136@0.5 308,136@0.5 mix:6,0@0.4 e0
+      poly beam 0,0@0.5 320,0@0.5 320,12@0.5 0,12@0.5 mix:6,0@0.3 e0
+      poly sill_front 0,136@0.5 320,136@0.5 320,141@0.5 0,141@0.5 0 e6
+      line - 0,136@0.5 320,136@0.5 c6
+      poly lever_base 234,104 246,104 246,109 234,109 8 e0
+      poly lever 239,106 242,106 239,76 236,76 4 e0
+      rect lever_knob 235,72,5,4 4 e0
+      poly pole 296,0 299,0 299,136 296,136 0 e6
+      ellipse halo3 112,18,18,10 mix:,14@0.1
+      ellipse halo2 112,18,12,7 mix:,14@0.2
+      ellipse halo1 112,18,7,4 mix:,14@0.35
+      ellipse pool_floor 100,116,34,8 mix:,14@0.18
+      ellipse pool_floor2 100,116,20,5 mix:,14@0.3
+      rect lamp_stem 111,6,2,5 0 e6
+      poly lamp_shade 104,11 120,11 124,17 100,17 0 e6
+      poly lamp 106,17 118,17 116,21 108,21 14
     `,
     overlays: [{ object: "bottle", at: [58, 82] }]
   },
