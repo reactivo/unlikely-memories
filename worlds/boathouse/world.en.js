@@ -289,7 +289,7 @@ const objects = {
     here: "A box of {matches} lies on the mantel, next to the stub of a candle that is waiting to be lit.",
     words: { nouns: ["matches", "match", "box"], adj: [], pl: true }, smell: "Sulphur, and the inside of somebody's coat pocket.",
     examine: "A box of safety matches, nearly full. On the lid, a boat, and a smaller boat.", ...item("matches") },
-  oars: { at: "loft", portable: true, material: "wood", shape: ["oars_shape", "oars_blade"], name: "Oars", note: "A pair, blades together.",
+  oars: { at: "loft", portable: true, material: "wood", shape: ["oars_shape", "oars_blade"], name: "Oars", note: "A pair, blades together.", use: "fit",
     here: "A pair of {oars} lies across two rafters, the blades together, pale where hands go.",
     words: { nouns: ["oars", "oar", "paddles"], adj: ["pair"], pl: true },
     examine: "Two ash oars, the looms worn to the shape of a man who held them a particular way. The blades are painted with a band of yellow, like a lamp.", ...item("oars") },
@@ -454,6 +454,15 @@ const rules = [
     do: [{ say: "You fit the oars and look out at the lake. There is nothing out there yet to row to: the island's lamp-post is dark, and the lake has not yet lit its own. The boat waits with you, in no hurry, for the evening to get further on." }] },
   { id: "row_dark", match: { verb: "row" }, if: [{ "player.in": "boat" }, { "player.carrying": { "has": "oars" } }],
     do: [{ say: "The oars go in and the boat does not move. The water under the keel has no light of its own, and wants yours. The boat will not leave the shore without a lamp, lit, in the hand of whoever rows it." }] },
+  // The boat's text invites putting the oars in the rowlocks: every way of saying it works, and points at ROW.
+  { id: "fit_oars", match: { verb: ["put", "use", "fit"], obj: "oars", obj2: "boat" }, if: [{ "player.in": "boat" }],
+    do: [{ say: "You set the oars in the rowlocks, and they settle there as if they had been waiting. The boat is ready to be rowed." }] },
+  { id: "fit_oars_alone", match: { verb: "fit", obj: "oars" }, if: [{ "player.in": "boat" }],
+    do: [{ say: "You set the oars in the rowlocks, and they settle there as if they had been waiting. The boat is ready to be rowed." }] },
+  { id: "fit_oars_ashore", match: { verb: ["put", "use", "fit"], obj: "oars", obj2: "boat" },
+    do: [{ say: "The rowlocks are for whoever sits in the boat. Get in, and the oars will go where they belong." }] },
+  { id: "fit_oars_ashore_alone", match: { verb: "fit", obj: "oars" }, if: [{ "player.at": "boathouse" }],
+    do: [{ say: "The rowlocks are for whoever sits in the boat. Get in, and the oars will go where they belong." }] },
   { id: "row_oarless", match: { verb: "row" }, if: [{ "player.in": "boat" }],
     do: [{ say: "You sit with your hands at the empty rowlocks, rowing the air. The boat is very patient, and does not move. Somewhere above, in the boathouse, there is wood for the purpose." }] }
 ];
@@ -487,6 +496,7 @@ export default {
     // Verbs this world needs
     { add: "word", verb: "fill", words: ["fill", "pour"], reply: "There is nothing here that wants filling." },
     { add: "word", verb: "hang", words: ["hang", "hook"], reply: "There is nothing here that wants hanging." },
+    { add: "word", verb: "fit", words: ["fit", "ship"], reply: "There is nothing here that wants fitting." },
     { add: "word", verb: "row", words: ["row", "scull"], object: "none", reply: "There is no boat to row. The boathouse, on the quay, has one." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
