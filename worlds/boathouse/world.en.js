@@ -49,16 +49,17 @@ const endingPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "car": the opening, never returned to. Area "shore": the quay, the boathouse (and its loft above) east of it, the
-// jetty south. Area "village" (up the steps from the quay): the lane, the Heron east of it, the churchyard north.
+// Area "car": the opening, never returned to; it faces north, down the tunnel. Area "shore": the quay (the lake lies north of it),
+// the boathouse (and its loft above) east of it, the jetty running north into the lake. Area "village" (the hill rises south of
+// the quay): the lane, the Heron east of it, the churchyard south, up the hill. Every picture faces north.
 const rooms = {
   car: {
     name: "THE FUNICULAR", area: "car", at: [0, 0, 0],
     describe: [
       "A funicular car, stopped halfway down the hill in the dark of its tunnel. A lamp burns in the roof, and the brickwork drips onto the cable as it has since before there was a cable.",
-      "Slatted benches face a wet window. At the lower end the tunnel opens on a bright arch, closed by an iron {grille}, and nothing else is open."
+      "Slatted benches line the walls, and a wet window looks onto brick. Ahead, the tunnel opens on a bright arch, closed by an iron {grille}, and nothing else is open."
     ],
-    exits: { d: true },
+    exits: { n: true },
     scenery: [
       { words: ["bench", "benches", "slats", "seat", "seats"], name: "the benches", says: "Slatted wood, worn pale by people who sat very still. The last place on the bench is warm." },
       { words: ["window", "pane", "sash"], name: "the window", says: "Wet on the outside only. Beyond it, the brick goes by, though the car does not move." },
@@ -73,37 +74,37 @@ const rooms = {
       "The bulb gutters and recovers, and the benches seem to have moved up one place.",
       "Far below, a bell tolls three times and then, correcting itself, once."
     ], every: [25, 60] },
-    alt: "Looking down a brick funicular tunnel from inside the car, benches and a lit lamp on either side, an iron grille across a bright arch at the far end.",
+    alt: "Looking north down a brick funicular tunnel from inside the car: benches on either side, a lit lamp in the roof, a wet window, an iron grille half across a bright arch at the far end.",
     overlayAlt: { bottle: "A green bottle stands on the bench, a small light moving in it." }
   },
   quay: {
     name: "THE QUAY", area: "shore", at: [0, 0, 0],
     describe: [
-      "The quay at the foot of the village, where the hill runs out of rope and into water. The lake lies against the stones and takes its colour from whatever is above it.",
-      "East stands the tarred {boathouse door|boathouse_door}, chained and padlocked. Nets hang on a rack beside it, and floats are stacked under the wall. A jetty runs south into the lake, and steps climb up past the funicular rails to the village."
+      "The quay at the foot of the village, where the hill runs out of rope and into water. The lake lies flat to the north, against the stones, and takes its colour from whatever is above it.",
+      "East stands the tarred {boathouse door|boathouse_door}, chained and padlocked. Nets hang on a rack to the west, and floats are stacked under the wall. A jetty runs north into the lake. Steps climb south to the village."
     ],
-    exits: { e: { to: "boathouse", in: true }, s: "jetty", u: "lane" },
+    exits: { e: { to: "boathouse", in: true }, n: "jetty", s: "lane" },
     scenery: [
       { words: ["lake", "water", "waves", "stones"], name: "the lake", says: "Flat, wide and in no hurry. It keeps a little of everything it has been shown." },
       { words: ["nets", "net", "rack"], name: "the nets", says: "Brown nets hung to dry on a rack of poles. They have been dry for a long time and nobody has taken them in." },
       { words: ["floats", "float", "buoys"], name: "the floats", says: "Cork floats, stacked like loaves, each with a name painted on it that has been painted over." },
-      { words: ["steps", "stair", "stairs", "village"], name: "the steps", says: "Stone steps, worn into shallow bowls, going up beside the rails. Every bowl holds a little water, whatever the weather.", leads: "u" },
+      { words: ["steps", "stair", "stairs", "village"], name: "the steps", says: "Stone steps, worn into shallow bowls, going up beside the rails. Every bowl holds a little water, whatever the weather.", leads: "s" },
       { words: ["rails", "rail", "funicular", "station"], name: "the funicular", says: "Two rails go up the hill into a tunnel mouth. The lower station is a bench and a bell, and the bell has no rope." },
-      { words: ["jetty", "planks"], name: "the jetty", says: "Grey planks on grey piles, going out to a post.", leads: "s" }
+      { words: ["jetty", "planks"], name: "the jetty", says: "Grey planks on grey piles, going out to a post.", leads: "n" }
     ],
     ambience: { lines: [
       "A rope tied to nothing slaps against a ring in the quay wall.",
       "Water talks to the stones in a low voice, and stops when you listen.",
       "A float rolls a quarter turn on its stack, and settles on its painted-over name.",
-      "Up the hill, a window shuts, and a little later, below you, a window shuts."
+      "Up the hill behind you, a window shuts, and a little later, out on the water, a window shuts."
     ], every: [35, 75] },
-    alt: "A stone quay on a wide lake at the end of the day: a tarred boathouse on the left, nets on a rack, funicular rails climbing a hillside of houses on the right, a jetty running out into the water.",
+    alt: "Looking north from a stone quay over a wide lake in the low sun: a rack of nets on the left, a jetty running out into the water ahead, a small island with a lamp-post, and a tarred boathouse with a chained door on the right.",
     overlayAlt: {}
   },
   boathouse: {
     name: "THE BOATHOUSE", area: "shore", at: [1, 0, 0],
     describe: [
-      "Inside the boathouse it is brown and dry and smells of tar. The big lake doors stand open on the water, and the light comes in the shape of the doors and lies on the planks.",
+      "Inside the boathouse it is brown and dry and smells of tar. The big lake doors stand open at the far end, on the water.",
       "A small {boat} rests on its slip, rowlocks empty, facing the lake. Ropes, floats and a row of hooks hang on the walls, and a {ladder|boat_ladder} climbs to the loft. The quay is west."
     ],
     exits: { w: "quay", u: "loft" },
@@ -121,7 +122,7 @@ const rooms = {
       "The boat shifts on its keel-blocks, and settles facing the other way.",
       "A hook swings once on the wall, though nothing has touched it."
     ], every: [30, 70] },
-    alt: "Inside a tarred boathouse, looking out through its open lake doors: a small rowing boat on a slip at the left, ropes, floats and a row of hooks on the walls, a ladder at the right, and the lake bright beyond the doors.",
+    alt: "Inside a tarred boathouse, looking north down the slip to the open lake doors: a small rowing boat on the slip at the left, a door to the quay, ropes, floats and a row of hooks on the left wall, a ladder and a shelf on the right, and the lake in the low sun beyond the doors.",
     overlayAlt: { lantern: "A brass lantern hangs from a hook by the door." }
   },
   loft: {
@@ -145,19 +146,20 @@ const rooms = {
       "Through the round window, the lake shows you the loft, upside down, with someone standing in it.",
       "The boards give a little by the window, in the shape of a pair of feet."
     ], every: [30, 65] },
-    alt: "A boathouse loft seen from a corner of the room, under the slope of the roof: folded sails, a chain, an empty lamp bracket, a round window full of lake, a ladder hole in the floor.",
+    alt: "A boathouse loft under the slope of the roof, looking north: a round window full of lake in the end wall, folded sails on the left, a chain and an empty lamp bracket on the right, oars lying across the beams, a ladder hole in the floor.",
     overlayAlt: {}
   },
   jetty: {
-    name: "THE JETTY", area: "shore", at: [0, 1, 0],
+    name: "THE JETTY", area: "shore", at: [0, -1, 0],
     describe: [
-      "A jetty of grey planks runs out into the lake, further than it needs to. Far across the water an island sits low, with a dark lamp-post on it.",
-      "When the village lights its windows, the lake lights them again, and the {street} goes on across the water past the end of the jetty, as if it knew a way. A mooring {post|post} stands at the end, with a hook on it. The quay is north."
+      "A jetty of grey planks runs north into the lake, further than it needs to. Far across the water an island sits low, with a dark lamp-post on it.",
+      "A mooring {post|post} stands at the end, with a hook on it. The jetty's {reflection|street} lies upside down between the piles, and reeds stand along the shore. The quay is south."
     ],
-    exits: { n: "quay", s: { to: true, if: { "time.hour": { between: [19, 6] } }, closed: "The planks end, and the lake below them is brown and cold and has nothing to walk on. The lamps are not lit yet." } },
+    exits: { s: "quay", n: { to: true, if: { "time.hour": { between: [19, 6] } }, closed: "The planks end, and the lake below them is brown and cold and has nothing to walk on. The lamps are not lit yet." } },
     scenery: [
       { words: ["lake", "water", "ripples"], name: "the lake", says: "Close to, it is brown and clear at once, so that you see the piles going down into it and the planks reflected, upside down, between." },
       { words: ["island", "lamp-post", "lamppost", "far"], name: "the island", says: "A low hump of reeds and one iron lamp-post, a mile out. The lamp on it has been dark for as long as Teodor has been late." },
+      { words: ["reeds", "reed", "shore", "dinghy"], name: "the reeds", says: "Reeds along the shore, and a dinghy tied among them, its rope run out to a pile. It is tied the way a boat is tied by somebody who means to come back." },
       { words: ["planks", "piles", "jetty"], name: "the planks", says: "Grey, split and sound. Someone has hammered each nail head a little crooked, so that the whole jetty seems to be leaning out to see." },
       { words: ["hook"], name: "the hook", says: "A brass hook screwed into the post at lamp height. The brass is bright at the tip, like a key that is used." }
     ],
@@ -168,22 +170,22 @@ const rooms = {
       "Something in the lake, a long way out, is rowing."
     ], every: [35, 70] },
     waitFor: { time: "next 19:30", says: "You wait on the planks. The lake waits too, and picks up the first colour of the evening.", if: [{ "time.hour": { between: [6, 19] } }] },
-    alt: "A long grey wooden jetty running straight out into a wide lake, a mooring post at its end, and far across the water a low island with one lamp-post.",
+    alt: "Looking north along a long grey wooden jetty running straight out into a wide lake in the low sun, a mooring post at its end, a low island with one lamp-post on the right, reeds and a moored dinghy on the left.",
     overlayAlt: {}
   },
   lane: {
     name: "THE LANE", area: "village", at: [0, 0, 0],
     describe: [
-      "The lane climbs the hill between houses that have turned their backs on the lake: slate, whitewash, shutters, a lamp on every third corner. Whichever way you face, the lake is below you.",
-      "North, a path goes up to the churchyard. East, the {Heron|heron} has its door open and its lamp over it. A painted {notice} is nailed to a post. The steps go down to the quay."
+      "The lane runs down to the lake between houses that keep their shutters shut on it: slate, whitewash, a lamp on every third corner. A wedge of the lake shows at the bottom.",
+      "East, the {Heron|heron} has its door open and its lamp over it. A painted {notice} is nailed to a post. North, steps go down to the quay. South, a cinder path climbs to the churchyard."
     ],
-    exits: { n: "churchyard", e: { to: "inn", in: true }, d: "quay" },
+    exits: { n: "quay", e: { to: "inn", in: true }, s: "churchyard" },
     scenery: [
       { words: ["houses", "house", "cottages", "shutters", "slate", "whitewash"], name: "the houses", says: "Narrow whitewashed houses with their shutters drawn at the lake side, as if the lake were a neighbour with opinions." },
       { words: ["lamps", "lamp", "posts", "post", "corner", "corners"], name: "the lamps", says: "Iron lamps on iron posts, each one with a little ladder rung welded to the side, for a lamplighter who is late." },
       { words: ["lake", "water"], name: "the lake", says: "Down between the roofs, a wedge of it, very flat, with the sky laid on top." },
-      { words: ["steps", "stair", "stairs", "hill"], name: "the steps", says: "Steep stone steps down to the quay, with the water showing between the houses at the bottom like the last page of something.", leads: "d" },
-      { words: ["path", "churchyard", "chapel"], name: "the path", says: "A cinder path between two walls, going up to a small roofed gate.", leads: "n" }
+      { words: ["steps", "stair", "stairs", "hill"], name: "the steps", says: "Steep stone steps down to the quay, with the water showing between the houses at the bottom like the last page of something.", leads: "n" },
+      { words: ["path", "churchyard", "chapel"], name: "the path", says: "A cinder path between two walls, going up to a small roofed gate.", leads: "s" }
     ],
     ambience: { lines: [
       "A shutter opens a hand's width on the lake side, and closes.",
@@ -191,7 +193,7 @@ const rooms = {
       "A cat crosses the lane and does not look at the water.",
       "A lamp ticks as it cools, or warms, a little way up the hill."
     ], every: [35, 75] },
-    alt: "A steep lane between whitewashed slate-roofed houses, looking up the hill: iron lamp-posts, the Heron's door on the right with its painted sign, a path going off to the left.",
+    alt: "Looking north down a steep lane between whitewashed slate-roofed houses toward a wedge of lake: iron lamp-posts, the Heron's door on the right with its sign and lamp, a painted notice on a post, the low sun on the right-hand houses.",
     overlayAlt: {}
   },
   inn: {
@@ -219,12 +221,12 @@ const rooms = {
     overlayAlt: { matches: "A box of matches on the mantel beside a stub of candle." }
   },
   churchyard: {
-    name: "THE CHURCHYARD", area: "village", at: [0, -1, 0],
+    name: "THE CHURCHYARD", area: "village", at: [0, 1, 0],
     describe: [
       "A churchyard on the last flat ground before the hill goes steep: a small stone chapel, leaning stones, and a wall low enough to see the whole lake over.",
-      "A small {bell} hangs in an open cote beside the chapel, its rope tied up out of reach. Under the roofed gate, nails hold what the village wants kept dry. The lane is south."
+      "A small {bell} hangs in an open cote beside the chapel, its rope tied up out of reach. Under the roofed gate, nails hold what the village wants kept dry. The lane is north, below the wall."
     ],
-    exits: { s: "lane" },
+    exits: { n: "lane" },
     scenery: [
       { words: ["chapel", "church", "door", "porch"], name: "the chapel", says: "Small, stone and shut. A card in the porch says services are held whenever someone is late." },
       { words: ["stones", "stone", "graves", "gravestones", "headstones"], name: "the stones", says: "Leaning slates in the long grass. Every name has a boat cut under it instead of a date, and one slate, at the end, has a boat and no name." },
@@ -239,7 +241,7 @@ const rooms = {
       "The grass leans towards the hill, all together, and straightens.",
       "A long way below, a boat's oars knock once, in a boat you cannot see."
     ], every: [35, 75] },
-    alt: "A small hillside churchyard looking out over a lake: a stone chapel on the left, leaning gravestones in long grass, a low wall, a roofed gate, the whole lake lying far below.",
+    alt: "A small hillside churchyard looking north over a low wall to the lake in the low sun: a stone chapel on the left, a bell in an open cote, leaning gravestones in long grass, a roofed gate on the right, village roofs on the slope below.",
     overlayAlt: { boat_key: "An iron key hangs on a nail under the lychgate roof." }
   }
 };
@@ -255,7 +257,7 @@ const objects = {
     words: { nouns: ["ticket"], adj: ["ferry"] },
     examine: "A ferry ticket, one crossing, stamped with a sunset and no date. On the back, in your handwriting: \"Row home before the lamps go out.\"", ...item("ticket") },
   grille: { at: "car", name: "Grille", note: "Slid half open.",
-    words: { nouns: ["grille", "bars"], adj: ["iron"] }, leads: "d",
+    words: { nouns: ["grille", "bars"], adj: ["iron"] }, leads: "n",
     examine: "An iron grille on a runner, slid half across the bright arch below. The gap is the width of a bottle." },
 
   // The chain: the key, the door, the oars, the lantern, the oil, the matches, the boat.
@@ -339,8 +341,8 @@ const objects = {
     words: { nouns: ["post", "hook"], adj: ["mooring"] },
     examine: "An oak post at the end of the planks, gnawed by rope. A brass hook is screwed into it at the height a man would hold up a lamp, bright at the tip." },
   street: { at: "jetty", name: "Reflected street", note: "A street in the water.",
-    words: { nouns: ["street", "reflection", "windows"], adj: ["reflected", "lit"] },
-    examine: "In the lake the village stands upside down, window under window, and between the rows a street runs out across the water, lit from both sides, past the end of the jetty. It looks quite firm. A little way along it, one lit window is nobody's." }
+    words: { nouns: ["street", "reflection", "windows", "water"], adj: ["reflected", "lit"] },
+    examine: "The jetty stands upside down in the water, plank under plank, with the piles for a railing. The lake is keeping something back for the evening." }
 };
 
 // ---- Puzzles ---------------------------------------------------------------------------------------------------------------
@@ -363,8 +365,8 @@ const puzzles = {
     hints: ["The post at the end of the jetty has a hook at lamp height, bright at the tip.", "Wait on the jetty for the windows to light, then hang the lit lantern on the post."] },
   row_out: { where: "boathouse", needs: ["oars", "lit_lantern"], solve: ["wait for night", "enter boat", "row"], ending: true, clues: ["boat", "ticket", "pell"],
     hints: ["The boat leaves the shore only for someone who carries a light, and the island's lamp is dark.", "Wait in the boathouse until the island is ready for it, then get into the boat with the oars and the lit lantern and row."] },
-  walk_street: { where: "jetty", needs: [], solve: ["wait for dusk", "go south"], ending: true, clues: ["street", "post"],
-    hints: ["The street in the water looks firm, and lit, and goes on.", "Wait on the jetty for the windows to light, then go south, off the end of the jetty."] }
+  walk_street: { where: "jetty", needs: [], solve: ["wait for dusk", "go north"], ending: true, clues: ["street", "post"],
+    hints: ["The reflection of the jetty is keeping something back for the evening, and the village lights its windows at dusk.", "Wait on the jetty for the windows to light, then go north, off the end of the jetty."] }
 };
 
 // ---- Named changes -----------------------------------------------------------------------------------------------------------
@@ -384,6 +386,7 @@ const changes = {
 
 // ---- Rules -------------------------------------------------------------------------------------------------------------------
 const NIGHT = { "time.hour": { between: [19, 6] } };
+const DAY = { "time.hour": { between: [6, 19] } };
 const rules = [
   // Filling and lighting the lantern.
   { id: "fill_a", match: { verb: "fill", obj: "lantern", obj2: "oil" }, if: [{ "lantern.fueled": false }], do: [{ change: "fuel" }] },
@@ -412,39 +415,80 @@ const rules = [
   { id: "hang_cold", match: { verb: ["hang", "put", "use"], obj: "lantern", obj2: "post" },
     do: [{ say: "A dark lantern on a hook is only a bucket with ideas. It wants a light first." }] },
 
-  // The jetty's one way south: the street in the water.
-  { id: "walk_street", match: { verb: "go", dir: "s" }, if: [{ "player.at": "jetty" }, NIGHT],
+  // The jetty's one way north: the street in the water.
+  { id: "walk_street", match: { verb: "go", dir: "n" }, if: [{ "player.at": "jetty" }, NIGHT],
     do: [{ say: "You step off the end of the jetty onto the street. It holds, for the length of a long breath, lit on both sides, with the windows going by at the height of your shoulder, and then a little further on a window goes by that is not at your shoulder but below your feet, and the street, noticing, politely lets go." },
       { end: true, picture: "street" }] },
 
   // The evening: at seven the windows come on above and the lake lights them again (the pictures keep in step, silently);
   // at nine the lake lights a lamp on the island that nobody lit above.
   { id: "nightfall_draw", when: "at", at: "19:00", do: [
-    { draw: "quay", remove: ["sun", "sunhalo_a", "sunhalo_b", "sunhalo_c", "sun_path", "glitter", "sh_boathouse", "sh_rack", "sh_floats"],
-      restyle: [{ id: "sky", fill: "fade:1,12/0,0/0,66" }, { id: "lake", fill: "fade:12,1/0,64/0,102" }, { id: "win_a", fill: 14 }, { id: "win_b", fill: 14 }, { id: "win_d", fill: 14 }] },
-    { draw: "jetty", remove: ["sun", "sunhalo_a", "sunhalo_b", "sunhalo_c", "sun_path", "glitter", "sh_post", "sh_pile_l", "sh_pile_r"],
-      restyle: [{ id: "sky", fill: "fade:1,12/0,0/0,70" }, { id: "lake", fill: "fade:12,1/0,68/0,136" }],
-      add: ["poly street_refl 238,68 252,68 264,100 222,100 mix:,14@0.3", "dots street_windows 232,74 246,74 240,82 256,84 236,92 250,94 c14"] },
-    { draw: "lane", remove: ["sh_road", "road_glow"],
-      restyle: [{ id: "sky", fill: "fade:1,12/0,0/0,66" }, { id: "win_l1", fill: 14 }, { id: "win_l3", fill: 14 }, { id: "win_r1", fill: 14 }, { id: "win_r2", fill: 14 }, { id: "win_r3", fill: 14 },
-        { id: "heron_door", fill: 14 }, { id: "heron_lamp", fill: 14 }, { id: "lamp_1", fill: 14 }, { id: "lamp_2", fill: 14 }],
+    { draw: "quay", remove: ["sun", "glitter_a", "glitter_b", "glitter_c", "glitter_d", "glitter_e", "coping_lit", "bh_strike", "bh_shade", "bh_roof_lit", "bh_lit", "sh_boathouse", "sh_rack", "float_glints", "gulls"],
+      restyle: [{ id: "sky", fill: "fade:0,1/0,0/0,66" }, { id: "lake", fill: "fade:1,0/0,64/0,102" }, { id: "far_shore", fill: 0 }, { id: "far_win", color: 14 }, { id: "island_lamp", fill: 0 },
+        { id: "cloud_a", color: 1 }, { id: "cloud_b", color: 1 }, { id: "cloud_c", color: 1 }, { id: "ripple_a", color: 1 }, { id: "ripple_b", color: 1 }, { id: "ripple_c", color: 1 }, { id: "ripple_d", color: 1 },
+        { id: "quay_ground", fill: 1 }, { id: "coping", fill: 0, edge: 1 }, { id: "stones", color: 6 }, { id: "jetty_hook", fill: 6 },
+        { id: "bh_wall", fill: 0, edge: 1 }, { id: "boathouse_door", edge: 1 }, { id: "bh_window", edge: 1 }, { id: "padlock", fill: 6 }, { id: "tree", edge: 1 },
+        { id: "nets", fill: 0 }, { id: "net_knots", color: 6 }, { id: "float_a", fill: 0, edge: 1 }, { id: "float_b", fill: 0, edge: 1 }, { id: "float_c", fill: 0, edge: 1 }, { id: "float_d", fill: 0, edge: 1 }] },
+    { set: "quay.alt", to: "Looking north from a stone quay over a black lake under a dark sky: a rack of nets on the left, a jetty running out into the water ahead, a small island with a lamp-post, a tarred boathouse with a chained door on the right, a few far windows lit across the water." },
+    { draw: "jetty", remove: ["sun", "glitter_a", "glitter_b", "glitter_c", "glitter_d", "glitter_e", "plank_lit", "sh_pile_l1", "sh_pile_l2", "gulls"],
+      restyle: [{ id: "sky", fill: "fade:0,1/0,0/0,70" }, { id: "lake", fill: "fade:1,0/0,68/0,136" }, { id: "far_shore", fill: 0 }, { id: "far_win", color: 14 }, { id: "island_lamp", fill: 0 },
+        { id: "cloud_a", color: 1 }, { id: "cloud_b", color: 1 }, { id: "cloud_c", color: 1 },
+        { id: "ripple_a", color: 1 }, { id: "ripple_b", color: 1 }, { id: "ripple_c", color: 1 }, { id: "ripple_d", color: 1 }, { id: "ripple_e", color: 1 },
+        { id: "post_hook", fill: 6 }, { id: "reeds_tips_l", color: 6 }, { id: "reeds_tips_r", color: 6 }, { id: "foam", color: 1 }],
+      add: ["dots street_l_a 61,102 70,95 79,88 87,83 93,78 98,75 c14", "dots street_l_b 64,97 74,90 82,85 88,81 94,77 c14",
+        "dots street_r_a 156,102 146,95 136,88 128,83 122,78 117,75 c14", "dots street_r_b 153,97 142,90 134,85 127,81 121,77 c14"] },
+    { set: "jetty.alt", to: "Looking north along a long grey wooden jetty running straight out into a black lake at night, a mooring post at its end, a low island with one lamp-post on the right, reeds and a moored dinghy on the left, and two rows of lit windows laid on the water either side of the jetty's line, going away to the end." },
+    { draw: "lane", remove: ["sun_r", "road_sun", "sh_road"],
+      restyle: [{ id: "sky", fill: "fade:0,1/0,0/0,66" }, { id: "lake_wedge", fill: 1 }, { id: "far_shore", fill: 0 }, { id: "road", fill: 1 }, { id: "houses_l", fill: 0, edge: 1 }, { id: "houses_r", fill: 0, edge: 1 },
+        { id: "win_l1", fill: 14 }, { id: "win_l3", fill: 14 }, { id: "win_r1", fill: 14 }, { id: "win_r2", fill: 14 }, { id: "win_r3", fill: 14 },
+        { id: "heron_door", fill: 14 }, { id: "heron_lamp", fill: 14 }, { id: "lamp_1", fill: 14 }, { id: "lamp_2", fill: 14 }, { id: "swallows", color: 1 }],
       add: ["ellipse heron_halo_c 222,57,22,16 mix:,14@0.1", "ellipse heron_halo_b 222,57,14,10 mix:,14@0.2", "ellipse heron_halo_a 222,57,7,5 mix:,14@0.35"] },
-    { draw: "churchyard", remove: ["sun", "sunhalo_a", "sunhalo_b", "sunhalo_c", "sun_path", "glitter", "sh_lych", "sh_stone_c", "sh_stone_a"],
-      restyle: [{ id: "sky", fill: "fade:1,12/0,0/0,60" }, { id: "lake", fill: "fade:12,1/0,58/0,96" }, { id: "village_windows", color: 14 }] },
-    { draw: "boathouse", remove: ["door_sun", "door_halo", "door_pool"],
-      restyle: [{ id: "door_sky_a", fill: "fade:0,1/196,46/196,59" }, { id: "door_sky_b", fill: "fade:1,5/196,59/196,72" }, { id: "door_lake", fill: "fade:5,1/196,72/196,87" }] },
-    { draw: "loft", remove: ["floor_light"], restyle: [{ id: "window_glass", fill: "fade:0,1/107,42/107,70" }] },
-    { draw: "inn", restyle: [{ id: "window_glass", fill: "fade:1,0/298,32/298,72" }] }
+    { set: "lane.alt", to: "Looking north down a steep lane between dark slate-roofed houses at night, toward a wedge of black lake: windows lit along both rows, iron lamp-posts alight, the Heron's door on the right lit, with its sign and lamp, and a painted notice on a post." },
+    { draw: "churchyard", remove: ["sun", "glitter_a", "glitter_b", "glitter_c", "glitter_d", "wall_top_lit", "chapel_strike", "chapel_lit", "sh_chapel", "sh_lych"],
+      restyle: [{ id: "sky", fill: "fade:0,1/0,0/0,58" }, { id: "lake", fill: "fade:1,0/0,58/0,92" }, { id: "far_shore", fill: 0 }, { id: "far_win", color: 14 }, { id: "island_lamp", fill: 0 },
+        { id: "cloud_a", color: 1 }, { id: "cloud_b", color: 1 }, { id: "cloud_c", color: 1 }, { id: "ripple_a", color: 1 }, { id: "ripple_b", color: 1 }, { id: "ripple_c", color: 1 },
+        { id: "slope", fill: 1 }, { id: "village_windows", color: 14 }, { id: "wall", fill: 0, edge: 1 }, { id: "grass", fill: 1 },
+        { id: "chapel", fill: 0, edge: 1 }, { id: "chapel_roof", edge: 1 }, { id: "chapel_door", edge: 1 }, { id: "chapel_window", edge: 1 }, { id: "chapel_window_b", edge: 1 },
+        { id: "cote_roof", edge: 1 }, { id: "bell", fill: 6 }, { id: "lych_roof", edge: 1 }, { id: "lych_post_l", edge: 1 }, { id: "lych_post_r", edge: 1 }, { id: "lych_nails", color: 6 },
+        { id: "grass_a", color: 6 }, { id: "grass_b", color: 6 }, { id: "grass_c", color: 6 }, { id: "grass_d", color: 6 }, { id: "grass_e", color: 6 },
+        { id: "stone_a", edge: 1 }, { id: "stone_b", edge: 1 }, { id: "stone_c", edge: 1 }, { id: "stone_d", edge: 1 }, { id: "stone_e", edge: 1 }, { id: "stone_f", edge: 1 }, { id: "stone_g", edge: 1 }, { id: "yew", edge: 1 }] },
+    { set: "churchyard.alt", to: "A small hillside churchyard at night, looking north over a low wall to the black lake: a stone chapel on the left, a bell in an open cote, leaning gravestones in long grass, a roofed gate on the right, the village roofs on the slope below with their windows lit, and a few far windows lit across the water." },
+    { draw: "boathouse", remove: ["door_sun", "door_halo_c", "door_halo_b", "door_halo", "door_pool", "boat_lit", "dust"],
+      restyle: [{ id: "door_sky_a", fill: "fade:0,1/196,46/196,59" }, { id: "door_sky_b", fill: 1 }, { id: "door_lake", fill: "fade:1,0/196,72/196,87" }, { id: "door_ripple_a", color: 1 }, { id: "door_ripple_b", color: 1 },
+        { id: "wall_l", fill: 0 }, { id: "wall_r", fill: 0 }, { id: "floor", fill: 1 }, { id: "far_wall", fill: 0 }, { id: "door_post_l", edge: 1 }, { id: "door_post_r", edge: 1 }, { id: "door_lintel", edge: 1 },
+        { id: "boat_seat", fill: 6 }, { id: "rowlock_l", fill: 6 }, { id: "rowlock_r", fill: 6 }, { id: "hooks", color: 6 }, { id: "ropes", fill: 6 }, { id: "ropes_b", fill: 6 }, { id: "floats", fill: 6 }, { id: "floats_b", color: 6 }, { id: "boathook_head", color: 6 }, { id: "lantern_hook", fill: 6 }] },
+    { set: "boathouse.alt", to: "Inside a tarred boathouse at night, looking north down the slip to the open lake doors: a small rowing boat on the slip at the left, a door to the quay, ropes, floats and a row of hooks on the left wall, a ladder and a shelf on the right, and the black lake beyond the doors." },
+    { draw: "loft", remove: ["win_halo_c", "win_halo_b", "win_halo_a", "floor_light", "window_lit", "motes"],
+      restyle: [{ id: "wall_gable", fill: 0 }, { id: "floor", fill: 1 }, { id: "window_glass", fill: "fade:0,1/107,48/107,76" }, { id: "bracket_bolt", fill: 6 }, { id: "bracket_bolt2", fill: 6 },
+        { id: "nails", color: 6 }, { id: "floor_nails", color: 6 }, { id: "chain_links", color: 6 },
+        { id: "cobweb_a", color: 6 }, { id: "cobweb_b", color: 6 }] },
+    { set: "loft.alt", to: "A boathouse loft at night under the slope of the roof, looking north: a round window of dark lake in the end wall, folded sails on the left, a chain and an empty lamp bracket on the right, oars lying across the beams, a ladder hole in the floor." },
+    { draw: "inn", restyle: [{ id: "window_glass", fill: "fade:1,0/190,36/190,76" }] },
+    { set: "street.examine", to: "In the lake the village stands upside down, window under window, and between the rows a street runs out across the water, lit from both sides, past the end of the jetty. It looks quite firm. A little way along it, one lit window is nobody's." }
   ] },
   { id: "nightfall_say", when: "at", at: "19:00", if: [{ "player.at": { in: ["quay", "jetty", "lane", "churchyard"] } }],
     do: [{ say: "The sun goes down into the lake, and along the shore the windows come on, one by one. Below them, a little late, the lake lights each of them again." }] },
   { id: "island_draw", when: "at", at: "21:00", do: [
-    { draw: "quay", add: ["ellipse island_ghost 220,70,3,2 14"] },
-    { draw: "jetty", add: ["ellipse island_ghost 108,74,3,2 14"] },
-    { draw: "churchyard", add: ["ellipse island_ghost 185,64,3,2 14"] }
+    { draw: "quay", add: ["ellipse island_ghost 153,71,3,2 14"] },
+    { draw: "jetty", add: ["ellipse island_ghost 213,73,3,2 14"] },
+    { draw: "churchyard", add: ["ellipse island_ghost 166,61,3,2 14"] }
   ] },
   { id: "island_say", when: "at", at: "21:00", if: [{ "player.at": { in: ["quay", "jetty", "churchyard"] } }],
     do: [{ say: "Out on the lake, under the island where nothing is lit, a small yellow lamp comes on in the water, and stays. There is no lamp above it." }] },
+
+  // Day and night lines: what holds only at some hours (the low sun, the lit windows) is said here, not in the room's text.
+  { id: "quay_day", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "quay" }, DAY], do: [{ say: ["The low sun lies on the lake to the west, and turns the nets on their rack the colour of tea.", "The sunward wall of the boathouse is warm. The other side is cold, and keeps the tar smell in."] }] },
+  { id: "quay_night", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "quay" }, NIGHT], do: [{ say: ["Across the lake a few far windows have come on, and the lake lights each of them again.", "The boathouse is a darker dark against the water, and the chain on its door is the only thing on it that shines."] }] },
+  { id: "boathouse_day", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "boathouse" }, DAY], do: [{ say: ["The light comes in the shape of the doors and lies on the planks, and the dust in it does not settle."] }] },
+  { id: "boathouse_night", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "boathouse" }, NIGHT], do: [{ say: ["The lake in the doors is black, and the boathouse is darker than the lake."] }] },
+  { id: "loft_day", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "loft" }, DAY], do: [{ say: ["A round of light from the window lies on the boards, and the dust turns slowly in it."] }] },
+  { id: "loft_night", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "loft" }, NIGHT], do: [{ say: ["The window is only a round of dark, with a paler dark in it, which is the lake."] }] },
+  { id: "jetty_day", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "jetty" }, DAY], do: [{ say: ["The sun stands low in the west, and the piles lay their shadows across the planks, long and in no hurry."] }] },
+  { id: "jetty_night", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "jetty" }, NIGHT], do: [{ say: ["The village has lit its windows, and the lake has lit them again: a street of them runs out beside the planks and past the end of the jetty, as if it knew a way."] }] },
+  { id: "lane_day", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "lane" }, DAY], do: [{ say: ["The low sun strikes the upper walls of the houses on the right, and leaves the left-hand row, and half the lane, in shade."] }] },
+  { id: "lane_night", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "lane" }, NIGHT], do: [{ say: ["Every window on the lane is lit, and the Heron's lamp burns over its door, a little brighter than the rest."] }] },
+  { id: "churchyard_day", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "churchyard" }, DAY], do: [{ say: ["The low sun lies along the wall, and the gravestones' shadows run away to the right."] }] },
+  { id: "churchyard_night", when: "every", every: { seconds: [30, 60] }, chance: 1, if: [{ "player.at": "churchyard" }, NIGHT], do: [{ say: ["Below the wall the village roofs have lit their windows, and across the water, a little late, the far shore has lit its own."] }] },
 
   // Rowing out to light the island's lamp.
   { id: "row_out", match: { verb: "row" }, if: [{ "player.in": "boat" }, { "player.carrying": { "has": "oars" } }, { "player.carrying": { "has": "lit_lantern" } }, { "time.hour": { between: [21, 6] } }],
