@@ -48,7 +48,7 @@
 // Also, given the bible (the third argument): its blurb is 110–160 characters and its thumbnail names one of the world's room pictures
 // (never an ending's or `died`) with a whole-number x from 0 to 95 (bibleProblems below; GUIDE.md §1). Without a bible these aren't looked at.
 //
-//   check(state, pack, bible?, { before? }) → { ok, problems: [...], warnings: [...], endings: { id (or "id/way"): [commands played] } }
+//   check(state, pack, bible?, { before? }) → { ok, problems: [...], warnings: [...], endings: { id (or "id/way"): [commands played; "@time <when>" is a puzzle's `time`: replay with replayCommand] } }
 //   before(state, command, puzzle): called before each command a puzzle's `solve` types, with the state it is typed in (for the
 //   tests that try other commands there: tests/use.test.js, "use A with B" both ways). Never changes the run.
 
@@ -440,6 +440,7 @@ export function check(state, pack, bible, { before = null } = {}) {
   // every [..] is known. Then the exits and waits that can never open or fire.
   problems.push(...commandProblems(state, pack, arrived));
   warnings.push(...clockTimeWarnings(state, pack, arrived));
+  warnings.push(...listComparisons(state, arrived));
   warnings.push(...wayWarnings(pack, arrived));
   warnings.push(...sceneryVerbWarnings(state, pack, arrived));
   if (pack.words.regional) warnings.push(...regionalWarnings(state, pack, bible));
@@ -658,6 +659,44 @@ function moverChecks(state, problems, warnings) {
 }
 
 // ---- Exits that wait, and exits that can never open -----------------------------------------------------------------
+// `=` or `!=` (or a plain value) against a path that holds a list (`player.carrying`, a thing's `chain`) compares a list with a
+// single value: never equal, so `!=` is always true. A list is asked with `has`; "the player does not have it" is `<id>.at != "player"`.
+function listComparisons(state, arrived) {
+  const out = [], seen = new Set();
+  const valueAt = (path) => {
+    const [head, ...rest] = path.split(".");
+    let v = head === "player" ? arrived.player : arrived.world.objects[head] ?? arrived.world.rooms[head];
+    for (const k of rest) v = v?.[k];
+    return v;
+  };
+  const test = (where, list) => {
+    for (const c of [].concat(list)) {
+      if (!c || typeof c !== "object") continue;
+      for (const [path, want] of Object.entries(c)) {
+        if (path === "any") { for (const x of [].concat(want)) test(where, x); continue; }
+        if (path.includes("$") || !/^[A-Za-z_][\w-]*(\.[\w-]+)+$/.test(path)) continue;
+        const ops = want !== null && typeof want === "object" && !Array.isArray(want) ? Object.keys(want) : ["="];
+        if (!ops.some(op => op === "=" || op === "!=") || !Array.isArray(valueAt(path))) continue;
+        const key = where + path + ops;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(`${where}: ${path} is a list, and = or != compares it with a single value (never equal, so != is always true): ask a list with has ({ "${path}": { "has": "x" } }); for "the player does not have it" say { "<id>.at": { "!=": "player" } }`);
+      }
+    }
+  };
+  const walk = (where, node) => {
+    if (Array.isArray(node)) return node.forEach(n => walk(where, n));
+    if (!node || typeof node !== "object") return;
+    for (const [k, v] of Object.entries(node)) {
+      if (k === "if" && v && typeof v === "object") test(where, v);
+      walk(where, v);
+    }
+  };
+  for (const r of state.rules) walk(r.id, r);
+  for (const [id, x] of [...Object.entries(state.world.rooms), ...Object.entries(state.world.objects)]) walk(id, x);
+  return out;
+}
+
 // The world's clock moved to the next time it is h:00 (null if the engine refuses).
 function atHour(state, h) {
   const r = applyChangeSet(state, { effects: [{ time: `next ${h}:00` }] });
@@ -1351,6 +1390,28 @@ function checkOpening(state, pack) {
   return problems;
 }
 
+// A puzzle's `time` is kept in an ending's commands as "@time <when>", so that a replay moves the clock where the checker did.
+// `replayCommand` is the one way to replay a command of an ending: a mark moves the clock (as the checker did), any other
+// command is typed through the parser and the engine. Returns { state, refused: [reasons], error } (error: not understood).
+const TIME_MARK = "@time ";
+export function replayCommand(state, command, pack, at = 0) {
+  if (command.startsWith(TIME_MARK)) {
+    const r = applyChangeSet(state, { effects: [{ time: command.slice(TIME_MARK.length) }] });
+    return { state: r.refused.length ? state : r.next, refused: r.refused.map(x => x.reason), error: null };
+  }
+  const parsed = parse(command, state, pack);
+  if (!parsed.actions) return { state, refused: [], error: parsed.error || parsed.meta || "not understood" };
+  const refused = [];
+  let t = at;
+  for (const action of parsed.actions) {
+    const r = step(state, { ...action, at: (t += 1000) });
+    if (r.refused.length) { refused.push(...r.refused.map(x => x.reason)); break; }
+    state = r.next;
+    if (state.pending.question) break;
+  }
+  return { state, refused, error: null };
+}
+
 // One playthrough towards a goal.
 class Run {
   // prefer: { thing: puzzle }, the way to get a thing that more than one puzzle gives (else the first written).
@@ -1389,6 +1450,7 @@ class Run {
       const r = applyChangeSet(this.state, { effects: [{ time: p.time }] });
       if (r.refused.length) return this.fail(`"${id}": ${r.refused[0].reason}`);
       this.state = r.next;
+      this.played.push(TIME_MARK + p.time);   // (a replay of the commands moves the clock here too: see replayCommand)
     }
     // (a thing that moves, found in another room for one command: the next is typed back where the puzzle is, as a player would go back)
     p.solve.forEach((c, i) => {

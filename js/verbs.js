@@ -78,10 +78,11 @@ const rules = [
   // Waiting for something (said: "wait for the train", "wait until night"): only where there's a reason. A thing
   // here or the room with `waitFor: { time, says, if? }` moves the world's clock (its line, then the time: "next
   // 17:15") while its `if` holds (same conditions as a rule's; none = always); anywhere else, or when it doesn't
-  // hold, there's nothing worth waiting for. "wait" alone is the standard reply: a moment passes.
+  // hold, there's nothing worth waiting for. "wait" alone waits for the room's own `waitFor` while its `if` holds (its moment is
+  // still ahead); otherwise it is the standard reply: a moment passes.
   { id: "std_wait_thing", match: { verb: "wait" }, if: [{ "$text": { "!=": null } }, reachable, { "$obj.waitFor": { "!=": null } }, { "$obj.waitFor.if": { holds: true } }],
     do: [{ say: "$obj.waitFor.says" }, { time: "$obj.waitFor.time" }] },
-  { id: "std_wait_here", match: { verb: "wait" }, if: [{ "$text": { "!=": null } }, { "$here.waitFor": { "!=": null } }, { "$here.waitFor.if": { holds: true } }],
+  { id: "std_wait_here", match: { verb: "wait" }, if: [{ "$here.waitFor": { "!=": null } }, { "$here.waitFor.if": { holds: true } }],
     do: [{ say: "$here.waitFor.says" }, { time: "$here.waitFor.time" }] },
   { id: "std_wait_nothing", match: { verb: "wait" }, if: [{ "$text": { "!=": null } }], do: [{ say: "@noWait", vary: true }] },
 
