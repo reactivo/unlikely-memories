@@ -1,824 +1,485 @@
-// Pictures for "The Button Exchange" (worlds/buttons/world.en.js), one per room and one per ending, drawn by hand the way the AI
-// draws them (BRIEF.md §7): 320 × 136, EGA colours 0–15, shapes back to front in the short notation, `vp` and `x,y@t` for perspective,
-// ids on what the story may change or the text names. Every picture faces north.
+// Pictures for "Coat 41" (worlds/buttons/world.en.js), one per room and one per ending, the way the AI writes them
+// (BRIEF.md §7): 320 x 136, EGA colours 0-15, shapes back to front in the short notation, ids on what the story may change.
+// Style: dithered. (The shape lists are written out in full; coordinates were worked out with a script of my own.)
 //
-// The shot list, written before drawing (viewpoint, facing, vanishing point; palette; light; gradients and their causes; subject and
-// its columns; the wings):
-//   cloak      eye level down a long corridor, north, vp 213,64; institution (dark grey leads, one green: the lift gate); one bare bulb
-//              over the left-centre; one gradient: the floor falling off from the bulb; the lift on the far wall at x 196-230 (the way on),
-//              the counter and thimble on the left third (x 58-122); wings: coats on rails, close, left and right
-//   hall       wide, far back, one-point, north, vp 213,68; arcade (blue walls fading to black, a glass roof light blue to magenta, lit
-//              shop windows, a cyan arch at the end); light: the cyan arch, with a halo; gradients: the two walls (distance); counter and
-//              Mr Tally on the left third (x 61-205), the arch on the right third (x 198-230), the coat stand beside it; wings: stairs up
-//              on the left wall, doors in both walls, windows
-//   drawers    flat on, close, a facade, north, no vp; lamplight (brown leads); one hanging lamp over the middle, with a halo and a pool;
-//              no gradient; the ladder on the left third (x 95-120), the warm drawer on the right third (x 204-236); wings: more drawers,
-//              a night window on the right, a green door on the left wall at x 52-78
-//   mercery    shop interior from the doorway, eye level, flat, north; cafe (yellow wall deepening to brown away from the open back
-//              door, a red floor, light grey furniture); light: the daylight at the back door on the right; one gradient: the wall;
-//              Miss Spool and the counter on the left third (x 95-125), the sewing machine on the right third (x 172-218); wings:
-//              shelves of spools on the left, the back door on a grey yard on the right
-//   sorting    eye level close, down the length of a table, north, vp 107,60; pinklobby (walls light magenta to brown, grey ceiling and
-//              floor); small yellow lamps only; gradients: the two side walls (distance); the table, the saucer and the six women on the
-//              left third (x 4-210); wings: the right wall and its door, the left wall
-//   switchroom wide, one-point into a machine room, north, vp 213,64; deepnight (blue to cyan); light: the lamps of the board; gradients:
-//              the floor and the left wall (the board's glow); the board across the far wall and the red button on the right third
-//              (x 213); wings: pipes and cables overhead, a green door on the right wall
-//   gallery    from the gallery rail looking down at an angle over the hall, north, vp 213,30; arcade (the same hall); light: the cyan arch;
-//              gradients: the two walls; the mosaic hand on the floor on the right third (x 195-231), the counter far left; wings: the
-//              rail and the stairs down on the left, the plaque on the rail on the right
-//   yard       wide landscape, a narrow yard, north, vp 107,70; fog (light grey leads, one yellow window); one gradient: the ground
-//              (fog thickening with distance); the three lines of coats on the left and middle, the waving coat last; wings: the wall and
-//              the back door on the left, the lit window on the right
-//   outside    (ending) wide landscape, a street at the end of the day, north, vp 213,76; dusk; the sun low on the right third (x 213),
-//              the figure in the coat on the left third (x 107) walking away, a revolving door in the wing; one gradient: the wet street
-//   kept       (ending) from behind the counter, eye level, north; lamplight; one lamp with a halo and a pool; the open ledger under the
-//              lamp on the left third (x 107), the bell on the right third (x 213); no gradient
-//   released   (ending) close-up, nothing behind it; ember (black to red to yellow); the pressed red button, three quarters of the
-//              frame, the one light, with a halo; one gradient: the floor; the buttons spilling out of the dark round it
-// Read down: no two neighbours share a viewpoint, a vanishing point or a palette (the hall and the gallery are one place, one palette,
-// told apart by their viewpoint: far back one-point against from above, at an angle); the endings use the close-up, from behind, and a
-// far street that no room does.
+// The shot list, written before drawing (viewpoint, facing; palette; light; gradients; subject and columns; wings):
+//   lift_car  eye level, frontal, north; institution; one ceiling lamp, soft halo on the flat wall; gradients: the floor falling to dark (lamp), the corridor beyond the gate (distance); gate on the right third (x 172-264), panel on the left third (x 88-136) with the handset on its hook between; wings: wall seams, a vent, a plaque
+//   lobby     one-point down the hall, vanishing point (213, 66), north; lamplight; one pendant lamp near, two smaller beyond; gradient: the floor darkening towards you; the street door at the far end on the right third, Hobb's desk and the board of keys on the left wall, doorways west and east; wings: walls of brass buttons, a red runner
+//   panel     eye level, frontal and close, north; lamplight; one lamp over the block; gradient: the floor towards you; the eight buttons at hand height on the right third (x 168-258), the register arch on the left third (x 88-122), doorways in the wings
+//   register  one-point down an aisle of shelves, vanishing point (213, 64), north; lamplight; one hanging lamp; gradient: the floor; the cabinet at the far end on the right third (x 190-232); lectern in the right wing
+//   sorting   one-point down a long table, vanishing point (107, 64), north; lamplight; a green lamp over the table, soft halo; gradient: the floor; the table on the left third, trays on shelves both sides; stool and crate in the right wing
+//   mending   three-quarter corner (back wall and left wall), north; lamplight; one lamp over the machine; gradient: the floor; the machine and Mrs Venn on the left third (x 96-140), the window on the right third; coats on the left wall, a door in the right wing
+//   canteen   eye level, frontal, north; cafe; one ceiling lamp; gradients: the wall yellow to brown; the urn on the right third (x 198-226) on a counter, a window and tables on the left; an arch to the lobby in the left wing
+//   engine    three-quarter corner, north; ember; the furnace door is the light, soft halo; gradient: the floor falling off from the fire; the drum of pipes and the big button on its post on the right third (x 216-240); gauges and a doorway in the left wing
+//   whole     (ending) eye level, from the doorway, wide; dusk; the sunset; gradient: the sky; a grey coat on a hook on the right third, an evening street beyond, a street lamp on the left third
+//   unbuttoned (ending) eye level, frontal; lamplight; one lamp over a bare wall of holes; a heap of loose buttons in the middle, more falling
+//   died      (ending) close up; ember; the glow of one button, with a thread of smoke; the button on the right third, a plate under it
 
 export default {
-  // ---- THE CLOAKROOM (the opening): down a windowless corridor of coats to the lift --------------------------------
-  cloak: {
-    version: 1,
-    draw: `
-      vp 213,64
-      poly ceiling 0,0@1 320,0@1 320,0@0.3 0,0@0.3 0
-      poly floor 0,136@1 320,136@1 320,136@0.3 0,136@0.3 fade:7,8/0,136/0,86
-      poly wall_l 0,0@1 0,0@0.3 0,136@0.3 0,136@1 8
-      poly wall_r 320,0@1 320,0@0.3 320,136@0.3 320,136@1 8
-      rect far_wall 149,45,96,41 mix:8,0@0.5
-      line base_l 0,128@1 0,128@0.3 c0
-      line base_r 320,128@1 320,128@0.3 c0
-      line cornice_l 0,12@1 0,12@0.3 c0
-      line cornice_r 320,12@1 320,12@0.3 c0
-      line rail_l 0,40@1 0,40@0.3 c7
-      line rail_r 320,40@1 320,40@0.3 c7
-      poly coat_l1 0,40@1 0,40@0.86 0,104@0.86 0,98@1 7 e0
-      poly coat_l2 0,40@0.84 0,40@0.72 0,106@0.72 0,100@0.84 0 e8
-      poly coat_l3 0,40@0.7 0,40@0.6 0,98@0.6 0,104@0.7 7 e0
-      poly coat_l4 0,40@0.58 0,40@0.5 0,102@0.5 0,96@0.58 15 e8
-      poly coat_l5 0,40@0.48 0,40@0.41 0,96@0.41 0,102@0.48 0 e8
-      poly coat_l6 0,40@0.39 0,40@0.33 0,98@0.33 0,94@0.39 7 e0
-      poly coat_r1 320,40@1 320,40@0.88 320,106@0.88 320,100@1 0 e8
-      poly coat_r2 320,40@0.86 320,40@0.74 320,98@0.74 320,104@0.86 7 e0
-      poly coat_r3 320,40@0.72 320,40@0.62 320,104@0.62 320,98@0.72 0 e8
-      poly coat_r4 320,40@0.6 320,40@0.52 320,96@0.52 320,102@0.6 7 e0
-      poly coat_r5 320,40@0.5 320,40@0.43 320,100@0.43 320,94@0.5 15 e8
-      poly coat_r6 320,40@0.41 320,40@0.35 320,92@0.35 320,98@0.41 0 e8
-      poly sleeve_l 0,96@0.86 0,96@0.8 0,112@0.8 0,108@0.86 7 e0
-      poly sleeve_r 320,100@0.74 320,100@0.68 320,116@0.68 320,112@0.74 7 e0
-      dots hooks_l 0,40@0.98 0,40@0.85 0,40@0.71 0,40@0.59 0,40@0.49 0,40@0.4 0,40@0.32 c15
-      dots hooks_r 320,40@0.95 320,40@0.8 320,40@0.67 320,40@0.56 320,40@0.47 320,40@0.38 c15
-      dots tags_l 0,70@0.92 0,76@0.65 0,72@0.45 c15
-      dots tags_r 320,74@0.78 320,70@0.55 320,76@0.4 c15
-      poly counter_front 30,136@0.85 30,136@0.5 30,100@0.5 30,100@0.85 7 e0
-      poly counter_top 30,100@0.85 30,100@0.5 0,100@0.5 0,100@0.85 15 e7
-      line counter_edge 30,112@0.85 30,112@0.5 c8
-      line counter_foot 30,136@0.85 30,136@0.5 c0
-      ellipse bell 104,83,3,2 15
-      rect lift_shaft 196,48,34,38 0
-      rect lift_gate 199,52,28,34 mix:2,0@0.35 e10
-      line gate_bar1 203,52 203,86 c10
-      line gate_bar2 208,52 208,86 c10
-      line gate_bar3 213,52 213,86 c10
-      line gate_bar4 218,52 218,86 c10
-      line gate_bar5 223,52 223,86 c10
-      line gate_x1 199,52 227,86 c2
-      line gate_x2 227,52 199,86 c2
-      rect lift_top 194,44,38,5 8 e7
-      rect lift_sign 205,38,16,4 10
-      line lift_post_l 194,44 194,86 c7
-      line lift_post_r 232,44 232,86 c7
-      rect lift_panel 234,56,7,18 7 e0
-      dots panel_buttons 237,59 237,63 237,67 237,71 c15
-      dots panel_dim 236,61 239,65 236,69 c8
-      poly mat 120,136@1 200,136@1 190,136@0.6 130,136@0.6 mix:0,8@0.5
-      line tile_a 60,136@1 60,136@0.3 c8
-      line tile_b 160,136@1 160,136@0.3 c8
-      line tile_c 260,136@1 260,136@0.3 c8
-      line cross_a 0,136@0.8 320,136@0.8 c8
-      line cross_b 0,136@0.6 320,136@0.6 c8
-      line cross_c 0,136@0.45 320,136@0.45 c8
-      ellipse halo_3 150,26,46,30 mix:,15@0.1
-      ellipse halo_2 150,25,32,20 mix:,15@0.2
-      ellipse halo_1 150,24,18,12 mix:,15@0.35
-      line flex 150,0 150,17 c8
-      ellipse bulb 150,21,3,4 15
-    `,
-    cycles: [{ name: "the bulb", areas: ["bulb"], colors: [15, 7], style: "flicker", ms: [1200, 3200] }],
-    overlays: [
-      { object: "thimble", at: [62, 79] }
-    ]
-  },
-
-  // ---- THE EXCHANGE: far back down the trading hall, the cyan arch at the end --------------------------------------
-  hall: {
-    version: 1,
-    draw: `
-      vp 213,68
-      poly roof 0,0@1 320,0@1 320,0@0.35 0,0@0.35 fade:9,5/0,0/0,44
-      line rib_a 40,0@1 40,0@0.35 c1
-      line rib_b 120,0@1 120,0@0.35 c1
-      line rib_c 200,0@1 200,0@0.35 c1
-      line rib_d 280,0@1 280,0@0.35 c1
-      line rib_cross_a 0,0@0.7 320,0@0.7 c1
-      line rib_cross_b 0,0@0.5 320,0@0.5 c1
-      poly floor 0,136@1 320,136@1 320,136@0.35 0,136@0.35 mix:1,0@0.35
-      poly wall_l 0,0@1 0,0@0.35 0,136@0.35 0,136@1 fade:1,0/0,0/138,0
-      poly wall_r 320,0@1 320,0@0.35 320,136@0.35 320,136@1 fade:1,0/320,0/250,0
-      rect far_wall 138,44,112,48 0
-      line cornice_l 0,12@1 0,12@0.35 c0
-      line cornice_r 320,12@1 320,12@0.35 c0
-      line pilaster_l1 0,0@0.62 0,136@0.62 c0
-      line pilaster_l2 0,0@0.46 0,136@0.46 c0
-      line pilaster_r1 320,0@0.66 320,136@0.66 c0
-      line pilaster_r2 320,0@0.48 320,136@0.48 c0
-      ellipse halo_3 214,70,34,24 mix:,11@0.1
-      ellipse halo_2 214,72,26,19 mix:,11@0.2
-      ellipse halo_1 214,74,20,16 mix:,11@0.35
-      rect arch 198,52,32,40 11 e0
-      ellipse arch_top 214,54,16,7 11
-      poly arch_pool 198,92 230,92 250,102 180,102 fade:,11/214,92/214,124
-      line rail_a 40,136@1 40,136@0.4 c14
-      line rail_b 240,136@1 240,136@0.4 c14
-      line rail_c 0,136@0.72 320,136@0.72 c14
-      line rail_d 0,136@0.5 320,136@0.5 c14
-      line tile_a 100,136@1 100,136@0.35 c0
-      line tile_b 170,136@1 170,136@0.35 c0
-      line tile_c 280,136@1 280,136@0.35 c0
-      line tile_d 0,136@0.88 320,136@0.88 c0
-      line tile_e 0,136@0.62 320,136@0.62 c0
-      line tile_f 0,136@0.42 320,136@0.42 c0
-      poly stairs 0,136@0.95 0,136@0.62 0,70@0.62 0 e1
-      line tread_a 0,125@0.88 0,125@0.64 c1
-      line tread_b 0,110@0.82 0,110@0.64 c1
-      line tread_c 0,95@0.76 0,95@0.64 c1
-      poly door_w 0,136@0.55 0,136@0.45 0,70@0.45 0,70@0.55 4 e0
-      poly window_l 0,96@0.42 0,96@0.34 0,48@0.34 0,48@0.42 14 e0
-      dots goods_l 0,80@0.4 0,86@0.37 0,76@0.36 c0
-      poly window_r1 320,96@0.62 320,96@0.5 320,46@0.5 320,46@0.62 14 e0
-      poly window_r2 320,96@0.46 320,96@0.38 320,50@0.38 320,50@0.46 14 e0
-      dots goods_r 320,80@0.58 320,86@0.56 320,76@0.54 320,82@0.43 320,78@0.41 c0
-      poly door_e 320,136@0.82 320,136@0.68 320,64@0.68 320,64@0.82 2 e0
-      dots door_handles 320,100@0.7 0,100@0.5 c14
-      poly counter_front -40,136@0.6 200,136@0.6 200,96@0.6 -40,96@0.6 0 e1
-      poly counter_top -40,96@0.6 200,96@0.6 200,96@0.5 -40,96@0.5 4 e0
-      line counter_rail 61,92 205,92 c14
-      line counter_panel_a 100,88 100,108 c1
-      line counter_panel_b 150,88 150,108 c1
-      line counter_panel_c 190,88 190,108 c1
-      poly tally_body 101,68 119,68 123,85 97,85 7 e0
-      ellipse tally_head 110,62,4,5 15
-      rect tally_shade 105,59,10,3 2
-      dots tally_garters 102,76 118,76 c4
-      line tally_arm 119,72 126,82 c7
-      rect ledger 116,80,16,4 15 e0
-      ellipse counter_bell 150,81,3,2 14
-      dots floor_buttons 80,126 140,130 260,122 300,128 c14
-      rect stand_pole 232,62,2,46 0
-      dots stand_hooks 228,66 238,66 228,74 238,74 c0
-      ellipse stand_foot 233,108,7,2 0
-    `,
-    cycles: [{ name: "the arch", areas: ["arch", "arch_top"], colors: [11, 15], style: "pingpong", ms: 3400 }],
-    overlays: [
-      { object: "coat", at: [225, 70] }
-    ]
-  },
-
-  // ---- THE DRAWER WALL: flat on, a facade of drawers floor to ceiling, one lamp, one warm drawer --------------------
-  drawers: {
-    version: 1,
-    draw: `
-      rect ceiling 0,0,320,10 0
-      rect wall 0,10,320,102 6
-      rect floor 0,112,320,24 mix:0,6@0.4
-      line row_1 0,22 320,23 c0
-      line row_2 0,34 320,34 c0
-      line row_3 0,46 320,47 c0
-      line row_4 0,58 320,58 c0
-      line row_5 0,70 320,71 c0
-      line row_6 0,82 320,82 c0
-      line row_7 0,94 320,95 c0
-      line row_8 0,106 320,106 c0
-      line col_1 22,10 22,58 23,58 23,112 c0
-      line col_2 41,10 41,46 42,46 42,112 c0
-      line col_3 66,10 66,70 65,70 65,112 c0
-      line col_4 81,10 81,34 82,34 82,112 c0
-      line col_5 104,10 104,82 105,82 105,112 c0
-      line col_6 126,10 126,22 127,22 127,112 c0
-      line col_7 147,10 147,58 148,58 148,112 c0
-      line col_8 172,10 172,46 171,46 171,112 c0
-      line col_9 190,10 190,70 191,70 191,112 c0
-      line col_10 213,10 213,34 214,34 214,112 c0
-      line col_11 238,10 238,58 237,58 237,112 c0
-      line col_12 255,10 255,82 256,82 256,112 c0
-      line col_13 281,10 281,22 282,22 282,112 c0
-      line col_14 303,10 303,46 302,46 302,112 c0
-      dots pulls_1 11,16 32,16 54,16 73,16 93,16 115,16 137,16 160,16 181,16 202,16 226,16 247,16 268,16 292,16 311,16 c14
-      dots pulls_2 11,28 32,28 54,28 73,28 93,28 115,28 137,28 160,28 181,28 202,28 226,28 247,28 268,28 292,28 311,28 c14
-      dots pulls_3 11,40 32,40 54,40 73,40 93,40 115,40 137,40 160,40 181,40 202,40 226,40 247,40 268,40 292,40 311,40 c14
-      dots pulls_4 11,52 32,52 54,52 73,52 93,52 115,52 137,52 160,52 181,52 202,52 226,52 247,52 268,52 292,52 311,52 c14
-      dots pulls_5 11,64 32,64 54,64 73,64 93,64 115,64 137,64 160,64 181,64 202,64 226,64 247,64 268,64 292,64 311,64 c14
-      dots pulls_6 11,76 32,76 54,76 73,76 93,76 115,76 137,76 160,76 181,76 247,76 268,76 292,76 311,76 c14
-      dots pulls_7 11,88 32,88 54,88 73,88 93,88 115,88 137,88 160,88 181,88 247,88 268,88 292,88 311,88 c14
-      dots cards 8,13 29,25 62,37 78,49 120,61 144,73 187,85 289,97 c15
-      ellipse halo_3 160,30,52,24 mix:,14@0.1
-      ellipse halo_2 160,29,36,17 mix:,14@0.2
-      ellipse halo_1 160,28,20,10 mix:,14@0.35
-      line lamp_flex 160,10 160,18 c0
-      poly lamp_shade 150,18 170,18 175,25 145,25 0 e6
-      ellipse lamp_flame 160,27,4,4 14
-      poly ladder_l 95,112 98,112 102,14 99,14 0 e6
-      poly ladder_r 115,112 118,112 121,14 118,14 0 e6
-      rect rung_1 98,100,19,3 0
-      rect rung_2 98,82,20,3 0
-      rect rung_3 99,64,19,3 0
-      rect rung_4 99,46,19,3 0
-      rect rung_5 100,28,19,3 0
-      ellipse wheel_l 96,113,3,2 0
-      ellipse wheel_r 116,113,3,2 0
-      rect drawer_warm 204,83,32,11 14 e15
-      ellipse drawer_pull 220,89,3,1 6
-      line drawer_glint 205,84 235,84 c15
-      dots drawer_hum 212,80 228,79 220,78 240,86 200,90 c15
-      rect door_w 52,52,26,60 2 e0
-      line door_frame 50,52 50,112 c0
-      rect door_lintel 50,48,30,4 0
-      dots door_handle 74,84 c14
-      rect window 262,18,22,28 1 e0
-      line window_bar_v 273,18 273,46 c9
-      line window_bar_h 262,32 284,32 c9
-      poly pool 120,112 200,112 232,136 88,136 fade:,14/160,112/160,136
-      line plank_1 0,122 320,122 c0
-      line plank_2 0,130 320,130 c0
-      line skirting 0,111 320,111 c0
-    `,
-    cycles: [{ name: "the lamp", areas: ["lamp_flame"], colors: [14, 6], style: "flicker", ms: [900, 2400] }]
-  },
-
-  // ---- MISS SPOOL'S: a shop, eye level, flat; shelves of spools, the counter, the machine, the back door on a grey yard ----------
-  mercery: {
-    version: 1,
-    draw: `
-      rect wall 0,0,320,96 fade:14,6/260,0/0,0
-      rect floor 0,100,320,36 4
-      rect skirt 0,96,320,4 0
-      line floor_a 0,112 320,112 c0
-      line floor_b 0,124 320,124 c0
-      rect sign 70,4,100,8 4 e0
-      line sign_a 78,8 160,8 c15
-      line ribbon_a 40,12 40,28 c4
-      line ribbon_b 210,12 210,28 c2
-      line ribbon_c 232,12 232,28 c15
-      rect shelf_a 0,30,250,3 6 e0
-      rect shelf_b 0,54,250,3 6 e0
-      rect shelf_c 0,78,250,3 6 e0
-      line shelf_edge_a 0,33 250,33 c0
-      line shelf_edge_b 0,57 250,57 c0
-      line shelf_edge_c 0,81 250,81 c0
-      line bracket_a 30,33 30,38 c0
-      line bracket_b 120,57 120,62 c0
-      line bracket_c 200,81 200,86 c0
-      line bracket_d 70,81 70,86 c0
-      rect spools_a 4,18,240,12 mix:4,15@0.4
-      rect spools_b 4,42,240,12 mix:2,0@0.4
-      rect spools_c 4,66,240,12 mix:7,4@0.4
-      dots spool_tops_a 10,19 26,19 44,20 61,19 80,20 99,19 118,20 137,19 155,20 174,19 193,20 212,19 231,19 c15
-      dots spool_tops_b 14,43 33,43 50,44 70,43 88,44 107,43 126,43 146,44 164,43 183,44 203,43 222,44 c10
-      dots spool_tops_c 8,67 24,68 42,67 59,67 78,68 97,67 120,68 141,67 160,68 179,67 198,68 217,67 c15
-      rect pins_a 4,82,16,10 15 e0
-      line pins_line 6,87 18,87 c4
-      ellipse tape_a 238,92,6,6 4 e0
-      ellipse tape_b 250,88,5,5 15 e0
-      rect jar 226,74,12,12 7 e0
-      rect jar_lid 227,72,10,3 8
-      rect chair_back 92,44,4,48 6 e0
-      poly spool_body 99,56 121,56 126,90 94,90 8 e0
-      dots cardigan 110,62 110,68 110,74 110,80 c15
-      poly spool_arm 100,76 94,88 100,90 108,82 8 e0
-      ellipse spool_head 110,48,6,7 15 e0
-      ellipse spool_bun 110,40,4,3 7
-      rect counter 30,92,190,36 7 e0
-      rect counter_top 28,88,194,5 15 e7
-      line yardstick 30,94 220,94 c14
-      line drawer_a 80,96 80,126 c0
-      line drawer_b 130,96 130,126 c0
-      line drawer_c 180,96 180,126 c0
-      dots drawer_pulls 55,110 105,110 155,110 200,110 c8
-      rect counter_shade 31,122,188,6 mix:7,8@0.5
-      ellipse pincushion 122,87,4,3 4 e0
-      dots pins 121,85 123,84 c15
-      rect machine_base 172,82,46,6 8 e0
-      poly machine_arm 176,66 212,66 218,82 172,82 8 e0
-      ellipse machine_wheel 212,73,6,6 7 e0
-      line machine_needle 180,72 180,84 c15
-      rect machine_foot 176,84,16,3 7
-      ellipse machine_spool 195,64,3,2 4
-      rect door_frame 256,18,52,80 6 e0
-      rect yard_view 260,22,44,72 7
-      line yard_wash 260,40 304,40 c8
-      poly yard_coat1 266,41 276,41 278,70 264,70 8
-      poly yard_coat2 284,41 296,41 298,66 282,66 0
-      rect yard_ground 260,84,44,10 8
-      rect door_sill 254,96,56,3 0
-      poly door_pool 262,100 300,100 270,130 200,130 mix:,7@0.3
-    `,
-    cycles: [],
-    overlays: [
-      { object: "needle", at: [135, 76] }
-    ]
-  },
-
-  // ---- THE SORTING ROOM: eye level, down a long table in a pink room; six old women, small lamps -----------------------------
-  sorting: {
-    version: 1,
-    draw: `
-      vp 107,60
-      poly ceiling 0,0@1 320,0@1 320,0@0.3 0,0@0.3 8
-      poly floor 0,136@1 320,136@1 320,136@0.3 0,136@0.3 mix:8,7@0.35
-      poly wall_l 0,0@1 0,0@0.3 0,136@0.3 0,136@1 fade:13,6/0,60/75,60
-      poly wall_r 320,0@1 320,0@0.3 320,136@0.3 320,136@1 fade:13,6/320,60/171,60
-      rect back_wall 75,42,96,41 6
-      rect index 80,48,86,30 8 e0
-      line index_a 80,58 166,58 c0
-      line index_b 80,68 166,68 c0
-      dots index_pulls_a 90,53 104,53 118,53 132,53 146,53 160,53 c14
-      dots index_pulls_b 90,63 104,63 118,63 132,63 146,63 160,63 c14
-      dots index_pulls_c 90,73 104,73 118,73 132,73 146,73 160,73 c14
-      line beam_a 0,0@0.8 320,0@0.8 c0
-      line beam_b 0,0@0.55 320,0@0.55 c0
-      line beam_c 0,0@0.4 320,0@0.4 c0
-      line skirt_l 0,124@1 0,124@0.3 c0
-      line skirt_r 320,124@1 320,124@0.3 c0
-      line board_a -40,136@1 -40,136@0.3 c0
-      line board_b 60,136@1 60,136@0.3 c0
-      line board_c 160,136@1 160,136@0.3 c0
-      line board_d 260,136@1 260,136@0.3 c0
-      line cross_a 0,136@0.8 320,136@0.8 c0
-      line cross_b 0,136@0.55 320,136@0.55 c0
-      poly door_e 320,136@0.8 320,136@0.62 320,76@0.62 320,76@0.8 6 e0
-      dots door_handle 320,110@0.64 c14
-      poly table_top 47,98@1 167,98@1 167,98@0.35 47,98@0.35 7
-      poly table_side_l 47,98@1 47,98@0.35 47,104@0.35 47,106@1 8
-      poly table_side_r 167,98@1 167,98@0.35 167,104@0.35 167,106@1 8
-      poly table_front 47,98@1 167,98@1 167,106@1 47,106@1 8 e0
-      line leg_l 50,106 50,125 c0
-      line leg_r 164,106 164,125 c0
-      line groove_a 77,98 100,73 c8
-      line groove_b 107,98 107,73 c8
-      line groove_c 137,98 114,73 c8
-      dots buttons_a 60,94 90,90 120,95 148,92 84,84 130,82 c14
-      dots buttons_b 70,90 102,86 138,88 94,78 122,77 c6
-      dots buttons_c 80,96 112,92 155,96 106,80 c15
-      ellipse saucer 107,96,12,3 15 e8
-      dots saucer_buttons 102,95 107,96 112,95 105,97 109,97 c14
-      ellipse saucer_b 80,88,7,2 15
-      ellipse saucer_c 134,87,7,2 15
-      ellipse saucer_d 96,80,4,1 15
-      ellipse saucer_e 118,79,4,1 15
-      ellipse wl1_head 25,56,7,8 15 e8
-      poly wl1_body 10,68@1 40,68@1 46,106@1 4,106@1 8 e0
-      ellipse wl2_head 48,57,5,6 15 e8
-      poly wl2_body 10,68@0.72 40,68@0.72 46,106@0.72 4,106@0.72 8 e0
-      ellipse wl3_head 66,58,4,4 15 e8
-      poly wl3_body 10,68@0.5 40,68@0.5 46,106@0.5 4,106@0.5 8 e0
-      ellipse wr1_head 189,56,7,8 15 e8
-      poly wr1_body 174,68@1 204,68@1 210,106@1 168,106@1 8 e0
-      ellipse wr2_head 166,57,5,6 15 e8
-      poly wr2_body 174,68@0.72 204,68@0.72 210,106@0.72 168,106@0.72 8 e0
-      ellipse wr3_head 148,58,4,4 15 e8
-      poly wr3_body 174,68@0.5 204,68@0.5 210,106@0.5 168,106@0.5 8 e0
-      dots hands 75,90 140,90 90,80 125,80 c15
-      line lamp_cord_a 107,0 107,25 c0
-      ellipse lamp_a 107,28,6,3 14 e0
-      line lamp_cord_b 107,0 107,34 c0
-      ellipse lamp_b 107,36,5,2 14 e0
-      line lamp_cord_c 107,0 107,40 c0
-      ellipse lamp_c 107,42,4,2 14 e0
-    `,
-    cycles: [],
-    overlays: []
-  },
-
-  // ---- THE SWITCHBOARD: a narrow machine room, the board across the far wall in lamps, the red button below it -------------------
-  switchroom: {
-    version: 1,
-    draw: `
-      vp 213,64
-      poly ceiling 0,0@1 320,0@1 320,0@0.5 0,0@0.5 0
-      poly floor 0,136@1 320,136@1 320,136@0.5 0,136@0.5 fade:1,3/0,136/0,100
-      poly wall_l 0,0@1 0,0@0.5 0,136@0.5 0,136@1 fade:1,3/0,0/107,0
-      poly wall_r 320,0@1 320,0@0.5 320,136@0.5 320,136@1 1
-      rect back_wall 107,32,159,68 0
-      rect board 112,36,150,60 1 e3
-      line frame_top 112,36 262,36 c0
-      line frame_bottom 112,96 262,96 c0
-      line frame_left 112,36 112,96 c0
-      line frame_right 262,36 262,96 c0
-      line sep_a 112,52 262,52 c0
-      line sep_b 112,68 262,68 c0
-      line sep_c 112,84 262,84 c0
-      line sep_v 187,36 187,84 c0
-      rect strip_a 118,40,22,2 5
-      rect strip_b 146,40,18,2 13
-      rect strip_c 196,40,24,2 14
-      rect strip_d 228,40,26,2 3
-      rect strip_e 120,56,18,2 14
-      rect strip_f 150,56,24,2 11
-      rect strip_g 200,56,20,2 5
-      rect strip_h 232,56,22,2 13
-      dots lamps_a 118,45 129,47 141,44 152,48 163,45 174,47 194,45 206,47 218,44 230,48 243,45 255,47 c5
-      dots lamps_b 120,61 132,63 144,60 156,64 168,61 180,63 194,61 207,64 221,60 234,63 247,61 258,64 c13
-      dots lamps_c 118,73 131,76 143,72 157,75 171,73 184,76 196,72 210,75 224,73 238,76 251,72 c14
-      dots lamps_d 120,80 134,82 148,79 162,82 176,80 192,82 220,79 236,82 252,80 c3
-      dots lamps_e 118,88 131,90 144,87 158,90 172,88 186,91 236,88 248,90 258,87 c11
-      ellipse patch 213,80,9,5 mix:1,0@0.5
-      ellipse red_collar 213,91,9,5 14 e0
-      ellipse red_button 213,90,7,4 4
-      dots red_gleam 211,89 c12
-      poly pipe_a 40,0@1 60,0@1 60,0@0.5 40,0@0.5 1 e3
-      poly pipe_b 250,0@1 275,0@1 275,0@0.5 250,0@0.5 1 e3
-      poly pipe_c 150,0@1 160,0@1 160,0@0.5 150,0@0.5 8 e3
-      rect tape_a 50,6,12,4 5
-      rect tape_b 262,10,14,4 14
-      rect tape_c 154,4,10,3 13
-      line cable_a 320,20@1 320,50@0.7 320,30@0.55 c3
-      line cable_b 320,34@0.95 320,64@0.68 320,44@0.54 c3
-      line cable_c 0,24@0.9 0,56@0.65 0,36@0.52 c3
-      line tile_a 0,136@1 0,136@0.5 c0
-      line tile_b 100,136@1 100,136@0.5 c0
-      line tile_c 220,136@1 220,136@0.5 c0
-      line tile_d 320,136@1 320,136@0.5 c0
-      line cross_a 0,136@0.85 320,136@0.85 c0
-      line cross_b 0,136@0.65 320,136@0.65 c0
-      poly door_e 320,136@0.82 320,136@0.62 320,70@0.62 320,70@0.82 2 e0
-      dots rivets_l 0,30@0.9 0,60@0.9 0,90@0.9 0,120@0.9 0,30@0.7 0,60@0.7 0,90@0.7 0,120@0.7 c3
-      poly box_l 0,70@0.85 0,70@0.7 0,100@0.7 0,100@0.85 8 e3
-      ellipse valve 36,108,4,4 14 e0
-      ellipse puddle_a 150,118,16,3 mix:,3@0.4
-      ellipse puddle_b 260,106,10,2 mix:,11@0.4
-      line grating_a 60,124 140,124 c0
-      line grating_b 70,130 130,130 c0
-      dots rivets_r 320,30@0.9 320,60@0.9 320,90@0.9 320,120@0.9 320,30@0.7 320,60@0.7 320,90@0.7 320,120@0.7 c8
-      line skirting_back 107,100 266,100 c3
-      ellipse gauge_a 284,64,5,5 11 e0
-      ellipse gauge_b 284,80,5,5 14 e0
-      line gauge_pipe 284,69 284,75 c3
-      rect fusebox 20,56,16,24 8 e0
-      dots fuses 24,60 28,60 32,60 24,66 28,66 32,66 c14
-      line conduit 28,0 28,56 c3
-    `,
-    cycles: [{ name: "the board", areas: ["lamps_c", "lamps_a"], colors: [14, 5], style: "flicker", ms: [700, 2200] }]
-  },
-
-  // ---- THE GALLERY: from the rail, looking down at an angle over the hall; a mosaic of an open hand in the floor ------------------
-  gallery: {
-    version: 1,
-    draw: `
-      vp 213,30
-      rect roof 0,0,320,26 fade:9,5/0,0/0,26
-      line roof_rib_a 40,0@1 40,0@0.15 c1
-      line roof_rib_b 120,0@1 120,0@0.15 c1
-      line roof_rib_c 280,0@1 280,0@0.15 c1
-      rect far_wall 181,26,48,20 0
-      ellipse halo_3 213,38,15,10 mix:,11@0.1
-      ellipse halo_2 213,38,13,9 mix:,11@0.2
-      ellipse halo_1 213,38,11,8 mix:,11@0.35
-      rect arch 203,32,20,14 11 e0
-      poly floor 0,136@1 320,136@1 320,136@0.15 0,136@0.15 mix:1,0@0.3
-      poly wall_l 0,0@1 0,0@0.15 0,136@0.15 0,136@1 fade:1,0/0,60/181,60
-      poly wall_r 320,0@1 320,0@0.15 320,136@0.15 320,136@1 fade:1,0/320,60/229,60
-      poly window_l1 0,96@0.75 0,96@0.6 0,50@0.6 0,50@0.75 14 e0
-      poly window_l2 0,96@0.5 0,96@0.4 0,56@0.4 0,56@0.5 14 e0
-      poly window_r1 320,96@0.75 320,96@0.6 320,50@0.6 320,50@0.75 14 e0
-      poly window_r2 320,96@0.5 320,96@0.4 320,56@0.4 320,56@0.5 14 e0
-      dots goods_l 0,80@0.72 0,86@0.68 0,76@0.45 c0
-      dots goods_r 320,80@0.72 320,86@0.66 320,76@0.46 c0
-      poly door_w 0,136@0.9 0,136@0.78 0,60@0.78 0,60@0.9 4 e0
-      poly door_e 320,136@0.9 320,136@0.78 320,60@0.78 320,60@0.9 2 e0
-      line tile_a 60,136@1 60,136@0.15 c0
-      line tile_b 140,136@1 140,136@0.15 c0
-      line tile_c 280,136@1 280,136@0.15 c0
-      line cross_a 0,136@0.9 320,136@0.9 c0
-      line cross_b 0,136@0.7 320,136@0.7 c0
-      line cross_c 0,136@0.5 320,136@0.5 c0
-      line cross_d 0,136@0.35 320,136@0.35 c0
-      line rail_a 40,136@1 40,136@0.3 c14
-      line rail_b 260,136@1 260,136@0.3 c14
-      line rail_c 0,136@0.6 320,136@0.6 c14
-      poly tally_body 111,60 129,60 131,72 109,72 7 e0
-      ellipse tally_head 120,53,3,4 15
-      rect tally_shade 117,50,7,2 2
-      poly counter_front -40,136@0.5 200,136@0.5 200,110@0.5 -40,110@0.5 0 e1
-      poly counter_top -40,110@0.5 200,110@0.5 200,110@0.42 -40,110@0.42 4 e0
-      line counter_rail -40,112@0.5 200,112@0.5 c14
-      poly hand_sleeve 190,136@0.98 236,136@0.98 236,136@0.8 190,136@0.8 9 e1
-      poly hand_palm 190,136@0.8 236,136@0.8 236,136@0.68 190,136@0.68 14 e0
-      poly hand_finger_1 186,136@0.68 196,136@0.68 195,136@0.5 187,136@0.5 14 e0
-      poly hand_finger_2 199,136@0.68 209,136@0.68 209,136@0.46 200,136@0.46 14 e0
-      poly hand_finger_3 215,136@0.68 225,136@0.68 224,136@0.46 216,136@0.46 14 e0
-      poly hand_finger_4 228,136@0.68 238,136@0.68 236,136@0.52 229,136@0.52 14 e0
-      poly hand_thumb 186,136@0.78 186,136@0.7 150,136@0.62 160,136@0.7 14 e0
-      dots hand_jet 205,110 213,108 221,111 227,106 c0
-      dots hand_knuckles 198,100 208,97 220,97 233,100 c15
-      dots floor_buttons_a 80,124 150,118 260,112 290,126 c11
-      dots floor_buttons_b 40,100 108,128 176,124 300,104 c4
-      poly stair_a 0,100 40,114 40,136 0,136 0 e1
-      line tread_a 0,108 40,121 c1
-      line tread_b 0,116 40,128 c1
-      line tread_c 0,124 40,134 c1
-      line stair_rail 0,98 40,112 c14
-      poly rail_floor 0,126 320,126 320,136 0,136 0
-      rect rail_bar 0,119,320,4 14 e0
-      rect post_l 0,108,10,28 0 e14
-      rect post_r 310,108,10,28 0 e14
-      rect support_a 48,123,3,3 0
-      rect support_b 120,123,3,3 0
-      rect support_c 268,123,3,3 0
-      rect plaque 252,120,20,6 15 e0
-      line plaque_l1 255,122 269,122 c0
-      line plaque_l2 256,124 268,124 c0
-    `,
-    cycles: [{ name: "the arch", areas: ["arch"], colors: [11, 15], style: "pingpong", ms: 3400 }]
-  },
-
-  // ---- THE BACK YARD: a narrow yard in grey light, three lines of coats going away, the last one waving ---------------------------
-  backyard: {
-    version: 1,
-    draw: `
-      vp 107,70
-      rect sky 0,0,320,60 fade:15,7/0,0/0,60
-      poly wall_l 0,30@1 0,30@0.4 0,136@0.4 0,136@1 8
-      poly wall_r 320,30@1 320,30@0.4 320,136@0.4 320,136@1 8
-      rect back_wall 64,54,128,42 mix:8,7@0.6
-      line coping_back 64,54 192,54 c0
-      poly ground 0,136@1 320,136@1 320,136@0.4 0,136@0.4 fade:8,7/0,136/0,96
-      line mortar_l1 0,50@1 0,50@0.4 c0
-      line mortar_l2 0,80@1 0,80@0.4 c0
-      line mortar_l3 0,110@1 0,110@0.4 c0
-      line mortar_r1 320,50@1 320,50@0.4 c0
-      line mortar_r2 320,80@1 320,80@0.4 c0
-      line mortar_r3 320,110@1 320,110@0.4 c0
-      dots joints_l 0,40@0.9 0,60@0.8 0,70@0.7 0,95@0.9 0,100@0.6 0,120@0.8 0,65@0.5 c0
-      dots joints_r 320,42@0.9 320,64@0.8 320,72@0.7 320,95@0.9 320,100@0.6 320,120@0.8 320,65@0.5 c0
-      poly pipe 150,54 153,54 153,96 150,96 0 e7
-      line wash_a 0,40@0.85 320,40@0.85 c0
-      line wash_b 0,40@0.6 320,40@0.6 c0
-      line wash_c 0,40@0.42 320,40@0.42 c0
-      poly coat_c1 40,40@0.42 24,46@0.42 20,108@0.42 60,112@0.42 56,46@0.42 8 e7
-      poly coat_c2 110,40@0.42 94,46@0.42 90,110@0.42 130,106@0.42 126,46@0.42 8 e7
-      poly coat_c3 180,40@0.42 164,46@0.42 160,106@0.42 200,110@0.42 196,46@0.42 8 e7
-      poly coat_c4 250,40@0.42 234,46@0.42 230,112@0.42 270,108@0.42 266,46@0.42 8 e7
-      poly coat_c5 320,40@0.42 304,46@0.42 300,108@0.42 340,110@0.42 336,46@0.42 8 e7
-      poly wave_sleeve 266,48@0.42 290,30@0.42 294,36@0.42 272,54@0.42 8 e7
-      poly coat_b1 30,40@0.6 14,46@0.6 10,110@0.6 50,106@0.6 46,46@0.6 8 e7
-      poly coat_b2 85,40@0.6 69,46@0.6 65,106@0.6 105,110@0.6 101,46@0.6 8 e7
-      poly coat_b3 140,40@0.6 124,46@0.6 120,112@0.6 160,108@0.6 156,46@0.6 8 e7
-      poly coat_b4 195,40@0.6 179,46@0.6 175,108@0.6 215,106@0.6 211,46@0.6 8 e7
-      poly coat_b5 250,40@0.6 234,46@0.6 230,104@0.6 270,110@0.6 266,46@0.6 8 e7
-      poly coat_b6 305,40@0.6 289,46@0.6 285,110@0.6 325,108@0.6 321,46@0.6 8 e7
-      poly coat_a1 40,40@0.85 24,46@0.85 20,110@0.85 60,106@0.85 56,46@0.85 0 e7
-      poly coat_a2 100,40@0.85 84,46@0.85 80,108@0.85 120,112@0.85 116,46@0.85 0 e7
-      poly coat_a3 160,40@0.85 144,46@0.85 140,106@0.85 180,110@0.85 176,46@0.85 0 e7
-      poly coat_a4 220,40@0.85 204,46@0.85 200,112@0.85 240,108@0.85 236,46@0.85 0 e7
-      poly coat_a5 280,40@0.85 264,46@0.85 260,108@0.85 300,106@0.85 296,46@0.85 0 e7
-      poly sleeve_a2 84,60@0.85 60,76@0.85 62,82@0.85 88,68@0.85 0 e7
-      poly sleeve_a4 236,64@0.85 262,82@0.85 258,88@0.85 232,72@0.85 0 e7
-      poly sleeve_b3 156,56@0.6 180,70@0.6 177,76@0.6 154,62@0.6 8 e7
-      dots pegs_a 40,38@0.85 100,38@0.85 160,38@0.85 220,38@0.85 280,38@0.85 c15
-      dots pegs_b 30,38@0.6 85,38@0.6 140,38@0.6 195,38@0.6 250,38@0.6 305,38@0.6 c15
-      dots pegs_c 40,38@0.42 110,38@0.42 180,38@0.42 250,38@0.42 c15
-      poly yard_window 320,96@0.7 320,96@0.55 320,60@0.55 320,60@0.7 14 e0
-      line window_bar_v 240,63 240,87 c0
-      line window_bar_h 224,75 256,75 c0
-      poly yard_door 0,136@0.92 0,136@0.74 0,60@0.74 0,60@0.92 0 e7
-      dots door_handle 0,100@0.78 c7
-      ellipse puddle_a 80,118,22,3 mix:,15@0.4
-      ellipse puddle_b 220,108,16,2 mix:,15@0.4
-      ellipse puddle_c 150,92,8,1 mix:,15@0.4
-      dots drips 60,90 120,92 180,100 230,96 c15
-      line stone_a 0,128 320,130 c0
-      line stone_b 0,112 320,113 c0
-      line flag_a -40,136@1 -40,136@0.4 c0
-      line flag_b 90,136@1 90,136@0.4 c0
-      line flag_c 220,136@1 220,136@0.4 c0
-      line flag_d 350,136@1 350,136@0.4 c0
-      ellipse bucket 228,100,6,5 0 e7
-      line bucket_handle 222,98 228,92 234,98 c7
-      ellipse haze_a 107,76,90,10 mix:,15@0.25
-      ellipse haze_b 107,58,120,14 mix:,15@0.2
-    `,
-    cycles: [{ name: "the window", areas: ["yard_window"], colors: [14, 6], style: "pingpong", ms: 3800 }]
-  }
+  lift_car: { version: 1, draw: `rect wall 0,0,320,102 8
+rect ceil 0,0,320,12 0
+rect ceil_edge 0,12,320,2 7
+rect floor 0,102,320,34 fade:8,0/0,102/0,136
+rect skirt 0,98,320,4 0
+rect shade_l 0,14,22,84 mix:8,0@0.4
+rect shade_r 298,14,22,84 mix:8,0@0.4
+line seam_a 46,14 46,98 c0
+line seam_b 273,14 273,98 c0
+rect vent 12,28,22,12 7 e0
+line vent_a 14,31 32,31 c0
+line vent_b 14,34 32,34 c0
+line vent_c 14,37 32,37 c0
+rect plaque 282,30,26,14 7 e0
+dots plaque_d 286,34 292,34 298,34 304,34 286,39 296,39 c0
+rect rail 0,62,320,4 7
+rect rail_sh 0,66,320,2 0
+rect bracket_a 30,66,3,6 8 e0
+rect bracket_b 70,66,3,6 8 e0
+rect bracket_c 290,66,3,6 8 e0
+rect panel 88,30,48,66 7 e0
+rect panel_head 92,34,40,6 8
+dots panel_rivets 91,33 129,33 91,92 129,92 c0
+rect bt1 94,44,10,9 14 e6
+rect bt2 107,44,10,9 14 e6
+rect bt3 120,44,10,9 14 e6
+rect bt4 94,56,10,9 14 e6
+rect bt5 107,56,10,9 14 e6
+rect bt6 120,56,10,9 14 e6
+rect bt7 94,68,10,9 14 e6
+rect bt8 107,68,10,9 14 e6
+rect bt9 120,68,10,9 14 e6
+rect bt10 94,80,10,9 14 e6
+rect bt11 107,80,10,9 14 e6
+rect bt12 120,80,10,9 14 e6
+rect hook 144,40,3,6 6
+rect beyond 176,28,84,74 fade:8,0/176,60/260,60
+rect gframe_l 172,26,6,76 7 e0
+rect gframe_r 258,26,6,76 7 e0
+rect gtop 172,22,92,6 7 e0
+line lat_a 178,30 214,100 c14
+line lat_b 214,30 178,100 c14
+line lat_c 214,30 250,100 c14
+line lat_d 250,30 214,100 c14
+line lat_e 178,64 256,64 c6
+dots gate_rivets 175,36 175,60 175,84 261,36 261,60 261,84 c0
+rect exitl 200,14,36,6 2 e0
+rect lamp 140,4,40,6 15 e7
+ellipse halo_a 160,12,52,14 mix:,15@0.10
+ellipse halo_b 160,12,30,8 mix:,15@0.2
+line tile_a 0,112 320,112 c0
+line tile_b 0,124 320,124 c0
+line tile_c 110,102 96,136 c0
+line tile_d 210,102 224,136 c0
+rect mat 130,122,60,10 mix:8,0@0.5`, cycles: [{"name": "exit lamp", "areas": ["exitl"], "colors": [2, 10], "style": "pingpong", "ms": 2400}], overlays: [{"object": "handset", "at": [140, 44]}] },
+  lobby: { version: 1, draw: `vp 213,66
+poly lwall 0,0 190,50 190,92 0,136 mix:0,6@0.5
+poly rwall 320,0 236,50 236,92 320,136 mix:0,6@0.5
+poly ceil 0,0 320,0 236,50 190,50 mix:0,6@0.25
+rect back 190,50,46,42 6 e0
+poly floor 0,136 190,92 236,92 320,136 fade:0,6/213,136/213,92
+line skirt_l 0,136 190,92 c0
+line skirt_r 320,136 236,92 c0
+line pl_a 0,136@1 0,136@0.38 c0
+line pl_b 80,136@1 80,136@0.38 c0
+line pl_c 160,136@1 160,136@0.38 c0
+line pl_d 240,136@1 240,136@0.38 c0
+poly runner 120,136@1 300,136@1 300,136@0.38 120,136@0.38 mix:4,0@0.5 e0
+dots brass_l1 0,8@0.95 0,8@0.85 0,8@0.75 0,8@0.65 0,8@0.55 0,8@0.45 0,8@0.35 0,8@0.25 c14
+dots brass_l2 0,22@0.95 0,22@0.85 0,22@0.75 0,22@0.65 0,22@0.55 0,22@0.45 0,22@0.35 0,22@0.25 c14
+dots brass_r1 320,8@0.95 320,8@0.85 320,8@0.75 320,8@0.65 320,8@0.55 320,8@0.45 320,8@0.35 320,8@0.25 c14
+dots brass_r2 320,24@0.95 320,24@0.85 320,24@0.75 320,24@0.65 320,24@0.55 320,24@0.45 320,24@0.35 320,24@0.25 c14
+dots brass_r3 320,40@0.95 320,40@0.85 320,40@0.75 320,40@0.65 320,40@0.55 320,40@0.45 320,40@0.35 320,40@0.25 c14
+dots brass_r4 320,56@0.95 320,56@0.85 320,56@0.75 320,56@0.65 320,56@0.55 320,56@0.45 320,56@0.35 320,56@0.25 c14
+dots brass_r5 320,72@0.95 320,72@0.85 320,72@0.75 320,72@0.65 320,72@0.55 320,72@0.45 320,72@0.35 320,72@0.25 c14
+dots brass_r6 320,88@0.95 320,88@0.85 320,88@0.75 320,88@0.65 320,88@0.55 320,88@0.45 320,88@0.35 320,88@0.25 c14
+dots brass_r7 320,104@0.95 320,104@0.85 320,104@0.75 320,104@0.65 320,104@0.55 320,104@0.45 320,104@0.35 320,104@0.25 c14
+dots brass_r8 320,120@0.95 320,120@0.85 320,120@0.75 320,120@0.65 320,120@0.55 320,120@0.45 320,120@0.35 320,120@0.25 c14
+poly board 0,20@0.95 0,56@0.95 0,56@0.72 0,20@0.72 0 e6
+dots keys_a 0,30@0.91 0,30@0.86 0,30@0.81 0,30@0.76 c14
+dots keys_b 0,44@0.91 0,44@0.86 0,44@0.81 c14
+dots nail_empty 0,44@0.76 c7
+poly desk_top 0,92@1 26,92@1 26,92@0.7 0,92@0.7 14
+rect hobb_body 40,70,18,17 8 e0
+ellipse hobb_head 49,64,5,6 12
+rect hobb_hair 44,57,11,3 7
+poly desk 26,126@1 26,92@1 26,92@0.7 26,126@0.7 6 e0
+ellipse bell 14,90,3,2 14
+poly door_w 0,118@0.6 0,42@0.6 0,42@0.42 0,118@0.42 0 e6
+poly door_e 320,118@0.85 320,40@0.85 320,40@0.55 320,118@0.55 0 e6
+rect door_frame 200,54,26,38 0 e6
+rect door_glass 203,58,20,28 mix:1,9@0.5
+line mun_a 213,58 213,86 c0
+line mun_b 203,72 223,72 c0
+rect handle 205,74,2,4 14
+rect sign 202,45,22,5 15 e0
+line sign_l 205,47 221,47 c0
+line cord_a 150,0 150,18 c0
+ellipse lamp_a 150,22,7,4 14
+line cord_b 181,12 181,32 c0
+ellipse lamp_b 181,35,4,3 14
+ellipse lamp_c 199,43,2,2 14
+ellipse halo_o 150,24,34,18 mix:,14@0.12
+ellipse halo_i 150,23,18,10 mix:,14@0.22` },
+  panel: { version: 1, draw: `rect wall 0,0,320,100 mix:0,6@0.5
+rect cband 0,0,320,8 0
+rect pipe 0,8,320,4 6 e0
+rect floor 0,100,320,36 fade:0,6/0,136/0,100
+line skirt 0,100 320,100 c0
+dots brass_1 5,14 15,14 25,14 35,14 45,14 55,14 65,14 75,14 85,14 95,14 105,14 115,14 125,14 135,14 145,14 155,14 165,14 175,14 185,14 195,14 205,14 215,14 225,14 235,14 245,14 255,14 265,14 275,14 285,14 295,14 305,14 315,14 c14
+dots brass_2 10,24 20,24 30,24 40,24 50,24 60,24 70,24 80,24 90,24 100,24 110,24 120,24 130,24 140,24 150,24 160,24 170,24 180,24 190,24 200,24 210,24 220,24 230,24 240,24 250,24 260,24 270,24 280,24 290,24 300,24 310,24 c14
+dots brass_3 5,34 15,34 25,34 35,34 45,34 55,34 65,34 75,34 85,34 95,34 105,34 115,34 125,34 135,34 145,34 155,34 165,34 175,34 185,34 195,34 205,34 215,34 225,34 235,34 245,34 255,34 265,34 275,34 285,34 295,34 305,34 315,34 c14
+dots brass_4 10,44 20,44 30,44 40,44 50,44 60,44 70,44 80,44 90,44 100,44 110,44 120,44 130,44 140,44 150,44 160,44 170,44 180,44 190,44 200,44 210,44 220,44 230,44 240,44 250,44 260,44 270,44 280,44 290,44 300,44 310,44 c14
+dots brass_5 5,54 15,54 25,54 35,54 45,54 55,54 65,54 75,54 85,54 95,54 105,54 115,54 125,54 135,54 145,54 155,54 165,54 175,54 185,54 195,54 205,54 215,54 225,54 235,54 245,54 255,54 265,54 275,54 285,54 295,54 305,54 315,54 c14
+dots brass_6 10,64 20,64 30,64 40,64 50,64 60,64 70,64 80,64 90,64 100,64 110,64 120,64 130,64 140,64 150,64 160,64 170,64 180,64 190,64 200,64 210,64 220,64 230,64 240,64 250,64 260,64 270,64 280,64 290,64 300,64 310,64 c14
+dots brass_7 5,74 15,74 25,74 35,74 45,74 55,74 65,74 75,74 85,74 95,74 105,74 115,74 125,74 135,74 145,74 155,74 165,74 175,74 185,74 195,74 205,74 215,74 225,74 235,74 245,74 255,74 265,74 275,74 285,74 295,74 305,74 315,74 c14
+dots brass_8 10,84 20,84 30,84 40,84 50,84 60,84 70,84 80,84 90,84 100,84 110,84 120,84 130,84 140,84 150,84 160,84 170,84 180,84 190,84 200,84 210,84 220,84 230,84 240,84 250,84 260,84 270,84 280,84 290,84 300,84 310,84 c14
+dots brass_9 5,94 15,94 25,94 35,94 45,94 55,94 65,94 75,94 85,94 95,94 105,94 115,94 125,94 135,94 145,94 155,94 165,94 175,94 185,94 195,94 205,94 215,94 225,94 235,94 245,94 255,94 265,94 275,94 285,94 295,94 305,94 315,94 c14
+rect blk 168,34,90,64 0 e6
+rect btn7 176,42,16,16 14 e6
+rect btn13 196,42,16,16 12 e4
+rect btn22 216,42,16,16 14 e6
+rect btn28 236,42,16,16 14 e6
+rect btn35 176,68,16,16 14 e6
+rect btn41 196,68,16,16 14 e6
+rect btn52 216,68,16,16 14 e6
+rect btn60 236,68,16,16 14 e6
+rect plate_7 176,60,16,3 7
+rect plate_13 196,60,16,3 7
+rect plate_22 216,60,16,3 7
+rect plate_28 236,60,16,3 7
+rect plate_35 176,86,16,3 7
+rect plate_41 196,86,16,3 7
+rect plate_52 216,86,16,3 7
+rect plate_60 236,86,16,3 7
+dots rivets 172,38 254,38 172,94 254,94 c15
+ellipse glow 213,66,50,34 mix:,14@0.10
+rect lamp 200,18,26,5 14
+ellipse halo_o 213,26,44,18 mix:,14@0.10
+ellipse halo_i 213,24,26,10 mix:,14@0.2
+line smoke 204,40 201,30 205,22 202,12 c15
+poly arch_n 88,100 88,58 105,46 122,58 122,100 0 e6
+line sh1 92,70 118,70 c6
+line sh2 92,84 118,84 c6
+dots led 96,64 104,64 112,64 96,78 104,78 112,78 c4
+poly door_w 6,100 6,50 22,40 38,50 38,100 0 e6
+rect w_glow 10,58,24,42 mix:0,14@0.15
+poly door_e 282,100 282,50 298,40 314,50 314,100 0 e6
+rect e_glow 286,58,24,42 mix:0,4@0.4
+rect mat 150,104,126,12 mix:4,0@0.5 e0
+line fb1 0,112 320,112 c0
+line fb2 0,124 320,124 c0
+line fb3 60,100 40,136 c0
+line fb4 130,100 120,136 c0
+line fb5 290,100 300,136 c0` },
+  register: { version: 1, draw: `vp 213,64
+poly lwall 0,0 138,42 138,89 0,136 mix:0,6@0.5
+poly rwall 320,0 250,42 250,89 320,136 mix:0,6@0.5
+poly ceil 0,0 320,0 250,42 138,42 mix:0,6@0.25
+rect back 138,42,112,47 mix:0,6@0.55
+poly floor 0,136 138,89 250,89 320,136 fade:0,6/213,136/213,89
+line skirt_l 0,136 138,89 c0
+line skirt_r 320,136 250,89 c0
+line shelf_l1 0,14@1 0,14@0.35 c6
+line shelf_l2 0,40@1 0,40@0.35 c6
+line shelf_l3 0,66@1 0,66@0.35 c6
+line shelf_l4 0,92@1 0,92@0.35 c6
+line shelf_l5 0,118@1 0,118@0.35 c6
+line shelf_r1 320,14@1 320,14@0.35 c6
+line shelf_r2 320,40@1 320,40@0.35 c6
+line shelf_r3 320,66@1 320,66@0.35 c6
+line shelf_r4 320,92@1 320,92@0.35 c6
+line shelf_r5 320,118@1 320,118@0.35 c6
+dots book_l1 0,28@0.95 0,28@0.88 0,28@0.81 0,28@0.74 0,28@0.67 0,28@0.6 0,28@0.53 0,28@0.46 0,28@0.39 c4
+dots book_l2 0,54@0.95 0,54@0.88 0,54@0.81 0,54@0.74 0,54@0.67 0,54@0.6 0,54@0.53 0,54@0.46 0,54@0.39 c14
+dots book_l3 0,80@0.95 0,80@0.88 0,80@0.81 0,80@0.74 0,80@0.67 0,80@0.6 0,80@0.53 0,80@0.46 0,80@0.39 c4
+dots book_l4 0,106@0.95 0,106@0.88 0,106@0.81 0,106@0.74 0,106@0.67 0,106@0.6 0,106@0.53 0,106@0.46 0,106@0.39 c14
+dots book_r1 320,28@0.95 320,28@0.88 320,28@0.81 320,28@0.74 320,28@0.67 320,28@0.6 320,28@0.53 320,28@0.46 320,28@0.39 c14
+dots book_r2 320,54@0.95 320,54@0.88 320,54@0.81 320,54@0.74 320,54@0.67 320,54@0.6 320,54@0.53 320,54@0.46 320,54@0.39 c4
+dots book_r3 320,80@0.95 320,80@0.88 320,80@0.81 320,80@0.74 320,80@0.67 320,80@0.6 320,80@0.53 320,80@0.46 320,80@0.39 c14
+dots book_r4 320,106@0.95 320,106@0.88 320,106@0.81 320,106@0.74 320,106@0.67 320,106@0.6 320,106@0.53 320,106@0.46 320,106@0.39 c4
+rect cabinet 190,46,42,43 6 e0
+line cab_mid 211,46 211,89 c0
+rect cab_plate 197,52,28,5 14
+ellipse keyhole 205,70,2,2 0
+ellipse knob_b 217,70,2,2 14
+line cab_top 190,46 232,46 c14
+line pl_a 40,136@1 40,136@0.35 c0
+line pl_b 120,136@1 120,136@0.35 c0
+line pl_c 200,136@1 200,136@0.35 c0
+line pl_d 280,136@1 280,136@0.35 c0
+poly lect 262,112 266,86 302,86 306,112 6 e0
+rect lect_top 260,82,48,5 14 e0
+poly ledger_open 270,82 276,76 296,76 300,82 15 e0
+line cord 150,0 150,26 c0
+ellipse lamp 150,30,7,4 14
+ellipse halo_o 150,32,34,18 mix:,14@0.12
+ellipse halo_i 150,31,18,10 mix:,14@0.22` },
+  sorting: { version: 1, draw: `vp 107,64
+poly lwall 0,0 76,45 76,85 0,136 mix:0,6@0.5
+poly rwall 320,0 169,45 169,85 320,136 mix:0,6@0.5
+poly ceil 0,0 320,0 169,45 76,45 mix:0,6@0.25
+rect back 76,45,93,40 mix:0,6@0.4
+poly floor 0,136 76,85 169,85 320,136 fade:0,6/107,136/107,85
+line skirt_l 0,136 76,85 c0
+line skirt_r 320,136 169,85 c0
+line shelf_l1 0,14@1 0,14@0.29 c6
+line shelf_l2 0,44@1 0,44@0.29 c6
+line shelf_l3 0,74@1 0,74@0.29 c6
+line shelf_l4 0,104@1 0,104@0.29 c6
+line shelf_r1 320,14@1 320,14@0.29 c6
+line shelf_r2 320,44@1 320,44@0.29 c6
+line shelf_r3 320,74@1 320,74@0.29 c6
+line shelf_r4 320,104@1 320,104@0.29 c6
+dots tray_l1 0,30@0.95 0,30@0.85 0,30@0.75 0,30@0.65 0,30@0.55 0,30@0.45 0,30@0.37 c15
+dots tray_l2 0,58@0.95 0,58@0.85 0,58@0.75 0,58@0.65 0,58@0.55 0,58@0.45 0,58@0.37 c14
+dots tray_l3 0,88@0.95 0,88@0.85 0,88@0.75 0,88@0.65 0,88@0.55 0,88@0.45 0,88@0.37 c15
+dots tray_r1 320,30@0.9 320,30@0.7 320,30@0.55 320,30@0.44 320,30@0.36 320,30@0.3 c14
+dots tray_r2 320,58@0.9 320,58@0.7 320,58@0.55 320,58@0.44 320,58@0.36 320,58@0.3 c15
+dots tray_r3 320,88@0.9 320,88@0.7 320,88@0.55 320,88@0.44 320,88@0.36 320,88@0.3 c14
+poly table_top 60,100@1 150,100@1 150,100@0.45 60,100@0.45 mix:6,14@0.3 e0
+rect table_front 60,100,90,26 6 e0
+rect leg_l 62,126,5,10 0
+rect leg_r 143,126,5,10 0
+rect s_door 118,54,22,31 0 e6
+rect s_door_knob 136,70,2,2 14
+rect tr1 70,93,16,7 15 e0
+rect tr2 94,95,16,5 14 e0
+rect tr3 130,92,14,8 15 e0
+rect tr4 96,85,8,3 14 e0
+rect tr5 112,84,8,3 15 e0
+rect tr6 84,82,7,3 14 e0
+line cord 107,0 107,22 c0
+poly lampshade 94,32 120,32 112,22 102,22 2 e0
+ellipse halo_o 107,36,40,16 mix:,14@0.12
+ellipse halo_i 107,35,22,9 mix:,14@0.22
+ellipse stool_top 232,112,12,4 6 e0
+line stool_a 224,114 222,134 c0
+line stool_b 240,114 242,134 c0
+rect crate 262,100,34,24 6 e0
+line crate_a 262,112 296,112 c0
+line pl_a 20,136@1 20,136@0.29 c0
+line pl_b 190,136@1 190,136@0.29 c0
+line pl_c 270,136@1 270,136@0.29 c0`, overlays: [{"object": "spool", "at": [116, 84]}, {"object": "shell_button", "at": [74, 88]}] },
+  mending: { version: 1, draw: `poly lwall 0,0 90,14 90,100 0,126 mix:0,6@0.55
+rect back 90,14,230,86 mix:0,6@0.5
+poly ceil 0,0 90,14 320,14 320,0 mix:0,6@0.2
+poly floor 0,136 0,126 90,100 320,100 320,136 fade:0,6/200,136/200,100
+line skirt_b 90,100 320,100 c0
+line skirt_l 0,126 90,100 c0
+rect win_frame 186,24,56,42 0 e6
+rect win_glass 190,28,48,34 mix:1,9@0.5
+line win_m1 214,28 214,62 c0
+line win_m2 190,45 238,45 c0
+rect win_sill 182,66,64,4 6 e0
+rect shelf 252,52,52,3 6 e0
+dots spools 258,48 266,48 274,48 282,48 290,48 298,48 c15
+line rail 4,54 84,60 c14
+poly coat_a 10,56 20,56 24,98 8,100 mix:0,6@0.3 e6
+poly coat_b 30,57 40,57 44,98 28,98 4 e0
+poly coat_c 52,58 62,58 64,98 50,98 mix:0,6@0.3 e6
+poly coat_d 70,59 80,59 82,98 68,98 mix:0,6@0.6 e6
+rect rug 90,108,120,22 mix:4,0@0.5 e0
+rect mach_table 92,80,52,6 6 e0
+rect mach_leg1 96,86,4,14 0
+rect mach_leg2 136,86,4,14 0
+rect mach_head 100,68,30,12 0 e6
+poly mach_arm 104,68 104,60 128,60 128,72 0 e6
+ellipse mach_wheel 134,76,6,6 14 e0
+rect treadle 106,96,24,3 6 e0
+poly venn 106,100 108,74 130,74 132,100 0 e6
+ellipse venn_head 119,67,5,6 12
+ellipse venn_bun 119,60,4,3 6
+poly form 160,100 162,80 164,64 172,64 174,80 176,100 6 e0
+line form_stand 168,100 168,114 c0
+ellipse form_base 168,116,10,3 0
+line cord_m 118,14 118,40 c0
+ellipse lamp_m 118,44,8,4 14
+ellipse halo_o 118,48,36,20 mix:,14@0.12
+ellipse halo_i 118,47,20,11 mix:,14@0.22
+poly door_e 292,100 292,40 306,32 320,36 320,100 0 e6
+ellipse knob_e 296,72,2,2 14
+line fb1 100,112 320,112 c0
+line fb2 60,124 320,124 c0
+line fb3 20,136 90,104 c0` },
+  canteen: { version: 1, draw: `rect wall 0,0,320,92 fade:14,6/0,0/0,92
+rect floor 0,92,320,44 4
+line skirt 0,92 320,92 c0
+line fb1 0,104 320,104 c0
+line fb2 0,118 320,118 c0
+line fb3 40,92 20,136 c0
+line fb4 110,92 100,136 c0
+line fb5 200,92 205,136 c0
+line fb6 280,92 295,136 c0
+poly arch_n 14,92 14,50 30,38 46,50 46,92 0 e6
+rect n_glow 18,52,24,40 mix:0,14@0.25
+rect win_frame 70,22,50,36 0 e6
+rect win_glass 74,26,42,28 mix:9,11@0.4
+line win_m1 95,26 95,54 c0
+line win_m2 74,40 116,40 c0
+rect win_sill 66,58,58,4 7 e0
+rect board 140,30,24,16 0 e6
+line chalk_a 144,35 160,35 c15
+line chalk_b 144,40 156,40 c15
+rect counter 170,70,110,26 7 e0
+rect counter_top 166,66,118,5 15 e0
+rect cshadow 170,96,110,3 0
+rect urn_body 198,36,28,34 14 e0
+rect urn_sh 214,36,12,34 6
+ellipse urn_lid 212,34,14,5 6 e0
+rect urn_tap 194,56,6,4 6 e0
+rect urn_foot 198,70,28,3 6
+rect tray 238,62,34,4 15 e0
+rect cup_a 242,56,8,6 15 e0
+rect cup_b 254,56,8,6 15 e0
+rect cup_c 266,56,8,6 15 e0
+ellipse table_a 60,104,26,6 15 e0
+line pole_a 60,110 60,128 c0
+ellipse base_a 60,130,10,3 0
+ellipse table_b 128,98,16,4 15 e0
+line pole_b 128,102 128,116 c0
+ellipse base_b 128,118,7,2 0
+poly chair_a 22,130 24,106 34,106 36,130 0 e6
+poly chair_b 86,128 88,108 98,108 100,128 0 e6
+poly chair_c 148,114 150,100 156,100 158,114 0 e6
+line cord 130,0 130,16 c0
+ellipse lamp 130,19,7,3 15
+ellipse halo_o 130,22,30,14 mix:,15@0.12
+ellipse halo_i 130,21,16,8 mix:,15@0.22
+poly door_r 296,92 296,50 308,42 320,50 320,92 0 e6` },
+  engine: { version: 1, draw: `poly lwall 0,0 70,18 70,96 0,128 mix:0,4@0.25
+rect back 70,18,250,78 mix:0,4@0.35
+poly ceil 0,0 70,18 320,18 320,0 0
+poly floor 0,136 0,128 70,96 320,96 320,136 fade:4,0/190,96/190,136
+line skirt_b 70,96 320,96 c0
+line skirt_l 0,128 70,96 c0
+rect ceilpipe 70,18,250,6 4 e0
+rect ceilpipe2 0,4,70,6 4 e0
+rect drum 116,36,150,60 4 e0
+rect band_a 116,50,150,4 12
+rect band_b 116,80,150,4 12
+rect pipe_1 124,22,8,70 12 e0
+rect pipe_2 138,30,8,62 12 e0
+rect pipe_3 152,18,8,74 12 e0
+rect pipe_4 212,26,8,66 12 e0
+rect pipe_5 226,34,8,58 12 e0
+rect pipe_6 240,20,8,72 12 e0
+poly furnace 168,60 202,60 202,92 168,92 14 e0
+line furn_bar 168,76 202,76 c0
+line furn_bar2 185,60 185,92 c0
+ellipse halo_o 185,76,44,30 mix:,14@0.12
+ellipse halo_i 185,76,26,18 mix:,14@0.22
+ellipse gauge_1 30,50,9,9 15 e0
+line needle_1 30,50 35,45 c0
+ellipse gauge_2 56,58,7,7 15 e0
+line needle_2 56,58 53,54 c0
+poly door_w 10,116 10,46 52,40 52,98 0 e6
+rect valve 20,76,16,4 7 e0
+line valve_pipe 28,80 28,108 c7
+rect post 224,82,8,34 7 e0
+rect post_foot 218,114,20,4 7 e0
+rect bigbtn_body 216,76,24,7 4 e0
+ellipse bigbtn 228,75,12,5 12 e4
+line grate_1 90,108 310,108 c4
+line grate_2 60,122 320,122 c4
+line grate_3 120,96 100,136 c4
+line grate_4 260,96 280,136 c4
+dots sparks 150,100 164,106 240,100 262,112 c14` },
 };
 
-// ---- The ending pictures: no overlays, no edits ---------------------------------------------------------------------------------
 export const endings = {
-  // OUTSIDE: wide landscape, a street at the end of the day; the figure in the buttoned coat walking towards the low sun
-  outside: {
-    version: 1,
-    draw: `
-      rect sky_a 0,0,320,26 fade:1,5/0,0/0,26
-      rect sky_b 0,26,320,28 fade:5,12/0,26/0,54
-      rect sky_c 0,54,320,26 12
-      poly cloud_a 20,40 70,36 110,42 80,48 30,47 5
-      poly cloud_b 150,22 200,18 250,24 210,30 160,29 5
-      poly cloud_c 240,48 290,44 316,50 270,56 245,54 5
-      poly cloud_d 100,60 140,58 160,62 130,66 108,65 13
-      line cloud_streak_a 10,30 60,28 c5
-      line cloud_streak_b 180,40 230,38 c5
-      line cloud_streak_c 120,12 170,10 c5
-      ellipse sun 213,72,12,12 14
-      poly far_bld_a 170,64 184,64 184,80 170,80 0
-      poly far_bld_b 238,62 250,62 250,80 238,80 0
-      poly bld_l1 0,14 50,14 50,80 0,80 0
-      poly bld_l2 50,36 92,36 92,80 50,80 0
-      poly bld_l3 92,52 130,52 130,80 92,80 0
-      poly bld_l4 130,62 168,62 168,80 130,80 0
-      poly bld_r1 250,40 290,40 290,80 250,80 0
-      poly bld_r2 290,18 320,18 320,80 290,80 0
-      rect chimney_a 20,6,6,8 0
-      rect chimney_b 64,28,5,8 0
-      rect chimney_c 300,10,6,8 0
-      line antenna_a 108,52 108,40 c0
-      line antenna_b 268,40 268,28 c0
-      dots windows_l 14,30 24,30 34,44 14,50 24,60 34,64 62,48 76,56 62,68 104,62 118,70 142,70 c14
-      dots windows_r 258,50 272,56 258,64 298,30 312,36 298,50 312,60 298,70 c14
-      poly street 0,136 320,136 320,80 0,80 fade:5,1/0,80/0,136
-      line kerb_l 0,136 180,82 c1
-      line kerb_r 320,136 246,82 c1
-      dots reflect_a 206,86 220,88 212,92 226,95 205,98 218,102 210,108 c14
-      line reflect_1 200,90 224,90 c12
-      line reflect_2 204,96 222,96 c12
-      line reflect_3 208,103 218,103 c12
-      ellipse puddle_a 60,100,14,2 mix:,12@0.5
-      ellipse puddle_b 160,118,18,3 mix:,12@0.5
-      ellipse puddle_c 280,112,12,2 mix:,12@0.5
-      line post_a 182,52 182,82 c0
-      ellipse post_a_head 182,50,3,2 14
-      line post_b 246,56 246,82 c0
-      ellipse post_b_head 246,54,3,2 14
-      rect door_frame 10,54,32,26 0 e9
-      ellipse door_cyl 26,67,12,12 mix:9,11@0.5 e0
-      line door_cross_a 14,67 38,67 c0
-      line door_cross_b 26,55 26,79 c0
-      line wire_a 0,24 90,30 180,26 c0
-      line wire_b 180,26 250,34 320,28 c0
-      line wire_c 0,44 60,48 130,44 c0
-      poly fig_shadow 98,124 112,124 124,136 90,136 0
-      ellipse fig_head 107,84,4,4 0
-      poly fig_coat 100,88 114,88 117,116 97,116 0
-      poly fig_arm 96,90 93,106 96,106 99,92 0
-      rect fig_leg_l 101,116,4,8 0
-      rect fig_leg_r 108,116,4,8 0
-      dots birds 60,22 70,26 82,20 130,34 c0
-      rect door_step 6,80,40,3 0
-      poly awning 4,50 48,50 44,56 8,56 4
-      dots cobbles 20,126 70,130 150,132 230,128 290,124 c1
-      poly bld_r3 232,56 250,56 250,80 232,80 0
-      line wire_d 250,34 320,28 c0
-      dots windows_far 174,70 178,74 242,70 244,74 c14
-    `,
-    cycles: []
-  },
-
-  // KEPT: from behind the counter at lamplight; the open ledger with a clean page, the bell, a green eyeshade left on its hook
-  kept: {
-    version: 1,
-    draw: `
-      rect hall_dark 0,0,320,92 0
-      poly roof_glass 40,0 280,0 260,36 60,36 1
-      line glass_rib_a 100,0 94,36 c9
-      line glass_rib_b 160,0 160,36 c9
-      line glass_rib_c 220,0 226,36 c9
-      dots stars 70,6 110,14 150,8 190,20 240,10 270,26 90,28 c15
-      rect far_floor 0,80,320,12 mix:0,6@0.3
-      line far_rail_a 0,84 320,84 c6
-      line far_rail_b 0,89 320,89 c6
-      line far_tile_a 60,80 40,92 c6
-      line far_tile_b 150,80 150,92 c6
-      line far_tile_c 250,80 270,92 c6
-      rect col_a 4,38,12,54 mix:0,6@0.4
-      rect col_b 168,40,10,52 mix:0,6@0.4
-      rect col_c 232,40,10,52 mix:0,6@0.4
-      rect shelf_l1 14,52,80,3 6 e0
-      rect shelf_l2 14,72,80,3 6 e0
-      rect spines_a 16,40,76,12 mix:4,0@0.4
-      rect spines_b 16,60,76,12 mix:6,0@0.4
-      dots spine_tops 20,41 34,41 50,42 66,41 82,42 c14
-      rect pillar_r 270,8,24,84 mix:0,6@0.5
-      dots hooks_r 282,30 282,50 282,70 c14
-      poly hat 274,22 290,22 288,30 276,30 0 e14
-      rect eyeshade 274,44,16,5 2 e0
-      rect notice_board 190,12,44,36 mix:0,6@0.6
-      rect notice_a 196,20,14,18 15 e6
-      rect notice_b 214,26,12,12 14 e6
-      poly counter_top 0,96 320,92 320,136 0,136 6 e0
-      rect counter_front 0,126,320,10 0
-      line counter_far 0,96 320,92 c14
-      line grain_a 0,106 320,102 c0
-      line grain_b 0,114 320,110 c0
-      line grain_c 0,122 320,119 c0
-      line grain_d 40,98 30,128 c0
-      ellipse halo_3 150,76,70,46 mix:,14@0.1
-      ellipse halo_2 150,76,48,32 mix:,14@0.2
-      ellipse halo_1 150,76,26,18 mix:,14@0.35
-      poly lamp_pool 100,100 200,98 230,128 70,130 fade:,14/150,100/150,128
-      poly ledger_cover 58,114 154,114 150,132 62,134 4 e0
-      poly ledger_l 62,112 106,106 108,120 66,128 15 e6
-      poly ledger_r 108,106 152,112 148,128 110,120 15 e6
-      line figures_a 70,114 102,110 c6
-      line figures_b 70,118 104,114 c6
-      line figures_c 70,122 106,118 c6
-      dots page_clean 120,114 126,116 134,118 140,119 c14
-      line pen 120,104 138,96 c0
-      ellipse ink 168,104,5,3 0 e6
-      ellipse cup 188,104,6,2 15 e8
-      ellipse cup_saucer 188,106,9,2 15
-      rect stack_a 20,98,34,6 4 e6
-      rect stack_b 22,92,30,6 6 e14
-      rect stack_c 24,86,28,6 2 e6
-      dots clips 100,118 144,100 176,112 c15
-      ellipse lamp_base 150,100,9,3 14 e6
-      rect lamp_column 148,76,4,24 14
-      poly lamp_shade 138,76 162,76 168,64 132,64 0 e14
-      ellipse lamp_glow 150,78,6,4 15
-      ellipse bell_top 213,100,8,6 14 e6
-      rect bell_base 205,102,16,3 14
-      ellipse bell_knob 213,92,2,2 14
-    `,
-    cycles: [{ name: "the lamp", areas: ["lamp_glow"], colors: [15, 14], style: "flicker", ms: [1500, 3600] }]
-  },
-
-  // RELEASED: close-up; the red button pressed down into its collar in the dark, buttons spilling out of the shadows round it
-  released: {
-    version: 1,
-    draw: `
-      rect bg 0,0,320,136 0
-      rect drawer_a 6,12,44,20 0 e4
-      rect drawer_b 58,20,44,20 0 e4
-      rect drawer_c 110,8,44,20 0 e4
-      rect drawer_d 164,16,44,20 0 e4
-      rect drawer_e 216,6,44,20 0 e4
-      rect drawer_f 268,18,44,20 0 e4
-      rect drawer_g 20,44,44,16 0 e1
-      rect drawer_h 252,46,44,16 0 e1
-      dots pulls 28,22 80,30 132,18 186,26 238,16 290,28 c12
-      dots embers 40,50 90,44 150,30 210,42 270,52 300,34 c12
-      dots embers_b 66,60 126,50 180,56 240,66 c14
-      poly floor 0,100 320,100 320,136 0,136 mix:0,4@0.3
-      line floor_a 0,112 320,112 c4
-      line floor_b 0,122 320,122 c4
-      line floor_c 0,131 320,131 c4
-      line floor_d 80,100 40,136 c4
-      ellipse halo_3 160,78,140,64 mix:,4@0.1
-      ellipse halo_2 160,78,104,48 mix:,12@0.2
-      ellipse halo_1 160,78,76,34 mix:,14@0.35
-      poly pool 100,100 220,100 280,136 40,136 fade:,12/160,100/160,136
-      ellipse reflect 160,112,40,6 mix:4,12@0.3
-      ellipse collar_o 160,92,82,34 7 e0
-      ellipse collar_i 160,88,70,28 0
-      dots bolts 84,92 100,106 130,120 190,120 220,106 236,92 c0
-      line collar_rim 90,88 124,76 c15
-      poly btn_side 100,80 220,80 216,96 104,96 4
-      ellipse btn_top 160,78,60,22 4 e12
-      ellipse btn_hi 140,72,20,6 12
-      dots btn_glint 150,70 c14
-      ellipse spill_a 26,100,8,5 12 e0
-      ellipse spill_b 48,116,10,6 14 e0
-      ellipse spill_c 14,124,9,5 7 e0
-      ellipse spill_d 60,104,6,4 12 e0
-      ellipse spill_e 84,120,7,4 14 e0
-      ellipse spill_f 36,84,5,3 7 e0
-      ellipse spill_g 296,104,8,5 14 e0
-      ellipse spill_h 270,120,10,6 12 e0
-      ellipse spill_i 306,126,9,5 7 e0
-      ellipse spill_j 250,104,6,4 14 e0
-      ellipse spill_k 232,124,7,4 12 e0
-      ellipse spill_l 284,86,5,3 7 e0
-      ellipse spill_m 200,118,6,3 14 e0
-      ellipse spill_n 120,122,5,3 12 e0
-      ellipse spill_o 18,110,4,2 12 e0
-      ellipse spill_p 306,92,4,2 12 e0
-      ellipse spill_q 100,128,4,2 14 e0
-      ellipse spill_r 212,130,4,2 7 e0
-      ellipse spill_s 70,132,4,2 12 e0
-      ellipse spill_t 262,132,4,2 14 e0
-      dots holes 24,100 28,100 46,116 50,116 12,124 16,124 58,104 62,104 82,120 86,120 34,84 38,84 c0
-      dots holes_r 294,104 298,104 267,120 273,120 304,126 308,126 248,104 252,104 230,124 234,124 c0
-      line thread_trail 130,122 150,126 190,124 230,128 c12
-      rect drawer_i 112,38,40,14 0 e1
-      rect drawer_j 166,40,40,14 0 e1
-      dots embers_c 20,70 100,70 220,74 300,70 c4
-      dots sparks 160,50 150,56 170,60 c14
-      ellipse spill_u 40,70,3,2 12 e0
-      ellipse spill_v 186,126,3,2 12 e0
-      ellipse spill_w 140,130,3,2 14 e0
-    `,
-    cycles: [{ name: "the glow", areas: ["halo_1", "halo_2"], colors: [14, 12], style: "pingpong", ms: 3000 }]
-  }
+  whole: { version: 1, draw: `rect sky 0,0,320,84 fade:1,12/0,0/0,84
+rect sky_mid 0,34,320,26 mix:5,12@0.5
+ellipse sun 262,76,10,10 14
+poly houses_far 0,84 0,66 14,66 14,58 34,58 34,70 60,70 60,62 84,62 84,84 0
+poly houses_far_r 236,84 236,70 262,70 262,60 290,60 290,66 320,66 320,84 0
+rect ground 0,84,320,52 0
+rect road 0,92,320,44 mix:0,8@0.5
+line kerb 0,92 320,92 c8
+line road_a 0,104 320,104 c8
+line road_b 40,116 280,116 c8
+line road_c 0,128 320,128 c8
+rect jamb_l 150,0,12,136 0 e12
+rect jamb_r 268,0,12,136 0 e12
+rect lintel 150,0,130,12 0 e12
+rect wall_l 0,24,60,60 0
+rect win_a 10,32,12,14 14
+rect win_b 36,32,12,14 14
+rect win_c 10,56,12,14 mix:14,6@0.5
+rect wall_r 292,18,28,66 0
+rect win_d 300,28,12,14 14
+rect win_e 300,54,12,14 mix:14,6@0.5
+rect lamp_post 104,34,4,54 0
+rect lamp_arm 98,32,16,3 0
+ellipse lamp_lit 106,30,6,5 14
+ellipse lamp_base 106,88,6,3 0
+rect hook_bar 196,12,34,3 14 e0
+line hanger 213,15 213,24 c14
+poly coat_body 192,40 203,28 223,28 234,40 240,100 186,100 0 e12
+poly collar 203,28 213,40 223,28 8
+poly sleeve_l 192,40 198,44 194,98 186,98 8
+poly sleeve_r 234,40 228,44 232,98 240,98 8
+line coat_seam 213,40 213,100 c8
+ellipse btn_1 213,48,3,3 14
+ellipse btn_2 213,62,3,3 14
+ellipse btn_3 213,76,3,3 14
+ellipse btn_4 213,90,3,3 14
+rect coat_hem 186,98,54,3 8
+poly coat_shadow 186,102 240,102 110,122 70,116 0
+dots stars 20,8 60,14 100,4 180,6 250,10 300,12 c15` },
+  unbuttoned: { version: 1, draw: `rect wall 0,0,320,100 mix:0,6@0.55
+rect floor 0,100,320,36 0
+line rail_a 0,100 320,100 c14
+dots holes_1 8,12 8,13 8,14 9,12 9,13 9,14 10,12 10,13 10,14 22,12 22,13 22,14 23,12 23,13 23,14 24,12 24,13 24,14 36,12 36,13 36,14 37,12 37,13 37,14 38,12 38,13 38,14 50,12 50,13 50,14 51,12 51,13 51,14 52,12 52,13 52,14 64,12 64,13 64,14 65,12 65,13 65,14 66,12 66,13 66,14 78,12 78,13 78,14 79,12 79,13 79,14 80,12 80,13 80,14 92,12 92,13 92,14 93,12 93,13 93,14 94,12 94,13 94,14 106,12 106,13 106,14 107,12 107,13 107,14 108,12 108,13 108,14 120,12 120,13 120,14 121,12 121,13 121,14 122,12 122,13 122,14 134,12 134,13 134,14 135,12 135,13 135,14 136,12 136,13 136,14 148,12 148,13 148,14 149,12 149,13 149,14 150,12 150,13 150,14 162,12 162,13 162,14 163,12 163,13 163,14 164,12 164,13 164,14 176,12 176,13 176,14 177,12 177,13 177,14 178,12 178,13 178,14 190,12 190,13 190,14 191,12 191,13 191,14 192,12 192,13 192,14 204,12 204,13 204,14 205,12 205,13 205,14 206,12 206,13 206,14 218,12 218,13 218,14 219,12 219,13 219,14 220,12 220,13 220,14 232,12 232,13 232,14 233,12 233,13 233,14 234,12 234,13 234,14 246,12 246,13 246,14 247,12 247,13 247,14 248,12 248,13 248,14 260,12 260,13 260,14 261,12 261,13 261,14 262,12 262,13 262,14 274,12 274,13 274,14 275,12 275,13 275,14 276,12 276,13 276,14 288,12 288,13 288,14 289,12 289,13 289,14 290,12 290,13 290,14 302,12 302,13 302,14 303,12 303,13 303,14 304,12 304,13 304,14 c0
+dots holes_2 15,28 15,29 15,30 16,28 16,29 16,30 17,28 17,29 17,30 29,28 29,29 29,30 30,28 30,29 30,30 31,28 31,29 31,30 43,28 43,29 43,30 44,28 44,29 44,30 45,28 45,29 45,30 57,28 57,29 57,30 58,28 58,29 58,30 59,28 59,29 59,30 71,28 71,29 71,30 72,28 72,29 72,30 73,28 73,29 73,30 85,28 85,29 85,30 86,28 86,29 86,30 87,28 87,29 87,30 99,28 99,29 99,30 100,28 100,29 100,30 101,28 101,29 101,30 113,28 113,29 113,30 114,28 114,29 114,30 115,28 115,29 115,30 127,28 127,29 127,30 128,28 128,29 128,30 129,28 129,29 129,30 141,28 141,29 141,30 142,28 142,29 142,30 143,28 143,29 143,30 155,28 155,29 155,30 156,28 156,29 156,30 157,28 157,29 157,30 169,28 169,29 169,30 170,28 170,29 170,30 171,28 171,29 171,30 183,28 183,29 183,30 184,28 184,29 184,30 185,28 185,29 185,30 197,28 197,29 197,30 198,28 198,29 198,30 199,28 199,29 199,30 211,28 211,29 211,30 212,28 212,29 212,30 213,28 213,29 213,30 225,28 225,29 225,30 226,28 226,29 226,30 227,28 227,29 227,30 239,28 239,29 239,30 240,28 240,29 240,30 241,28 241,29 241,30 253,28 253,29 253,30 254,28 254,29 254,30 255,28 255,29 255,30 267,28 267,29 267,30 268,28 268,29 268,30 269,28 269,29 269,30 281,28 281,29 281,30 282,28 282,29 282,30 283,28 283,29 283,30 295,28 295,29 295,30 296,28 296,29 296,30 297,28 297,29 297,30 309,28 309,29 309,30 310,28 310,29 310,30 311,28 311,29 311,30 c0
+dots holes_3 8,44 8,45 8,46 9,44 9,45 9,46 10,44 10,45 10,46 22,44 22,45 22,46 23,44 23,45 23,46 24,44 24,45 24,46 36,44 36,45 36,46 37,44 37,45 37,46 38,44 38,45 38,46 50,44 50,45 50,46 51,44 51,45 51,46 52,44 52,45 52,46 64,44 64,45 64,46 65,44 65,45 65,46 66,44 66,45 66,46 78,44 78,45 78,46 79,44 79,45 79,46 80,44 80,45 80,46 92,44 92,45 92,46 93,44 93,45 93,46 94,44 94,45 94,46 106,44 106,45 106,46 107,44 107,45 107,46 108,44 108,45 108,46 120,44 120,45 120,46 121,44 121,45 121,46 122,44 122,45 122,46 134,44 134,45 134,46 135,44 135,45 135,46 136,44 136,45 136,46 148,44 148,45 148,46 149,44 149,45 149,46 150,44 150,45 150,46 162,44 162,45 162,46 163,44 163,45 163,46 164,44 164,45 164,46 176,44 176,45 176,46 177,44 177,45 177,46 178,44 178,45 178,46 190,44 190,45 190,46 191,44 191,45 191,46 192,44 192,45 192,46 204,44 204,45 204,46 205,44 205,45 205,46 206,44 206,45 206,46 218,44 218,45 218,46 219,44 219,45 219,46 220,44 220,45 220,46 232,44 232,45 232,46 233,44 233,45 233,46 234,44 234,45 234,46 246,44 246,45 246,46 247,44 247,45 247,46 248,44 248,45 248,46 260,44 260,45 260,46 261,44 261,45 261,46 262,44 262,45 262,46 274,44 274,45 274,46 275,44 275,45 275,46 276,44 276,45 276,46 288,44 288,45 288,46 289,44 289,45 289,46 290,44 290,45 290,46 302,44 302,45 302,46 303,44 303,45 303,46 304,44 304,45 304,46 c0
+dots holes_4 15,60 15,61 15,62 16,60 16,61 16,62 17,60 17,61 17,62 29,60 29,61 29,62 30,60 30,61 30,62 31,60 31,61 31,62 43,60 43,61 43,62 44,60 44,61 44,62 45,60 45,61 45,62 57,60 57,61 57,62 58,60 58,61 58,62 59,60 59,61 59,62 71,60 71,61 71,62 72,60 72,61 72,62 73,60 73,61 73,62 85,60 85,61 85,62 86,60 86,61 86,62 87,60 87,61 87,62 99,60 99,61 99,62 100,60 100,61 100,62 101,60 101,61 101,62 113,60 113,61 113,62 114,60 114,61 114,62 115,60 115,61 115,62 127,60 127,61 127,62 128,60 128,61 128,62 129,60 129,61 129,62 141,60 141,61 141,62 142,60 142,61 142,62 143,60 143,61 143,62 155,60 155,61 155,62 156,60 156,61 156,62 157,60 157,61 157,62 169,60 169,61 169,62 170,60 170,61 170,62 171,60 171,61 171,62 183,60 183,61 183,62 184,60 184,61 184,62 185,60 185,61 185,62 197,60 197,61 197,62 198,60 198,61 198,62 199,60 199,61 199,62 211,60 211,61 211,62 212,60 212,61 212,62 213,60 213,61 213,62 225,60 225,61 225,62 226,60 226,61 226,62 227,60 227,61 227,62 239,60 239,61 239,62 240,60 240,61 240,62 241,60 241,61 241,62 253,60 253,61 253,62 254,60 254,61 254,62 255,60 255,61 255,62 267,60 267,61 267,62 268,60 268,61 268,62 269,60 269,61 269,62 281,60 281,61 281,62 282,60 282,61 282,62 283,60 283,61 283,62 295,60 295,61 295,62 296,60 296,61 296,62 297,60 297,61 297,62 309,60 309,61 309,62 310,60 310,61 310,62 311,60 311,61 311,62 c0
+dots holes_5 8,76 8,77 8,78 9,76 9,77 9,78 10,76 10,77 10,78 22,76 22,77 22,78 23,76 23,77 23,78 24,76 24,77 24,78 36,76 36,77 36,78 37,76 37,77 37,78 38,76 38,77 38,78 50,76 50,77 50,78 51,76 51,77 51,78 52,76 52,77 52,78 64,76 64,77 64,78 65,76 65,77 65,78 66,76 66,77 66,78 78,76 78,77 78,78 79,76 79,77 79,78 80,76 80,77 80,78 92,76 92,77 92,78 93,76 93,77 93,78 94,76 94,77 94,78 106,76 106,77 106,78 107,76 107,77 107,78 108,76 108,77 108,78 120,76 120,77 120,78 121,76 121,77 121,78 122,76 122,77 122,78 134,76 134,77 134,78 135,76 135,77 135,78 136,76 136,77 136,78 148,76 148,77 148,78 149,76 149,77 149,78 150,76 150,77 150,78 162,76 162,77 162,78 163,76 163,77 163,78 164,76 164,77 164,78 176,76 176,77 176,78 177,76 177,77 177,78 178,76 178,77 178,78 190,76 190,77 190,78 191,76 191,77 191,78 192,76 192,77 192,78 204,76 204,77 204,78 205,76 205,77 205,78 206,76 206,77 206,78 218,76 218,77 218,78 219,76 219,77 219,78 220,76 220,77 220,78 232,76 232,77 232,78 233,76 233,77 233,78 234,76 234,77 234,78 246,76 246,77 246,78 247,76 247,77 247,78 248,76 248,77 248,78 260,76 260,77 260,78 261,76 261,77 261,78 262,76 262,77 262,78 274,76 274,77 274,78 275,76 275,77 275,78 276,76 276,77 276,78 288,76 288,77 288,78 289,76 289,77 289,78 290,76 290,77 290,78 302,76 302,77 302,78 303,76 303,77 303,78 304,76 304,77 304,78 c0
+dots holes_6 15,92 15,93 15,94 16,92 16,93 16,94 17,92 17,93 17,94 29,92 29,93 29,94 30,92 30,93 30,94 31,92 31,93 31,94 43,92 43,93 43,94 44,92 44,93 44,94 45,92 45,93 45,94 57,92 57,93 57,94 58,92 58,93 58,94 59,92 59,93 59,94 71,92 71,93 71,94 72,92 72,93 72,94 73,92 73,93 73,94 85,92 85,93 85,94 86,92 86,93 86,94 87,92 87,93 87,94 99,92 99,93 99,94 100,92 100,93 100,94 101,92 101,93 101,94 113,92 113,93 113,94 114,92 114,93 114,94 115,92 115,93 115,94 127,92 127,93 127,94 128,92 128,93 128,94 129,92 129,93 129,94 141,92 141,93 141,94 142,92 142,93 142,94 143,92 143,93 143,94 155,92 155,93 155,94 156,92 156,93 156,94 157,92 157,93 157,94 169,92 169,93 169,94 170,92 170,93 170,94 171,92 171,93 171,94 183,92 183,93 183,94 184,92 184,93 184,94 185,92 185,93 185,94 197,92 197,93 197,94 198,92 198,93 198,94 199,92 199,93 199,94 211,92 211,93 211,94 212,92 212,93 212,94 213,92 213,93 213,94 225,92 225,93 225,94 226,92 226,93 226,94 227,92 227,93 227,94 239,92 239,93 239,94 240,92 240,93 240,94 241,92 241,93 241,94 253,92 253,93 253,94 254,92 254,93 254,94 255,92 255,93 255,94 267,92 267,93 267,94 268,92 268,93 268,94 269,92 269,93 269,94 281,92 281,93 281,94 282,92 282,93 282,94 283,92 283,93 283,94 295,92 295,93 295,94 296,92 296,93 296,94 297,92 297,93 297,94 309,92 309,93 309,94 310,92 310,93 310,94 311,92 311,93 311,94 c0
+ellipse heap_1 96,124,9,3 14 e0
+ellipse heap_2 112,120,8,3 15 e0
+ellipse heap_3 130,116,9,3 12 e0
+ellipse heap_4 146,112,8,3 14 e0
+ellipse heap_5 160,108,9,3 15 e0
+ellipse heap_6 176,110,8,3 14 e0
+ellipse heap_7 192,114,9,3 12 e0
+ellipse heap_8 208,118,8,3 15 e0
+ellipse heap_9 224,122,9,3 14 e0
+ellipse heap_10 240,128,8,3 12 e0
+ellipse heap_11 120,130,9,3 15 e0
+ellipse heap_12 150,126,10,3 6 e0
+ellipse heap_13 180,124,9,3 14 e0
+ellipse heap_14 205,130,9,3 15 e0
+ellipse heap_15 232,134,8,2 14 e0
+ellipse heap_16 80,132,8,2 12 e0
+ellipse heap_17 165,132,10,2 14 e0
+dots falling_a 120,30 120,31 121,30 121,31 134,46 134,47 135,46 135,47 150,22 150,23 151,22 151,23 164,40 164,41 165,40 165,41 180,18 180,19 181,18 181,19 196,36 196,37 197,36 197,37 212,52 212,53 213,52 213,53 228,28 228,29 229,28 229,29 244,44 244,45 245,44 245,45 c14
+dots falling_b 110,60 110,61 111,60 111,61 128,76 128,77 129,76 129,77 146,66 146,67 147,66 147,67 160,82 160,83 161,82 161,83 178,60 178,61 179,60 179,61 192,78 192,79 193,78 193,79 210,70 210,71 211,70 211,71 226,84 226,85 227,84 227,85 242,64 242,65 243,64 243,65 258,80 258,81 259,80 259,81 c15
+dots falling_c 100,88 100,89 101,88 101,89 140,90 140,91 141,90 141,91 172,94 172,95 173,94 173,95 204,92 204,93 205,92 205,93 236,96 236,97 237,96 237,97 c12
+rect lamp 150,0,20,5 14
+ellipse halo_o 160,16,60,24 mix:,14@0.10
+ellipse halo_i 160,12,34,14 mix:,14@0.20
+rect bar_l 0,0,18,136 0 e6
+rect bar_r 302,0,18,136 0 e6` },
+  died: { version: 1, draw: `rect bg 0,0,320,136 0
+ellipse halo_far 213,72,110,60 mix:,12@0.08
+ellipse halo_mid 213,72,86,50 mix:,12@0.14
+ellipse btn_rim 213,76,64,50 4 e0
+ellipse btn_body 213,74,60,46 12 e4
+ellipse btn_lit 205,64,40,28 14
+ellipse btn_dish 213,78,40,28 12
+ellipse hole_a 198,70,5,4 0
+ellipse hole_b 228,70,5,4 0
+ellipse hole_c 198,86,5,4 0
+ellipse hole_d 228,86,5,4 0
+rect plate 120,120,190,10 7 e0
+line plate_a 130,125 170,125 c0
+line plate_b 190,125 250,125 c0
+line smoke_a 213,24 208,16 214,8 210,0 c7
+line smoke_b 222,26 226,18 220,10 c7
+line smoke_c 204,28 200,20 205,12 c8
+dots sparks 170,50 186,42 252,46 268,58 160,84 270,90 150,64 c14
+dots embers 140,100 292,100 70,50 90,92 c4
+rect left_post 20,60,10,76 8 e0
+rect left_cap 14,56,22,6 7 e0
+rect right_post 290,70,10,66 8 e0` },
 };

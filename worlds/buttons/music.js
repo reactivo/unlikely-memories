@@ -1,87 +1,50 @@
-// The music of "The Button Exchange", written the way the AI writes it (BRIEF.md §7b): the world's part (the default export),
-// which world.en.js adds as one `add music`; and `rooms`, each room's own part, which becomes that room's `music` (only where
-// the room is a different kind of place).
-// Composed by Claude Sonnet 5.5 in the world-F build run (new-world skill), from BRIEF.md §7b alone.
-// This file is the source: `node tools/music/collect.mjs --worlds` rebuilds the bench's copy of it.
+// The music of "Coat 41", written the way the AI writes it (BRIEF.md §7b): the world's part (the default export), which
+// world.en.js adds as one `add music`, and `rooms`, each room's own part, which becomes that room's `music`.
 //
-// The theme is sung to: "A button for a button, and the change in buttons."
-// A tune of its own: the sorting room, "Came off at a goodbye."
+// The theme is sung to: "Press, and somewhere a thing is done."
+// A tune of its own: none.
 //
 // The composer's notes (never shown to a player):
-//   The Exchange is a market hall that does its trading by tally and by rule, so its music is a clerk's: Mr Tally whistles
-//   through his teeth, high up in the fifth octave, a little too bright, as a man whistles who has nothing to whistle about and a
-//   good many figures to keep. Lydian is the first mode because its raised fourth is the floating note of a count that never
-//   quite closes; dorian for the wistful warm side (a lost thing kept kindly); pentatonic-major for a plain hall without a semitone
-//   to its name. It is heard as from a music box (everything high, small and plucked, like the mechanism of a button
-//   drawer), or through the wall of the next room, or from across the street. The theme sings the Exchange's own rule, "A button
-//   for a button, and the change in buttons", on one repeated note (a clerk's tally, one for one), the second phrase turning with a
-//   grace note and a chord that rings on "change", and the answer a step higher with an arpeggio on its last "button". Its
-//   slightly wrong thing is that the last phrase stops after "the change in", a beat short and with no buttons given: the change
-//   never comes. Underneath, a plucked thread (the thread_string) falls by whole bars, one step at a time. The lines are the
-//   hall's small sounds, all mostly rests: a thimble tapping time (the one rhythm line), a thread's figure that leans on the
-//   second step and never settles, and a button dropped on a saucer now and then. Only three rooms differ: the sorting room,
-//   where six old women hum half a tune and the others finish it a beat behind ("Came off at a goodbye", falling); the
-//   switchboard, with its one held hum, the world's single drone, heard through the wall of the drawers; and the back yard,
-//   in grey fog and far away, where one thread note falls, like a drip, off a cuff.
+//   Dorian for an office that is polite and a little sad, pentatonic minor for its plainness, whole-tone if the lift is
+//   taken seriously; the music comes through a wall, from the next office, or from a radio left on after hours. The
+//   instruments are the building's own: a service bell on the desk (struck, high and rare), the wire that runs from every
+//   button to wherever it does its thing (plucked, the theme's voice), a switch that clicks (the one rhythm line, a tick
+//   that is never quite regular), and in the engine room a drone of the boiler, the one held line, heard only there. The
+//   theme is the world's first rule, "Press, and somewhere a thing is done", sung twice the same way as a plain question
+//   (the stress on "some-" and "thing"), the third time lifted, with a grace note before "some", a run down on "thing", an
+//   arpeggio and a chord on "done". It is a limping three-and-two feel. Its slightly wrong thing: the last "done" never
+//   gets its root; the tune stops on the second step and a chord, as if the thing were done somewhere else. The chords
+//   underneath rock between the home chord and its neighbour a step above, and never settle either.
 
-// ---- The world's part (add music) -------------------------------------------------------------------------------------
 export default {
-  mode: ["lydian", "dorian", "pentatonic-major"],
-  tempo: 68,
-  colour: ["music_box", "through_wall", "far_away"],
+  mode: ["dorian", "pentatonic-minor", "whole-tone"],
+  tempo: 60,
+  colour: ["through_wall", "radio", "gramophone"],
   instruments: {
-    tally_whistle: { kind: "blown", ratio: 1, bright: 0.3, attack: 0.1, release: 0.5 },
-    thread_string: { kind: "plucked", ratio: 2, bright: 0.5, attack: 0, release: 0.9 },
-    saucer_buttons: { kind: "struck", ratio: 5, bright: 0.6, attack: 0, release: 1.2 },
-    thimble_tap: { kind: "tick", ratio: 1, bright: 0.4, attack: 0, release: 0.15 },
-    sorters_hum: { kind: "bowed", ratio: 1.5, bright: 0.2, attack: 0.4, release: 1.5 },
-    switch_hum: { kind: "reed", ratio: 1, bright: 0.3, attack: 1.2, release: 1 }
+    service_bell: { kind: "struck", ratio: 3.5, bright: 0.5, attack: 0, release: 3 },
+    button_wire: { kind: "plucked", ratio: 2, bright: 0.5, attack: 0, release: 1 },
+    switch_click: { kind: "tick", ratio: 1, bright: 0.4, attack: 0, release: 0.2 },
+    boiler: { kind: "reed", ratio: 1, bright: 0.3, attack: 1.2, release: 1.5 }
   },
-  tone: "hall",
+  tone: "hum",
   lines: [
-    { play: "thimble_tap", octave: 4, notes: "1:0.5 1:0.5 1:0.5 -:6.5" },
-    { play: "thread_string", octave: 3, notes: "1:0.5 3:0.5 5:0.5 3:0.5 2:0.5 3:0.5 5:0.5 3:0.5 -:11" },
-    { play: "saucer_buttons", octave: 5, notes: "-:13 8:0.5 8:0.5 -:3 5:0.5 -:17" }
+    { play: "switch_click", octave: 3, notes: "1:0.5 -:5 1:0.5 -:3 1:0.5 -:8" },
+    { play: "button_wire", octave: 3, notes: "1:1 -:2 3:1 -:6 2:1 -:9" },
+    { play: "service_bell", octave: 5, notes: "-:25 5:1 -:30" }
   ],
   melody: {
-    play: "tally_whistle",
-    octave: 5,
-    words: "A button for a button, and the change in buttons.",
-    shape: "repeated",
-    notes: "5:0.5 5:0.5 5:1 5:0.5 5:0.5 5:0.5 5:1 5:0.5 5:0.5 6:0.125 5+7:1 5:0.5 4:0.5 3:1.5 6:0.5 6:0.5 6:1 6:0.5 6:0.5 6:0.5 1/3/5:1 6:0.5 6:0.5 7:0.125 6:1 6:0.5",
-    chords: { play: "thread_string", octave: 2, notes: "8:4 7:4 6:4 5:4.25" }
+    play: "button_wire",
+    octave: 4,
+    words: "Press, and somewhere a thing is done.",
+    shape: "asked",
+    notes: "5:1 5:0.5 6:0.5 5:1 3:0.5 3:0.5 2:1 1:2 5:1 5:0.5 6:0.5 5:1 3:0.5 3:0.5 2:1 4:2 5:1 5:0.5 6:0.125 8:1 6:0.5 5:0.25 4:0.25 3:0.25 3/4/5:1 2:1 2+5:1.5",
+    chords: { play: "boiler", octave: 3, notes: "1+5:7 2+4:7 1+5:7" }
   }
 };
 
 // ---- Each room's own part (its music) ---------------------------------------------------------------------------------
 export const rooms = {
-  sorting: {
-    tone: "silence",
-    lines: [
-      { play: "saucer_buttons", octave: 5, notes: "-:7 1:0.5 1:0.5 1:0.5 1:0.5 1:0.5 1:0.5 -:9" },
-      { play: "sorters_hum", octave: 3, notes: "-:9 3:1 -:15" }
-    ],
-    melody: {
-      play: "sorters_hum",
-      octave: 3,
-      words: "Came off at a goodbye.",
-      shape: "falling",
-      notes: "5:1 5:0.5 4:0.5 3:1 2:0.5 3:0.5 1:2"
-    }
-  },
-  switchroom: {
-    tone: "hum",
-    colour: "through_wall",
-    lines: [
-      { play: "switch_hum", octave: 2, notes: "1:8 -:3 1:8 -:5 2:4 -:6" },
-      { play: "thimble_tap", octave: 5, notes: "1:0.5 -:2.5 1:0.5 -:5" }
-    ]
-  },
-  backyard: {
-    tone: "fog",
-    colour: "far_away",
-    lines: [
-      { play: "thread_string", octave: 3, notes: "5:1 3:1 -:11 5:1 -:19" }
-    ]
-  }
+  lift_car: { tone: "silence", lines: [{ play: "service_bell", octave: 5, notes: "-:20 1:1 -:30" }] },
+  canteen: { tone: "fog", lines: [{ play: "button_wire", octave: 4, notes: "5:1 -:3 3:1 -:11" }] },
+  engine: { tone: "hum", lines: [{ play: "boiler", octave: 2, notes: "1:6 -:10" }, { play: "switch_click", octave: 3, notes: "1:0.5 -:7.5" }] }
 };

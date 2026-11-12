@@ -36,7 +36,7 @@ export const WORLDS = {
   thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 5, minutes: 34, text: { en: thirdglass } },     // "The Third Glass"
   deadhour: { title: deadhourBible.title, blurb: deadhourBible.blurb, thumbnail: deadhourBible.thumbnail, made: "2026-11-06", model: "Claude Sonnet 5.5", effort: "medium", version: 3, minutes: 19, text: { en: deadhour } },     // "The Dead Hour at Pylon Nine"
   boathouse: { title: boathouseBible.title, blurb: boathouseBible.blurb, thumbnail: boathouseBible.thumbnail, made: "2026-11-10", model: "Claude Sonnet 5.5", effort: "medium", version: 5, minutes: 31, text: { en: boathouse } },     // "The Lake Lights It Again"
-  buttons: { title: buttonsBible.title, blurb: buttonsBible.blurb, thumbnail: buttonsBible.thumbnail, made: "2026-11-11", model: "Claude Sonnet 5.5", effort: "medium", version: 1, minutes: 57, text: { en: buttons } },     // "The Button Exchange"
+  buttons: { title: buttonsBible.title, blurb: buttonsBible.blurb, thumbnail: buttonsBible.thumbnail, made: "2026-11-11", model: "Claude Sonnet 5.5", effort: "medium", version: 2, minutes: 40, text: { en: buttons } },     // "Coat 41"
   testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 3, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
 };
 

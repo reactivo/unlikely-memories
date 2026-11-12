@@ -3,20 +3,13 @@
 // by the part's numbers; the parts every world shares are in content/levels.js. The world files add them to its music as `levels`.
 export default {
   // notes
-  "v1:instrument:28bfc12a": [-27.23, -27.28],   // saucer_buttons (struck, octave 5)
-  "v1:instrument:05b57789": [-26.28, -27.00],   // sorters_hum (bowed, octave 3)
-  "v1:instrument:efde29dd": [-24.55, -30.53],   // sorters_hum (bowed, octave 2)
-  "v1:instrument:761877f1": [-23.43, -27.18],   // switch_hum (reed, octave 2)
-  "v1:instrument:075956ee": [-29.51, -29.55],   // thread_string (plucked, octave 5)
-  "v1:instrument:e2e2ee2f": [-23.16, -32.69],   // thread_string (plucked, octave 2)
-  "v1:instrument:5009d1fb": [-26.53, -27.13],   // thread_string (plucked, octave 4)
-  "v1:instrument:fab7bc7d": [-23.00, -44.37],   // thread_string (plucked, octave 1)
-  "v1:instrument:03b19573": [-27.16, -31.36],   // thread_string (plucked, octave 3)
-  "v1:instrument:54d2a05e": [-26.71, -26.75],   // tally_whistle (blown, octave 5)
-  "v1:instrument:a825b313": [-23.84, -24.48],   // tally_whistle (blown, octave 4)
+  "v1:instrument:eccadd05": [-24.28, -24.33],   // service_bell (struck, octave 5)
+  "v1:instrument:7e22e9db": [-26.25, -26.88],   // button_wire (plucked, octave 4)
+  "v1:instrument:3b36e397": [-25.14, -25.83],   // boiler (reed, octave 3)
+  "v1:instrument:4208fe20": [-26.79, -31.13],   // button_wire (plucked, octave 3)
+  "v1:instrument:2bb9a202": [-23.48, -27.37],   // boiler (reed, octave 2)
   // rhythm
-  "v1:instrument:688f7419": [-45.47, -45.47],   // thimble_tap (tick, octave 5)
-  "v1:instrument:a7be8de0": [-44.00, -44.01],   // thimble_tap (tick, octave 4)
+  "v1:instrument:fe05743f": [-46.15, -46.17],   // switch_click (tick, octave 3)
   // sounds
   "v1:sound:fb5418d6": [-25.04, -25.11],   // metal (chime, octave 5)
   "v1:sound:f168f19c": [-34.09, -34.09],   // glass (struck, octave 6)
@@ -25,10 +18,10 @@ export default {
   "v1:sound:f1a4206c": [-39.98, -39.98],   // stone (clack, octave 5)
   "v1:sound:79b8aa3d": [-32.81, -34.19],   // soft (struck, octave 4)
   "v1:sound:fd92b791": [-32.69, -33.74],   // generic (plucked, octave 4)
-  "v1:sound:f66e8768": [-32.18, -33.35],   // gulp (struck, octave 4)
+  "v1:sound:24e5010e": [-32.18, -33.41],   // gulp (struck, octave 4)
   "v1:sound:a2619819": [-17.89, -22.31],   // thump (thump, octave 2)
   "v1:sound:58bf82c2": [-25.80, -25.88],   // shimmer (chime, octave 5)
-  "v1:sound:cbdfee87": [-27.68, -28.14],   // colour (plucked, octave 4)
+  "v1:sound:2c1d6da9": [-27.76, -28.33],   // colour (plucked, octave 4)
   "v1:sound:3b59408f": [-41.38, -41.38],   // latch (clack, octave 5)
   "v1:sound:978fe726": [-22.48, -23.62],   // metal (chime, octave 4)
   "v1:sound:1f160267": [-31.32, -31.42],   // glass (struck, octave 5)
@@ -38,6 +31,6 @@ export default {
   "v1:sound:8ba1869c": [-33.07, -44.01],   // soft (struck, octave 3)
   "v1:sound:79a924c2": [-33.03, -39.68],   // generic (plucked, octave 3)
   "v1:sound:2bdf9580": [-46.07, -46.09],   // latch (clack, octave 4)
-  "v1:sound:dbde26b0": [-40.30, -40.39],   // slide (brush, octave 4)
+  "v1:sound:a571ff8a": [-40.37, -40.47],   // slide (brush, octave 4)
   "v1:sound:e63fd212": [-25.30, -25.57],   // bell (struck, octave 4)
 };
