@@ -1,50 +1,87 @@
-// The music of "Coat 41", written the way the AI writes it (BRIEF.md §7b): the world's part (the default export), which
-// world.en.js adds as one `add music`, and `rooms`, each room's own part, which becomes that room's `music`.
+// The music of "The Button Hall", written the way the AI writes it (BRIEF.md §7b): the world's part (the default export), which
+// the world file adds as one `add music`; and `rooms`, each room's own part, which becomes that room's `music` (only where the
+// room is a different kind of place).
+// Composed by the world's model, Claude Sonnet 5.5, from BRIEF.md §7b alone.
 //
-// The theme is sung to: "Press, and somewhere a thing is done."
-// A tune of its own: none.
+// The theme is sung to: "A pressed button is always answered."
+// A tune of its own: crossing, "Red as long as the street."
 //
 // The composer's notes (never shown to a player):
-//   Dorian for an office that is polite and a little sad, pentatonic minor for its plainness, whole-tone if the lift is
-//   taken seriously; the music comes through a wall, from the next office, or from a radio left on after hours. The
-//   instruments are the building's own: a service bell on the desk (struck, high and rare), the wire that runs from every
-//   button to wherever it does its thing (plucked, the theme's voice), a switch that clicks (the one rhythm line, a tick
-//   that is never quite regular), and in the engine room a drone of the boiler, the one held line, heard only there. The
-//   theme is the world's first rule, "Press, and somewhere a thing is done", sung twice the same way as a plain question
-//   (the stress on "some-" and "thing"), the third time lifted, with a grace note before "some", a run down on "thing", an
-//   arpeggio and a chord on "done". It is a limping three-and-two feel. Its slightly wrong thing: the last "done" never
-//   gets its root; the tune stops on the second step and a chord, as if the thing were done somewhere else. The chords
-//   underneath rock between the home chord and its neighbour a step above, and never settle either.
+//   The Hall sounds like somebody else's evening heard through a wall: dorian, wistful but warm, at a clerk's pace of fifty-two,
+//   with a pentatonic-minor second choice (open, unresolved, a wait that never ends) and lydian third (floating, for a town where
+//   every bell is answered by someone else). Through a wall first, then a radio left on in the next office, then a music box for
+//   a place run on small brass mechanisms. The doorbell is the one struck bell, rung far off in the town and answered a step
+//   higher a long time after; the bell wire is the plucked wire that runs under the road from every button to its bell, and it
+//   carries both a quiet figure that counts a broken chord twice and rests, and the theme; the relay is the one rhythm line, a
+//   thumb coming off a button, two clicks then one. The theme sings the second rule, "A pressed button is always answered", as
+//   the same short question three times (a pressed button?) with a grace note leaning on "pressed", the third time answered, a
+//   run down on "always", a chord ringing on "answered" and a scoop up into it; its slightly wrong thing is that the answer
+//   never comes home, it ends on the step below the root. Under it two chords rock, the home chord and the one with the
+//   second step. Only four rooms differ: the lamp room, where the relay ticks faster for a hundred lamps and a doorbell is
+//   answered a step up; the battery cellar, low and dull, far away under the floor, with the hum; the gallery, high up in the
+//   wind of its window; and Mill Street, where a crowd waits with a whistler among it who has the one tune of its own,
+//   "Red as long as the street", on a narrow few notes that never leave the kerb.
 
+// ---- The world's part (add music) -------------------------------------------------------------------------------------
 export default {
-  mode: ["dorian", "pentatonic-minor", "whole-tone"],
-  tempo: 60,
-  colour: ["through_wall", "radio", "gramophone"],
+  mode: ["dorian", "pentatonic-minor", "lydian"],
+  tempo: 52,
+  colour: ["through_wall", "radio", "music_box"],
   instruments: {
-    service_bell: { kind: "struck", ratio: 3.5, bright: 0.5, attack: 0, release: 3 },
-    button_wire: { kind: "plucked", ratio: 2, bright: 0.5, attack: 0, release: 1 },
-    switch_click: { kind: "tick", ratio: 1, bright: 0.4, attack: 0, release: 0.2 },
-    boiler: { kind: "reed", ratio: 1, bright: 0.3, attack: 1.2, release: 1.5 }
+    doorbell: { kind: "struck", ratio: 3.5, bright: 0.45, attack: 0, release: 2.5 },
+    bell_wire: { kind: "plucked", ratio: 2, bright: 0.5, attack: 0, release: 1.1 },
+    relay: { kind: "tick", ratio: 1, bright: 0.5, attack: 0, release: 0.1 },
+    waiting_whistle: { kind: "blown", ratio: 1, bright: 0.25, attack: 0.12, release: 0.6 }
   },
-  tone: "hum",
+  tone: "hall",
   lines: [
-    { play: "switch_click", octave: 3, notes: "1:0.5 -:5 1:0.5 -:3 1:0.5 -:8" },
-    { play: "button_wire", octave: 3, notes: "1:1 -:2 3:1 -:6 2:1 -:9" },
-    { play: "service_bell", octave: 5, notes: "-:25 5:1 -:30" }
+    { play: "relay", octave: 3, notes: "1:0.25 1:0.25 -:7.5 1:0.25 -:12" },
+    { play: "bell_wire", octave: 3, notes: "1:0.5 5:0.5 3:0.5 5:0.5 1:0.5 5:0.5 3:0.5 5:0.5 -:13" },
+    { play: "doorbell", octave: 5, notes: "-:14 5:1 -:6 8:1 -:23" }
   ],
   melody: {
-    play: "button_wire",
+    play: "bell_wire",
     octave: 4,
-    words: "Press, and somewhere a thing is done.",
+    words: "A pressed button is always answered.",
     shape: "asked",
-    notes: "5:1 5:0.5 6:0.5 5:1 3:0.5 3:0.5 2:1 1:2 5:1 5:0.5 6:0.5 5:1 3:0.5 3:0.5 2:1 4:2 5:1 5:0.5 6:0.125 8:1 6:0.5 5:0.25 4:0.25 3:0.25 3/4/5:1 2:1 2+5:1.5",
-    chords: { play: "boiler", octave: 3, notes: "1+5:7 2+4:7 1+5:7" }
+    notes: "6:0.125 5:1 5:0.5 3:0.5 4:1.5 6:0.125 5:1 5:0.5 3:0.5 4:1.5 6:0.125 5:1 5:0.5 3:0.5 5:0.5 6:0.5 8:1.5 7:0.5 6:0.5 5:0.5 3:0.5 ~2:1 1+5:1.5 -1:1",
+    chords: { play: "doorbell", octave: 3, notes: "1+5:4 1+5:4 2+5:4 1+5:5" }
   }
 };
 
 // ---- Each room's own part (its music) ---------------------------------------------------------------------------------
 export const rooms = {
-  lift_car: { tone: "silence", lines: [{ play: "service_bell", octave: 5, notes: "-:20 1:1 -:30" }] },
-  canteen: { tone: "fog", lines: [{ play: "button_wire", octave: 4, notes: "5:1 -:3 3:1 -:11" }] },
-  engine: { tone: "hum", lines: [{ play: "boiler", octave: 2, notes: "1:6 -:10" }, { play: "switch_click", octave: 3, notes: "1:0.5 -:7.5" }] }
+  lamproom: {
+    tone: "hum",
+    lines: [
+      { play: "relay", octave: 4, notes: "1:0.25 1:0.25 1:0.25 1:0.25 -:4 1:0.25 1:0.25 -:9" },
+      { play: "doorbell", octave: 5, notes: "-:9 5:1 -:7 6:1 -:17" }
+    ]
+  },
+  gallery: {
+    tone: "wind",
+    lines: [
+      { play: "bell_wire", octave: 5, notes: "-:10 8:0.5 5:0.5 3:1 -:20" }
+    ]
+  },
+  cellar: {
+    tone: "hum",
+    colour: "far_away",
+    lines: [
+      { play: "bell_wire", octave: 2, notes: "1:1 -:5 2:1 -:9" }
+    ]
+  },
+  crossing: {
+    tone: "crowd",
+    lines: [
+      { play: "doorbell", octave: 4, notes: "-:24 3:1 -:30" }
+    ],
+    melody: {
+      play: "waiting_whistle",
+      octave: 4,
+      words: "Red as long as the street",
+      shape: "narrow",
+      notes: "3:0.5 4:0.5 5:1 5:0.5 4:0.5 3:1 4:0.125 5:0.375 4:0.5 3:1.5 -:1 3:0.5 4:0.5 5:1 4:0.5 3:0.5 3:2"
+    }
+  }
 };

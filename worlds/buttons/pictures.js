@@ -1,485 +1,957 @@
-// Pictures for "Coat 41" (worlds/buttons/world.en.js), one per room and one per ending, the way the AI writes them
-// (BRIEF.md §7): 320 x 136, EGA colours 0-15, shapes back to front in the short notation, ids on what the story may change.
-// Style: dithered. (The shape lists are written out in full; coordinates were worked out with a script of my own.)
-//
-// The shot list, written before drawing (viewpoint, facing; palette; light; gradients; subject and columns; wings):
-//   lift_car  eye level, frontal, north; institution; one ceiling lamp, soft halo on the flat wall; gradients: the floor falling to dark (lamp), the corridor beyond the gate (distance); gate on the right third (x 172-264), panel on the left third (x 88-136) with the handset on its hook between; wings: wall seams, a vent, a plaque
-//   lobby     one-point down the hall, vanishing point (213, 66), north; lamplight; one pendant lamp near, two smaller beyond; gradient: the floor darkening towards you; the street door at the far end on the right third, Hobb's desk and the board of keys on the left wall, doorways west and east; wings: walls of brass buttons, a red runner
-//   panel     eye level, frontal and close, north; lamplight; one lamp over the block; gradient: the floor towards you; the eight buttons at hand height on the right third (x 168-258), the register arch on the left third (x 88-122), doorways in the wings
-//   register  one-point down an aisle of shelves, vanishing point (213, 64), north; lamplight; one hanging lamp; gradient: the floor; the cabinet at the far end on the right third (x 190-232); lectern in the right wing
-//   sorting   one-point down a long table, vanishing point (107, 64), north; lamplight; a green lamp over the table, soft halo; gradient: the floor; the table on the left third, trays on shelves both sides; stool and crate in the right wing
-//   mending   three-quarter corner (back wall and left wall), north; lamplight; one lamp over the machine; gradient: the floor; the machine and Mrs Venn on the left third (x 96-140), the window on the right third; coats on the left wall, a door in the right wing
-//   canteen   eye level, frontal, north; cafe; one ceiling lamp; gradients: the wall yellow to brown; the urn on the right third (x 198-226) on a counter, a window and tables on the left; an arch to the lobby in the left wing
-//   engine    three-quarter corner, north; ember; the furnace door is the light, soft halo; gradient: the floor falling off from the fire; the drum of pipes and the big button on its post on the right third (x 216-240); gauges and a doorway in the left wing
-//   whole     (ending) eye level, from the doorway, wide; dusk; the sunset; gradient: the sky; a grey coat on a hook on the right third, an evening street beyond, a street lamp on the left third
-//   unbuttoned (ending) eye level, frontal; lamplight; one lamp over a bare wall of holes; a heap of loose buttons in the middle, more falling
-//   died      (ending) close up; ember; the glow of one button, with a thread of smoke; the button on the right third, a plate under it
+// Pictures for "The Button Hall" (worlds/buttons/world.en.js), one per room and one per ending, the way the AI writes them (BRIEF.md §7):
+// 320 × 136, EGA colours 0–15, shapes back to front in the short notation, ids on what the story may change or a cycle animates. The world's
+// style is dithered. Each picture carries its `shot`, written before its shapes.
 
 export default {
-  lift_car: { version: 1, draw: `rect wall 0,0,320,102 8
-rect ceil 0,0,320,12 0
-rect ceil_edge 0,12,320,2 7
-rect floor 0,102,320,34 fade:8,0/0,102/0,136
-rect skirt 0,98,320,4 0
-rect shade_l 0,14,22,84 mix:8,0@0.4
-rect shade_r 298,14,22,84 mix:8,0@0.4
-line seam_a 46,14 46,98 c0
-line seam_b 273,14 273,98 c0
-rect vent 12,28,22,12 7 e0
-line vent_a 14,31 32,31 c0
-line vent_b 14,34 32,34 c0
-line vent_c 14,37 32,37 c0
-rect plaque 282,30,26,14 7 e0
-dots plaque_d 286,34 292,34 298,34 304,34 286,39 296,39 c0
-rect rail 0,62,320,4 7
-rect rail_sh 0,66,320,2 0
-rect bracket_a 30,66,3,6 8 e0
-rect bracket_b 70,66,3,6 8 e0
-rect bracket_c 290,66,3,6 8 e0
-rect panel 88,30,48,66 7 e0
-rect panel_head 92,34,40,6 8
-dots panel_rivets 91,33 129,33 91,92 129,92 c0
-rect bt1 94,44,10,9 14 e6
-rect bt2 107,44,10,9 14 e6
-rect bt3 120,44,10,9 14 e6
-rect bt4 94,56,10,9 14 e6
-rect bt5 107,56,10,9 14 e6
-rect bt6 120,56,10,9 14 e6
-rect bt7 94,68,10,9 14 e6
-rect bt8 107,68,10,9 14 e6
-rect bt9 120,68,10,9 14 e6
-rect bt10 94,80,10,9 14 e6
-rect bt11 107,80,10,9 14 e6
-rect bt12 120,80,10,9 14 e6
-rect hook 144,40,3,6 6
-rect beyond 176,28,84,74 fade:8,0/176,60/260,60
-rect gframe_l 172,26,6,76 7 e0
-rect gframe_r 258,26,6,76 7 e0
-rect gtop 172,22,92,6 7 e0
-line lat_a 178,30 214,100 c14
-line lat_b 214,30 178,100 c14
-line lat_c 214,30 250,100 c14
-line lat_d 250,30 214,100 c14
-line lat_e 178,64 256,64 c6
-dots gate_rivets 175,36 175,60 175,84 261,36 261,60 261,84 c0
-rect exitl 200,14,36,6 2 e0
-rect lamp 140,4,40,6 15 e7
-ellipse halo_a 160,12,52,14 mix:,15@0.10
-ellipse halo_b 160,12,30,8 mix:,15@0.2
-line tile_a 0,112 320,112 c0
-line tile_b 0,124 320,124 c0
-line tile_c 110,102 96,136 c0
-line tile_d 210,102 224,136 c0
-rect mat 130,122,60,10 mix:8,0@0.5`, cycles: [{"name": "exit lamp", "areas": ["exitl"], "colors": [2, 10], "style": "pingpong", "ms": 2400}], overlays: [{"object": "handset", "at": [140, 44]}] },
-  lobby: { version: 1, draw: `vp 213,66
-poly lwall 0,0 190,50 190,92 0,136 mix:0,6@0.5
-poly rwall 320,0 236,50 236,92 320,136 mix:0,6@0.5
-poly ceil 0,0 320,0 236,50 190,50 mix:0,6@0.25
-rect back 190,50,46,42 6 e0
-poly floor 0,136 190,92 236,92 320,136 fade:0,6/213,136/213,92
-line skirt_l 0,136 190,92 c0
-line skirt_r 320,136 236,92 c0
-line pl_a 0,136@1 0,136@0.38 c0
-line pl_b 80,136@1 80,136@0.38 c0
-line pl_c 160,136@1 160,136@0.38 c0
-line pl_d 240,136@1 240,136@0.38 c0
-poly runner 120,136@1 300,136@1 300,136@0.38 120,136@0.38 mix:4,0@0.5 e0
-dots brass_l1 0,8@0.95 0,8@0.85 0,8@0.75 0,8@0.65 0,8@0.55 0,8@0.45 0,8@0.35 0,8@0.25 c14
-dots brass_l2 0,22@0.95 0,22@0.85 0,22@0.75 0,22@0.65 0,22@0.55 0,22@0.45 0,22@0.35 0,22@0.25 c14
-dots brass_r1 320,8@0.95 320,8@0.85 320,8@0.75 320,8@0.65 320,8@0.55 320,8@0.45 320,8@0.35 320,8@0.25 c14
-dots brass_r2 320,24@0.95 320,24@0.85 320,24@0.75 320,24@0.65 320,24@0.55 320,24@0.45 320,24@0.35 320,24@0.25 c14
-dots brass_r3 320,40@0.95 320,40@0.85 320,40@0.75 320,40@0.65 320,40@0.55 320,40@0.45 320,40@0.35 320,40@0.25 c14
-dots brass_r4 320,56@0.95 320,56@0.85 320,56@0.75 320,56@0.65 320,56@0.55 320,56@0.45 320,56@0.35 320,56@0.25 c14
-dots brass_r5 320,72@0.95 320,72@0.85 320,72@0.75 320,72@0.65 320,72@0.55 320,72@0.45 320,72@0.35 320,72@0.25 c14
-dots brass_r6 320,88@0.95 320,88@0.85 320,88@0.75 320,88@0.65 320,88@0.55 320,88@0.45 320,88@0.35 320,88@0.25 c14
-dots brass_r7 320,104@0.95 320,104@0.85 320,104@0.75 320,104@0.65 320,104@0.55 320,104@0.45 320,104@0.35 320,104@0.25 c14
-dots brass_r8 320,120@0.95 320,120@0.85 320,120@0.75 320,120@0.65 320,120@0.55 320,120@0.45 320,120@0.35 320,120@0.25 c14
-poly board 0,20@0.95 0,56@0.95 0,56@0.72 0,20@0.72 0 e6
-dots keys_a 0,30@0.91 0,30@0.86 0,30@0.81 0,30@0.76 c14
-dots keys_b 0,44@0.91 0,44@0.86 0,44@0.81 c14
-dots nail_empty 0,44@0.76 c7
-poly desk_top 0,92@1 26,92@1 26,92@0.7 0,92@0.7 14
-rect hobb_body 40,70,18,17 8 e0
-ellipse hobb_head 49,64,5,6 12
-rect hobb_hair 44,57,11,3 7
-poly desk 26,126@1 26,92@1 26,92@0.7 26,126@0.7 6 e0
-ellipse bell 14,90,3,2 14
-poly door_w 0,118@0.6 0,42@0.6 0,42@0.42 0,118@0.42 0 e6
-poly door_e 320,118@0.85 320,40@0.85 320,40@0.55 320,118@0.55 0 e6
-rect door_frame 200,54,26,38 0 e6
-rect door_glass 203,58,20,28 mix:1,9@0.5
-line mun_a 213,58 213,86 c0
-line mun_b 203,72 223,72 c0
-rect handle 205,74,2,4 14
-rect sign 202,45,22,5 15 e0
-line sign_l 205,47 221,47 c0
-line cord_a 150,0 150,18 c0
-ellipse lamp_a 150,22,7,4 14
-line cord_b 181,12 181,32 c0
-ellipse lamp_b 181,35,4,3 14
-ellipse lamp_c 199,43,2,2 14
-ellipse halo_o 150,24,34,18 mix:,14@0.12
-ellipse halo_i 150,23,18,10 mix:,14@0.22` },
-  panel: { version: 1, draw: `rect wall 0,0,320,100 mix:0,6@0.5
-rect cband 0,0,320,8 0
-rect pipe 0,8,320,4 6 e0
-rect floor 0,100,320,36 fade:0,6/0,136/0,100
-line skirt 0,100 320,100 c0
-dots brass_1 5,14 15,14 25,14 35,14 45,14 55,14 65,14 75,14 85,14 95,14 105,14 115,14 125,14 135,14 145,14 155,14 165,14 175,14 185,14 195,14 205,14 215,14 225,14 235,14 245,14 255,14 265,14 275,14 285,14 295,14 305,14 315,14 c14
-dots brass_2 10,24 20,24 30,24 40,24 50,24 60,24 70,24 80,24 90,24 100,24 110,24 120,24 130,24 140,24 150,24 160,24 170,24 180,24 190,24 200,24 210,24 220,24 230,24 240,24 250,24 260,24 270,24 280,24 290,24 300,24 310,24 c14
-dots brass_3 5,34 15,34 25,34 35,34 45,34 55,34 65,34 75,34 85,34 95,34 105,34 115,34 125,34 135,34 145,34 155,34 165,34 175,34 185,34 195,34 205,34 215,34 225,34 235,34 245,34 255,34 265,34 275,34 285,34 295,34 305,34 315,34 c14
-dots brass_4 10,44 20,44 30,44 40,44 50,44 60,44 70,44 80,44 90,44 100,44 110,44 120,44 130,44 140,44 150,44 160,44 170,44 180,44 190,44 200,44 210,44 220,44 230,44 240,44 250,44 260,44 270,44 280,44 290,44 300,44 310,44 c14
-dots brass_5 5,54 15,54 25,54 35,54 45,54 55,54 65,54 75,54 85,54 95,54 105,54 115,54 125,54 135,54 145,54 155,54 165,54 175,54 185,54 195,54 205,54 215,54 225,54 235,54 245,54 255,54 265,54 275,54 285,54 295,54 305,54 315,54 c14
-dots brass_6 10,64 20,64 30,64 40,64 50,64 60,64 70,64 80,64 90,64 100,64 110,64 120,64 130,64 140,64 150,64 160,64 170,64 180,64 190,64 200,64 210,64 220,64 230,64 240,64 250,64 260,64 270,64 280,64 290,64 300,64 310,64 c14
-dots brass_7 5,74 15,74 25,74 35,74 45,74 55,74 65,74 75,74 85,74 95,74 105,74 115,74 125,74 135,74 145,74 155,74 165,74 175,74 185,74 195,74 205,74 215,74 225,74 235,74 245,74 255,74 265,74 275,74 285,74 295,74 305,74 315,74 c14
-dots brass_8 10,84 20,84 30,84 40,84 50,84 60,84 70,84 80,84 90,84 100,84 110,84 120,84 130,84 140,84 150,84 160,84 170,84 180,84 190,84 200,84 210,84 220,84 230,84 240,84 250,84 260,84 270,84 280,84 290,84 300,84 310,84 c14
-dots brass_9 5,94 15,94 25,94 35,94 45,94 55,94 65,94 75,94 85,94 95,94 105,94 115,94 125,94 135,94 145,94 155,94 165,94 175,94 185,94 195,94 205,94 215,94 225,94 235,94 245,94 255,94 265,94 275,94 285,94 295,94 305,94 315,94 c14
-rect blk 168,34,90,64 0 e6
-rect btn7 176,42,16,16 14 e6
-rect btn13 196,42,16,16 12 e4
-rect btn22 216,42,16,16 14 e6
-rect btn28 236,42,16,16 14 e6
-rect btn35 176,68,16,16 14 e6
-rect btn41 196,68,16,16 14 e6
-rect btn52 216,68,16,16 14 e6
-rect btn60 236,68,16,16 14 e6
-rect plate_7 176,60,16,3 7
-rect plate_13 196,60,16,3 7
-rect plate_22 216,60,16,3 7
-rect plate_28 236,60,16,3 7
-rect plate_35 176,86,16,3 7
-rect plate_41 196,86,16,3 7
-rect plate_52 216,86,16,3 7
-rect plate_60 236,86,16,3 7
-dots rivets 172,38 254,38 172,94 254,94 c15
-ellipse glow 213,66,50,34 mix:,14@0.10
-rect lamp 200,18,26,5 14
-ellipse halo_o 213,26,44,18 mix:,14@0.10
-ellipse halo_i 213,24,26,10 mix:,14@0.2
-line smoke 204,40 201,30 205,22 202,12 c15
-poly arch_n 88,100 88,58 105,46 122,58 122,100 0 e6
-line sh1 92,70 118,70 c6
-line sh2 92,84 118,84 c6
-dots led 96,64 104,64 112,64 96,78 104,78 112,78 c4
-poly door_w 6,100 6,50 22,40 38,50 38,100 0 e6
-rect w_glow 10,58,24,42 mix:0,14@0.15
-poly door_e 282,100 282,50 298,40 314,50 314,100 0 e6
-rect e_glow 286,58,24,42 mix:0,4@0.4
-rect mat 150,104,126,12 mix:4,0@0.5 e0
-line fb1 0,112 320,112 c0
-line fb2 0,124 320,124 c0
-line fb3 60,100 40,136 c0
-line fb4 130,100 120,136 c0
-line fb5 290,100 300,136 c0` },
-  register: { version: 1, draw: `vp 213,64
-poly lwall 0,0 138,42 138,89 0,136 mix:0,6@0.5
-poly rwall 320,0 250,42 250,89 320,136 mix:0,6@0.5
-poly ceil 0,0 320,0 250,42 138,42 mix:0,6@0.25
-rect back 138,42,112,47 mix:0,6@0.55
-poly floor 0,136 138,89 250,89 320,136 fade:0,6/213,136/213,89
-line skirt_l 0,136 138,89 c0
-line skirt_r 320,136 250,89 c0
-line shelf_l1 0,14@1 0,14@0.35 c6
-line shelf_l2 0,40@1 0,40@0.35 c6
-line shelf_l3 0,66@1 0,66@0.35 c6
-line shelf_l4 0,92@1 0,92@0.35 c6
-line shelf_l5 0,118@1 0,118@0.35 c6
-line shelf_r1 320,14@1 320,14@0.35 c6
-line shelf_r2 320,40@1 320,40@0.35 c6
-line shelf_r3 320,66@1 320,66@0.35 c6
-line shelf_r4 320,92@1 320,92@0.35 c6
-line shelf_r5 320,118@1 320,118@0.35 c6
-dots book_l1 0,28@0.95 0,28@0.88 0,28@0.81 0,28@0.74 0,28@0.67 0,28@0.6 0,28@0.53 0,28@0.46 0,28@0.39 c4
-dots book_l2 0,54@0.95 0,54@0.88 0,54@0.81 0,54@0.74 0,54@0.67 0,54@0.6 0,54@0.53 0,54@0.46 0,54@0.39 c14
-dots book_l3 0,80@0.95 0,80@0.88 0,80@0.81 0,80@0.74 0,80@0.67 0,80@0.6 0,80@0.53 0,80@0.46 0,80@0.39 c4
-dots book_l4 0,106@0.95 0,106@0.88 0,106@0.81 0,106@0.74 0,106@0.67 0,106@0.6 0,106@0.53 0,106@0.46 0,106@0.39 c14
-dots book_r1 320,28@0.95 320,28@0.88 320,28@0.81 320,28@0.74 320,28@0.67 320,28@0.6 320,28@0.53 320,28@0.46 320,28@0.39 c14
-dots book_r2 320,54@0.95 320,54@0.88 320,54@0.81 320,54@0.74 320,54@0.67 320,54@0.6 320,54@0.53 320,54@0.46 320,54@0.39 c4
-dots book_r3 320,80@0.95 320,80@0.88 320,80@0.81 320,80@0.74 320,80@0.67 320,80@0.6 320,80@0.53 320,80@0.46 320,80@0.39 c14
-dots book_r4 320,106@0.95 320,106@0.88 320,106@0.81 320,106@0.74 320,106@0.67 320,106@0.6 320,106@0.53 320,106@0.46 320,106@0.39 c4
-rect cabinet 190,46,42,43 6 e0
-line cab_mid 211,46 211,89 c0
-rect cab_plate 197,52,28,5 14
-ellipse keyhole 205,70,2,2 0
-ellipse knob_b 217,70,2,2 14
-line cab_top 190,46 232,46 c14
-line pl_a 40,136@1 40,136@0.35 c0
-line pl_b 120,136@1 120,136@0.35 c0
-line pl_c 200,136@1 200,136@0.35 c0
-line pl_d 280,136@1 280,136@0.35 c0
-poly lect 262,112 266,86 302,86 306,112 6 e0
-rect lect_top 260,82,48,5 14 e0
-poly ledger_open 270,82 276,76 296,76 300,82 15 e0
-line cord 150,0 150,26 c0
-ellipse lamp 150,30,7,4 14
-ellipse halo_o 150,32,34,18 mix:,14@0.12
-ellipse halo_i 150,31,18,10 mix:,14@0.22` },
-  sorting: { version: 1, draw: `vp 107,64
-poly lwall 0,0 76,45 76,85 0,136 mix:0,6@0.5
-poly rwall 320,0 169,45 169,85 320,136 mix:0,6@0.5
-poly ceil 0,0 320,0 169,45 76,45 mix:0,6@0.25
-rect back 76,45,93,40 mix:0,6@0.4
-poly floor 0,136 76,85 169,85 320,136 fade:0,6/107,136/107,85
-line skirt_l 0,136 76,85 c0
-line skirt_r 320,136 169,85 c0
-line shelf_l1 0,14@1 0,14@0.29 c6
-line shelf_l2 0,44@1 0,44@0.29 c6
-line shelf_l3 0,74@1 0,74@0.29 c6
-line shelf_l4 0,104@1 0,104@0.29 c6
-line shelf_r1 320,14@1 320,14@0.29 c6
-line shelf_r2 320,44@1 320,44@0.29 c6
-line shelf_r3 320,74@1 320,74@0.29 c6
-line shelf_r4 320,104@1 320,104@0.29 c6
-dots tray_l1 0,30@0.95 0,30@0.85 0,30@0.75 0,30@0.65 0,30@0.55 0,30@0.45 0,30@0.37 c15
-dots tray_l2 0,58@0.95 0,58@0.85 0,58@0.75 0,58@0.65 0,58@0.55 0,58@0.45 0,58@0.37 c14
-dots tray_l3 0,88@0.95 0,88@0.85 0,88@0.75 0,88@0.65 0,88@0.55 0,88@0.45 0,88@0.37 c15
-dots tray_r1 320,30@0.9 320,30@0.7 320,30@0.55 320,30@0.44 320,30@0.36 320,30@0.3 c14
-dots tray_r2 320,58@0.9 320,58@0.7 320,58@0.55 320,58@0.44 320,58@0.36 320,58@0.3 c15
-dots tray_r3 320,88@0.9 320,88@0.7 320,88@0.55 320,88@0.44 320,88@0.36 320,88@0.3 c14
-poly table_top 60,100@1 150,100@1 150,100@0.45 60,100@0.45 mix:6,14@0.3 e0
-rect table_front 60,100,90,26 6 e0
-rect leg_l 62,126,5,10 0
-rect leg_r 143,126,5,10 0
-rect s_door 118,54,22,31 0 e6
-rect s_door_knob 136,70,2,2 14
-rect tr1 70,93,16,7 15 e0
-rect tr2 94,95,16,5 14 e0
-rect tr3 130,92,14,8 15 e0
-rect tr4 96,85,8,3 14 e0
-rect tr5 112,84,8,3 15 e0
-rect tr6 84,82,7,3 14 e0
-line cord 107,0 107,22 c0
-poly lampshade 94,32 120,32 112,22 102,22 2 e0
-ellipse halo_o 107,36,40,16 mix:,14@0.12
-ellipse halo_i 107,35,22,9 mix:,14@0.22
-ellipse stool_top 232,112,12,4 6 e0
-line stool_a 224,114 222,134 c0
-line stool_b 240,114 242,134 c0
-rect crate 262,100,34,24 6 e0
-line crate_a 262,112 296,112 c0
-line pl_a 20,136@1 20,136@0.29 c0
-line pl_b 190,136@1 190,136@0.29 c0
-line pl_c 270,136@1 270,136@0.29 c0`, overlays: [{"object": "spool", "at": [116, 84]}, {"object": "shell_button", "at": [74, 88]}] },
-  mending: { version: 1, draw: `poly lwall 0,0 90,14 90,100 0,126 mix:0,6@0.55
-rect back 90,14,230,86 mix:0,6@0.5
-poly ceil 0,0 90,14 320,14 320,0 mix:0,6@0.2
-poly floor 0,136 0,126 90,100 320,100 320,136 fade:0,6/200,136/200,100
-line skirt_b 90,100 320,100 c0
-line skirt_l 0,126 90,100 c0
-rect win_frame 186,24,56,42 0 e6
-rect win_glass 190,28,48,34 mix:1,9@0.5
-line win_m1 214,28 214,62 c0
-line win_m2 190,45 238,45 c0
-rect win_sill 182,66,64,4 6 e0
-rect shelf 252,52,52,3 6 e0
-dots spools 258,48 266,48 274,48 282,48 290,48 298,48 c15
-line rail 4,54 84,60 c14
-poly coat_a 10,56 20,56 24,98 8,100 mix:0,6@0.3 e6
-poly coat_b 30,57 40,57 44,98 28,98 4 e0
-poly coat_c 52,58 62,58 64,98 50,98 mix:0,6@0.3 e6
-poly coat_d 70,59 80,59 82,98 68,98 mix:0,6@0.6 e6
-rect rug 90,108,120,22 mix:4,0@0.5 e0
-rect mach_table 92,80,52,6 6 e0
-rect mach_leg1 96,86,4,14 0
-rect mach_leg2 136,86,4,14 0
-rect mach_head 100,68,30,12 0 e6
-poly mach_arm 104,68 104,60 128,60 128,72 0 e6
-ellipse mach_wheel 134,76,6,6 14 e0
-rect treadle 106,96,24,3 6 e0
-poly venn 106,100 108,74 130,74 132,100 0 e6
-ellipse venn_head 119,67,5,6 12
-ellipse venn_bun 119,60,4,3 6
-poly form 160,100 162,80 164,64 172,64 174,80 176,100 6 e0
-line form_stand 168,100 168,114 c0
-ellipse form_base 168,116,10,3 0
-line cord_m 118,14 118,40 c0
-ellipse lamp_m 118,44,8,4 14
-ellipse halo_o 118,48,36,20 mix:,14@0.12
-ellipse halo_i 118,47,20,11 mix:,14@0.22
-poly door_e 292,100 292,40 306,32 320,36 320,100 0 e6
-ellipse knob_e 296,72,2,2 14
-line fb1 100,112 320,112 c0
-line fb2 60,124 320,124 c0
-line fb3 20,136 90,104 c0` },
-  canteen: { version: 1, draw: `rect wall 0,0,320,92 fade:14,6/0,0/0,92
-rect floor 0,92,320,44 4
-line skirt 0,92 320,92 c0
-line fb1 0,104 320,104 c0
-line fb2 0,118 320,118 c0
-line fb3 40,92 20,136 c0
-line fb4 110,92 100,136 c0
-line fb5 200,92 205,136 c0
-line fb6 280,92 295,136 c0
-poly arch_n 14,92 14,50 30,38 46,50 46,92 0 e6
-rect n_glow 18,52,24,40 mix:0,14@0.25
-rect win_frame 70,22,50,36 0 e6
-rect win_glass 74,26,42,28 mix:9,11@0.4
-line win_m1 95,26 95,54 c0
-line win_m2 74,40 116,40 c0
-rect win_sill 66,58,58,4 7 e0
-rect board 140,30,24,16 0 e6
-line chalk_a 144,35 160,35 c15
-line chalk_b 144,40 156,40 c15
-rect counter 170,70,110,26 7 e0
-rect counter_top 166,66,118,5 15 e0
-rect cshadow 170,96,110,3 0
-rect urn_body 198,36,28,34 14 e0
-rect urn_sh 214,36,12,34 6
-ellipse urn_lid 212,34,14,5 6 e0
-rect urn_tap 194,56,6,4 6 e0
-rect urn_foot 198,70,28,3 6
-rect tray 238,62,34,4 15 e0
-rect cup_a 242,56,8,6 15 e0
-rect cup_b 254,56,8,6 15 e0
-rect cup_c 266,56,8,6 15 e0
-ellipse table_a 60,104,26,6 15 e0
-line pole_a 60,110 60,128 c0
-ellipse base_a 60,130,10,3 0
-ellipse table_b 128,98,16,4 15 e0
-line pole_b 128,102 128,116 c0
-ellipse base_b 128,118,7,2 0
-poly chair_a 22,130 24,106 34,106 36,130 0 e6
-poly chair_b 86,128 88,108 98,108 100,128 0 e6
-poly chair_c 148,114 150,100 156,100 158,114 0 e6
-line cord 130,0 130,16 c0
-ellipse lamp 130,19,7,3 15
-ellipse halo_o 130,22,30,14 mix:,15@0.12
-ellipse halo_i 130,21,16,8 mix:,15@0.22
-poly door_r 296,92 296,50 308,42 320,50 320,92 0 e6` },
-  engine: { version: 1, draw: `poly lwall 0,0 70,18 70,96 0,128 mix:0,4@0.25
-rect back 70,18,250,78 mix:0,4@0.35
-poly ceil 0,0 70,18 320,18 320,0 0
-poly floor 0,136 0,128 70,96 320,96 320,136 fade:4,0/190,96/190,136
-line skirt_b 70,96 320,96 c0
-line skirt_l 0,128 70,96 c0
-rect ceilpipe 70,18,250,6 4 e0
-rect ceilpipe2 0,4,70,6 4 e0
-rect drum 116,36,150,60 4 e0
-rect band_a 116,50,150,4 12
-rect band_b 116,80,150,4 12
-rect pipe_1 124,22,8,70 12 e0
-rect pipe_2 138,30,8,62 12 e0
-rect pipe_3 152,18,8,74 12 e0
-rect pipe_4 212,26,8,66 12 e0
-rect pipe_5 226,34,8,58 12 e0
-rect pipe_6 240,20,8,72 12 e0
-poly furnace 168,60 202,60 202,92 168,92 14 e0
-line furn_bar 168,76 202,76 c0
-line furn_bar2 185,60 185,92 c0
-ellipse halo_o 185,76,44,30 mix:,14@0.12
-ellipse halo_i 185,76,26,18 mix:,14@0.22
-ellipse gauge_1 30,50,9,9 15 e0
-line needle_1 30,50 35,45 c0
-ellipse gauge_2 56,58,7,7 15 e0
-line needle_2 56,58 53,54 c0
-poly door_w 10,116 10,46 52,40 52,98 0 e6
-rect valve 20,76,16,4 7 e0
-line valve_pipe 28,80 28,108 c7
-rect post 224,82,8,34 7 e0
-rect post_foot 218,114,20,4 7 e0
-rect bigbtn_body 216,76,24,7 4 e0
-ellipse bigbtn 228,75,12,5 12 e4
-line grate_1 90,108 310,108 c4
-line grate_2 60,122 320,122 c4
-line grate_3 120,96 100,136 c4
-line grate_4 260,96 280,136 c4
-dots sparks 150,100 164,106 240,100 262,112 c14` },
+  // ---- THE WAITING BOOTH (the opening) ---------------------------------------------------------------------------------------
+  booth: {
+    version: 1,
+    shot: "Eye level, frontal, facing north; one-point view, vanishing point (213,66) on the {wicket}, a sliding hatch in the far {glass} on the right third; " +
+      "pinklobby: side walls light magenta giving way to brown towards the corners (gradient one, the ceiling lamp's light falling off), the floor grey deepening with distance " +
+      "(gradient two); one light, a yellow ceiling strip at x 156 with a soft halo on the ceiling; subject the wicket, x 197-229, a shutter half down over a black opening; " +
+      "on the left third a slatted {bench} with the {receiver} on its seat and a number {board} on the left wall above it, every number dark; " +
+      "left wing a pinned poster and coat hooks, right wing a potted plant and a notice rail.",
+    draw: `
+      vp 213,66
+      poly ceiling 0,0 320,0 276,40 150,40 8
+      poly wall_l 0,0 150,40 150,94 0,136 fade:6,13/0,60/150,60
+      poly wall_r 320,0 276,40 276,94 320,136 fade:6,13/320,60/276,60
+      rect wall_back 150,40,126,54 13
+      poly floor 0,136 150,94 276,94 320,136 fade:7,8/0,136/0,94
+      rect pane_far 156,44,114,46 mix:13,7@0.3
+      line - 156,44 270,44 c8
+      line - 156,90 270,90 c8
+      line mullion1 194,44 194,90 c8
+      line mullion2 232,44 232,90 c8
+      rect wicket 197,56,32,32 6 e0
+      rect hatch 201,60,24,24 0
+      rect shutter 201,60,24,12 8 e7
+      line - 201,72 225,72 c7
+      dots hatch_handle 222,66 c14
+      poly lamp 136,6 176,6 172,13 140,13 14 e0
+      ellipse halo1 156,22,36,16 mix:,14@0.1
+      ellipse halo2 156,20,24,10 mix:,14@0.2
+      ellipse halo3 156,18,13,6 mix:,14@0.35
+      line - 150,40 0,0 c7
+      line - 276,40 320,0 c7
+      line beam1 213,20@1 213,20@0.4 c8
+      line - 60,0@1 150,40 c8
+      line - 260,0@1 276,40 c8
+      line skirt_l 0,128 150,95 c8
+      line skirt_r 320,128 276,95 c8
+      line tile1 20,136@1 20,136@0.4 c8
+      line tile2 80,136@1 80,136@0.4 c8
+      line tile3 140,136@1 140,136@0.4 c8
+      line tile4 200,136@1 200,136@0.4 c8
+      line tile5 260,136@1 260,136@0.4 c8
+      line tile6 320,136@1 320,136@0.4 c8
+      line - 0,120 320,120 c8
+      line - 0,108 300,108 c8
+      rect bench_back 62,76,102,10 6 e0
+      line - 62,80 164,80 c0
+      line - 62,83 164,83 c0
+      rect bench_seat 58,98,110,8 6 e0
+      rect bench_shade 58,106,110,3 0
+      rect bench_leg1 64,109,4,15 8
+      rect bench_leg2 156,109,4,15 8
+      rect bench_post1 64,86,3,12 8
+      rect bench_post2 158,86,3,12 8
+      rect board 78,34,56,22 0 e7
+      dots board_numbers 84,40 94,40 104,40 114,40 124,40 84,46 94,46 104,46 114,46 124,46 84,52 94,52 104,52 114,52 124,52 c8
+      line - 78,34 134,34 c7
+      rect poster 8,40,26,38 7 e0
+      rect poster_band 12,46,18,5 8
+      line - 12,58 30,58 c8
+      line - 12,63 26,63 c8
+      line - 12,68 28,68 c8
+      dots hooks 12,24 22,24 32,24 c0
+      line - 12,24 12,30 c0
+      line - 22,24 22,30 c0
+      line - 32,24 32,30 c0
+      rect rail 286,46,32,3 8 e0
+      rect slip1 290,50,8,10 7 e0
+      rect slip2 302,50,8,13 15 e0
+      poly pot 286,112 310,112 306,134 290,134 6 e0
+      poly leaf1 298,112 288,84 294,82 300,112 0 e8
+      poly leaf2 298,112 306,80 311,84 302,112 0 e8
+      poly leaf3 298,112 314,96 316,102 302,114 0 e8
+      poly leaf4 296,112 284,98 282,104 294,116 0 e8
+      ellipse scuff 108,126,18,2 mix:,8@0.4
+    `,
+    overlays: [{ object: "receiver", at: [100, 84] }]
+  },
+
+  // ---- THE BUTTON HALL: eye level, one-point view to the wall of buttons -----------------------------------------------------
+  hall: {
+    version: 1,
+    shot: "Eye level, frontal, facing north; one-point view, vanishing point (200,60) just left of the gap on the right third; lamplight: brown walls and floor, " +
+      "yellow only where the one hanging lamp (x 190, on the ceiling) falls, with a soft halo round it on the ceiling and the top of the back wall; " +
+      "gradients: the floor brown near to black far (the lamp's light falling off with distance) and the side walls brown at the back corner to black at the edges (the same cause); " +
+      "subject the {wall} of brass buttons across the back wall, x 106-274, nine rows of studs drawn as dithered brass bands with their {plates}, the {gap} in row nine at x 218; " +
+      "on the left a flight of {stairs} rising along the side wall with a banister, on the right a stairwell opening in the floor with steps going down; " +
+      "wings: left the stair's foot and a coat hook, right a framed notice and a red fire bucket on a shelf.",
+    draw: `
+      vp 200,60
+      poly ceiling 0,0 320,0 280,18 100,18 0
+      poly wall_l 0,0 100,18 100,100 0,136 fade:6,0/100,60/0,60
+      poly wall_r 320,0 280,18 280,100 320,136 fade:6,0/280,60/320,60
+      rect wall_back 100,18,180,82 6 e0
+      poly floor 0,136 100,100 280,100 320,136 fade:6,0/0,136/0,100
+      rect panel 106,22,168,74 0
+      rect row1 108,25,164,5 mix:14,6@0.5
+      rect row2 108,33,164,5 mix:14,6@0.5
+      rect row3 108,41,164,5 mix:14,6@0.5
+      rect row4 108,49,164,5 mix:14,6@0.5
+      rect row5 108,57,164,5 mix:14,6@0.5
+      rect row6 108,65,164,5 mix:14,6@0.5
+      rect row7 108,73,164,5 mix:14,6@0.5
+      rect row8 108,81,164,5 mix:14,6@0.5
+      rect row9a 108,89,106,5 mix:14,6@0.5
+      rect row9b 224,89,48,5 mix:14,6@0.5
+      ellipse gap 218,91,5,3 0 e6
+      line plates1 108,31 272,31 c8
+      line plates2 108,47 272,47 c8
+      line plates3 108,63 272,63 c8
+      line plates4 108,79 272,79 c8
+      line plates5 108,95 272,95 c8
+      rect plate_mill 213,95,10,2 7
+      line cell0 121,22 121,96 c0
+      line cell1 134,22 134,96 c0
+      line cell2 147,22 147,96 c0
+      line cell3 160,22 160,96 c0
+      line cell4 173,22 173,96 c0
+      line cell5 186,22 186,96 c0
+      line cell6 199,22 199,96 c0
+      line cell7 212,22 212,96 c0
+      line cell8 225,22 225,96 c0
+      line cell9 238,22 238,96 c0
+      line cell10 251,22 251,96 c0
+      line cell11 264,22 264,96 c0
+      line - 106,22 274,22 c14
+      line - 100,18 0,0 c6
+      line - 280,18 320,0 c6
+      line lamp_cord 190,0 190,8 c6
+      poly lamp_shade 180,8 200,8 205,16 175,16 14 e0
+      ellipse lamp_bulb 190,18,3,2 15
+      ellipse halo1 190,20,46,18 mix:,14@0.1
+      ellipse halo2 190,19,30,12 mix:,14@0.2
+      ellipse halo3 190,18,16,7 mix:,14@0.35
+      line skirt_l 0,128 100,98 c0
+      line skirt_r 320,128 280,98 c0
+      line fl1 20,136@1 20,136@0.53 c6
+      line fl2 80,136@1 80,136@0.53 c6
+      line fl3 140,136@1 140,136@0.53 c6
+      line fl4 200,136@1 200,136@0.53 c6
+      line fl5 260,136@1 260,136@0.53 c6
+      line fl6 320,136@1 320,136@0.53 c6
+      line - 0,118 320,118 c6
+      line - 0,106 300,106 c6
+      poly stringer 4,132 96,98 96,92 4,100 6 e0
+      line step1 20,124 20,98 c0
+      line step2 38,118 38,94 c0
+      line step3 56,111 56,86 c0
+      line step4 74,105 74,78 c0
+      line banister 4,88 96,52 c14
+      line post1 20,98 20,82 c0
+      line post2 56,86 56,68 c0
+      line post3 90,60 90,44 c0
+      poly under_stair 4,132 96,98 96,100 4,136 0
+      poly stairwell 232,112 276,106 286,118 236,128 0 e6
+      line well_step1 238,116 280,110 c6
+      line well_step2 240,121 283,114 c6
+      line well_rail 232,106 276,102 c14
+      rect hook_bar 20,60,28,3 6 e0
+      dots hooks 24,64 34,64 44,64 c0
+      rect frame 290,34,24,30 0 e6
+      rect notice 294,38,16,22 7
+      line - 296,44 308,44 c8
+      line - 296,50 306,50 c8
+      line - 296,56 308,56 c8
+      rect shelf 288,98,30,3 6 e0
+      poly bucket 296,102 312,102 310,116 298,116 4 e0
+      line - 296,106 312,106 c12
+    `,
+    cycles: [{ name: "the hanging lamp", areas: ["lamp_bulb"], colors: [15, 14], style: "flicker", ms: [900, 2200] }]
+  },
+
+  // ---- THE CONSOLE: low, across the long desk; deepnight, the green lamp on the left third, the red button on the right ------
+  console: {
+    version: 1,
+    shot: "Close and low, level with the desk top, looking across the long {desk} north at the back wall; deepnight; one light, the shaded green {lamp} at x 107 with a soft green halo " +
+      "on the baize and the wall above it; gradients: the back wall blue at the top to cyan lower where the lamp's glow reaches it (light falling off), and the floor blue to black towards the viewer; " +
+      "subject the big red {button} under its raised glass {flap} on the right third, x 213, on a dark base; along the near and far edges of the desk rows of yellow {spares}; " +
+      "on the wall a town map with a few red points; wings: left a black filing cabinet with brass pulls, right a pipe running up the wall and a radiator.",
+    draw: `
+      rect wall 0,0,320,72 fade:1,3/0,0/0,72
+      rect map 128,10,104,46 mix:1,3@0.35 e0
+      line - 134,22 224,22 c0
+      line - 134,34 224,34 c0
+      line - 150,10 150,56 c0
+      line - 182,10 182,56 c0
+      line - 206,10 206,56 c0
+      line - 134,46 224,46 c0
+      dots map_points 140,16 164,28 190,40 212,18 168,50 c4
+      rect window 44,12,44,30 0 e3
+      line - 66,12 66,42 c3
+      line - 44,27 88,27 c3
+      rect floor 0,72,320,64 fade:1,0/0,72/0,136
+      line - 0,72 320,72 c8
+      ellipse halo1 107,70,56,22 mix:,10@0.1
+      ellipse halo2 107,70,38,14 mix:,10@0.2
+      ellipse halo3 107,70,20,8 mix:,10@0.35
+      line lamp_stem 107,84 107,58 c8
+      poly lamp_shade 92,50 122,50 132,62 82,62 2 e0
+      ellipse lamp_bulb 107,64,7,2 15
+      poly desk_top 0,100 320,100 304,80 16,80 2 e0
+      poly pool 70,100 150,100 140,88 80,88 mix:,10@0.25
+      rect desk_front 0,100,320,36 0
+      rect desk_edge 0,100,320,2 6
+      line - 0,112 320,112 c8
+      line - 0,124 320,124 c8
+      rect drawer1 20,104,60,16 0 e8
+      rect drawer2 100,104,60,16 0 e8
+      rect drawer3 180,104,60,16 0 e8
+      rect drawer4 260,104,50,16 0 e8
+      dots pulls 50,112 130,112 210,112 285,112 c14
+      dots spares_near 24,96 40,96 56,96 72,96 88,96 104,96 120,96 136,96 152,96 168,96 184,96 200,96 216,96 232,96 248,96 264,96 280,96 296,96 c14
+      dots spares_far 40,84 56,84 72,84 88,84 104,84 120,84 136,84 152,84 168,84 184,84 200,84 216,84 232,84 248,84 264,84 280,84 c14
+      dots spares_mid 30,90 46,90 62,90 78,90 94,90 110,90 126,90 142,90 158,90 174,90 190,90 206,90 222,90 238,90 254,90 270,90 286,90 c6
+      poly flap 196,56 230,56 234,76 192,76 mix:,11@0.12 e11
+      line - 196,56 192,76 c11
+      line - 230,56 234,76 c11
+      ellipse button_base 213,86,26,7 8 e0
+      ellipse all_button 213,82,19,6 4 e12
+      ellipse button_hi 207,80,7,2 12
+      rect penstand 46,74,10,8 8 e0
+      line pen1 49,74 47,66 c15
+      line pen2 52,74 54,64 c14
+      ellipse clock 262,28,10,10 3 e0
+      line - 262,28 262,22 c0
+      line - 262,28 267,30 c0
+      rect skirting 0,66,320,4 8 e0
+      line - 134,28 224,28 c0
+      line - 134,40 224,40 c0
+      rect cab 8,48,32,70 0 e8
+      rect cab_d1 12,54,24,16 8 e0
+      rect cab_d2 12,76,24,16 8 e0
+      rect cab_d3 12,98,24,16 8 e0
+      dots cab_pulls 24,62 24,84 24,106 c14
+      rect pipe 292,0,8,100 8 e0
+      line - 296,0 296,100 c1
+      rect rad 270,70,44,30 8 e1
+      line - 276,72 276,98 c1
+      line - 284,72 284,98 c1
+      line - 292,72 292,98 c1
+      line - 300,72 300,98 c1
+      line - 308,72 308,98 c1
+    `,
+    cycles: [{ name: "the green lamp", areas: ["lamp_bulb"], colors: [15, 10], style: "pingpong", ms: 3000 }]
+  },
+
+  // ---- THE CLERK'S OFFICE: seen into a corner, institution grey; the chair and ledger on the left third, the hat-stand on the right -------
+  office: {
+    version: 1,
+    shot: "Eye level from the doorway looking north into a small room; one-point view, vanishing point (107,66) on the {desk} and {chair}; institution: grey walls going to black at the corners, " +
+      "one ceiling globe (white) at x 140 with a soft halo on the ceiling and the back wall, and one small green thing, the lamp on the desk; gradients: the floor grey to black away from the door (the globe's light falling off); " +
+      "subject the swivel {chair} on the left third (x 107) beside the {desk} with the open {ledger} and an inkwell; on the right third, on the right wall, the {hat-stand} with one coat and one hat (x 230); " +
+      "wings: left a filing shelf with box files and a framed certificate, right a barred window (dark) and a radiator.",
+    draw: `
+      vp 107,66
+      poly ceiling 0,0 320,0 250,26 40,26 8
+      poly wall_l 0,0 40,26 40,104 0,136 8
+      poly wall_r 320,0 250,26 250,104 320,136 8
+      rect wall_back 40,26,210,78 7
+      poly floor 0,136 40,104 250,104 320,136 fade:7,0/0,136/0,104
+      ellipse halo1 140,34,60,22 mix:,15@0.1
+      ellipse halo2 140,32,38,14 mix:,15@0.2
+      ellipse halo3 140,30,18,7 mix:,15@0.35
+      line globe_cord 140,0 140,22 c8
+      ellipse globe 140,26,6,5 15 e8
+      line - 40,26 0,0 c7
+      line - 250,26 320,0 c7
+      line skirt_l 0,128 40,104 c0
+      line skirt_r 320,128 250,104 c0
+      line - 40,104 250,104 c0
+      line board1 60,136@1 60,136@0.55 c8
+      line board2 120,136@1 120,136@0.55 c8
+      line board3 180,136@1 180,136@0.55 c8
+      line board4 240,136@1 240,136@0.55 c8
+      line board5 300,136@1 300,136@0.55 c8
+      rect desk_top 60,78,100,6 0 e8
+      rect desk_front 62,84,96,26 0 e8
+      line - 110,84 110,110 c8
+      dots desk_pulls 86,94 134,94 c7
+      rect desk_leg1 62,110,5,10 0
+      rect desk_leg2 153,110,5,10 0
+      rect blotter 74,75,40,3 8
+      rect ledger_l 118,72,18,5 15 e0
+      rect ledger_r 137,72,18,5 15 e0
+      line - 120,74 134,74 c8
+      line - 139,74 153,74 c8
+      rect inkwell 66,72,5,6 0 e7
+      line lamp_stem 90,76 90,66 c8
+      poly lamp_shade 84,60 98,60 102,67 80,67 2 e0
+      ellipse lamp_spill 90,80,16,3 mix:,14@0.25
+      line chair_post 106,112 106,100 c8
+      poly chair_seat 90,96 124,96 128,102 86,102 2 e0
+      poly chair_back 94,70 120,70 122,95 92,95 2 e0
+      line - 98,74 98,92 c0
+      line - 106,74 106,92 c0
+      line - 114,74 114,92 c0
+      line chair_base1 106,112 90,120 c0
+      line chair_base2 106,112 122,120 c0
+      line chair_base3 106,112 106,122 c0
+      dots castors 90,121 122,121 106,123 c0
+      line stand_pole 230,50 230,112 c0
+      line stand_foot1 230,112 218,120 c0
+      line stand_foot2 230,112 242,120 c0
+      line stand_arm1 230,52 220,56 c0
+      line stand_arm2 230,52 240,56 c0
+      poly coat 218,56 232,56 236,92 214,92 0 e8
+      line - 225,58 225,90 c8
+      poly hat 222,46 238,46 236,50 224,50 0 e8
+      rect shelf 6,48,28,3 0 e8
+      rect box1 8,32,6,16 8 e0
+      rect box2 16,34,6,14 8 e0
+      rect box3 24,32,6,16 8 e0
+      rect cert 8,60,20,14 15 e0
+      line - 12,66 24,66 c8
+      rect win 280,40,28,40 0 e7
+      line - 288,40 288,80 c7
+      line - 298,40 298,80 c7
+      rect rad 280,98,28,16 8 e7
+      line - 286,100 286,112 c7
+      line - 294,100 294,112 c7
+      line - 302,100 302,112 c7
+    `
+  },
+
+  // ---- THE STOCKROOM: eye level down a narrow aisle of drawers; goldenhour, a band of low sun across the back wall ------------
+  stockroom: {
+    version: 1,
+    shot: "Eye level, facing north, one-point view down a narrow aisle, vanishing point (160,64); goldenhour: brown walls, floor and wood, light red and yellow only on the band of low sun " +
+      "that comes through a high window and strikes the back wall (x 120-210), magenta in the deepest corners, black for gaps and silhouettes, one red accent; gradient: the floor brown to black " +
+      "away from the sun (one only); subject on the left third the low wide {drawer} with its buttonhole lock, x 60-160, black with a yellow edge, among five rows of small drawers of the {shelves}; " +
+      "on the right third a tea-chest {crate} with a {saucer} and the {peppermint} on it (x 213); wings: left a ladder against the shelves, right a sack and a stack of cardboard boxes.",
+    draw: `
+      vp 160,64
+      poly ceiling 0,0 320,0 270,22 50,22 0
+      poly wall_l 0,0 50,22 50,106 0,136 6
+      poly wall_r 320,0 270,22 270,106 320,136 6
+      rect wall_back 50,22,220,84 6 e0
+      poly floor 0,136 50,106 270,106 320,136 fade:6,0/0,136/0,106
+      line - 50,34 270,34 c0
+      line - 50,46 270,46 c0
+      line - 50,58 270,58 c0
+      line - 50,70 270,70 c0
+      line - 50,82 270,82 c0
+      line - 72,22 72,90 c0
+      line - 94,22 94,90 c0
+      line - 116,22 116,90 c0
+      line - 138,22 138,90 c0
+      line - 160,22 160,90 c0
+      line - 182,22 182,90 c0
+      line - 204,22 204,90 c0
+      line - 226,22 226,90 c0
+      line - 248,22 248,90 c0
+      poly sunband 120,22 176,22 214,90 158,90 mix:12,14@0.4
+      poly sunfloor 150,108 200,108 236,136 170,136 mix:,12@0.3
+      dots knobs1 61,28 83,28 105,28 127,28 149,28 171,28 193,28 215,28 237,28 259,28 c14
+      dots knobs2 61,40 83,40 105,40 127,40 149,40 171,40 193,40 215,40 237,40 259,40 c14
+      dots knobs3 61,52 83,52 105,52 127,52 149,52 171,52 193,52 215,52 237,52 259,52 c14
+      dots knobs4 61,64 83,64 105,64 127,64 149,64 171,64 193,64 215,64 237,64 259,64 c14
+      dots knobs5 61,76 83,76 105,76 127,76 149,76 171,76 193,76 215,76 237,76 259,76 c14
+      rect lost_drawer 60,92,100,14 0 e14
+      rect lock_slot 100,97,20,3 6 e12
+      ellipse lock_hole 120,98,3,2 0
+      poly corner_l 50,22 56,25 56,103 50,106 5
+      poly corner_r 270,22 264,25 264,103 270,106 5
+      line - 50,22 0,0 c0
+      line - 270,22 320,0 c0
+      line - 20,136@1 20,136@0.58 c0
+      line - 90,136@1 90,136@0.58 c0
+      line - 230,136@1 230,136@0.58 c0
+      line - 300,136@1 300,136@0.58 c0
+      poly crate_top 190,110 244,110 252,118 184,118 6 e0
+      rect crate_front 184,118,68,18 6 e0
+      line - 184,124 252,124 c0
+      line - 184,130 252,130 c0
+      line - 206,118 206,136 c0
+      line - 230,118 230,136 c0
+      ellipse saucer 214,111,12,3 12 e0
+      line ladder_l 14,34 22,130 c0
+      line ladder_r 32,34 40,130 c0
+      line - 16,46 34,46 c0
+      line - 17,58 35,58 c0
+      line - 18,70 36,70 c0
+      line - 19,82 37,82 c0
+      line - 20,94 38,94 c0
+      line - 21,106 39,106 c0
+      line - 22,118 40,118 c0
+      ellipse sack 296,122,18,12 6 e0
+      poly sack_top 288,112 304,112 300,106 292,106 6 e0
+      rect box1 284,84,30,12 6 e0
+      rect box2 288,96,26,12 6 e0
+      line - 284,90 314,90 c0
+      line - 288,102 314,102 c0
+      rect win_hi 150,5,36,9 14 e0
+      line - 168,5 168,14 c0
+      dots dust 130,40 142,52 150,64 160,48 172,60 180,72 190,56 c15
+    `,
+    overlays: [{ object: "mint", at: [206, 96] }]
+  },
+
+  // ---- THE LAMP ROOM: close, flat on to the panel of lamps; arcade, a glass roof band above -----------------------------------
+  lamproom: {
+    version: 1,
+    shot: "Close, eye level, flat on to a panel with no floor or ceiling in view, facing north; arcade: blue walls, a band of glass roof light blue to magenta along the top (gradient one, the sky through glass), " +
+      "no other gradient; the light is the {lamps} themselves, ten rows of small green lights drawn as dithered strips, one red {lamp} in the bottom row at x 232; " +
+      "subject the lamp panel across the picture, x 46-274; below it on the centre-left third (x 107) a shut steel {tray} flush with the panel and, beside it at x 213, a small square {tray button}; " +
+      "wings: left a bundle of cables running down to a drum, right a fuse box with one small red lamp and a pipe.",
+    draw: `
+      rect wall 0,0,320,136 1
+      rect roof 0,0,320,12 fade:9,5/0,0/0,12
+      line - 0,12 320,12 c0
+      line roof_bar1 80,0 80,12 c0
+      line roof_bar2 160,0 160,12 c0
+      line roof_bar3 240,0 240,12 c0
+      rect frame 36,14,248,100 0 e3
+      rect lamps1 46,20,228,3 mix:10,0@0.5
+      rect lamps2 46,29,228,3 mix:10,0@0.5
+      rect lamps3 46,38,228,3 mix:10,0@0.5
+      rect lamps4 46,47,228,3 mix:10,0@0.5
+      rect lamps5 46,56,228,3 mix:10,0@0.5
+      rect lamps6 46,65,228,3 mix:10,0@0.5
+      rect lamps7 46,74,228,3 mix:10,0@0.5
+      rect lamps8 46,83,228,3 mix:10,0@0.5
+      rect lamps9 46,92,180,3 mix:10,0@0.5
+      rect lamps9b 240,92,34,3 mix:10,0@0.5
+      ellipse red_lamp 232,93,5,3 4 e12
+      line - 46,17 274,17 c8
+      line - 46,26 274,26 c8
+      line - 46,35 274,35 c8
+      line - 46,44 274,44 c8
+      line - 46,53 274,53 c8
+      line - 46,62 274,62 c8
+      line - 46,71 274,71 c8
+      line - 46,80 274,80 c8
+      line - 46,89 274,89 c8
+      line - 46,98 274,98 c8
+      dots rivets 40,18 40,60 40,108 280,18 280,60 280,108 c7
+      line sep1 90,17 90,98 c8
+      line sep2 134,17 134,98 c8
+      line sep3 178,17 178,98 c8
+      line sep4 222,17 222,98 c8
+      rect conduit 0,2,320,5 8 e0
+      rect label_a 52,8,30,3 7
+      rect label_b 130,8,30,3 7
+      rect label_c 210,8,30,3 7
+      rect ledge 0,118,320,18 8 e0
+      rect mug 240,108,8,10 7 e0
+      dots mug_steam 244,104 245,101 c15
+      line - 0,128 320,128 c0
+      rect tray 66,104,100,10 7 e0
+      rect tray_slot 72,108,88,2 8
+      dots tray_pulls 78,106 154,106 c0
+      rect tray_button 206,104,14,10 14 e0
+      rect plate_tray 204,100,18,2 15
+      poly cable1 6,0 14,0 22,118 14,118 0 e8
+      poly cable2 16,0 22,0 36,118 28,118 8 e0
+      poly cable3 2,20 8,20 14,118 8,118 0
+      ellipse drum 22,124,22,6 8 e0
+      line - 8,126 36,126 c0
+      rect fuse_box 292,24,24,34 8 e0
+      rect fuse_door 295,27,18,28 0 e7
+      ellipse fuse_lamp 304,36,2,2 12
+      line - 298,44 310,44 c7
+      line - 298,50 310,50 c7
+      rect pipe 300,58,6,56 8 e0
+      line - 303,58 303,114 c7
+      rect pipe_joint 296,84,14,4 8 e0
+    `,
+    cycles: [{ name: "a lamp going out", areas: ["lamps5"], colors: [10, 2], style: "flicker", ms: [1500, 3500] }],
+    overlays: [{ object: "pearl", at: [108, 98] }]
+  },
+
+  // ---- THE GALLERY: eye level along the catwalk, the wall of buttons running away on the right; lamplight ---------------------
+  gallery: {
+    version: 1,
+    shot: "Eye level on the catwalk, facing north along it; one-point view, vanishing point (107,58) on the left third; lamplight: brown walls, black iron, yellow only where the one hanging lamp " +
+      "(x 107, near the far end) falls, with a soft halo on the ceiling and far wall, a blue night {window} on the left wall; gradients: the iron grating floor brown to black along its length (distance), " +
+      "the right wall brown to black at the near edge (light falling off); subject on the right the {wall} of buttons running away along the catwalk, nine receding bands of studs with the {hole} in the ninth at x 243; " +
+      "on the left third a brass {spyglass} on a stand by the window; the iron {catwalk} with its rail along the left edge; wings: left a coil of rope and a cage lamp, right the far end of the wall and a bolted girder.",
+    draw: `
+      vp 107,58
+      poly ceiling 0,0 320,0 134,42 80,42 0
+      poly wall_l 0,0 80,42 80,74 0,136 6
+      poly wall_r 320,0 134,42 134,74 320,136 fade:6,0/134,60/320,60
+      rect wall_far 80,42,54,32 6 e0
+      poly floor 0,136 320,136 134,74 80,74 fade:6,0/0,136/0,74
+      poly strip1 320,20@1 320,28@1 320,28@0.45 320,20@0.45 mix:14,6@0.5
+      poly strip2 320,31@1 320,39@1 320,39@0.45 320,31@0.45 mix:14,6@0.5
+      poly strip3 320,42@1 320,50@1 320,50@0.45 320,42@0.45 mix:14,6@0.5
+      poly strip4 320,53@1 320,61@1 320,61@0.45 320,53@0.45 mix:14,6@0.5
+      poly strip5 320,64@1 320,72@1 320,72@0.45 320,64@0.45 mix:14,6@0.5
+      poly strip6 320,75@1 320,83@1 320,83@0.45 320,75@0.45 mix:14,6@0.5
+      poly strip7 320,86@1 320,94@1 320,94@0.45 320,86@0.45 mix:14,6@0.5
+      poly strip8 320,97@1 320,105@1 320,105@0.45 320,97@0.45 mix:14,6@0.5
+      poly strip9a 320,108@1 320,116@1 320,116@0.667 320,108@0.667 mix:14,6@0.5
+      poly strip9b 320,108@0.611 320,116@0.611 320,116@0.45 320,108@0.45 mix:14,6@0.5
+      ellipse hole 243,92,3,2 0 e6
+      line - 320,18@1 320,18@0.45 c0
+      line - 320,118@1 320,118@0.45 c0
+      line - 0,0 80,42 c6
+      line - 320,0 134,42 c6
+      line lamp_cord 107,0 107,26 c0
+      poly lamp_shade 100,26 114,26 118,32 96,32 14 e0
+      ellipse lamp_bulb 107,34,3,2 15
+      ellipse halo1 107,32,44,16 mix:,14@0.1
+      ellipse halo2 107,32,28,10 mix:,14@0.2
+      ellipse halo3 107,32,14,6 mix:,14@0.35
+      line grate1 40,136@1 40,136@0.35 c0
+      line grate2 100,136@1 100,136@0.35 c0
+      line grate3 160,136@1 160,136@0.35 c0
+      line grate4 220,136@1 220,136@0.35 c0
+      line grate5 280,136@1 280,136@0.35 c0
+      line - 0,120 320,120 c0
+      line - 0,104 300,104 c0
+      line - 0,90 270,90 c0
+      line rail_top 0,112 80,52 c0
+      line rail_mid 0,124 80,64 c0
+      line rail_post1 14,100 14,126 c0
+      line rail_post2 40,82 40,108 c0
+      line rail_post3 62,66 62,90 c0
+      poly window 8,22 36,30 36,52 8,48 1 e14
+      line - 22,26 22,50 c14
+      poly win_light 8,52 36,56 36,66 8,70 mix:,9@0.2
+      line stand_leg1 56,118 66,96 c0
+      line stand_leg2 76,118 66,96 c0
+      line stand_leg3 66,118 66,96 c0
+      poly scope 40,84 90,70 92,75 42,91 6 e0
+      rect scope_lens 38,84,4,7 14 e0
+      line - 54,86 56,80 c14
+      ellipse rope 20,122,10,5 6 e0
+      line - 12,121 28,121 c0
+      rect cage_lamp 6,70,10,12 0 e14
+      line - 6,76 16,76 c14
+      line pipe1 0,12 80,44 c0
+      line pipe2 0,18 80,48 c0
+      dots rivets 100,30 106,32 112,34 118,36 124,38 c0
+      poly tag 150,108 160,108 160,118 150,118 14 e0
+      line - 154,108 156,100 c0
+      rect hatch_gr 120,92,26,3 0
+      line sw1 20,54 36,60 c14
+      rect girder 276,0,14,130 8 e0
+      dots bolts 283,10 283,30 283,50 283,70 283,90 283,110 c7
+    `,
+    cycles: [{ name: "the hanging lamp", areas: ["lamp_bulb"], colors: [15, 14], style: "flicker", ms: [900, 2400] }]
+  },
+
+  // ---- THE BATTERY CELLAR: eye level along the central mat to the bare terminals; the cellar palette -------------------------
+  cellar: {
+    version: 1,
+    shot: "Eye level at the foot of the stairs, facing north; one-point view, vanishing point (213,64) on the {terminals} on the right third; the cellar palette: cold blue and dark grey stone, brown wood, " +
+      "yellow only where the one hanging bulb (x 80, left) falls, with a soft halo on the left wall, and a small blue spark between two posts as the one small light; gradient: the floor dark grey to black away from the bulb (one only); " +
+      "subject nine brass posts along a rail across the back wall, x 156-268, a spark between the fifth and sixth; on the left wall three racks of glass {jars}, the dry salt-furred one among them; " +
+      "a black rubber {mat} down the middle of the floor towards the posts; wings: left the foot of the iron {stairs}, right more racks and a coil of wire.",
+    draw: `
+      vp 213,64
+      poly ceiling 0,0 320,0 296,34 130,34 0
+      poly wall_l 0,0 130,34 130,100 0,136 1
+      poly wall_r 320,0 296,34 296,100 320,136 1
+      rect wall_back 130,34,166,66 8 e0
+      poly floor 0,136 130,100 296,100 320,136 fade:8,0/0,136/0,100
+      line - 0,0 130,34 c8
+      line - 320,0 296,34 c8
+      line rack1 0,60 130,62 c6
+      line rack2 0,92 130,75 c6
+      line rack3 0,118 130,85 c6
+      rect rack_post 126,34,4,66 6 e0
+      rect jar1 10,44,14,16 1 e8
+      rect jar2 40,46,12,14 1 e8
+      rect jar3 72,48,10,12 1 e8
+      rect jar4 100,50,8,11 1 e8
+      rect jar5 12,76,14,16 1 e8
+      rect jar6 44,76,12,14 1 e8
+      rect jar_dry 76,74,10,12 8 e8
+      poly salt 76,80 86,80 85,86 77,86 15
+      rect jar8 104,68,8,9 1 e8
+      rect jar9 8,102,16,16 1 e8
+      rect jar10 40,98,13,14 1 e8
+      rect jar11 70,92,11,12 1 e8
+      rect jar12 98,86,8,9 1 e8
+      ellipse halo1 80,28,50,22 mix:,14@0.1
+      ellipse halo2 80,27,32,14 mix:,14@0.2
+      ellipse halo3 80,26,16,7 mix:,14@0.35
+      line lamp_cord 80,0 80,14 c8
+      poly lamp_shade 72,14 88,14 92,22 68,22 14 e0
+      ellipse lamp_bulb 80,24,3,2 15
+      rect term_rail 148,92,132,6 6 e0
+      rect post1 156,78,6,14 6 e0
+      rect post2 170,78,6,14 6 e0
+      rect post3 184,78,6,14 6 e0
+      rect post4 198,78,6,14 6 e0
+      rect post5 212,78,6,14 6 e0
+      rect post6 226,78,6,14 6 e0
+      rect post7 240,78,6,14 6 e0
+      rect post8 254,78,6,14 6 e0
+      rect post9 268,78,6,14 6 e0
+      dots post_tips 158,78 172,78 186,78 200,78 214,78 228,78 242,78 256,78 270,78 c14
+      ellipse spark_glow 220,72,16,8 mix:,1@0.4
+      line spark 215,76 218,70 221,76 224,70 227,76 c15
+      line wires 150,52 290,52 c8
+      line - 150,60 290,60 c8
+      poly mat 160,136 238,136 224,100 208,100 0 e8
+      line - 188,100 196,136 c8
+      poly stair_stringer 0,136 60,102 60,96 0,128 6 e0
+      line step1 14,130 14,114 c0
+      line step2 30,122 30,104 c0
+      line step3 46,112 46,96 c0
+      line stair_rail 0,100 60,66 c14
+      rect rack_r1 300,56,20,3 6 e0
+      rect rack_r2 300,84,20,3 6 e0
+      rect jar_r1 304,42,12,14 1 e8
+      rect jar_r2 304,70,12,14 1 e8
+      line pipe_c1 0,12 130,40 c8
+      line pipe_c2 0,18 130,44 c8
+      line drip 100,0 100,10 c9
+      ellipse puddle 120,126,16,3 mix:,1@0.5
+      rect tag_jar 14,64,6,4 14
+      ellipse coil 302,120,16,7 6 e0
+      ellipse coil_in 302,120,9,3 0
+    `,
+    cycles: [{ name: "the spark", areas: ["spark"], colors: [15, 9], style: "flicker", ms: [100, 500] }]
+  },
+
+  // ---- MILL STREET: wide at dusk, the post and its red light on the left third, the crowd at the kerb on the right ---------------
+  crossing: {
+    version: 1,
+    shot: "A wide street at eye level, facing north; one-point view, vanishing point (107,66) on the {post} on the left third; dusk: sky blue to magenta to light red in two bands, a low yellow sun at x 150 half behind " +
+      "the far buildings, solid black silhouettes; the road dark and the four {stripes} of the {crossing} in light red running away to the vanishing point; the {light} on the post red, small, with a faint halo; " +
+      "subject on the right third (x 190-290) the {crowd} at the kerb, eight black figures of different heights; long solid shadows of three of them fall towards the viewer from the sun; " +
+      "wings: left a dark tree and a hydrant with a red cap, right a bus shelter and a lamp standard.",
+    draw: `
+      vp 107,66
+      rect sky1 0,0,320,34 fade:1,5/0,0/0,34
+      rect sky2 0,34,320,34 fade:5,12/0,34/0,68
+      ellipse sun 150,62,13,13 14
+      poly bld1 0,40 30,40 30,70 0,70 0
+      poly bld2 30,52 60,52 60,70 30,70 0
+      poly bld3 60,34 84,34 84,70 60,70 0
+      poly bld4 118,48 150,48 150,70 118,70 0
+      poly bld5 168,30 200,30 200,70 168,70 0
+      poly bld6 200,44 244,44 244,70 200,70 0
+      poly bld7 244,26 270,26 270,70 244,70 0
+      poly bld8 270,46 320,46 320,70 270,70 0
+      dots bld_windows 6,46 14,46 22,46 6,56 14,56 22,56 36,58 46,58 66,40 74,40 66,52 74,52 124,54 134,54 124,62 134,62 174,36 184,36 174,48 184,48 174,60 184,60 250,32 260,32 250,44 260,44 250,56 276,52 288,52 300,52 276,60 288,60 c14
+      rect road 0,70,320,66 mix:0,1@0.3
+      poly pavement 214,66 320,66 320,136 180,136 mix:5,12@0.25
+      line kerb 214,66 180,136 c12
+      line dash1 40,76 50,76 c12
+      line dash2 150,74 164,74 c12
+      ellipse puddle 60,126,20,4 mix:,5@0.4
+      line tram 0,16 320,16 c0
+      line tram2 0,18 320,18 c1
+      poly stripe1 10,136@1 46,136@1 46,136@0.3 10,136@0.3 12
+      poly stripe2 66,136@1 102,136@1 102,136@0.3 66,136@0.3 12
+      poly stripe3 122,136@1 158,136@1 158,136@0.3 122,136@0.3 12
+      poly stripe4 178,136@1 214,136@1 214,136@0.3 178,136@0.3 12
+      line - 0,136 107,66 c1
+      line - 320,136 214,66 c1
+      rect post_pole 105,40,5,64 0
+      rect post_head 97,34,20,24 0 e5
+      ellipse red_light 107,42,5,5 4 e12
+      ellipse halo1 107,42,13,11 mix:,4@0.2
+      rect plate 99,72,16,12 12 e0
+      line wire1 106,84 100,112 c5
+      line wire2 110,84 114,112 c5
+      rect post_base 102,104,10,4 0
+      poly shadow1 190,120 202,120 236,136 214,136 0
+      poly shadow2 238,120 250,120 286,136 262,136 0
+      poly shadow3 214,118 226,118 252,136 232,136 0
+      ellipse head1 196,84,4,4 0
+      poly body1 190,90 202,90 204,120 188,120 0
+      ellipse head2 212,78,4,4 0
+      poly body2 206,84 220,84 222,118 204,118 0
+      ellipse head3 228,86,4,4 0
+      poly body3 222,92 234,92 236,120 220,120 0
+      ellipse head4 242,80,4,4 0
+      poly body4 236,86 248,86 250,122 234,122 0
+      ellipse head5 256,86,4,4 0
+      poly body5 250,92 262,92 264,124 248,124 0
+      ellipse head6 270,82,4,4 0
+      poly body6 264,88 276,88 278,126 262,126 0
+      ellipse head7 286,88,4,4 0
+      poly body7 280,94 292,94 294,128 278,128 0
+      poly umbrella 232,70 262,70 247,60 0
+      line - 247,70 247,86 c0
+      ellipse tree 14,70,22,28 0
+      rect trunk 12,90,5,22 0
+      rect hydrant 36,112,8,12 0 e5
+      rect hydrant_cap 35,109,10,4 4 e0
+      rect shelter_roof 280,64,40,4 0
+      rect shelter_post 296,66,3,44 0
+      rect lamp_standard 308,20,3,92 0
+      ellipse lamp_head 309,18,6,3 14
+    `,
+    cycles: [{ name: "the red light", areas: ["red_light"], colors: [4, 12], style: "pingpong", ms: 3200 }]
+  }
 };
 
+// ---- Ending pictures: the strongest shots, one subject each -----------------------------------------------------------------
 export const endings = {
-  whole: { version: 1, draw: `rect sky 0,0,320,84 fade:1,12/0,0/0,84
-rect sky_mid 0,34,320,26 mix:5,12@0.5
-ellipse sun 262,76,10,10 14
-poly houses_far 0,84 0,66 14,66 14,58 34,58 34,70 60,70 60,62 84,62 84,84 0
-poly houses_far_r 236,84 236,70 262,70 262,60 290,60 290,66 320,66 320,84 0
-rect ground 0,84,320,52 0
-rect road 0,92,320,44 mix:0,8@0.5
-line kerb 0,92 320,92 c8
-line road_a 0,104 320,104 c8
-line road_b 40,116 280,116 c8
-line road_c 0,128 320,128 c8
-rect jamb_l 150,0,12,136 0 e12
-rect jamb_r 268,0,12,136 0 e12
-rect lintel 150,0,130,12 0 e12
-rect wall_l 0,24,60,60 0
-rect win_a 10,32,12,14 14
-rect win_b 36,32,12,14 14
-rect win_c 10,56,12,14 mix:14,6@0.5
-rect wall_r 292,18,28,66 0
-rect win_d 300,28,12,14 14
-rect win_e 300,54,12,14 mix:14,6@0.5
-rect lamp_post 104,34,4,54 0
-rect lamp_arm 98,32,16,3 0
-ellipse lamp_lit 106,30,6,5 14
-ellipse lamp_base 106,88,6,3 0
-rect hook_bar 196,12,34,3 14 e0
-line hanger 213,15 213,24 c14
-poly coat_body 192,40 203,28 223,28 234,40 240,100 186,100 0 e12
-poly collar 203,28 213,40 223,28 8
-poly sleeve_l 192,40 198,44 194,98 186,98 8
-poly sleeve_r 234,40 228,44 232,98 240,98 8
-line coat_seam 213,40 213,100 c8
-ellipse btn_1 213,48,3,3 14
-ellipse btn_2 213,62,3,3 14
-ellipse btn_3 213,76,3,3 14
-ellipse btn_4 213,90,3,3 14
-rect coat_hem 186,98,54,3 8
-poly coat_shadow 186,102 240,102 110,122 70,116 0
-dots stars 20,8 60,14 100,4 180,6 250,10 300,12 c15` },
-  unbuttoned: { version: 1, draw: `rect wall 0,0,320,100 mix:0,6@0.55
-rect floor 0,100,320,36 0
-line rail_a 0,100 320,100 c14
-dots holes_1 8,12 8,13 8,14 9,12 9,13 9,14 10,12 10,13 10,14 22,12 22,13 22,14 23,12 23,13 23,14 24,12 24,13 24,14 36,12 36,13 36,14 37,12 37,13 37,14 38,12 38,13 38,14 50,12 50,13 50,14 51,12 51,13 51,14 52,12 52,13 52,14 64,12 64,13 64,14 65,12 65,13 65,14 66,12 66,13 66,14 78,12 78,13 78,14 79,12 79,13 79,14 80,12 80,13 80,14 92,12 92,13 92,14 93,12 93,13 93,14 94,12 94,13 94,14 106,12 106,13 106,14 107,12 107,13 107,14 108,12 108,13 108,14 120,12 120,13 120,14 121,12 121,13 121,14 122,12 122,13 122,14 134,12 134,13 134,14 135,12 135,13 135,14 136,12 136,13 136,14 148,12 148,13 148,14 149,12 149,13 149,14 150,12 150,13 150,14 162,12 162,13 162,14 163,12 163,13 163,14 164,12 164,13 164,14 176,12 176,13 176,14 177,12 177,13 177,14 178,12 178,13 178,14 190,12 190,13 190,14 191,12 191,13 191,14 192,12 192,13 192,14 204,12 204,13 204,14 205,12 205,13 205,14 206,12 206,13 206,14 218,12 218,13 218,14 219,12 219,13 219,14 220,12 220,13 220,14 232,12 232,13 232,14 233,12 233,13 233,14 234,12 234,13 234,14 246,12 246,13 246,14 247,12 247,13 247,14 248,12 248,13 248,14 260,12 260,13 260,14 261,12 261,13 261,14 262,12 262,13 262,14 274,12 274,13 274,14 275,12 275,13 275,14 276,12 276,13 276,14 288,12 288,13 288,14 289,12 289,13 289,14 290,12 290,13 290,14 302,12 302,13 302,14 303,12 303,13 303,14 304,12 304,13 304,14 c0
-dots holes_2 15,28 15,29 15,30 16,28 16,29 16,30 17,28 17,29 17,30 29,28 29,29 29,30 30,28 30,29 30,30 31,28 31,29 31,30 43,28 43,29 43,30 44,28 44,29 44,30 45,28 45,29 45,30 57,28 57,29 57,30 58,28 58,29 58,30 59,28 59,29 59,30 71,28 71,29 71,30 72,28 72,29 72,30 73,28 73,29 73,30 85,28 85,29 85,30 86,28 86,29 86,30 87,28 87,29 87,30 99,28 99,29 99,30 100,28 100,29 100,30 101,28 101,29 101,30 113,28 113,29 113,30 114,28 114,29 114,30 115,28 115,29 115,30 127,28 127,29 127,30 128,28 128,29 128,30 129,28 129,29 129,30 141,28 141,29 141,30 142,28 142,29 142,30 143,28 143,29 143,30 155,28 155,29 155,30 156,28 156,29 156,30 157,28 157,29 157,30 169,28 169,29 169,30 170,28 170,29 170,30 171,28 171,29 171,30 183,28 183,29 183,30 184,28 184,29 184,30 185,28 185,29 185,30 197,28 197,29 197,30 198,28 198,29 198,30 199,28 199,29 199,30 211,28 211,29 211,30 212,28 212,29 212,30 213,28 213,29 213,30 225,28 225,29 225,30 226,28 226,29 226,30 227,28 227,29 227,30 239,28 239,29 239,30 240,28 240,29 240,30 241,28 241,29 241,30 253,28 253,29 253,30 254,28 254,29 254,30 255,28 255,29 255,30 267,28 267,29 267,30 268,28 268,29 268,30 269,28 269,29 269,30 281,28 281,29 281,30 282,28 282,29 282,30 283,28 283,29 283,30 295,28 295,29 295,30 296,28 296,29 296,30 297,28 297,29 297,30 309,28 309,29 309,30 310,28 310,29 310,30 311,28 311,29 311,30 c0
-dots holes_3 8,44 8,45 8,46 9,44 9,45 9,46 10,44 10,45 10,46 22,44 22,45 22,46 23,44 23,45 23,46 24,44 24,45 24,46 36,44 36,45 36,46 37,44 37,45 37,46 38,44 38,45 38,46 50,44 50,45 50,46 51,44 51,45 51,46 52,44 52,45 52,46 64,44 64,45 64,46 65,44 65,45 65,46 66,44 66,45 66,46 78,44 78,45 78,46 79,44 79,45 79,46 80,44 80,45 80,46 92,44 92,45 92,46 93,44 93,45 93,46 94,44 94,45 94,46 106,44 106,45 106,46 107,44 107,45 107,46 108,44 108,45 108,46 120,44 120,45 120,46 121,44 121,45 121,46 122,44 122,45 122,46 134,44 134,45 134,46 135,44 135,45 135,46 136,44 136,45 136,46 148,44 148,45 148,46 149,44 149,45 149,46 150,44 150,45 150,46 162,44 162,45 162,46 163,44 163,45 163,46 164,44 164,45 164,46 176,44 176,45 176,46 177,44 177,45 177,46 178,44 178,45 178,46 190,44 190,45 190,46 191,44 191,45 191,46 192,44 192,45 192,46 204,44 204,45 204,46 205,44 205,45 205,46 206,44 206,45 206,46 218,44 218,45 218,46 219,44 219,45 219,46 220,44 220,45 220,46 232,44 232,45 232,46 233,44 233,45 233,46 234,44 234,45 234,46 246,44 246,45 246,46 247,44 247,45 247,46 248,44 248,45 248,46 260,44 260,45 260,46 261,44 261,45 261,46 262,44 262,45 262,46 274,44 274,45 274,46 275,44 275,45 275,46 276,44 276,45 276,46 288,44 288,45 288,46 289,44 289,45 289,46 290,44 290,45 290,46 302,44 302,45 302,46 303,44 303,45 303,46 304,44 304,45 304,46 c0
-dots holes_4 15,60 15,61 15,62 16,60 16,61 16,62 17,60 17,61 17,62 29,60 29,61 29,62 30,60 30,61 30,62 31,60 31,61 31,62 43,60 43,61 43,62 44,60 44,61 44,62 45,60 45,61 45,62 57,60 57,61 57,62 58,60 58,61 58,62 59,60 59,61 59,62 71,60 71,61 71,62 72,60 72,61 72,62 73,60 73,61 73,62 85,60 85,61 85,62 86,60 86,61 86,62 87,60 87,61 87,62 99,60 99,61 99,62 100,60 100,61 100,62 101,60 101,61 101,62 113,60 113,61 113,62 114,60 114,61 114,62 115,60 115,61 115,62 127,60 127,61 127,62 128,60 128,61 128,62 129,60 129,61 129,62 141,60 141,61 141,62 142,60 142,61 142,62 143,60 143,61 143,62 155,60 155,61 155,62 156,60 156,61 156,62 157,60 157,61 157,62 169,60 169,61 169,62 170,60 170,61 170,62 171,60 171,61 171,62 183,60 183,61 183,62 184,60 184,61 184,62 185,60 185,61 185,62 197,60 197,61 197,62 198,60 198,61 198,62 199,60 199,61 199,62 211,60 211,61 211,62 212,60 212,61 212,62 213,60 213,61 213,62 225,60 225,61 225,62 226,60 226,61 226,62 227,60 227,61 227,62 239,60 239,61 239,62 240,60 240,61 240,62 241,60 241,61 241,62 253,60 253,61 253,62 254,60 254,61 254,62 255,60 255,61 255,62 267,60 267,61 267,62 268,60 268,61 268,62 269,60 269,61 269,62 281,60 281,61 281,62 282,60 282,61 282,62 283,60 283,61 283,62 295,60 295,61 295,62 296,60 296,61 296,62 297,60 297,61 297,62 309,60 309,61 309,62 310,60 310,61 310,62 311,60 311,61 311,62 c0
-dots holes_5 8,76 8,77 8,78 9,76 9,77 9,78 10,76 10,77 10,78 22,76 22,77 22,78 23,76 23,77 23,78 24,76 24,77 24,78 36,76 36,77 36,78 37,76 37,77 37,78 38,76 38,77 38,78 50,76 50,77 50,78 51,76 51,77 51,78 52,76 52,77 52,78 64,76 64,77 64,78 65,76 65,77 65,78 66,76 66,77 66,78 78,76 78,77 78,78 79,76 79,77 79,78 80,76 80,77 80,78 92,76 92,77 92,78 93,76 93,77 93,78 94,76 94,77 94,78 106,76 106,77 106,78 107,76 107,77 107,78 108,76 108,77 108,78 120,76 120,77 120,78 121,76 121,77 121,78 122,76 122,77 122,78 134,76 134,77 134,78 135,76 135,77 135,78 136,76 136,77 136,78 148,76 148,77 148,78 149,76 149,77 149,78 150,76 150,77 150,78 162,76 162,77 162,78 163,76 163,77 163,78 164,76 164,77 164,78 176,76 176,77 176,78 177,76 177,77 177,78 178,76 178,77 178,78 190,76 190,77 190,78 191,76 191,77 191,78 192,76 192,77 192,78 204,76 204,77 204,78 205,76 205,77 205,78 206,76 206,77 206,78 218,76 218,77 218,78 219,76 219,77 219,78 220,76 220,77 220,78 232,76 232,77 232,78 233,76 233,77 233,78 234,76 234,77 234,78 246,76 246,77 246,78 247,76 247,77 247,78 248,76 248,77 248,78 260,76 260,77 260,78 261,76 261,77 261,78 262,76 262,77 262,78 274,76 274,77 274,78 275,76 275,77 275,78 276,76 276,77 276,78 288,76 288,77 288,78 289,76 289,77 289,78 290,76 290,77 290,78 302,76 302,77 302,78 303,76 303,77 303,78 304,76 304,77 304,78 c0
-dots holes_6 15,92 15,93 15,94 16,92 16,93 16,94 17,92 17,93 17,94 29,92 29,93 29,94 30,92 30,93 30,94 31,92 31,93 31,94 43,92 43,93 43,94 44,92 44,93 44,94 45,92 45,93 45,94 57,92 57,93 57,94 58,92 58,93 58,94 59,92 59,93 59,94 71,92 71,93 71,94 72,92 72,93 72,94 73,92 73,93 73,94 85,92 85,93 85,94 86,92 86,93 86,94 87,92 87,93 87,94 99,92 99,93 99,94 100,92 100,93 100,94 101,92 101,93 101,94 113,92 113,93 113,94 114,92 114,93 114,94 115,92 115,93 115,94 127,92 127,93 127,94 128,92 128,93 128,94 129,92 129,93 129,94 141,92 141,93 141,94 142,92 142,93 142,94 143,92 143,93 143,94 155,92 155,93 155,94 156,92 156,93 156,94 157,92 157,93 157,94 169,92 169,93 169,94 170,92 170,93 170,94 171,92 171,93 171,94 183,92 183,93 183,94 184,92 184,93 184,94 185,92 185,93 185,94 197,92 197,93 197,94 198,92 198,93 198,94 199,92 199,93 199,94 211,92 211,93 211,94 212,92 212,93 212,94 213,92 213,93 213,94 225,92 225,93 225,94 226,92 226,93 226,94 227,92 227,93 227,94 239,92 239,93 239,94 240,92 240,93 240,94 241,92 241,93 241,94 253,92 253,93 253,94 254,92 254,93 254,94 255,92 255,93 255,94 267,92 267,93 267,94 268,92 268,93 268,94 269,92 269,93 269,94 281,92 281,93 281,94 282,92 282,93 282,94 283,92 283,93 283,94 295,92 295,93 295,94 296,92 296,93 296,94 297,92 297,93 297,94 309,92 309,93 309,94 310,92 310,93 310,94 311,92 311,93 311,94 c0
-ellipse heap_1 96,124,9,3 14 e0
-ellipse heap_2 112,120,8,3 15 e0
-ellipse heap_3 130,116,9,3 12 e0
-ellipse heap_4 146,112,8,3 14 e0
-ellipse heap_5 160,108,9,3 15 e0
-ellipse heap_6 176,110,8,3 14 e0
-ellipse heap_7 192,114,9,3 12 e0
-ellipse heap_8 208,118,8,3 15 e0
-ellipse heap_9 224,122,9,3 14 e0
-ellipse heap_10 240,128,8,3 12 e0
-ellipse heap_11 120,130,9,3 15 e0
-ellipse heap_12 150,126,10,3 6 e0
-ellipse heap_13 180,124,9,3 14 e0
-ellipse heap_14 205,130,9,3 15 e0
-ellipse heap_15 232,134,8,2 14 e0
-ellipse heap_16 80,132,8,2 12 e0
-ellipse heap_17 165,132,10,2 14 e0
-dots falling_a 120,30 120,31 121,30 121,31 134,46 134,47 135,46 135,47 150,22 150,23 151,22 151,23 164,40 164,41 165,40 165,41 180,18 180,19 181,18 181,19 196,36 196,37 197,36 197,37 212,52 212,53 213,52 213,53 228,28 228,29 229,28 229,29 244,44 244,45 245,44 245,45 c14
-dots falling_b 110,60 110,61 111,60 111,61 128,76 128,77 129,76 129,77 146,66 146,67 147,66 147,67 160,82 160,83 161,82 161,83 178,60 178,61 179,60 179,61 192,78 192,79 193,78 193,79 210,70 210,71 211,70 211,71 226,84 226,85 227,84 227,85 242,64 242,65 243,64 243,65 258,80 258,81 259,80 259,81 c15
-dots falling_c 100,88 100,89 101,88 101,89 140,90 140,91 141,90 141,91 172,94 172,95 173,94 173,95 204,92 204,93 205,92 205,93 236,96 236,97 237,96 237,97 c12
-rect lamp 150,0,20,5 14
-ellipse halo_o 160,16,60,24 mix:,14@0.10
-ellipse halo_i 160,12,34,14 mix:,14@0.20
-rect bar_l 0,0,18,136 0 e6
-rect bar_r 302,0,18,136 0 e6` },
-  died: { version: 1, draw: `rect bg 0,0,320,136 0
-ellipse halo_far 213,72,110,60 mix:,12@0.08
-ellipse halo_mid 213,72,86,50 mix:,12@0.14
-ellipse btn_rim 213,76,64,50 4 e0
-ellipse btn_body 213,74,60,46 12 e4
-ellipse btn_lit 205,64,40,28 14
-ellipse btn_dish 213,78,40,28 12
-ellipse hole_a 198,70,5,4 0
-ellipse hole_b 228,70,5,4 0
-ellipse hole_c 198,86,5,4 0
-ellipse hole_d 228,86,5,4 0
-rect plate 120,120,190,10 7 e0
-line plate_a 130,125 170,125 c0
-line plate_b 190,125 250,125 c0
-line smoke_a 213,24 208,16 214,8 210,0 c7
-line smoke_b 222,26 226,18 220,10 c7
-line smoke_c 204,28 200,20 205,12 c8
-dots sparks 170,50 186,42 252,46 268,58 160,84 270,90 150,64 c14
-dots embers 140,100 292,100 70,50 90,92 c4
-rect left_post 20,60,10,76 8 e0
-rect left_cap 14,56,22,6 7 e0
-rect right_post 290,70,10,66 8 e0` },
+  // crossed: the crossing at low sun, the crowd stepping off the kerb, the light green
+  crossed: {
+    version: 1,
+    shot: "Low at street level, facing north into the sun; lowsun: sky pale yellow near the low sun to light blue overhead, the sun a flat yellow disc at x 160, " +
+      "things against the bright sky black silhouettes, the sunlit stripes yellow and brown, shade blue-black; the post on the left third with its light GREEN, a red accent only on the hydrant cap; " +
+      "subject the crowd crossing the four stripes in mid-stride on the right two thirds, black figures with long solid shadows falling towards the viewer; wings: left the post's far kerb and a tree, right a bus shelter.",
+    draw: `
+      vp 107,66
+      rect sky 0,0,320,70 fade:14,9/0,66/0,0
+      ellipse sun 160,64,14,14 14
+      poly bldl 0,44 40,44 40,70 0,70 0
+      poly bldm 40,56 90,56 90,70 40,70 0
+      poly bldr 210,40 250,40 250,70 210,70 0
+      poly bldr2 250,52 320,52 320,70 250,70 0
+      dots win 8,52 18,52 28,52 54,62 66,62 78,62 218,46 230,46 240,46 260,58 274,58 288,58 c14
+      rect road 0,70,320,66 mix:6,1@0.35
+      poly stripe1 10,136@1 46,136@1 46,136@0.3 10,136@0.3 14
+      poly stripe2 66,136@1 102,136@1 102,136@0.3 66,136@0.3 14
+      poly stripe3 122,136@1 158,136@1 158,136@0.3 122,136@0.3 14
+      poly stripe4 178,136@1 214,136@1 214,136@0.3 178,136@0.3 14
+      poly stripe5 234,136@1 270,136@1 270,136@0.3 234,136@0.3 14
+      line - 0,100 320,100 c1
+      rect post_pole 105,40,5,64 0
+      rect post_head 97,34,20,24 0 e1
+      ellipse green_light 107,42,5,5 10 e14
+      ellipse halo1 107,42,13,11 mix:,10@0.25
+      rect post_base 102,104,10,4 0
+      poly sh1 150,112 160,112 140,136 126,136 0
+      poly sh2 190,108 200,108 190,136 176,136 0
+      poly sh3 226,112 236,112 232,136 218,136 0
+      poly sh4 262,108 272,108 276,136 262,136 0
+      ellipse h1 155,84,4,4 0
+      poly b1 149,90 161,90 163,116 147,116 0
+      ellipse h2 195,80,4,4 0
+      poly b2 189,86 201,86 203,114 187,114 0
+      ellipse h3 231,86,4,4 0
+      poly b3 225,92 237,92 239,118 223,118 0
+      ellipse h4 267,82,4,4 0
+      poly b4 261,88 273,88 275,116 259,116 0
+      ellipse h5 123,92,4,4 0
+      poly b5 117,98 129,98 131,122 115,122 0
+      ellipse h6 295,90,4,4 0
+      poly b6 289,96 301,96 303,124 287,124 0
+      line leg1 150,116 148,124 c0
+      line leg2 158,116 162,126 c0
+      line leg3 190,114 186,122 c0
+      line leg4 198,114 204,124 c0
+      line leg5 228,118 226,126 c0
+      line leg6 236,118 240,128 c0
+      ellipse tree 20,74,24,30 0
+      rect trunk 18,96,5,22 0
+      rect hydrant 40,114,8,12 0 e6
+      rect hydrant_cap 39,111,10,4 4 e0
+      rect shelter_roof 284,70,36,4 0
+      rect shelter_post 300,72,3,42 0
+      line lane1 20,94 60,94 c1
+      line lane2 100,92 140,92 c1
+      line lane3 260,96 300,96 c1
+      line kerb2 214,66 180,136 c4
+      dots road_stones 30,120 70,126 110,118 140,128 20,108 c8
+      line tram_wire 0,10 320,10 c0
+      line tram_wire2 0,14 320,14 c1
+      rect wall_post 316,40,4,70 0
+      dots win2 40,60 52,60 c14
+      rect bench 270,104,24,3 0
+      line - 272,107 272,114 c0
+      line - 292,107 292,114 c0
+    `
+  },
+
+  // rung: every window in town lit at once, from far above
+  rung: {
+    version: 1,
+    shot: "From far above, looking straight down at the town at night; deepnight: blue streets and rooftops going to cyan where the windows' light falls, black roofs, yellow for every window and doorway; " +
+      "subject the Button Hall's dark roof in the centre third (x 107-213) with one cyan skylight, around it rows of small black roofs with their windows all lit and small yellow figures on doorsteps; " +
+      "gradient: the ground blue to black towards the corners (one); wings: more streets and roofs.",
+    draw: `
+      rect ground 0,0,320,136 fade:1,0/160,68/0,0
+      rect street_h1 0,28,320,6 3
+      rect street_h2 0,64,320,6 3
+      rect street_h3 0,100,320,6 3
+      rect street_v1 52,0,6,136 3
+      rect street_v2 264,0,6,136 3
+      rect street_v3 160,0,6,28 3
+      rect street_v4 160,106,6,30 3
+      poly hall_roof 98,36 222,36 222,98 98,98 0 e11
+      rect skylight 148,56,24,22 11 e0
+      line - 148,67 172,67 c0
+      line - 160,56 160,78 c0
+      line ridge1 104,46 216,46 c1
+      line ridge2 104,86 216,86 c1
+      line ridge3 104,60 140,60 c1
+      line ridge4 180,60 216,60 c1
+      rect vent1 108,40,8,4 1 e11
+      rect vent2 198,40,8,4 1 e11
+      rect vent3 108,88,8,4 1 e11
+      rect vent4 198,88,8,4 1 e11
+      rect chimney 134,86,6,8 1 e11
+      line hall_door 160,98 160,106 c11
+      dots hall_lights 120,100 130,100 190,100 200,100 c14
+      rect tower_clock 156,22,8,8 11 e0
+      line - 160,22 160,30 c0
+      poly roof1 4,4 22,4 22,24 4,24 0 e1
+      poly roof2 28,6 46,6 46,24 28,24 0 e1
+      poly roof3 64,4 90,4 90,24 64,24 0 e1
+      poly roof4 104,6 128,6 128,24 104,24 0 e1
+      poly roof5 136,4 154,4 154,24 136,24 0 e1
+      poly roof6 172,6 196,6 196,24 172,24 0 e1
+      poly roof7 204,4 226,4 226,24 204,24 0 e1
+      poly roof8 232,6 258,6 258,24 232,24 0 e1
+      poly roof9 276,4 316,4 316,24 276,24 0 e1
+      poly roof10 4,38 22,38 22,60 4,60 0 e1
+      poly roof11 28,40 48,40 48,60 28,60 0 e1
+      poly roof12 64,38 90,38 90,60 64,60 0 e1
+      poly roof13 230,40 258,40 258,60 230,60 0 e1
+      poly roof14 276,38 316,38 316,60 276,60 0 e1
+      poly roof15 4,74 22,74 22,96 4,96 0 e1
+      poly roof16 28,76 48,76 48,96 28,96 0 e1
+      poly roof17 64,74 92,74 92,96 64,96 0 e1
+      poly roof18 230,76 258,76 258,96 230,96 0 e1
+      poly roof19 276,74 316,74 316,96 276,96 0 e1
+      poly roof20 4,110 22,110 22,132 4,132 0 e1
+      poly roof21 64,110 92,110 92,132 64,132 0 e1
+      poly roof22 104,112 128,112 128,132 104,132 0 e1
+      poly roof23 172,112 196,112 196,132 172,132 0 e1
+      poly roof24 232,110 258,110 258,132 232,132 0 e1
+      poly roof25 276,110 316,110 316,132 276,132 0 e1
+      dots lit1 8,10 14,10 8,16 14,16 32,10 40,10 68,10 76,10 84,10 68,17 84,17 108,12 116,12 122,12 140,10 148,10 176,12 184,12 190,12 208,10 216,10 238,12 250,12 280,10 292,10 304,10 280,18 292,18 304,18 c14
+      dots lit2 8,44 14,44 8,52 14,52 32,46 40,46 68,44 76,44 84,44 68,52 84,52 234,46 244,46 252,46 280,44 292,44 304,44 280,52 292,52 304,52 c14
+      dots lit3 8,80 14,80 8,88 14,88 32,82 40,82 68,80 76,80 84,80 68,88 84,88 234,82 244,82 252,82 280,80 292,80 304,80 280,88 292,88 304,88 c14
+      dots lit4 8,116 14,116 8,124 14,124 68,116 76,116 84,116 108,118 116,118 122,118 176,118 184,118 190,118 236,116 246,116 254,116 280,116 292,116 304,116 c14
+      dots steps 24,30 62,30 94,66 132,66 164,32 198,66 262,32 270,66 14,102 56,102 98,102 160,104 226,102 266,102 c15
+      dots people 25,32 61,32 95,68 133,68 163,34 199,68 261,34 271,68 15,104 57,104 99,104 161,106 227,104 267,104 c14
+    `
+  },
+
+  // clerk: the relief chair at the foot of the wall, the coat on the hook
+  clerk: {
+    version: 1,
+    shot: "Close, eye level, facing the wall; lamplight: brown wall and floor, yellow on the lit row and the lamp's pool, black for the chair and the coat; one light, the shaded desk lamp at the left (x 60), with a soft halo; " +
+      "subject the swivel chair on the centre-left third (x 107), its seat dented, seen from the front before the wall of buttons, one row of the wall lit yellow; on the right third a coat on a hook; " +
+      "gradient: the floor brown to black away from the lamp (one only); wings: left the desk edge, right the doorframe.",
+    draw: `
+      rect wall 0,0,320,100 6
+      rect panel 40,10,240,76 0 e6
+      rect row1 46,16,228,5 mix:14,6@0.5
+      rect row2 46,26,228,5 mix:14,6@0.5
+      rect row3 46,36,228,5 mix:14,6@0.5
+      rect row4 46,46,228,5 mix:14,6@0.5
+      rect row5 46,56,228,5 mix:14,6@0.5
+      rect row6 46,66,228,5 14
+      rect row7 46,76,228,5 mix:14,6@0.5
+      line - 46,22 274,22 c0
+      line - 46,32 274,32 c0
+      line - 46,42 274,42 c0
+      line - 46,52 274,52 c0
+      line - 46,62 274,62 c0
+      line - 46,72 274,72 c0
+      poly floor 0,136 0,100 320,100 320,136 fade:6,0/0,100/0,136
+      line - 0,100 320,100 c0
+      line - 0,112 320,112 c0
+      ellipse halo1 60,44,60,32 mix:,14@0.1
+      ellipse halo2 60,44,38,20 mix:,14@0.2
+      ellipse halo3 60,44,18,9 mix:,14@0.35
+      line lamp_stem 60,100 60,60 c8
+      poly lamp_shade 46,40 74,40 80,56 40,56 14 e0
+      ellipse lamp_bulb 60,58,5,2 15
+      rect desk_edge 0,100,34,36 0 e6
+      poly chair_back 86,52 128,52 132,98 82,98 0 e6
+      line - 94,58 94,94 c6
+      line - 106,58 106,94 c6
+      line - 118,58 118,94 c6
+      poly chair_seat 76,98 140,98 148,108 68,108 0 e6
+      ellipse dent 108,102,22,3 6
+      line chair_post 108,108 108,122 c6
+      line chair_base1 108,122 84,132 c6
+      line chair_base2 108,122 134,132 c6
+      line chair_base3 108,122 108,134 c6
+      dots castors 84,133 134,133 108,135 c6
+      line hook_bar 214,30 214,36 c14
+      rect hook_plate 206,28,16,4 6 e0
+      poly coat 200,36 230,36 236,96 194,96 0 e6
+      line - 214,38 214,94 c6
+      line coat_sleeve1 200,38 192,70 c6
+      line coat_sleeve2 230,38 238,70 c6
+      poly hat 204,22 224,22 220,28 208,28 0 e6
+      rect frame 290,0,30,136 0 e6
+      rect plate_relief 150,100,40,3 14
+      poly cuff 60,64 70,64 66,70 62,70 0 e6
+      dots stud_glints 60,18 100,18 140,18 180,18 220,18 260,18 c15
+      line - 40,10 40,86 c6
+      line - 280,10 280,86 c6
+      rect nameplate 100,88,120,3 6
+      line sleeve_fold 214,60 214,90 c0
+      line - 296,0 296,136 c6
+    `
+  },
+
+  // died: the bare terminals and the spark that reaches you
+  died: {
+    version: 1,
+    shot: "Close, eye level; ember: black, red and light red, yellow on the brass where the spark lights it, blue where the dark shows; one light, the spark, a flat jagged shape in yellow and white; " +
+      "subject five big brass posts across the centre (x 60-260), the spark leaping from the third to the fourth and a hand-sized shape reaching in from the left edge; behind them a dark glass jar, its water glowing red; " +
+      "gradient: the back wall black to red behind the jar (the spark's glow, one only); wings: more posts and a wire coil.",
+    draw: `
+      rect back 0,0,320,136 0
+      rect glow 70,20,180,90 fade:4,0/160,20/160,110
+      rect jar 100,24,120,86 1 e8
+      rect jar_water 104,52,112,54 mix:4,12@0.35
+      line - 104,52 216,52 c12
+      dots bubbles 120,70 140,84 168,66 190,90 206,74 c12
+      rect rail 20,100,280,12 6 e0
+      rect post1 60,60,16,44 6 e0
+      rect post2 110,60,16,44 6 e0
+      rect post3 160,60,16,44 6 e0
+      rect post4 210,60,16,44 6 e0
+      rect post5 260,60,16,44 6 e0
+      rect cap1 56,54,24,8 14 e0
+      rect cap2 106,54,24,8 14 e0
+      rect cap3 156,54,24,8 14 e0
+      rect cap4 206,54,24,8 14 e0
+      rect cap5 256,54,24,8 14 e0
+      ellipse spark_glow 190,52,40,22 mix:,14@0.3
+      line spark 172,54 180,40 186,56 194,38 200,56 208,44 212,56 c15
+      line spark2 176,56 184,44 190,58 c14
+      poly hand 0,60 40,56 50,66 48,86 0,90 12 e4
+      line - 10,64 40,62 c4
+      line - 10,72 44,72 c4
+      line - 10,80 44,80 c4
+      ellipse coil 296,120,22,10 6 e0
+      ellipse coil_in 296,120,14,5 0
+      rect floor 0,112,320,24 mix:0,4@0.4
+      line hi1 63,62 63,102 c14
+      line hi2 113,62 113,102 c14
+      line hi3 163,62 163,102 c14
+      line hi4 213,62 213,102 c14
+      line hi5 263,62 263,102 c14
+      rect bolt_l 24,106,6,4 8 e0
+      rect bolt_r 288,106,6,4 8 e0
+      line wire_a 276,64 300,40 c12
+      line wire_b 300,40 320,44 c12
+      line jar_hi 106,28 106,48 c12
+      line jar_lid 100,24 220,24 c12
+      dots sparks_small 150,34 160,30 230,36 240,44 150,44 c14
+      line finger1 10,64 40,60 c12
+      poly thumb 30,86 50,84 52,96 32,98 12 e4
+      line crack 120,112 130,130 c4
+      line crack2 200,112 190,132 c4
+      ellipse shadow 140,120,60,3 mix:0,4@0.7
+      poly stand_l 20,100 40,112 40,136 20,136 8 e0
+      rect label 230,40,30,10 14 e0
+    `,
+    cycles: [{ name: "the spark", areas: ["spark"], colors: [15, 14], style: "flicker", ms: [80, 300] }]
+  }
 };

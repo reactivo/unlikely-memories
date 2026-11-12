@@ -1,4 +1,4 @@
-// "Coat 41": a world after the opening, in English, written the way the AI is asked to write a world (BRIEF.md only).
+// "The Button Hall": a world after the opening, in English, written the way the AI is asked to write a world (BRIEF.md alone).
 // One change set, all or nothing; plain data, no shortcuts.
 
 import pictures, { endings } from "./pictures.js";
@@ -8,357 +8,476 @@ import sprites from "./sprites.js";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
-  title: "Coat 41",
-  blurb: "You came for a coat with a button missing. The Button Office keeps a wall of brass buttons, and every one does something somewhere. Press with care.",
-  thumbnail: { picture: "panel", x: 40 },
-  synopsis: "You ride a lift to the Button Office to collect Coat 41, which is one button short. The building is a wall of " +
-    "brass buttons, each with a plate that says what it does somewhere else. Mr Hobb keeps the desk, Mrs Venn the needle, " +
-    "and nobody has ever pressed a button for themselves.",
+  title: "The Button Hall",
+  blurb: "Every doorbell, crossing and lift call in town is wired to one brass wall, and you are the evening relief. Row nine has a gap in it.",
+  thumbnail: { picture: "hall", x: 30 },   // the card on the landing page: this room's picture, cropped 225 pixels wide from column x (0–95)
+  synopsis: "You arrive as the evening relief at the Button Hall, where every doorbell, crossing light and lift call in town " +
+    "is wired to a brass button on one wall. Row nine has a gap in it, where the button for Mill Street should be, and at " +
+    "Mill Street a crowd has waited for its light to change since the Tuesday of the wind. The clerk before you has gone " +
+    "home without saying where the button went.",
+  tone: "A night clerk reading out a form: short flat sentences in the present tense, a municipal register that counts and " +
+    "labels. The narrator notices plates, rows, which button is pressed and which is free, the click before anything answers; " +
+    "it leaves out why, and never says how anyone feels. Samples: \"Row nine has a gap where Mill Street should be.\" / " +
+    "\"Somewhere a doorbell rings in a house with nobody in. It is answered.\" / \"The chair is warm. It was not left for you.\"",
   style: "dithered",
-  tone: "A clerk's voice: clipped, numbered, deadpan. Short plain sentences, now and then a list. The narrator notices " +
-    "plates, numbers and brass, and leaves out feelings and explanations; the strange thing is said once, in the same " +
-    "breath as the ordinary one. Samples: " +
-    "\"Forty buttons, forty plates. Thirty-one tell the truth.\" " +
-    "\"Mr Hobb files you under visitor and returns to his crossword.\" " +
-    "\"Press, and somewhere a thing is done. You are told after, if at all.\"",
+  start: "Tuesday, 18:10, in the Button Hall (the opening, in the waiting booth, at 17:50).",
+  opening: "The waiting booth, glass on all sides: a black receiver on the bench (hints), a punched relief card you " +
+    "already carry (why you came). The sliding wicket in the far glass is the way on.",
+  music: "wistful dorian, a clerk's pace; a doorbell struck and a bell-wire plucked, a relay ticking like a thumb on a button; " +
+    "heard through a wall, from the next room of somebody else's evening",
   rules: [
-    "A button does what its plate says, somewhere else in the building, and the plate does not say where.",
-    "Every button lost in the city ends up on the wall.",
-    "Nothing here is handed out unasked: keys, tea, coats.",
-    "The street door opens only for a whole coat."
+    "Every button in town is wired to one on the Hall's wall, and pressing it there is pressing it here.",
+    "A pressed button is always answered, by someone who did not press it.",
+    "A street without its button is a street where no one can go on.",
+    "Whoever sits at the relief desk relieves the last clerk, and stays."
   ],
-  opening: "A lift car, stopped; a handset on its hook talks (hints); you carry a label (COAT 41. ONE BUTTON SHORT.); the " +
-    "folding gate is the way on.",
-  music: "limping dorian; a service bell, a plucked button wire and a switch that clicks; music from the next office",
-  start: "Friday evening, the Button Office.",
-  characters: ["Mr Hobb, the porter", "Mrs Venn, the tailor"],
-  places: ["the lobby", "the panel room", "the register", "the sorting room", "the mending room", "the canteen", "the engine room"],
-  endings: ["Whole: collect the coat and leave by the street door.", "All: press the big button.", "Died: the warm button."],
-  chaos: 0.15
+  characters: ["The crowd at Mill Street", "The last clerk, who is not here"],
+  places: ["The Waiting Booth", "The Button Hall", "Mill Street"],
+  endings: [
+    "Crossed: fit Mill Street's button into its gap and press it; the light goes green and the crowd crosses.",
+    "Rung: press the big red ALL; every bell in town rings and everyone comes out on their steps.",
+    "Relieved: sit at the relief desk and take the last clerk's place.",
+    "Died: the battery cellar's bare terminals, touched too often."
+  ],
+  chaos: 0.1
 };
 
-// Carried things get their sprites (sprites.js).
-const item = (id) => ({ sprite: sprites[id] });
+// Carried things get their sprites (sprites.js): the one shown when examined, and the one drawn on the floor.
+const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
-// ---- The opening -------------------------------------------------------------------------------------------------------
-const opening = {
-  room: "lift_car", hints: "handset", intro: "label", way: "gate",
-  lines: {
-    notYet: "The gate stays shut. The handset on its hook is still talking.",
-    through: "The gate folds back and lets you through, then folds shut on an empty lift.",
-    hintFrame: "The handset clears its throat. A voice says:",
-    farewell: "The string loosens by itself. The label is gone before it lands."
-  }
-};
-
-// ---- The ending pictures -----------------------------------------------------------------------------------------------
+// ---- The ending pictures ------------------------------------------------------------------------------------------------
+// The drawings are language-free (pictures.js); what each one says to a screen reader (alt) is said here.
 const endingPictures = {
-  whole: { alt: "A street door standing open on an evening street, and a grey coat in the doorway with four buttons in a row.", picture: endings.whole },
-  unbuttoned: { alt: "A wall of brass with every button gone, and a heap of loose buttons below it, caught in lamplight.", picture: endings.unbuttoned },
-  died: { alt: "A brass button the size of a plate, close up, with a thread of smoke rising from it in the dark.", picture: endings.died }
+  crossed: { alt: "Mill Street crossing in low evening sun: the light on the post glowing green, a crowd stepping off the kerb onto the striped road, their long shadows stretching ahead of them.", picture: endings.crossed },
+  rung: { alt: "The town from far above at night, every window lit at once, small figures stepping out onto doorsteps in a hundred streets, and the Button Hall's dark roof in the middle.", picture: endings.rung },
+  clerk: { alt: "Close up, the clerk's swivel chair at the foot of the wall of buttons, its seat dented; one row of buttons glows, and a coat hangs on the hook beside it.", picture: endings.clerk },
+  died: { alt: "Close up, a row of brass battery terminals in a dark cellar, a blue spark leaping between two of them and lighting a glass jar behind.", picture: endings.died }
 };
 
-// ---- Rooms -------------------------------------------------------------------------------------------------------------
+// ---- Rooms -----------------------------------------------------------------------------------------------------------
+// Area "booth": the opening, never returned to. Area "hall" (x east, y south, z up): the Hall at the middle, the console north with
+// the clerk's office beside it, the stockroom west, the lamp room east, the gallery up the stairs and the battery cellar down them.
+// Area "town": Mill Street, south of the Hall's street door.
 const rooms = {
-  lift_car: {
-    name: "THE LIFT", area: "lift", at: [0, 0, 0],
+  booth: {
+    name: "WAITING BOOTH", area: "booth", at: [0, 0, 0],
     describe: [
-      "A lift car, stopped. The panel by the wall has no numbers, only blank brass.",
-      "A folding {gate} is the only way on."
+      "A glass booth with a bench and a number board lit on none of its numbers. Beyond the glass, an evening shift is changing.",
+      "The only way on is the {wicket}, a sliding hatch in the far pane."
     ],
-    exits: { out: true },
+    exits: { n: true },
     scenery: [
-      { words: ["panel", "brass", "buttons"], name: "the panel", id: "panel_lift", says: "Twelve blank buttons, polished by a thumb that never found its number." },
-      { words: ["hook"], name: "the hook", id: "hook", says: "A brass hook, made for a handset." }
+      { words: ["bench", "seat"], name: "the bench", says: "Slatted, warm in one place." },
+      { words: ["board", "numbers", "number"], name: "the board", says: "One to ninety-nine, every one dark. Yours has not been called, or has, and was missed." },
+      { words: ["glass", "pane", "panes", "booth"], name: "the glass", says: "Clean on the inside. Outside, the evening goes about its business." }
     ],
     ambience: { lines: [
-      "The car settles, like a person deciding to sit.",
-      "Far below, a button is pressed.",
-      "The cable above you ticks twice."
-    ], every: [25, 60] },
-    alt: "A small lift car: a panel of blank brass buttons, a hook on the wall, and a folding gate at the far end.",
-    overlayAlt: { handset: "A black handset hangs on its hook." }
+      "The board clicks once and stays on nothing.",
+      "A bell rings, far off, twice. Someone answers it.",
+      "The bench creaks, as if someone has just stood up.",
+      "The receiver hums a note, thinks better of it, and stops."
+    ], every: [30, 60] },
+    alt: "A glass waiting booth: a bench, a number board with every number dark, and a small sliding hatch in the far glass.",
+    overlayAlt: { receiver: "A black receiver lying on the bench." }
   },
-  lobby: {
-    name: "THE LOBBY", area: "office", at: [0, 0, 0],
+  hall: {
+    name: "THE BUTTON HALL", area: "hall", at: [0, 0, 0],
     describe: [
-      "A long {desk}, a board of keys, and a {street door|street_door} with a sign: \"Whole coats only.\" Nobody has used the door today, or this year.",
-      "Brass runs up the walls, and now and then a button in it clicks back out. The Panel Room is east, mending west, the canteen south."
+      "The far wall is all {buttons|wall}: rows of brass, each with a plate no bigger than a stamp. In row nine there is a {gap|socket} where Mill Street should be.",
+      "The console is north, the lamp room east, the stockroom west. The {stairs} climb on one side and drop on the other. The {street door|street_door} is behind you, south."
     ],
-    exits: { e: "panel", w: "mending", s: "canteen" },
-    scenery: [
-      { words: ["board", "nails", "nail", "keys"], name: "the board", id: "board", says: "Twelve nails, eleven keys. The twelfth nail has a plate: REGISTER." },
-      { words: ["sign"], name: "the sign", id: "sign", says: "\"Whole coats only.\" The paint has been touched up many times." },
-      { words: ["walls", "wall", "brass", "plate", "plates"], name: "the walls", id: "walls_lobby", says: "Brass plates and brass buttons, floor to ceiling. They are cool and very clean." }
-    ],
+    exits: { n: "console", e: "lamproom", w: "stockroom", u: "gallery", d: "cellar", s: "crossing" },
     ambience: { lines: [
-      "Somewhere in the wall, a button clicks back out.",
-      "Mr Hobb turns a page. It makes the sound of a much bigger page.",
-      "The brass ticks as it cools."
-    ], every: [30, 70] },
-    alt: "A long hall of brass walls going away to a glass street door under a sign. On the left, a desk with a man behind it and a board of keys; dark doorways on either side.",
-    overlayAlt: {}
+      "Somewhere in the wall a button clicks, and a long way off a doorbell rings. It is answered.",
+      "A row of buttons settles with a sound like knuckles.",
+      "The stairs tick, cooling, though nothing warms them.",
+      "A button on the wall comes up by itself. Someone, somewhere, has let go."
+    ], every: [30, 60] },
+    alt: "A hall whose far wall is covered in rows of small brass buttons. In the bottom row, one button is missing. A stair climbs on the right, another drops on the left."
   },
-  panel: {
-    name: "THE PANEL ROOM", area: "office", at: [1, 0, 0],
+  console: {
+    name: "THE CONSOLE", area: "hall", at: [0, -1, 0],
     describe: [
-      "A wall of brass buttons, each under its plate. At hand height: {7|b07}, {13|b13}, {22|b22}, {28|b28}, {35|b35}, {41|b41}, {52|b52}, {60|b60}.",
-      "13 hums. The register is north, sorting south, the engine room east, the lobby west."
+      "A desk the length of the room, lit by one green lamp. Under a raised flap at its middle sits a big red {button|all_button}.",
+      "Rows of unlabelled spares line the edges. The Hall is south, the clerk's office west."
     ],
-    exits: { w: "lobby", n: "register", s: "sorting", e: "engine" },
+    exits: { s: "hall", w: "office" },
     scenery: [
-      { words: ["wall", "rows", "plate", "plates", "brass"], name: "the wall", id: "wall_panel", says: "Rows of brass to the ceiling. Only the buttons at hand height are within reach." }
+      { words: ["desk", "console"], name: "the desk", says: "Green baize, scorched pale where a hand has rested." },
+      { words: ["lamp", "green"], name: "the lamp", says: "A shaded lamp, lit green for no one in particular." },
+      { words: ["spares", "edges", "edge", "rows", "row"], name: "the spares", says: "Hundreds of plain buttons, waiting to be somebody's." }
     ],
     ambience: { lines: [
-      "A button somewhere above you pops in, and stays.",
-      "The humming changes its mind, then goes back.",
-      "A plate rattles. Nothing has touched it."
-    ], every: [25, 60] },
-    alt: "A wall of brass buttons in rows. On the right, eight buttons in a dark block under small plates, the second one red with smoke rising. In the middle, an arched doorway onto shelves; doorways at both ends.",
-    overlayAlt: {}
+      "The big button ticks as the desk cools, and nobody flinches.",
+      "A spare, down an edge, is pressed by a draught. Nothing answers it.",
+      "The green lamp hums on the note the Hall hums."
+    ], every: [35, 70] },
+    alt: "A long desk lit by a green lamp, with a big red button under a raised glass flap at its middle and rows of small brass buttons along its edges."
   },
-  register: {
-    name: "THE REGISTER", area: "office", at: [1, -1, 0],
+  office: {
+    name: "THE CLERK'S OFFICE", area: "hall", at: [-1, -1, 0],
     describe: [
-      "Shelves of ledgers to the ceiling, spines the colour of tea. Every coat in the city has a line here, kept up to date in a hand nobody has seen. A tall {cabinet} stands at the end.",
-      "The Panel Room is south."
+      "A small office with a hat-stand, a desk and a swivel {chair} whose seat is still warm. A {ledger} lies open on the desk.",
+      "The console is east."
     ],
-    exits: { s: "panel" },
+    exits: { e: "console" },
     scenery: [
-      { words: ["shelves", "ledgers", "spines", "books"], name: "the shelves", id: "shelves", says: "Every coat in the city has a line here. Most of the lines say: pressed in." }
+      { words: ["stand", "hat-stand", "hatstand", "coat", "hat"], name: "the hat-stand", says: "One coat and one hat, waiting for the same head." },
+      { words: ["desk"], name: "the desk", says: "Inkwell, blotter, and a ring where a cup stood for years." }
     ],
     ambience: { lines: [
-      "A ledger slides a finger's width on its shelf.",
-      "Dust settles, in order.",
-      "The lamp hisses over a name."
-    ], every: [30, 70] },
-    alt: "A narrow aisle between ledger shelves, floor to ceiling, ending in a tall brown cabinet under a hanging lamp, with a lectern to one side.",
-    overlayAlt: {}
+      "The chair turns a few degrees by itself and stops.",
+      "The coat on the stand moves, as at a step.",
+      "A drawer in the desk shuts on nothing."
+    ], every: [35, 70] },
+    alt: "A small office seen from a corner: a desk with an open ledger, a swivel chair, and a hat-stand with one coat and one hat."
   },
-  sorting: {
-    name: "THE SORTING ROOM", area: "office", at: [1, 1, 0],
+  stockroom: {
+    name: "THE STOCKROOM", area: "hall", at: [-1, 0, 0],
     describe: [
-      "Trays on trays of loose buttons, sorted by something other than colour. A lamp hangs low over the long table. Every button here was returned by someone, and nobody has been thanked.",
-      "The Panel Room is north."
+      "Shelves of shallow cardboard drawers, each holding a dozen buttons of one kind. A tea-chest stands by the door.",
+      "One low {drawer|lost_drawer}, wider than the rest, has a lock shaped like a buttonhole. The Hall is east."
     ],
-    exits: { n: "panel" },
+    exits: { e: "hall" },
     scenery: [
-      { words: ["trays", "tray", "buttons"], name: "the trays", id: "trays", says: "Horn, shell, glass, the odd one of lead. Each tray is a rule nobody wrote down." },
-      { words: ["table", "lamp"], name: "the table", id: "table", says: "A long table under a green lamp. The wood is worn in two shallow dips, where elbows go." }
+      { words: ["shelves", "shelf", "drawers", "cardboard"], name: "the shelves", says: "Pearl, horn, bone, brass, cloth-covered: one kind to a drawer, sorted by someone with time." },
+      { words: ["crate", "chest", "tea-chest", "teachest", "saucer"], name: "the crate", says: "A tea chest with a saucer on it." }
     ],
     ambience: { lines: [
-      "A button rolls across a tray and lies down in its own place.",
-      "The lamp swings a little, as if a door had opened.",
-      "Something small is sorted, with a click."
-    ], every: [25, 60] },
-    alt: "A long table under a green hanging lamp, trays of loose buttons on shelves down both sides, and a door at the far end.",
-    overlayAlt: { spool: "A spool of grey thread stands between two trays.", shell_button: "A pale shell button lies alone at the table's edge." }
+      "A drawer slides out an inch, considers, and slides back.",
+      "Buttons shift in a drawer like dry rain.",
+      "Something small rolls across a shelf and is caught."
+    ], every: [35, 70] },
+    alt: "A stockroom of shallow drawers floor to ceiling, a low wide drawer on the left, and a tea-chest with a saucer on it.",
+    overlayAlt: { mint: "A single white peppermint in the saucer." }
   },
-  mending: {
-    name: "THE MENDING ROOM", area: "office", at: [-1, 0, 0],
+  lamproom: {
+    name: "THE LAMP ROOM", area: "hall", at: [1, 0, 0],
     describe: [
-      "A treadle machine under a high window, a headless dress-form, a rail of coats on hangers. Every coat is waiting for one thing: a button, a thread, a hem. Nothing here has been finished since the building opened.",
-      "The lobby is east."
+      "A hundred small lamps, one for every button on the wall, each lit while someone somewhere is waiting. Ninety-nine are green. One is red, and has been for a long time.",
+      "Under the lamps a shallow {tray} is shut flush with the panel, and beside it is a small {tray button|tray_button}. The Hall is west."
     ],
-    exits: { e: "lobby" },
+    exits: { w: "hall" },
     scenery: [
-      { words: ["machine", "treadle"], name: "the machine", id: "machine", says: "A treadle machine. It keeps stitching a little after her foot stops." },
-      { words: ["form", "dress-form"], name: "the dress-form", id: "form", says: "It has no head. It looks relieved." },
-      { words: ["rail", "coats", "window"], name: "the rail", id: "rail", says: "Coats on hangers, each one a button short of something. None of them is yours." }
+      { words: ["lamps", "lamp", "panel", "green"], name: "the lamps", says: "Each is a little glass bead with a filament in it. Ninety-nine glow the colour of waiting." },
+      { words: ["red"], name: "the red lamp", says: "Mill Street. Red since the Tuesday of the wind. The light at its crossing has been red as long." }
     ],
     ambience: { lines: [
-      "The treadle clacks twice and rests.",
-      "Mrs Venn bites a thread. The thread gives in.",
-      "A coat on the rail shrugs, or the draught does."
-    ], every: [25, 60] },
-    alt: "A tailor's corner: a treadle sewing machine with a woman at it, a window with a night sky, a headless dress-form, and a rail of coats on the left wall.",
-    overlayAlt: {}
+      "A lamp goes out. In a house somewhere, a bell has been answered.",
+      "A lamp comes on. Someone has pressed something and is waiting.",
+      "The red lamp does not flicker. It gave that up years ago."
+    ], every: [30, 60] },
+    alt: "A wall of a hundred small round lamps, nearly all green, one red in the lower row, with a shut steel tray and a small square button beneath.",
+    overlayAlt: { pearl: "A pearl button in the open tray." }
   },
-  canteen: {
-    name: "THE CANTEEN", area: "office", at: [0, 1, 0],
+  gallery: {
+    name: "THE GALLERY", area: "hall", at: [0, 0, 1],
     describe: [
-      "Four tables, one brass {urn}, a tray of cups on its side. The tea is always just made, and nobody is ever seen making it. Every chair is warm.",
-      "The lobby is north."
+      "An iron catwalk along the top of the wall. From here the buttons make a pattern, and the pattern has a hole in it.",
+      "A brass {spyglass} on a stand points through a high window. The stairs go down."
     ],
-    exits: { n: "lobby" },
+    exits: { d: "hall" },
     scenery: [
-      { words: ["tables", "table", "chairs"], name: "the tables", id: "tables", says: "Four small tables with four chairs each. Every chair has been sat in recently." },
-      { words: ["cups", "tray"], name: "the cups", id: "cups", says: "White cups, each with a chip at the same place on the rim." }
+      { words: ["catwalk", "rail", "railing"], name: "the catwalk", says: "Iron, painted green, with the paint worn to iron where hands have been." },
+      { words: ["pattern", "hole", "wall", "buttons"], name: "the wall", says: "From above it is plain: rows of ten, and one gap in row nine, where Mill Street should be." },
+      { words: ["window"], name: "the window", says: "High and narrow, thick with the evening." },
+      { words: ["stairs", "steps"], name: "the stairs", leads: "d" }
     ],
     ambience: { lines: [
-      "The urn ticks, cooling and heating at once.",
-      "A chair settles, though nobody got up.",
-      "A spoon turns in a cup in the next room."
-    ], every: [30, 70] },
-    alt: "A small canteen: four tables with chairs, a tall brass urn on a counter, and cups on a tray.",
-    overlayAlt: {}
+      "The catwalk hums faintly, in time with the wall below.",
+      "A button below is pressed. You feel it in your shoes.",
+      "The spyglass shifts a degree on its stand, as if someone had looked."
+    ], every: [35, 70] },
+    alt: "An iron catwalk above the wall of brass buttons, seen from the rail: the rows below with one gap in the bottom row, and a brass spyglass on a stand by a high window."
   },
-  engine: {
-    name: "THE ENGINE ROOM", area: "office", at: [2, 0, 0],
+  cellar: {
+    name: "THE BATTERY CELLAR", area: "hall", at: [0, 0, -1],
     describe: [
-      "A drum of copper pipes, warm as an animal and as talkative. The pipes knock once whenever a button is pressed anywhere in the building. A {big button|big_button} stands on a post before it.",
-      "The Panel Room is west."
+      "Rows of glass jars, one for every button upstairs, each with a pair of {terminals} that buzz. A rubber mat runs down the middle.",
+      "The bare brass hums a note you feel in your teeth, and a blue spark walks from one post to the next. The stairs go up."
     ],
-    exits: { w: "panel" },
+    exits: { u: "hall" },
     scenery: [
-      { words: ["drum", "pipes", "copper"], name: "the drum", id: "drum", says: "Copper pipes, going somewhere warm. They knock once for each button pressed." },
-      { words: ["post"], name: "the post", id: "post", says: "An iron post, waist high, with the button on top." }
+      { words: ["jars", "jar", "water", "salt"], name: "the jars", says: "Each is labelled with a street. The one for Mill Street is dry and furred with salt." },
+      { words: ["mat", "rubber"], name: "the mat", says: "Black rubber, the width of one careful person." },
+      { words: ["stairs", "steps"], name: "the stairs", leads: "u" },
+      { words: ["spark"], name: "the spark", says: "Blue, quick, and not interested in you yet." }
     ],
     ambience: { lines: [
-      "The pipes knock once. Somewhere, a button was pressed.",
-      "Steam moves in the drum like a held breath.",
-      "The floor hums, one note, then another."
-    ], every: [25, 60] },
-    alt: "A copper drum of pipes filling the back of the room, glowing warm, with a big red button on an iron post in front of it.",
-    overlayAlt: {}
+      "A spark walks from one post to the next and goes out in a corner.",
+      "A jar bubbles once. Upstairs, a bell is answered.",
+      "The hum drops a note and climbs back up."
+    ], every: [30, 60] },
+    alt: "A cellar of glass jars wired to bare brass terminals, a blue spark between two posts, a black rubber mat, and stairs going up."
+  },
+  crossing: {
+    name: "MILL STREET", area: "town", at: [0, 0, 0],
+    describe: [
+      "Dusk at a pedestrian crossing. A crowd stands at the kerb, not crossing. The light on the post is red.",
+      "The post has a bare plate where a button should be, with two wires running off towards the Hall. The Hall's door is north."
+    ],
+    exits: { n: "hall" },
+    scenery: [
+      { words: ["crowd", "people", "kerb"], name: "the crowd", says: "Forty or so, each with somewhere to be and a coat for it. A few have been here long enough to lean on one another." },
+      { words: ["post", "plate", "wires", "wire"], name: "the post", says: "A bare plate, drilled for a button that is not there. Two wires leave it and go under the road, towards the Hall." },
+      { words: ["light", "red"], name: "the light", says: "Red. It has been red so long that it has begun to look like a colour of the street." },
+      { words: ["road", "stripes", "crossing"], name: "the crossing", says: "Four wide stripes, worn grey in the middle by nothing." },
+      { words: ["door"], name: "the Hall's door", leads: "n" }
+    ],
+    ambience: { lines: [
+      "Someone in the crowd checks a watch that has stopped, and puts it away politely.",
+      "A tram goes by on the next street. Nobody turns.",
+      "Two people at the kerb swap places, to be fair.",
+      "The light hums, red, as it has for eleven years."
+    ], every: [30, 60] },
+    alt: "A street crossing at dusk under a purple sky: a crowd standing at the kerb, a post with a red light and a bare plate, and the striped road empty ahead."
   }
 };
 
-// ---- Objects -----------------------------------------------------------------------------------------------------------
-const panelButton = (n, plate, push, extra = {}) => ({
-  at: "panel", name: `Button ${n}`, note: "Brass, under a plate.", words: { nouns: ["button", String(n), `button ${n}`], adj: [] },
-  examine: `The plate says: ${plate}`, ...(push ? { push } : {}), ...extra
-});
-
+// ---- Things ----------------------------------------------------------------------------------------------------------------
 const objects = {
   // The opening
-  handset: { at: "lift_car", portable: true, material: "metal", name: "Handset", note: "Someone is talking.", words: { nouns: ["handset"], adj: [] },
-    here: "A {handset} hangs on its hook, talking quietly.", examine: "A black handset on a curly cord. Whoever is in it keeps talking, kindly.", ...item("handset") },
-  label: { at: "player", portable: true, material: "paper", name: "Label", note: "Tied to your wrist.", words: { nouns: ["label"], adj: [] },
-    examine: "A luggage label on string round your wrist: \"COAT 41. ONE BUTTON SHORT.\"", ...item("label") },
-  gate: { at: "lift_car", material: "metal", name: "Gate", note: "Folding, brass.", words: { nouns: ["gate"], adj: ["folding"] },
-    examine: "A folding brass gate, the kind that pinches. Beyond it, a corridor you can't make out." },
+  receiver: {
+    at: "booth", portable: true, material: "metal", name: "Receiver", note: "Humming to itself.",
+    here: "A black {receiver} lies on the bench, humming to itself.",
+    words: { nouns: ["receiver", "handset", "phone"], adj: ["black"] },
+    examine: "A black handset on a cord that goes nowhere. It hums the note a switchboard hums when it is thinking of you.",
+    ...item("receiver")
+  },
+  card: {
+    at: "player", portable: true, material: "paper", name: "Relief card", note: "Punched with square holes.",
+    words: { nouns: ["card"], adj: ["relief", "punched"] },
+    examine: "Square holes spell out \"Relief. Button Hall. Evening.\" Under them, in pencil: \"Be quicker than the last one.\"",
+    ...item("card")
+  },
+  wicket: {
+    at: "booth", name: "Wicket", note: "A hatch in the glass.",
+    words: { nouns: ["wicket", "hatch"], adj: ["sliding"] },
+    examine: "A sliding hatch the size of a small door, its edge worn bright by thumbs."
+  },
 
-  // The lobby
-  desk: { at: "lobby", material: "wood", name: "Desk", note: "Ink and a blotter.", words: { nouns: ["desk"], adj: [] },
-    examine: "Ink, a blotter, a bell nobody rings. Behind it hangs the board of keys.",
-    parts: [{ words: ["blotter", "ink"], name: "the blotter", says: "Blotting paper, covered in the same word written backwards." }, { words: ["bell"], name: "the bell", says: "A brass bell with a dust cap. Nobody has needed to ring for service." }] },
-  hobb: { at: "lobby", name: "Mr Hobb", note: "Behind the desk.", words: { nouns: ["hobb", "mr", "porter"], adj: [], g: "m", proper: true },
-    here: "{Mr Hobb|hobb} sits behind the desk, filing nothing.",
-    parts: [{ words: ["cardigan", "hands"], name: "his cardigan", says: "Grey wool, buttoned wrongly by exactly one button." }],
-    examine: "Grey cardigan, grey hands. He holds every key in the building and has the manner of a man nobody has asked for one.",
-    topics: {
-      office: { words: ["office", "building", "place"], open: true, says: "\"The Button Office. Visitors collect. Nobody returns.\"" },
-      default: "\"Ask for it by name,\" says Hobb."
-    } },
-  register_key: { at: null, from: "hobb", portable: true, material: "metal", name: "Register key", note: "Its bow is a button.",
-    words: { nouns: ["key"], adj: ["register"] }, brought: "Hobb lifts a {key|register_key} off its nail without looking up.",
-    examine: "Brass, with a round bow like a button. The plate on its nail said REGISTER.", parts: [{ words: ["bow", "nail", "plate"], name: "the bow", says: "Round, flat, with four tiny holes it does not need." }], ...item("register_key") },
-  street_door: { at: "lobby", material: "wood", name: "Street door", note: "Glass, and evening.", words: { nouns: ["door"], adj: ["street"] },
-    examine: "A glass door onto a street in the evening light. A sign says: \"Whole coats only.\"" },
+  // The Hall
+  wall: {
+    at: "hall", name: "Wall of buttons", note: "Rows of brass.", use: "push",
+    words: { nouns: ["wall", "buttons", "button", "rows"], adj: ["brass"] },
+    parts: [{ words: ["plate", "plates"], name: "the plates", says: "Street names in a clerk's hand: Baker Street, the Pier, Gas Works, Church Walk." }],
+    examine: "Brass buttons a thumb wide, in rows of ten. Each plate is the name of a street. Row nine is one short.",
+    push: [
+      "You press Baker Street. Far off, a doorbell rings in a house with nobody in. It is answered.",
+      "You press the Pier. A foghorn, a long way away, takes it personally.",
+      "You press Gas Works. A lamp comes on in a window and goes off again.",
+      "You press Church Walk. A latch lifts, somewhere, for no one you can see."
+    ]
+  },
+  socket: {
+    at: "hall", name: "Gap", note: "Row nine, empty.",
+    words: { nouns: ["gap", "socket", "hole"], adj: ["empty", "bare"] },
+    examine: "A round socket with one bare wire in it. The plate beneath says Mill Street, and has been polished by someone expecting a button.",
+    push: "There is nothing to press. The wire only waits."
+  },
+  stairs: {
+    at: "hall", name: "Stairs", note: "Up and down.", leads: ["u", "d"],
+    words: { nouns: ["stairs", "steps", "stair"], adj: ["iron"] },
+    examine: "Iron steps, worn in the middle. One flight goes up to a gallery, the other down into a hum."
+  },
+  street_door: {
+    at: "hall", door: "s", material: "wood", name: "Street door", note: "To Mill Street.",
+    words: { nouns: ["door"], adj: ["street"] },
+    examine: "A glass door onto the evening. Beyond it a street light stays red."
+  },
+  fitted_button: {
+    at: null, name: "Mill button", note: "In row nine.", use: "push",
+    words: { nouns: ["button", "mill"], adj: ["mill", "street", "brass"] },
+    examine: "Brass, polished by the fingers that wanted it. The plate beneath says Mill Street."
+  },
 
-  // The panel room
-  b07: panelButton(7, "STOPS A CLOCK.", "Somewhere a clock stops. You hear it not ticking."),
-  b13: panelButton(13, "WARM.", "", { examine: "The plate says: WARM. A thread of smoke leans off the brass." }),
-  b22: panelButton(22, "FEEDS A CAT.", "Somewhere a cat is fed. It does not thank you."),
-  b28: panelButton(28, "OPENS A WINDOW.", "A window opens somewhere. A draught comes to say which."),
-  b35: panelButton(35, "SAYS SORRY.", "A voice in the wall says sorry. It does not say to whom."),
-  b41: panelButton(41, "RETURNS ONE.", "", { examine: "The plate says: RETURNS ONE. The brass is worn to a dip, as if one thumb kept coming back." }),
-  b52: panelButton(52, "LOCKS UP.", "Far off, something is locked. Nobody offers you the key."),
-  b60: panelButton(60, "MAKES IT RAIN.", "It rains, briefly, on a floor you are not standing on."),
+  // The console and the office
+  all_button: {
+    at: "console", name: "Big red button", note: "Under a flap.", use: "push",
+    words: { nouns: ["button"], adj: ["big", "red"] },
+    parts: [
+      { words: ["flap"], name: "the flap", says: "A glass flap on a hinge, open. It has not been closed in a long time." },
+      { words: ["plate"], name: "the plate", says: "\"Every bell in town. At once.\"" }
+    ],
+    examine: "The size of a saucer, worn bright at the middle. Someone has wanted to, many times, and has not."
+  },
+  chair: {
+    at: "office", name: "Relief chair", note: "Still warm.",
+    words: { nouns: ["chair"], adj: ["relief", "swivel"] },
+    examine: "Worn to the shape of someone who sat very still for years. A plate on its back says: \"Whoever sits here relieves the last.\""
+  },
+  ledger: {
+    at: "office", name: "Ledger", note: "A clerk's hand.",
+    words: { nouns: ["ledger", "book", "log"], adj: [] },
+    examine: "One entry a day in a tidy hand: \"Pressed. Answered.\" One entry is longer than the rest.",
+    read: "\"Mill Street. Button taken out for cleaning, filed in the Lost drawer. The drawer keeps a pearl lock. The pearl is in the lamp room tray. Replace tomorrow.\" The date is eleven years old. The entries stop there."
+  },
 
-  // The register
-  cabinet: { at: "register", container: true, open: false, locked: true, material: "wood", name: "Cabinet", note: "Tall, with a round keyhole.",
-    words: { nouns: ["cabinet"], adj: ["tall"] },
-    lock: { key: "register_key", says: "The cabinet is locked. Its keyhole is round, the size of a key's bow.", opens: "The key turns. The cabinet opens with a sigh." },
-    examine: "Dark wood, one keyhole, a plate: REGISTER ONLY.", parts: [{ words: ["keyhole", "plate"], name: "the keyhole", says: "Round, and the size of a key's bow. The plate over it says REGISTER ONLY." }] },
-  ledger: { at: "cabinet", portable: true, material: "paper", name: "Ledger", note: "Open at a coat.", words: { nouns: ["ledger"], adj: [] },
-    examine: "It falls open at one line: \"Coat 41. Horn button, two holes. Pressed into the wall at 41.\" The margin is full of other coats.",
-    read: "\"Coat 41. Horn button, two holes. Pressed into the wall at 41.\"", ...item("ledger") },
-  horn_button: { at: null, portable: true, material: "stone", name: "Horn button", note: "Two holes.", words: { nouns: ["button"], adj: ["horn"] },
-    examine: "A horn button, brown, with two holes and a thumb's worth of wear.", ...item("horn_button") },
+  // The stockroom
+  mint: {
+    at: "stockroom", portable: true, material: "soft", consumable: true, heals: 1, name: "Peppermint", note: "White and strong.",
+    here: "A single {peppermint|mint} waits in a saucer on the crate.",
+    words: { nouns: ["mint", "peppermint"], adj: ["white"] },
+    examine: "A white peppermint with a ring of red round its edge, like a button that has been sucked.",
+    eat: "It is very strong. Something behind your eyes sits up.",
+    ...item("mint")
+  },
+  lost_drawer: {
+    at: "stockroom", container: true, open: false, locked: true, material: "wood", name: "Lost drawer", note: "A buttonhole lock.",
+    lock: {
+      key: "pearl",
+      says: "The lock is a buttonhole, cut to a button's thickness. It wants one that fits.",
+      opens: "The pearl slips into the buttonhole and the drawer slides out, grudgingly."
+    },
+    words: { nouns: ["drawer"], adj: ["lost", "low", "wide"] },
+    examine: "Low and wide, labelled \"Lost\" in a clerk's hand. The lock is a buttonhole."
+  },
+  mill_button: {
+    at: "lost_drawer", portable: true, material: "metal", name: "Mill button", note: "Brass, with a shank.",
+    words: { nouns: ["button", "mill"], adj: ["mill", "street", "brass"] },
+    examine: "A brass button with a raised ring and a shank behind. The back is stamped, very small, with a street.",
+    ...item("mill_button")
+  },
 
-  // The sorting room
-  spool: { at: "sorting", portable: true, material: "wood", name: "Spool", note: "Grey thread.", words: { nouns: ["spool", "thread", "cotton"], adj: [] },
-    here: "A {spool} of grey thread stands between two trays, looking sorted.", examine: "Grey thread, nearly full, on a wooden spool.", ...item("spool") },
-  shell_button: { at: "sorting", portable: true, material: "stone", name: "Shell button", note: "Four holes.", words: { nouns: ["button"], adj: ["shell"] },
-    here: "A {shell button|shell_button} lies alone at the edge of the table.", examine: "A pale shell button, four holes. It belongs to a different coat.", ...item("shell_button") },
+  // The lamp room
+  tray: {
+    at: "lamproom", name: "Tray", note: "Shut flush.",
+    words: { nouns: ["tray"], adj: ["lamp", "shallow", "steel"] },
+    examine: "A shallow steel tray, flush with the panel. It has no handle."
+  },
+  tray_button: {
+    at: "lamproom", name: "Tray button", note: "Small and square.", use: "push",
+    words: { nouns: ["button"], adj: ["tray", "small", "square"] },
+    examine: "A small square button, its plate worn to \"Tray\". Cleaner than anything else here: it has been pressed lately, or often."
+  },
+  pearl: {
+    at: null, portable: true, material: "stone", name: "Pearl button", note: "Thin as a coin.",
+    words: { nouns: ["button", "pearl"], adj: ["pearl"] },
+    examine: "A flat pearl button, thin as a coin, with two pairs of holes for thread.",
+    ...item("pearl")
+  },
 
-  // The mending room
-  venn: { at: "mending", name: "Mrs Venn", note: "A needle in her mouth.", words: { nouns: ["venn", "mrs", "tailor"], adj: [], g: "f", proper: true },
-    here: "{Mrs Venn|venn} sits at the machine, a needle in her mouth.",
-    examine: "A narrow woman with thread on her cuffs. She has not looked up since you came, and she knows who you are. {Coat 41|coat} lies across her knee.",
-    parts: [{ words: ["needle"], name: "the needle", says: "A long steel needle, held in her teeth like a thought she is keeping." }, { words: ["cuffs", "cuff"], name: "her cuffs", says: "Grey thread, wound round and round, like a second set of cuffs." }],
-    give: "\"Not Forty-one's,\" says Mrs Venn, and hands it back.",
-    topics: {
-      coat: { words: ["coat", "41", "forty-one"], open: true, says: "\"Forty-one. Its fourth button went into the wall, as they do. I have needles. The thread went to the sorting room.\"" },
-      default: "\"Mm,\" says Mrs Venn round the needle."
-    } },
-  coat: { at: "venn", portable: true, material: "soft", name: "Coat 41", note: "Whole, and yours.", words: { nouns: ["coat"], adj: ["41"] },
-    examine: "A grey coat, four buttons in a row. The newest one is the horn one.", ...item("coat") },
+  // The gallery
+  spyglass: {
+    at: "gallery", name: "Spyglass", note: "Aimed at the window.", actions: ["Look through spyglass"],
+    words: { nouns: ["spyglass", "telescope"], adj: ["brass"] },
+    examine: "A brass spyglass on a stand, aimed through the window.",
+    search: "Through the window and the dusk: Mill Street, and a crowd at its crossing, standing the way people stand when they have forgotten what they are waiting for."
+  },
 
-  // The canteen
-  urn: { at: "canteen", material: "metal", name: "Urn", note: "Warm brass.", words: { nouns: ["urn", "tap"], adj: ["brass"] },
-    examine: "A brass urn, taller than it needs to be, with a stiff tap. The plate says: TEA.", parts: [{ words: ["plate"], name: "the plate", says: "TEA, in brass capitals worn smooth." }] },
-  tea: { at: null, from: "urn", times: 2, consumable: true, heals: 1, name: "Tea", note: "Hot.", words: { nouns: ["tea", "cup"], adj: [] },
-    brought: "The urn gives you a {cup|tea}, full.", drink: "It is exactly as hot as you hoped.",
-    examine: "Tea in a white cup, chipped in the usual place." },
-
-  // The engine room
-  big_button: { at: "engine", name: "Big button", note: "Worn by a thumb.", words: { nouns: ["button"], adj: ["big", "red"] },
-    examine: "Red once, now the colour of a thumb. The plate says: ALL.", parts: [{ words: ["plate"], name: "the plate", says: "ALL. The brass is worn bright round the A." }] }
+  // The cellar
+  terminals: {
+    at: "cellar", name: "Terminals", note: "Bare and buzzing.",
+    words: { nouns: ["terminals", "terminal", "posts", "post", "brass"], adj: ["bare"] },
+    examine: "Brass posts the size of thumbs, bright with a blue light. They are bare and they are alive."
+  }
 };
 
-// ---- Rules ------------------------------------------------------------------------------------------------------------
+// ---- Rules ---------------------------------------------------------------------------------------------------------------------
 const rules = [
-  { id: "push_13", match: { verb: "push", obj: "b13" },
-    do: [{ say: "The button clicks. A spark crosses from it to your finger." }, { hurt: 1, says: "It was warm for a reason." }] },
-  { id: "push_41", match: { verb: "push", obj: "b41" }, once: true, again: "Nothing comes. The wall has returned what it had.",
-    do: [{ say: "The button sinks and the wall coughs. A horn button drops into your hand." }, { move: "horn_button", to: "player" }] },
-  { id: "sew", match: { verb: ["give", "put"], obj: "horn_button", obj2: "venn" }, if: [{ "spool.at": "player" }],
-    do: [{ say: "Mrs Venn threads the needle, sews four stitches and bites the end. The spool is spent. \"Forty-one,\" she says, and holds out the coat." },
-      { remove: "object", id: "horn_button" }, { remove: "object", id: "spool" }, { move: "coat", to: "player" }] },
-  { id: "sew_no_thread", match: { verb: ["give", "put"], obj: "horn_button", obj2: "venn" },
-    do: [{ say: "\"Needles I have,\" says Mrs Venn. \"Thread, no.\"" }] },
-  { id: "door_whole", match: { verb: ["open", "push", "enter", "knock"], obj: "street_door" }, if: [{ "coat.at": "player" }],
-    do: [{ say: "The street door opens for a whole coat. Outside it is evening, on a street you nearly know. Behind you, somewhere, a button is pressed for someone else." },
-      { end: true, picture: "whole" }] },
-  { id: "door_bare", match: { verb: ["open", "push", "enter", "knock"], obj: "street_door" },
-    do: [{ say: "The street door stays shut. The sign is right there." }] },
-  { id: "push_all", match: { verb: "push", obj: "big_button" },
-    do: [{ say: "You press ALL. Every button in the building lets go and falls, like hail, like applause. The wall is smooth. Mr Hobb looks up, relieved, and files it." },
-      { end: true, picture: "unbuttoned" }] }
+  // The lamp room: the tray button slides the tray out with the pearl
+  { id: "press_tray", match: { verb: "push", obj: "tray_button" }, once: true,
+    again: "The tray slides in and out again, as pleased as it was.",
+    do: [
+      { set: "tray.out", to: true },
+      { move: "pearl", to: "lamproom" },
+      { say: "The tray slides out with a sigh. In it lies a pearl button." }
+    ] },
+  { id: "open_tray", match: { verb: ["open", "pull"], obj: "tray" },
+    do: [{ say: "The tray will not move by hand. The small button beside it does that." }] },
+
+  // The wall's gap: the Mill button goes in, and then it can be pressed
+  { id: "fit_button", match: { verb: ["put", "use", "fit"], obj: "mill_button", obj2: "socket" }, if: [{ "player.at": "hall" }],
+    do: [
+      { say: "The button goes in with a click like a knuckle. Row nine is whole." },
+      { move: "mill_button", to: null },
+      { move: "socket", to: null },
+      { move: "fitted_button", to: "hall" },
+      { set: "hall.describe", to: [
+        "The far wall is all {buttons|wall}: rows of brass, each with a plate no bigger than a stamp. Row nine is whole.",
+        "The console is north, the lamp room east, the stockroom west. The {stairs} climb on one side and drop on the other. The {street door|street_door} is behind you, south."
+      ] },
+      { set: "hall.alt", to: "A hall whose far wall is covered in rows of small brass buttons, none missing. A stair climbs on the right, another drops on the left." },
+      { draw: "hall", add: ["ellipse mill_btn 218,91,5,3 14 e6", "dots mill_glint 217,90 c15"] }
+    ] },
+  { id: "fit_pearl", match: { verb: ["put", "use", "fit"], obj: "pearl", obj2: "socket" }, if: [{ "player.at": "hall" }],
+    do: [{ say: "The pearl slides into the gap and slides out again, a size too small. It is for locks, not for Mill Street." }] },
+  { id: "press_fitted", match: { verb: "push", obj: "fitted_button" },
+    do: [
+      { say: "You press it. Down the wire, under the road, a post clicks. In Mill Street the light turns green, and the crowd steps off the kerb together, a little stiffly, like people stepping into cold water. They cross. Nobody looks back at the Hall; it is, after all, only a wall." },
+      { end: true, picture: "crossed" }
+    ] },
+
+  // The console: the big button
+  { id: "press_all", match: { verb: "push", obj: "all_button" },
+    do: [
+      { say: "You press it. Every bell in town rings at once. Windows light and doors open, and everyone steps out to see who it was. It was everyone. They stand on their steps and look at one another until the lamps go out." },
+      { end: true, picture: "rung" }
+    ] },
+
+  // The office: the relief chair
+  { id: "sit_chair", match: { verb: ["sit", "enter", "lie"], obj: "chair" },
+    do: [
+      { say: "You sit. The chair takes your weight as if it had been kept for you. Far off, someone presses a button, and you find you know the answer. Somewhere, the last clerk puts on his hat." },
+      { end: true, picture: "clerk" }
+    ] },
+
+  // The cellar: the bare terminals
+  { id: "terminals_bite", match: { verb: ["touch", "push", "pull", "attack"], obj: "terminals" },
+    do: [{ hurt: 2, says: "The terminals take your fingers, politely, and give them back." }] }
 ];
 
-// ---- Puzzles ----------------------------------------------------------------------------------------------------------
+// ---- Puzzles (for the checker and the hints). The endings in the order the hints should reach them. ----------------------------------
 const puzzles = {
-  get_key: { where: "lobby", needs: [], solve: ["ask hobb for key"], gives: ["register_key"], clues: ["hobb", "desk"],
-    hints: ["Hobb holds every key, and waits to be asked for one.", "Ask Hobb for the key."] },
-  open_cabinet: { where: "register", needs: ["register_key"], solve: ["unlock cabinet with key", "take ledger"], gives: ["ledger"], clues: ["cabinet", "register_key"],
-    hints: ["The cabinet's keyhole is the size of the register key.", "Unlock the cabinet with the key, then take the ledger."] },
-  press_41: { where: "panel", needs: ["ledger"], solve: ["push 41"], gives: ["horn_button"], clues: ["ledger", "b41", "venn"],
-    hints: ["The ledger says where Coat 41's button went: into the wall.", "Push 41."] },
-  get_thread: { where: "sorting", needs: [], solve: ["take spool"], gives: ["spool"], clues: ["venn", "spool"],
-    hints: ["Mrs Venn has needles, and no thread. The thread went to the sorting room.", "Take the spool."] },
-  sew_coat: { where: "mending", needs: ["horn_button", "spool"], solve: ["give horn button to venn"], gives: ["coat"], clues: ["venn", "coat"],
-    hints: ["Mrs Venn will sew when she has the button and the thread.", "Give the horn button to Mrs Venn."] },
-  go_out: { where: "lobby", needs: ["coat"], solve: ["open street door"], ending: true, clues: ["street_door", "coat"],
-    hints: ["The sign says whole coats only.", "Open the street door, carrying the coat."] },
-  press_all: { where: "engine", needs: [], solve: ["push big button"], ending: true, clues: ["big_button", "hobb"],
-    hints: ["The big button's plate says ALL.", "Push the big button."] }
+  open_tray: { where: "lamproom", needs: [], solve: ["press tray button", "take pearl button"], gives: ["pearl"],
+    clues: ["tray_button", "ledger", "tray"],
+    hints: ["Beside the shut tray in the lamp room there is a small button.", "Press the tray button, then take the pearl button."] },
+  open_drawer: { where: "stockroom", needs: ["pearl"], solve: ["unlock drawer with pearl button", "take mill button"], gives: ["mill_button"],
+    clues: ["lost_drawer", "ledger", "socket"],
+    hints: ["The Lost drawer has a lock shaped like a buttonhole.", "Unlock the Lost drawer with the pearl button, and take the Mill button."] },
+  end_crossed: { where: "hall", needs: ["mill_button"], solve: ["put mill button in gap", "press mill button"], ending: true,
+    clues: ["socket", "spyglass", "ledger"],
+    hints: ["Row nine has a gap, and Mill Street has a button.", "Put the Mill button in the gap, then press it."] },
+  end_rung: { where: "console", needs: [], solve: ["press red button"], ending: true,
+    clues: ["all_button", "wall"],
+    hints: ["The big red button's plate promises every bell in town.", "Press the big red button."] },
+  end_clerk: { where: "office", needs: [], solve: ["sit on chair"], ending: true,
+    clues: ["chair", "ledger"],
+    hints: ["The warm chair has a plate on its back.", "Sit on the relief chair."] }
 };
 
-// ---- The change set ----------------------------------------------------------------------------------------------------
+// ---- The world ---------------------------------------------------------------------------------------------------------
 export default {
-  because: "After the opening: the Button Office, where a coat is one button short.",
-  opening,
-  properties: {},
+  because: "The Button Hall: a waiting booth, then a hall of brass buttons, the console, an office, a stockroom, a lamp room, a gallery, a battery cellar and Mill Street.",
   facts: [
-    "The player arrives in the lobby of the Button Office on a Friday evening to collect Coat 41, which is missing its fourth button.",
-    "Coat 41's horn button was pressed into the wall at button 41; Mrs Venn holds the coat and needs thread from the sorting room.",
-    "The street door opens only for a whole coat."
+    "Row nine of the wall has a gap where the Mill Street button belongs; the button is in the Lost drawer, whose lock wants the pearl button from the lamp room tray.",
+    "Endings: crossed (fit and press the Mill button), rung (press the big red button), clerk (sit in the relief chair), died (the cellar's terminals)."
   ],
+  properties: {
+    "tray.out": { type: "boolean", start: false }
+  },
+  opening: {
+    room: "booth", hints: "receiver", intro: "card", way: "wicket",
+    lines: {
+      notYet: "The wicket does not slide. The receiver is still humming on the bench.",
+      through: "You push the wicket up and climb through. It drops shut behind you with a small bell.",
+      hintFrame: "The receiver clicks. A voice says:",
+      farewell: "The card is punched once more, by nobody, and is confetti."
+    }
+  },
   effects: [
-    { time: "day 1 17:40" },
-    { set: "game.entrance", to: "lobby" },
+    { time: "day 1 17:50", weekday: "tue" },                 // the opening is played at ten to six
+    { set: "game.entrance", to: "hall" },
     { add: "change", id: "arrival", effects: [
-      { time: "day 1 17:50", weekday: "fri" },
-      { say: "Brass on every wall, and a smell of warm metal." }
+      { time: "day 1 18:10", weekday: "tue" },
+      { say: "Somewhere a bell rings, once, and is answered." }
     ] },
-    { add: "word", verb: "sew", words: ["sew", "stitch", "mend"], reply: "Mrs Venn does the sewing. Give her what she needs." },
+    // Verbs this world needs
+    { add: "word", verb: "fit", words: ["fit", "seat", "slot", "attach"], reply: "There is nothing here to fit." },
+
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    { add: "music", ...music, levels },
+    { add: "music", ...music, levels },   // the music (music.js; its levels, levels.js, generated); each room's own as its `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule }))

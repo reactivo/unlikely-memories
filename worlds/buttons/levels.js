@@ -3,13 +3,19 @@
 // by the part's numbers; the parts every world shares are in content/levels.js. The world files add them to its music as `levels`.
 export default {
   // notes
-  "v1:instrument:eccadd05": [-24.28, -24.33],   // service_bell (struck, octave 5)
-  "v1:instrument:7e22e9db": [-26.25, -26.88],   // button_wire (plucked, octave 4)
-  "v1:instrument:3b36e397": [-25.14, -25.83],   // boiler (reed, octave 3)
-  "v1:instrument:4208fe20": [-26.79, -31.13],   // button_wire (plucked, octave 3)
-  "v1:instrument:2bb9a202": [-23.48, -27.37],   // boiler (reed, octave 2)
+  "v1:instrument:a409967b": [-24.77, -24.82],   // doorbell (struck, octave 5)
+  "v1:instrument:0df90faa": [-25.90, -26.54],   // bell_wire (plucked, octave 4)
+  "v1:instrument:d5a9f4fa": [-21.35, -26.90],   // doorbell (struck, octave 3)
+  "v1:instrument:1f2cdb21": [-26.45, -30.78],   // bell_wire (plucked, octave 3)
+  "v1:instrument:4e56bdeb": [-18.69, -29.84],   // doorbell (struck, octave 2)
+  "v1:instrument:023713fe": [-28.54, -28.58],   // bell_wire (plucked, octave 5)
+  "v1:instrument:c12131ce": [-22.43, -32.10],   // bell_wire (plucked, octave 2)
+  "v1:instrument:4441670e": [-23.64, -24.35],   // waiting_whistle (blown, octave 4)
+  "v1:instrument:30db3ac1": [-23.71, -29.25],   // waiting_whistle (blown, octave 3)
+  "v1:instrument:5987d98f": [-21.21, -21.93],   // doorbell (struck, octave 4)
   // rhythm
-  "v1:instrument:fe05743f": [-46.15, -46.17],   // switch_click (tick, octave 3)
+  "v1:instrument:159d7dcc": [-43.50, -43.50],   // relay (tick, octave 4)
+  "v1:instrument:958bff19": [-45.36, -45.38],   // relay (tick, octave 3)
   // sounds
   "v1:sound:fb5418d6": [-25.04, -25.11],   // metal (chime, octave 5)
   "v1:sound:f168f19c": [-34.09, -34.09],   // glass (struck, octave 6)

@@ -277,6 +277,11 @@ export function check(state, pack, bible, { before = null } = {}) {
     const s = inRoom(arrived, id), labels = new Set([].concat(room.describe || []).flatMap(marked).map(([l]) => fold(l)));
     for (const m of room.mentions || []) if (!answers(s, m)) problems.push(`${id} mentions "${m}", but nothing there answers to it`);
     for (const m of room.mentions || []) already(id, m, labels, id, lying(id));
+    // The picture's `shot` (BRIEF.md §7) marks the things it dresses the room with, {nets}: the word itself is what answers.
+    // each marked word must answer where the room is read. Unmarked words are never looked at. English worlds only; warned of, never a problem.
+    if (state.lang === "en" && typeof room.picture?.shot === "string")
+      for (const w of new Set([...room.picture.shot.matchAll(/\{([^|}]+)\}/g)].map(m => m[1].trim().toLowerCase())))
+        if (!answers(s, w)) warnings.push(`${id}: its picture's shot marks "${w}", which nothing in the room answers to: give the room a scenery word, a part or a mention for it, or leave the mark out`);
   }
   for (const [id, o] of Object.entries(state.world.objects)) {
     const s = structuredClone(state);                // read where the object is (its room), with it in hand
@@ -594,7 +599,10 @@ function pictureProblems(state) {
 // and fills of the art spec, colours 0–15, at most `maxShapes`, unique ids, at most 3 cycles that point at real shapes.
 function drawingProblems(picture) {
   if (!picture || !Array.isArray(picture.draw) || !picture.draw.length) return ["has no drawing list"];
-  const why = [], colour = (c) => Number.isInteger(c) && c >= 0 && c <= 15, ids = picture.draw.map(d => d?.id).filter(Boolean);
+  const why = [];
+  if (picture.shot !== undefined && !(typeof picture.shot === "string" && picture.shot.trim())) why.push("its shot is the drawing description, one string");
+  else if (/\{[^}]*\|[^}]*\}/.test(picture.shot ?? "")) why.push("its shot marks a thing as {label|...}: a shot marks only {word}, the word that answers (the {label|id} form is for room texts)");
+  const colour = (c) => Number.isInteger(c) && c >= 0 && c <= 15, ids = picture.draw.map(d => d?.id).filter(Boolean);
   if (picture.draw.length > art.draw.maxShapes) why.push(`has ${picture.draw.length} shapes, at most ${art.draw.maxShapes}`);
   if (new Set(ids).size !== ids.length) why.push("has a shape id used twice");
   picture.draw.forEach((s, i) => {

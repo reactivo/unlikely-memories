@@ -159,6 +159,7 @@ export default {
   // ---- THE BAR: a silhouette: Dot behind the counter against the stove's red glow; ice trough by the door ----------------------------
   "tb-bar": {
     version: 1,
+    shot: "A silhouette: the {bar} counter across the middle at 84 with {Dot} black behind it against the red glow of the {stove} on the left third; an {ice} trough by the door on the right; one {stool} at the counter.",
     draw: `
       rect wall 0,0,320,84 fade:0,4/0,0/0,84
       rect floor 0,84,320,52 fade:4,0/0,84/0,136
