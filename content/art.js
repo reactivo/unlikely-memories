@@ -13,9 +13,10 @@ export default {
   draw: {
     shapes: ["rect", "poly", "ellipse", "line", "dots"],
     fills: ["color", "mix", "fade", "stripes", "null"],
-    maxShapes: 200,
+    maxShapes: 250,                                // every picture, in either style (BRIEF.md §7)
     edits: ["add", "remove", "replace", "restyle"]
   },
+  styles: ["dithered", "flat"],                    // a world's `style` (its bible; none means dithered), BRIEF.md §7
   viewpoints: ["eye level", "wide landscape", "far away", "looking up at something outdoors",
                "looking down at an angle from the rim"],   // BRIEF.md §7, "Viewpoints"
   instructionsLanguage: "en",

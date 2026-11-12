@@ -7,13 +7,13 @@
 //   line    -     0,136 146,76        c0
 //   dots    stars 12,8 40,20 77,6     c7
 //
-// Each line: the shape, its id ("-" for none), its numbers, then any of:
+// Each line: the shape, its id ("-" for none; an id with a stray "-" after it is read as the id alone), its numbers, then any of:
 //   a fill: a palette number 0–15; none (only the edge is drawn); mix:a,b@level; fade:a,b/fx,fy/tx,ty;
 //           stripes:a,b (in mix and fade, an empty colour leaves what's underneath: mix:,14@0.3)
 //   cN  the colour of a line or dots        eN  a 1-pixel edge in colour N        after:id  (in edits only)
 // rect: x,y,width,height · ellipse: cx,cy,rx,ry · poly, line, dots: x,y points. Blank lines and # notes are ignored.
 //
-// Perspective: a line "vp x,y" sets the picture's vanishing point (not a shape, not counted towards the 200). After it, a point
+// Perspective: a line "vp x,y" sets the picture's vanishing point (not a shape, not counted towards the shape limit). After it, a point
 // of a poly, line or dots may be written x,y@t: (x,y) slid towards the vanishing point, both coordinates, rounded; t = 1 is
 // the point itself, t = 0 the vanishing point:   vp 160,60   poly wall 40,120@1 40,120@0.5 ...   rect and ellipse take plain numbers.
 // Pure: no page, no state.
@@ -30,6 +30,7 @@ export function parseShape(line) {
   const kind = t[0];
   if (!SHAPES.includes(kind)) throw new Error(`"${kind}" isn't a shape (${SHAPES.join(", ")})`);
   if (t.length < 3) throw new Error(`a ${kind} needs an id (or -) and its numbers`);
+  if (t[2] === "-" && t[1] !== "-") t.splice(2, 1);          // an id and a stray "-" both: as if the "-" weren't there
   const shape = {};
   if (t[1] !== "-") shape.id = t[1];
   let i = 2;

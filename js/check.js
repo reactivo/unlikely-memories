@@ -525,6 +525,14 @@ export function bibleProblems(bible, state) {
     else if (!state.world.rooms[id]?.picture) problems.push(`bible: the thumbnail's picture "${id}" isn't one of the world's room pictures`);
     if (!Number.isInteger(thumb.x) || thumb.x < 0 || thumb.x > columns) problems.push(`bible: the thumbnail's x (${JSON.stringify(thumb.x)}) should be a whole number from 0 to ${columns}`);
   }
+  // The picture style (BRIEF.md §7): `dithered` or `flat`; none means dithered. A flat world's pictures have no `fade` fill.
+  if (bible && "style" in bible) {
+    if (!art.styles.includes(bible.style)) problems.push(`bible: style is one of ${art.styles.join(", ")}, not ${JSON.stringify(bible.style)}`);
+    else if (bible.style === "flat") {
+      const pics = [...Object.entries(state.world.rooms).map(([id, r]) => [`rooms/${id}`, r.picture]), ...Object.entries(state.pictures || {}).map(([id, p]) => [`pictures/${id}`, p?.picture])];
+      for (const [where, pic] of pics) if ((pic?.draw || []).some(s => s?.fill?.fade)) problems.push(`${where}: flat style: no fade`);
+    }
+  }
   return problems;
 }
 

@@ -7,6 +7,7 @@ import standardVerbs from "./verbs.js";
 import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js";
 import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js";
 import { parseShape, parseShapes } from "./picture.js";
+import art from "../content/art.js";
 import { worldTime, parts, hhmm, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
 import * as opening from "./opening.js";
 import { translate as translateUse, placeOf, chainOf, shut, isAction, person, holderOf, noticed } from "./use.js";
@@ -1595,7 +1596,7 @@ function editPicture(picture, e) {
     const at = after ? draw.findIndex(x => x.id === after) + 1 : draw.length;
     draw.splice(at, 0, shape);
   }
-  if (draw.length > 200) return "too many shapes";
+  if (draw.length > art.draw.maxShapes) return "too many shapes";
   return { ...picture, version: picture.version + 1, draw,
            ...(e.cycles ? { cycles: e.cycles } : {}), ...(e.overlays ? { overlays: e.overlays } : {}) };
 }
