@@ -5,10 +5,13 @@
 //                               every draw(imageData) the scene makes (never a loop of its own); the 2D canvas is hidden while it shows.
 //   thumbnails()                the landing page's: a group of 2D canvases, each drawn once at its displayed size through ONE
 //                               shared WebGL context, again on a resize or a change of settings. add(canvas, imageData), clear().
+//   figures(box)                the story's examine pictures: an object's sprite in its square (ui/log.js, `.figure`), the whole square a
+//                               little screen. The same shared context; each figure drawn once when it is on the page, again on a resize
+//                               (its own, or the picture's `box`) or a change of settings. add(figure), clear().
 //   settings(), configure(v)    the settings now in effect: content/art.js (effects.crt), or those the debug panel set instead.
 //
 // No WebGL, a shader that won't compile, or a lost context: the WebGL canvas goes and the plain canvas shows, as it always did.
-// At most two contexts in all: the scene's and the thumbnails'. Safe to import in Node (nothing touches the page until used).
+// At most two contexts in all: the scene's and the one shared by the thumbnails and the figures (never on the same page). Safe to import in Node (nothing touches the page until used).
 //
 // The look, in the shader's order: the picture's own pixels, hard-edged (nearest); colour fringing (red looks `rgb` source pixels
 // to the right, blue as far to the left: so red lands left, blue right); glow (a soft blur of about 1.5 pixels, screen-blended at
@@ -60,19 +63,21 @@ precision mediump float;
 #endif
 uniform sampler2D tex;
 uniform vec2 src, dst;                                  // the picture's size in its own pixels; the canvas's in device pixels
-uniform float dpr, scan, mask, rgb, glow, contrast, sat, bright, flick;
+// rows: how many scanline rows the canvas shows from top to bottom (the picture's own rows); unit: texture pixels to one picture pixel,
+// for the fringing and the glow. A picture drawn from its own pixels: rows = src.y, unit = 1.
+uniform float dpr, rows, unit, scan, mask, rgb, glow, contrast, sat, bright, flick;
 varying vec2 uv;
 vec3 at(vec2 p) { return texture2D(tex, p / src).rgb; }                       // p in picture pixels; the texture is nearest
 float below(float y) { return floor(y) * .5 + clamp(fract(y) - .5, 0., .5); }   // how much of the rows' lower halves lie above y
 void main() {
   vec2 p = uv * src;
-  vec3 c = vec3(at(p + vec2(rgb, 0.)).r, at(p).g, at(p - vec2(rgb, 0.)).b);
-  vec3 g = at(p) * .36 + (at(p + vec2(1.5, 0.)) + at(p - vec2(1.5, 0.)) + at(p + vec2(0., 1.5)) + at(p - vec2(0., 1.5))) * .16;
+  vec3 c = vec3(at(p + vec2(rgb * unit, 0.)).r, at(p).g, at(p - vec2(rgb * unit, 0.)).b);
+  vec3 g = at(p) * .36 + (at(p + vec2(1.5 * unit, 0.)) + at(p - vec2(1.5 * unit, 0.)) + at(p + vec2(0., 1.5 * unit)) + at(p - vec2(0., 1.5 * unit))) * .16;
   c = 1. - (1. - c) * (1. - g * glow);                                         // screen
   c = (c - .5) * contrast + .5;
   c = mix(vec3(dot(c, vec3(.299, .587, .114))), c, sat);
-  float h = src.y / dst.y;                                                      // one device pixel's height in picture rows
-  c *= 1. - scan * (below(p.y + h * .5) - below(p.y - h * .5)) / h;            // the share of this pixel in a lower half
+  float y = uv.y * rows, h = rows / dst.y;                                      // this pixel's row (a picture row), and its height in rows
+  c *= 1. - scan * (below(y + h * .5) - below(y - h * .5)) / h;            // the share of this pixel in a lower half
   float s = mod(floor(gl_FragCoord.x / dpr), 3.);                              // R, G, B stripes, 1 CSS pixel each
   c *= 1. - mask * (1. - vec3(float(s < .5), float(s > .5 && s < 1.5), float(s > 1.5)));
   gl_FragColor = vec4(clamp(c * bright * flick, 0., 1.), 1.);
@@ -100,7 +105,7 @@ function makePass(canvas, attrs, onLost) {
   for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]])
     gl.texParameteri(gl.TEXTURE_2D, k, v);
   const u = {};
-  for (const n of ["src", "dst", "dpr", "scan", "mask", "rgb", "glow", "contrast", "sat", "bright", "flick"]) u[n] = gl.getUniformLocation(prog, n);
+  for (const n of ["src", "dst", "dpr", "rows", "unit", "scan", "mask", "rgb", "glow", "contrast", "sat", "bright", "flick"]) u[n] = gl.getUniformLocation(prog, n);
   let sw = 0, sh = 0;
   const pass = {
     canvas, lost: false,
@@ -112,11 +117,12 @@ function makePass(canvas, attrs, onLost) {
     },
     // The picture's pixels (an ImageData of that size).
     upload(image) { gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, image); },
-    // One draw, into the canvas at width × height device pixels (dpr of them to a CSS pixel).
-    draw(width, height, dpr, s, flick) {
+    // One draw, into the canvas at width × height device pixels (dpr of them to a CSS pixel). rows, unit: see the shader (the picture's own
+    // when left out).
+    draw(width, height, dpr, s, flick, rows = sh, unit = 1) {
       if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
       gl.viewport(0, 0, width, height);
-      gl.uniform2f(u.src, sw, sh); gl.uniform2f(u.dst, width, height); gl.uniform1f(u.dpr, dpr);
+      gl.uniform2f(u.src, sw, sh); gl.uniform2f(u.dst, width, height); gl.uniform1f(u.dpr, dpr); gl.uniform1f(u.rows, rows); gl.uniform1f(u.unit, unit);
       gl.uniform1f(u.scan, s.scan); gl.uniform1f(u.mask, s.mask); gl.uniform1f(u.rgb, s.rgb); gl.uniform1f(u.glow, s.glow);
       gl.uniform1f(u.contrast, s.contrast); gl.uniform1f(u.sat, s.saturation); gl.uniform1f(u.bright, s.brightness); gl.uniform1f(u.flick, flick);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -127,7 +133,7 @@ function makePass(canvas, attrs, onLost) {
 }
 
 const ratio = () => Math.min(MAX_RATIO, (typeof devicePixelRatio === "number" && devicePixelRatio) || 1);
-// The attribute the CSS vignette follows (on the box: .picture, .tile): present while the look is drawn there.
+// The attribute the CSS vignette follows (on the box: .picture, .tile, .figure): present while the look is drawn there.
 const mark = (canvas, on) => canvas.parentElement?.toggleAttribute("data-crt", on);
 
 // ---- The scene's picture ----
@@ -178,8 +184,8 @@ export function screen(source, { w, h }) {
   return { draw };
 }
 
-// ---- The landing page's thumbnails ----
-let shared;                                                         // the one context of every thumbnail: undefined (not made yet), null (none), or its pass
+// ---- The landing page's thumbnails, and the story's figures ----
+let shared;                                                         // the one context of every thumbnail and figure: undefined (not made yet), null (none), or its pass
 const sharedPass = () => {
   if (shared === undefined) shared = typeof document === "undefined" || typeof WebGLRenderingContext === "undefined" ? null
     : makePass(document.createElement("canvas"), { preserveDrawingBuffer: true }, () => { shared = null; emit(); });
@@ -219,5 +225,62 @@ export function thumbnails() {
       ro?.observe(canvas);
     },
     clear() { ro?.disconnect(); items.clear(); }
+  };
+}
+
+// A sprite's squares, read from the SVG ui/sprite.js made: { w, h, rects: [[x, y, fill]] }, or null.
+function squares(svg) {
+  const v = svg.getAttribute("viewBox")?.split(" ").map(Number);
+  if (!v || v.length < 4 || !(v[2] > 0) || !(v[3] > 0)) return null;
+  return { w: v[2], h: v[3], rects: [...svg.querySelectorAll("rect")].map(r => [+r.getAttribute("x"), +r.getAttribute("y"), r.getAttribute("fill")]) };
+}
+
+// The story's examine pictures: a group like thumbnails(), for each `.figure` span holding a sprite's SVG. The whole square (its padding
+// too) is the little screen: the sprite is drawn on the square's own colour at the square's CSS size, hard-edged, and put through the
+// pass; the result is a canvas over the square (aria-hidden: the figure is decoration). The scanlines are the picture's rows on screen:
+// `box()` gives the element that holds the scene (its height is the scene's, art.picture.height rows), so a row is box height / that,
+// as the picture's own, and the fringing and glow are in those picture pixels too (unit). Drawn when the figure has a size (the
+// ResizeObserver says so before the first paint: no flicker, and a restored story's figures cost one draw each), again when its size or
+// the box's changes, or the settings. No look (off, no WebGL, no box yet): the plain SVG shows as it always did.
+// add(figure), clear().
+export function figures(box) {
+  const items = new Map();                                         // figure → { rects, w, h, canvas }
+  const ro = typeof ResizeObserver === "function" ? new ResizeObserver((list) => {
+    for (const { target } of list) { if (items.has(target)) paint(target); else if (target === watched) repaint(); }
+  }) : null;
+  let watched = null, scratch = null;                              // (the box being watched; the one canvas the sprite is drawn on before the pass)
+  function paint(fig) {
+    const it = items.get(fig), pass = current.on ? sharedPass() : null, r = ratio();
+    const cw = fig.clientWidth, ch = fig.clientHeight, row = (box()?.clientHeight || 0) / art.picture.height;
+    if (!pass || !cw || !ch || !row) return plain(fig, it);
+    const style = getComputedStyle(fig), pad = parseFloat(style.paddingLeft) || 0, inner = cw - 2 * pad;
+    const tex = (scratch ||= document.createElement("canvas")), g = tex.getContext("2d");
+    tex.width = cw; tex.height = ch;
+    g.fillStyle = style.backgroundColor; g.fillRect(0, 0, cw, ch);
+    const k = inner / Math.max(it.w, it.h), x0 = pad + (inner - k * it.w) / 2, y0 = pad + (inner - k * it.h) / 2, at = (v, o) => Math.round(o + v * k);
+    for (const [x, y, fill] of it.rects) { g.fillStyle = fill; g.fillRect(at(x, x0), at(y, y0), at(x + 1, x0) - at(x, x0), at(y + 1, y0) - at(y, y0)); }
+    pass.source(cw, ch);
+    pass.upload(tex);
+    pass.draw(Math.round(cw * r), Math.round(ch * r), r, current, 1, ch / row, row);
+    if (!it.canvas) { it.canvas = document.createElement("canvas"); it.canvas.setAttribute("aria-hidden", "true"); fig.append(it.canvas); }
+    const out = it.canvas;
+    if (out.width !== pass.canvas.width || out.height !== pass.canvas.height) { out.width = pass.canvas.width; out.height = pass.canvas.height; }
+    out.getContext("2d").drawImage(pass.canvas, 0, 0);
+    mark(out, true);
+  }
+  function plain(fig, it) { if (it.canvas) { it.canvas.remove(); it.canvas = null; } fig.toggleAttribute("data-crt", false); }
+  function repaint() { for (const fig of [...items.keys()]) if (fig.isConnected) paint(fig); else items.delete(fig); }
+  listeners.add(repaint);
+  publish();
+  return {
+    add(fig) {
+      const svg = fig.querySelector("svg"), sq = svg && squares(svg);
+      if (!sq) return;
+      items.set(fig, sq);
+      ro?.observe(fig);
+      const b = box();
+      if (b && b !== watched) { if (watched) ro?.unobserve(watched); watched = b; ro?.observe(b); }
+    },
+    clear() { ro?.disconnect(); items.clear(); watched = null; }
   };
 }

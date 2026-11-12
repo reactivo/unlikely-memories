@@ -26,6 +26,7 @@
 
 import { spriteSVG } from "./sprite.js";
 import { mount as mountFollow } from "./follow.js";
+import { figures } from "./crt.js";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
@@ -46,6 +47,8 @@ export const slotArt = (slot) => (slot && typeof slot === "object" ? spriteSVG(s
 export function mount(root, on, crop) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   const follow = mountFollow(root);   // where the page is put and kept (ui/follow.js)
+  // The CRT look on each examine picture (ui/crt.js): its scanlines are as tall as the scene's rows, from the picture's box.
+  const looks = figures(() => document.querySelector(".picture"));
   // The fading pieces of the reveal still going (the text and pictures phraseReveal has set to fade in); finishReveal ends only these,
   // never every .ph the story ever wrote. Dropped once everything has appeared (the next reveal starts a new list).
   let fading = [];
@@ -144,6 +147,7 @@ export function mount(root, on, crop) {
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
     current().appendChild(p);
+    if (art) looks.add(p.querySelector(".figure"));                 // (drawn when it has a size, before it is first painted)
     follow.added(p, instant);                                       // (restored text is not new: see toEnd)
     return p;
   }
@@ -214,7 +218,7 @@ export function mount(root, on, crop) {
     // How long until all of it has appeared (ms; 0 if nothing is fading in).
     busyFor() { return Math.max(0, revealAt - performance.now()); },
     // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.
-    clear() { root.innerHTML = ""; follow.forget(); follow.toTop(); crop.room(); },
+    clear() { looks.clear(); root.innerHTML = ""; follow.forget(); follow.toTop(); crop.room(); },
     // The page's measurements, for the debug panel: { first (2 s after the last new game, or null), now }.
     page: follow.page,
     // What is in the story now counts as seen (a new story, shown from the top: the next follow shows only what comes after it).
