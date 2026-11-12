@@ -72,10 +72,17 @@
     line-height: var(--line-xxs);
   }
 
-  /* Interface text: the page's default, the title bar, the prompt, the options panel, the map popup and the landing page. */
+  /* Interface text: the page's default, the prompt, the options panel, the map popup and the landing page. */
   .text-ui {
     font-size: var(--text-m);
     line-height: var(--line-s);
+  }
+
+  /* The title bar above the picture: the place name and the clock, at the interface's size with the story's tight lines.
+     css/layout.css counts its height from the same tokens (--fixed-rows): change both together. */
+  .text-title {
+    font-size: var(--text-m);
+    line-height: var(--line-xxs);
   }
 
   /* One-line boxes you click, in capitals: the tools ♫ ≡, the compass, the tabs, the landing page's buttons. In the

@@ -67,10 +67,10 @@
       --strip: calc(3 * var(--tile) + 2 * var(--tile-gap));                   /* the strip's width: three tiles and their two gaps */
       --strip-gap: calc(var(--tile) * 4 / 3);                                 /* between the story and the strip: 64px at full size */
 
-      /* The rows that are not the picture, added up from what they are made of (at full size: 16 + 40 + 3 × 8 + 40 + 32). */
+      /* The rows that are not the picture, added up from what they are made of (at full size: 16 + 25.5 + 3 × 8 + 37.5 + 32). */
       --fixed-rows: calc(
         var(--page-top)                          /* the padding above the title bar */
-        + var(--text-m) * var(--line-s)          /* the title bar: one line of interface text */
+        + var(--text-m) * var(--line-xxs)        /* the title bar: one line of .text-title (typography.css) */
         + 3 * var(--row-gap)                     /* title bar → picture, picture → story, story → prompt */
         + var(--text-m) * var(--line-s)          /* the prompt: one line of interface text */
         + var(--page-bottom)                     /* the padding below the prompt */
@@ -310,7 +310,7 @@
       --tool-height: var(--tile);
     }
 
-    /* The characters on the tools and the compass follow their tiles (at full size, the text size). */
+    /* The characters on the tools and the compass follow their tiles (two thirds of a tile: 32px at full size). */
     .tools,
     .compass {
       --button-text: calc(var(--tile) * 2 / 3);

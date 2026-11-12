@@ -1,19 +1,18 @@
-/* Title bar above the picture: the place name, and the day and time, "Day 1 | 00:00:00" (the font's own vertical bar;
+/* Title bar above the picture: the place name, and the day and time, "Day 1 / 00:00:00" (a slash;
    the colons blink slowly, like an old digital clock). On phones one above the other, with ♫ ≡ beside them; side by
-   side on wider windows (the direction and justify come from layout.css; phone values here; the gap is a fixed 0). */
+   side on wider windows (the direction and justify come from layout.css; phone values here; the gap is a fixed 0).
+   The text style is .text-title (css/typography.css), put on the title bar in index.html. */
 @layer ui {
   .titlebar {
     /* Colours in the title bar, by meaning. */
     --place: var(--color-text);       /* the place name */
-    --clock: var(--color-text-dim);   /* day and time */
+    --clock: var(--color-text);       /* day and time: the same as the place name and the story */
 
     display: flex;
     flex-direction: var(--titlebar-direction, column);
     justify-content: var(--titlebar-justify, center);
     gap: 0;
     color: var(--clock);
-
-    line-height: var(--line-xxs);
 
     & h1,
     & p {

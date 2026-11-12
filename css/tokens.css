@@ -150,7 +150,7 @@
   @media (min-width: 760px) and (min-height: 560px) {
     :root {
       --text-s:  1.5rem;   /* 24px */
-      --text-m:  2rem;   /* 32px */
+      --text-m:  1.875rem;   /* 30px */
       --text-l:  2.5rem;   /* 40px */
       --text-xl: 4rem;   /* 64px */
     }
