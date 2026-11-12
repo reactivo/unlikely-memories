@@ -181,6 +181,15 @@
       background: var(--tile-bg);
     }
 
+    /* The CRT look's dark edges (ui/crt.js sets data-crt on the tile and --crt-vignette): as on the game's picture (ui/scene.css). */
+    & .tile[data-crt]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse closest-side at 50% 50%, transparent 55%, rgb(0 0 0 / var(--crt-vignette, 0)) 100%);
+    }
+
     & .tile canvas {
       position: absolute;
       inset: 0;

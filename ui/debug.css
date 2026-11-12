@@ -163,6 +163,20 @@
       cursor: text;
     }
 
+    & input[type="range"] {
+      flex: 1;
+      min-width: 6em;
+      min-height: var(--debug-touch);
+      padding: 0;
+      accent-color: var(--choice-on);
+      cursor: pointer;
+    }
+
+    & .value {
+      min-width: 3.5em;
+      color: var(--heading);
+    }
+
     & input[type="checkbox"] {
       min-height: 0;
       accent-color: var(--choice-on);

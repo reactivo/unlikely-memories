@@ -34,6 +34,7 @@ import * as tools from "../ui/tools.js";
 import * as tabs from "../ui/tabs.js";
 import * as keys from "../ui/keys.js";
 import * as home from "../ui/home.js";
+import * as crt from "../ui/crt.js";
 import * as sound from "../ui/sound.js";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
@@ -631,6 +632,8 @@ if (DEBUG_PANEL) {
     now: () => clock.now(),
     sound: () => ui.sound.debug,                       // the music playing (ui/sound.js, debug): its Music section
     page: () => ui.log.page(),                         // the page's measurements (ui/log.js)
+    // The CRT look's settings (ui/crt.js): { settings(), defaults(), ranges, set(values | null) }; set draws everything again at once.
+    crt: () => ({ settings: crt.settings, defaults: crt.defaults, ranges: crt.RANGES, set: crt.configure }),
     // One moment of effects through the engine (js/debug.js, moment), shown and kept like a move: UNDO takes it back, it is saved.
     // tell: false shows only what the world said on its own meanwhile; note: a dim line before it; undo: false keeps no UNDO step.
     run(effects, { tell = true, note, undo = true } = {}) {

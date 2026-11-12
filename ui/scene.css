@@ -21,6 +21,16 @@
     cursor: var(--picture-cursor, inherit);
     user-select: none;
 
+    /* The CRT look's dark edges (ui/crt.js sets data-crt and --crt-vignette): a static gradient over the visible box, so on an upright phone
+       they are the box's own, not the hidden sides'. Clear inside 55% of the way out, black at the edge. */
+    &[data-crt]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse closest-side at 50% 50%, transparent 55%, rgb(0 0 0 / var(--crt-vignette, 0)) 100%);
+    }
+
     & canvas {
       position: absolute;
       top: 0;

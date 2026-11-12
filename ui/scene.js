@@ -5,7 +5,8 @@
 // The canvas is the picture's own 320×136 pixels; CSS stretches it to the column's whole width with hard edges
 // (ui/scene.css), at every window size, so the browser does all the scaling. On an upright phone the picture's box is
 // taller than the scene (a crop of its middle: ui/crop.js): the canvas
-// is then wider than the box and CSS centres it, so nothing here changes.
+// is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
+// each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
 import art from "../content/art.js";
 import { paintPicture, compose, overlaysShown, overlayAlt, putPixels, RGB } from "./draw.js";
@@ -15,6 +16,7 @@ import { parseFilter, inOrder, COUNTS } from "../js/filters.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
 import { text } from "../js/narrator.js";                  // "@key" → the pack's text, dotted keys too, as the story says it
 import { reducedMotion, calm } from "./media.js";
+import { screen } from "./crt.js";                      // the CRT look, drawn over the finished picture (ui/crt.js)
 
 const W = art.picture.width, H = art.picture.height;
 
@@ -24,6 +26,7 @@ export function mount(root) {
   canvas.width = W; canvas.height = H;                           // the picture's own pixels (the markup says so too)
   const ctx = canvas.getContext("2d");
   const image = ctx.createImageData(W, H);                      // the canvas is the picture at its own 320×136
+  const look = screen(canvas, { w: W, h: H });             // the CRT look: a WebGL canvas after this one, drawn from `image` (ui/crt.js)
   const painted = new Map();     // painted pictures, by room + version (painting is the slow part); only valid within one game: see forget()
   let frame = null;              // the picture now (palette numbers), without cycling
   let from = null;               // the picture being changed from, during a transition
@@ -92,6 +95,7 @@ export function mount(root) {
     out = pic.px;
     putPixels(image, out, pic.rgb);
     ctx.putImageData(image, 0, 0);
+    look.draw(image);                                            // the CRT look, over the finished picture: once per frame drawn, never a loop of its own
   }
 
   // Keep animating while a transition runs or cycles are moving (not while the tab is hidden: the browser

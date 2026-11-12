@@ -84,6 +84,21 @@ export default {
       // Healed: one calm ripple down the picture, long after the flash has gone.
       heal: { filter: "wave", ms: 2100 }
     },
+    // The old-CRT look (ART-DIRECTION.md §6.2; ui/crt.js draws it): one GPU pass over the finished picture and over the landing page's
+    // thumbnails, on top of every effect above. Never changes the game. The debug panel's CRT section tries these live (and can
+    // copy its values here). Strengths are 0 (off) to 1 (full) unless said; sizes are in the picture's own pixels unless said.
+    crt: {
+      on: true,                                    // the whole look; off, or with no WebGL, the plain picture shows
+      scan: 0.2,                                   // scanlines: how dark the lower half of every picture row is
+      mask: 0.06,                                  // RGB phosphor stripes, 1 CSS pixel each (R, G, B repeating across): how dark the other two colours are
+      vignette: 0.24,                              // black at this opacity at the edge of the visible picture, clear inside 55% of the way out
+      rgb: 0.4,                                    // colour fringing: red shifted left and blue right by this many picture pixels
+      glow: 0.3,                                   // a soft blur of about 1.5 picture pixels, screen-blended over the picture at this strength
+      flicker: 0.02,                               // a small random brightness change (up to this much, up or down) on each frame the scene draws; none on thumbnails nor with reduce motion
+      contrast: 1.1,                               // the grade: 1 leaves the picture as it is
+      saturation: 1.15,
+      brightness: 1.05
+    },
     // Sleep (INTERFACE.md §6c, "Sleep"; ui/scene.js plays it, ui/effects.js draws it, on the picture only): two black eyelids close
     // over the picture, the dark between them, and the lids open again to wake. One of three, by the sleep's kind (js/sleep.js: a
     // nap under 2 hours, a few hours under 6, until morning). All sizes in picture pixels, all times in ms unless said.

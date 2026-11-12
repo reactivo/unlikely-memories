@@ -11,11 +11,15 @@
 //                           kept for UNDO and saved; opts.tell false: only what the world said on its own is told; opts.undo false
 //   dev.sound()             the music playing (ui/sound.js, debug): info(), theme(), ending(death), wake(), mute(part, on), muted(),
 //                           sound({ kind, material }) and the kinds and materials to try
+//   dev.crt()               the CRT look (ui/crt.js): { settings(), defaults(), ranges, set(values | null) }; the settings now in effect,
+//                           content/art.js's, the range of each, and set() puts these over the defaults (null: the defaults) and
+//                           draws the picture and the thumbnails again at once
 //   dev.languages()         the languages this world is written in
 //   dev.language(lang)      a new game of this world in that language
 //
 // It remembers itself on this device (localStorage, "parser-debug"): open or collapsed, where it is, its settings and which
-// sections are open. Closing it with × forgets all of that; /debug opens it fresh.
+// sections are open, the CRT look's values (crt: null until one is changed). Closing it with × forgets all of that, the CRT look's
+// values too (art.js's come back); /debug opens it fresh.
 
 import * as debug from "../js/debug.js";
 import { parts, hhmm } from "../js/time.js";
@@ -25,10 +29,10 @@ import { touch } from "./media.js";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
 // font, logRem, logLine, letter: the Typography section's (null: the font's own value). (logRem: the story's size in rem; until
-// 5 Nov 2026 it was a size in px, under another name, which is now ignored.)
+// 5 Nov 2026 it was a size in px, under another name, which is now ignored.) crt: the CRT section's settings, all of them (null: art.js's).
 const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, nudge: true, motion: "system", rules: false, wholeMap: false,
-                   font: DEFAULT_FONT, logRem: null, logLine: null, letter: null };
-const SECTIONS = ["picture", "music", "events", "travel", "inventory", "time", "inspect", "page", "typography", "settings"];
+                   font: DEFAULT_FONT, logRem: null, logLine: null, letter: null, crt: null };
+const SECTIONS = ["picture", "crt", "music", "events", "travel", "inventory", "time", "inspect", "page", "typography", "settings"];
 
 // What this device remembers, or null (nothing, or storage blocked).
 function recall() {
@@ -118,7 +122,7 @@ export function mount(dev) {
   const parts$ = {};                               // each section's content, filled by draw()
   for (const id of SECTIONS) {
     const d = el("details", "section", undefined, { "data-section": id });
-    d.append(el("summary", "", id.charAt(0).toUpperCase() + id.slice(1)));
+    d.append(el("summary", "", id === "crt" ? "CRT" : id.charAt(0).toUpperCase() + id.slice(1)));
     parts$[id] = el("div", "content");
     d.append(parts$[id]);
     d.addEventListener("toggle", () => {
@@ -150,6 +154,7 @@ export function mount(dev) {
     html.toggleAttribute("data-debug-no-nudge", v ? v.nudge === false : false);   // ui/follow.js, resync: off only to test it
     if (v && v.motion !== "system") html.dataset.motion = v.motion === "reduce" ? "reduce" : "full";   // ui/scene.js, calm()
     else delete html.dataset.motion;
+    crtApply();
     root.toggleAttribute("data-collapsed", !!v?.collapsed);
     fold.textContent = v?.collapsed ? "+" : "–";
     fold.setAttribute("aria-expanded", String(!v?.collapsed));
@@ -168,6 +173,12 @@ export function mount(dev) {
     setInline("--log-line", v?.logLine != null ? String(v.logLine) : null);
     setInline("--letter-spacing", v?.letter != null ? v.letter + "em" : null);
     useFont(font).then(() => { if ((v?.font ?? DEFAULT_FONT) === font) fields(); });
+  }
+  // The CRT section's values, on the page: through dev.crt() (closed, v null: art.js's). Only when they changed.
+  let crtShown = "null";
+  function crtApply() {
+    const key = JSON.stringify(v?.crt ?? null);
+    if (key !== crtShown) { crtShown = key; dev.crt().set(v?.crt ?? null); }
   }
   const setInline = (name, value) => { if (value === null) html.style.removeProperty(name); else html.style.setProperty(name, value); };
   // Put the panel's top left corner at (x, y), kept on screen (at least its title bar).
@@ -389,6 +400,15 @@ export function mount(dev) {
     minus.setAttribute("aria-label", label + " smaller"); plus.setAttribute("aria-label", label + " larger");
     return { input, row: row(label, minus, input, plus), show: () => { if (document.activeElement !== input) input.value = get().toFixed(places); } };
   }
+  // A slider with its value beside it: `get()` the value now, `set(n)` a new one (kept with the panel, and drawn at once).
+  function slider(label, min, max, step, get, set) {
+    const places = (String(step).split(".")[1] || "").length;
+    const input = el("input", "", undefined, { type: "range", min: String(min), max: String(max), step: String(step), "aria-label": label });
+    const out = el("span", "value");
+    const show = () => { input.value = String(get()); out.textContent = get().toFixed(places); };
+    input.addEventListener("input", () => { if (!v) return; set(+input.value); keep(v); crtApply(); fields(); });
+    return { input, row: row(label, input, out), show };
+  }
   // The story's values as the page has them now (the inline ones, or the font's own).
   const now = () => {
     const cs = getComputedStyle(probe), size = parseFloat(cs.fontSize), lh = cs.lineHeight, root = parseFloat(getComputedStyle(html).fontSize) || 16;
@@ -403,7 +423,23 @@ export function mount(dev) {
   const reset = button("Reset to the font's defaults", () => { if (!v) return; v.logRem = v.logLine = v.letter = null; keep(v); type(); }, undefined, "type-reset");
   parts$.typography.append(probe, row("Font", fontList), size.row, line.row, letter.row, row("", reset),
     el("p", "note", "Not saved with the game. × puts m5x7 back."));
+  // The CRT section (the look of ui/crt.js, art.js's effects.crt): made once like Typography; fields() keeps it in line. Every change
+  // keeps all the values with the panel (v.crt) and draws at once. Reset: art.js's. Copy: the values now, as JSON.
+  const crt = () => dev.crt();
+  const change = (k, n) => { v.crt = { ...crt().settings(), [k]: n }; };
+  const crtOn = check("on", true, (on) => { if (!v) return; change("on", on); keep(v); crtApply(); fields(); });
+  const sliders = Object.entries(crt().ranges).map(([k, [min, max, step]]) => [k, slider(k, min, max, step, () => crt().settings()[k], (n) => change(k, n))]);
+  const copied = el("p", "note", "");
+  const crtReset = button("Reset to art.js's", () => { if (!v) return; v.crt = null; keep(v); crtApply(); fields(); }, undefined, "crt-reset");
+  const crtCopy = button("Copy", () => {
+    const json = JSON.stringify(crt().settings());
+    (navigator.clipboard?.writeText(json) ?? Promise.reject()).then(() => { copied.textContent = "Copied."; }, () => { copied.textContent = "Couldn't copy: " + json; });
+  }, undefined, "crt-copy");
+  parts$.crt.append(crtOn, ...sliders.map(([, s]) => s.row), row("", crtReset, crtCopy), copied,
+    el("p", "note", "Not saved with the game. × puts art.js's back."));
   function fields() {
+    crtOn.querySelector("input").checked = crt().settings().on;
+    for (const [, s] of sliders) s.show();
     if (document.activeElement !== fontList) fontList.value = v?.font ?? DEFAULT_FONT;
     size.show(); line.show(); letter.show();
   }
@@ -476,7 +512,7 @@ export function mount(dev) {
   function drawSection(id, st, pack) {
     const make = { picture, music, events, travel, inventory, inspect, page, settings };
     if (id === "time") time(st);
-    else if (id === "typography") fields();
+    else if (id === "typography" || id === "crt") fields();
     else morph(parts$[id], make[id](st, pack));
   }
   // Draw every open section from the state, after every change of the game (morph: only what differs changes on the page).

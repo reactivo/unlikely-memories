@@ -5,6 +5,7 @@
 
 import { VERSION } from "../js/version.js";
 import { THUMB, thumbnailPixels, putPixels, RGB } from "./draw.js";
+import { thumbnails } from "./crt.js";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
@@ -21,14 +22,15 @@ export function mount(root, on) {
   // The pictures are painted once for each world and language (painting is the slow part: the list is drawn again on every visit to the
   // landing page, and a world's pictures don't change while the page is open); the canvases are new each time.
   const painted = new Map();
+  const looks = thumbnails();                                      // the CRT look on each thumbnail, through one shared context
   function paintThumb(thumb, id, lang) {
     const key = lang + "/" + id + "@" + thumb.x;
     if (!painted.has(key)) painted.set(key, thumbnailPixels(thumb.draw, thumb.x));
     const canvas = document.createElement("canvas");
     canvas.width = THUMB.width; canvas.height = THUMB.height;
-    const ctx = canvas.getContext("2d"), image = ctx.createImageData(THUMB.width, THUMB.height);
+    const image = new ImageData(THUMB.width, THUMB.height);
     putPixels(image, painted.get(key), RGB);
-    ctx.putImageData(image, 0, 0);
+    looks.add(canvas, image);                                     // drawn on the canvas, with the CRT look when it can (ui/crt.js)
     return canvas;
   }
   // One element with a class and text.
@@ -53,6 +55,7 @@ export function mount(root, on) {
       version.textContent = "v" + VERSION;
       version.setAttribute("aria-label", `${t.version} ${VERSION}`);
       subtitle.textContent = t.subtitle;
+      looks.clear();                                                // (the canvases of the last drawing are gone)
       if (!worlds.length) { column.replaceChildren(el("p", "none text-story", t.none)); return; }
       const list = el("ul", "list");
       list.setAttribute("role", "list");                           // (a list with no bullets loses its role in Safari)
