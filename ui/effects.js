@@ -3,8 +3,11 @@
 // hash of the pixel and the moment, so the same moment always draws the same.
 // (How one picture changes into another, a room's or an ending's, is not here: it is all in ui/transitions.js.)
 
-import { lit } from "./draw.js";
-import art from "../content/art.js";
+import { lit, rgbOf } from "./draw.js";
+
+// A tint's palette as [r, g, b] colours, parsed once for each palette (the scene asks every frame).
+const tints = new WeakMap();
+const tinted = (palette) => { if (!tints.has(palette)) tints.set(palette, palette.map(rgbOf)); return tints.get(palette); };
 
 // Palette cycling styles: which step of its colour list a cycle shows at a moment. Each gets the cycle's
 // own fields (from the picture data), its own little memory (`mem`), the time since it started and now.
@@ -43,7 +46,7 @@ export const CYCLES = {
 export const FILTERS = {
   // Bigger blocks, less detail: each block of o.block pixels shows the colour at its middle.
   mosaic: (pic, o) => {
-    const { px, w, h } = pic, b = o.block, out = new Array(px.length);
+    const { px, w, h } = pic, b = o.block, out = px.slice();
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const sx = Math.min(w - 1, x - (x % b) + (b >> 1)), sy = Math.min(h - 1, y - (y % b) + (b >> 1));
       out[y * w + x] = px[sy * w + sx];
@@ -52,7 +55,7 @@ export const FILTERS = {
   },
   // The scene sways: each row slides sideways along a slow wave that drifts down the picture (drunk, dizzy, seasick).
   sway: (pic, o, t, calm) => {
-    const { px, w, h } = pic, out = new Array(px.length), phase = calm ? o.still : (t % o.ms) / o.ms;
+    const { px, w, h } = pic, out = px.slice(), phase = calm ? o.still : (t % o.ms) / o.ms;
     for (let y = 0; y < h; y++) {
       const dx = Math.round(o.amplitude * Math.sin(2 * Math.PI * (y / o.rows + phase)));
       for (let x = 0; x < w; x++) out[y * w + x] = px[y * w + Math.min(w - 1, Math.max(0, x - dx))];
@@ -74,7 +77,7 @@ export const FILTERS = {
   // reduced motion, nothing.
   wave: (pic, o, t, calm) => {
     if (calm || t >= o.ms) return pic;
-    const { px, w, h } = pic, out = new Array(px.length), p = t / o.ms;
+    const { px, w, h } = pic, out = px.slice(), p = t / o.ms;
     const swell = Math.sin(Math.PI / 2 * Math.min(1, p / o.rise)) * (1 - p) ** o.fade;
     for (let y = 0; y < h; y++) {
       const dx = Math.round(o.amplitude * swell * Math.sin(2 * Math.PI * (y / o.rows - p * o.travel)));
@@ -84,8 +87,11 @@ export const FILTERS = {
   },
   // Seeing double: a second copy o.dx, o.dy off, drawn on every other pixel (a checkerboard), so it reads as see-through.
   ghost: (pic, o) => {
-    const { px, w } = pic, copy = shifted(pic, o.dx, o.dy, null), out = px.slice();
-    for (let k = 0; k < px.length; k++) if ((((k % w) + Math.floor(k / w)) & 1) && copy[k] !== null) out[k] = copy[k];
+    const { px, w, h } = pic, out = px.slice();
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const sx = x - o.dx, sy = y - o.dy;
+      if (((x + y) & 1) && sx >= 0 && sx < w && sy >= 0 && sy < h) out[y * w + x] = px[sy * w + sx];   // (nothing comes in from outside: the pixel stays)
+    }
     return { ...pic, px: out };
   },
   // A bad signal: a share of the pixels, a new sprinkle every o.ms, flicker to one of o.colors. Reduced motion: one
@@ -109,7 +115,7 @@ export const FILTERS = {
     return { ...pic, px: out };
   },
   // The 16 colours swapped for another set: the pixels stay, the palette changes (o.palettes[param], each a list of 16).
-  tint: (pic, o, t, calm, param) => ({ ...pic, rgb: o.palettes[param].map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16))) })
+  tint: (pic, o, t, calm, param) => ({ ...pic, rgb: tinted(o.palettes[param]) })
 };
 
 // The filters that move (the scene redraws them every frame while they are on, unless motion is reduced); the others are
@@ -128,93 +134,9 @@ export function reactionOf(prev, next, reason) {
   return null;
 }
 
-// ---- Sleep ------------------------------------------------------------------------------------------------------------
-// The picture while you sleep (INTERFACE.md §6c, "Sleep"; its tunables: content/art.js, effects.sleep, here `o`). ui/scene.js runs
-// the sleep (when the lids move, when the dark comes and goes) and draws each frame through sleepPicture, last, after the filters,
-// on the picture's own palette numbers: two black eyelids with a gently curved, dithered edge, and between them the dark. The
-// dark is nearly black: specks that glow and fade each at its own pace, the room's brightest parts as a fading afterimage and then
-// a darker patch where they were, one faint wide band closing in on the middle; or a vision's picture, fading in and out by the
-// dither. With reduce motion, a plain fade to black (a vision shown still). Purely visual: never the game's state; the specks'
-// randomness is a hash of the pixel, so a sleep draws the same each time.
-//   run: { lid: 0 open … 1 shut; fade: with reduce motion, the fade to black 0 … 1 (else null); glow: the dark's life 0 … 1;
-//          darkAt: when the dark began (ms), or null; vision: its picture's fade 0 … 1; visionPx: its pixels, or null;
-//          after: the afterimage (afterimageOf); field: the dark's own numbers (darkField) }
-export function sleepPicture(pic, run, now, o) {
-  const { px, w, h } = pic, out = px.slice(), c = o.colors, soft = o.lid.soft, cx = (w - 1) / 2;
-  const T = run.darkAt == null ? 0 : Math.max(0, now - run.darkAt) / 1000;
-  const lidY = run.lid * (h / 2 + o.lid.over + soft) - soft;    // (open, the lids' soft edge is just out of sight)
-  // What the dark shows at a pixel (k; th: its dither threshold): the vision, else the glow of the dark, else black.
-  const A = o.afterimage, B = o.band, f = run.field;
-  const R = Math.max(0, B.from - T * B.speed), bandNow = B.strength * Math.min(1, T / B.rise), turn = 0.3 * T;
-  const hole = Math.min(1, Math.max(0, (T - A.hole.at) / A.hole.rise)) * Math.exp(-Math.max(0, T - A.hole.at) / A.hole.fade);
-  const shown = Math.exp(-T / A.fade) * A.strength;
-  const dark = (k, th) => {
-    if (run.visionPx && run.vision > th) return run.visionPx[k];
-    if (run.fade != null || !(run.glow > 0) || !f) return c.dark;
-    const a0 = run.visionPx ? 0 : run.after?.[k] ?? 0, neg = a0 * hole;
-    const band = Math.exp(-(((f.r[k] - R) / B.width) ** 2)) * bandNow * (0.7 + 0.3 * (f.sin2[k] * Math.cos(turn) + f.cos2[k] * Math.sin(turn))) * (1 - Math.min(1, 2 * neg));
-    if ((a0 * shown + band) * run.glow > th * 0.9 + 0.04) return c.grey;
-    if (run.glow > 0.5 && neg < 0.3) {                           // a speck: lit for a while in its own long round
-      const u = (T + f.phase[k]) % f.period[k];
-      if (u < f.dur[k] && Math.sin(Math.PI * u / f.dur[k]) > th) return f.warm[k] ? c.warm : c.grey;
-    }
-    return c.dark;
-  };
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const k = y * w + x, th = (DITHER[y & 3][x & 3] + 0.5) / 16;
-    let covered;
-    if (run.fade != null) covered = run.fade > th;              // reduce motion: the plain fade
-    else if (run.lid >= 0.999) covered = true;
-    else {
-      const curve = o.lid.curve * ((x - cx) / cx) ** 2, edge = Math.min(y - (lidY - curve), (h - 1 - y) - (lidY - curve));
-      covered = (edge < -soft ? 1 : edge > soft ? 0 : (soft - edge) / (2 * soft)) > th;
-    }
-    if (covered) out[k] = dark(k, th);
-  }
-  return { ...pic, px: out };
-}
-
-// The afterimage of a picture (palette numbers, `rgb` their colours): how bright each pixel is, blurred, as a share 0 … 1 of how far
-// above `o.afterimage.from` of the brightest it is. Taken once, as the eyes close.
-export function afterimageOf({ px, w, h, rgb }, o) {
-  let L = new Float32Array(w * h);
-  for (let k = 0; k < L.length; k++) { const [r, g, b] = rgb[px[k]]; L[k] = (0.3 * r + 0.59 * g + 0.11 * b) / 255; }
-  const box = (a, r) => {                                         // a box blur, r each way, across then down
-    const t = new Float32Array(w * h), o2 = new Float32Array(w * h);
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let s = 0, n = 0; for (let i = Math.max(0, x - r); i <= Math.min(w - 1, x + r); i++) { s += a[y * w + i]; n++; } t[y * w + x] = s / n; }
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let s = 0, n = 0; for (let j = Math.max(0, y - r); j <= Math.min(h - 1, y + r); j++) { s += t[j * w + x]; n++; } o2[y * w + x] = s / n; }
-    return o2;
-  };
-  L = box(box(L, o.afterimage.blur), o.afterimage.blur);
-  let max = 0;
-  for (const v of L) max = Math.max(max, v);
-  const from = o.afterimage.from;
-  return L.map(v => (max > 0 ? Math.max(0, (v / max - from) / (1 - from)) : 0));
-}
-
-// The dark's own numbers, for each pixel, worked out once: how far it is from the middle (`r`, 1 the middle of an edge, rows
-// counted a little longer, so the band is rounder), the band's slow wobble round it (`sin2`, `cos2`), and its speck: how long it
-// glows (`dur`, s), how long its round is (`period`: so that `share` of the pixels are lit at a time), where in it the sleep starts
-// (`phase`), and whether it glows warm.
-export function darkField(w, h, o) {
-  const n = w * h, f = { r: new Float32Array(n), sin2: new Float32Array(n), cos2: new Float32Array(n), dur: new Float32Array(n),
-    period: new Float32Array(n), phase: new Float32Array(n), warm: new Uint8Array(n) };
-  const [lo, hi] = o.specks.lit, cx = (w - 1) / 2, cy = (h - 1) / 2, u = (k, i) => hash(k, i) / 4294967296;
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const k = y * w + x, nx = (x - cx) / cx, ny = (y - cy) / cy * 1.4, a = 2 * Math.atan2(ny, nx);
-    f.r[k] = Math.hypot(nx, ny); f.sin2[k] = Math.sin(a); f.cos2[k] = Math.cos(a);
-    f.dur[k] = lo + u(k, 1) * (hi - lo);
-    f.period[k] = f.dur[k] * (2 / 3) / o.specks.share * (0.7 + 0.6 * u(k, 2));   // (lit about two thirds of its glow: the dither)
-    f.phase[k] = u(k, 3) * f.period[k];
-    f.warm[k] = u(k, 4) < o.specks.warm ? 1 : 0;
-  }
-  return f;
-}
-const DITHER = art.dither.matrix;
-
-// The picture's pixels moved dx right and dy down; where nothing comes in, `blank`.
+// The picture's pixels moved dx right and dy down; where nothing comes in, `blank`. (The same kind of array as it was given.)
 function shifted({ px, w, h }, dx, dy, blank) {
-  const out = new Array(px.length);
+  const out = px.slice();
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const sx = x - dx, sy = y - dy;
     out[y * w + x] = sx >= 0 && sx < w && sy >= 0 && sy < h ? px[sy * w + sx] : blank;
@@ -222,7 +144,7 @@ function shifted({ px, w, h }, dx, dy, blank) {
   return out;
 }
 // A pixel's and a moment's own number, 0 to 2³² − 1 (the same for the same two).
-function hash(a, b) {
+export function hash(a, b) {
   let x = Math.imul(a ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(b + 0x632be5ab, 0xc2b2ae35);
   x ^= x >>> 15; x = Math.imul(x, 0x2c1b3c6d); x ^= x >>> 12; x = Math.imul(x, 0x297a2d39); x ^= x >>> 15;
   return x >>> 0;

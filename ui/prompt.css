@@ -2,7 +2,7 @@
    lies invisibly on top (#cmd), so the visible line can use the pixel font and the block cursor. */
 @layer ui {
   .prompt {
-    /* Colours on the command line, by meaning. The line you're writing on is yellow, like the health bar (the one
+    /* Colours on the command line, by meaning. The line you're writing on is yellow (the one
        bright accent), so it stands out from the story; once sent, your command is echoed in the story in dim grey. */
     --chevron:   var(--color-highlight);   /* the ">" */
     --typed:     var(--color-highlight);   /* what you're typing */
@@ -102,6 +102,7 @@
     }
   }
 
+  /* On and off once a cycle: the cursor here, and the clock's colons (ui/titlebar.css). */
   @keyframes blink {
     50% {
       opacity: 0;

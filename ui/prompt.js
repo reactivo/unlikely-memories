@@ -5,6 +5,7 @@
 // no command and nothing typed (IDLE_HINT), it fades in again.
 
 import { makeHistory } from "./history.js";
+import { touch } from "./media.js";
 
 const IDLE_HINT = 120000;   // ms with no command and nothing typed before the hint comes back
 
@@ -33,7 +34,6 @@ export function mount(root, on) {
   // focusing the input opens the on-screen keyboard, which covers half the screen. So on touch the game never focuses
   // the line by itself (not on a tap in the story or the picture, not after a button, a panel or a new game): the
   // keyboard opens only when the player taps the command line, and the input itself takes that tap.
-  const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 
   // Focus the command line (without scrolling). Does nothing on touch screens; every caller, in this file and in
   // js/main.js and the panels, goes through here, so this is the one place that decides.

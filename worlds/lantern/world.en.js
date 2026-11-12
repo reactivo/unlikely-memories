@@ -1,5 +1,5 @@
 // "The Last Word on Lantern Row": a world after the opening, in English, written the way the AI is asked to write a
-// world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, GUIDE.md for the shape, ARCHITECTURE.md §3–6 for the
+// world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
 import pictures, { endings, visions } from "./pictures.js";
@@ -658,7 +658,7 @@ const rules = [
 
 ];
 
-// ---- Puzzles (for the checker and the hints; GUIDE.md §3). The endings in the order the hints should reach them. ----
+// ---- Puzzles (for the checker and the hints; BRIEF.md §4). The endings in the order the hints should reach them. ----
 const puzzles = {
   take_key: { where: "last_lamp", needs: [], solve: ["{take} key"], gives: ["hut_key"], clues: ["fenn", "hut_door"],
     hints: ["Mr Fenn keeps the key to his hut on a string round his neck.", "Take the key from Mr Fenn, at the last lamp."] },

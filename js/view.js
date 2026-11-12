@@ -1,26 +1,39 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
 import { text, tell, listName, nameOf, joined } from "./narrator.js";
-import { grammarOf } from "./fields.js";
-import { parse, inScope } from "./parser.js";
+import { grammarOf } from "./words.js";
+import { parse } from "./parser.js";
 import { answers } from "./engine.js";
 import { EXAMINED, ANSWERED } from "./verbs.js";
 import { ACTIONS } from "./actions.js";
-import { carried, within, receives, person, holderOf, placeOf } from "./use.js";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js";
+import { receives } from "./use.js";
 import { spellings, called } from "./names.js";
 import { wayOf, waysOf } from "./exits.js";
+import { LISTEN, READ, GO_THROUGH } from "./opening.js";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
 // offered ("Unlock door with key" inside the hut, whose door is only scenery there).
 const scenic = (r) => r.error.say !== "@sceneryOther";
 
+// A command read once per call. The offer lines ask the same questions of each candidate several times (is it worth offering, what
+// does it do, is it a repeat, is it Examine), and each question is a parse and, for what a rule answers, a whole step of the engine,
+// so one call keeps a memo: command → { r: its reading, a: what answers it (made when first asked) }. It lives as long as one
+// call to suggestion, useLine, topicsLine or basicActions, on one state (never kept between calls: the state moves on).
+const look = (memo, state, t, command) => {
+  let x = memo.get(command);
+  if (!x) memo.set(command, x = { r: parse(command, state, t), a: undefined });
+  return x;
+};
+const answered = (x, state) => (x.a ??= answers(state, x.r.actions));
+
 // Is this command worth offering now: would it be read, accepted, and answered by a rule or the thing itself (not a
 // verb's stock reply)? A command that names someone who isn't here, or does nothing, isn't shown.
-function worthOffering(command, state, t) {
-  const r = parse(command, state, t);
+function worthOffering(command, state, t, memo) {
+  const x = look(memo, state, t, command), r = x.r;
   if (r.error?.scenery) return scenic(r);
-  return !!r.actions && answers(state, r.actions).meaningful;
+  return !!r.actions && answered(x, state).meaningful;
 }
 
 // Which commands to offer for a thing: those worth offering (worthOffering), but never one the game would answer with
@@ -29,13 +42,13 @@ function worthOffering(command, state, t) {
 // A command a rule of the game answers (a world's, the opening's: the intro's READ, which says its text, then its farewell,
 // and is gone) is always offered, even if it says what EXAMINE says; so is EXAMINE itself, and a command about another
 // thing (the chair's "Read card"). Pure: the thing's EXAMINE is tried once per line, only when a command needs it.
-function offering(state, t, id) {
+function offering(state, t, id, memo) {
   let plain;
   return (command) => {
-    const r = parse(command, state, t);
+    const x = look(memo, state, t, command), r = x.r;
     if (r.error?.scenery) return scenic(r);
     if (!r.actions) return false;
-    const a = answers(state, r.actions);
+    const a = answered(x, state);
     if (!a.meaningful) return false;
     const repeats = r.actions.length === 1 && r.actions[0].obj === id && EXAMINED.has(a.rules[0]);
     if (!repeats) return true;
@@ -47,18 +60,18 @@ function offering(state, t, id) {
 // What a command does, as the rule that answers it and the things it is about: two commands with the same are the same command
 // worded two ways ("Sit on bench", "Get on bench"; "Read summons", "Examine summons"), and only one is offered. Null for a command
 // the game doesn't read as actions (a piece of scenery's line): those are told apart by their words.
-function sameAs(state, t, command) {
-  const r = parse(command, state, t);
+function sameAs(state, t, command, memo) {
+  const x = look(memo, state, t, command), r = x.r;
   if (!r.actions) return null;
-  const a = answers(state, r.actions);
+  const a = answered(x, state);
   // (opening a locked thing and unlocking it with its key are one command; so `obj2` of the unlock rule is not told apart)
   return r.actions.map((x, i) => [a.rules[i], x.obj, a.rules[i] === "std_unlock" ? null : x.obj2, x.dir, x.topic, x.text, x.scenery].join("|")).join(";");
 }
 
 // The commands of a list without the repeats: the first of each kind stays (sameAs).
-function distinct(state, t, commands) {
+function distinct(state, t, commands, memo) {
   const seen = new Set();
-  return commands.filter(c => { const k = sameAs(state, t, c) ?? "~" + c; return !seen.has(k) && seen.add(k); });
+  return commands.filter(c => { const k = sameAs(state, t, c, memo) ?? "~" + c; return !seen.has(k) && seen.add(k); });
 }
 
 // Everything you've come across: held, seen, visited, or an idea brought up (a topic about it can be offered).
@@ -88,7 +101,8 @@ export function offeredTopics(state, id) {
 export function topicsLine(state, t, id) {
   const topics = state.world.objects[id]?.topics;
   if (!topics) return null;
-  const offered = offeredTopics(state, id).filter(x => worthOffering(text("@askAbout", t, x.label), state, t)).slice(0, 5);
+  const memo = new Map();
+  const offered = offeredTopics(state, id).filter(x => worthOffering(text("@askAbout", t, x.label), state, t, memo)).slice(0, 5);
   const name = nameOf(id, state, t);
   if (!offered.length) {
     const seen = known(state);
@@ -100,7 +114,7 @@ export function topicsLine(state, t, id) {
 }
 
 // Is it in your hands (in the inventory's slots, not inside something you carry)?
-const carries = (state, id) => state.player.carrying.includes(id);
+const inHands = (state, id) => state.player.carrying.includes(id);
 
 // What a thing shows about itself, from its own fields: its inventory side (when carried: `heldActions`) and its room side. The
 // `actions` are the world's own, the commands special to it; what every thing of its kind offers is basicActions.
@@ -135,10 +149,10 @@ function contracted(t, command) {
 
 // A command for a thing, worded by the pack: `phrase` (the pack's, a function of the noun) with the thing named as its name writes it
 // (js/names.js), the first spelling the parser reads as the thing and the kind of action `reads` expects. Null when none does.
-function wording(state, t, id, phrase, reads) {
+function wording(state, t, id, phrase, reads, memo) {
   const said = (n) => contracted(t, phrase(n));
   const x = called(state.world.objects[id], nameOf(id, state, t), (n) => {
-    const r = parse(said(n), state, t), a = r.actions?.length === 1 && r.actions[0];
+    const r = look(memo, state, t, said(n)).r, a = r.actions?.length === 1 && r.actions[0];
     return !!a && reads(a);
   }, t.titled, { lowerNumbers: t.lowerNumbers });
   return x === null ? null : said(x);
@@ -159,16 +173,16 @@ function phraseFor(state, t, verb) {
 // exactly this action, and that is answered by a rule or the thing (never a stock reply or what is so already; a refusal in the world's own words is offered). A put the game answers only with its
 // plain "put it in" (std_put_in) is offered only into a container you carry (decision 7: it works anywhere, but the world has no reason to
 // invite it). Null when there is none.
-function pairCommand(state, t, verb, a, b) {
+function pairCommand(state, t, verb, a, b, memo) {
   const objects = state.world.objects;
   const lowerNumbers = t.lowerNumbers;
   const A = spellings(objects[a], nameOf(a, state, t), t.titled, { lowerNumbers }).slice(0, 6);
   const B = spellings(objects[b], nameOf(b, state, t), t.titled, { lowerNumbers, second: true }).slice(0, 6);
   if (!A.length || !B.length || !t.useWith?.[verb]) return null;
   const worth = (command) => {
-    const r = parse(command, state, t), x = r.actions?.length === 1 && r.actions[0];
+    const l = look(memo, state, t, command), r = l.r, x = r.actions?.length === 1 && r.actions[0];
     if (!x || !(x.verb === verb || (verb === "unlock" && x.verb === "open")) || x.obj !== a || x.obj2 !== b) return false;
-    const got = answers(state, r.actions);
+    const got = answered(l, state);
     return got.meaningful && !(verb === "put" && got.rules[0] === "std_put_in" && !carried(state, b));
   };
   for (let n = 0; n < A.length + B.length - 1; n++)
@@ -178,10 +192,10 @@ function pairCommand(state, t, verb, a, b) {
 
 // Unlocking, from either thing's line: "Unlock chest with key" on the locked thing when its key is on you, and on the key for each
 // locked thing here that it opens.
-function unlockActions(state, t, id) {
+function unlockActions(state, t, id, memo) {
   const objects = state.world.objects, own = objects[id], out = [];
-  if (own.locked && own.lock?.key && objects[own.lock.key] && carried(state, own.lock.key)) out.push(pairCommand(state, t, "unlock", id, own.lock.key));
-  if (carried(state, id)) for (const d of Object.keys(objects)) if (d !== id && objects[d].locked && objects[d].lock?.key === id && inScope(state, d)) out.push(pairCommand(state, t, "unlock", d, id));
+  if (own.locked && own.lock?.key && objects[own.lock.key] && carried(state, own.lock.key)) out.push(pairCommand(state, t, "unlock", id, own.lock.key, memo));
+  if (carried(state, id)) for (const d of Object.keys(objects)) if (d !== id && objects[d].locked && objects[d].lock?.key === id && inScope(state, d)) out.push(pairCommand(state, t, "unlock", d, id, memo));
   return out.filter(Boolean);
 }
 
@@ -203,13 +217,13 @@ function unlockActions(state, t, id) {
 //   a source (a thing's `from` names it) .............................. Order X / Buy X (what costs something), while it can come
 //   the opening: the hints thing .. Listen to; the intro .. Read; the way on .. Enter (until the hints thing is carried, "not yet")
 // `held`: the inventory's side (the thing is in your hands), which has no Take and no sitting on it.
-export function basicActions(state, t, id, held = carries(state, id)) {
+export function basicActions(state, t, id, held = inHands(state, id), memo = new Map()) {
   const o = state.world.objects[id], b = t.basic;
   if (!o || !b || !inScope(state, id)) return [];
   const is = (...verbs) => (a) => a.obj === id && verbs.includes(a.verb);
   const room = state.player.at, here = placeOf(state, id) === room, op = state.opening;
   const way = wayOf(o), goes = (dir) => (a) => a.verb === "go" && a.dir === dir;
-  const out = [], add = (phrase, reads) => { const c = phrase && wording(state, t, id, phrase, reads); if (c) out.push(c); };
+  const out = [], add = (phrase, reads) => { const c = phrase && wording(state, t, id, phrase, reads, memo); if (c) out.push(c); };
 
   if (o.portable && o.at !== "player" && !held && !holderOf(state, id) && state.player.in !== id && o.take == null) add(b.take, is("take"));
   if (person(o)) add(b.talk, is("talk"));
@@ -217,7 +231,7 @@ export function basicActions(state, t, id, held = carries(state, id)) {
   else if (o.enterable && here && !held && !way) add(o.enterable === "on" ? b.enterOn : b.enterIn, is("enter", "sit", "climb", "lie"));
   if (o.container && !o.open && !o.locked) add(b.open, is("open"));
   if (o.container && o.open === true && carried(state, id)) add(b.close, is("close"));
-  const unlocks = unlockActions(state, t, id);
+  const unlocks = unlockActions(state, t, id, memo);
   out.push(...unlocks);
   if (o.locked && !unlocks.length) add(b.open, is("open"));
   // (a door is gone through, whichever way it faces; stairs and the like are climbed or entered by the way they go: each of
@@ -233,21 +247,21 @@ export function basicActions(state, t, id, held = carries(state, id)) {
   if (typeof o.use === "string" && o.use) add(phraseFor(state, t, o.use), is(o.use));
   // what comes from it (`from`): Order X, or Buy X for what it costs (`requires`), worded with that thing's name
   for (const [x, thing] of Object.entries(state.world.objects)) if (thing.from === id) {
-    const verb = thing.requires ? "buy" : "order", c = b[verb] && wording(state, t, x, b[verb], (a) => a.verb === verb && a.obj === x);
+    const verb = thing.requires ? "buy" : "order", c = b[verb] && wording(state, t, x, b[verb], (a) => a.verb === verb && a.obj === x, memo);
     if (c) out.push(c);
   }
-  if (op && id === op.hints) add(b.listen, is("listen", "use", "talk", "ask"));
-  if (op && id === op.intro && carried(state, id)) add(b.read, is("read", "examine", "open"));
-  if (op && id === op.way && !way) add(b.enterIn, is("enter", "open", "push", "pull", "knock", "use", "climb", "board"));
-  return out.filter(offering(state, t, id));
+  if (op && id === op.hints) add(b.listen, is(...LISTEN));
+  if (op && id === op.intro && carried(state, id)) add(b.read, is(...READ));
+  if (op && id === op.way && !way) add(b.enterIn, is(...GO_THROUGH));
+  return out.filter(offering(state, t, id, memo));
 }
 
 // The engine's commands for a thing and the world's own, as one list without repeats: the engine's first, and where the world words the
 // same command (the same rule answering it about the same things) its string is the one shown, in the engine's place.
-function merged(state, t, engine, world) {
-  const key = (c) => sameAs(state, t, c) ?? "~" + c;
-  const list = distinct(state, t, engine), keys = list.map(key);
-  for (const c of distinct(state, t, world)) {
+function merged(state, t, engine, world, memo) {
+  const key = (c) => sameAs(state, t, c, memo) ?? "~" + c;
+  const list = distinct(state, t, engine, memo), keys = list.map(key);
+  for (const c of distinct(state, t, world, memo)) {
     const at = keys.indexOf(key(c));
     if (at < 0) { list.push(c); keys.push(key(c)); } else list[at] = c;
   }
@@ -258,12 +272,12 @@ function merged(state, t, engine, world) {
 // whatever the world wrote for the same command moved out of the way. Examine is every thing's, so the world never writes it
 // (decision 25 of docs/engine-audit/PLAN.md). Like every command it must pass `offering`; a thing that can't be named in a command
 // (no noun that reads) simply has none.
-function withExamine(state, t, id, list) {
-  const c = t.basic?.examine && inScope(state, id) && wording(state, t, id, t.basic.examine, (a) => a.obj === id && a.verb === "examine");
-  if (!c || !offering(state, t, id)(c)) return list;
+function withExamine(state, t, id, list, memo) {
+  const c = t.basic?.examine && inScope(state, id) && wording(state, t, id, t.basic.examine, (a) => a.obj === id && a.verb === "examine", memo);
+  if (!c || !offering(state, t, id, memo)(c)) return list;
   // (a world's own Examine of this thing, worded as it likes, makes way for the engine's; a command that merely shares its answer, the
   // intro's READ, which the same rule answers, stays)
-  const examines = (x) => { const a = parse(x, state, t).actions; return a?.length === 1 && a[0].verb === "examine" && a[0].obj === id; };
+  const examines = (x) => { const a = look(memo, state, t, x).r.actions; return a?.length === 1 && a[0].verb === "examine" && a[0].obj === id; };
   return [...list.filter(x => !examines(x)), c];
 }
 
@@ -278,13 +292,14 @@ export function suggestion(state, t, id, fromInventory, examined = false) {
   if (fromInventory) src = item;
   else {
     if (!obj) return null;
-    src = (carries(state, id) && item) || obj;
+    src = (inHands(state, id) && item) || obj;
     note = obj.note;
   }
   if (!src) return null;
-  const own = (examined ? src.actions.filter(x => !examiningCommand(t)(x)) : src.actions).filter(offering(state, t, id));
-  const listed = merged(state, t, basicActions(state, t, id, fromInventory || carries(state, id)), own);
-  const actions = examined ? listed : withExamine(state, t, id, listed);       // (a click just examined it: no Examine to offer)
+  const memo = new Map();
+  const own = (examined ? src.actions.filter(x => !examiningCommand(t)(x)) : src.actions).filter(offering(state, t, id, memo));
+  const listed = merged(state, t, basicActions(state, t, id, fromInventory || inHands(state, id), memo), own, memo);
+  const actions = examined ? listed : withExamine(state, t, id, listed, memo);       // (a click just examined it: no Examine to offer)
   if (examined && !actions.length) return null;
   if (examined) note = null;
   const a = actions.map(x => "`" + x + "`");                                    // each action as a <COMMAND>
@@ -304,16 +319,16 @@ export function useLine(state, t, id) {
   const objects = state.world.objects, own = objects[id];
   if (!own || !t.useWith) return null;
   const here = Object.keys(objects).filter(x => x !== id && inScope(state, x));
-  const pairs = [];
+  const pairs = [], memo = new Map();
   if (carried(state, id))
     for (const c of here) {
-      if (objects[c].container && objects[c].open && objects[id].at !== c && !within(state, c, id)) pairs.push(pairCommand(state, t, "put", id, c));
-      if (receives(state, c)) pairs.push(pairCommand(state, t, "give", id, c));
+      if (objects[c].container && objects[c].open && objects[id].at !== c && !within(state, c, id)) pairs.push(pairCommand(state, t, "put", id, c, memo));
+      if (receives(state, c)) pairs.push(pairCommand(state, t, "give", id, c, memo));
     }
-  pairs.push(...unlockActions(state, t, id));
-  const { item, obj } = sources(state, t, id), src = (carries(state, id) && item) || obj;
-  const worlds = (src?.actions || []).filter(offering(state, t, id));
-  const commands = withExamine(state, t, id, merged(state, t, [...pairs.filter(Boolean), ...basicActions(state, t, id)], worlds));
+  pairs.push(...unlockActions(state, t, id, memo));
+  const { item, obj } = sources(state, t, id), src = (inHands(state, id) && item) || obj;
+  const worlds = (src?.actions || []).filter(offering(state, t, id, memo));
+  const commands = withExamine(state, t, id, merged(state, t, [...pairs.filter(Boolean), ...basicActions(state, t, id, undefined, memo)], worlds, memo), memo);
   if (commands.every(examiningCommand(t))) return null;         // (only Examine, or nothing: the stock reply)
   const list = [...new Set(commands)].slice(0, 5).map(x => "`" + x + "`");
   return text("@useHow", t, { name: listName(id, state, t), list: joined(list, t.or) }, undefined, undefined, own.words);

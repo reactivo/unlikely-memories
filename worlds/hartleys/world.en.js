@@ -1,5 +1,5 @@
 // "Hartley's, After Hours": a world after the opening, in English, written the way the AI is asked to write a world
-// (WRITING-DIRECTION.md for the voice, GUIDE.md for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
+// (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, applied after the opening, all or nothing.
 
 import pictures, { endings } from "./pictures.js";
@@ -52,7 +52,7 @@ const endingPictures = {
 // Area "store" (x grows east, y grows south, z is the floor: -1 the basement, 0 the ground floor, up to 3, the roof).
 // Area "fourth": the fourth floor, reached only by the lift.
 const rooms = {
-  // The opening (GUIDE.md §8): the arcade behind the store, shut at both ends, never returned to. Area "arcade" is its own.
+  // The opening (BRIEF.md §3): the arcade behind the store, shut at both ends, never returned to. Area "arcade" is its own.
   pavement: {
     name: "THE ARCADE", area: "arcade", at: [0, 0, 0],
     describe: [
@@ -509,7 +509,7 @@ const rules = [
 
 ];
 
-// ---- Puzzles (for the checker; GUIDE.md §3) ---------------------------------------------------------------------------
+// ---- Puzzles (for the checker; BRIEF.md §4) ---------------------------------------------------------------------------
 const puzzles = {
   get_memory: { where: "perfumery", needs: [], solve: ["smell tester"], gives: ["memory"], clues: ["tester", "corre", "gage"],
     hints: ["Madame Corre bottles what you remember, if you smell her tester.", "Smell the tester in perfumery."] },

@@ -7,6 +7,7 @@
 // it only asks the controller to travel. The game keeps running while it is open, so the map redraws as it changes.
 
 import { mapOf, levelName } from "../js/map.js";
+import { wide } from "./media.js";
 
 const DRAG = 5;   // px a press may move and still count as a click on a room
 const KEY = 48;   // px an arrow key moves the map
@@ -25,8 +26,9 @@ export function mount(panel, on) {
   const pointers = new Map();               // the pointers down on the map area: id → where each is now
   let origin = { x: 0, y: 0 };              // where the drawing's origin sits in the area, before the pan (centre())
   let here = null;                          // the room the map was last centred on (a new room centres it again)
+  let drawn = null;                         // what the drawing in the popup was made from (draw's key): the same again draws nothing
+  let ext = { l: 0, r: 0, t: 0, b: 0 };     // the drawing's edges, from your room's middle (rooms and stubs), as it was last made
   let base = { x: 0, y: 0 };                // where the drawing's origin (your room) sits from the middle of the area: 0 on a phone
-  const wide = matchMedia("(min-width: 760px) and (min-height: 560px)");   // a desktop window (the strip layout, css/layout.css): the middle of the whole map is the middle of the area
 
   const isOpen = () => panel.matches(":popover-open");
   // A size from tokens.css in integer pixels (even ones, so the middle of a room falls on a pixel too): measured on a hidden
@@ -68,16 +70,24 @@ export function mount(panel, on) {
     return el;
   };
 
-  // Draw the map for the state: rooms, lines, stubs, the level's name, and the list for screen readers.
+  // Draw the map for the state: rooms, lines, stubs, the level's name, and the list for screen readers. The pieces are made again only
+  // when what they are made from has changed (the rooms, lines, stubs, level and language, and the sizes measured now: a game
+  // that redraws every turn, and a window resized, mostly change none of it); the centring is always done again.
   function draw() {
     const { state, pack } = current, m = mapOf(state, pack), me = m.rooms.find(r => r.current);
     if (!me) return;
     if (here !== me.id) { here = me.id; setPan(0, 0); zoom = 1; world.style.setProperty("--zoom", 1); }   // somewhere new: centred again, full size
     const W = size("--map-room-w"), H = size("--map-room-h"), G = size("--map-gap"), S = size("--map-stub");
+    const key = JSON.stringify([m.rooms, m.lines, m.stubs, levelName(m.level, pack), pack.map.here, W, H, G, S]);
+    if (key === drawn) {                                          // nothing to make again: only where the middle is
+      base = wide.matches ? { x: -Math.round((ext.l + ext.r) / 2), y: -Math.round((ext.t + ext.b) / 2) } : { x: 0, y: 0 };
+      centre();
+      return;
+    }
     const cx = (r) => (r.x - me.x) * (W + G), cy = (r) => (r.y - me.y) * (H + G);   // the centre of a room
     const by = new Map(m.rooms.map(r => [r.id, r]));
     const nodes = [];
-    const ext = { l: 0, r: 0, t: 0, b: 0 };                       // the drawing's edges, from your room's middle (rooms and stubs)
+    ext = { l: 0, r: 0, t: 0, b: 0 };
     const grow = (l, t, r, b) => { ext.l = Math.min(ext.l, l); ext.t = Math.min(ext.t, t); ext.r = Math.max(ext.r, r); ext.b = Math.max(ext.b, b); };
     for (const r of m.rooms) grow(cx(r) - W / 2, cy(r) - H / 2, cx(r) + W / 2, cy(r) + H / 2);
     for (const [a, b] of m.lines) {                               // a line across the gap between two neighbours
@@ -112,6 +122,7 @@ export function mount(panel, on) {
       li.textContent = r.name + (r.current ? " (" + pack.map.here + ")" : "");
       return li;
     }));
+    drawn = key;
     centre();
   }
 

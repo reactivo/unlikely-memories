@@ -23,12 +23,12 @@ export const COLOURS = ["clean", "gramophone", "radio", "music_box", "far_away",
 export const TONES = ["fog", "rain", "wind", "water", "cave", "hall", "hum", "crowd", "fire", "silence"];
 export const NOISES = ["tick", "knock", "clack", "brush", "drip"];        // the kinds for a rhythm line, made of noise
 export const KINDS = ["struck", "plucked", "chime", "bowed", "blown", "reed", ...NOISES];
-export const SINGERS = ["bowed", "blown", "reed", "plucked"];            // the kinds a theme can move to (a variant)
+const SINGERS = ["bowed", "blown", "reed", "plucked"];            // the kinds a theme can move to (a variant)
 export const KEYS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-export const DEFAULT_INSTRUMENT = { kind: "struck", ratio: 3.5, bright: 0.5, attack: 0, release: 4 };
+const DEFAULT_INSTRUMENT = { kind: "struck", ratio: 3.5, bright: 0.5, attack: 0, release: 4 };
 export const LIMITS = { lines: 4, themeNotes: 40, steps: 4, beats: [0.125, 64], octave: [1, 5], step: [-14, 15] };
 // How a room with music of its own brings the theme back (MUSIC.md §2.16).
-export const VARIANTS = ["instrument", "up", "down", "slower"];
+const VARIANTS = ["instrument", "up", "down", "slower"];
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const isObject = (x) => x !== null && typeof x === "object" && !Array.isArray(x);

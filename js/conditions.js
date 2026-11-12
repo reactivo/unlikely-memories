@@ -12,6 +12,7 @@
 // so a game saved before conditions loads unchanged). Pure: reads the state, never changes it (js/engine.js does).
 
 import { filterProblem } from "./filters.js";
+import { gap, isLine as line } from "./shapes.js";
 
 // The modifier kinds a condition may have, and the fields of each (js/fields.js lists them for the checks).
 export const MODIFIERS = { health: ["every", "hurt", "heal", "says"], speech: ["slur", "answer"], movement: ["chance", "says"] };
@@ -44,11 +45,8 @@ export function conditionTone(d, ending = false) {
   return c === "harmful" ? "hurt" : c === "good" ? "healed" : "neutral";
 }
 
-// A gap [min, max] in whole numbers, min no more than max, min at least 1.
-const gap = (x) => Array.isArray(x) && x.length === 2 && x.every(Number.isInteger) && x[0] >= 1 && x[0] <= x[1];
 // A time span: { turns: [min, max] } or { seconds: [min, max] }, exactly one.
 const span = (x) => x && typeof x === "object" && !Array.isArray(x) && Object.keys(x).length === 1 && (gap(x.turns) || gap(x.seconds));
-const line = (x) => (typeof x === "string" && x.trim() !== "") || (Array.isArray(x) && x.length > 0 && x.every(y => typeof y === "string" && y.trim()));
 
 // What is wrong with a condition's declaration, as sentences (the engine refuses it; the checker repeats them as problems).
 export function declarationProblems(d) {

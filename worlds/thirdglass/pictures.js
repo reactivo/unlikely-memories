@@ -24,8 +24,7 @@
 
 
 const rooms = {
-  dunes: {
-    picture: { version: 1, draw: `rect sky 0,0,320,74 fade:0,1/0,0/0,74
+  dunes: { version: 1, draw: `rect sky 0,0,320,74 fade:0,1/0,0/0,74
 dots stars 120,19 52,46 202,30 79,5 34,1 205,35 148,51 30,14 266,34 184,17 88,52 54,16 109,60 13,53 133,51 139,12 84,19 148,40 190,5 310,21 198,32 127,11 126,30 143,5 280,53 153,0 149,36 159,54 260,12 211,27 306,18 220,28 82,14 156,16 22,5 23,29 143,33 273,41 241,44 175,9 100,4 211,58 103,40 225,17 94,22 223,47 301,20 285,12 165,6 31,45 117,17 298,39 121,7 169,59 90,18 235,1 21,22 42,57 146,47 167,1 c15
 dots stars2 165,18 164,9 210,55 317,43 39,18 316,12 227,18 69,16 195,38 81,21 293,0 186,2 232,10 186,50 185,18 292,6 224,13 217,13 58,3 31,3 86,38 76,38 20,34 251,37 127,20 c11
 dots twinkle 18,9 270,20 209,43 102,32 103,17 224,28 251,4 c15
@@ -52,10 +51,7 @@ dots hinges 214,66 214,100 c8
 dots handle 238,86 c14`,
       cycles: [{ name: "twinkle", areas: ["twinkle"], colors: [15, 9], style: "pingpong", ms: 2400 }],
       overlays: [{ object: "shell", at: [190, 104] }] },
-    alt: "A night desert of dunes under stars, with a lone wooden door standing in its frame on the sand."
-  },
-  camp: {
-    picture: { version: 1, draw: `rect sky 0,0,320,40 fade:1,9/0,0/0,40
+  camp: { version: 1, draw: `rect sky 0,0,320,40 fade:1,9/0,0/0,40
 rect glow 0,40,320,32 fade:9,14/0,40/0,72
 ellipse sunglow 236,64,34,18 mix:,15@0.3
 ellipse sun 236,64,12,12 15
@@ -107,10 +103,7 @@ line br3 62,12 80,6 c0
 dots leaves 10,14 20,20 36,18 50,14 44,24 66,10 74,9 42,32 c2`,
       cycles: [{ name: "fire", areas: ["flame", "flamecore"], colors: [12, 14], style: "flicker", ms: [90, 220] }],
       overlays: [{ object: "charcoal", at: [146, 112] }] },
-    alt: "A desert camp at dawn: black tents round a stone well, a fire in the middle, red dunes beyond."
-  },
-  tent: {
-    picture: { version: 1, draw: `rect bg 0,0,320,136 fade:0,4/0,0/0,136
+  tent: { version: 1, draw: `rect bg 0,0,320,136 fade:0,4/0,0/0,136
 rect hang 0,0,320,12 mix:0,8@0.3
 rect rug 0,98,320,38 stripes:4,6
 poly diam1 20,112 40,102 60,112 40,122 12
@@ -151,10 +144,7 @@ line steam4 262,80 266,70 262,60 c7
 ellipse patch 230,126,90,5 mix:,0@0.4`,
       cycles: [{ name: "coals", areas: ["coals", "embers"], colors: [12, 14], style: "flicker", ms: [120, 300] }, { name: "steam", areas: ["steam3", "steam4"], colors: [15, 7], style: "pingpong", ms: 1800 }],
       overlays: [{ object: "lamp", at: [268, 20] }] },
-    alt: "The inside of a black tent: a brazier with a teapot, three tea glasses on a tin tray, a lamp on a shelf."
-  },
-  lines: {
-    picture: { version: 1, draw: `rect sky 0,0,320,44 fade:5,13/0,0/0,44
+  lines: { version: 1, draw: `rect sky 0,0,320,44 fade:5,13/0,0/0,44
 ellipse sunl 60,44,40,14 mix:,15@0.3
 rect ground 0,44,320,92 fade:14,6/0,44/0,136
 poly far 0,44 40,38 90,43 140,37 200,42 260,36 320,41 320,50 0,50 mix:6,13@0.4
@@ -204,10 +194,7 @@ rect wash1 56,66,10,18 1 e0
 rect wash2 70,67,9,14 9 e0
 rect wash3 16,63,8,10 3 e0`,
       overlays: [{ object: "cloth", at: [28, 64] }] },
-    alt: "A row of kneeling camels at dawn, a white camel at the end, a man tying a load, washing on a line."
-  },
-  wadi: {
-    picture: { version: 1, draw: `rect bed 0,0,320,136 14
+  wadi: { version: 1, draw: `rect bed 0,0,320,136 14
 rect banknorth 0,0,320,22 fade:6,14/0,0/0,22
 rect banksouth 0,114,320,22 fade:14,6/0,114/0,136
 line edgen 0,22 320,22 c6
@@ -256,11 +243,8 @@ ellipse stoneshadow 282,98,22,5 mix:,0@0.5
 poly stone 264,90 288,86 304,94 296,104 272,106 7 e8
 poly stonehi 270,92 286,89 292,93 276,97 mix:7,15@0.5
 line track 200,112 214,104 226,108 238,98 250,102 262,92 c0`,
-      cycles: [{ name: "current", areas: ["rip0","rip3","rip6","rip9","rip12","rip15","rip18","rip21","rip24","rip27"], colors: [6, 14], style: "rotate", ms: 1400 }] },
-    alt: "A dry riverbed seen from above, its sand rippled and flowing west towards a red rock, a flat stone at the edge."
-  },
-  ridge: {
-    picture: { version: 1, draw: `rect sky 0,0,320,18 fade:1,9/0,0/0,18
+      cycles: [{ name: "current", areas: ["rip3","rip6","rip9","rip12","rip15","rip18","rip21","rip24","rip27"], colors: [6, 14], style: "rotate", ms: 1400 }] },
+  ridge: { version: 1, draw: `rect sky 0,0,320,18 fade:1,9/0,0/0,18
 rect glowr 0,10,320,8 mix:9,14@0.4
 rect floor 0,18,320,118 fade:13,5/0,18/0,136
 ellipse greenstrip 292,18,16,2 10
@@ -304,10 +288,7 @@ ellipse cairn3 236,102,7,4 7 e8
 ellipse cairn4 236,97,4,3 15 e8
 ellipse cairnshadow 250,123,18,3 mix:,0@0.5`,
       cycles: [{ name: "smoke", areas: ["smoke"], colors: [15, 7], style: "pingpong", ms: 2600 }] },
-    alt: "A high ridge looking down on a pale dish of sand, with a tiny camp in it, a stone cairn, and a thread of smoke far off."
-  },
-  mouth: {
-    picture: { version: 1, draw: `rect sky 0,0,320,112 fade:9,11/0,0/0,112
+  mouth: { version: 1, draw: `rect sky 0,0,320,112 fade:9,11/0,0/0,112
 poly rock 40,112 56,50 80,14 112,0 168,0 186,34 200,112 4 e0
 poly rocklit 40,112 56,50 80,14 112,0 124,0 96,26 76,60 64,112 mix:4,12@0.45
 line layer0 60,20 170,16 c12
@@ -339,10 +320,7 @@ line thorn2 266,84 252,76 c0
 line thorn3 268,88 284,76 c0
 dots thornleaf 262,70 252,76 284,76 270,70 c2`,
       cycles: [{ name: "breath", areas: ["breath"], colors: [11, 9], style: "pingpong", ms: 2200 }] },
-    alt: "A tall red rock with a dark crack at its foot, red painted cattle walking into it."
-  },
-  gallery: {
-    picture: { version: 1, draw: `rect bg 0,0,320,136 0
+  gallery: { version: 1, draw: `rect bg 0,0,320,136 0
 poly ceiling 0,0 320,0 262,40 172,40 mix:0,6@0.2
 poly floor 0,136 172,96 262,96 320,136 fade:6,0/0,136/0,96
 poly leftwall 0,0 172,40 172,96 0,136 fade:6,0/0,60/172,60
@@ -383,10 +361,7 @@ line womanline 192,90 218,90 c4
 poly nearl 0,0 24,0 12,136 0,136 0
 poly nearr 296,0 320,0 320,136 306,136 0`,
       cycles: [{ name: "firelight", areas: ["lightglow", "flame"], colors: [14, 6], style: "flicker", ms: [180, 420] }] },
-    alt: "A long cave chamber painted with giraffes and dancers, and at its end a life-size woman sitting by a well."
-  },
-  hands: {
-    picture: { version: 1, draw: `rect wall 0,0,320,136 fade:4,12/0,0/320,136
+  hands: { version: 1, draw: `rect wall 0,0,320,136 fade:4,12/0,0/320,136
 rect shade 0,0,320,136 mix:,0@0.15
 poly bigpalm 119,75 162,71 168,101 159,122 133,125 120,106 14
 poly bigf0 119,80 128,79 119,31 110,36 14
@@ -444,10 +419,7 @@ poly sm7f3 112,22 115,23 118,11 116,11 7
 poly sm7th 105,25 105,29 99,22 101,19 7
 rect vig 0,0,320,12 mix:,0@0.5`,
       cycles: [{ name: "glow", areas: ["bigpalm"], colors: [14, 15], style: "pingpong", ms: 2600 }] },
-    alt: "A small round cave covered in hundreds of pale handprints on a red wall."
-  },
-  cistern: {
-    picture: { version: 1, draw: `rect bg 0,0,320,136 0
+  cistern: { version: 1, draw: `rect bg 0,0,320,136 0
 rect farwall 0,0,320,16 fade:8,0/0,0/0,16
 ellipse floor 160,76,150,56 8 e0
 ellipse floorin 160,76,140,50 mix:8,7@0.3
@@ -462,16 +434,12 @@ ellipse light2 202,88,6,3 14
 dots drops 170,40 171,44 c9
 poly stalg 120,0 130,0 126,16 mix:7,8@0.5
 poly stalg2 250,0 262,0 256,18 mix:7,8@0.5`,
-      cycles: [{ name: "ripple", areas: ["ring1", "ring2"], colors: [9, 11], style: "rotate", ms: 1800 }, { name: "twin", areas: ["light1", "light2"], colors: [15, 14], style: "pingpong", ms: 2200 }] },
-    alt: "A round cave chamber with a still pool in the middle, lit from above, and a stone lip round it."
-  }
+      cycles: [{ name: "ripple", areas: ["ring1", "ring2"], colors: [9, 11], style: "rotate", ms: 1800 }, { name: "twin", areas: ["light1", "light2"], colors: [15, 14], style: "pingpong", ms: 2200 }] }
 };
 export default rooms;
 
 export const endings = {
-  departed: {
-    alt: "The caravan leaves at sunrise: camels in a line along a dune crest, black against the light, a rider on the white camel at the head.",
-    picture: { version: 1, draw: `rect sky 0,0,320,136 fade:12,14/0,0/0,100
+  departed: { version: 1, draw: `rect sky 0,0,320,136 fade:12,14/0,0/0,100
 ellipse sunglow 214,86,56,26 mix:,15@0.35
 ellipse sun 214,84,16,16 15
 poly crest 0,136 0,108 70,100 140,96 214,100 280,92 320,88 320,136 0
@@ -532,11 +500,8 @@ line leadtail 232,64 229,81 c0
 ellipse rider 244,56,3,3 0
 poly riderb 240,62 248,62 250,72 238,72 0
 poly figa 276,98 280,86 284,98 0
-ellipse figahead 280,84,2,2 0` }
-  },
-  stayed: {
-    alt: "Three tea glasses on a tin tray, seen from above among rugs; the third still steaming.",
-    picture: { version: 1, draw: `rect rug 0,0,320,136 6
+ellipse figahead 280,84,2,2 0` },
+  stayed: { version: 1, draw: `rect rug 0,0,320,136 6
 rect rugb1 0,0,320,10 4
 rect rugb2 0,126,320,10 4
 rect rugb3 0,0,10,136 4
@@ -566,11 +531,8 @@ line steam3 184,58 178,46 182,36 c7
 ellipse pot 262,32,18,18 7 e8
 poly spout 248,28 220,16 224,12 252,22 7 e8
 ellipse lid 262,32,8,8 8 e7`,
-      cycles: [{ name: "steam", areas: ["steam1", "steam2", "steam3"], colors: [15, 7], style: "pingpong", ms: 1800 }] }
-  },
-  lost: {
-    alt: "The sand sea from far above: ribs of dunes, one line of tracks, and a small dark figure sitting at its end.",
-    picture: { version: 1, draw: `rect bg 0,0,320,136 14
+      cycles: [{ name: "steam", areas: ["steam1", "steam2", "steam3"], colors: [15, 7], style: "pingpong", ms: 1800 }] },
+  lost: { version: 1, draw: `rect bg 0,0,320,136 14
 poly band0 0,6 20,7 40,8 60,8 80,7 100,6 120,4 140,4 160,4 180,6 200,7 220,8 240,8 260,7 280,6 300,4 320,4 320,12 300,12 280,14 260,15 240,16 220,16 200,15 180,14 160,12 140,12 120,12 100,14 80,15 60,16 40,16 20,15 0,14 mix:14,6@0.35
 poly band2 0,26 20,25 40,24 60,23 80,22 100,22 120,23 140,25 160,26 180,26 200,25 220,24 240,23 260,22 280,22 300,23 320,24 320,32 300,31 280,30 260,30 240,31 220,32 200,33 180,34 160,34 140,33 120,31 100,30 80,30 60,31 40,32 20,33 0,34 mix:14,6@0.35
 poly band4 0,41 20,40 40,40 60,41 80,42 100,44 120,44 140,44 160,42 180,41 200,40 220,40 240,41 260,42 280,43 300,44 320,44 320,52 300,52 280,51 260,50 240,49 220,48 200,48 180,49 160,50 140,52 120,52 100,52 80,50 60,49 40,48 20,48 0,49 mix:14,6@0.35
@@ -615,11 +577,8 @@ dots tracks 40,20 52,26 64,30 80,38 92,44 108,50 120,56 136,60 152,64 170,66 188
 ellipse figshadow 238,76,12,4 mix:,0@0.6
 ellipse figbody 230,68,7,8 0
 ellipse fighead 230,59,4,4 0
-line figknees 226,74 232,78 c0` }
-  },
-  died: {
-    alt: "A grey smear of light across dark sand, and one footprint.",
-    picture: { version: 1, draw: `rect bg 0,0,320,136 fade:0,8/0,0/0,136
+line figknees 226,74 232,78 c0` },
+  died: { version: 1, draw: `rect bg 0,0,320,136 fade:0,8/0,0/0,136
 ellipse smear 160,66,150,22 mix:,7@0.45
 ellipse smear2 160,66,96,12 mix:,15@0.3
 line dr0 0,90 20,91 40,91 60,90 80,90 100,89 120,89 140,90 160,91 180,91 200,90 220,89 240,89 260,89 280,90 300,91 320,91 c8
@@ -636,7 +595,6 @@ ellipse toe1 152,80,2,2 0 e8
 ellipse toe2 157,80,2,2 0 e8
 ellipse toe3 162,82,2,2 0 e8
 ellipse toe4 166,86,2,2 0 e8` }
-  }
 };
 
 // What changes when the well is filled (restyle, and a shimmer on the water) and when Afternoon stands (her kneeling shapes

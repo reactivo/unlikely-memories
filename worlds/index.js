@@ -3,7 +3,7 @@
 // played again. Each world declares and writes its own opening, which leads to its `entrance`.
 //
 // The landing page lists them (listFor), newest first by `made`; the address picks one (js/route.js). Each world's bible
-// gives its title, its blurb and its thumbnail (GUIDE.md §1), carried here so the list needs no world loaded.
+// gives its title, its blurb and its thumbnail (BRIEF.md §1), carried here so the list needs no world loaded.
 // About each world, data only (nothing shows it): `model` and `effort`, of the build that made it (written by the new-world
 // skill, never by the AI that builds it), `minutes` the build took (null when it wasn't logged), and `version`, a whole number
 // from 1, one more each delivery that changes its files. The versions of the four worlds made before 30 October 2026 are a floor:
@@ -28,16 +28,16 @@ import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js";
 import { parseShapes } from "../js/picture.js";
 
 export const WORLDS = {
-  sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 10, minutes: null, bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
-  tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", model: "Claude Opus 5.5", effort: "medium", version: 12, minutes: null, bible: { es: tuesdayBibleEs }, text: { en: tuesday, es: tuesdayEs } },   // "The Train to Tuesday"
-  hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", model: "Claude Opus 5.5", effort: "medium", version: 9, minutes: null, bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
-  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", model: "Claude Opus 5.5", effort: "high", version: 10, minutes: 53, bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } },      // "The Last Word on Lantern Row"
-  meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", model: "Claude Haiku 5.5", effort: "default", version: 7, minutes: 28, text: { en: meridian } },     // "Please Remain Present"
-  thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 5, minutes: 34, text: { en: thirdglass } },     // "The Third Glass"
-  deadhour: { title: deadhourBible.title, blurb: deadhourBible.blurb, thumbnail: deadhourBible.thumbnail, made: "2026-11-06", model: "Claude Sonnet 5.5", effort: "medium", version: 3, minutes: 19, text: { en: deadhour } },     // "The Dead Hour at Pylon Nine"
-  boathouse: { title: boathouseBible.title, blurb: boathouseBible.blurb, thumbnail: boathouseBible.thumbnail, made: "2026-11-10", model: "Claude Sonnet 5.5", effort: "medium", version: 5, minutes: 31, text: { en: boathouse } },     // "The Lake Lights It Again"
-  buttons: { title: buttonsBible.title, blurb: buttonsBible.blurb, thumbnail: buttonsBible.thumbnail, made: "2026-11-11", model: "Claude Sonnet 5.5", effort: "medium", version: 3, minutes: 32, text: { en: buttons } },     // "The Button Hall"
-  testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 3, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
+  sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 11, minutes: null, bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
+  tuesday: { title: tuesdayBible.title, blurb: tuesdayBible.blurb, thumbnail: tuesdayBible.thumbnail, made: "2026-10-23", model: "Claude Opus 5.5", effort: "medium", version: 13, minutes: null, bible: { es: tuesdayBibleEs }, text: { en: tuesday, es: tuesdayEs } },   // "The Train to Tuesday"
+  hartleys: { title: hartleysBible.title, blurb: hartleysBible.blurb, thumbnail: hartleysBible.thumbnail, made: "2026-10-24", model: "Claude Opus 5.5", effort: "medium", version: 10, minutes: null, bible: { es: hartleysBibleEs }, text: { en: hartleys, es: hartleysEs } },   // "Hartley's, After Hours"
+  lantern: { title: lanternBible.title, blurb: lanternBible.blurb, thumbnail: lanternBible.thumbnail, made: "2026-10-25", model: "Claude Opus 5.5", effort: "high", version: 11, minutes: 53, bible: { es: lanternBibleEs }, text: { en: lantern, es: lanternEs } },      // "The Last Word on Lantern Row"
+  meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", model: "Claude Haiku 5.5", effort: "default", version: 8, minutes: 28, text: { en: meridian } },     // "Please Remain Present"
+  thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 6, minutes: 34, text: { en: thirdglass } },     // "The Third Glass"
+  deadhour: { title: deadhourBible.title, blurb: deadhourBible.blurb, thumbnail: deadhourBible.thumbnail, made: "2026-11-06", model: "Claude Sonnet 5.5", effort: "medium", version: 4, minutes: 19, text: { en: deadhour } },     // "The Dead Hour at Pylon Nine"
+  boathouse: { title: boathouseBible.title, blurb: boathouseBible.blurb, thumbnail: boathouseBible.thumbnail, made: "2026-11-10", model: "Claude Sonnet 5.5", effort: "medium", version: 6, minutes: 31, text: { en: boathouse } },     // "The Lake Lights It Again"
+  buttons: { title: buttonsBible.title, blurb: buttonsBible.blurb, thumbnail: buttonsBible.thumbnail, made: "2026-11-11", model: "Claude Sonnet 5.5", effort: "medium", version: 4, minutes: 32, text: { en: buttons } },     // "The Button Hall"
+  testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 4, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).

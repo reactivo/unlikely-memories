@@ -18,9 +18,9 @@ export const THINGS = ["hints", "intro", "way"];
 export const LINES = ["notYet", "through", "hintFrame", "farewell"];
 
 // The verbs that use each thing (js/actions.js). Examining and taking are the standard ones.
-const LISTEN = ["listen", "use", "talk", "ask"];                                           // the hints thing
-const READ = ["read", "examine", "open"];                                                  // the intro
-const GO_THROUGH = ["enter", "open", "push", "pull", "knock", "use", "climb", "board"];    // the way on (board: a world may add it)
+export const LISTEN = ["listen", "use", "talk", "ask"];                                           // the hints thing
+export const READ = ["read", "examine", "open"];                                                  // the intro
+export const GO_THROUGH = ["enter", "open", "push", "pull", "knock", "use", "climb", "board"];    // the way on (board: a world may add it)
 
 // The direction of the way on: the thing's own `leads` (or `door`), else the room's one exit that is `true` (a way a rule
 // answers). Null if it isn't clear.

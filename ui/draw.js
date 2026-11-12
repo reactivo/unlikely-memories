@@ -7,11 +7,36 @@ import { parseShapes } from "../js/picture.js";
 
 const DITHER = art.dither.matrix;                 // Bayer 4×4: the order in which pixels switch to the second colour
 
+// A colour "#rrggbb" as [r, g, b].
+export const rgbOf = (hex) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+
 // Each palette number's colour as [r, g, b], for putting a grid of palette numbers on a canvas (the scene, the thumbnails).
-export const RGB = art.palette.colors.map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
+export const RGB = art.palette.colors.map(rgbOf);
+
+// Put a grid of palette numbers (`px`, one per pixel, row by row) on canvas image data in the colours of `rgb` (each palette number's
+// [r, g, b]): the one writer the scene's frames and the landing page's thumbnails use. One 32-bit write per pixel through a view of the
+// data, from a palette worked out once per `rgb` (the scene asks every animated frame: 43,520 pixels). A machine that stores its
+// bytes the other way round (none the game has met) writes the four bytes one by one, as before.
+const LITTLE = new Uint8Array(new Uint32Array([1]).buffer)[0] === 1;
+const palettes = new WeakMap(), views = new WeakMap();
+export function putPixels(image, px, rgb) {
+  const data = image.data, n = px.length;
+  if (!LITTLE) {
+    for (let k = 0; k < n; k++) { const c = rgb[px[k]]; data[k * 4] = c[0]; data[k * 4 + 1] = c[1]; data[k * 4 + 2] = c[2]; data[k * 4 + 3] = 255; }
+    return;
+  }
+  let pal = palettes.get(rgb);
+  if (!pal) palettes.set(rgb, pal = Uint32Array.from(rgb, ([r, g, b]) => ((255 << 24) | (b << 16) | (g << 8) | r) >>> 0));
+  let view = views.get(data);
+  if (!view) views.set(data, view = new Uint32Array(data.buffer, data.byteOffset, data.length >> 2));
+  for (let k = 0; k < n; k++) view[k] = pal[px[k]];
+}
+
+// The dither threshold of a pixel (0–1): a pixel is lit while the level is past it.
+export const threshold = (x, y) => (DITHER[y & 3][x & 3] + 0.5) / 16;
 
 // Is this pixel past the dither threshold for a level (0–1)? The same test scene.py used.
-export const lit = (x, y, level) => (DITHER[y & 3][x & 3] + 0.5) / 16 < level;
+export const lit = (x, y, level) => threshold(x, y) < level;
 
 // Paint a drawing list into a new grid (width × height palette numbers, starting all black).
 export function paint(draw, width = art.picture.width, height = art.picture.height) {
@@ -48,23 +73,39 @@ function paintShape(px, w, h, s, mark = () => {}) {
   };
   if (s.line) return linePoints(s.line).forEach(([x, y]) => set(x, y, s.color));
   if (s.dots) return s.dots.forEach(([x, y]) => set(x, y, s.color));
-  const inside = shapeTest(s);
-  const [x0, y0, x1, y1] = bounds(s, w, h);
-  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-    if (!inside(x, y)) continue;
-    const edge = s.edge !== undefined && !(inside(x - 1, y) && inside(x + 1, y) && inside(x, y - 1) && inside(x, y + 1));
-    set(x, y, edge ? s.edge : fillColor(s.fill, x, y));
+  // A row of the shape as a mask (1: the pixel is covered), over columns x0 − 1 … x1 + 1 (a pixel's edge test looks one pixel each
+  // way, beyond the picture too). The rows above and below the one being painted are kept, so the edge test is three lookups, not
+  // four more tests of the shape.
+  const [x0, y0, x1, y1] = bounds(s, w, h), xa = x0 - 1, width = x1 - x0 + 3, row = rowOf(s);
+  let above = new Uint8Array(width), here = new Uint8Array(width), below = new Uint8Array(width);
+  const wantEdge = s.edge !== undefined;
+  if (wantEdge) { row(y0 - 1, xa, width, above); row(y0, xa, width, here); }
+  for (let y = y0; y <= y1; y++) {
+    if (wantEdge) row(y + 1, xa, width, below); else row(y, xa, width, here);
+    for (let x = x0; x <= x1; x++) {
+      const m = x - xa;
+      if (!here[m]) continue;
+      const edge = wantEdge && !(here[m - 1] && here[m + 1] && above[m] && below[m]);
+      set(x, y, edge ? s.edge : fillColor(s.fill, x, y));
+    }
+    if (wantEdge) [above, here, below] = [here, below, above];     // (the next row down: its mask is made at the top of the loop)
   }
 }
 
-// Which pixels a filled shape covers (pixel corners: x, y are whole numbers).
+// Which pixels a filled shape covers (pixel corners: x, y are whole numbers), as a function that fills a mask for one row:
+// row(y, xa, n, mask) sets mask[i] to 1 where the pixel (xa + i, y) is covered and 0 where it is not.
+function rowOf(s) {
+  if (s.poly) return polygonRow(s.poly);
+  const inside = shapeTest(s);
+  return (y, xa, n, mask) => { for (let i = 0; i < n; i++) mask[i] = inside(xa + i, y) ? 1 : 0; };
+}
+
 function shapeTest(s) {
   if (s.rect) { const [x, y, w, h] = s.rect; return (px, py) => px >= x && py >= y && px < x + w && py < y + h; }
   if (s.ellipse) {
     const [cx, cy, rx, ry] = s.ellipse;
     return (px, py) => ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 < 1;
   }
-  if (s.poly) { const pts = s.poly; return (px, py) => inPolygon(pts, px, py); }
   throw new Error("Unknown shape: " + JSON.stringify(s).slice(0, 60));
 }
 
@@ -79,15 +120,38 @@ function bounds(s, w, h) {
           clamp(Math.ceil(Math.max(...xs)), w - 1), clamp(Math.ceil(Math.max(...ys)), h - 1)];
 }
 
-// Point in polygon (even-odd rule). Points on the boundary count as inside.
-function inPolygon(pts, x, y) {
-  let inside = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const [xi, yi] = pts[i], [xj, yj] = pts[j];
-    if (onSegment(xi, yi, xj, yj, x, y)) return true;
-    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
+// A polygon, row by row (even-odd rule; points on the boundary count as inside). A row is worked out from where the polygon's edges
+// cross it, not by asking every pixel about every edge: the pixels on an edge (the same test as always, tried only near where the edge
+// crosses the row), and the runs between a crossing and the next one, which are inside by the even-odd rule: a pixel is inside when an
+// odd number of crossings lie to its right.
+function polygonRow(pts) {
+  const n = pts.length;
+  return (y, xa, count, mask) => {
+    const xb = xa + count - 1, crossings = [];
+    mask.fill(0, 0, count);
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if (y >= Math.min(yi, yj) && y <= Math.max(yi, yj)) {            // the boundary: this edge's own pixels on this row
+        const lo = Math.max(xa, Math.ceil(Math.min(xi, xj))), hi = Math.min(xb, Math.floor(Math.max(xi, xj)));
+        if (yi === yj) { if (lo <= hi && onSegment(xi, yi, xj, yj, lo, y)) mask.fill(1, lo - xa, hi - xa + 1); }
+        else {
+          const at = (xj - xi) * (y - yi) / (yj - yi) + xi, near = 1e-9 / Math.abs(yj - yi) <= 0.25;   // (a nearly flat edge: every pixel along it is tried)
+          for (let x = near ? Math.max(lo, Math.floor(at) - 1) : lo, last = near ? Math.min(hi, Math.ceil(at) + 1) : hi; x <= last; x++)
+            if (onSegment(xi, yi, xj, yj, x, y)) mask[x - xa] = 1;
+        }
+      }
+      if ((yi > y) !== (yj > y)) crossings.push((xj - xi) * (y - yi) / (yj - yi) + xi);
+    }
+    crossings.sort((p, q) => p - q);
+    let inside = (crossings.length & 1) === 1, from = -Infinity;       // (left of every crossing: all of them lie to its right)
+    for (const c of [...crossings, Infinity]) {
+      if (inside) {
+        const first = Math.max(xa, from === -Infinity ? xa : Math.ceil(from)), last = Math.min(xb, c === Infinity ? xb : Math.ceil(c) - 1);
+        if (first <= last) mask.fill(1, first - xa, last - xa + 1);
+      }
+      inside = !inside; from = c;
+    }
+  };
 }
 const onSegment = (x1, y1, x2, y2, x, y) =>
   Math.abs((x2 - x1) * (y - y1) - (y2 - y1) * (x - x1)) < 1e-9 &&

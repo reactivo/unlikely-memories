@@ -1,5 +1,5 @@
 // "Please Remain Present": a world after the opening, in English, written the way the AI is asked to write a world
-// (BRIEF.md, built from WRITING-DIRECTION.md for the voice, GUIDE.md for the shape, ARCHITECTURE.md §3–6 for the data,
+// (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
 import pictures, { endings as endingPictures } from "./pictures.js";
@@ -54,6 +54,15 @@ const changes = {
   ]
 };
 
+// What each ending picture says to a screen reader (alt); the drawings are language-free (pictures.js).
+const endingAlts = {
+  present: "A black figure stands against a bright green light, a small shape on the left.",
+  booth: "The last booth from outside: a seated figure behind frosted glass, and a green light just come on above it.",
+  erased: "A shredder seen from above: strips of grey, and one small slip of white among them.",
+  shaft: "A shaft seen from far above: rungs of cable going down, and one small light at the bottom.",
+  died: "A dark floor, faintly ruled, with a grey smear of light across it.",
+};
+
 export default {
   because: "The opening in a fenced service yard; then the Meridian Block: sixth-floor corridor, records, canteen, staff room, stairwell, lobby, cellar, registry; a slip to reprint, a crank for the gate, and the registry's slot, last booth or shredder.",
   facts: [
@@ -92,7 +101,7 @@ export default {
       },
       alt: "A fenced yard looking up at a single steel service door in the back wall, a tarpaulin and bins at the sides.",
       overlayAlt: { intercom: "An intercom hangs on its cord beside the door." },
-      picture: pictures.yard.picture, music: roomMusic.yard },
+      picture: pictures.yard, music: roomMusic.yard },
     { add: "object", id: "intercom", at: "yard", portable: true, material: "stone", name: "Intercom", note: "Humming on its cord.",
       here: "Beside the door's frame an {intercom} hangs on a coiled cord, humming a little, the way a thing does when someone at the other end is about to speak.",
       words: { nouns: ["intercom", "receiver", "handset"], adj: ["grey"] },
@@ -134,7 +143,7 @@ export default {
         every: [35, 70], chance: 0.6
       },
       alt: "A grey corridor, a lamp overhead, a notice board on the right wall and an open lift shaft on the left.",
-      picture: pictures.corridor.picture },
+      picture: pictures.corridor },
     { add: "object", id: "notice_board", at: "corridor", name: "Notice board", note: "The same notice, in three colours.",
       opens: ["audit"], words: { nouns: ["notice board", "board", "notice"], adj: [] },
       examine: "The notice says, in red: \"The Registry is closed for audit.\" Under it, in black: \"Presence may be confirmed in person.\" Someone has crossed out \"in person\" in pencil and written \"if possible.\" At the foot, in the Authority's kindest type: \"Replacement summonses may be printed in the Staff Room.\"" },
@@ -157,7 +166,7 @@ export default {
       ],
       sleep: "Not in the Records Office. Mrs Hale would file you under Pending.",
       alt: "A desk and ledgers seen from above, one lamp lit on the desk and a drawer open in its front.",
-      picture: pictures.records.picture, music: roomMusic.records },
+      picture: pictures.records, music: roomMusic.records },
     { add: "object", id: "archivist", at: "records", name: "Mrs Hale", note: "Sorting cards.",
       words: { nouns: ["mrs", "hale", "archivist"], adj: [], g: "f", proper: true },
       topics: {
@@ -191,7 +200,7 @@ export default {
         { words: ["pipes"], name: "the pipes", says: "They are cold, and they go on a long way in both directions, which pipes should not." }
       ],
       alt: "The old generator far off in a damp cellar, a single bulb lit at the far end.",
-      picture: pictures.cellar.picture, music: roomMusic.cellar },
+      picture: pictures.cellar, music: roomMusic.cellar },
     { add: "object", id: "generator", at: "cellar", name: "Generator", note: "Quiet.", opens: ["audit"],
       words: { nouns: ["generator", "switch"], adj: ["old"] }, use: "switch_on",
       examine: "A brass plate says it supplies the Registry lights and the lift motors. Under it, in pencil: Last serviced 1987. Its switch is set to ON.",
@@ -207,7 +216,7 @@ export default {
       exits: { w: "corridor", e: "staff" },
       alt: "A steaming urn on a long counter, seen looking up from the canteen floor, and a vending machine by the door.",
       overlayAlt: { biscuit: "A biscuit sits on a saucer by the urn." },
-      picture: pictures.canteen.picture, music: roomMusic.canteen },
+      picture: pictures.canteen, music: roomMusic.canteen },
     { add: "object", id: "urn", at: "canteen", name: "Urn", note: "Gurgling.",
       words: { nouns: ["urn", "tap", "water"], adj: ["hot"] }, use: "drink",
       examine: "Hot water, a tap, and a mirror of steam. It has been on for a long time and is still waiting for the first cup." },
@@ -234,7 +243,7 @@ export default {
         { words: ["radiator"], name: "the radiator", says: "Cold, and ticking anyway." }
       ],
       alt: "A grey printer close up, its light on, a red button and an empty output tray.",
-      picture: pictures.staff.picture },
+      picture: pictures.staff },
     { add: "object", id: "printer", at: "staff", name: "Printer", note: "Its light is on.",
       words: { nouns: ["printer", "button", "red button"], adj: ["grey"] }, use: "push",
       examine: "A grey printer with one red button, and a tray that says RE-ISSUE across it in the same kind type. Anyone who has lost a summons can have it printed again. The tray is empty, and the light is on in case someone comes.",
@@ -268,7 +277,7 @@ export default {
       },
       sleep: "Not under that cable, with the light stuttering.",
       alt: "The stairs seen through the bars of a gate, a black cable sparking from the ceiling above them.",
-      picture: pictures.stairwell.picture },
+      picture: pictures.stairwell },
     { add: "object", id: "stair_gate", at: "stairwell", material: "metal", name: "Gate", note: "Shut, across the stairs.",
       words: { nouns: ["gate", "stair gate", "bars"], adj: ["iron"] }, door: "u", locked: true,
       shut: "The gate across the stairs is shut. A plate on it says: \"Manual override. See Records.\"",
@@ -301,7 +310,7 @@ export default {
         every: [35, 70], chance: 0.6
       },
       alt: "The lobby's glass front, sealed with a strip across it, the fog-lit city beyond and a flicker of lamps.",
-      picture: pictures.lobby.picture, music: roomMusic.lobby },
+      picture: pictures.lobby, music: roomMusic.lobby },
     { add: "object", id: "glass_front", at: "lobby", name: "Glass front", note: "Sealed.", actions: ["Look through glass"],
       words: { nouns: ["glass", "front glass", "front", "seal"], adj: [] },
       examine: "Thick glass with a wire in it. The seal across the middle is new, which is the only new thing in the room. Through it the city stands in the fog, waiting to be confirmed.",
@@ -338,7 +347,7 @@ export default {
       },
       sleep: "PLEASE REMAIN PRESENT, says the terminal. You remain present.",
       alt: "A terminal screen close up, its text lines in green and a cursor waiting in a gap, a slot and a shredder below.",
-      picture: pictures.registry.picture, music: roomMusic.registry },
+      picture: pictures.registry, music: roomMusic.registry },
     { add: "object", id: "terminal", at: "registry", name: "Terminal", note: "Waiting for a tick.",
       words: { nouns: ["terminal", "screen"], adj: ["desk"] },
       examine: "The screen shows the register: columns of names, each with a small green tick. There is a gap where a tick should be, and a cursor waiting in it, patient as a dog.",
@@ -355,7 +364,7 @@ export default {
       examine: "A grey shredder with a cover that is warm from use. Its basket is empty, which means either that nothing was destroyed today, or that everything was destroyed quickly." },
 
     // ---- the pictures of the endings and the death (before the rules that end the story) ----------------------
-    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, alt: p.alt, picture: p.picture })),
+    ...Object.entries(endingPictures).map(([id, picture]) => ({ add: "picture", id, alt: endingAlts[id], picture })),
 
     // ---- rules: the chain, the hurts, the endings -------------------------------------------------------------
     { add: "word", verb: "print", words: ["print", "reprint", "print out"], object: "optional",

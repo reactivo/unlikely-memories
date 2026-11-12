@@ -202,7 +202,7 @@ export function createClockwork(S, random = Math.random) {
 // ---- The audio -------------------------------------------------------------------------------------------------------------------
 
 // An iPhone or iPad (an iPad says "Macintosh" and has a touch screen).
-export const appleMobile = () => typeof navigator !== "undefined" &&
+const appleMobile = () => typeof navigator !== "undefined" &&
   (/iPhone|iPad/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
 
 // The AudioContext, made (or woken) inside a tap: synchronously, nothing awaited before it (MUSIC.md §7). On an iPhone or iPad the
@@ -244,7 +244,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random, buses
   const L = S.loudness.limiter, limiter = ctx.createDynamicsCompressor();
   limiter.threshold.value = L.threshold; limiter.knee.value = L.knee; limiter.ratio.value = L.ratio; limiter.attack.value = L.attack; limiter.release.value = L.release;
   chain(lp, comp, hushed, master, out, limiter); limiter.connect(ctx.destination);
-  const scope = ctx.createAnalyser(); scope.fftSize = 1024; limiter.connect(scope);
+  let scope = null;                                          // the level meter (level(), the music bench's only): made on its first call, not kept running for nothing
   const sfx = gain(ctx, buses.sounds); chain(sfx, filt(ctx, "lowpass", S.sounds.lowpass, S.lowpass.q), out);
   const mix = gain(ctx, 1); mix.connect(lp);
   const R = S.reverb, len = Math.floor(ctx.sampleRate * R.seconds), ir = ctx.createBuffer(2, len, ctx.sampleRate);
@@ -312,7 +312,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random, buses
     a.gone = t + fade;                                       // silent from then
     for (const b of [a.bus, a.tbus]) { b.gain.cancelScheduledValues(t); b.gain.setValueAtTime(b.gain.value, t); b.gain.linearRampToValueAtTime(0, t + fade); }
     a.room.stop(t + fade + P.toneStop); a.colour.stop(t + fade + P.colourStop);
-    setTimeout(() => { for (const n of [a.bus, a.tbus, a.lines, a.theme, a.tone]) n.disconnect(); a.colour.close(); }, (fade + P.release) * 1000);
+    setTimeout(() => { for (const n of [a.bus, a.tbus, a.lines, a.theme, a.tone]) n.disconnect(); a.colour.close(); a.room.close(); }, (fade + P.release) * 1000);
   }
   // One event of a line or the theme, at its instrument's gain at that octave (as the music box plays it, in a music box's room).
   // The lines keep to a budget: at most `scene.voices` of their notes sounding at once (a phone's share of nodes); past it a line's
@@ -470,6 +470,7 @@ export function createPlayer(ctx, S, { comes = true, random = Math.random, buses
     },
     // The peak level leaving the page now, in dB (-99: nothing).
     level() {
+      if (!scope) { scope = ctx.createAnalyser(); scope.fftSize = 1024; limiter.connect(scope); }   // (reads silence until the bench asks again)
       const a = new Float32Array(scope.fftSize); scope.getFloatTimeDomainData(a);
       let peak = 0; for (const v of a) peak = Math.max(peak, Math.abs(v));
       return peak > 0 ? 20 * Math.log10(peak) : -99;

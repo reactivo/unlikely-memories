@@ -13,6 +13,8 @@
 // Nothing here is drawn from the game's state: log.js, which knows when a room is entered, is given this and calls room().
 // Mounted on the top (index.html).
 
+import { topMode } from "./media.js";
+
 const MOVE = 8;       // px a finger may move and still be still (not yet a drag)
 const MAX_ZOOM = 3;   // how far a pinch zooms the picture
 
@@ -22,7 +24,7 @@ export function mount(top) {
 
   // Is the picture the crop now? (Only an upright phone: the top is fixed there, or absolute while you type and it scrolls away
   // with the story: still the same picture, kept as it is. Not while the list of games shows: the page is not drawn then.)
-  const active = () => ["fixed", "absolute"].includes(getComputedStyle(top).position) && top.getClientRects().length > 0;
+  const active = () => ["fixed", "absolute"].includes(topMode(top)) && top.getClientRects().length > 0;
 
   function setPan(value) {
     pan = Math.max(-1, Math.min(1, value));

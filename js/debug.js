@@ -94,7 +94,7 @@ const TESTS = {
 };
 export const TEST_CONDITIONS = Object.keys(TESTS);
 // The short name the panel shows for a condition: its id, the panel's own without their prefix.
-export const conditionLabel = (id) => (TESTS[id] ? id.slice("debug_".length) + " (test)" : id);
+const conditionLabel = (id) => (TESTS[id] ? id.slice("debug_".length) + " (test)" : id);
 
 // A test condition's declaration in a language (English when it has no lines in that one).
 export function declaration(id, lang) {

@@ -9,7 +9,7 @@ import { text } from "../js/narrator.js";
 // Set up the inventory on its section. Returns update().
 export function mount(root, on) {
   const slots = root.querySelectorAll(".slot");
-  let drawn = null;        // the latest { carrying, pack } asked for (an update can arrive while items are leaving)
+  let drawn = 0;           // which redraw asked for last (an update can arrive while items are leaving): a count, as a token
 
   // Fill the slots with these items; `arrived` ones get the arriving animation.
   function fill(carrying, pack, arrived, state) {
@@ -43,11 +43,10 @@ export function mount(root, on) {
       const moving = prev && reason !== "restore";
       const arrived = moving ? carrying.filter(id => !before.includes(id)) : [];
       const leaving = moving ? [...root.querySelectorAll(".item")].filter((_, i) => !carrying.includes(before[i])) : [];
-      drawn = { carrying, pack: next.pack };
+      const mine = ++drawn;
       if (!leaving.length) return fill(carrying, next.pack, arrived, next.state);
       // Let leaving items sink away first (no animation with reduced motion: then straight on).
       leaving.forEach(b => b.classList.add("depart"));
-      const mine = drawn;
       Promise.all(leaving.flatMap(b => b.getAnimations().map(a => a.finished))).catch(() => {}).then(() => {
         if (drawn === mine) fill(carrying, next.pack, arrived, next.state);   // unless a newer update came meanwhile
       });

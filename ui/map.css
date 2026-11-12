@@ -151,8 +151,8 @@
     }
 
     & .close:focus-visible {
-      outline: 2px solid var(--color-focus);
-      outline-offset: 2px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
 
     /* The location bar: the level you are on at the left, how to move the map at the right, both in the same text size

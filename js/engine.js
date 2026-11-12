@@ -5,20 +5,21 @@
 import { random, between } from "./random.js";
 import standardVerbs from "./verbs.js";
 import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js";
+import { clean, isLine } from "./shapes.js";
 import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js";
-import { parseShape, parseShapes } from "./picture.js";
-import art from "../content/art.js";
-import { worldTime, parts, hhmm, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
+import { readPicture, editPicture } from "./picture.js";
+import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js";
 import * as opening from "./opening.js";
-import { translate as translateUse, placeOf, chainOf, shut, isAction, person, holderOf, noticed } from "./use.js";
-import { checkSet, propertyWords, ownerOf, adding, removing, RANGES, ASK_KEY, foldAnswer, ENGINE_ECHOES, grammarOf, isLine, hasSprite } from "./fields.js";
-import { ACTIONS } from "./actions.js";
-import { activeIds, keptFilters, declarationProblems, conditionTone, conditionClass } from "./conditions.js";
-import { kindOf, healOf, lengthOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js";
+import { translate as translateUse } from "./use.js";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite } from "./fields.js";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js";
+import { ACTIONS, isAction } from "./actions.js";
+import { makeSleeping } from "./sleeping.js";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js";
 import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js";
-import { spoken, slurring, slur, answerLine } from "./speech.js";
-import { movementNow, stray } from "./movement.js";
-import { moverIds, placeNow, placeHolding, roomOfPlace, nextStep, gapOf, inSeconds, seedFor, wayTo, lineOf, onTheClock, shapeProblems, FOLLOWS } from "./movers.js";
+import { answerLine } from "./speech.js";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -76,7 +77,7 @@ export function step(state, input) {
       }
     }
     if (action.obj) g.lastObj = action.obj;                      // what "it" means next time
-    if (!isFixed(g, g.player.at)) heldBy(g, action, out);        // a condition's hold on your tongue or your feet (not in the opening)
+    if (!isFixed(g, g.player.at)) sleeping.conditionHold(g, action, out);        // a condition's hold on your tongue or your feet (not in the opening)
     // Talking to someone: they're who "ask about…" goes to next; a question asked is remembered for this visit (it's
     // no longer offered after they answer, until you come back to the room).
     if (["talk", "ask", "say"].includes(action.verb) && g.world.objects[action.obj]?.topics) g.talkingTo = action.obj;
@@ -96,7 +97,7 @@ export function step(state, input) {
   runScheduled(g, out);                                         // what's scheduled up to the world's time now
   runTimed(g, at, out, out.applied.slice(n0).some(e => "say" in e));   // timed rules that are now due (a scheduled line holds ambience back)
   runConditions(g, at, out);                                    // the conditions you are in: their ticks, and the ones that end now
-  runMovers(g, at, action, !!tick, out, startedIn);             // the things that move: each where its fact says now (js/movers.js)
+  runMovers(g, at, action, !!tick, out, startedIn, host);             // the things that move: each where its fact says now (js/movers.js)
   holdingEchoes(g, held1, holding(g), out);                     // and what the world did on its own gave and took (aside, below)
   const came1 = cameIntoView(g, out);                           // and what the world brought on its own
   // An echo (INTERFACE.md §6c) is the last word on what just happened to you: after the story lines of your command, and
@@ -121,7 +122,7 @@ export function step(state, input) {
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
   felt(g, out.applied);
-  const { viewed, lists, drawn, waiting, woke: _, ...told } = out;   // (the moment's own bookkeeping)
+  const { viewed, lists, drawn, waiting, woke: _, trusted: _t, depth: _d, ...told } = out;   // (the moment's own bookkeeping)
   return { next: g, ...told };
 }
 
@@ -285,10 +286,10 @@ export function applyChangeSet(state, set, { protect = true, fields = null } = {
   if (set.opening && !out.refused.length) buildOpening(g, set.opening, out, protect);
   if (out.refused.length) return { next: state, applied: [], refused: out.refused };
   drawLongThings(g, null);                                      // the pictures as the world starts: a long thing not at home isn't drawn
-  placeMovers(g);                                               // and each thing that moves where its fact says (a time jump too)
+  placeMovers(g, holds);                                               // and each thing that moves where its fact says (a time jump too)
   const warnings = found.filter(f => fields === "warn" || f.warn).map(f => `${f.piece}: ${f.text}`);
   if (warnings.length) g.warnings = [...(g.warnings || []), ...warnings];
-  const { lists, drawn, ...told } = out;
+  const { lists, drawn, trusted: _t, depth: _d, ...told } = out;   // (bookkeeping: not part of the result)
   return { next: g, ...told, warnings };
 }
 
@@ -344,7 +345,7 @@ export function nextDue(state) {
     for (const t of [c.at, c.tickAt]) if (t !== undefined && (due === null || t < due)) due = Math.max(0, t);
   for (const id of moverIds(state)) {                                        // a thing that moves: its next step in seconds, and the
     const o = state.world.objects[id], r = state.movers?.[id];               // moment the clock changes where it is (js/movers.js)
-    for (const t of [o.rounds && inSeconds(o.rounds) && r?.due > state.clock ? r.due : undefined, o.places && onTheClock(o) ? placeChange(state, o) : undefined])
+    for (const t of [o.rounds && inSeconds(o.rounds) && r?.due > state.clock ? r.due : undefined, o.places && onTheClock(o) ? placeChange(state, o, holds) : undefined])
       if (t != null && (due === null || t < due)) due = Math.max(0, t);
   }
   return due;
@@ -404,6 +405,8 @@ const activeRules = (g) => (g.world.rooms[g.player.at]?.fixed ? g.rules.filter(r
 const STANDARD = new Set(standardVerbs);
 // Is this room or object part of the opening (never changed by a world)?
 const isFixed = (g, id) => !!(g.world.rooms[id]?.fixed || g.world.objects[id]?.fixed);
+// What the engine hands to the movers' runtime (js/movers.js), which never imports the engine back.
+const host = { apply: (...a) => apply(...a), holds: (...a) => holds(...a), isFixed };
 
 // Run a rule's effects; "then": "default" also runs the standard verb afterwards. The opening's rules and the
 // standard verbs may change the opening's things; a world's rules may not (out.trusted).
@@ -439,7 +442,7 @@ function matches(match = {}, action) {
 // `holds` is for conditions kept as data (a room's `waitFor.if`): { "$here.waitFor.if": { holds: true } } is true when
 // the conditions at that path all hold, or when there are none. `any` is "or": { any: [ { "dog.asleep": true }, { "dog.tied": true } ] }.
 // An answer the player typed (`player.answers.<key>`) is compared to words without case, accents, punctuation or extra
-// spaces, on both sides ("Mrs. Halloran!" is "mrs halloran"; js/fields.js, foldAnswer): `=`, `!=`, `in` and plain equality.
+// spaces, on both sides ("Mrs. Halloran!" is "mrs halloran"; js/words.js, foldAnswer): `=`, `!=`, `in` and plain equality.
 export function holds(g, conditions = [], action = {}) {
   return conditions.every(c => Object.entries(c).every(([path, want]) => {
     // { any: [ cond, cond, … ] }: at least one holds (an item that is a list means all of that list).
@@ -647,7 +650,7 @@ function runTimed(g, at, out, scheduledSpoke = false) {
     if (spent(g, r)) { delete g.timers[r.id]; continue; }                    // it has had its one time
     if (!holds(g, r.if) || (r.ambient && ambienceOver(g, r))) { delete g.timers[r.id]; continue; }   // not active: stop
     const t = g.timers[r.id];
-    if (t === undefined) { g.timers[r.id] = schedule(g, r, at); continue; }   // just became active
+    if (t === undefined) { g.timers[r.id] = nextGap(g, r, at); continue; }   // just became active
     if ((r.every.turns ? g.turn : at) >= t) due.push(r);
   }
   const rank = (r) => (r.ambient ? 1 : 0), when = (r) => (r.every.turns ? Infinity : g.timers[r.id]);
@@ -656,17 +659,20 @@ function runTimed(g, at, out, scheduledSpoke = false) {
   for (const r of due) {
     if (g.ended) break;                                       // a rule just ended the story: no other runs
     const talks = speaks(g, r.do);
-    if (talks && r.ambient && (quiet || spoke)) { g.timers[r.id] = schedule(g, r, Math.max(at, quietEnd)); continue; }
+    if (talks && r.ambient && (quiet || spoke)) { g.timers[r.id] = nextGap(g, r, Math.max(at, quietEnd)); continue; }
     if (talks && !r.ambient && worldSpoke) continue;          // held back: still due (quiet never holds the world's own rules)
     if (r.chance === undefined || roll(g) < r.chance) {
       const n0 = out.applied.length;
       run(g, r.ambient ? ambienceLine(g, r) : r, {}, out);
       if (out.applied.slice(n0).some(e => "say" in e)) { spoke = true; worldSpoke ||= !r.ambient; g.lastLine = at; }
     }
-    g.timers[r.id] = schedule(g, r, at);
+    g.timers[r.id] = nextGap(g, r, at);
     if (r.ambient && ambienceOver(g, r)) delete g.timers[r.id];    // every line said: quiet until you come back
   }
 }
+
+// What a condition's health tick says: its `says`, one variant picked when it is a list.
+const saysOf = (g, h, id) => (Array.isArray(h.says) ? pickVariant(g, h.says, "condition:" + id) : h.says);
 
 // Does a list of effects say something (directly, or through a named change)? Those are what calm holds back.
 function speaks(g, effects, depth = 0) {
@@ -682,17 +688,21 @@ function ambienceLine(g, r) {
   const lines = r.do[0].say, said = g.ambienceSaid[r.ambient] ??= [], key = r.id + "#0";
   let left = lines.map((_, i) => i).filter(i => !said.includes(i));
   if (left.length > 1) left = left.filter(i => i !== g.recent[key]);
-  const [v, next] = between(g.rng, 0, left.length - 1); g.rng = next;
-  const i = left[v];
+  const i = left[rollBetween(g, 0, left.length - 1)];
   said.push(i); g.recent[key] = i;
   return { ...r, do: [{ say: lines[i] }] };
 }
 
 // The next due time for a timed rule: a random gap within its range, from now.
-function schedule(g, r, at) {
-  const [min, max] = r.every.seconds || r.every.turns;
-  const gap = rollBetween(g, min, max);
-  return r.every.turns ? g.turn + gap : at + gap * 1000;
+function nextGap(g, r, at) {
+  const due = gapFrom(g, r.every, at);
+  return due.turn ?? due.at;
+}
+// A random gap within a range ({ turns: [min, max] } or { seconds: [min, max] }), counted from this turn or from `at` (game ms):
+// { turn } or { at }, one roll of the state's generator.
+function gapFrom(g, range, at = g.clock) {
+  const [min, max] = range.turns || range.seconds, n = rollBetween(g, min, max);
+  return range.turns ? { turn: g.turn + n } : { at: at + n * 1000 };
 }
 
 // Random numbers from the state's own generator (so replays repeat exactly).
@@ -710,7 +720,7 @@ function runConditions(g, at, out) {
     const d = g.conditions?.[id], c = g.player.conditions?.[id];
     if (!d || !c) continue;
     if (d.health && due(g, at, c.tickTurn, c.tickAt)) {
-      const h = d.health, says = Array.isArray(h.says) ? pickVariant(g, h.says, "condition:" + id) : h.says;
+      const h = d.health, says = saysOf(g, h, id);
       apply(g, "hurt" in h ? { hurt: h.hurt, says } : { heal: h.heal, says }, {}, out, "condition:" + id);
       delete c.tickTurn; delete c.tickAt;
       Object.assign(c, nextTick(g, h.every));
@@ -724,13 +734,12 @@ const due = (g, at, turn, ms) => (turn !== undefined && g.turn >= turn) || (ms !
 // When a condition that starts now ends by itself: a random gap within its `lasts`, in turns or seconds; nothing if it has none.
 function lasting(g, d) {
   if (!d.lasts) return {};
-  const [min, max] = d.lasts.turns || d.lasts.seconds, n = rollBetween(g, min, max);
-  return d.lasts.turns ? { turn: g.turn + n } : { at: g.clock + n * 1000 };
+  return gapFrom(g, d.lasts);
 }
 // When a condition's health tick is next due, from now.
 function nextTick(g, every) {
-  const [min, max] = every.turns || every.seconds, n = rollBetween(g, min, max);
-  return every.turns ? { tickTurn: g.turn + n } : { tickAt: g.clock + n * 1000 };
+  const due = gapFrom(g, every);
+  return "turn" in due ? { tickTurn: due.turn } : { tickAt: due.at };
 }
 // A condition ends: it is gone from the player, its `ends` line is said (the echo, with the tone of an end: conditionTone),
 // and its filters go off, unless another condition you are still in keeps them.
@@ -741,290 +750,6 @@ function endCondition(g, id, action, out, key) {
   out.applied.push({ stop: id });
   out.applied.push({ echo: d.ends, kind: "condition", tone: conditionTone(d, true), at: worldTime(g) });
   for (const f of d.filters || []) if (!kept.has(f)) apply(g, { unfilter: f }, action, out, key + ":unfilter");
-}
-
-// ---- Things that move -------------------------------------------------------------------------------------
-// A person or a thing in different places at different moments (js/movers.js; ARCHITECTURE.md §5, "Things that move"): a world gives it
-// `places` or `rounds` (or both), never rules, and the engine moves it here, once a moment, after everything else the world did. What it
-// holds goes with it (it is `at` the thing); its overlay is drawn while it is in your room (ui/draw.js), so the picture follows by itself.
-//   places: wherever its first place that holds now says (after a time jump too: waiting, sleeping); none holds: away (at: null).
-//   rounds: one step when its gap is up (turns: commands; seconds: play time, which a sleep moves on through), from its own generator.
-//   both: while a place holds, the place (its round waits, and its gap is forgotten); none holds, its round, from the room it is in,
-//   its first step a whole gap later; from a room off its round (or away), its first step at once, back to it (in order, to its first
-//   room; at random, to any of them), even in the moment of a command about it: that command let it go. A rule of the world's that
-//   answered that command says it goes, so the game adds no `leaves` line of its own after it ("shoo cat").
-// Following you (a place "player"): it comes with you from the room you were in as the moment began (`startedIn`), whatever would
-// hold it, a moment after you, with the pack's `moving.follows` line ("The cat comes with you."), not its `arrives`. With `within`, only
-// into those rooms: you go anywhere else, and it stays where it is, with `moving.stays` ("The cat stays behind."), and waits there; you
-// come back, and it is with you again (js/movers.js, roomOfPlace).
-// It is held (it stays, and its due move happens at the first moment it isn't) while a question is waiting, in the moment of a command
-// about it (it is the command's thing, its second, one named that isn't here, or the source of one of those), in a conversation with it
-// (your last command talked, asked, said, gave or showed something to it, and it is here), and while its room was described this
-// moment (you have just come in, or looked: it stays a moment, rather than go as soon as it is seen). Nothing moves in the opening or
-// after the end. Its coming and going is told only when you are there to see it: its own `arrives` / `leaves` line, else the pack's,
-// with the way from the exits; a thing that comes where you are in a moment whose lines described the room is left out of that
-// description (`without`), so it comes in after it. Asleep, you see nothing: what moved is where it is when you wake, and the room
-// is described as you wake.
-// A place's conditions, read as a rule's; one written wrongly (an operator the engine doesn't know) never holds, rather than stop the
-// game: the checker says what is wrong with it, and a change set in play that writes one is refused (js/fields.js).
-const holdsSafe = (s, c) => { try { return holds(s, c); } catch { return false; } };
-const TALKING = new Set(["talk", "ask", "say", "shout", "sing", "give", "show"]);
-function runMovers(g, at, action, tick, out, startedIn) {
-  const ids = moverIds(g);
-  if (!ids.length || g.ended || isFixed(g, g.player.at)) return;
-  const slept = out.applied.find(e => "sleep" in e && e.wake === true)?.ms ?? 0;   // a sleep this moment: how long (js/engine.js, fallAsleep)
-  const record = (id) => ((g.movers ??= {})[id] ??= {});          // (made with the first: a world with nothing that moves has no key)
-  const described = (room) => room != null && out.applied.some(e => e.describe === room);
-  for (const id of ids) {
-    const o = g.world.objects[id];
-    if (shapeProblems(o).length || placeOf(g, id) === "player") continue;   // (a world that lets you carry it: it goes with you)
-    const about = !tick && [action.obj, action.obj2, ...(Array.isArray(action.absent) ? action.absent : [])]
-      .some(x => x != null && (x === id || g.world.objects[x]?.from === id));
-    if (about && TALKING.has(action.verb)) record(id).talk = g.turn;
-    const held = !!g.pending.question || about || (g.movers?.[id]?.talk === g.turn && o.at === g.player.at) || described(o.at);
-    const place = o.places ? placeHolding(g, o, holdsSafe) : null;
-    let to = o.at, back = false;
-    if (o.places && (place || !o.rounds)) {
-      to = place ? roomOfPlace(g, o, place, startedIn) : null;
-      if (o.rounds && g.movers?.[id]) delete g.movers[id].due;      // (its round waits: it starts again as if for the first time)
-    } else if (o.rounds) {
-      const r = o.rounds, rec = record(id), secs = inSeconds(r);
-      if (rec.rng === undefined) rec.rng = seedFor(g.rng, id);
-      const gap = () => { const [n, rng] = gapOf(r, rec.rng); rec.rng = rng; return secs ? at + n * 1000 : g.turn + n; };
-      const step = (from) => { const [room, i, rng] = nextStep(r, rec.i, from, rec.rng); rec.rng = rng; rec.i = i; return room; };
-      if (rec.due === undefined) {                                  // its first moment: where it is in its round, and its first gap
-        rec.i = r.rooms.indexOf(o.at);                              // (-1 off its round: in order, its next step is to the first)
-        if (rec.i !== -1) { rec.due = gap(); continue; }
-        rec.due = secs ? at : g.turn;                               // off its round (its places have just let it go): its first step
-        back = true;                                                // is due now, whatever the command about it (that let it go)
-      }
-      const stays = back ? !!g.pending.question || described(o.at) : held;
-      if (slept && secs) {                                          // asleep: its steps in the time slept, unseen, as one move
-        for (let n = 0; rec.due <= at + slept && n < 1000; n++) { to = step(to); const [k, rng] = gapOf(r, rec.rng); rec.rng = rng; rec.due += k * 1000; }
-        rec.due -= slept;                                           // (what is left of its gap is left after waking: play time didn't move)
-      } else if (!stays && (secs ? at : g.turn) >= rec.due) { to = step(o.at); rec.due = gap(); }
-      else back = false;
-    }
-    // Following you: it comes from the room you have just left, held or not; or it stays there (`within`), and says so.
-    const following = place?.at === FOLLOWS && g.player.at !== startedIn && o.at === startedIn && !slept;
-    if (following && to === o.at) { apply(g, lineOf(o, id, "stays"), {}, out, "stays:" + id); continue; }
-    if (to === o.at || (held && !back && !following && !slept)) continue;
-    if (to != null && !g.world.rooms[to]) continue;                 // (a room that isn't there: the checker says so)
-    const from = o.at;
-    o.at = to;
-    out.applied.push({ move: id, to });
-    if (slept) { if (to === g.player.at) out.viewed?.add(id); continue; }   // asleep: unseen; the room you wake in is described with it
-    const here = g.player.at, rooms = g.world.rooms;
-    // (going back at once in the moment of a command about it that a rule of the world's answered: that rule let it go, and its
-    // line says it goes, "You shoo him… and he goes off": no line of the game's after it)
-    const told = !(back && about && g.rules.some(x => x.id === out.answer?.rule));
-    if (from === here && told) apply(g, lineOf(o, id, "leaves", wayTo(rooms, here, to)), {}, out, "leaves:" + id);
-    else if (to === here) {
-      for (const e of out.applied) if (e.describe === here) e.without = [...(e.without || []), id];   // it comes in after the description
-      out.viewed?.delete(id);                                       // (and comes into view here, though it was with you: it is marked)
-      apply(g, lineOf(o, id, following ? "follows" : "arrives", wayTo(rooms, here, from)), {}, out, (following ? "follows:" : "arrives:") + id);
-      if (following && out.applied.at(-1)?.say !== undefined) out.applied.at(-1).follows = id;   // (a map's walk passes it by: js/map.js)
-    }
-  }
-}
-// Every thing that moves where its fact says, unseen and untold: as the world is built, and after a change set (a time jump from the
-// checker or the AI). A `places` one where its places say; a round on its first room, unless it is on one of its rooms already
-// (with both, the places while one holds).
-function placeMovers(g) {
-  for (const id of moverIds(g)) {
-    const o = g.world.objects[id];
-    if (shapeProblems(o).length || placeOf(g, id) === "player") continue;
-    if (o.places && (placeHolding(g, o, holdsSafe) || !o.rounds)) o.at = placeNow(g, o, holdsSafe);
-    else if (o.rounds && !o.rounds.rooms.includes(o.at)) o.at = o.rounds.rooms[0];
-  }
-}
-// When the world's clock next changes where a `places` mover is, in play ms (for nextDue: the one timer wakes for it, as for a
-// scheduled rule): the first whole minute, within a day from now, at which its first place that holds is another (or none holds,
-// and its round takes over); null if none. Everything else is taken as it is now (only a moment changes that, and nextDue is asked
-// again after every one).
-const MINUTE_MS = 60000;
-function placeChange(state, o) {
-  const where = (s) => { const p = placeHolding(s, o, holdsSafe); return p ? roomOfPlace(s, o, p) : undefined; };
-  const shift = state.time?.shift || 0, now = state.clock + shift, want = where(state);
-  const first = Math.floor(now / MINUTE_MS) + 1;
-  for (let m = first; m <= first + 24 * 60; m++) {
-    const s = { ...state, time: { ...state.time, shift: m * MINUTE_MS - state.clock } };
-    if (where(s) !== want) return m * MINUTE_MS - shift;
-  }
-  return null;
-}
-
-// ---- Sleep ------------------------------------------------------------------------------------------------
-// The engine's own SLEEP (ARCHITECTURE.md §5, "Sleep"; the arithmetic: js/sleep.js). A world writes nothing for it: a room may
-// refuse it with a line of its own (`sleep`, the standard std_sleep_refused), a room or a thing you sleep in may give a vision
-// (`dream`), and a rule of its own may send you to sleep its own way ({ "sleep": "next 07:30" }: a bed taken once a day).
-//   chosen: what the player chose ({ name } | { until } | { minutes }, read by the parser), null (the question), or a `time`
-//   form from a world's rule. The player's own sleep is refused where it can't be; a world's rule has decided already.
-function sleep(g, chosen, action, out, key) {
-  const now = worldTime(g), theirs = typeof chosen === "string";
-  if (!theirs) {
-    if (sleepRefused(g, out)) {                                    // the stock "This is no time to sleep.": never offered
-      apply(g, { say: "@sleep.notNow" }, action, out, key + ":no");
-      out.answer = { ...out.answer, generic: true };
-      return;
-    }
-    if (!chosen) return askHowLong(g, now, out);
-  }
-  let ms;
-  if (theirs) {
-    const r = moveTo(chosen, now);
-    if (r.error) return out.refused.push({ effect: { sleep: chosen }, reason: r.error });
-    ms = r.to - now;                                   // (the world's own time: its bed takes you until morning, however far that is)
-  } else ms = lengthOf(chosen, now);                   // (the player's, at most LONGEST)
-  if (!(ms > 0)) return out.refused.push({ effect: { sleep: chosen }, reason: "sleep for how long? " + JSON.stringify(chosen) });
-  // "sleep in the bunk": in (or on) the thing named first, if it is one to get into, here and open to you
-  const o = !theirs && action.obj ? g.world.objects[action.obj] : null;
-  if (o?.enterable && placeOf(g, action.obj) === g.player.at && o.locked !== true && !(o.container && o.open === false)) g.player.in = action.obj;
-  fallAsleep(g, ms, action, out, key);
-}
-
-// Where the player can't sleep now (the stock refusal): in the opening; over a question waiting (other than SLEEP's own); in a
-// conversation (the person you are talking to is here with you); or while something holds you (a world's rule answers every way
-// out of here: seated at a dinner you can't politely leave). A room's own refusal, its `sleep` line, is the standard rule's, before.
-function sleepRefused(g, out) {
-  if (isFixed(g, g.player.at)) return true;
-  if (out.waiting && out.waiting.ask !== "sleep") return true;
-  const who = g.talkingTo;
-  if (who && g.world.objects[who] && person(g.world.objects[who]) && placeOf(g, who) === g.player.at) return true;
-  return held(g);
-}
-// Something holds you: the room has a way out, and every one of them is answered by a world's rule on going that isn't tied to one
-// direction (`match` with no `dir`: a hold reads a property its rules set, and answers every way while it holds).
-function held(g) {
-  const exits = g.world.rooms[g.player.at]?.exits || {}, dirs = Object.keys(exits).filter(d => exits[d]);
-  const rules = activeRules(g).filter(r => !r.fixed && isAction(r) && r.match && r.match.dir === undefined);
-  return dirs.length > 0 && dirs.every(dir => rules.some(r => fits(g, r, { verb: "go", dir })));
-}
-
-// "How long do you sleep?": the question, with its clickable answers (the narrator adds them, from the pack: `sleep.choices`),
-// then the dim line that says you may name a time. It waits in pending.question ({ ask: "sleep", choices }), answered from a set
-// like a yes/no one (`choosing`): the parser reads an answer as a SLEEP with its length; anything else drops it.
-function askHowLong(g, now, out) {
-  const choices = choicesAt(now);
-  g.pending.question = { ask: "sleep", choices };
-  out.applied.push({ say: "@sleep.ask", choices: choices.map(c => "@sleep.choices." + c), at: now });
-  out.applied.push({ say: "@sleep.or", style: "sys", at: now });
-}
-
-// The sleep itself, `ms` long (the player's at most LONGEST). The applied effects carry two marks for the screen (ui/scene.js plays the eyelids
-// and the dark between them, and the story is told in time with it, js/main.js): { sleep: <kind>, ms, wake, vision? } where the
-// eyes close, and { woke: true } where they open; what lies between is said in the dark (a dream, a vision's line).
-//   "You close your eyes." Then, in a harmful condition (one whose health hurts: poison, cold), you never wake: "You fall asleep, and
-//   do not wake.", and the death that follows is any death's (step(): its lines, its echo, the `died` ending). Otherwise, in the dark:
-//   a vision (the `dream` of the thing you are in, else of the room), or, in a sleep of a few hours or more, now and then a dream
-//   (DREAM_CHANCE: the first hint line of a puzzle the hints thing could hint now, each once). The clock moves on (what is scheduled
-//   in between runs after, js/engine.js runScheduled); "You wake. It is 07:00, day 2."; the conditions you are in live through the
-//   hours slept (sleptThrough); health comes back by the kind (healOf), if the last sleep that healed you is HEAL_GAP turns back;
-//   and step() describes the room, after the echoes.
-function fallAsleep(g, ms, action, out, key) {
-  const done = (x) => out.applied.push(x), now = worldTime(g), kind = kindOf(ms);
-  apply(g, { say: "@sleep.close" }, action, out, key + ":close");
-  if (activeIds(g).some(id => conditionClass(g.conditions?.[id]) === "harmful")) {
-    done({ sleep: kind, ms, wake: false });
-    return apply(g, { hurt: g.player.health, says: "@sleep.never" }, action, out, key + ":never");
-  }
-  const slept = (g.slept ??= {});                       // (made with the first sleep: a game that never sleeps has no key)
-  const vision = visionHere(g, slept);
-  const dream = !vision && kind !== "nap" && roll(g) < DREAM_CHANCE ? dreamNow(g, slept) : null;
-  done(clean({ sleep: kind, ms, wake: true, vision: vision?.d.picture && g.pictures[vision.d.picture] ? vision.d.picture : undefined }));
-  if (vision) {
-    if (vision.d.once === true) (slept.visions ??= []).push(vision.key);
-    apply(g, { say: vision.d.says }, action, out, key + ":vision");
-    if (vision.d.opens != null) apply(g, { know: vision.d.opens }, action, out, key + ":opens");
-  } else if (dream) {
-    (slept.dreamt ??= []).push(dream.id);
-    apply(g, { say: "@sleep.dream", arg: dream.text }, action, out, key + ":dream");
-  }
-  done({ woke: true });
-  g.time.shift = now + ms - g.clock;                    // the clock moves on (scheduled rules in between run after: runScheduled)
-  done({ time: now + ms, from: now });
-  const p0 = parts(now, g.time?.weekday), p = parts(now + ms, g.time?.weekday);
-  apply(g, { say: "@sleep.wake", arg: { time: hhmm(p), hour: p.hour, minute: p.minute, day: p.day, newDay: p.day !== p0.day } }, action, out, key + ":wake");
-  sleptThrough(g, ms, action, out, key);
-  const heals = healOf(kind);
-  if (heals && g.player.health < RANGES["player.health"][1] && !(slept.healed !== undefined && g.turn - slept.healed < HEAL_GAP)) {
-    apply(g, { heal: heals }, action, out, key + ":heal");
-    slept.healed = g.turn;
-  }
-  out.woke = g.player.at;
-}
-
-// The vision of where you sleep: the `dream` of the enterable thing you are in or on, else of the room; not one that is `once` and seen.
-function visionHere(g, slept) {
-  const room = g.world.rooms[g.player.at], thing = g.player.in ? g.world.objects[g.player.in] : null;
-  const fresh = (key, d) => d && typeof d === "object" && isLine(d.says) && !(d.once === true && (slept.visions || []).includes(key));
-  return fresh(g.player.in, thing?.dream) ? { key: g.player.in, d: thing.dream } : fresh(g.player.at, room?.dream) ? { key: g.player.at, d: room.dream } : null;
-}
-// A dream: one of the puzzles the hints thing could hint now (unsolved, its needs met, not an ending), with a hint line, never one
-// dreamt before, picked with the game's own numbers; its first hint line. The hints thing's own count is left alone (g.hinted).
-function dreamNow(g, slept) {
-  const pool = Object.entries(g.puzzles || {}).filter(([id, p]) => !p.ending && !solved(g, p) && (p.needs || []).every(n => met(g, n))
-    && Array.isArray(p.hints) && isLine(p.hints[0]) && !(slept.dreamt || []).includes(id));
-  if (!pool.length) return null;
-  const [id, p] = pool[rollBetween(g, 0, pool.length - 1)];
-  return { id, text: p.hints[0] };
-}
-
-// The conditions you are in live through the hours slept. They run on play time (state.clock), which a sleep doesn't move: so what
-// they would have done meanwhile is done here, and what is left of them is moved back by the hours slept (their times are play ms).
-//   neutral (no health: drunk): slept off by a sleep of SOBERS or more, or when its time runs out within the sleep;
-//   good (heals: warm): its heal ticks for the hours slept, within its time, as one heal with its line; it ends if its time runs out;
-//   harmful: never here (you don't wake: fallAsleep).
-// Turns don't pass while you sleep (it is one command), so what counts in turns goes on as it was.
-function sleptThrough(g, ms, action, out, key) {
-  const end = g.clock + ms;
-  for (const id of activeIds(g)) {
-    const d = g.conditions?.[id], c = g.player.conditions?.[id];
-    if (!d || !c) continue;
-    const kind = conditionClass(d);
-    if (kind === "neutral" && (ms >= SOBERS || (c.at !== undefined && c.at <= end))) { endCondition(g, id, action, out, key + ":" + id); continue; }
-    if (kind === "good" && c.tickAt !== undefined) {
-      const h = d.health, [min, max] = h.every.seconds || [0, 0];
-      let ticks = 0, t = c.tickAt;
-      while (h.every.seconds && t <= end && (c.at === undefined || t <= c.at)) { ticks++; t += rollBetween(g, min, max) * 1000; }
-      if (ticks) {
-        const says = Array.isArray(h.says) ? pickVariant(g, h.says, "condition:" + id) : h.says;
-        apply(g, { heal: ticks * h.heal, says }, action, out, key + ":" + id);
-        c.tickAt = t;
-      }
-    }
-    if (kind === "good" && c.at !== undefined && c.at <= end) { endCondition(g, id, action, out, key + ":" + id); continue; }
-    if (c.at !== undefined) c.at -= ms;                 // what is left of it is left after waking
-    if (c.tickAt !== undefined && kind === "good" && d.health?.every?.seconds) c.tickAt -= ms;
-  }
-}
-
-// A condition's hold on you as you act, before the action runs: words said come out slurred (js/speech.js) and are read so
-// by the rules; leaving a room, you may take another way (js/movement.js). Each says so in a line of its own first.
-function heldBy(g, action, out) {
-  if (spoken(g, action) && slurring(g)) {
-    const [said, rng] = slur(action.text, g.rng);
-    g.rng = rng;
-    apply(g, { say: "@slurred", arg: said }, action, out, "slurred");
-    action.text = said;
-  }
-  const m = movementNow(g);
-  if (m && action.verb === "go" && action.dir) {
-    const [dir, rng] = stray(m, strayWays(g, action), g.rng);
-    g.rng = rng;
-    if (dir) { apply(g, { say: m.says }, action, out, "movement"); action.dir = dir; }
-  }
-}
-// The other ways you could take by mistake, leaving a room the way you meant: only when that way is open and plain (it leads
-// to a room, and no rule of the world answers it), and only ways just as plain that lead to another room you have already
-// been to (never shut or locked, never somewhere you couldn't have seen, never the opening).
-function strayWays(g, action) {
-  const here = g.player.at, room = g.world.rooms[here];
-  const to = (dir) => exitNow(g, here, dir, { ...action, dir }).go;
-  const plain = (dir) => typeof to(dir) === "string" && !!g.world.rooms[to(dir)] && !g.world.rooms[to(dir)].fixed
-    && !activeRules(g).some(r => isAction(r) && fits(g, r, { ...action, dir }));
-  if (!plain(action.dir)) return [];
-  return Object.keys(room?.exits || {}).filter(d => d !== action.dir && plain(d) && to(d) !== to(action.dir) && g.seen.visited.includes(to(d)));
 }
 
 // ---- Effects ----------------------------------------------------------------------------------------------
@@ -1045,8 +770,7 @@ function describedLater(out, room) {
 // Apply one effect. Each checks itself; a refused one is recorded and changes nothing.
 // key identifies the effect in its rule (used to avoid repeating the same phrasing twice in a row).
 function apply(g, e, action, out, key) {
-  const refuse = (reason) => out.refused.push({ effect: e, reason });
-  const done = (x) => out.applied.push(x);
+  const { refuse, done } = outcome(e, out);
   const touched = out.trusted ? null : fixedTarget(g, e, action);
   if (touched) return refuse(`${touched} is part of the opening: a world can't change it`);
 
@@ -1054,8 +778,19 @@ function apply(g, e, action, out, key) {
   // `describe`, an object's `move`), so those mustn't be read as effects.
   if (adding(e)) return addThing(g, e, refuse, done);
   if (removing(e)) return removeThing(g, e, refuse, done);
+  const run = EFFECTS[effectKind(e)];
+  return run ? run(g, e, action, out, key) : refuse("unknown effect");
+}
 
-  if ("say" in e) {                                  // a line for the narrator: "@key" (pack) or text
+// ---- The effects ------------------------------------------------------------------------------------------------------
+// One handler for each effect's main key, `(g, e, action, out, key)`: it applies the effect to `g` or refuses it, writing what it did to
+// `out.applied` / `out.refused` (`outcome`). The keys are the names of FIELDS.effect (js/fields.js), and their ORDER is the order that
+// list has, the one an effect with two main keys is read in (`effectKind`): the one place the order lives. `apply` looks the handler up.
+// (A handler may call `apply` again for the effects it is made of: a `start` says its line, a `bring` moves a thing.)
+const outcome = (e, out) => ({ refuse: (reason) => out.refused.push({ effect: e, reason }), done: (x) => out.applied.push(x) });
+const EFFECTS = {
+  say(g, e, action, out, key) {  // a line for the narrator: "@key" (pack) or text
+    const { refuse, done } = outcome(e, out);
     let text = e.say, pick, prev;
     // A property can hold several phrasings too ("$obj.talk": the waiter's lines): pick one, as for a list here.
     if (typeof text === "string" && text.startsWith("$")) {
@@ -1081,11 +816,15 @@ function apply(g, e, action, out, key) {
                  pick, prev, who: !things ? grammarOf(w) : undefined, things, marked: things && e.marked ? true : undefined,
                  vals: Object.keys(vals).length ? vals : undefined,
                  at: worldTime(g) }));     // at: the world's time when it was said ([time] in it)
-  } else if ("describe" in e) {                      // the narrator describes a room, or what you carry
+  },
+  describe(g, e, action, out, key) {  // the narrator describes a room, or what you carry
+    const { refuse, done } = outcome(e, out);
     const what = fill(g, e.describe, action);
     if (!["inventory", "time", "status"].includes(what) && !g.world.rooms[what]) return refuse("no such room: " + what);
     done(what === "time" ? { describe: what, at: worldTime(g) } : { describe: what });
-  } else if ("move" in e) {                          // move a thing: to a room, "player", into another object, or
+  },
+  move(g, e, action, out, key) {  // move a thing: to a room, "player", into another object, or
+    const { refuse, done } = outcome(e, out);
                                                      // out of play (to: null)
     const id = fill(g, e.move, action), to = fill(g, e.to, action), o = g.world.objects[id];
     if (!o) return refuse("no such object: " + id);
@@ -1094,11 +833,14 @@ function apply(g, e, action, out, key) {
     if (to === "player") { g.player.carrying.push(id); if (!g.seen.held.includes(id)) g.seen.held.push(id); }
     o.at = to;
     done({ move: id, to });
-  } else if ("set" in e) {                           // set a property: { set: "door.open", to: true } or add: -15
+  },
+  set(g, e, action, out, key) {  // set a property: { set: "door.open", to: true } or add: -15
+    let { refuse, done } = outcome(e, out);   // (e is replaced below: refuse says the one that was applied)
     // Of the player, the game, an object or a room; deeper paths reach inside it: "beach.describe.0" is the first
     // paragraph of the beach's text (an existing one, or the next one).
     // A path may start with the action's object ("$obj.open", "$obj2.open": the standard OPEN and CLOSE); it is recorded as the thing's own.
     if (/^\$obj2?\./.test(e.set)) e = { ...e, set: (e.set.startsWith("$obj2") ? action.obj2 : action.obj) + e.set.slice(e.set.indexOf(".")) };
+    refuse = outcome(e, out).refuse;
     const [id, ...path] = e.set.split(".");
     let target = ownerOf(g, id);
     if (!target) return refuse("no such object: " + id);
@@ -1125,15 +867,19 @@ function apply(g, e, action, out, key) {
     done({ set: e.set, to: value });
     if (e.set === "player.health" && typeof was === "number" && value < was) hurtLine(g, null, done);
     else if (e.set === "player.health" && typeof was === "number" && value > was) echo(done, g, "healed", value);
-  } else if ("hurt" in e) {                          // hurt the player: { hurt: 1, says: "Something caught you." } (1 ordinary … 5 an instant death)
+  },
+  hurt(g, e, action, out, key) {  // hurt the player: { hurt: 1, says: "Something caught you." } (1 ordinary … 5 an instant death)
+    const { refuse, done } = outcome(e, out);
     const n = fill(g, e.hurt, action);
     if (typeof n !== "number" || !(n > 0)) return refuse("hurt by how much? " + e.hurt);
     const [lo] = RANGES["player.health"], was = g.player.health;
     g.player.health = Math.max(lo, was - n);
-    // A hit takes what it takes, with no warning first (GUIDE.md §3): at 0 the story ends.
+    // A hit takes what it takes, with no warning first (BRIEF.md §5): at 0 the story ends.
     done({ set: "player.health", to: g.player.health });
     hurtLine(g, fill(g, e.says, action), done);
-  } else if ("heal" in e) {                          // heal the player: { heal: 1, says: "The tea is hot and sweet." }
+  },
+  heal(g, e, action, out, key) {  // heal the player: { heal: 1, says: "The tea is hot and sweet." }
+    const { refuse, done } = outcome(e, out);
     const n = fill(g, e.heal, action);
     if (typeof n !== "number" || !(n > 0)) return refuse("heal by how much? " + e.heal);
     const was = g.player.health, [, hi] = RANGES["player.health"];
@@ -1143,13 +889,17 @@ function apply(g, e, action, out, key) {
     // then the echo, always: where you land if you are better; at full health nothing changes and it says so (the state phrase)
     if (g.player.health !== was) echo(done, g, "healed", g.player.health);
     else done({ echo: "@health." + g.player.health, kind: "healed", level: g.player.health, at: worldTime(g) });
-  } else if ("echo" in e) {                          // an echo of something that happened to you: { echo: "…", kind: "noted" }
+  },
+  echo(g, e, action, out, key) {  // an echo of something that happened to you: { echo: "…", kind: "noted" }
+    const { refuse, done } = outcome(e, out);
     const said = fill(g, e.echo, action);
     if (typeof said !== "string" || !said.trim()) return refuse("echo says what? " + e.echo);
     if (typeof e.kind !== "string" || !/^[a-z]+$/.test(e.kind)) return refuse("echo of what kind? " + e.kind);
     if (ENGINE_ECHOES.includes(e.kind)) return refuse(`an echo of kind "${e.kind}" is the engine's own: what you hold is told by the game itself`);
     done({ echo: said, kind: e.kind, at: worldTime(g) });
-  } else if ("start" in e) {                         // start a condition: { start: "drunk" } (js/conditions.js); again: it starts afresh
+  },
+  start(g, e, action, out, key) {  // start a condition: { start: "drunk" } (js/conditions.js); again: it starts afresh
+    const { refuse, done } = outcome(e, out);
     const id = fill(g, e.start, action), d = g.conditions?.[id];
     if (!d) return refuse("no such condition: " + id);
     // doses (decision 46): a condition with `doses: n` starts on the nth start; the ones before are counted (player.doses), silently
@@ -1166,11 +916,15 @@ function apply(g, e, action, out, key) {
     if (again) return;                                // already in it: nothing new to say (the rule's own line tells it)
     done({ echo: d.starts, kind: "condition", tone: conditionTone(d), at: worldTime(g) });   // in the colour of what it does
     for (const f of d.filters || []) apply(g, { filter: f }, action, out, key + ":filter");
-  } else if ("stop" in e) {                          // end a condition: { stop: "drunk" }; nothing happens if you're not in it
+  },
+  stop(g, e, action, out, key) {  // end a condition: { stop: "drunk" }; nothing happens if you're not in it
+    const { refuse } = outcome(e, out);
     const id = fill(g, e.stop, action);
     if (!g.conditions?.[id]) return refuse("no such condition: " + id);
     if (g.player.conditions?.[id]) endCondition(g, id, action, out, key);
-  } else if ("filter" in e || "unfilter" in e) {     // a picture filter on, or off: { filter: "sway" }, { filter: "tint:cold" } (js/filters.js)
+  },
+  filter(g, e, action, out, key) {  // a picture filter on, or off: { filter: "sway" }, { filter: "tint:cold" } (js/filters.js)
+    const { refuse, done } = outcome(e, out);
     const on = "filter" in e, name = fill(g, on ? e.filter : e.unfilter, action);
     const why = filterProblem(name, { off: !on });
     if (why) return refuse(why);
@@ -1184,7 +938,9 @@ function apply(g, e, action, out, key) {
     g.filters = next;
     if (!g.filters.length) delete g.filters;         // (none on: no key, as in a game saved before filters)
     done(on ? { filter: name } : { unfilter: name });
-  } else if ("travel" in e) {                        // move the player to a room
+  },
+  travel(g, e, action, out, key) {  // move the player to a room
+    const { refuse, done } = outcome(e, out);
     const room = fill(g, e.travel, action);
     if (!g.world.rooms[room]) return refuse("no such room: " + room);
     // the standard GO through a way that `spends` what it requires: it is taken from you as you go (you paid)
@@ -1198,7 +954,9 @@ function apply(g, e, action, out, key) {
     done({ travel: room });
     if (paid) apply(g, { move: paid, to: null }, action, out, key + ":paid");
     if (!describedLater(out, room)) done({ describe: room });   // the new room is described, unless the same list does it itself
-  } else if ("connect" in e || "disconnect" in e) {  // open or close an exit: { connect: room, dir, to, passage?, in?, out?, if?, closed? }
+  },
+  connect(g, e, action, out, key) {  // open or close an exit: { connect: room, dir, to, passage?, in?, out?, if?, closed? }
+    const { refuse, done } = outcome(e, out);
     const id = e.connect || e.disconnect, room = g.world.rooms[id];
     if (!room) return refuse("no such room: " + id);
     if (!DIRECTIONS.includes(e.dir)) return refuse("no such direction: " + e.dir);
@@ -1211,12 +969,16 @@ function apply(g, e, action, out, key) {
     }
     room.exits[e.dir] = e.connect ? connectedExit(e) : false;   // a plain room id, or { to, in, out, if, closed } when it carries any
     done({ ...e });
-  } else if ("inside" in e) {                        // say what a container holds, each thing marked ("Inside: a {crank}."): the
+  },
+  inside(g, e, action, out, key) {  // say what a container holds, each thing marked ("Inside: a {crank}."): the
+    const { refuse } = outcome(e, out);
     const id = fill(g, e.inside, action);            // standard OPEN's second line. Nothing if it holds nothing (or nothing unnoticed)
     if (!g.world.objects[id]) return refuse("no such object: " + id);
     const held = Object.keys(g.world.objects).filter(x => g.world.objects[x].at === id && !g.world.objects[x].unnoticed);
     if (held.length) apply(g, { say: "@inside", things: held, marked: true }, action, out, key + ":inside");
-  } else if ("unlock" in e) {                        // try to open a locked thing: with its key, it opens (its `opens`
+  },
+  unlock(g, e, action, out, key) {  // try to open a locked thing: with its key, it opens (its `opens`
+    const { refuse, done } = outcome(e, out);
     const id = fill(g, e.unlock, action), o = g.world.objects[id];   // line, then its named change); without, its `says`
     if (!o) return refuse("no such object: " + id);
     const lock = o.lock || {};
@@ -1230,7 +992,9 @@ function apply(g, e, action, out, key) {
       apply(g, { say: lock.says || "@locked" }, action, out, key + ":says");
       if (!lock.says) out.answer = { ...out.answer, generic: true };
     }
-  } else if ("change" in e) {                        // run a named change: effects written once, used by any rule
+  },
+  change(g, e, action, out, key) {  // run a named change: effects written once, used by any rule
+    const { refuse, done } = outcome(e, out);
     const effects = g.changes[e.change];
     if (!effects) return e.optional ? undefined : refuse("no such change: " + e.change);   // optional: if the world has one
     if ((out.depth = (out.depth || 0) + 1) > 5) { out.depth--; return refuse("changes nested too deep: " + e.change); }
@@ -1240,7 +1004,9 @@ function apply(g, e, action, out, key) {
     out.trusted = was;
     out.depth--;
     done({ change: e.change });
-  } else if ("draw" in e) {                          // edit a room's picture: a new version (ART-DIRECTION.md §5)
+  },
+  draw(g, e, action, out, key) {  // edit a room's picture: a new version (ART-DIRECTION.md §5)
+    const { refuse, done } = outcome(e, out);
     const room = g.world.rooms[fill(g, e.draw, action)];
     if (!room || !room.picture) return refuse("no such picture: " + e.draw);
     const next = editPicture(room.picture, e);
@@ -1248,7 +1014,9 @@ function apply(g, e, action, out, key) {
     room.picture = next;
     (out.drawn ??= new Set()).add(fill(g, e.draw, action));   // (a long thing's shape that changes in the same moment shares this version)
     done({ draw: e.draw, version: next.version });
-  } else if ("time" in e) {                         // move the world's clock: "+8h", "-1d", "next 06:00", "day 1 17:00"
+  },
+  time(g, e, action, out, key) {  // move the world's clock: "+8h", "-1d", "next 06:00", "day 1 17:00"
+    const { refuse, done } = outcome(e, out);
     const now = worldTime(g), r = moveTo(fill(g, e.time, action), now);
     if (r.error) return refuse(r.error);
     if (e.weekday != null && !WEEKDAYS.includes(e.weekday)) return refuse("a weekday is one of " + WEEKDAYS.join(", "));
@@ -1258,11 +1026,14 @@ function apply(g, e, action, out, key) {
     // it doesn't run. Going back lets what's after it happen again. Going forward runs what it passes.
     if (/^\s*day/i.test(String(fill(g, e.time, action))) || r.to < now) g.time.seen = r.to;
     done(clean({ time: r.to, from: now, weekday: e.weekday }));
-  } else if ("sleep" in e) {                         // sleep (§5 "Sleep"): the standard SLEEP's ($sleep: what the player chose, or
+  },
+  sleep(g, e, action, out, key) {  // sleep (§5 "Sleep"): the standard SLEEP's ($sleep: what the player chose, or
     // nothing yet: the question), or a world's own rule sending you to sleep to a time of its own ("next 07:30", a `time` form)
     const v = e.sleep === "$sleep" ? action.sleep ?? null : fill(g, e.sleep, action);
-    sleep(g, v, action, out, key);
-  } else if ("confirm" in e) {                       // a yes/no question, the same everywhere: it's said, followed by
+    sleeping.sleep(g, v, action, out, key);
+  },
+  confirm(g, e, action, out, key) {  // a yes/no question, the same everywhere: it's said, followed by
+    const { refuse, done } = outcome(e, out);
     // <YES> / <NO> (the narrator adds them); the next input is read as the answer, which does `yes` or `no` (a
     // short "All right." when there's no `no`). Anything else typed instead drops the question.
     // { confirm: "@askRestart", yes: [effects], no?: [effects], style?, arg? }
@@ -1274,13 +1045,17 @@ function apply(g, e, action, out, key) {
     g.pending.question = { ask: "confirm", yesNo: true, yes: e.yes, ...(e.no ? { no: e.no } : {}), trusted: !!out.trusted, ...(under ? { then: under } : {}) };
     const vals = propertyWords(g, said);
     done(clean({ say: said, confirm: true, style: e.style, arg: fill(g, e.arg, action), vals: Object.keys(vals).length ? vals : undefined, at: worldTime(g) }));
-  } else if ("ask" in e) {                           // ask the player for words (a name, a password): the next input is the answer
+  },
+  ask(g, e, action, out, key) {  // ask the player for words (a name, a password): the next input is the answer
+    const { refuse, done } = outcome(e, out);
     // { ask: "<key>" }: one answer, whatever is typed (an empty line too: blank), kept as player.answers.<key>
     // and caught by a rule matching { verb: "answer", question: "<key>" }. step() adds the grey "Type your answer." at the end.
     if (typeof e.ask !== "string" || !ASK_KEY.test(e.ask) || e.ask === "confirm") return refuse("ask for what? a key like \"name\" or \"password\", not " + JSON.stringify(e.ask));
     g.pending.question = { ask: e.ask };
     done({ ask: e.ask });
-  } else if ("end" in e) {                           // the story has ended: asks nothing; a note, once, and the way to begin again
+  },
+  end(g, e, action, out, key) {  // the story has ended: asks nothing; a note, once, and the way to begin again
+    const { refuse, done } = outcome(e, out);
     // { end: true, picture: "drowned" }: the ending's own picture, one of `pictures` (add picture); the scene shows it.
     if (e.picture !== undefined && !g.pictures[e.picture]) return refuse(`the ending names a picture that doesn't exist: ${e.picture}`);
     const first = !g.ended;
@@ -1291,19 +1066,29 @@ function apply(g, e, action, out, key) {
       apply(g, { say: "@endNote", style: "sys", arg: { ms: g.clock, rooms: (g.seen?.visited || []).length } }, action, out, "endNote");
       apply(g, { say: "@gameOver", style: "sys" }, action, out, "over");
     }
-  } else if ("know" in e) {                          // an idea has come up ("monday"): topics about it can be offered
+  },
+  know(g, e, action, out, key) {  // an idea has come up ("monday"): topics about it can be offered
+    const { done } = outcome(e, out);
     const v = fill(g, e.know, action);
     for (const idea of [].concat(v ?? [])) if (typeof idea === "string" && !g.seen.ideas.includes(idea)) g.seen.ideas.push(idea);
     if (v != null) done({ know: v });
-  } else if ("hint" in e) {                          // a hint, from the puzzles: { hint: <the opening's hintFrame line> } frames it
+  },
+  hint(g, e, action, out, key) {  // a hint, from the puzzles: { hint: <the opening's hintFrame line> } frames it
+    const { done } = outcome(e, out);
     done({ hint: fill(g, e.hint, action), ...nextHint(g) });
-  } else if ("restart" in e) {                       // begin again: the controller starts a new game
+  },
+  restart(g, e, action, out, key) {  // begin again: the controller starts a new game
+    const { done } = outcome(e, out);
     done({ restart: true });
-  } else if ("session" in e) {                       // something for the controller to do outside the story, once
+  },
+  session(g, e, action, out, key) {  // something for the controller to do outside the story, once
+    const { refuse, done } = outcome(e, out);
     // a question about it was answered yes (undo, load, save over the saved game, a new game): never from a world
     if (!out.trusted) return refuse("only the game itself can do " + e.session);
     done({ session: e.session });
-  } else if ("bring" in e) {                         // a thing comes from its source (the standard ORDER, BUY, ASK FOR): js/verbs.js, std_bring
+  },
+  bring(g, e, action, out, key) {  // a thing comes from its source (the standard ORDER, BUY, ASK FOR): js/verbs.js, std_bring
+    const { refuse } = outcome(e, out);
     const id = fill(g, e.bring, action), o = g.world.objects[id];
     if (!o) return refuse("no such object: " + id);
     // A refusal: generic (never offered) when it is so already or no more are to be had; not when it says what it costs (`lacking`, the
@@ -1324,7 +1109,9 @@ function apply(g, e, action, out, key) {
     apply(g, line != null ? { say: line } : { say: "@brought", things: [id] }, action, out, key + ":brought");
     if (needs && o.spends === true) apply(g, { move: needs, to: null }, action, out, key + ":spent");   // you paid
     apply(g, { move: id, to: o.portable ? "player" : placeOf(g, o.from) }, action, out, key + ":move");   // in front of you; a thing you can carry, into your hands
-  } else if ("consume" in e) {                       // eat or drink a consumable thing (the standard EAT and DRINK): its line, what it does, gone
+  },
+  consume(g, e, action, out, key) {  // eat or drink a consumable thing (the standard EAT and DRINK): its line, what it does, gone
+    const { refuse } = outcome(e, out);
     const id = fill(g, e.consume, action), o = g.world.objects[id];
     if (!o) return refuse("no such object: " + id);
     // A list of lines (decision 49): one each time, in order, the last repeating, as `brought` is; the nth that came from its source
@@ -1340,7 +1127,8 @@ function apply(g, e, action, out, key) {
     if (o.starts) apply(g, { start: o.starts }, action, out, key + ":starts");
     if (o.stops) apply(g, { stop: o.stops }, action, out, key + ":stops");
     apply(g, { move: id, to: null }, action, out, key + ":gone");
-  } else if ("useAs" in e) {                         // USE becomes the action you meant, run as if typed (js/use.js):
+  },
+  useAs(g, e, action, out, key) {  // USE becomes the action you meant, run as if typed (js/use.js):
     // "field": what USE alone means for a thing (its `use`, a verb); "pair": "use X with Y" (a world's own `use` rules came
     // first). It means nothing known: the stock reply, which is never "try a more specific verb".
     // "own": USE alone on a thing a rule of the world answers by one verb of its own runs that (ownUse), else it lists what you could
@@ -1359,15 +1147,21 @@ function apply(g, e, action, out, key) {
       apply(g, { say: "@replies.use", vary: true }, action, out, key + ":none");
       out.answer = { rule: "std_use_none", generic: true };
     }
-  } else if ("useHow" in e) {                        // USE alone, with nothing it means by itself: the controller lists what
+  },
+  useHow(g, e, action, out, key) {  // USE alone, with nothing it means by itself: the controller lists what
+    const { done } = outcome(e, out);
     const id = fill(g, e.useHow, action);            // you could do with the thing (js/view.js, useLine), or the stock reply
     if (g.world.objects[id]) done({ useHow: id, pick: roll(g) });
-  } else if ("listenFor" in e) {                     // HINT: points to the opening's listening thing, never a hint itself
+  },
+  listenFor(g, e, action, out, key) {  // HINT: points to the opening's listening thing, never a hint itself
+    const { done } = outcome(e, out);
     const id = g.opening?.hints, o = id && g.world.objects[id];
     const where = !o ? "@hintNone" : o.at === "player" ? "@hintCarried" : o.at === g.player.at ? "@hintHere" : "@hintAway";
     done(clean({ say: where, name: o ? id : undefined, style: "sys", at: worldTime(g) }));   // name: the narrator names it; grey: the system speaking
-  } else refuse("unknown effect");
-}
+  },
+};
+EFFECTS.unfilter = EFFECTS.filter;
+EFFECTS.disconnect = EFFECTS.connect;
 
 // ---- Things that come from someone -----------------------------------------------------------------------------
 // What ORDER, BUY or ASK asks for (decision 40): a thing with `from` whose source is here (in your room, or with you). ORDER and BUY name it
@@ -1437,7 +1231,17 @@ function echo(done, g, kind, level) {
   done({ echo: kind === "hurt" ? "@health." + level : `@echo.${kind}.${level}`, kind, level, at: worldTime(g) });
 }
 
-// What part of the opening an effect would change, if any (for effects from a world: they may not).
+// What part of the opening an effect would change, if any (for effects from a world: they may not). Which id each kind of effect touches:
+// the first of these a (not added or removed) effect has, in this order.
+const TOUCHES = {
+  move: (g, e, action) => [fill(g, e.move, action), fill(g, e.to, action)],
+  set: (g, e, action) => { const id = e.set.split(".")[0]; return [id === "$obj" ? action.obj : id === "$obj2" ? action.obj2 : id]; },
+  travel: (g, e, action) => [fill(g, e.travel, action)],
+  connect: (g, e) => [e.connect || e.disconnect],
+  disconnect: (g, e) => [e.connect || e.disconnect],
+  draw: (g, e, action) => [fill(g, e.draw, action)],
+  unlock: (g, e, action) => [fill(g, e.unlock, action)]
+};
 function fixedTarget(g, e, action) {
   const ids = [];
   if (adding(e)) {
@@ -1446,12 +1250,10 @@ function fixedTarget(g, e, action) {
   } else if (removing(e)) {
     if (e.remove === "rule") ids.push(g.rules.find(r => r.id === e.id)?.fixed ? "rule " + e.id : null);
     else ids.push(e.id);
-  } else if ("move" in e) ids.push(fill(g, e.move, action), fill(g, e.to, action));
-  else if ("set" in e) { const id = e.set.split(".")[0]; ids.push(id === "$obj" ? action.obj : id === "$obj2" ? action.obj2 : id); }
-  else if ("travel" in e) ids.push(fill(g, e.travel, action));
-  else if ("connect" in e || "disconnect" in e) ids.push(e.connect || e.disconnect);
-  else if ("draw" in e) ids.push(fill(g, e.draw, action));
-  else if ("unlock" in e) ids.push(fill(g, e.unlock, action));
+  } else {
+    const kind = Object.keys(TOUCHES).find(k => k in e);
+    if (kind) ids.push(...TOUCHES[kind](g, e, action));
+  }
   return ids.find(id => typeof id === "string" && (id.startsWith("rule ") || isFixed(g, id))) || null;
 }
 
@@ -1515,7 +1317,7 @@ function addThing(g, e, refuse, done) {
   } else if (e.add === "music") {                  // the world's music (MUSIC.md §4): kept as written, never refused (js/music.js reads it
     const { add, ...music } = e;                   // forgivingly when it plays); a second one replaces the first
     g.music = structuredClone(music);              // (made with the first: a game saved before music loads unchanged, with none)
-  } else if (e.add === "puzzle") {                 // a puzzle described as data (GUIDE.md §3; checked by js/check.js)
+  } else if (e.add === "puzzle") {                 // a puzzle described as data (BRIEF.md §4; checked by js/check.js)
     const { add, id, ...props } = e;
     if (!id || !Array.isArray(props.solve) || !props.solve.length) return refuse("a puzzle needs an id and the commands that solve it");
     const clash = idTaken(g, "puzzle", id);
@@ -1554,53 +1356,6 @@ function removeThing(g, e, refuse, done) {
   done({ ...e });
 }
 
-// A picture written in the short notation (a room's, or an ending's): its drawing list parsed (js/picture.js), version 1
-// unless it says. Returns the picture as it is stored, or the reasons it can't be, as one string.
-function readPicture(picture) {
-  const { shapes, problems } = parseShapes(picture.draw);
-  return problems.length ? problems.join("; ") : { version: 1, ...picture, draw: shapes };
-}
-
-// A picture with edits applied: shapes removed, replaced or restyled (new colours, same place) by id, shapes added (at the end, or `after` a shape's
-// id), cycles and overlays replaced when given. Returns the new picture (version + 1) or the reason it can't.
-function editPicture(picture, e) {
-  // Shapes to add or replace can be written in the short notation: a line each, or all in one string.
-  const shapes = (x) => typeof x === "string" ? parseShapes(x) : { shapes: (x || []).map(s => (typeof s === "string" ? parseShape(s) : s)), problems: [] };
-  try {
-    for (const k of ["add", "replace"]) {
-      const r = shapes(e[k]);
-      if (r.problems.length) return r.problems.join("; ");
-      e = { ...e, [k]: r.shapes };
-    }
-  } catch (err) { return err.message; }
-  let draw = picture.draw.map(x => x);
-  const has = (id) => draw.some(x => x.id === id);
-  for (const id of e.remove || []) { if (!has(id)) return "no such shape: " + id; draw = draw.filter(x => x.id !== id); }
-  for (const shape of e.replace || []) {
-    if (!has(shape.id)) return "no such shape: " + shape.id;
-    draw = draw.map(x => (x.id === shape.id ? shape : x));
-  }
-  for (const style of e.restyle || []) {             // only how it looks: fill, edge, colour; never where it is
-    if (!has(style.id)) return "no such shape: " + style.id;
-    const bad = Object.keys(style).find(k => !["id", "fill", "edge", "color"].includes(k));
-    if (bad) return "restyle changes only fill, edge and color, not " + bad;
-    let look = style;
-    if (typeof style.fill === "string") {            // a fill in the short notation: "fade:0,1/0,0/0,60"
-      try { look = { ...style, fill: parseShape("rect - 0,0,1,1 " + style.fill).fill }; } catch (err) { return `${style.id}: ${err.message}`; }
-    }
-    draw = draw.map(x => (x.id === style.id ? { ...x, ...look } : x));
-  }
-  for (const { after, ...shape } of e.add || []) {
-    if (shape.id && has(shape.id)) return "shape already exists: " + shape.id;
-    if (after && !has(after)) return "no such shape: " + after;
-    const at = after ? draw.findIndex(x => x.id === after) + 1 : draw.length;
-    draw.splice(at, 0, shape);
-  }
-  if (draw.length > art.draw.maxShapes) return "too many shapes";
-  return { ...picture, version: picture.version + 1, draw,
-           ...(e.cycles ? { cycles: e.cycles } : {}), ...(e.overlays ? { overlays: e.overlays } : {}) };
-}
-
 // One of several phrasings, never the same one twice in a row.
 function pickVariant(g, list, key) {
   if (list.length === 1) return list[0];
@@ -1612,5 +1367,5 @@ function pickVariant(g, list, key) {
   return list[i];
 }
 
-// Drop empty fields from an applied effect (null, undefined).
-const clean = (x) => Object.fromEntries(Object.entries(x).filter(([, v]) => v !== undefined && v !== null));
+// The sleep at run time and a condition's hold on you (js/sleeping.js), handed the engine's own functions it needs.
+const sleeping = makeSleeping({ apply, roll, rollBetween, isFixed, activeRules, fits, exitNow, solved, met, endCondition, saysOf });

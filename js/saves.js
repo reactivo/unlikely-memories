@@ -18,23 +18,38 @@ const idb = {
 let backend = idb;
 export function useBackend(b = idb) { backend = b; }
 
-// Open the database (created on first use).
+// The database, opened once and kept: every save and load used to open (and close) a connection of its own, and the game saves after
+// every turn. The promise is dropped when the open fails or the connection closes (the browser closed it, another tab upgrades the
+// database), so the next call opens again.
+let opened = null;
 function open() {
-  return new Promise((resolve, reject) => {
+  if (opened) return opened;
+  const made = new Promise((resolve, reject) => {
+    const forget = () => { if (opened === made) opened = null; };
     const req = indexedDB.open(DB, 1);
     req.onupgradeneeded = () => req.result.createObjectStore(STORE);
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      const db = req.result;
+      db.onclose = forget;
+      db.onversionchange = () => { forget(); db.close(); };
+      resolve(db);
+    };
     req.onerror = () => reject(req.error);
   });
+  made.catch(() => { if (opened === made) opened = null; });   // (also when indexedDB.open itself throws: blocked storage)
+  return opened = made;
 }
 
-// Run one request against the saves and wait for it.
-async function run(mode, fn) {
+// Run one request against the saves and wait for it. A kept connection that has since closed refuses the transaction: opened again, once.
+async function run(mode, fn, again = true) {
   const db = await open();
+  let tx;
+  try { tx = db.transaction(STORE, mode); }
+  catch (e) { opened = null; if (again) return run(mode, fn, false); throw e; }
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, mode), req = fn(tx.objectStore(STORE));
-    tx.oncomplete = () => { db.close(); resolve(req.result); };
-    tx.onerror = tx.onabort = () => { db.close(); reject(tx.error); };
+    const req = fn(tx.objectStore(STORE));
+    tx.oncomplete = () => resolve(req.result);
+    tx.onerror = tx.onabort = () => reject(tx.error);
   });
 }
 

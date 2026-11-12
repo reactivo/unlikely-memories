@@ -54,7 +54,7 @@ const endingPictures = {
 // Área "store" (x crece al este, y al sur, z es la planta: -1 el sótano, 0 la planta baja, hasta 3, la azotea).
 // Área "fourth": la cuarta planta, a la que solo se llega en ascensor.
 const rooms = {
-  // La apertura (GUIDE.md §8): el pasaje de atrás de los almacenes, cerrado por los dos extremos, adonde no se vuelve. El área "arcade" es solo suya.
+  // La apertura (BRIEF.md §3): el pasaje de atrás de los almacenes, cerrado por los dos extremos, adonde no se vuelve. El área "arcade" es solo suya.
   pavement: {
     name: "EL PASAJE", area: "arcade", at: [0, 0, 0],
     describe: [
@@ -509,7 +509,7 @@ const rules = [
 
 ];
 
-// ---- Puzles (para el verificador; GUIDE.md §3) -------------------------------------------------------------------------------------
+// ---- Puzles (para el verificador; BRIEF.md §4) -------------------------------------------------------------------------------------
 const puzzles = {
   get_memory: { where: "perfumery", needs: [], solve: ["oler la muestra"], gives: ["memory"], clues: ["tester", "corre", "gage"],
     hints: ["Madame Corre embotella lo que recuerdas, si hueles su muestra.", "Huele la muestra en perfumería."] },

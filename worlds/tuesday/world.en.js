@@ -1,5 +1,5 @@
 // "The Train to Tuesday": a world after the opening, in English, written the way the AI is asked to write a world
-// (WRITING-DIRECTION.md for the voice, GUIDE.md for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
+// (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, applied after the opening, all or nothing.
 
 import pictures, { endings } from "./pictures.js";
@@ -66,7 +66,7 @@ const endingPictures = {
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
 // Area "town" (x grows east, y grows south, z is the floor); area "train" is reached only when the train is in.
 const rooms = {
-  // The opening (GUIDE.md §8): a halt on the branch line, never returned to. Area "branch" is its own.
+  // The opening (BRIEF.md §3): a halt on the branch line, never returned to. Area "branch" is its own.
   halt: {
     name: "MONDAY HALT", area: "branch", at: [0, 0, 0],
     describe: [
@@ -712,7 +712,7 @@ const rules = [
 
 ];
 
-// ---- Puzzles (for the checker; GUIDE.md §3) ---------------------------------------------------------------------------
+// ---- Puzzles (for the checker; BRIEF.md §4) ---------------------------------------------------------------------------
 const puzzles = {
   get_coin: { where: "square", needs: [], solve: ["wait until the lamps are lit", "take coin"], gives: ["coin"], clues: ["oduya", "booking_clerk", "ines", "fountain"] , hints: ["The old coins are in the fountain, but the water only shows them once its lamp is lit, at eight.", "Wait by the fountain until the lamps are lit, then take a coin."] },
   get_ticket: { where: "station_hall", needs: ["coin"], solve: ["wait for the window to open", "buy ticket"], gives: ["ticket"], clues: ["window", "timetable"] , hints: ["The ticket window opens at nine in the evening, and it wants an old coin.", "Wait in the station hall for the window to open, then buy a ticket."] },

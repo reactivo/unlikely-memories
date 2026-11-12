@@ -124,22 +124,22 @@
       margin-top: var(--echo-gap);
     }
 
-    & .echo-hurt {
+    /* The hurt colour: a health echo that hurt, the death lines (js/narrator.js gives that paragraph "death": the cause's words
+       included), and STATUS at 3 to 1 (js/narrator.js gives it "status status-<healed|hurt>": the sentence in the colour of how
+       you are, 5 and 4 green, 3 to 1 red; its own paragraph, like any story line). */
+    & .echo-hurt, & .death, & .status-hurt {
       color: var(--echo-hurt);
     }
 
-    /* The death lines (js/narrator.js gives that paragraph "death"): in the hurt colour, the cause's words included. */
-    & .death {
-      color: var(--echo-hurt);
-    }
-
-    & .echo-healed {
+    /* The healed colour: a health echo that healed, and STATUS at 5 and 4. */
+    & .echo-healed, & .status-healed {
       color: var(--echo-healed);
     }
 
     /* A condition's lines (js/narrator.js adds "tone-<hurt|healed|neutral>" to their echo style; js/conditions.js works it
        out from the condition's health): its start echo and its STATUS line red if it hurts you, green if it heals you,
-       amber if neither; its end echo green, or amber for one that healed you. No bars: those are for health lines. */
+       amber if neither; its end echo green, or amber for one that healed you. No bars: those are for health lines. (Each has its
+       own rule: tests/conditions.test.js pins them one by one.) */
     & .tone-hurt {
       color: var(--echo-hurt);
     }
@@ -150,16 +150,6 @@
 
     & .tone-neutral {
       color: var(--echo-neutral);
-    }
-
-    /* STATUS (js/narrator.js gives it "status status-<healed|hurt>"): the sentence in the colour of how you are, 5 and 4
-       green, 3 to 1 red; its own paragraph, like any story line. */
-    & .status-healed {
-      color: var(--echo-healed);
-    }
-
-    & .status-hurt {
-      color: var(--echo-hurt);
     }
 
     /* The five health bars before a health line, on m5x7's pixel grid (one font pixel = 1/16 em): each bar 2 × 7 font pixels,
@@ -321,8 +311,8 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-focus);
-      outline-offset: 2px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
   }
 
@@ -344,8 +334,8 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-focus);
-      outline-offset: 2px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
 
     /* Spacing that follows the text's own size (em; values in typography.css). */

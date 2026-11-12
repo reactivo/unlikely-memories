@@ -164,7 +164,7 @@ export default {
   hear: { steps: [1, 3, 5], octave: 4, gap: 0.9, length: 0.8 },
 
   // ---- Sounds (docs/sound/PLAN.md, build 1): a short sound for a moment the screen already shows -------------------------------
-  // The game's piece (ui/sound.js, soundsOf) reads the moment's list into plain terms, { kind, material, weight }; the player plays
+  // The game's piece (ui/moments.js, soundsOf) reads the moment's list into plain terms, { kind, material, weight }; the player plays
   // them (ui/sound/sounds.js) in the world's key and mode (its music's; a world with no music, `key`), on their own bus beside the
   // music's, about level with the theme (`loudness.targets.sounds`; the sound panel's sliders will set the balance).
   // One table, `moments`: each kind → its notes. A note: `play` an instrument of `voices`, or "material" (the thing's: `materials`,

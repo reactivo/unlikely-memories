@@ -15,9 +15,10 @@
 // go from the room it is in to one of those rooms: you go anywhere else, and it stays behind, in the room it was in, and waits; you
 // come back there, and it follows you again from there. One with `within` whose place starts to hold while it is in another room
 // waits there for you (one that is away joins you, in a room of `within`).
-// This file is the pure part: where each fact says the thing is now, the next step of a round and its gaps (from the thing's own
+// This file is the pure part (and, last, the runtime that applies it: `runMovers`, `placeMovers`, `placeChange`, which take the engine's
+// `apply`, `holds` and `isFixed` as arguments, never importing the engine): where each fact says the thing is now, the next step of a round and its gaps (from the thing's own
 // generator, seeded from the game's: js/random.js), the way it comes from or goes to, its line, and what is wrong with a declaration.
-// The engine (js/engine.js, runMovers) calls it at one place in each moment, after everything else the world does: it moves the thing
+// The engine (js/engine.js) calls runMovers at one place in each moment, after everything else the world does: it moves the thing
 // when due unless it is held (a question waiting, a command about it this moment, a conversation with it, its room described this
 // moment), tells it when you are there to see it, and keeps each one's own record in state.movers ({ id: { rng?, due?, i?, talk? } },
 // made with the first, so a world with nothing that moves has no key).
@@ -25,8 +26,10 @@
 
 import { between } from "./random.js";
 import { exitTo } from "./exits.js";
+import { isObject, isLine as line, gap } from "./shapes.js";
+import { placeOf } from "./place.js";
 
-export const KINDS = ["places", "rounds"];
+const KINDS = ["places", "rounds"];
 // The fields of a place and of a round (js/fields.js lists them for the checks).
 export const PLACE_FIELDS = ["at", "if", "within"];
 export const ROUNDS_FIELDS = ["rooms", "every", "random"];
@@ -43,8 +46,7 @@ const placesOf = (o) => (Array.isArray(o?.places) ? o.places : []);
 export const roomsOf = (o) => [...new Set([
   ...placesOf(o).flatMap(p => (p?.at === FOLLOWS && Array.isArray(p.within) ? p.within : [p?.at])),
   ...(Array.isArray(o?.rounds?.rooms) ? o.rounds.rooms : [])])];
-// Does a `places` mover follow you (one of its places is "player")? Anywhere (one of them has no `within`)?
-export const follows = (o) => placesOf(o).some(p => p?.at === FOLLOWS);
+// Does a `places` mover follow you anywhere (one of its "player" places has no `within`)?
 export const followsAnywhere = (o) => placesOf(o).some(p => p?.at === FOLLOWS && !Array.isArray(p.within));
 // Does where a `places` mover is depend on the clock (an `if` that reads time.*)? Then the engine wakes when it would change (nextDue).
 export const onTheClock = (o) => Array.isArray(o?.places) && JSON.stringify(o.places.map(p => p?.if ?? [])).includes('"time.');
@@ -115,9 +117,6 @@ export function lineOf(o, id, kind, dir) {
 }
 
 // ---- What is wrong with a declaration ------------------------------------------------------------------------------------------
-const gap = (x) => Array.isArray(x) && x.length === 2 && x.every(Number.isInteger) && x[0] >= 1 && x[0] <= x[1];
-const isObject = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
-const line = (x) => (typeof x === "string" && x.trim() !== "") || (Array.isArray(x) && x.length > 0 && x.every(y => typeof y === "string" && y.trim()));
 // What is wrong with a mover's facts, as sentences: their shape, and, given the world's rooms (`rooms`), the rooms they name. The
 // engine refuses an object whose facts are the wrong shape (they would not move); the checker repeats these as problems, with the
 // rooms. Nothing for a thing that doesn't move.
@@ -154,3 +153,119 @@ export function declarationProblems(o, rooms = null) {
 }
 // The shape alone (no rooms): what the engine refuses as an object is added.
 export const shapeProblems = (o) => declarationProblems(o, null);
+
+// ---- The runtime: the engine's side of things that move ----------------------------------------------------------------
+// A person or a thing in different places at different moments (js/movers.js; ARCHITECTURE.md §5, "Things that move"): a world gives it
+// `places` or `rounds` (or both), never rules, and the engine moves it here, once a moment, after everything else the world did. What it
+// holds goes with it (it is `at` the thing); its overlay is drawn while it is in your room (ui/draw.js), so the picture follows by itself.
+//   places: wherever its first place that holds now says (after a time jump too: waiting, sleeping); none holds: away (at: null).
+//   rounds: one step when its gap is up (turns: commands; seconds: play time, which a sleep moves on through), from its own generator.
+//   both: while a place holds, the place (its round waits, and its gap is forgotten); none holds, its round, from the room it is in,
+//   its first step a whole gap later; from a room off its round (or away), its first step at once, back to it (in order, to its first
+//   room; at random, to any of them), even in the moment of a command about it: that command let it go. A rule of the world's that
+//   answered that command says it goes, so the game adds no `leaves` line of its own after it ("shoo cat").
+// Following you (a place "player"): it comes with you from the room you were in as the moment began (`startedIn`), whatever would
+// hold it, a moment after you, with the pack's `moving.follows` line ("The cat comes with you."), not its `arrives`. With `within`, only
+// into those rooms: you go anywhere else, and it stays where it is, with `moving.stays` ("The cat stays behind."), and waits there; you
+// come back, and it is with you again (js/movers.js, roomOfPlace).
+// It is held (it stays, and its due move happens at the first moment it isn't) while a question is waiting, in the moment of a command
+// about it (it is the command's thing, its second, one named that isn't here, or the source of one of those), in a conversation with it
+// (your last command talked, asked, said, gave or showed something to it, and it is here), and while its room was described this
+// moment (you have just come in, or looked: it stays a moment, rather than go as soon as it is seen). Nothing moves in the opening or
+// after the end. Its coming and going is told only when you are there to see it: its own `arrives` / `leaves` line, else the pack's,
+// with the way from the exits; a thing that comes where you are in a moment whose lines described the room is left out of that
+// description (`without`), so it comes in after it. Asleep, you see nothing: what moved is where it is when you wake, and the room
+// is described as you wake.
+// A place's conditions, read as a rule's; one written wrongly (an operator the engine doesn't know) never holds, rather than stop the
+// game: the checker says what is wrong with it, and a change set in play that writes one is refused (js/fields.js).
+const safely = (holds) => (s, c) => { try { return holds(s, c); } catch { return false; } };
+const TALKING = new Set(["talk", "ask", "say", "shout", "sing", "give", "show"]);
+// `host` is what the engine hands over (this file never imports it): { apply: apply one effect, holds: do conditions hold, isFixed: is it
+// part of the opening }.
+export function runMovers(g, at, action, tick, out, startedIn, { apply, holds, isFixed }) {
+  const holdsSafe = safely(holds);
+  const ids = moverIds(g);
+  if (!ids.length || g.ended || isFixed(g, g.player.at)) return;
+  const slept = out.applied.find(e => "sleep" in e && e.wake === true)?.ms ?? 0;   // a sleep this moment: how long (js/sleeping.js, fallAsleep)
+  const record = (id) => ((g.movers ??= {})[id] ??= {});          // (made with the first: a world with nothing that moves has no key)
+  const described = (room) => room != null && out.applied.some(e => e.describe === room);
+  for (const id of ids) {
+    const o = g.world.objects[id];
+    if (shapeProblems(o).length || placeOf(g, id) === "player") continue;   // (a world that lets you carry it: it goes with you)
+    const about = !tick && [action.obj, action.obj2, ...(Array.isArray(action.absent) ? action.absent : [])]
+      .some(x => x != null && (x === id || g.world.objects[x]?.from === id));
+    if (about && TALKING.has(action.verb)) record(id).talk = g.turn;
+    const held = !!g.pending.question || about || (g.movers?.[id]?.talk === g.turn && o.at === g.player.at) || described(o.at);
+    const place = o.places ? placeHolding(g, o, holdsSafe) : null;
+    let to = o.at, back = false;
+    if (o.places && (place || !o.rounds)) {
+      to = place ? roomOfPlace(g, o, place, startedIn) : null;
+      if (o.rounds && g.movers?.[id]) delete g.movers[id].due;      // (its round waits: it starts again as if for the first time)
+    } else if (o.rounds) {
+      const r = o.rounds, rec = record(id), secs = inSeconds(r);
+      if (rec.rng === undefined) rec.rng = seedFor(g.rng, id);
+      const gap = () => { const [n, rng] = gapOf(r, rec.rng); rec.rng = rng; return secs ? at + n * 1000 : g.turn + n; };
+      const step = (from) => { const [room, i, rng] = nextStep(r, rec.i, from, rec.rng); rec.rng = rng; rec.i = i; return room; };
+      if (rec.due === undefined) {                                  // its first moment: where it is in its round, and its first gap
+        rec.i = r.rooms.indexOf(o.at);                              // (-1 off its round: in order, its next step is to the first)
+        if (rec.i !== -1) { rec.due = gap(); continue; }
+        rec.due = secs ? at : g.turn;                               // off its round (its places have just let it go): its first step
+        back = true;                                                // is due now, whatever the command about it (that let it go)
+      }
+      const stays = back ? !!g.pending.question || described(o.at) : held;
+      if (slept && secs) {                                          // asleep: its steps in the time slept, unseen, as one move
+        for (let n = 0; rec.due <= at + slept && n < 1000; n++) { to = step(to); const [k, rng] = gapOf(r, rec.rng); rec.rng = rng; rec.due += k * 1000; }
+        rec.due -= slept;                                           // (what is left of its gap is left after waking: play time didn't move)
+      } else if (!stays && (secs ? at : g.turn) >= rec.due) { to = step(o.at); rec.due = gap(); }
+      else back = false;
+    }
+    // Following you: it comes from the room you have just left, held or not; or it stays there (`within`), and says so.
+    const following = place?.at === FOLLOWS && g.player.at !== startedIn && o.at === startedIn && !slept;
+    if (following && to === o.at) { apply(g, lineOf(o, id, "stays"), {}, out, "stays:" + id); continue; }
+    if (to === o.at || (held && !back && !following && !slept)) continue;
+    if (to != null && !g.world.rooms[to]) continue;                 // (a room that isn't there: the checker says so)
+    const from = o.at;
+    o.at = to;
+    out.applied.push({ move: id, to });
+    if (slept) { if (to === g.player.at) out.viewed?.add(id); continue; }   // asleep: unseen; the room you wake in is described with it
+    const here = g.player.at, rooms = g.world.rooms;
+    // (going back at once in the moment of a command about it that a rule of the world's answered: that rule let it go, and its
+    // line says it goes, "You shoo him… and he goes off": no line of the game's after it)
+    const told = !(back && about && g.rules.some(x => x.id === out.answer?.rule));
+    if (from === here && told) apply(g, lineOf(o, id, "leaves", wayTo(rooms, here, to)), {}, out, "leaves:" + id);
+    else if (to === here) {
+      for (const e of out.applied) if (e.describe === here) e.without = [...(e.without || []), id];   // it comes in after the description
+      out.viewed?.delete(id);                                       // (and comes into view here, though it was with you: it is marked)
+      apply(g, lineOf(o, id, following ? "follows" : "arrives", wayTo(rooms, here, from)), {}, out, (following ? "follows:" : "arrives:") + id);
+      if (following && out.applied.at(-1)?.say !== undefined) out.applied.at(-1).follows = id;   // (a map's walk passes it by: js/map.js)
+    }
+  }
+}
+// Every thing that moves where its fact says, unseen and untold: as the world is built, and after a change set (a time jump from the
+// checker or the AI). A `places` one where its places say; a round on its first room, unless it is on one of its rooms already
+// (with both, the places while one holds).
+export function placeMovers(g, holds) {
+  const holdsSafe = safely(holds);
+  for (const id of moverIds(g)) {
+    const o = g.world.objects[id];
+    if (shapeProblems(o).length || placeOf(g, id) === "player") continue;
+    if (o.places && (placeHolding(g, o, holdsSafe) || !o.rounds)) o.at = placeNow(g, o, holdsSafe);
+    else if (o.rounds && !o.rounds.rooms.includes(o.at)) o.at = o.rounds.rooms[0];
+  }
+}
+// When the world's clock next changes where a `places` mover is, in play ms (for nextDue: the one timer wakes for it, as for a
+// scheduled rule): the first whole minute, within a day from now, at which its first place that holds is another (or none holds,
+// and its round takes over); null if none. Everything else is taken as it is now (only a moment changes that, and nextDue is asked
+// again after every one).
+const MINUTE_MS = 60000;
+export function placeChange(state, o, holds) {
+  const holdsSafe = safely(holds);
+  const where = (s) => { const p = placeHolding(s, o, holdsSafe); return p ? roomOfPlace(s, o, p) : undefined; };
+  const shift = state.time?.shift || 0, now = state.clock + shift, want = where(state);
+  const first = Math.floor(now / MINUTE_MS) + 1;
+  for (let m = first; m <= first + 24 * 60; m++) {
+    const s = { ...state, time: { ...state.time, shift: m * MINUTE_MS - state.clock } };
+    if (where(s) !== want) return m * MINUTE_MS - shift;
+  }
+  return null;
+}

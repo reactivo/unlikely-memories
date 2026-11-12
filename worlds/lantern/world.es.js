@@ -669,7 +669,7 @@ const rules = [
 
 ];
 
-// ---- Rompecabezas (para el verificador y las pistas; GUIDE.md §3). Los finales, en el orden en que las pistas deben alcanzarlos. ----
+// ---- Rompecabezas (para el verificador y las pistas; BRIEF.md §4). Los finales, en el orden en que las pistas deben alcanzarlos. ----
 const puzzles = {
   take_key: { where: "last_lamp", needs: [], solve: ["{take} llave"], gives: ["hut_key"], clues: ["fenn", "hut_door"],
     hints: ["El señor Fenn guarda la llave de su caseta en un cordel, al cuello.", "Coge la llave del señor Fenn, junto al último farol."] },

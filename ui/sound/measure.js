@@ -48,7 +48,7 @@ export async function render(part, seed = 0, rate = RATE) {
 }
 
 // Each part's level: its renders' mean squares averaged, in dB.
-export async function measureParts(parts, onPart = () => {}, S = S0) {
+async function measureParts(parts, onPart = () => {}, S = S0) {
   const out = {};
   for (const [i, p] of parts.entries()) {
     if (out[p.key]) continue;

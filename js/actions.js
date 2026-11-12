@@ -5,6 +5,7 @@
 // pack's `speechTo` words ("say hello to the waiter") or named first ("tell the waiter hello"). Rules read $text.
 // The words for each action and its standard replies are in the language packs (words.verbs, replies).
 // Verbs that only fit one kind of thing (dig, row) are added by the world with its rules, not listed here.
+// (Also here: `isAction`, which rules answer your commands.)
 
 export const ACTIONS = {
   // Looking and the senses
@@ -76,3 +77,6 @@ export const ACTIONS = {
 
 // Actions the engine handles itself (js/verbs.js); all the others answer with their standard replies.
 export const BUILT_IN = new Set(["look", "examine", "read", "take", "drop", "inventory", "go", "help", "hint", "time", "status"]);
+
+// Is this an action rule (your commands), not a timed or scheduled one? `when: "action"` is the default.
+export const isAction = (r) => (r.when || "action") === "action";

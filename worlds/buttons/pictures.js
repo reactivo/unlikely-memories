@@ -660,7 +660,8 @@ export default {
       line - 320,136 214,66 c1
       rect post_pole 105,40,5,64 0
       rect post_head 97,34,20,24 0 e5
-      ellipse red_light 107,42,5,5 4 e12
+      ellipse red_light 107,42,5,5 4
+ellipse red_light_rim 107,42,5,5 none e12
       ellipse halo1 107,42,13,11 mix:,4@0.2
       rect plate 99,72,16,12 12 e0
       line wire1 106,84 100,112 c5

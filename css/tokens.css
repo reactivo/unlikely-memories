@@ -68,6 +68,8 @@
     --color-mark:          var(--palette-stone-600);  /* small marks around or between things: brackets, the compass dot */
     --color-highlight:     var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
+    --focus-ring:          2px solid var(--color-focus);   /* the ring's line: each piece's own :focus-visible rule reads it (outline: var(--focus-ring)) */
+    --focus-offset:        2px;                            /* …and its gap from the thing (outline-offset: var(--focus-offset)) */
     --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health, and the death lines */
     --color-healed:        var(--palette-green-400);  /* the echo when you get health back */
     --color-neutral:       var(--palette-orange-400); /* a change that is neither harm nor healing: a condition that does neither */
@@ -113,7 +115,7 @@
     --tile-touch: 44px;   /* tiles on phones: big enough for a finger */
 
     /* The open picture on an upright phone (css/layout.css): a crop of the middle of the scene, this shape (width / height).
-       5:3 (Diego, 26 Oct 2026; 16:9 left little to pan, 3:2 less text). Folded, the picture is the whole scene, 320 / 136. */
+       5:3 (Diego, 26 Oct 2026; 16:9 left little to pan, 3:2 less text). It never folds to the whole scene (ui/crop.js). */
     --picture-crop: calc(5 / 3);
 
 

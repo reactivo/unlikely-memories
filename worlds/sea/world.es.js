@@ -52,7 +52,7 @@ const notAsking = { "$topic": null };                 // sin preguntar por nada 
 const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // Textos de sala que los cambios ponen y quitan (la playa y la linterna). Un cambio reescribe todo el texto de una sala; cuando
-// dos cambios pueden tocar la misma sala, el posterior tiene en cuenta al anterior (GUIDE.md §6): encender la lámpara
+// dos cambios pueden tocar la misma sala, el posterior tiene en cuenta al anterior (BRIEF.md §9): encender la lámpara
 // cuando la puerta ya es madera de deriva usa los textos con los dos.
 const sand = "La línea de la marea sigue hacia el oeste. Al este, rocas negras y la boca de una cueva. Al sur, las dunas.";
 const doorStands = "Una playa de noche. La arena aún está tibia, como si el sol acabara de irse. La {puerta verde|beach_door} se alza sola, sin nada que la sujete, respirando.";
@@ -79,7 +79,7 @@ const endingPictures = {
 // área aparte, a la que solo se llega en barca. exits: un id de sala; true = hay camino, pero lo contesta una regla; false = ninguno.
 
 const rooms = {
-  // La apertura (GUIDE.md §8): el pasillo del Ministerio, al que no se vuelve. El área "ministry" es suya.
+  // La apertura (BRIEF.md §3): el pasillo del Ministerio, al que no se vuelve. El área "ministry" es suya.
   corridor: {
     name: "PASILLO 7-B", area: "ministry", at: [0, 0, -4],
     describe: [
@@ -810,7 +810,7 @@ const rules = [
 
 ];
 
-// ---- Puzles, descritos como datos (GUIDE.md §3) --------------------------------------------------------------
+// ---- Puzles, descritos como datos (BRIEF.md §4) --------------------------------------------------------------
 // Las reglas de arriba hacen el trabajo; esto dice lo que necesita cada puzle, las órdenes que lo resuelven y lo que da, para que
 // js/check.js pueda jugar cada final con el intérprete y el motor de verdad. Las pistas nombran los objetos, reglas o puzles
 // que lo señalan.

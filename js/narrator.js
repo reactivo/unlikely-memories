@@ -4,10 +4,11 @@
 // Pure: never touches the page or the state.
 
 import { worldTime, parts, hhmm } from "./time.js";
-import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./fields.js";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js";
 import { activeIds, conditionTone } from "./conditions.js";
-import { placeOf, noticed } from "./use.js";
+import { placeOf, noticed } from "./place.js";
 import { isMover } from "./movers.js";
+import { clean } from "./shapes.js";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -134,7 +135,7 @@ const echoStyle = (kind, tone) => "echo text-echo echo-" + kind + (tone ? " tone
 const styled = (style) => [style, "aside"].filter(Boolean).join(" ");
 
 // A thing's gender, number and proper-name mark as the pack wants them (Spanish agreement; no article before a proper
-// name): { g, pl, proper } from its `words` (js/fields.js, grammarOf), or nothing.
+// name): { g, pl, proper } from its `words` (js/words.js, grammarOf), or nothing.
 const whoOf = (o) => grammarOf(o?.words);
 
 // What a hint says (the opening's hint frame goes round it, pack.framed): the world's line, or the commands that solve
@@ -182,14 +183,14 @@ export function describe(state, roomId, pack, without = []) {
 // appearance: the line is for where it starts, "lies on the desk"; once it has been in your hands, wherever it is put down again, the
 // stock line says it lies there). A rule of the world that moves it before then (the oars that slide out of the hut) keeps it. A thing
 // that can't be taken, a person or a fixture: always (one that moves is moved by the game, js/movers.js, and the world writes its line).
-export function hereNow(state, id) {
+function hereNow(state, id) {
   const o = state.world.objects[id];
   return !!o?.here && (o.portable !== true || !state.seen?.held?.includes(id));
 }
 
 // Is a thing's `lies` line said where it lies (decision 38)? A thing that can be taken, once it has been taken: the same moment its
 // `here` stops, so exactly one of the two is in force for a thing that has both. It takes the place of the stock line.
-export function liesNow(state, id) {
+function liesNow(state, id) {
   const o = state.world.objects[id];
   return !!o?.lies && o.portable === true && !!state.seen?.held?.includes(id);
 }
@@ -197,14 +198,14 @@ export function liesNow(state, id) {
 // What the stock line of a room names (decision 15): the things that can be taken lying there (in the room itself, not inside
 // something: what a container holds is said when it is opened), in the world's order, with no `here` or `lies` in force, but not the thing
 // you are in or on, nor one marked `unnoticed` that nothing has brought up yet (it is there to be found).
-export function lyingIn(state, roomId) {
+function lyingIn(state, roomId) {
   return Object.entries(state.world.objects).filter(([id, o]) => o.at === roomId && o.portable === true && !hereNow(state, id) && !liesNow(state, id) && id !== state.player.in
     && noticed(state, id)).map(([id]) => id);
 }
 
 // The stock line for things lying in a room, each marked so it can be clicked: "There is a {coin} here.", "Aquí hay una {moneda} y
 // unos {remos}." (the pack's `lying`, with each thing's gender, number and proper-name mark, as the `inside` line has them).
-export function lyingLine(ids, state, pack) {
+function lyingLine(ids, state, pack) {
   return text("@lying", pack, ids.map(id => `{${listName(id, state, pack)}|${id}}`), undefined, undefined, ids.map(id => whoOf(state.world.objects[id])));
 }
 
@@ -253,7 +254,7 @@ export function statusLine(state, pack) {
 // STATUS, under the health line: the conditions you are in, one line each, in the order they started: its world's own
 // `status` phrase, framed by the pack (statusCondition: a full stop), styled like the condition's start echo (its tone: harmful
 // red, good green, neutral amber; js/conditions.js), close under the line before it. No bars. Nothing when you are in none.
-export function conditionsLine(state, pack) {
+function conditionsLine(state, pack) {
   return activeIds(state).map(id => state.conditions?.[id]).filter(d => typeof d?.status === "string")
     .map(d => ({ text: timed(text("@statusCondition", pack, text(d.status, pack)), state, pack), style: echoStyle("condition", conditionTone(d)) }));
 }
@@ -325,4 +326,3 @@ export function text(t, pack, arg, pick, prev, who) {
   return v ?? t;                                    // a missing key shows itself, so it's easy to spot
 }
 
-const clean = (x) => Object.fromEntries(Object.entries(x).filter(([, v]) => v !== undefined && v !== null));

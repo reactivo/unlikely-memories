@@ -5,7 +5,8 @@ import { placeName } from "../js/narrator.js";
 
 // Set up the title bar on its element. Returns update() and showClock().
 export function mount(root) {
-  const $ = (id) => root.querySelector("#" + id);
+  const found = {};                                 // (each element looked up once)
+  const $ = (id) => (found[id] ??= root.querySelector("#" + id));
   const pad = (n) => String(n).padStart(2, "0");   // 7 → "07"
   let shownSecond = -1;                             // the second on screen now (skip redraws within it)
 

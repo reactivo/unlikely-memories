@@ -51,8 +51,8 @@
     }
 
     & .item:focus-visible {
-      outline: 2px solid var(--color-focus);
-      outline-offset: 2px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
 
     /* The story is over (inventory.js adds "over"), or you are asleep (ui/page.js: data-asleep on <html>): dim, no hover, no clicks. */

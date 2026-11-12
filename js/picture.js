@@ -18,6 +18,8 @@
 // the point itself, t = 0 the vanishing point:   vp 160,60   poly wall 40,120@1 40,120@0.5 ...   rect and ellipse take plain numbers.
 // Pure: no page, no state.
 
+import art from "../content/art.js";
+
 const SHAPES = ["rect", "poly", "ellipse", "line", "dots"];
 const num = (s) => { const n = Number(s); if (s === "" || !Number.isFinite(n)) throw new Error(`"${s}" isn't a number`); return n; };
 const nums = (s) => s.split(",").map(num);
@@ -117,4 +119,51 @@ export function formatShape(s) {
     : `stripes:${f.stripes.join(",")}`;
   return [kind, s.id || "-", pts, fill, s.color !== undefined ? "c" + s.color : "", s.edge !== undefined ? "e" + s.edge : "",
           s.after ? "after:" + s.after : ""].filter(Boolean).join(" ");
+}
+
+// A picture written in the short notation (a room's, or an ending's): its drawing list parsed (js/picture.js), version 1
+// unless it says. Returns the picture as it is stored, or the reasons it can't be, as one string.
+export function readPicture(picture) {
+  const { shapes, problems } = parseShapes(picture.draw);
+  return problems.length ? problems.join("; ") : { version: 1, ...picture, draw: shapes };
+}
+
+// A picture with edits applied: shapes removed, replaced or restyled (new colours, same place) by id, shapes added (at the end, or `after` a shape's
+// id), cycles and overlays replaced when given. Returns the new picture (version + 1) or the reason it can't.
+export function editPicture(picture, e) {
+  // Shapes to add or replace can be written in the short notation: a line each, or all in one string.
+  const shapes = (x) => typeof x === "string" ? parseShapes(x) : { shapes: (x || []).map(s => (typeof s === "string" ? parseShape(s) : s)), problems: [] };
+  try {
+    for (const k of ["add", "replace"]) {
+      const r = shapes(e[k]);
+      if (r.problems.length) return r.problems.join("; ");
+      e = { ...e, [k]: r.shapes };
+    }
+  } catch (err) { return err.message; }
+  let draw = picture.draw.map(x => x);
+  const has = (id) => draw.some(x => x.id === id);
+  for (const id of e.remove || []) { if (!has(id)) return "no such shape: " + id; draw = draw.filter(x => x.id !== id); }
+  for (const shape of e.replace || []) {
+    if (!has(shape.id)) return "no such shape: " + shape.id;
+    draw = draw.map(x => (x.id === shape.id ? shape : x));
+  }
+  for (const style of e.restyle || []) {             // only how it looks: fill, edge, colour; never where it is
+    if (!has(style.id)) return "no such shape: " + style.id;
+    const bad = Object.keys(style).find(k => !["id", "fill", "edge", "color"].includes(k));
+    if (bad) return "restyle changes only fill, edge and color, not " + bad;
+    let look = style;
+    if (typeof style.fill === "string") {            // a fill in the short notation: "fade:0,1/0,0/0,60"
+      try { look = { ...style, fill: parseShape("rect - 0,0,1,1 " + style.fill).fill }; } catch (err) { return `${style.id}: ${err.message}`; }
+    }
+    draw = draw.map(x => (x.id === style.id ? { ...x, ...look } : x));
+  }
+  for (const { after, ...shape } of e.add || []) {
+    if (shape.id && has(shape.id)) return "shape already exists: " + shape.id;
+    if (after && !has(after)) return "no such shape: " + after;
+    const at = after ? draw.findIndex(x => x.id === after) + 1 : draw.length;
+    draw.splice(at, 0, shape);
+  }
+  if (draw.length > art.draw.maxShapes) return "too many shapes";
+  return { ...picture, version: picture.version + 1, draw,
+           ...(e.cycles ? { cycles: e.cycles } : {}), ...(e.overlays ? { overlays: e.overlays } : {}) };
 }

@@ -1,6 +1,6 @@
 // «El tren del martes»: el mundo de "The Train to Tuesday" escrito en español (no traducido): el mismo argumento, las mismas
 // salas, objetos, personajes, reglas, enigmas y finales, con las mismas ids, pero cada línea pensada en español. Un solo
-// conjunto de cambios, aplicado tras la apertura, todo o nada (WRITING-DIRECTION.md, GUIDE.md, ARCHITECTURE.md §3–6).
+// conjunto de cambios, aplicado tras la apertura, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
 import pictures, { endings } from "./pictures.js";
@@ -69,7 +69,7 @@ const endingPictures = {
 // ---- Salas ---------------------------------------------------------------------------------------------------------------
 // Zona "town" (x crece al este, y crece al sur, z es la planta); a la zona "train" solo se llega cuando el tren está en el andén.
 const rooms = {
-  // La apertura (GUIDE.md §8): un apeadero de la línea secundaria, al que no se vuelve. La zona "branch" es solo suya.
+  // La apertura (BRIEF.md §3): un apeadero de la línea secundaria, al que no se vuelve. La zona "branch" es solo suya.
   halt: {
     name: "APEADERO LUNES", area: "branch", at: [0, 0, 0],
     describe: [
@@ -180,7 +180,7 @@ const rooms = {
       "Una escalera sube a las habitaciones. La plaza queda al este."
     ],
     exits: { e: { to: "square", out: true }, u: { to: "hotel_room", if: { "room_key.at": "player" },
-      closed: "El conserje carraspea. «Las habitaciones son para los huéspedes», dice. «Los huéspedes las piden.»" } },
+      closed: "El conserje carraspea. «Las habitaciones son para los huéspedes», dice. «Los huéspedes las piden»." } },
     scenery: [{ words: ["mostrador", "periódico", "periodico", "vestíbulo", "vestibulo", "col", "cera", "recepción", "recepcion"], name: "el vestíbulo", says: "Latón, cera, un timbre que nadie toca. El periódico es el del sábado; los domingos no hay periódico, y tampoco hay lunes." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera estrecha que sube a las habitaciones.", leads: "u" }],
     sleep: "En el vestíbulo no. Arriba hay habitaciones, para quien las pida.",
@@ -336,12 +336,12 @@ const objects = {
   ambrose: { at: "lost_property", name: "Señor Ambrose", note: "El empleado de objetos perdidos.",
     words: { nouns: ["ambrose", "señor", "senor", "empleado", "hombre"], adj: ["viejo", "pequeño", "pequeno", "don"], g: "m" },
     examine: "Un hombre pequeño con manguitos. Te mira como si intentara recordar dónde te dejaron.",
-    talk: ["«¿Has perdido algo?», dice. «Todo el mundo. Di qué, y lo busco en el libro.»", "«Descríbelo», dice, «y si es tuyo, él lo sabrá.»"],
+    talk: ["«¿Has perdido algo?», dice. «Todo el mundo. Di qué, y lo busco en el libro».", "«Descríbelo», dice, «y si es tuyo, él lo sabrá»."],
     topics: {
       umbrella: { words: ["paraguas", "sombrilla"], says: "«Paraguas gris», lee. Te mira a ti. Mira el paraguas." },
-      you: { open: true, label: "mi llegada", words: ["llegada", "mismo", "camino", "origen"], says: "«Llegaste esta tarde», dice. «Nadie te ha reclamado todavía. Suele pasar.»" },
-      monday: { label: "lunes", words: ["lunes", "decreto"], says: "«Ya no nos llegan lunes. Nos llega lo que quedó en ellos.» Da un golpecito al libro." },
-      sea: { about: "sea_crate", label: "cajón", words: ["mar", "cajón", "cajon"], says: "«Alguien lo perdió hace años. Gotea. Le pongo un cubo debajo los jueves.»" },
+      you: { open: true, label: "mi llegada", words: ["llegada", "mismo", "camino", "origen"], says: "«Llegaste esta tarde», dice. «Nadie te ha reclamado todavía. Suele pasar»." },
+      monday: { label: "lunes", words: ["lunes", "decreto"], says: "«Ya no nos llegan lunes. Nos llega lo que quedó en ellos». Da un golpecito al libro." },
+      sea: { about: "sea_crate", label: "cajón", words: ["mar", "cajón", "cajon"], says: "«Alguien lo perdió hace años. Gotea. Le pongo un cubo debajo los jueves»." },
       default: "Pasa una hoja del libro, no encuentra nada y la devuelve a su sitio."
     } },
   ledger: { at: "lost_property", name: "Libro de registro", note: "Todo lo perdido, en orden.", opens: ["monday", "umbrella"],
@@ -369,7 +369,7 @@ const objects = {
     parts: [{ words: ["cola", "pegamento", "resto", "hueco"], name: "el hueco", says: "Sitio para una hoja. La cola sigue pegajosa, después de tantos años." }], mentions: ["hueco", "cola"] },
   decree: { at: "station_hall", name: "Decreto", note: "Enmarcado y firmado.", opens: ["monday"],
     words: { nouns: ["decreto", "aviso", "marco", "cuadro"], adj: ["enmarcado"], g: "m" },
-    examine: "«Por decreto: queda abolido el lunes en este pueblo, con efecto desde el próximo. El último lunes se guardará en el ayuntamiento, por si acaso.» Firmado por el Ministro, con una rúbrica que se alarga demasiado.",
+    examine: "«Por decreto: queda abolido el lunes en este pueblo, con efecto desde el próximo. El último lunes se guardará en el ayuntamiento, por si acaso». Firmado por el Ministro, con una rúbrica que se alarga demasiado.",
     parts: [{ words: ["rúbrica", "rubrica", "firma", "ministro"], name: "la firma" }], mentions: ["firma"] },
   window: { at: "station_hall", name: "Ventanilla de billetes", note: "Billetes desde las nueve de la noche.",
     words: { nouns: ["ventanilla", "taquilla", "reja", "rejilla", "postigo", "cartel", "tarjeta"], adj: ["billetes", "billete", "latón", "laton"], g: "f" },
@@ -384,8 +384,8 @@ const objects = {
     words: { nouns: ["taquillera", "mujer", "empleada"], adj: ["billetes", "billete"], g: "f" },
     examine: "Una mujer con un sacabocados y ninguna expresión de sobra.",
     here: "El postigo está levantado. Tras la reja, la {taquillera|booking_clerk} espera con su sacabocados.",
-    talk: "«Un viaje, una moneda», dice. «De las antiguas. Martes es el único sitio al que vamos.»",
-    topics: { coin: { about: "window", label: "monedas", words: ["moneda", "monedas", "dinero", "precio", "tarifa", "viaje"], says: "«De las antiguas. Dejaron de acuñarlas cuando dejaron de hacer lunes. La gente las tiraba a la fuente de la plaza, para dar suerte.»" },
+    talk: "«Un viaje, una moneda», dice. «De las antiguas. Martes es el único sitio al que vamos».",
+    topics: { coin: { about: "window", label: "monedas", words: ["moneda", "monedas", "dinero", "precio", "tarifa", "viaje"], says: "«De las antiguas. Dejaron de acuñarlas cuando dejaron de hacer lunes. La gente las tiraba a la fuente de la plaza, para dar suerte»." },
               default: "«Billetes», dice, como si eso fuera la respuesta." } },
   timetable: { at: "station_hall", name: "Horario", note: "Un solo tren.",
     words: { nouns: ["horario", "pared"], adj: [], g: "m" },
@@ -406,12 +406,12 @@ const objects = {
   oduya: { at: "waiting_room", name: "Señora Oduya", note: "Esperando, con una maleta.",
     words: { nouns: ["oduya", "señora", "senora", "mujer", "viajera", "anciana", "maleta"], adj: ["vieja", "mayor"], g: "f" },
     examine: "Una anciana pulcra con un sombrero cuya pluma se ha rendido. Su billete es para el de las ocho y doce a Lunes. Es muy antiguo.",
-    talk: "«Espero al de las ocho y doce», dice. «Ya no circula. Soy muy paciente.»",
+    talk: "«Espero al de las ocho y doce», dice. «Ya no circula. Soy muy paciente».",
     topics: {
-      coin: { about: "window", label: "monedas", words: ["moneda", "monedas", "dinero", "tarifa", "tarifas", "billete", "billetes"], says: "«Necesitarás una moneda antigua para el billete. La fuente de la plaza está llena. No se ven hasta que se enciende la lámpara bajo el agua, a las ocho.»" },
-      monday: { label: "lunes", words: ["lunes", "decreto"], says: "«Guardaron el último en el ayuntamiento, por si acaso. Por si acaso qué, nunca lo dijeron. La archivera lo sabrá. De nueve a cinco.»" },
-      train: { about: "timetable", words: ["tren", "martes", "medianoche"], says: "«El tren del martes. A las doce menos veinte. Dicen que en martes ni te cases ni te embarques, y del martes no vuelve nadie. No se lo reprocho.»" },
-      default: "«Ay, yo qué sé», dice. «Yo solo espero.»"
+      coin: { about: "window", label: "monedas", words: ["moneda", "monedas", "dinero", "tarifa", "tarifas", "billete", "billetes"], says: "«Necesitarás una moneda antigua para el billete. La fuente de la plaza está llena. No se ven hasta que se enciende la lámpara bajo el agua, a las ocho»." },
+      monday: { label: "lunes", words: ["lunes", "decreto"], says: "«Guardaron el último en el ayuntamiento, por si acaso. Por si acaso qué, nunca lo dijeron. La archivera lo sabrá. De nueve a cinco»." },
+      train: { about: "timetable", words: ["tren", "martes", "medianoche"], says: "«El tren del martes. A las doce menos veinte. Dicen que en martes ni te cases ni te embarques, y del martes no vuelve nadie. No se lo reprocho»." },
+      default: "«Ay, yo qué sé», dice. «Yo solo espero»."
     } },
 
   // Andén
@@ -437,11 +437,11 @@ const objects = {
   signalman: { at: "signal_box", name: "Guardagujas", note: "La mano en la palanca.",
     words: { nouns: ["guardagujas", "señalero", "senalero", "hombre"], adj: [], g: "m" },
     examine: "Mangas de camisa, brazalete, un bigote adiestrado durante muchos años. No aparta la mano de la palanca.",
-    talk: "«A las doce menos veinte», dice. «Todas las noches. Nunca he dejado salir tarde a la máquina.»",
+    talk: "«A las doce menos veinte», dice. «Todas las noches. Nunca he dejado salir tarde a la máquina».",
     topics: {
-      train: { about: "board", words: ["tren", "martes", "medianoche"], says: "«Entra a las once y media y sale a las doce menos veinte. Te hará falta billete. El revisor es muy suyo.»" },
-      tunnel: { words: ["túnel", "tunel", "oscuridad", "línea", "linea"], says: "«No entres. Ni cuando le toca pasar. Ni cuando no.»" },
-      monday: { label: "lunes", words: ["lunes"], says: "«Antes salía el de las ocho y doce a Lunes. Yo mismo tiré de la palanca la última vez.» Se mira la mano." },
+      train: { about: "board", words: ["tren", "martes", "medianoche"], says: "«Entra a las once y media y sale a las doce menos veinte. Te hará falta billete. El revisor es muy suyo»." },
+      tunnel: { words: ["túnel", "tunel", "oscuridad", "línea", "linea"], says: "«No entres. Ni cuando le toca pasar. Ni cuando no»." },
+      monday: { label: "lunes", words: ["lunes"], says: "«Antes salía el de las ocho y doce a Lunes. Yo mismo tiré de la palanca la última vez». Se mira la mano." },
       default: "«No es de mi línea», dice. Lo dice con buena intención."
     } },
   diagram: { at: "signal_box", name: "Esquema", note: "Un solo trazo.",
@@ -465,11 +465,11 @@ const objects = {
   porter: { at: "hotel", name: "Conserje de noche", note: "Leyendo el sábado.",
     words: { nouns: ["conserje", "portero", "recepcionista"], adj: ["noche", "nocturno"], g: "m" },
     examine: "Un hombre largo, plegado tras un mostrador corto. Lee el mismo periódico todas las noches y sigue sorprendiéndose.",
-    talk: "«¿Una habitación?», dice, sin levantar la vista. «Pídela, entonces.»",
+    talk: "«¿Una habitación?», dice, sin levantar la vista. «Pídela, entonces».",
     topics: {
       room: { open: true, label: "una habitación", words: ["habitación", "habitacion", "habitaciones", "cuarto", "llave", "cama", "dormir"], says: "«La cuatro», dice." },
-      train: { about: "timetable", words: ["tren", "martes"], says: "«Los huéspedes se van en el tren del martes. Dejan el equipaje. Está todo en el desván.»" },
-      default: "«No sabría decirte», dice. «El periódico del sábado no lo menciona.»"
+      train: { about: "timetable", words: ["tren", "martes"], says: "«Los huéspedes se van en el tren del martes. Dejan el equipaje. Está todo en el desván»." },
+      default: "«No sabría decirte», dice. «El periódico del sábado no lo menciona»."
     } },
   room_key: { at: null, portable: true, material: "metal", name: "Llave de la habitación", note: "La cuatro.",
     words: { nouns: ["llave", "habitación", "habitacion", "cuarto"], adj: ["hotel", "latón", "laton"], g: "f" }, ...item("room_key"),
@@ -484,19 +484,19 @@ const objects = {
     examine: "Una mujer con las mangas remangadas y un lápiz detrás de cada oreja, por si uno se rinde.",
     talk: "«¿Café?», dice. Es la única pregunta que hace.",
     topics: {
-      monday: { label: "lunes", words: ["lunes", "archivo", "archivera"], says: "«¿El último lunes? En el ayuntamiento. De nueve a cinco. La archivera no le da nada a quien no pruebe que lo perdió.»" },
-      train: { about: "timetable", words: ["tren", "martes"], says: "«La gente toma aquí su último café», dice. «Luego se van. Yo lavo la taza.»" },
-      coin: { about: "fountain", label: "monedas", words: ["moneda", "monedas", "dinero"], says: "«¿Monedas antiguas? En la fuente de la plaza. Las verás cuando se encienda la lámpara del agua.»" },
-      coffee: { open: true, words: ["café", "cafe", "taza", "beber"], says: "«Solo, pequeño y caliente», dice. «Lo demás ya es conversación.»" },
-      default: "«Café», dice. «De café sí entiendo.»"
+      monday: { label: "lunes", words: ["lunes", "archivo", "archivera"], says: "«¿El último lunes? En el ayuntamiento. De nueve a cinco. La archivera no le da nada a quien no pruebe que lo perdió»." },
+      train: { about: "timetable", words: ["tren", "martes"], says: "«La gente toma aquí su último café», dice. «Luego se van. Yo lavo la taza»." },
+      coin: { about: "fountain", label: "monedas", words: ["moneda", "monedas", "dinero"], says: "«¿Monedas antiguas? En la fuente de la plaza. Las verás cuando se encienda la lámpara del agua»." },
+      coffee: { open: true, words: ["café", "cafe", "taza", "beber"], says: "«Solo, pequeño y caliente», dice. «Lo demás ya es conversación»." },
+      default: "«Café», dice. «De café sí entiendo»."
     } },
   menu: { at: "cafe", name: "Pizarra", note: "Café, y nada más.",
     words: { nouns: ["pizarra", "carta", "menú", "menu", "tiza"], adj: [], g: "f" },
     examine: "En tiza: CAFÉ. Debajo, borrado pero legible: CHURROS (SOLO LOS LUNES)." },
   coffee: { from: "ines", daily: true,   // a cup a day
-    brought: "Inés deja ante ti un {café|coffee} pequeño y negro sin decir palabra. «Invita la casa», dice. «Los domingos siempre invita.»",
+    brought: "Inés deja ante ti un {café|coffee} pequeño y negro sin decir palabra. «Invita la casa», dice. «Los domingos siempre invita».",
     already: "«Primero ese», dice Inés.",
-    again: "«Uno al día», dice Inés. «Con más empezarías a esperar cosas.»",
+    again: "«Uno al día», dice Inés. «Con más empezarías a esperar cosas».",
     consumable: true, heals: 1, drink: "Está muy bueno. Por un momento no recuerdas nada a lo que hayas llegado tarde.",
     at: null, portable: false, name: "Taza de café", note: "Caliente, y gratis.", words: { nouns: ["café", "cafe", "taza"], adj: [], g: "f" },
     examine: "Pequeño, negro, muy caliente. Huele a mañanas en las que no tuviste que madrugar." },
@@ -511,8 +511,8 @@ const objects = {
     give: "«Eso no es de un lunes», dice, amable, y te lo devuelve.",
     talk: "«¿Sí?», dice, que en el archivo es un párrafo entero.",
     topics: {
-      monday: { label: "lunes", words: ["lunes", "página", "pagina", "decreto", "último", "ultimo"], says: "«El último lunes», dice. «Guardado, por si acaso. Es de quien perdió uno. Tráeme algo que perdieras en el tuyo, y será tuyo para devolverlo a su sitio.»" },
-      umbrella: { words: ["paraguas", "etiqueta", "mesa"], says: "«Algo que perdiste», dice. «No algo de lo que te hayan hablado.»" },
+      monday: { label: "lunes", words: ["lunes", "página", "pagina", "decreto", "último", "ultimo"], says: "«El último lunes», dice. «Guardado, por si acaso. Es de quien perdió uno. Tráeme algo que perdieras en el tuyo, y será tuyo para devolverlo a su sitio»." },
+      umbrella: { words: ["paraguas", "etiqueta", "mesa"], says: "«Algo que perdiste», dice. «No algo de lo que te hayan hablado»." },
       default: "Lo busca bajo una letra que elige ella, y no encuentra nada."
     } },
   monday_page: { at: null, portable: true, material: "paper", name: "Lunes", note: "El último.", heldActions: ["Poner lunes en calendario"],
@@ -523,10 +523,10 @@ const objects = {
   clockmaker: { at: "clock_shop", name: "Relojero", note: "Arreglando un minuto.",
     words: { nouns: ["relojero", "hombre", "anciano"], adj: ["viejo"], g: "m" },
     examine: "Un anciano con una lupa enroscada en un ojo y un minuto entre las pinzas. El minuto se resiste un poco.",
-    talk: "«Cada reloj de aquí lleva la hora de alguien», dice. «El del mostrador lleva la de ayer. Dale cuerda, si necesitas que te devuelva uno.»",
+    talk: "«Cada reloj de aquí lleva la hora de alguien», dice. «El del mostrador lleva la de ayer. Dale cuerda, si necesitas que te devuelva uno».",
     topics: {
-      clock: { about: "backwards_clock", words: ["reloj", "atrás", "atras", "revés", "reves", "ayer"], says: "«Dale cuerda y tendrás otra vez el ayer. Solo vuelve el día. Lo que hicieras en él, lo hiciste.»" },
-      monday: { label: "lunes", words: ["lunes", "calendario"], says: "«Pon la hoja donde la arrancaron», dice, «y todos los relojes del pueblo sabrán qué hacer.»" },
+      clock: { about: "backwards_clock", words: ["reloj", "atrás", "atras", "revés", "reves", "ayer"], says: "«Dale cuerda y tendrás otra vez el ayer. Solo vuelve el día. Lo que hicieras en él, lo hiciste»." },
+      monday: { label: "lunes", words: ["lunes", "calendario"], says: "«Pon la hoja donde la arrancaron», dice, «y todos los relojes del pueblo sabrán qué hacer»." },
       default: "«Eso no es una cuestión de relojes», dice, y vuelve a su minuto."
     } },
   backwards_clock: { at: "clock_shop", name: "Reloj del revés", note: "La hora de ayer.", actions: ["Dar cuerda al reloj"],
@@ -549,9 +549,9 @@ const objects = {
   guard: { at: "dining_car", name: "Revisor", note: "Haciendo cuentas.",
     words: { nouns: ["revisor", "interventor", "jefe", "hombre"], adj: [], g: "m" },
     examine: "Un revisor con un abrigo de demasiados botones, sumando una columna que no acaba nunca.",
-    talk: "«Billetes», dice, y luego, al ver el tuyo, «Ah. Solo de ida.»",
+    talk: "«Billetes», dice, y luego, al ver el tuyo, «Ah. Solo de ida».",
     topics: {
-      tuesday: { open: true, label: "martes", words: ["martes", "tren", "vuelta", "regreso", "volver"], says: "«El martes es precioso», dice. «Nadie vuelve. Nadie ha escrito nunca para decir que quería.»" },
+      tuesday: { open: true, label: "martes", words: ["martes", "tren", "vuelta", "regreso", "volver"], says: "«El martes es precioso», dice. «Nadie vuelve. Nadie ha escrito nunca para decir que quería»." },
       monday: { label: "lunes", words: ["lunes"], says: "Deja de sumar. «Ahí no paramos», dice, y vuelve a empezar desde arriba." },
       default: "«No consta en el horario», dice."
     } }
@@ -619,15 +619,15 @@ const BOARD = ["enter", "board", "take", "climb"];
 const rules = [
   // Objetos perdidos: el paraguas, cuando lo pides.
   { id: "claim_umbrella", match: { verb: "ask", obj: "ambrose", topic: "umbrella" }, if: [{ "umbrella.at": "lost_property" }],
-    do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo.»" },
+    do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo»." },
          { set: "umbrella.portable", to: true }, { move: "umbrella", to: "player" }] },
   { id: "claim_umbrella_order", match: { verb: "order", obj: "umbrella" }, if: [at("lost_property"), { "umbrella.at": "lost_property" }],
-    do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo.»" },
+    do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo»." },
          { set: "umbrella.portable", to: true }, { move: "umbrella", to: "player" }] },
   { id: "take_umbrella_early", match: { verb: "take", obj: "umbrella" }, if: [{ "umbrella.portable": false }],
     do: [{ say: "Está detrás del mostrador. El señor Ambrose no entrega nada a quien no lo ha pedido." }] },
   { id: "claim_umbrella_say", match: { verb: "say", obj: [null, "ambrose"] }, if: [at("lost_property"), { "umbrella.at": "lost_property" }],
-    do: [{ say: "«Si es algo que perdiste», dice el señor Ambrose, «pídemelo por su nombre. Así se hace: pidiéndolo.»" }] },
+    do: [{ say: "«Si es algo que perdiste», dice el señor Ambrose, «pídemelo por su nombre. Así se hace: pidiéndolo»." }] },
 
   // El café: abierto de siete de la mañana a diez de la noche.
   { id: "cafe_closes", when: "at", at: "22:00", if: [at("cafe")],
@@ -685,7 +685,7 @@ const rules = [
 
   // La archivera: el último lunes, por algo que perdiste en el tuyo.
   { id: "give_umbrella", match: { verb: ["give", "show"], obj: "umbrella", obj2: "archivist" }, if: [holding("umbrella")],
-    do: [{ say: "La archivera da la vuelta al paraguas y lee la etiqueta. Lo abre un poco, y unas gotas de la lluvia de un lunes caen sobre su mesa. «Sí», dice. Saca una hoja de un cajón y te la da. «Devuélvela al lugar de donde salió.»" },
+    do: [{ say: "La archivera da la vuelta al paraguas y lee la etiqueta. Lo abre un poco, y unas gotas de la lluvia de un lunes caen sobre su mesa. «Sí», dice. Saca una hoja de un cajón y te la da. «Devuélvela al lugar de donde salió»." },
          { move: "umbrella", to: null }, { move: "monday_page", to: "player" }] },
 
   // Devolver el lunes a su sitio.
@@ -698,9 +698,9 @@ const rules = [
 
   // El hotel: una habitación para quien la pide; dormir hasta la mañana (el dormir del propio motor, hasta las siete y media: una vez al día).
   { id: "ask_room", match: { verb: "ask", obj: "porter", topic: "room" }, if: [{ "room_key.at": null }],
-    do: [{ say: "«La cuatro», dice, y deja una llave sobre el mostrador sin levantar la vista. «El desayuno es los martes.»" }, { move: "room_key", to: "player" }] },
+    do: [{ say: "«La cuatro», dice, y deja una llave sobre el mostrador sin levantar la vista. «El desayuno es los martes»." }, { move: "room_key", to: "player" }] },
   { id: "order_room", match: { verb: "order", obj: ["room_key", "porter"] }, if: [at("hotel"), { "room_key.at": null }],
-    do: [{ say: "«La cuatro», dice, y deja una llave sobre el mostrador sin levantar la vista. «El desayuno es los martes.»" }, { move: "room_key", to: "player" }] },
+    do: [{ say: "«La cuatro», dice, y deja una llave sobre el mostrador sin levantar la vista. «El desayuno es los martes»." }, { move: "room_key", to: "player" }] },
   { id: "sleep", match: { verb: ["sleep", "lie"], obj: [null, "bed"] }, if: [at("hotel_room"), { "bed.slept": { "!=": "$time.day" } }],
     do: [{ say: "Te tumbas. La cama te recibe como si te hubiera estado esperando. Pasan trenes que no oyes." },
          { sleep: "next 07:30" }, { say: "La habitación huele a la tostada de otro." }, { set: "bed.slept", to: "$time.day" }] },
@@ -719,11 +719,11 @@ const rules = [
   { id: "wind_back", match: { verb: ["wind", "turn"], obj: "backwards_clock" }, if: [{ "time.day": { ">=": 3 } }], do: [{ change: "yesterday" }] },
   { id: "wind_back_2", match: { verb: ["wind", "turn"], obj: "backwards_clock" }, if: [{ "time.day": 2 }, { "time.hour": { ">=": 20 } }], do: [{ change: "yesterday" }] },
   { id: "wind_back_first", match: { verb: ["wind", "turn"], obj: "backwards_clock" },
-    do: [{ say: "La llave gira y se detiene. «Todavía no», dice el relojero. «Aquí aún no hay ayer. Al menos, no uno en el que estuvieras.»" }] },
+    do: [{ say: "La llave gira y se detiene. «Todavía no», dice el relojero. «Aquí aún no hay ayer. Al menos, no uno en el que estuvieras»." }] },
 
 ];
 
-// ---- Enigmas (para el verificador; GUIDE.md §3) -----------------------------------------------------------------------------
+// ---- Enigmas (para el verificador; BRIEF.md §4) -----------------------------------------------------------------------------
 // Las órdenes son las que un jugador escribiría en español.
 const puzzles = {
   get_coin: { where: "square", needs: [], solve: ["esperar hasta que se enciendan las farolas", "coger moneda"], gives: ["coin"], clues: ["oduya", "booking_clerk", "ines", "fountain"], hints: ["Las monedas antiguas están en la fuente, pero el agua solo las enseña cuando se enciende su lámpara, a las ocho.", "Espera junto a la fuente hasta que se enciendan las farolas, y coge una moneda."] },
@@ -784,8 +784,8 @@ export default {
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     { add: "object", id: "ticket", at: null, portable: true,
       from: "window", if: [hours(21, 6)], requires: "coin", spends: true,   // la ventanilla lo vende en su horario, por la moneda antigua; cerrada, COMPRAR (el billete, la ventanilla) dice `again`
-      brought: "Deslizas la moneda antigua bajo la reja. La taquillera la muerde, asiente, pica un billete y te lo devuelve. «Martes», dice. «Solo ida.»",
-      lacking: "«Un viaje, una moneda», dice la taquillera. «De las antiguas.»",
+      brought: "Deslizas la moneda antigua bajo la reja. La taquillera la muerde, asiente, pica un billete y te lo devuelve. «Martes», dice. «Solo ida».",
+      lacking: "«Un viaje, una moneda», dice la taquillera. «De las antiguas».",
       already: "Ya tienes uno. Con uno basta.",
       again: "El postigo está bajado. El cartel dice: BILLETES DESDE LAS 21:00.",
       material: "paper", name: "Billete", note: "Martes. Solo ida.",

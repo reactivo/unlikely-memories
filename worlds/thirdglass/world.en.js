@@ -75,6 +75,14 @@ const changes = {
   ]
 };
 
+// What each ending picture says to a screen reader (alt); the drawings are language-free (pictures.js).
+const endingAlts = {
+  departed: "The caravan leaves at sunrise: camels in a line along a dune crest, black against the light, a rider on the white camel at the head.",
+  stayed: "Three tea glasses on a tin tray, seen from above among rugs; the third still steaming.",
+  lost: "The sand sea from far above: ribs of dunes, one line of tracks, and a small dark figure sitting at its end.",
+  died: "A grey smear of light across dark sand, and one footprint.",
+};
+
 export default {
   because: "The opening in a night desert, then a well camp, a dry river and a cave of painted walls; a lamp, a copy of a painted woman, a camel that stands, a skin of old rain, a well, a bell; and an elder's three glasses.",
   facts: [
@@ -119,7 +127,7 @@ export default {
       },
       alt: "A night desert of dunes under stars, with a lone wooden door standing in its frame on the sand.",
       overlayAlt: { shell: "A spiral shell lies at the foot of the door." },
-      picture: pictures.dunes.picture },
+      picture: pictures.dunes },
     { add: "object", id: "shell", at: "dunes", portable: true, material: "stone", name: "Shell", note: "Murmuring the old sea.",
       here: "At the foot of the door a {shell} lies on its side, murmuring.",
       words: { nouns: ["shell", "seashell"], adj: ["spiral", "pale"] },
@@ -166,7 +174,7 @@ export default {
       },
       alt: "A desert camp at dawn: black tents round a stone well, a fire in the middle, red dunes beyond.",
       overlayAlt: { charcoal: "Burnt sticks lie at the edge of the fire." },
-      picture: pictures.camp.picture },
+      picture: pictures.camp },
     { add: "object", id: "well", at: "camp", container: true, open: "always", material: "stone", name: "Well", note: "Dry as a held breath.",
       words: { nouns: ["well", "rim"], adj: ["dry", "stone"] },
       parts: [{ words: ["rope"], name: "the rope", says: "A palm-rope gone grey and stiff. It goes down into the dark and does not mention what is at the end." },
@@ -206,7 +214,7 @@ export default {
       },
       alt: "The inside of a black tent: rugs, a glowing brazier with a teapot, an old woman, a lamp on a shelf.",
       overlayAlt: { lamp: "A little clay lamp stands on the shelf." },
-      picture: pictures.tent.picture, music: roomMusic.tent },
+      picture: pictures.tent, music: roomMusic.tent },
     { add: "object", id: "fadimata", at: "tent", name: "Fadimata", note: "Pouring, unhurried.",
       words: { nouns: ["fadimata", "elder"], adj: ["old"], g: "f", proper: true },
       examine: "Small, unveiled and upright, with silver at her wrists and an expression of immense settled patience. When she pours, the tea falls in one long clean arc that does not splash.",
@@ -278,7 +286,7 @@ export default {
       },
       alt: "A row of kneeling camels at dawn, a white camel at the end, a man tying a load, washing on a line.",
       overlayAlt: { cloth: "A white cloth hangs on the line." },
-      picture: pictures.lines.picture },
+      picture: pictures.lines },
     { add: "object", id: "afternoon", at: "lines", name: "Afternoon", note: "Kneeling. Unmoved.",
       actions: ["Ride Afternoon"],
       words: { nouns: ["afternoon", "camel"], adj: ["white", "lead"], g: "f", proper: true },
@@ -360,7 +368,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A dry riverbed seen from above, its sand rippled and flowing west towards a red rock, a flat stone at the edge.",
-      picture: pictures.wadi.picture },
+      picture: pictures.wadi },
     { add: "object", id: "flat_stone", at: "wadi", use: "touch", name: "Flat stone", note: "A track ends at it.",
       words: { nouns: ["stone", "slab"], adj: ["flat"] },
       examine: "A flat stone the size of a tray, the colour of the bed. The track beside it is one curved line, and it stops at the stone's edge and does not start again." },
@@ -383,7 +391,7 @@ export default {
         every: [35, 70], chance: 0.6
       },
       alt: "A high ridge looking down on a pale dish of sand, with a tiny camp in it, a stone cairn, and a thread of smoke far off.",
-      picture: pictures.ridge.picture, music: roomMusic.ridge },
+      picture: pictures.ridge, music: roomMusic.ridge },
     { add: "object", id: "cairn", at: "ridge", name: "Cairn", note: "A stone from everyone.",
       touch: "You lay a hand on the stones. Each is warm, and each fits a hand that is not yours. You take yours away as a courtesy.",
       words: { nouns: ["cairn", "stones"], adj: ["stone"] },
@@ -411,7 +419,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A tall red rock with a dark crack at its foot, red painted cattle walking into it.",
-      picture: pictures.mouth.picture },
+      picture: pictures.mouth },
     { add: "room", id: "gallery", name: "THE PAINTED GALLERY", area: "cave", at: [0, 0, -1],
       describe: [
         "Your light finds a long chamber painted from floor to roof in ochre and white: giraffes, a river with fish in it, dancers in rows. The paint moves when the flame does, and settles when it is still.",
@@ -432,7 +440,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A long cave chamber painted with giraffes and dancers, and at its end a life-size woman sitting by a well.",
-      picture: pictures.gallery.picture, music: roomMusic.gallery },
+      picture: pictures.gallery, music: roomMusic.gallery },
     { add: "object", id: "painting", at: "gallery", use: "touch", name: "Painted woman", note: "Waiting, facing the way in.",
       words: { nouns: ["woman", "painting", "figure"], adj: ["painted", "red"] },
       touch: "You lay a palm on her painted hand. The rock is cool and smooth, the kind that keeps what is pressed on it. Copying her would want something to press, and something to press with.",
@@ -455,7 +463,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A small round cave covered in hundreds of pale handprints on a red wall.",
-      picture: pictures.hands.picture, music: roomMusic.hands },
+      picture: pictures.hands, music: roomMusic.hands },
     { add: "object", id: "handprint", at: "hands", use: "touch", name: "Handprint", note: "Exactly your size.",
       words: { nouns: ["handprint", "print"], adj: ["pale", "your"] },
       examine: "A pale hand in a halo of red, spread at the height of your shoulder. Its fingers are the length of yours. It is not yours, and it is still slightly warm." },
@@ -477,7 +485,7 @@ export default {
         every: [30, 60], chance: 0.7
       },
       alt: "A round cave chamber with a still pool in the middle, lit from above, and a stone lip round it.",
-      picture: pictures.cistern.picture, music: roomMusic.cistern },
+      picture: pictures.cistern, music: roomMusic.cistern },
     { add: "object", id: "pool", at: "cistern", container: true, open: "always", material: "glass", name: "Pool", note: "Old rain, very still.",
       words: { nouns: ["pool", "water", "cistern", "rain"], adj: ["still", "old"] },
       listen: "You listen. The pool is saying something slowly, in a language made entirely of vowels, and you almost have it.",
@@ -608,7 +616,7 @@ export default {
       do: [{ say: "You put a foot on her folded leg. She is a hill, and a hill that has made up its mind." }] } },
 
     // ---- the endings' pictures ----------------------------------------------------------------------------------
-    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, alt: p.alt, picture: p.picture })),
+    ...Object.entries(endingPictures).map(([id, picture]) => ({ add: "picture", id, alt: endingAlts[id], picture })),
 
     // ---- the puzzles --------------------------------------------------------------------------------------------
     { add: "puzzle", id: "get_lamp", where: "tent", needs: [], solve: ["take lamp", "light lamp"], gives: ["lamp"],

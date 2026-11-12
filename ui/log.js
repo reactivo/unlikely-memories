@@ -1,19 +1,18 @@
 // Story log: adds paragraphs, turns story markup into clickable markers, and fades text in phrase by phrase.
 //
 // The story is ordinary page content: the page is the only thing that scrolls (css/layout.css), with the top (title bar
-// and picture) and the bottom (prompt) sticking over it. So this file scrolls the page, and works out where the story
-// shows from where those two are: the top's bottom edge, and the bottom's top edge (less the space left for the fade).
+// and picture) and the bottom (prompt) sticking over it. Scrolling the page, and working out where the story shows from where
+// those two are, is ui/follow.js (the fragile iPhone code); this file is the story itself: its paragraphs, phrases and visits.
 //
 // Visits: the story is grouped by room, one <section class="visit"> for each time you enter a room (from the
 // command that took you there). Entering a room starts a new visit: the page glides so it starts just under the top,
 // and every earlier visit becomes past: grey, its pictures grey, nothing in it clickable (log.css). The current
 // visit is always at least a screen of story high (log.css), so there's room to scroll its start up to there.
 //
-// Following new text: your own commands are always followed, and so is text the world adds on its own if you were
-// at the end (atEnd). Following is a short smooth scroll, worked out from where the command and its answer actually are.
-//
+// Following new text (ui/follow.js): your own commands are always followed, and so is text the world adds on its own if you
+// were at the end (atEnd). Following is a short smooth scroll, worked out from where the command and its answer actually are.
 // Where the game puts the page (a new story's top, a room's first line, a loaded game's newest text) is its anchor, and
-// stays put until you scroll, touch or type: whatever moves the page on its own before that puts it back (settle, below).
+// stays put until you scroll, touch or type: whatever moves the page on its own before that puts it back (settle, there).
 //
 // The picture on an upright phone is always the crop (ui/crop.js). This file tells it when a room is entered (newVisit: the
 // crop starts in the middle).
@@ -26,6 +25,7 @@
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
 import { spriteSVG } from "./sprite.js";
+import { mount as mountFollow } from "./follow.js";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
@@ -37,249 +37,18 @@ const PHRASE_END = /[^,;:.!?…]*[,;:.!?…]+["»”]?\s*|[^,;:.!?…]+$/g;
 // Punctuation right after a marker ("tin of mints+,"): kept on the same line as it, never wrapped on its own.
 const GLUED = /^[,;:.!?…)\]"»”']+/;
 
-// Set up the log on its element, with the picture's crop (ui/crop.js) it tells when a room starts. Returns
-// update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), toEnd() and atEnd().
 // What goes in the small inventory slot of a line's `slot` ({ sprite: rows }): the sprite as SVG, or null when there is none
 // to draw (no slot, an empty one, a sprite with no rows). Null: the line has no slot at all, just its words.
 export const slotArt = (slot) => (slot && typeof slot === "object" ? spriteSVG(slot.sprite) : null);
 
+// Set up the log on its element, with the picture's crop (ui/crop.js) it tells when a room starts. Returns
+// update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), page(), seen(), toEnd() and atEnd().
 export function mount(root, on, crop) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
-  let gliding = false;           // the page is gliding to a new visit: don't follow new text meanwhile
-  let glides = 0;                // (which glide is the latest: only its own end ends it)
-  let unseen = null;             // the first paragraph added since the story was last followed (toEnd)
-  let followed = null;           // the first paragraph the last toEnd showed (a suggestion after an answer is shown from it too)
-  const calm = matchMedia("(prefers-reduced-motion: reduce)");
-  const layout = root.closest(".layout"), top = layout.querySelector(".top"), bottom = layout.querySelector(".bottom");
-
-  // Where the story shows. Its top edge: under the top, if it sticks (ui/page.js reports --top-h as 0 when it scrolls
-  // away with the story). On an upright phone the top is fixed: the edge is below it, its place plus --top-h.
-  // (Not used while you type: keepLine.) Its bottom edge: where
-  // the bottom begins, less the empty space kept after the newest text, so that text ends above the fade.
-  const topEdge = () => {
-    const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h"));
-    if (!(h > 0)) return 0;
-    const r = top.getBoundingClientRect();
-    if (getComputedStyle(top).position !== "fixed") return r.bottom;
-    return r.top + h;
-  };
-  const bottomEdge = () => bottom.getBoundingClientRect().top;
-  const fade = () => parseFloat(getComputedStyle(root).paddingBottom) || 0;
-
-  // The newest line, and the first line of what is being followed: the last command and everything after it, or the run of
-  // things the world said on its own at the end (they are set apart from the command before them: .aside).
-  const lastLine = () => root.lastElementChild?.lastElementChild;
-  function exchangeStart(visit) {
-    for (let p = visit.lastElementChild; p; p = p.previousElementSibling) {
-      if (p.classList.contains("cmd")) return p;
-      if (p.classList.contains("aside") && !p.previousElementSibling?.classList.contains("aside")) return p;
-    }
-    return visit.firstElementChild;
-  }
-
-  // Is the newest text in view? (Then text the world adds on its own is followed; otherwise the story stays put.)
-  const atEnd = () => {
-    const last = lastLine();
-    if (!last) return true;
-    const end = last.getBoundingClientRect().bottom;
-    if (typing()) return end <= seen().bottom + 2;                 // (while you type: on screen, above the keyboard)
-    return end <= bottomEdge() + 2 && end > topEdge();
-  };
-
-  // Bring the newest command and its answer into view with a short smooth scroll, worked out from where they are (not
-  // "to the end of the page", which can stop short: a phone's browser bars change the page's height while it scrolls).
-  // If they fit between the top and the bottom, they end just above the fade; if they are taller, the command goes just
-  // under the top, so you read the answer from its start. instant: no scroll animation, for a game being restored (main.js),
-  // which goes to its newest text and is held there (the anchor, below) until you scroll, touch or type. The answer's whole
-  // height exists as soon as it is added (it only fades in), so this can measure at once.
-  function toEnd(instant) {
-    const last = lastLine();
-    if (gliding || !last) return;
-    // What to show: everything added since the last follow (your command and its answer, a line the world said, the game's own
-    // question), from its first paragraph. Not "from the last command": the options' "Restart the game?" is no command, and
-    // following from the command before it, far up, showed that old command instead of the question (Diego, 27 Oct 2026).
-    // Nothing new: a restored game (instant) shows the last command and what came after it, as before; anything else leaves the
-    // page where it is. Not from the start of the exchange either: the world's lines on their own are one exchange however many
-    // there are (.aside), so each tick of a condition that hurts made it taller, and once it was taller than the screen every
-    // follow, or a moment that said nothing (a filter from the debug panel, a timed rule that is silent), took the page back UP
-    // to its first line, while you typed always (Diego, 3 Nov 2026).
-    const fresh = unseen && root.contains(unseen) ? unseen : null;
-    if (!fresh && !instant) return;
-    const first = fresh ?? exchangeStart(root.lastElementChild);
-    unseen = null;
-    followed = first;
-    if (typing()) { keepLine(first); return; }
-    let target = Math.max(0, endTarget(first, last, window.scrollY));
-    window.scrollTo({ top: target, behavior: instant || calm.matches ? "instant" : "smooth" });
-    moved("follow");
-    anchor = instant ? { hold: true, at: () => endTarget(first, last, 0) }
-                     : { hold: false, y: target, at: () => endTarget(first, last, window.scrollY) };
-  }
-  // Where the page goes to show from `first` to the newest line `last`: if they fit between the top and the bottom, `last` just
-  // above the fade, but never further up than `floor` (following never moves the page back up); if they are taller, `first`
-  // just under the top.
-  function endTarget(first, last, floor) {
-    const a = first.getBoundingClientRect(), b = last.getBoundingClientRect();
-    const from = topEdge(), to = bottomEdge() - fade();
-    const end = b.bottom + (parseFloat(getComputedStyle(last).marginBottom) || 0);
-    return end - a.top > to - from ? window.scrollY + a.top - from : Math.max(floor, window.scrollY + end - to);
-  }
-
-  // The anchor: where the game itself last put the page, and how to work that place out again (at(): the scroll position for it
-  // now). Every placing sets it: a new story (its top: toTop), a room entered (its first line under the picture: newVisit), a
-  // loaded game (its newest text) and new text followed (toEnd). Your own scrolling, touching, clicking or typing drops it.
-  //
-  // A new story, a room or a loaded game HOLDS its place (hold: true): until you do something yourself, whatever moves the page
-  // on its own puts it back there at once, in this one place (settle):
-  //   - the browser moving it: Safari on an iPhone kept some of the list's scroll after the game had gone to the top (Diego,
-  //     27 Oct 2026), and because a room taller than the screen can only scroll a line or two, that leftover put the page at the
-  //     room's END, its first line under the picture: The Third Glass's opening, always (Diego, 3 Nov 2026);
-  //   - the font finishing loading (the letters change size a little);
-  //   - a change in the window's size (a phone's bars growing or shrinking as the page settles);
-  //   - typing ending (the command line losing the focus: ui/page.js), which before put a long room at its end, from a stale
-  //     "the newest text was in view" (wasAtEnd);
-  //   - the glide to a room ending (or being cut short).
-  // (Not during the glide, nor while you type: the browser decides then.) A loaded game was once sent back to the top by a
-  // retry meant for the opening (Diego, 28 Oct 2026): now there is one anchor, and the loaded game's replaces the opening's.
-  //
-  // Following new text (after a command, or the world speaking while you were at the end) does not hold (hold: false), as
-  // before: a change in the window's size does NOT move the page, the browser keeps the text where it was. (On a phone the
-  // browser's bars grow and shrink as soon as you scroll, which is a size change: anything done then showed as jumps, pulling
-  // you back to the start of a long answer, or the first lines under the picture. Diego, 27 Oct 2026.) Two exceptions:
-  //   - you stop typing on a phone (ui/page.js marks <html data-typing> while you do): the prompt and the tabs stick again,
-  //     so if the newest text was in view, the page moves just enough to show its last line above them (never back up: keepEnd);
-  //   - the font finishing loading: the follow is redone, but only if the page hasn't moved since.
-  let anchor = null;             // { hold, at(), y (following: where it put the page) }
-  let firstScreen = null, shotTimer = 0, lastMove = "—", lastScroll = null;   // (the debug panel's Page section: page(), below)
-  let wasAtEnd = true;
-  for (const kind of ["touchstart", "pointerdown", "wheel", "keydown"]) {
-    window.addEventListener(kind, () => { anchor = null; }, { passive: true, capture: true });   // you, not the browser
-  }
-  const holding = () => anchor?.hold && !gliding && !typing() && root.getClientRects().length > 0;   // (not under the list of games)
-  function settle() {
-    if (resyncing || !holding()) return;
-    const y = Math.max(0, Math.min(anchor.at(), document.documentElement.scrollHeight - innerHeight));
-    if (Math.abs(window.scrollY - y) < 2) return;
-    window.scrollTo({ top: y, behavior: "instant" });
-    moved("held: put back");
-    resync(y);
-  }
-  // Safari on an iPhone (iOS 26) can ignore a scroll back to the top while the page is only a little way down, within a sticky
-  // element's reach (WebKit bug 304489; our bottom is sticky), and go on SHOWING the page there while it reports the top:
-  // after a new game started from further down the list of games, the page said it was at its top (scrollY 0, the first line
-  // under the picture by its numbers) while it showed the story a little higher, its first line under the picture, and taps
-  // landed where the numbers said things were (the command line opened the directions, the menu took several taps). So it
-  // is moved one pixel and back, a frame apart, which makes Safari show it where it reports. Proven on Diego's iPhone, 4 Nov
-  // 2026, with the debug panel's switch: off, all three came back; on, none.
-  let resyncing = false;
-  function resync(y) {
-    if (resyncing || document.documentElement.hasAttribute("data-debug-no-nudge")) return;   // (the debug panel can turn it off, to test it)
-    resyncing = true;
-    // The nudge belongs to the anchor it was made for. If a follow takes over meanwhile (toEnd sets a new anchor: a command
-    // typed or clicked in the frame or two between the steps), the second scroll, an instant one back to y, would cancel the
-    // follow's smooth scroll on its first frame: the page stayed where it was and the answer was left below the story (found
-    // by tests/follow.py at 1100x720, one run in three: the page had been moved a little by the command line taking the focus,
-    // settle() put it back, and the command came in before the nudge ended). So then the nudge is dropped, not finished.
-    const mine = anchor, taken = () => anchor && anchor !== mine;
-    requestAnimationFrame(() => {
-      if (taken()) { resyncing = false; return; }
-      window.scrollTo({ top: y > 0 ? y - 1 : y + 1, behavior: "instant" });
-      requestAnimationFrame(() => {
-        if (!taken()) { window.scrollTo({ top: y, behavior: "instant" }); }
-        resyncing = false;
-      });
-    });
-  }
-  window.addEventListener("scroll", () => { lastScroll = Math.round(window.scrollY); wasAtEnd = atEnd(); settle(); }, { passive: true });
-  window.addEventListener("resize", settle);                      // (after ui/page.js has measured the bars: it was mounted first)
-  function keepEnd() {
-    const last = lastLine();
-    if (gliding || !last) return;
-    const end = last.getBoundingClientRect().bottom + (parseFloat(getComputedStyle(last).marginBottom) || 0);
-    const to = bottomEdge() - fade();
-    if (end > to) {
-      const target = window.scrollY + end - to;
-      window.scrollTo({ top: target, behavior: "instant" });
-    }
-  }
-  // A new story starts at the top, and is held there (the anchor: Safari keeping the list's scroll, above).
-  function toTop() {
-    window.scrollTo(0, 0);
-    anchor = { hold: true, at: () => 0 };
-    moved("new game: top");
-    resync(0);
-    setTimeout(() => { if (holding()) resync(0); }, 400);   // (again once Safari has settled: its leftover scroll comes late)
-    clearTimeout(shotTimer);
-    shotTimer = setTimeout(() => { firstScreen = measurePage(); }, 2000);
-  }
-
-  // For the debug panel's Page section (ui/debug.js): the page as it is now, as it was 2 s after the last new game (before
-  // anything is touched: opening the keyboard changes the layout), and what last moved it. Measured, not kept in the state.
-  function moved(by) { lastMove = by + " (to " + Math.round(window.scrollY) + ")"; }
-  function measurePage() {
-    const html = document.documentElement, vv = window.visualViewport, n = (x) => Math.round(x * 10) / 10;
-    const probe = document.createElement("div");
-    probe.style.cssText = "position:absolute;top:0;width:0;height:100dvh;visibility:hidden;pointer-events:none";
-    document.body.append(probe);
-    const dvh = probe.getBoundingClientRect().height;
-    probe.remove();
-    const first = root.querySelector("p"), t = top.getBoundingClientRect();
-    return {
-      "scrolled": n(window.scrollY) + " of " + n(html.scrollHeight - innerHeight),
-      "window": n(innerHeight) + " (100dvh " + n(dvh) + ")",
-      "visible": vv ? n(vv.height) + " from " + n(vv.offsetTop) : "—",
-      "top": "ends " + n(t.bottom) + ", --top-h " + getComputedStyle(html).getPropertyValue("--top-h").trim(),
-      "first line": first ? "at " + n(first.getBoundingClientRect().top) : "—",
-      "held": anchor?.hold ? "yes" : "no",
-      "last moved": lastMove,
-      "last scroll": lastScroll === null ? "—" : "to " + lastScroll
-    };
-  }
-
-  // While you type on a phone (ui/page.js) the page is in its normal flow, and only the browser knows where its keyboard and
-  // its view of the page are (with the keyboard up, Safari shows the page through a view of its own, which the page's own
-  // scrolling can't move past the page's end: moving the page by an amount stopped short, Diego's iPhone, 28 Oct 2026). So new
-  // text is shown by asking the browser to show things: if the exchange, from your command to the prompt, fits on screen, the
-  // prompt (the browser puts it above its keyboard, the exchange just above it); if it is taller, your command at the top, and
-  // you read the answer from its start (as when you don't type: toEnd). Clicking something after scrolling back to read does
-  // the same. (Entering a room closes the keyboard instead: newVisit.)
-  const typing = () => document.documentElement.hasAttribute("data-typing");
-  const prompt = bottom.querySelector(".prompt");
-  // What shows on screen, in the page's coordinates for getBoundingClientRect (the window, or the browser's view above its
-  // keyboard where it reports one: visualViewport).
-  const seen = () => {
-    const vv = window.visualViewport;
-    return vv ? { top: vv.offsetTop, bottom: vv.offsetTop + vv.height } : { top: 0, bottom: innerHeight };
-  };
-  // (Fits: in the space the browser shows the prompt in, the view less the page's scroll padding, css/base.css: it keeps that much
-  // clear above and below whatever it scrolls to. Measured against the whole view, an exchange a little shorter than it but taller
-  // than that space put the prompt there and cut off your command at the top, up to the bottom's height: Fadimata's long answer
-  // about the tea, 4 Nov 2026.) The top has scrolled away with the story meanwhile, so nothing else changes, and when you stop
-  // typing it is pinned again.
-  function keepLine(first) {
-    if (!first) return;
-    const view = seen(), behavior = calm.matches ? "instant" : "smooth", html = getComputedStyle(document.documentElement);
-    const above = parseFloat(html.scrollPaddingTop) || 0, below = parseFloat(html.scrollPaddingBottom) || 0;
-    const a = first.getBoundingClientRect().top, b = prompt.getBoundingClientRect().bottom;
-    const tall = b - a > view.bottom - view.top - above - below;
-    (tall ? first : prompt).scrollIntoView({ block: tall ? "start" : "end", behavior });
-  }
-  // Typing ends (ui/page.js): the prompt sticks again. Held (a new story, a room, a loaded game, and you haven't done anything
-  // since): back to the anchor. Otherwise the newest text, if it was in view, stays above the prompt and the tabs.
-  new MutationObserver(() => requestAnimationFrame(() => {
-    if (typing()) return;
-    if (holding()) settle(); else if (wasAtEnd) keepEnd();
-  })).observe(document.documentElement, { attributes: true, attributeFilter: ["data-typing"] });
-  // The font has loaded: the letters change size a little. Held: back to the anchor. Following: redone if the page hasn't moved.
-  document.fonts?.ready.then(() => {
-    if (holding()) return settle();
-    if (anchor && !anchor.hold && !gliding && Math.abs(window.scrollY - anchor.y) < 2) {
-      const y = Math.max(0, anchor.at());
-      window.scrollTo({ top: y, behavior: "instant" });
-      anchor.y = y;
-    }
-  });
-
+  const follow = mountFollow(root);   // where the page is put and kept (ui/follow.js)
+  // The fading pieces of the reveal still going (the text and pictures phraseReveal has set to fade in); finishReveal ends only these,
+  // never every .ph the story ever wrote. Dropped once everything has appeared (the next reveal starts a new list).
+  let fading = [];
   // Cut a paragraph into phrases and give each a delayed fade-in, so they appear one after another.
   function phraseReveal(container, figure) {
     // Group the paragraph's pieces into phrases (markers stay inside their phrase).
@@ -299,13 +68,15 @@ export function mount(root, on, crop) {
     // Put each phrase in a fading <span>, each starting a little later than the one before.
     container.textContent = "";
     const now = performance.now();
+    if (revealAt <= now) fading = [];                               // (all of the last reveal has appeared)
     let t = Math.max(now, revealAt);                                // wait for text still appearing
-    if (figure) { figure.classList.add("ph"); figure.style.animationDelay = (t - now) + "ms"; }
+    if (figure) { figure.classList.add("ph"); figure.style.animationDelay = (t - now) + "ms"; fading.push(figure); }
     groups.filter(g => g.length).forEach(g => {
       const span = document.createElement("span"); span.className = "ph";
       span.append(...g);
       span.style.animationDelay = (t - now) + "ms";
       container.appendChild(span);
+      fading.push(span);
       t += PHRASE_GAP_BASE + PHRASE_GAP_PER_CHAR * span.textContent.length;
     });
     revealAt = t + PARAGRAPH_GAP;
@@ -314,7 +85,8 @@ export function mount(root, on, crop) {
   // Any key or click: show all text that is still fading in, at once.
   function finishReveal() {
     if (revealAt <= performance.now()) return;                      // nothing pending
-    root.querySelectorAll(".ph").forEach(el => { el.style.animation = "none"; });
+    for (const el of fading) el.style.animation = "none";
+    fading = [];
     revealAt = 0;
   }
   document.addEventListener("keydown", finishReveal, true);
@@ -343,21 +115,11 @@ export function mount(root, on, crop) {
       v.querySelectorAll("button").forEach(b => { b.disabled = true; });   // past text: nothing to click
     }
     // Typing on a phone: the keyboard closes, so the room starts as a new page, with its picture (Diego, 28 Oct 2026).
-    if (typing()) document.activeElement?.blur();
+    if (follow.typing()) document.activeElement?.blur();
     crop.room();                                                  // a new room: the picture's crop starts in the middle
-    unseen = null;                                                // (the glide shows it, from its first line)
+    follow.forget();                                              // (the glide shows it, from its first line)
     if (instant) return;
-    // Held there (the anchor, above) until you scroll, touch or type: the room's first line under the picture, never its end.
-    const at = () => visit.firstElementChild.getBoundingClientRect().top + window.scrollY - topEdge();
-    const target = Math.max(0, at());
-    anchor = { hold: true, at };
-    gliding = true;
-    const glide = ++glides;
-    const done = () => { if (glide !== glides || !gliding) return; gliding = false; settle(); };   // (over, or cut short: is it there?)
-    document.addEventListener("scrollend", done, { once: true });
-    setTimeout(done, 1200);                                       // in case the browser has no scrollend
-    window.scrollTo({ top: target, behavior: calm.matches ? "instant" : "smooth" });
-    moved("new room");
+    follow.glideTo(visit);
   }
 
   // Add a paragraph to the story (to the current visit). Returns it.
@@ -382,7 +144,7 @@ export function mount(root, on, crop) {
     build(into, text);
     if (!instant && !(cls && cls.split(" ").includes("cmd"))) phraseReveal(into, p.querySelector(".figure"));
     current().appendChild(p);
-    if (!instant && !(unseen && root.contains(unseen))) unseen = p;   // (restored text is not new: see toEnd)
+    follow.added(p, instant);                                       // (restored text is not new: see toEnd)
     return p;
   }
 
@@ -452,15 +214,15 @@ export function mount(root, on, crop) {
     // How long until all of it has appeared (ms; 0 if nothing is fading in).
     busyFor() { return Math.max(0, revealAt - performance.now()); },
     // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.
-    clear() { root.innerHTML = ""; unseen = null; toTop(); crop.room(); },
+    clear() { root.innerHTML = ""; follow.forget(); follow.toTop(); crop.room(); },
     // The page's measurements, for the debug panel: { first (2 s after the last new game, or null), now }.
-    page() { return { first: firstScreen, now: measurePage() }; },
+    page: follow.page,
     // What is in the story now counts as seen (a new story, shown from the top: the next follow shows only what comes after it).
-    seen() { unseen = null; },
+    seen: follow.forget,
     // Bring the newest command and its answer into view (smoothly; instant = true: at once).
-    toEnd,
+    toEnd: follow.toEnd,
     // Is the newest text in view? (Then text the world adds on its own is followed; otherwise the story stays put.)
-    atEnd,
+    atEnd: follow.atEnd,
     // Add a dim suggestion line, unless it's the same as the line just above.
     suggest(text) {
       const last = root.lastElementChild?.lastElementChild;
@@ -471,7 +233,7 @@ export function mount(root, on, crop) {
       // line after Talk or Ask comes before its command is followed) is followed with its suggestion, from its own first line:
       // reaching back to the follow before it showed an old line at the top, from a room or two back (the opening's last
       // command when you talked to Fadimata, and every topic after: Diego, 4 Nov 2026).
-      if (!(unseen && root.contains(unseen)) && followed && root.contains(followed)) unseen = followed;
+      follow.suggesting();
       say(text, "sys suggest").dataset.suggest = text;
     }
   };

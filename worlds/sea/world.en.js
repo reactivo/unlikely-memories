@@ -49,7 +49,7 @@ const notAsking = { "$topic": null };                 // not asking about someth
 const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
 
 // Room texts that changes swap in and out (the beach and the lantern room). A change rewrites a room's whole text; when two changes can touch the same room, the
-// later one accounts for the earlier (GUIDE.md §6): lighting the lamp after the door has turned to driftwood uses
+// later one accounts for the earlier (BRIEF.md §9): lighting the lamp after the door has turned to driftwood uses
 // the texts with both.
 const sand = "The tide line runs west. To the east, black rocks and the mouth of a cave. Dunes rise to the south.";
 const doorStands = "A beach at night. The sand is still warm, as if the sun had only just left. The green {door|beach_door} stands alone in the sand, attached to nothing, breathing.";
@@ -76,7 +76,7 @@ const endingPictures = {
 // area of its own, reached only by boat. exits: a room id; true = there's a way, but a rule answers; false = none.
 
 const rooms = {
-  // The opening (GUIDE.md §8): the Ministry corridor, never returned to. Area "ministry" is its own.
+  // The opening (BRIEF.md §3): the Ministry corridor, never returned to. Area "ministry" is its own.
   corridor: {
     name: "CORRIDOR 7-B", area: "ministry", at: [0, 0, -4],
     describe: [
@@ -807,7 +807,7 @@ const rules = [
 
 ];
 
-// ---- Puzzles, described as data (GUIDE.md §3) --------------------------------------------------------------
+// ---- Puzzles, described as data (BRIEF.md §4) --------------------------------------------------------------
 // The rules above do the work; this says what each puzzle needs, the commands that solve it and what it gives, so
 // js/check.js can play every ending through the real parser and engine. Clues name the objects, rules or puzzles
 // that point at it.

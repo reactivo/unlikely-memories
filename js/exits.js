@@ -16,7 +16,8 @@
 //
 // A `connect` effect writes an exit too, and may carry the same fields beside `connect`, `dir` and `to` (connectedExit).
 
-export const isExitObject = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+import { isObject } from "./shapes.js";
+export const isExitObject = isObject;
 
 // The ways a thing is: the directions going through it takes, from its `door` (a door, gate or hatch on that way) or its `leads` (stairs,
 // a shop front, a cave: a way you climb or walk into; one direction, or a list for stairs that go both up and down, ["u", "d"]). A thing

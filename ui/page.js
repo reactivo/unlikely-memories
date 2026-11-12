@@ -5,10 +5,7 @@
 // locked while you sleep (see sleeper).
 
 import { reactionOf } from "./effects.js";
-
-// Phones and tablets (no hover, a coarse pointer: asked of the device, not of the window's width). Only they have an
-// on-screen keyboard; on a computer followTyping does nothing.
-const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
+import { touch, topMode } from "./media.js";
 
 // The page scrolls and two parts of it stick: the top (title bar and picture) and the bottom (prompt and tabs). How
 // tall they are depends on the window and the text, so the page measures them and reports them, as the one exception to
@@ -22,7 +19,7 @@ const touch = window.matchMedia("(hover: none) and (pointer: coarse)");
 //                same way, so nothing moves.)
 //   --bottom-h   the bottom's height
 //   (Not the window's height: the page uses 100dvh. 0.28.1 measured innerHeight instead, to fix a new game's first screen on the
-//   iPhone; it didn't (the cause was Safari ignoring a scroll back to the top: ui/log.js, resync), and on an iPhone innerHeight
+//   iPhone; it didn't (the cause was Safari ignoring a scroll back to the top: ui/follow.js, resync), and on an iPhone innerHeight
 //   shrinks when the keyboard opens (714 to 406), so the page's height would change under the finger. Undone in 0.28.3.)
 function followBars(root) {   // returns update(): measure now
   const html = root.documentElement, top = root.querySelector(".top"), bottom = root.querySelector(".bottom");
@@ -32,9 +29,9 @@ function followBars(root) {   // returns update(): measure now
     if (shown[name] !== value) html.style.setProperty(name, shown[name] = value);
   }
   function update() {
-    const position = getComputedStyle(top).position;   // (the CSS decides: no second copy of the breakpoints here)
-    const height = position === "fixed" || position === "absolute" ? top.getBoundingClientRect().height   // (absolute: the fixed top while you type)
-                 : position === "sticky" ? top.getBoundingClientRect().height : 0;
+    const position = topMode(top);   // (the CSS decides: no second copy of the breakpoints here)
+    const height = position === "fixed" || position === "absolute" || position === "sticky"   // (absolute: the fixed top while you type)
+      ? top.getBoundingClientRect().height : 0;
     put("--top-h", height);
     put("--bottom-h", bottom.getBoundingClientRect().height);
   }

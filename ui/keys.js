@@ -8,8 +8,8 @@
 // Held keys don't repeat, and a key with Cmd, Ctrl or Alt is never a shortcut (the browser's own stay free).
 // Nothing applies while a panel or the options are open (Esc closes those itself), or while focus is on a button.
 // The command line has the focus nearly always, so letter keys are typing and the arrows move its cursor: never
-// shortcuts. What else the command line may do with keys one day (earlier commands, completing a word) is in
-// INTERFACE.md §6b. Now: Esc, a new game (js/main.js).
+// shortcuts. What the command line does with keys itself (earlier commands, completing a word) is built: ui/prompt.js,
+// ui/history.js; INTERFACE.md §6b. Here: Esc, a new game (js/main.js).
 
 // Set up on the document. Returns add() (for the controller to register shortcuts) and update().
 export function mount(doc) {

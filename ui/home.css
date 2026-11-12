@@ -55,8 +55,8 @@
     }
 
     & .version:focus-visible {
-      outline: 2px solid var(--color-focus);
-      outline-offset: 2px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
 
     & .lang {
@@ -78,8 +78,8 @@
       }
 
       & button:focus-visible {
-        outline: 2px solid var(--color-focus);
-        outline-offset: 2px;
+        outline: var(--focus-ring);
+        outline-offset: var(--focus-offset);
       }
     }
 
@@ -231,8 +231,8 @@
     }
 
     & .play:focus-visible {
-      outline: 2px solid var(--color-focus);
-      outline-offset: 2px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
   }
 

@@ -28,7 +28,7 @@ import { NOISES, TONES, COLOURS, LIMITS, freqOf, themeIn } from "../../js/music.
 import { makeKit, note, filt } from "./synth.js";
 import { makeTone } from "./tones.js";
 import { makeColour } from "./colours.js";
-import { planOf, playNote } from "./sounds.js";
+import { planOf, playNote, EFFECT_KINDS } from "./sounds.js";
 import { keyOf, stable } from "./loudness.js";
 
 const lowpass = (ctx, S, f = S.lowpass.frequency) => filt(ctx, "lowpass", f, S.lowpass.q);
@@ -88,7 +88,7 @@ function referenceNotes(S) {
   for (const r of R.notes) for (const st of r.steps) out.push({ inst: r.inst, f: freqOf(S.sounds.key, st, r.octave) });
   return out;
 }
-export function referencePart(S, box = false) {
+function referencePart(S, box = false) {
   const notes = referenceNotes(S), each = S.loudness.reference.each, seconds = each * notes.length;
   return { key: keyOf("reference", { ref: S.loudness.reference, box: box ? S.box : undefined, note: S.note, kinds: S.kinds, lowpass: S.lowpass, waves: S.waves }),
     group: "reference", label: "the reference notes" + (box ? " (music box)" : ""), seconds, slices: notes.length, notes, chance: true,
@@ -109,7 +109,6 @@ export function colourPart(S, name) {
 
 // A planned sound note's part: its instrument at its octave.
 export const soundId = (p) => stable({ inst: p.inst, octave: p.octave });
-const EFFECTS = ["tock", "thump", "foley"];
 const soundCache = new WeakMap();
 export function soundParts(S, key = S.sounds.key) {
   const cache = soundCache.get(S) ?? soundCache.set(S, new Map()).get(S), id0 = stable({ root: key.root, steps: key.steps });
@@ -119,7 +118,7 @@ export function soundParts(S, key = S.sounds.key) {
   for (const kind of Object.keys(O.moments)) for (const material of materials) for (const p of planOf([{ kind, material }], key, S)) {
     const id = soundId(p);
     if (byId.has(id)) continue;
-    const chance = NOISES.includes(p.inst.kind) || EFFECTS.includes(p.inst.kind) || !!S.kinds[p.inst.kind]?.breath;
+    const chance = NOISES.includes(p.inst.kind) || EFFECT_KINDS.includes(p.inst.kind) || !!S.kinds[p.inst.kind]?.breath;
     const n = chance ? CHANCE * (WHOLE.includes(p.inst.kind) ? 2 : 1) : 1, each = chance ? Math.max(EACH, p.dur + 0.35) : Math.max(1, p.dur + 0.5), one = { ...p, share: 1 };
     byId.set(id, { key: keyOf("sound", { id, dur: p.dur, toF: p.toF, f: p.f, spec: { note: S.note, noises: S.noises, kinds: O.kinds, lowpass: O.lowpass, kind: S.kinds[p.inst.kind] } }),
       group: "sounds", label: `${describe(O, p.inst)} (${p.inst.kind}${p.f === undefined ? "" : `, octave ${p.octave}`})`, seconds: each * n, slices: n, note: one, dur: p.dur, id, chance,

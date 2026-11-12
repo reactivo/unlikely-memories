@@ -82,8 +82,8 @@
     }
 
     & button:focus-visible {
-      outline: 2px solid var(--color-focus);
-      outline-offset: 2px;
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
     }
 
     /* An exit that just opened or closed blinks twice, then settles (compass.js adds the class; timing in tokens.css). */

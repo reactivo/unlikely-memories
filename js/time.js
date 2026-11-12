@@ -22,6 +22,12 @@ export function parts(ms, firstWeekday = null) {
 // A time of day as the game writes it in figures: "07:05".
 export const hhmm = ({ hour, minute }) => String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
 
+// The next time the clock shows `msOfDay` (ms into the day), never now: a time already past today, or now, is tomorrow's.
+export function nextAt(now, msOfDay) {
+  const today = now - (now % DAY) + msOfDay;
+  return today > now ? today : today + DAY;
+}
+
 // Where a time effect moves the clock, from now (world ms). Returns { to } or { error }.
 //   "+8h", "-1d", "+1d 2h 30m"       forward or back by an amount
 //   "next 06:00"                     the next time it's 06:00 (later today, or tomorrow)
@@ -37,8 +43,7 @@ export function moveTo(spec, now) {
   if ((m = s.match(/^next\s+(\d{1,2}):(\d{2})$/))) {
     const t = clockTime(+m[1], +m[2]);
     if (t === null) return { error: "no such time: " + spec };
-    const today = now - (now % DAY) + t;
-    return { to: today > now ? today : today + DAY };
+    return { to: nextAt(now, t) };
   }
   if ((m = s.match(/^day\s+(\d+),?\s+(\d{1,2}):(\d{2})$/))) {
     const t = clockTime(+m[2], +m[3]);

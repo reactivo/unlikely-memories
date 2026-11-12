@@ -61,7 +61,7 @@ export function loudest(x, rate, window = 0.4) {
 
 // The curves: K-weighting's two stages (ITU-R BS.1770: a shelf of +4 dB from about 1.7 kHz, how the head hears; a high-pass at
 // 38 Hz), and a phone speaker on top of that (two high-passes at 300 Hz: a phone plays almost nothing below).
-export const CURVE = { shelf: [1682, 0.707, 4], low: [38, 0.5], phone: [300, 0.707], window: 0.4 };
+const CURVE = { shelf: [1682, 0.707, 4], low: [38, 0.5], phone: [300, 0.707], window: 0.4 };
 export function weigh(x, rate, C = CURVE) {
   const k = run(run(x, coeffs("highshelf", C.shelf[0], C.shelf[1], C.shelf[2], rate)), coeffs("highpass", C.low[0], C.low[1], 0, rate));
   const hp = coeffs("highpass", C.phone[0], C.phone[1], 0, rate), p = run(run(k, hp), hp);

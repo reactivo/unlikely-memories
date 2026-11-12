@@ -25,9 +25,9 @@ export function mount(root, on) {
     // Redraw when the exits, the language or the end change. After a turn, an exit that opened or closed blinks.
     update(prev, next, reason) {
       current = next;
-      const exits = exitsOf(next.state), over = !!next.state.ended;
+      const exits = exitsOf(next.state), was = prev ? exitsOf(prev.state) : null, over = !!next.state.ended;
       root.classList.toggle("over", over);             // the story is over: dim (compass.css)
-      if (prev && prev.state.lang === next.state.lang && !prev.state.ended === !over && sameExits(exitsOf(prev.state), exits)) return;
+      if (prev && prev.state.lang === next.state.lang && !prev.state.ended === !over && sameExits(was, exits)) return;
       const t = next.pack;
       const m = root.querySelector(".map");              // M: the map, while the story goes on
       m.setAttribute("aria-label", t.labels.map);
@@ -46,9 +46,9 @@ export function mount(root, on) {
         }
         b.tabIndex = open && !over ? 0 : -1;        // closed exits (and all, once it is over) are skipped by Tab
         if (open && !over) b.title = t.dirTips[d]; else b.removeAttribute("title");   // the tooltip: only on a way you can take
-        const opened = open && !(prev && exitsOf(prev.state)[d]);
+        const opened = open && !(was && was[d]);
         // It just changed: blink (compass.css). A corner that closes just disappears.
-        if (prev && reason !== "restore" && (CORNERS.includes(d) ? opened : !!exitsOf(prev.state)[d] !== open)) {
+        if (prev && reason !== "restore" && (CORNERS.includes(d) ? opened : !!was[d] !== open)) {
           b.classList.remove("changed"); void b.offsetWidth;
           b.classList.add("changed");
           b.addEventListener("animationend", () => b.classList.remove("changed"), { once: true });

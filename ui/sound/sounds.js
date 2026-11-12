@@ -54,6 +54,7 @@ export function playNote(kit, dest, p, t) {
 // randomness the player's.
 // Small speakers (a phone's, a laptop's) play little under 300 Hz, so each has its weight in the middle, where they do.
 const EFFECTS = { tock, thump, foley };
+export const EFFECT_KINDS = Object.keys(EFFECTS);
 
 // A decaying sine from `from` to `f` (over `glide`), `tc` its fall.
 function ring(ctx, out, f, t, level, tc, from = f, glide = 0.02, type = "sine") {

@@ -13,7 +13,7 @@ import { newSeed } from "./random.js";
 export const FORMAT = 17;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh). 17: the engine audit (the worlds' rules became facts on their things; older saves hold the old rules, so they start afresh)
 
 // Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit takes what it takes (1 to 5,
-// the checker holds worlds to the scale: GUIDE.md §3), with no warning turn; at 0 the story ends.
+// the checker holds worlds to the scale: BRIEF.md §5), with no warning turn; at 0 the story ends.
 // A fresh game in a language: the world that plays (the one named by `id`; worlds/index.js's DEFAULT when none is), if it's
 // written in this language, built from its change set, opening and all (ARCHITECTURE.md §3, "The opening"). health: where
 // it starts (tests; a game always starts at 5). sequel: a change set = that world instead (tests); false = no world. A

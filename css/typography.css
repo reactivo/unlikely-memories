@@ -9,7 +9,7 @@
    and line heights under :root[data-font="<id>"]. The old computers' fonts in fonts/ are not declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
-  src: url("../fonts/m5x7-patched.ttf") format("truetype");   /* m5x7 with its capital and x heights written in (FONTS.md, in the fonts folder at the top of the project) */
+  src: url("../fonts/m5x7-patched.ttf") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
 }
 
 @layer typography {
@@ -59,8 +59,9 @@
 
   /* ---- Text styles. Size and line height come from tokens.css. ---- */
 
-  /* The story log: everything the game writes and your echoed commands (ui/log.css). Tight lines. */
-  .text-log {
+  /* The story log: everything the game writes and your echoed commands (ui/log.css). Tight lines. Also an echo under the story
+     text (INTERFACE.md §6c): the story's own size and line height, in sentence case. */
+  .text-log, .text-echo {
     font-size: var(--log-text);
     line-height: var(--log-line);
   }
@@ -99,14 +100,9 @@
     line-height: var(--line-xs);
   }
 
-  /* An echo under the story text (INTERFACE.md §6c): the story's own size and line height, in sentence case. */
-  .text-echo {
-    font-size: var(--log-text);
-    line-height: var(--log-line);
-  }
-
-  /* The map's hint under the popup (how to move the map). */
-  .text-hint {
+  /* The map's hint under the popup (how to move the map), and the level's name in the map's location bar: the same size, so
+     the bar reads as one line of status, in capitals, with the line height of interface text. */
+  .text-hint, .text-level {
     font-size: var(--text-xs);
     line-height: var(--line-s);
     text-transform: uppercase;
@@ -137,11 +133,4 @@
     text-transform: uppercase;
   }
 
-  /* The level's name in the map's location bar: the same size as the map's hint (.text-hint), so the bar reads as one line
-     of status, in capitals, with the line height of interface text. */
-  .text-level {
-    font-size: var(--text-xs);
-    line-height: var(--line-s);
-    text-transform: uppercase;
-  }
 }

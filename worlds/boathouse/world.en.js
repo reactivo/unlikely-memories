@@ -160,7 +160,7 @@ const rooms = {
       { words: ["lake", "water", "ripples"], name: "the lake", says: "Close to, it is brown and clear at once, so that you see the piles going down into it and the planks reflected, upside down, between." },
       { words: ["island", "lamp-post", "lamppost", "far"], name: "the island", says: "A low hump of reeds and one iron lamp-post, a mile out. The lamp on it has been dark for as long as Teodor has been late." },
       { words: ["reeds", "reed", "shore", "dinghy"], name: "the reeds", says: "Reeds along the shore, and a dinghy tied among them, its rope run out to a pile. It is tied the way a boat is tied by somebody who means to come back." },
-      { words: ["planks", "piles", "jetty"], name: "the planks", says: "Grey, split and sound. Someone has hammered each nail head a little crooked, so that the whole jetty seems to be leaning out to see." },
+      { words: ["planks", "piles", "jetty"], name: "the planks", says: "Grey, split and sound. Someone has hammered each nail head a little crooked, so that the whole jetty leans out to see." },
       { words: ["hook"], name: "the hook", says: "A brass hook screwed into the post at lamp height. The brass is bright at the tip, like a key that is used." }
     ],
     ambience: { lines: [

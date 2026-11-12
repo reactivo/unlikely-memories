@@ -14,10 +14,10 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { ACTIONS } from "./actions.js";
 import { holds, answers, ANSWER_LENGTH } from "./engine.js";
 import { exitTo, wayAt, wayOf, waysOf } from "./exits.js";
-import { placeOf, shut, isAction, person } from "./use.js";
+import { inScope, person } from "./place.js";
+import { ACTIONS, isAction } from "./actions.js";
 import { distance } from "./fields.js";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
@@ -25,7 +25,21 @@ import { distance } from "./fields.js";
 // without a letter types for it (`fold`: German { "ß": "ss", "ä": "ae" }), applied before the accents come off. A letter
 // with no fold just loses its accent, so Spanish "ñ" reads as "n": "enseña" and "ensena" are the same word. Typed input and
 // every word list (the pack's, the world's) go through this, so they always meet.
-export function normalise(text, grammar = {}) {
+// Worked out once per text and grammar (a pack's grammar is one object for good): the world's words are read again on each parse, and
+// the packs' elisions build a pattern each time. (A state's own words can't key this: a test changes them in place.) Kept small.
+const normalised = new WeakMap();
+export function normalise(text, grammar = NO_GRAMMAR) {
+  let seen = normalised.get(grammar);
+  if (!seen) normalised.set(grammar, seen = new Map());
+  let out = seen.get(text);
+  if (out === undefined) {
+    if (seen.size > 5000) seen.clear();
+    seen.set(text, out = fold(text, grammar));
+  }
+  return out;
+}
+const NO_GRAMMAR = {};
+function fold(text, grammar) {
   let t = text.toLowerCase().replace(/[‘’]/g, "'").normalize("NFC");
   // (an apostrophe inside a word goes, after the language's elisions: "clockmaker's" → "clockmakers")
   for (const [short, full] of Object.entries(grammar.elisions || {}))
@@ -174,7 +188,7 @@ function seenWords(seen, grammar, shown = new Map()) {
 
 // The pack's words plus the world's: object words, room scenery and added verbs. The same object back when the
 // world adds nothing new, so the vocabulary cache keeps working.
-const merged = new WeakMap();
+const worldWords = new WeakMap();
 function withWorld(words, state) {
   const names = {}, scenery = {}, verbs = {}, parts = {}, shown = new Map();
   // The world's words are read the way typed words are (accents, folded letters, apostrophes, capitals), so "Inés" or
@@ -204,11 +218,11 @@ function withWorld(words, state) {
   for (const [verb, v] of Object.entries(state.vocab || {})) verbs[verb] = norm([...(words.words.verbs[verb] || []), ...(v.words || [])]);
   const key = JSON.stringify([names, scenery, verbs, topics, roomNames, parts]);
   if (key === "[{},{},{},{},{},{}]") return words;
-  const seen = merged.get(words);
+  const seen = worldWords.get(words);
   if (seen && seen.key === key) return seen.value;
   const value = { ...words, names, scenery, topics, roomNames, parts,
                   shown: Object.fromEntries(shown), words: { ...words.words, verbs: { ...words.words.verbs, ...verbs } } };
-  merged.set(words, { key, value });
+  worldWords.set(words, { key, value });
   return value;
 }
 
@@ -530,7 +544,7 @@ function readCommand(tokens, state, W, recent) {
     // a verb the game doesn't know, not part of a name.
     if (["@notHere", "@onlyMentioned"].includes(r.error?.say) && !verb && ph === phrases[0] && ph.words.length > 1) {
       const after = resolve(ph.words.slice(1), state, W, false);
-      if (after.id || after.scenery) return { error: suggestion(ph.words[0], W.verbWords) };
+      if (after.id || after.scenery) return { error: typoOptions(ph.words[0], W.verbWords) };
     }
     if (r.error && verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]]) { topic = "?"; prep = ph.prep; continue; }
     // A thing that is a way out (`leads`): going, climbing, entering, opening, using or taking it goes that way ("climb the
@@ -731,7 +745,7 @@ function resolve(phrase, state, W, first, absentOK = false, verb = null) {
   const words = phrase.filter(w => !W.preps.has(w));
   const unknown = words.find(w => !W.known.has(w));
   if (unknown && W.seen.has(unknown) && !(first && unknown === words[0])) return { error: { say: "@onlyMentioned", arg: show(words, W) } };
-  if (unknown) return { error: suggestion(unknown, first && unknown === words[0] ? W.verbWords : wordsHere(state, W)) };
+  if (unknown) return { error: typoOptions(unknown, first && unknown === words[0] ? W.verbWords : wordsHere(state, W)) };
   const fits = (id) => fitsName(W.names[id], words);
   const matches = Object.keys(state.world.objects).filter(id => fits(id));
   const here = matches.filter(id => inScope(state, id));
@@ -765,14 +779,6 @@ function leadsOf(thing) {
 function sceneryHere(state, W) {
   const parts = Object.entries(W.parts).filter(([id]) => state.world.objects[id] && inScope(state, id)).flatMap(([, p]) => p);
   return [...(W.scenery[state.player.at] || []), ...parts];
-}
-
-// Is the object here, carried, or inside something that is? Not if it's inside a closed container (the locked
-// hut's oars can't be talked about until it's open). Things in something that isn't a container (mints in
-// a tin) are always in reach.
-export function inScope(state, id) {
-  const place = placeOf(state, id);
-  return !shut(state, id) && (place === state.player.at || place === "player");
 }
 
 // Remember what an action mentioned, newest first (its object, then the second one: "put the oars in the boat").
@@ -847,7 +853,7 @@ function onlyCandidate(verb, state) {
 // changed or swapped), for parse() to try in its place. In a long word that's a clear typo; in a short one only two
 // swapped letters or a doubled letter are. A changed letter is doubtful, even a neighbouring key ("miss" isn't clearly
 // "kiss", though m touches k). Clear ones first. [{ word, clear }]
-function suggestion(word, pool) {
+function typoOptions(word, pool) {
   const options = word.length < 4 ? [] : [...pool].filter(k => k.length >= 3 && distance(word, k) === 1)
     .map(k => ({ word: k, clear: word.length >= 5 || clearSlip(word, k) }))
     .sort((a, b) => b.clear - a.clear);

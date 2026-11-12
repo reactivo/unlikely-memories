@@ -683,7 +683,7 @@ const rules = [
   { id: "whistle_note", match: { verb: "whistle" }, do: [{ say: "You whistle one thin note. The cables answer." }] },
   { id: "intone_open", match: { verb: "intone", text: "open sesame" }, do: [{ say: "You say it exactly, and the room takes it as a joke." }] },
   { id: "intone_any", match: { verb: "intone" }, if: [{ "$text": { in: ["testbed", "the testbed"] } }],
-    do: [{ say: "\"[player.rank],\" you say, and the lab seems to agree." }] },
+    do: [{ say: "\"[player.rank],\" you say, and the lab agrees." }] },
   { id: "summon_dot", match: { verb: "summon", obj: "dot" }, if: [{ "dot.place": { "!=": "$here" } }, { "$here": { "!=": "tb-bar" } }],
     do: [{ say: "Dot is in the bar, east of the hub. She cannot hear you from here." }] },
   { id: "shake_tin", match: { verb: "shake", obj: "tin" }, once: true, again: "The tin rattles again, in the same way.",

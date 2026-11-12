@@ -3,8 +3,8 @@
 // no globals, no knowledge of the game. Every number is the spec's (content/music.js, `tones`). The events' randomness is the
 // player's own, never the game's.
 //
-//   makeTone(kit, name, dest, level) → { tick(from, to), stop(t) }   at `level` (its gain from its level: ui/sound/loudness.js); tick
-//                                                                    schedules the small events between two audio times
+//   makeTone(kit, name, dest, level) → { tick(from, to), stop(t), close() }   at `level` (its gain from its level: ui/sound/loudness.js); tick
+//                                                                    schedules the small events between two audio times; close lets go of its output once stopped
 
 import { src, filt, gain, lfo, chain } from "./synth.js";
 
@@ -55,5 +55,6 @@ export function makeTone(kit, name, dest, level = 1) {
     ticks.push((from, to) => events(from, to, K.start, K.every, (t) => {
       cg.gain.setValueAtTime(K.level[0] + Math.random() * K.level[1], t); cg.gain.setTargetAtTime(0, t + K.hold, K.tc[0] + Math.random() * K.tc[1]); }));
   }                                                                // silence: nothing
-  return { tick: (a, b) => ticks.forEach(fn => fn(a, b)), stop(t) { for (const n of stops) { try { n.stop(t); } catch (e) {} } } };
+  return { tick: (a, b) => ticks.forEach(fn => fn(a, b)), stop(t) { for (const n of stops) { try { n.stop(t); } catch (e) {} } },
+           close() { out.disconnect(); } };   // (once it has stopped: its output, so the nodes behind it can be let go)
 }

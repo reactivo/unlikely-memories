@@ -4,7 +4,7 @@
 // on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)).
 
 import { VERSION } from "../js/version.js";
-import { THUMB, thumbnailPixels, RGB } from "./draw.js";
+import { THUMB, thumbnailPixels, putPixels, RGB } from "./draw.js";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
@@ -18,11 +18,16 @@ export function mount(root, on) {
   const switcher = root.querySelector(".lang"), column = root.querySelector(".column"), version = root.querySelector(".version"), subtitle = root.querySelector(".subtitle");
   // A thumbnail: the bible's fixed crop (THUMB: 225 × 135, from column x), drawn once on a canvas of its own size. CSS stretches the
   // canvas to fill its slot, hard-edged (ui/home.css), so nothing here depends on the screen.
-  function paintThumb(thumb) {
-    const canvas = document.createElement("canvas"), px = thumbnailPixels(thumb.draw, thumb.x);
+  // The pictures are painted once for each world and language (painting is the slow part: the list is drawn again on every visit to the
+  // landing page, and a world's pictures don't change while the page is open); the canvases are new each time.
+  const painted = new Map();
+  function paintThumb(thumb, id, lang) {
+    const key = lang + "/" + id + "@" + thumb.x;
+    if (!painted.has(key)) painted.set(key, thumbnailPixels(thumb.draw, thumb.x));
+    const canvas = document.createElement("canvas");
     canvas.width = THUMB.width; canvas.height = THUMB.height;
     const ctx = canvas.getContext("2d"), image = ctx.createImageData(THUMB.width, THUMB.height);
-    px.forEach((p, k) => { image.data.set([...RGB[p], 255], k * 4); });
+    putPixels(image, painted.get(key), RGB);
     ctx.putImageData(image, 0, 0);
     return canvas;
   }
@@ -56,7 +61,7 @@ export function mount(root, on) {
         const buttons = el("div", "buttons text-button");
         for (const b of buttonsFor(w.saved, t)) buttons.append(button(b.label, w.title, () => on.play(w.id, b.fresh)));
         if (w.thumb) {
-          const canvas = paintThumb(w.thumb);
+          const canvas = paintThumb(w.thumb, w.id, lang);
           canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", w.thumb.alt || w.title); tile.append(canvas);
         }
         body.append(el("h2", "title text-heading", w.title), el("p", "blurb text-story", w.blurb), buttons);

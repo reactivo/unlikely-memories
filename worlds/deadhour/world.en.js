@@ -77,6 +77,14 @@ const changes = {
   ]
 };
 
+// What each ending picture says to a screen reader (alt); the drawings are language-free (pictures.js).
+const endingAlts = {
+  restored: "A huge clock dial in the dark, both hands together on the thirteenth mark, a small brass cog glowing at its heart.",
+  kept: "The pylon platform from above: rows of brass robots sitting on the boards in pools of lamplight, a small porter on his trolley in front.",
+  flown: "A small brass floater high in the stars above a bank of smoke, with a single coin of city light glowing far beneath it.",
+  died: "A white sheet of steam across a dark iron wall, and a dropped brass cap on the floor.",
+};
+
 export default {
   because: "The opening in a hired floater in the smoke, then Pylon Nine, its floater rank, the market below with a repair shop and the Registry of Hands, and the Chronometer Tower; a tag, a key, a name, a badge, and a cog, with three ways to give the dead hour back or keep it.",
   facts: [
@@ -118,7 +126,7 @@ export default {
       },
       alt: "The inside of a brass floater cab, seen through its open doors: a gangway of planks runs out into grey smoke.",
       overlayAlt: { trumpet: "A brass ear trumpet hangs from the dash." },
-      picture: pictures.skycab.picture },
+      picture: pictures.skycab },
     { add: "object", id: "trumpet", at: "skycab", portable: true, material: "metal", name: "Ear trumpet", note: "Hissing quietly.",
       here: "An {ear trumpet|trumpet} hangs from a hook on the dash, hissing, tied by a pipe to the Exchange.",
       words: { nouns: ["trumpet", "horn"], adj: ["ear", "brass"] },
@@ -164,7 +172,7 @@ export default {
       },
       alt: "A brass platform on a pylon, with railings, a grey-coated Inspector with one hand raised at the rail, and floaters on their lines in the smoke.",
       overlayAlt: { tag: "A repair tag hangs from the Inspector's cuff." },
-      picture: pictures.pylon.picture },
+      picture: pictures.pylon },
     { add: "object", id: "steps", at: "pylon", name: "Steps", note: "Down to the market.", leads: "d",
       words: { nouns: ["steps", "stairs", "treads"], adj: ["iron"] },
       examine: "Iron steps go down through a hole in the platform into the market's smoke. Every tread is worn into a dip by feet that no longer come this way." },
@@ -237,7 +245,7 @@ export default {
         every: [30, 70], chance: 0.7
       },
       alt: "A gantry of parked brass floaters against a pink sunset smoke, one with its door open and a lamp lit.",
-      picture: pictures.rank.picture },
+      picture: pictures.rank },
     { add: "object", id: "floater", at: "rank", name: "Floater", note: "Door open, lamp lit.",
       actions: ["Board floater"],
       words: { nouns: ["floater", "hackney", "car"], adj: ["brass", "open"] },
@@ -256,7 +264,7 @@ export default {
       exits: { w: { to: "repairs", in: true }, e: "registry", n: { to: "tower", passage: true }, u: { to: "pylon", passage: true } },
       scenery: [
         { words: ["stalls", "stall", "lane", "springs", "oil", "lamps"], name: "the stalls", says: "Springs on strings, oil in bottles the colours of weak tea, and a card that says everything is sold as seen. Everything is seen." },
-        { words: ["tower", "chronometer"], name: "the tower", says: "To the north a black tower goes up into the smoke. Its clock face is lit from inside, and from here it seems to be looking at something just behind you." }
+        { words: ["tower", "chronometer"], name: "the tower", says: "To the north a black tower goes up into the smoke. Its clock face is lit from inside, and from here it looks at something just behind you." }
       ],
       ambience: {
         lines: [
@@ -268,7 +276,7 @@ export default {
         every: [30, 70], chance: 0.7
       },
       alt: "A market lane seen from above: red awnings over stalls, a barrow with a head on it, lamps hung from a great black pylon.",
-      picture: pictures.market.picture, music: roomMusic.market },
+      picture: pictures.market, music: roomMusic.market },
     { add: "object", id: "market_steps", at: "market", name: "Steps", note: "Up to the platform.", leads: "u",
       words: { nouns: ["steps", "stairs"], adj: ["iron"] },
       examine: "The iron steps go up to the pylon through a hole in its belly. Pennies are wedged in the gaps between the treads, left by people who did not come back down to collect them." },
@@ -306,7 +314,7 @@ export default {
         every: [30, 70], chance: 0.7
       },
       alt: "A close view of a mender's workbench under a green lamp: a brass hand held in a vice, springs hung on strings behind.",
-      picture: pictures.salter.picture, music: roomMusic.repairs },
+      picture: pictures.salter, music: roomMusic.repairs },
     { add: "object", id: "salter", at: "repairs", name: "Mrs Salter", note: "Filing, unhurried.",
       give: "\"Keep it, dear,\" says Mrs Salter. \"I have more than I can mend.\"",
       words: { nouns: ["salter", "mrs", "mender", "woman"], adj: ["old"], g: "f", proper: true },
@@ -346,7 +354,7 @@ export default {
         every: [30, 70], chance: 0.7
       },
       alt: "A long room of pigeonholes in green light, with a clerk's silhouette at a counter and an open ledger.",
-      picture: pictures.registry.picture },
+      picture: pictures.registry },
     { add: "object", id: "clerk", at: "registry", name: "Clerk Pin", note: "Stamping.",
       give: "\"Items to be surrendered are surrendered at window two,\" says Clerk Pin. There is no window two.",
       words: { nouns: ["pin", "clerk"], adj: ["registry"], g: "m", proper: true },
@@ -377,7 +385,7 @@ export default {
         { words: ["clock", "ticking", "sound"], name: "the sound", says: "A tick, then a long wait, then a tock. It is the sound a great deal of metal makes when it is being careful." }
       ],
       alt: "Looking up the inside of a black iron tower: a spiral stair climbs into dark, with a brass figure barring the first turn.",
-      picture: pictures.tower.picture },
+      picture: pictures.tower },
     { add: "object", id: "warden", at: "tower", name: "Warden", note: "Arm across the stair.",
       talk: "\"Constabulary only,\" says the warden. Then, softer, as if it had been wanting to say it: \"Nobody has asked me anything else in years.\"",
       give: "The warden looks at what you hold out, and then at the stair, and then at nothing.",
@@ -406,7 +414,7 @@ export default {
         every: [25, 55], chance: 0.7
       },
       alt: "Looking down from a catwalk onto huge meshed brass wheels in the dark, with a white plume of steam leaking from a pipe.",
-      picture: pictures.gears.picture, music: roomMusic.gears },
+      picture: pictures.gears, music: roomMusic.gears },
     { add: "object", id: "pipe", at: "gears", name: "Steam pipe", note: "Split, and weeping.",
       words: { nouns: ["pipe", "steam", "split"], adj: ["steam", "split"] },
       examine: "A steam pipe as thick as a thigh, split along a seam, with steam coming out of the split in a thin white sheet. The metal either side of the split is the colour of a hot coin.",
@@ -425,7 +433,7 @@ export default {
       ],
       alt: "A huge milk-glass clock face seen from behind, lit pale yellow, with stacked brass drums before it and a great bell above.",
       overlayAlt: { cog: "A brass cog lies on a shelf at the right." },
-      picture: pictures.face.picture, music: roomMusic.face },
+      picture: pictures.face, music: roomMusic.face },
     { add: "object", id: "chronometer", at: "face", container: true, open: "always", material: "metal", name: "Chronometer", note: "Ticking in tens.",
       words: { nouns: ["chronometer", "clock", "drums", "gap"], adj: ["great", "brass"] },
       examine: "A stack of brass drums taller than a house, ticking in tens. One drum has a gap in it exactly the shape of whatever is missing, and the others lean towards the gap a little, the way people do at a funeral.",
@@ -488,7 +496,7 @@ export default {
       do: [{ say: "You put a foot on the step and look in. The pedals go down to nothing, and the hull is a heavy brass box. Something is missing from under the hatch." }] } },
 
     // ---- the endings' pictures ----------------------------------------------------------------------------------
-    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, alt: p.alt, picture: p.picture })),
+    ...Object.entries(endingPictures).map(([id, picture]) => ({ add: "picture", id, alt: endingAlts[id], picture })),
 
     // ---- the puzzles --------------------------------------------------------------------------------------------
     { add: "puzzle", id: "take_tag", where: "pylon", needs: [], solve: ["take tag"], gives: ["tag"],

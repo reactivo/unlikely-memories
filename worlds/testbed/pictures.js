@@ -277,7 +277,8 @@ export default {
       poly wall_r 320,0 170,50 170,76 320,136 mix:8,0@0.2 e0
       poly floor 0,136 150,76 170,76 320,136 fade:8,0/0,136/0,76
       rect end 150,50,20,26 0
-      rect window 156,56,8,10 14 e6
+      rect window 156,56,8,10 14
+rect window_rim 156,56,8,10 none e6
       ellipse window_glow 160,62,14,10 mix:,14@0.25
       line brick_l1 0,40 150,56 c8
       line brick_l2 0,80 150,66 c8
@@ -555,7 +556,7 @@ export const endings = {
       dots dots_a 140,76 180,70 220,72 260,86 c14
       dots dots_b 170,60 200,50 240,60 c15
     `,
-    cycles: [{ name: "the sparks", areas: ["sparks", "glow"], colors: [14, 15], style: "flicker", ms: [80, 200] }]
+    cycles: [{ name: "the sparks", areas: ["glow", "sparks_core"], colors: [14, 15], style: "flicker", ms: [80, 200] }]
   },
   // The ledger open on the desk, a column of names, the last one just written, a pen resting beside it.
   named: {

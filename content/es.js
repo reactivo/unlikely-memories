@@ -45,7 +45,6 @@ const named = (name, w) => {
   return w?.proper ? ["", name] : [article(w), name];
 };
 const the = (name, o) => named(name, o?.words).join(" ").trim();
-const Article = (w) => article(w).charAt(0).toUpperCase() + article(w).slice(1);                 // La / El / Las / Los, al empezar
 const el = (name, w) => the(name, { words: w });                                                 // por su género, número y marca (`w`)
 const El = (name, w) => { const [a, n] = named(name, w); return a ? a.charAt(0).toUpperCase() + a.slice(1) + " " + n : n; };   // lo mismo, al empezar una frase
 // «un» / «una» / «unos» / «unas» y el nombre de una cosa («una moneda»); un nombre propio va sin artículo, y el que trae el suyo («la modista»)

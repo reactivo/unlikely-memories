@@ -1,5 +1,5 @@
 // Sound panel (♫): three sliders, Music, Room and Sounds, and one button, Mute all / Unmute all, in a popover like the options
-// (ui/popup.js; INTERFACE.md §2b, docs/sound/PLAN.md, build 2). A slider is a native <input type="range">, 0 to 100, and sets the
+// (ui/popup.js; INTERFACE.md §2c, docs/sound/PLAN.md, build 2). A slider is a native <input type="range">, 0 to 100, and sets the
 // player's bus of that part (ui/sound.js): `gainOf`, one loudness curve, 100 being the part's own level (nothing gets louder).
 // What a device remembers is one value, { muted, music, tone, sounds } (js/prefs.js), kept by the controller (js/main.js): the
 // pure parts are here, the panel only reads and tells it what was moved.

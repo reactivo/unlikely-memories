@@ -13,6 +13,7 @@ import { ANSWERED } from "./verbs.js";
 import { PARTS, LINES } from "./opening.js";
 import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js";
 import { DIRECTIONS } from "./space.js";
+import { isObject, isLine } from "./shapes.js";
 import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js";
 import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js";
 
@@ -67,8 +68,9 @@ export const FIELDS = {
   condition: CONDITION_FIELDS,
   lasts: ["turns", "seconds"],
   ...MODIFIERS,
-  // Each effect, by its main key, with the other fields it may carry, in the order the engine reads the keys (effectKind
-  // relies on it). `add` and `remove` carry the new thing's own fields.
+  // Each effect, by its main key, with the other fields it may carry. The order is the one effectKind (below) tries the keys in, and
+  // the one the engine's table of handlers is read in (js/engine.js, EFFECTS: an effect with two main keys is read as the first here).
+  // `add` and `remove` carry the new thing's own fields.
   effect: {
     say: ["say", "img", "style", "arg", "vary", "things", "marked"],
     describe: ["describe"],
@@ -82,7 +84,7 @@ export const FIELDS = {
     travel: ["travel"],
     connect: ["connect", "dir", "to", "passage", ...CONNECT_FIELDS],   // and the exit's own: in, out (marks), if, closed
     disconnect: ["disconnect", "dir"],
-    unlock: ["unlock"], inside: ["inside"],
+    inside: ["inside"], unlock: ["unlock"],
     change: ["change", "optional"],
     draw: ["draw", "add", "remove", "replace", "restyle", "cycles", "overlays"],
     time: ["time", "weekday"],
@@ -90,7 +92,7 @@ export const FIELDS = {
     confirm: ["confirm", "yes", "no", "style", "arg"],
     ask: ["ask"],
     end: ["end", "picture"], know: ["know"], hint: ["hint"], restart: ["restart"], session: ["session"],
-    useAs: ["useAs"], useHow: ["useHow"], listenFor: ["listenFor"], consume: ["consume"], bring: ["bring"],
+    bring: ["bring"], consume: ["consume"], useAs: ["useAs"], useHow: ["useHow"], listenFor: ["listenFor"],
     "add room": ["add", "id", ...ROOM],
     "add object": ["add", "id", ...OBJECT],
     "add rule": ["add", "rule", "before"],
@@ -122,15 +124,10 @@ export const ENGINE_ONLY_OPERATORS = ["holds"];
 // an effect above (and the engine refuses the effect itself in play).
 export const ENGINE_ECHOES = ["gained", "lost"];
 
-// What a language pack needs to name a thing in a sentence and agree with it, from its `words`: gender `g`, number `pl`, and
-// `proper` (a proper name: the pack's `the` adds no article, and the name keeps its capital: js/narrator.js, inSentence).
-// { g, pl, proper } with only the ones it has, or nothing. The one rule for every line that names a thing or agrees with it.
-export function grammarOf(words) {
-  if (!words || !(words.g || words.pl || words.proper)) return undefined;
-  return Object.fromEntries([["g", words.g], ["pl", words.pl], ["proper", words.proper]].filter(([, v]) => v));
-}
-
 // ---- Things you can hold have a sprite ---------------------------------------------------------------------------------
+// The ids a value names in a rule's effects: a thing's id, or `$obj` / `$obj2` for what the rule's `match` names; nothing for another `$`.
+const idsOf = (match) => (v) => v === "$obj" ? [match?.obj].flat() : v === "$obj2" ? [match?.obj2].flat() : typeof v === "string" && !v.startsWith("$") ? [v] : [];
+
 // Every thing that can end up in the player's hands has a `sprite` (BRIEF.md §5): the inventory shows it, and so does the slot
 // before the echo of a thing gained or lost (INTERFACE.md §6c). A thing can end up there when it is `portable: true`, starts
 // `at: "player"`, is moved there (`{ move, to: "player" }`, in a world's effects, a rule, a named change, a `confirm`'s
@@ -161,7 +158,7 @@ export function heldThings(things, groups) {
     else if (o.at === "player") mark(id, `objects/${id}`, "it starts in the player's hands");
   }
   for (const { where, match, effects } of groups) {
-    const ids = (v) => v === "$obj" ? [match?.obj].flat() : v === "$obj2" ? [match?.obj2].flat() : typeof v === "string" && !v.startsWith("$") ? [v] : [];
+    const ids = idsOf(match);
     walk(effects, (e) => {
       if ("move" in e && e.to === "player") for (const id of ids(e.move)) mark(id, where, "it is moved to the player");
       if (typeof e.set === "string") {
@@ -179,7 +176,7 @@ export function heldThings(things, groups) {
     for (const [id, o] of Object.entries(all))
       if (!found.has(id) && isObject(o) && found.has(o.at)) mark(id, `objects/${id}`, `it is inside ${o.at}, which can be carried`);
     for (const { where, match, effects } of groups) {
-      const ids = (v) => v === "$obj" ? [match?.obj].flat() : v === "$obj2" ? [match?.obj2].flat() : typeof v === "string" && !v.startsWith("$") ? [v] : [];
+      const ids = idsOf(match);
       const into = (v) => ids(v).find(x => found.has(x));
       walk(effects, (e) => {
         const bag = "move" in e ? into(e.to) : undefined;
@@ -209,57 +206,16 @@ export const RANGES = { "player.health": [0, 5] };
 
 const PROPERTY_TYPES = ["number", "boolean", "string"];
 
-// ---- Words from the state in a text --------------------------------------------------------------------------------
-// A text can hold the world's own words, [time] [day] [weekday] [way] (js/narrator.js), and any declared property
-// written [thing.property]: [player.name], [bell.rung], [sky.state]. Numbers and strings are shown as they are; a
-// boolean, or a property nothing has set yet (and with no `start`), is shown as nothing. A name that isn't declared is
-// left as written, so it is easy to spot (and the checker warns of it).
-export const TEXT_WORDS = ["time", "day", "weekday", "way"];
-export const PROPERTY_WORD = /\[([A-Za-z_][\w-]*)\.([A-Za-z_][\w-]*)\]/g;
-// And what the player typed to a question (`ask`), [player.answers.<key>]: as typed (trimmed), nothing before it is answered.
-export const ANSWER_WORD = /\[player\.answers\.([A-Za-z_][\w-]*)\]/g;
-export const answerText = (state, key) => { const v = state.player?.answers?.[key]; return typeof v === "string" ? v : ""; };
-
-// ---- Questions for words -------------------------------------------------------------------------------------------
-// The key of an `ask` ("name", "password", "verdict"): a plain word, never "confirm" (the yes/no question's own).
-export const ASK_KEY = /^[A-Za-z_][\w-]*$/;
-// An answer as conditions compare it: no case, no accents (ñ is n), no punctuation, single spaces, trimmed. Both sides of the
-// comparison are folded, so a world writes its words plainly: { "player.answers.verdict": { "in": ["halloran", "mrs halloran"] } }.
-export const foldAnswer = (t) => String(t).normalize("NFD").replace(/\p{M}+/gu, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
-
 // What the first part of a path names: the player, the game (the state itself), or a thing or a room by its id; undefined if none.
 export const ownerOf = (state, id) => id === "player" ? state.player : id === "game" ? state : state.world.objects[id] ?? state.world.rooms[id];
 
-// What a declared property holds now, as a text: its number or string, "" for anything else; undefined if it isn't declared.
-// The same places a rule reads it from: the player, the game, a thing, a room.
-export function propertyText(state, id, prop) {
-  const d = state.properties?.[id + "." + prop];
-  if (!d) return undefined;
-  const v = ownerOf(state, id)?.[prop] ?? d.start ?? null;
-  return typeof v === "number" || typeof v === "string" ? String(v) : "";
-}
-
-// The properties a text names, as they are now: { "player.name": "Diego" } (declared ones only; and the answers it names,
-// { "player.answers.verdict": "Voss" }). The engine keeps this
-// with a line it says, as it keeps the time ([time] in it), so the line shows what was true when it was said.
-export function propertyWords(state, text) {
-  const out = {};
-  if (typeof text !== "string" || !text.includes("[")) return out;
-  for (const [, id, prop] of text.matchAll(PROPERTY_WORD)) {
-    const v = propertyText(state, id, prop);
-    if (v !== undefined) out[id + "." + prop] = v;
-  }
-  for (const [, key] of text.matchAll(ANSWER_WORD)) out["player.answers." + key] = answerText(state, key);
-  return out;
-}
-
 // The main key of an effect, as a name from FIELDS.effect, or null. FIELDS.effect lists them in the order the engine
-// reads them (js/engine.js, apply), so an effect with two main keys is named as the engine reads it.
+// reads them (js/engine.js, EFFECTS), so an effect with two main keys is named as the engine reads it.
 const KINDS = Object.keys(FIELDS.effect).filter(k => !k.includes(" "));
 // Is this effect an `add` or a `remove` of a thing? (A picture edit's own `add` / `remove` are shapes, not things: `draw` goes first.)
 export const adding = (e) => typeof e.add === "string" && !("draw" in e);
 export const removing = (e) => typeof e.remove === "string" && !("draw" in e);
-function effectKind(e) {
+export function effectKind(e) {
   if (adding(e)) return "add " + e.add;
   if (removing(e)) return "remove " + e.remove;
   return KINDS.find(k => k in e) ?? null;
@@ -316,15 +272,36 @@ export function suggest(word, list) {
 }
 
 // ---- The check -----------------------------------------------------------------------------------------------------
-const isObject = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
-// A line a thing or a rule says: a text, or a list of texts (varied, never the same twice in a row).
-export const isLine = (x) => (typeof x === "string" && x.trim() !== "") || (Array.isArray(x) && x.length > 0 && x.every(y => typeof y === "string" && y.trim() !== ""));
 const range = (d) => (Number.isFinite(d?.min) && Number.isFinite(d?.max) ? `${d.min}–${d.max}` : Number.isFinite(d?.min) ? `${d.min} or more` : `${d.max} or less`);
 const outside = (d, n) => typeof n === "number" && d?.type === "number" && ((Number.isFinite(d.min) && n < d.min) || (Number.isFinite(d.max) && n > d.max));
 
 // Every problem in a change set: unknown fields, properties used without being declared, declarations that don't hold
 // together, literal values outside a declared range. `state` is where the set will land: its things and the
 // properties already declared. A set may declare properties of its own; those count for everything in it.
+// What a thing's fields must be, as tables the check reads in order: [field, is it right?, the finding, refused?]. A finding marked
+// refused refuses the set even where the others only warn.
+const JSON_ = (v) => JSON.stringify(v);
+const plain = (v) => typeof v === "string" && v.trim();
+const MARKS = [   // a mark is there or not
+  ["droppable", (v) => v === false, (v) => `droppable is false (it can't be dropped or put away), not ${JSON_(v)}; leave it out for a thing that can`],
+  ["open", (v) => [true, false, "always"].includes(v), (v) => `open is true, false or "always" (open for good: a boat, a bin, a slot), not ${JSON_(v)}`, true],
+];
+const EATEN = [
+  ["shape", (v) => plain(v) || (Array.isArray(v) && v.length > 0 && v.every(plain)), (v) => `shape is the id of the shape (or a list of ids) its home room's picture draws it with, not ${JSON_(v)}`],
+  ["consumable", (v) => v === true, (v) => `consumable is true (it is eaten or drunk, and used up), not ${JSON_(v)}; leave it out for a thing that isn't`],
+  ["heals", (v) => Number.isInteger(v) && v >= 1 && v <= 5, (v) => `heals is how much eating or drinking it heals, a whole number from 1 to 5, not ${JSON_(v)}`],
+  ["starts", plain, (v) => `starts is the id of the condition eating or drinking it starts, not ${JSON_(v)}`],
+  ["stops", plain, (v) => `stops is the id of the condition eating or drinking it ends, not ${JSON_(v)}`],
+];
+const SOURCE = [   // a thing that comes from someone or something
+  ["from", plain, (v) => `from is the id of the person or thing it comes from, not ${JSON_(v)}`],
+  ["times", (v) => Number.isInteger(v) && v >= 1, (v) => `times is how many times it comes from its source, a whole number from 1, not ${JSON_(v)}`],
+  ["daily", (v) => v === true, (v) => `daily is true (its times count afresh each day), not ${JSON_(v)}; leave it out for a thing that doesn't`],
+  ["brought", isLine, (v) => `brought is the line said as it comes (a list: one each time, in order), not ${JSON_(v)}`],
+  ["again", isLine, (v) => `again is the line said when it can't come any more, not ${JSON_(v)}`],
+  ["already", isLine, (v) => `already is the line said when it is asked for while the last one is still there (in front of you, or yours), not ${JSON_(v)}`],
+];
+
 export function checkSet(state, set) {
   const found = [];
   const declared = { ...(state.properties || {}), ...(isObject(set.properties) ? set.properties : {}) };
@@ -527,6 +504,15 @@ export function checkSet(state, set) {
     list(piece, r.do);
   };
 
+  // A field with the wrong shape: each entry of a table (below) read in its order, the finding saying what the field is.
+  const shapes = (piece, t, table) => {
+    for (const [k, ok, say, refuse] of table) if (t[k] !== undefined && !ok(t[k])) note(piece, say(t[k]), t, refuse);
+  };
+  // A field that needs another (heals needs consumable): each of `keys` that is there while `has` is false.
+  const needing = (piece, t, keys, has, say) => {
+    for (const k of keys) if (t[k] !== undefined && !has) note(piece, say(k), t);
+  };
+
   // A room or an object: its fields, and the pieces inside it.
   const thing = (piece, t, kind) => {
     const { id } = t;
@@ -554,10 +540,7 @@ export function checkSet(state, set) {
       // `proper` and `open` take only their values: anything else is refused, a world's set too (the one check for them)
       if (isObject(t.words) && t.words.proper !== undefined && t.words.proper !== true)   // the mark is there or not: only true
         note(piece, `words: proper is true (a proper name, said as written with no article), not ${JSON.stringify(t.words.proper)}`, t, true);
-      if (t.droppable !== undefined && t.droppable !== false)   // the mark is there or not: only false (everything else can be dropped)
-        note(piece, `droppable is false (it can't be dropped or put away), not ${JSON.stringify(t.droppable)}; leave it out for a thing that can`, t);
-      if (t.open !== undefined && ![true, false, "always"].includes(t.open))   // open, shut, or open for good (no lid)
-        note(piece, `open is true, false or "always" (open for good: a boat, a bin, a slot), not ${JSON.stringify(t.open)}`, t, true);
+      shapes(piece, t, MARKS);
       fields(piece, t.lock, FIELDS.lock, "lock", null, t);
       if (t.door !== undefined && (typeof t.door !== "string" || !DIRECTIONS.includes(t.door)))   // a door is on a way: a direction
         note(piece, `door is the direction the door is on (${DIRECTIONS.join(" ")}), not ${JSON.stringify(t.door)}`, t);
@@ -571,28 +554,10 @@ export function checkSet(state, set) {
         note(piece, `pair is the id of the door on the other side, not ${JSON.stringify(t.pair)}`, t);
       else if (t.pair !== undefined && t.door === undefined)
         note(piece, `pair links two doors: this thing needs a door (the direction it is on)`, t);
-      if (t.shape !== undefined && !(typeof t.shape === "string" && t.shape.trim()) && !(Array.isArray(t.shape) && t.shape.length && t.shape.every(x => typeof x === "string" && x.trim())))
-        note(piece, `shape is the id of the shape (or a list of ids) its home room's picture draws it with, not ${JSON.stringify(t.shape)}`, t);
-      if (t.consumable !== undefined && t.consumable !== true)   // the mark is there or not: only true
-        note(piece, `consumable is true (it is eaten or drunk, and used up), not ${JSON.stringify(t.consumable)}; leave it out for a thing that isn't`, t);
-      if (t.heals !== undefined && !(Number.isInteger(t.heals) && t.heals >= 1 && t.heals <= 5))
-        note(piece, `heals is how much eating or drinking it heals, a whole number from 1 to 5, not ${JSON.stringify(t.heals)}`, t);
-      for (const k of ["starts", "stops"]) if (t[k] !== undefined && !(typeof t[k] === "string" && t[k].trim()))
-        note(piece, `${k} is the id of the condition eating or drinking it ${k === "starts" ? "starts" : "ends"}, not ${JSON.stringify(t[k])}`, t);
-      for (const k of ["heals", "starts", "stops"]) if (t[k] !== undefined && t.consumable !== true)
-        note(piece, `${k} is what a consumable thing does when it is eaten or drunk: it needs consumable: true`, t);
-      if (t.from !== undefined && !(typeof t.from === "string" && t.from.trim()))
-        note(piece, `from is the id of the person or thing it comes from, not ${JSON.stringify(t.from)}`, t);
-      if (t.times !== undefined && !(Number.isInteger(t.times) && t.times >= 1))
-        note(piece, `times is how many times it comes from its source, a whole number from 1, not ${JSON.stringify(t.times)}`, t);
-      if (t.daily !== undefined && t.daily !== true)   // the mark is there or not: only true
-        note(piece, `daily is true (its times count afresh each day), not ${JSON.stringify(t.daily)}; leave it out for a thing that doesn't`, t);
-      const SAID = { brought: "the line said as it comes (a list: one each time, in order)", again: "the line said when it can't come any more",
-        already: "the line said when it is asked for while the last one is still there (in front of you, or yours)" };
-      for (const k of ["brought", "again", "already"]) if (t[k] !== undefined && !isLine(t[k]))
-        note(piece, `${k} is ${SAID[k]}, not ${JSON.stringify(t[k])}`, t);
-      for (const k of ["brought", "again", "already", "times", "daily", "if"]) if (t[k] !== undefined && t.from === undefined)
-        note(piece, `${k} is for a thing that comes from someone or something: it needs from`, t);
+      shapes(piece, t, EATEN);
+      needing(piece, t, ["heals", "starts", "stops"], t.consumable === true, (k) => `${k} is what a consumable thing does when it is eaten or drunk: it needs consumable: true`);
+      shapes(piece, t, SOURCE);
+      needing(piece, t, ["brought", "again", "already", "times", "daily", "if"], t.from !== undefined, (k) => `${k} is for a thing that comes from someone or something: it needs from`);
       if (t.if !== undefined) { wellFormed(piece, t.if, t, "if"); conditions(piece, t.if, t); }
       paying(piece, "", t, t);
       if (t.requires !== undefined && t.from === undefined) note(piece, `requires is for a thing that comes from someone or something (it needs from), or for a way`, t);

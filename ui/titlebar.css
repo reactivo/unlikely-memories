@@ -1,6 +1,6 @@
 /* Title bar above the picture: the place name, and the day and time, "Day 1 | 00:00:00" (the font's own vertical bar;
    the colons blink slowly, like an old digital clock). On phones one above the other, with ♫ ≡ beside them; side by
-   side on wider windows (the direction, justify and gap come from layout.css; phone values here). */
+   side on wider windows (the direction and justify come from layout.css; phone values here; the gap is a fixed 0). */
 @layer ui {
   .titlebar {
     /* Colours in the title bar, by meaning. */
@@ -31,14 +31,8 @@
 
     @media (prefers-reduced-motion: no-preference) {
       & .colon {
-        animation: colon-blink var(--duration-colon) steps(1) infinite;
+        animation: blink var(--duration-colon) steps(1) infinite;
       }
-    }
-  }
-
-  @keyframes colon-blink {
-    50% {
-      opacity: 0;
     }
   }
 }

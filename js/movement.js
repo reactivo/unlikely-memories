@@ -1,6 +1,6 @@
 // Movement: leaving a room while something has hold of your feet (a condition's `movement`: js/conditions.js), now and
 // then you take another way than the one you meant. A small piece of its own, so anything that turns you round uses it
-// the same way. It only ever picks among the ways the engine says are safe (js/engine.js, strayWays): open now, leading
+// the same way. It only ever picks among the ways the engine says are safe (js/sleeping.js, strayWays): open now, leading
 // to a room you have already been to, and answered by no rule of the world, so a wrong turn never goes through a shut or
 // locked way, never into a place you couldn't have seen, and never sets anything off. The map stays truthful: a wrong turn
 // is an ordinary move along a real exit. Pure.

@@ -7,7 +7,8 @@ import en from "../content/en.js";
 import es from "../content/es.js";
 import { newState, FORMAT } from "./state.js";
 import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js";
-import { parse, normalise, retype, inScope } from "./parser.js";
+import { parse, retype } from "./parser.js";
+import { inScope } from "./place.js";
 import { tell, describe, text, listName, placeName, joined } from "./narrator.js";
 import { parts, hhmm } from "./time.js";
 import * as saves from "./saves.js";
@@ -219,12 +220,8 @@ function play(raw) {
   let again = false, then = null;
   for (const action of parsed.actions) {
     const was = state, { next, applied, refused } = step(state, { ...action, at: clock.now() });
-    if (refused.length) console.warn("Effects refused by the engine:", refused);   // a rule asked for something impossible
     state = next;
-    const slept = applied.find(e => "sleep" in e);       // a sleep: told in time with the eyes closing and opening (the rest waits)
-    if (slept) return sleepThrough(applied, slept, was);
-    show(story(applied, state, pack));                   // (USE alone also says what you could do with the thing)
-    heard(applied, was);
+    if (moment(applied, refused, was)) return;           // a sleep: told in time with the eyes closing (the rest waits)
     then = applied.find(e => e.session)?.session ?? then; // a question answered yes: something for the session
     if (applied.some(e => e.restart)) { again = true; break; }   // beginning again was chosen
     if (state.pending.question) break;                   // a question was asked: the rest waits for the answer
@@ -239,6 +236,19 @@ function play(raw) {
   }
   if (again) restart({ said: true });                  // (BEGIN AGAIN: the engine has said againYes)
   else { schedule(); autosave(); }
+}
+
+// What one step of the engine said, told the same way for a typed command and for the world's own tick: a rule's impossible
+// request is warned of, a sleep goes through sleepThrough (the eyes close, the lock; its end redraws and schedules, so true: the
+// caller stops there), else the story's paragraphs (USE alone also says what you could do with the thing) and their sounds.
+// `state` is already the state after the step; `was` the one before.
+function moment(applied, refused, was) {
+  if (refused.length) console.warn("Effects refused by the engine:", refused);   // a rule asked for something impossible
+  const slept = applied.find(e => "sleep" in e);
+  if (slept) { sleepThrough(applied, slept, was); return true; }
+  show(story(applied, state, packOf(state)));
+  heard(applied, was);
+  return false;
 }
 
 // A sleep (js/engine.js, `sleep`; INTERFACE.md §6c, "Sleep"), told in time with the picture (ui/scene.js, sleep): what comes before
@@ -327,7 +337,7 @@ async function session(kind, arg) {
     say(text("@useUp", pack), "sys");
   } else if (kind === "oops") {
     if (!lastUnknown || !arg) return say(text("@nothingToFix", pack), "sys");
-    const fixed = normalise(lastInput, pack.words.grammar).replace(lastUnknown, arg);
+    const fixed = retype(lastInput, lastUnknown, arg, pack.words.grammar);   // the word, whole, in the player's spelling (not a piece of another word)
     echo("> " + fixed);
     play(fixed);
   } else if (kind === "save") {
@@ -455,10 +465,9 @@ function tick() {
   const follow = ui.log.atEnd();                         // only follow the new text if you were already there
   const from = state.player.at;
   turnStart = null;
-  const was = state, { next, applied } = step(state, { tick: true, at: clock.now() });
+  const was = state, { next, applied, refused } = step(state, { tick: true, at: clock.now() });
   state = next;
-  show(tell(applied, state, packOf(state)));             // (all of it the world's own: set apart, "aside", by the engine's mark)
-  heard(applied, was);
+  if (moment(applied, refused, was)) return;             // (all of it the world's own: set apart, "aside", by the engine's mark; a sleep goes through)
   redraw("tick");
   enteredRoom(from);
   if (follow) ui.log.toEnd();

@@ -21,6 +21,7 @@ import * as debug from "../js/debug.js";
 import { parts, hhmm } from "../js/time.js";
 import { text } from "../js/narrator.js";
 import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js";
+import { touch } from "./media.js";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
 // font, logRem, logLine, letter: the Typography section's (null: the font's own value). (logRem: the story's size in rem; until
@@ -39,7 +40,7 @@ function forget() { try { localStorage.removeItem(KEY); } catch (e) {} }
 
 // What the panel says once the story is over: its game actions do nothing then (the engine refuses a moment after the end), so
 // they are disabled and this line says why. Its own controls (–, ×, dragging, the settings) keep working.
-export const ENDED = "The story has ended: UNDO or a new game.";
+const ENDED = "The story has ended: UNDO or a new game.";
 
 // A small element: tag, class, text, attributes.
 function el(tag, cls, label, attrs = {}) {
@@ -97,7 +98,6 @@ function sync(a, b) {
   if (a.tagName === "SELECT" && document.activeElement !== a) a.value = b.value;
 }
 
-const touch = matchMedia("(hover: none) and (pointer: coarse)");   // (as ui/prompt.js and ui/page.js ask it)
 
 // Build the panel (hidden) and add it to the page. Returns open(), update(), showsRules() and wholeMap().
 export function mount(dev) {
@@ -121,7 +121,12 @@ export function mount(dev) {
     d.append(el("summary", "", id.charAt(0).toUpperCase() + id.slice(1)));
     parts$[id] = el("div", "content");
     d.append(parts$[id]);
-    d.addEventListener("toggle", () => { if (v) { v.sections[id] = d.open; keep(v); } });
+    d.addEventListener("toggle", () => {
+      if (!v) return;
+      v.sections[id] = d.open; keep(v);
+      const st = s();
+      if (d.open && st) drawSection(id, st, dev.pack());          // opened: drawn now (closed ones are not drawn as the game moves)
+    });
     body.append(d);
   }
   root.append(bar, body);
@@ -142,7 +147,7 @@ export function mount(dev) {
   function apply() {
     html.toggleAttribute("data-debug-instant", !!v?.instant);   // ui/debug.css: no fading in of story text
     html.toggleAttribute("data-debug-rules", !!v?.rules);       // ui/debug.css: the rule lines show
-    html.toggleAttribute("data-debug-no-nudge", v ? v.nudge === false : false);   // ui/log.js, resync: off only to test it
+    html.toggleAttribute("data-debug-no-nudge", v ? v.nudge === false : false);   // ui/follow.js, resync: off only to test it
     if (v && v.motion !== "system") html.dataset.motion = v.motion === "reduce" ? "reduce" : "full";   // ui/scene.js, calm()
     else delete html.dataset.motion;
     root.toggleAttribute("data-collapsed", !!v?.collapsed);
@@ -243,14 +248,7 @@ export function mount(dev) {
     if (!m) return [el("p", "note", "This world has no music."), ...sounds];
     const dl = el("dl", "facts");
     const fact = (k, val, cls = "") => dl.append(el("dt", "", k), el("dd", cls, String(val)));
-    fact("playing", nowPlaying(info, st), "music-now");
-    fact("night", nightText(info), "music-night");
-    fact("unwell", unwellText(info), "music-unwell");
-    fact("filters", filtersText(info), "music-filters");
-    fact("last theme", themeText(info), "music-theme");
-    fact("last sounds", soundsText(info), "music-sounds");
-    fact("loudness", loudnessText(info), "music-loudness");
-    fact("buses", busesText(info), "music-buses");
+    for (const [label, cls, text] of MUSIC_FACTS) fact(label, text(info, st), cls);   // (the 500 ms timer below brings these up to date)
     fact("mode", m.mode + " in " + m.key + ", tempo " + m.tempo);
     fact("colour", m.colour.replace("_", " "));
     fact("room", st.player.at + ": " + m.tone + ", " + (m.own ? m.lines + " own line" + (m.lines === 1 ? "" : "s") : "the world's lines"));
@@ -307,6 +305,11 @@ export function mount(dev) {
       : th && info.now < th.end ? "the theme (" + th.part + ") playing" : "the theme (" + info.nextPart + ") in " + when(info.themeNext);
     return (info.state !== "running" ? info.state + " · " : "") + (info.hushed ? "hushed (asleep) · " : "") + (info.resting ? "resting: only the room tone · " : "") + part;
   }
+  // The facts about what the player is doing, as [label, the class of its value, the text from (info, st)]: drawn by music() and
+  // kept up to date by the timer, from this one list.
+  const MUSIC_FACTS = [["playing", "music-now", nowPlaying], ["night", "music-night", nightText], ["unwell", "music-unwell", unwellText],
+    ["filters", "music-filters", filtersText], ["last theme", "music-theme", themeText], ["last sounds", "music-sounds", soundsText],
+    ["loudness", "music-loudness", loudnessText], ["buses", "music-buses", busesText]];
   function events(st) {
     const n = [1, 2, 3, 4, 5], h = st.player.health, list = debug.conditions(st);
     const out = [
@@ -441,7 +444,7 @@ export function mount(dev) {
     return [
       check("instant text", v.instant, (on) => { if (!v) return; v.instant = on; keep(v); apply(); }),
       // The one-pixel nudge that makes Safari on an iPhone draw the page where it says it is, after the game puts it back
-      // (ui/log.js, resync). Off, to test whether it is what fixes a new game's first screen.
+      // (ui/follow.js, resync). Off, to test whether it is what fixes a new game's first screen.
       check("Safari nudge", v.nudge !== false, (on) => { if (!v) return; v.nudge = on; keep(v); apply(); }),
       row("Reduce motion", motion),
       // (a new game, so it works after the end too)
@@ -457,32 +460,31 @@ export function mount(dev) {
     return "day " + p.day + " " + hhmm(p) + ":" + String(p.second).padStart(2, "0") + (p.weekday ? " (" + p.weekday + ")" : "");
   }
   setInterval(() => {
-    const st = s(), out = parts$.inspect.querySelector("dd.clock"), playing = parts$.music.querySelector("dd.music-now");
-    if (v && !v.collapsed && st && out) out.textContent = clockText(st);
-    if (v && !v.collapsed && st && playing) {
+    if (!v || v.collapsed) return;
+    const st = s();
+    if (!st) return;
+    const out = isOpen("inspect") && parts$.inspect.querySelector("dd.clock"), cells = isOpen("music") && MUSIC_FACTS.map(([, cls, text]) => [parts$.music.querySelector("dd." + cls), text]);
+    if (out) out.textContent = clockText(st);
+    if (cells && cells[0][0]) {                                          // (a world with no music has none of these)
       const info = dev.sound().info();
-      playing.textContent = nowPlaying(info, st);
-      parts$.music.querySelector("dd.music-night").textContent = nightText(info);
-      parts$.music.querySelector("dd.music-unwell").textContent = unwellText(info);
-      parts$.music.querySelector("dd.music-filters").textContent = filtersText(info);
-      parts$.music.querySelector("dd.music-theme").textContent = themeText(info);
-      parts$.music.querySelector("dd.music-sounds").textContent = soundsText(info);
-      parts$.music.querySelector("dd.music-loudness").textContent = loudnessText(info);
-      parts$.music.querySelector("dd.music-buses").textContent = busesText(info);
+      for (const [cell, text] of cells) cell.textContent = text(info, st);
     }
   }, 500);
 
-  // Draw every section from the state, after every change of the game (morph: only what differs changes on the page).
+  // Is this section open (shown)? A closed one is not drawn or kept up to date: it is drawn when it opens.
+  const isOpen = (id) => !!v?.sections[id];
+  function drawSection(id, st, pack) {
+    const make = { picture, music, events, travel, inventory, inspect, page, settings };
+    if (id === "time") time(st);
+    else if (id === "typography") fields();
+    else morph(parts$[id], make[id](st, pack));
+  }
+  // Draw every open section from the state, after every change of the game (morph: only what differs changes on the page).
   function draw() {
     const st = s();
     if (!v || !st) return;
     const pack = dev.pack();
-    const make = { picture, music, events, travel, inventory, inspect, page, settings };
-    for (const id of SECTIONS) {
-      if (id === "time") time(st);
-      else if (id === "typography") fields();
-      else morph(parts$[id], make[id](st, pack));
-    }
+    for (const id of SECTIONS) if (isOpen(id)) drawSection(id, st, pack);
     ended.hidden = !st.ended;
     const room = st.player.at ? " · " + (st.world.rooms[st.player.at]?.name ? text(st.world.rooms[st.player.at].name, pack) : st.player.at) : "";
     const label = "Debug · " + (st.worldId ?? "") + " " + st.lang + room + (st.ended ? " · ended" : "");

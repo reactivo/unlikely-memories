@@ -25,8 +25,3 @@ export function between(seed, min, max) {
   return [min + Math.floor(r * (max - min + 1)), next];
 }
 
-// One item from a list. Returns [item, next position].
-export function pick(seed, list) {
-  const [i, next] = between(seed, 0, list.length - 1);
-  return [list[i], next];
-}

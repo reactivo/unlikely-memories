@@ -21,8 +21,7 @@
 // registry (eye, 62, green); market / tower (up, 115); tower / gears (down, 16) / face (silhouette).
 
 const rooms = {
-  skycab: {
-    picture: { version: 1, draw: `rect smoke 0,0,320,86 fade:15,7/0,0/0,86
+  skycab: { version: 1, draw: `rect smoke 0,0,320,86 fade:15,7/0,0/0,86
 rect smoke2 0,86,320,50 fade:7,8/0,86/0,136
 ellipse puff1 210,40,80,16 mix:,15@0.4
 ellipse puff2 70,70,70,10 mix:,15@0.3
@@ -49,11 +48,9 @@ line hook 124,114 124,106 c6
 poly seatback 0,70 40,64 46,112 0,112 6 e0
 dots seatbuttons 14,82 28,80 12,96 28,94 c0`,
       cycles: [{ name: "smudge", areas: ["lamp"], colors: [14, 6], style: "pingpong", ms: 2400 }],
-      overlays: [{ object: "trumpet", at: [116, 94] }] }
-  },
+      overlays: [{ object: "trumpet", at: [116, 94] }] },
 
-  pylon: {
-    picture: { version: 1, draw: `rect sky 0,0,320,66 fade:8,7/0,0/0,66
+  pylon: { version: 1, draw: `rect sky 0,0,320,66 fade:8,7/0,0/0,66
 ellipse haze 160,60,170,10 mix:,15@0.35
 poly city 0,66 0,56 14,56 14,48 22,48 22,56 40,56 40,40 46,40 46,56 70,56 70,50 86,50 86,56 110,56 110,36 114,36 114,56 150,56 150,52 170,52 170,56 210,56 210,44 218,44 218,56 250,56 250,50 270,50 270,56 296,56 296,40 302,40 302,56 320,56 320,66 8 e0
 dots chimneysmoke 42,34 44,28 112,30 116,24 212,38 216,32 298,34 c7
@@ -103,11 +100,9 @@ ellipse wheel2 170,101,3,3 0 e7
 rect lamp 296,34,3,3 14
 rect lampstem 297,37,1,28 0`,
       cycles: [{ name: "lamp", areas: ["lamp", "lamp1", "lamp2"], colors: [14, 6], style: "flicker", ms: [200, 600] }],
-      overlays: [{ object: "tag", at: [110, 46] }] }
-  },
+      overlays: [{ object: "tag", at: [110, 46] }] },
 
-  rank: {
-    picture: { version: 1, draw: `rect sky 0,0,320,72 fade:5,13/0,0/0,72
+  rank: { version: 1, draw: `rect sky 0,0,320,72 fade:5,13/0,0/0,72
 dots stars 12,6 40,14 77,5 130,10 182,4 240,8 290,12 310,3 c11
 ellipse sunglow 250,72,90,22 mix:,12@0.5
 ellipse sun 262,70,14,6 14
@@ -140,7 +135,8 @@ ellipse floaterseat 208,80,12,5 4 e0
 poly floaterfin 244,84 258,70 262,88 6 e0
 ellipse floatertail 252,88,10,5 6 e0
 poly dooropen 188,78 196,74 198,92 188,96 0 e7
-ellipse lamp 168,88,3,3 14 e6
+ellipse lamp 168,88,3,3 14
+ellipse lamp_rim 168,88,3,3 none e6
 ellipse lampglow 168,88,9,8 mix:,14@0.4
 rect works 224,92,22,9 0 e6
 rect worksglow 227,94,16,5 14
@@ -153,11 +149,9 @@ line gone 296,104 320,104 c0`,
       cycles: [
         { name: "lamp", areas: ["lamp", "lampglow"], colors: [14, 6], style: "flicker", ms: [250, 700] },
         { name: "sunglow", areas: ["sunglow"], colors: [12, 13], style: "pingpong", ms: 3200 }
-      ] }
-  },
+      ] },
 
-  market: {
-    picture: { version: 1, draw: `rect ground 0,0,320,136 8
+  market: { version: 1, draw: `rect ground 0,0,320,136 8
 rect lane 0,48,320,38 mix:8,7@0.35
 line lanemid 0,67 320,67 c8
 rect awn1 6,4,44,36 stripes:4,15 e0
@@ -181,11 +175,9 @@ ellipse head 170,56,8,8 6 e0
 dots headeyes 167,55 173,55 c14
 rect priceplate 166,64,8,4 15
 dots people 40,60 52,72 74,56 88,76 128,72 140,56 218,74 222,60 c7`,
-      cycles: [{ name: "lamps", areas: ["lamps"], colors: [14, 6], style: "flicker", ms: [300, 900] }] }
-  },
+      cycles: [{ name: "lamps", areas: ["lamps"], colors: [14, 6], style: "flicker", ms: [300, 900] }] },
 
-  salter: {
-    picture: { version: 1, draw: `rect bg 0,0,320,136 fade:0,6/0,0/0,136
+  salter: { version: 1, draw: `rect bg 0,0,320,136 fade:0,6/0,0/0,136
 poly cone 120,22 196,22 250,120 70,120 mix:,14@0.3
 poly shade 110,18 206,18 190,4 126,4 2 e0
 ellipse bulb 158,22,16,3 14
@@ -219,11 +211,9 @@ rect file 214,92,34,4 7 e0
 line filearm 250,100 214,94 c7
 rect clock 200,110,22,18 15 e0
 dots clockticks 204,114 210,114 216,114 212,122 c0`,
-      cycles: [{ name: "lamp", areas: ["cone", "bulb"], colors: [14, 6], style: "pingpong", ms: 3000 }] }
-  },
+      cycles: [{ name: "lamp", areas: ["cone", "bulb"], colors: [14, 6], style: "pingpong", ms: 3000 }] },
 
-  registry: {
-    picture: { version: 1, draw: `rect ceiling 0,0,320,26 fade:0,2/0,0/0,26
+  registry: { version: 1, draw: `rect ceiling 0,0,320,26 fade:0,2/0,0/0,26
 rect wall 0,26,320,38 mix:2,10@0.3
 rect holes1 0,30,320,16 mix:0,2@0.35
 rect holes2 0,46,320,16 mix:0,2@0.35
@@ -266,11 +256,9 @@ rect inkpot 192,102,8,8 0 e7
 rect lampbase 60,96,12,4 0 e6
 poly lampshade 54,84 78,84 72,96 60,96 14 e0
 ellipse lampglow 66,100,24,8 mix:,14@0.4`,
-      cycles: [{ name: "lamp", areas: ["lampshade", "lampglow"], colors: [14, 6], style: "flicker", ms: [300, 900] }] }
-  },
+      cycles: [{ name: "lamp", areas: ["lampshade", "lampglow"], colors: [14, 6], style: "flicker", ms: [300, 900] }] },
 
-  tower: {
-    picture: { version: 1, draw: `rect walls 0,0,320,136 fade:0,1/0,0/0,136
+  tower: { version: 1, draw: `rect walls 0,0,320,136 fade:0,1/0,0/0,136
 line rib1 110,30 0,0 c8
 line rib2 110,30 60,136 c8
 line rib3 110,30 200,0 c8
@@ -298,11 +286,9 @@ rect warden_legs 236,108,18,8 0 e7
 rect warden_base 228,114,34,4 8 e0
 dots warden_eyes 242,47 248,47 c0
 line crack 245,56 245,106 c0`,
-      cycles: [{ name: "glow", areas: ["holelight", "holeglow"], colors: [14, 6], style: "pingpong", ms: 2800 }] }
-  },
+      cycles: [{ name: "glow", areas: ["holelight", "holeglow"], colors: [14, 6], style: "pingpong", ms: 2800 }] },
 
-  gears: {
-    picture: { version: 1, draw: `rect void 0,0,320,136 0
+  gears: { version: 1, draw: `rect void 0,0,320,136 0
 rect catwalk 0,0,320,16 8 e0
 line cwrail 0,15 320,15 c7
 rect cwpost1 20,0,4,16 7 e0
@@ -333,11 +319,9 @@ ellipse steam1 256,40,10,10 mix:,15@0.7
 ellipse steam2 262,56,14,12 mix:,15@0.5
 ellipse steam3 270,76,18,14 mix:,15@0.3
 ellipse steam4 276,98,24,16 mix:,15@0.18`,
-      cycles: [{ name: "steam", areas: ["steam1", "steam2", "steam3"], colors: [15, 7], style: "pingpong", ms: 1400 }] }
-  },
+      cycles: [{ name: "steam", areas: ["steam1", "steam2", "steam3"], colors: [15, 7], style: "pingpong", ms: 1400 }] },
 
-  face: {
-    picture: { version: 1, draw: `rect bg 0,0,320,136 fade:6,14/0,0/0,136
+  face: { version: 1, draw: `rect bg 0,0,320,136 fade:6,14/0,0/0,136
 ellipse dial 190,68,110,64 fade:14,15/190,30/190,100
 ellipse dialrim 190,68,110,64 none e6
 ellipse dialglow 190,68,60,30 mix:,15@0.5
@@ -362,16 +346,13 @@ poly shelfleg2 280,106 290,106 288,122 282,122 0
 rect floorbar 0,124,320,12 0`,
       cycles: [{ name: "dial", areas: ["dialglow"], colors: [15, 14], style: "pingpong", ms: 3200 }],
       overlays: [{ object: "cog", at: [246, 86] }] }
-  }
 };
 
 export default rooms;
 
 // Each ending's picture, with its description for screen readers; the world file adds them.
 export const endings = {
-  restored: {
-    alt: "A huge clock dial in the dark, both hands together on the thirteenth mark, a small brass cog glowing at its heart.",
-    picture: { version: 1, draw: `rect bg 0,0,320,136 fade:1,0/0,0/0,136
+  restored: { version: 1, draw: `rect bg 0,0,320,136 fade:1,0/0,0/0,136
 ellipse dial 160,68,64,64 fade:15,11/160,10/160,128
 ellipse dialrim 160,68,64,64 none e3
 ellipse dialin 160,68,54,54 mix:15,11@0.3 e11
@@ -383,11 +364,8 @@ ellipse cog 160,68,9,9 14 e6
 ellipse coghole 160,68,3,3 1
 dots cogteeth 160,57 171,68 160,79 149,68 168,60 168,76 152,76 152,60 c6
 ellipse glow 160,68,80,56 mix:,11@0.15`,
-      cycles: [{ name: "glow", areas: ["glow"], colors: [11, 3], style: "pingpong", ms: 2600 }] }
-  },
-  kept: {
-    alt: "The pylon platform from above: rows of brass robots sitting on the boards in pools of lamplight, a small porter on his trolley in front.",
-    picture: { version: 1, draw: `rect boards 0,0,320,136 mix:8,0@0.4
+      cycles: [{ name: "glow", areas: ["glow"], colors: [11, 3], style: "pingpong", ms: 2600 }] },
+  kept: { version: 1, draw: `rect boards 0,0,320,136 mix:8,0@0.4
 line b1 0,24 320,24 c0
 line b2 0,48 320,48 c0
 line b3 0,72 320,72 c0
@@ -427,11 +405,8 @@ ellipse inspector 296,20,6,5 8 e0
 ellipse inspectorh 296,14,4,4 7 e0
 line inspectorarm 300,20 306,22 c8
 rect rail 0,0,320,4 14`,
-      cycles: [{ name: "lamps", areas: ["pool1", "pool2", "pool3"], colors: [13, 5], style: "pingpong", ms: 3400 }] }
-  },
-  flown: {
-    alt: "A small brass floater high in the stars above a bank of smoke, with a single coin of city light glowing far beneath it.",
-    picture: { version: 1, draw: `rect sky 0,0,320,42 fade:0,9/0,0/0,42
+      cycles: [{ name: "lamps", areas: ["pool1", "pool2", "pool3"], colors: [13, 5], style: "pingpong", ms: 3400 }] },
+  flown: { version: 1, draw: `rect sky 0,0,320,42 fade:0,9/0,0/0,42
 dots stars1 14,6 38,18 62,4 96,12 128,6 150,22 180,8 210,16 262,6 290,20 308,8 c15
 dots stars2 26,28 74,24 110,30 164,32 198,26 246,34 276,30 304,34 c11
 rect smoke 0,42,320,94 fade:9,1/0,42/0,136
@@ -444,11 +419,8 @@ ellipse floaterdome 238,22,8,5 11 e0
 ellipse floaterlamp 220,26,2,2 14
 line trail 256,28 316,40 c9
 line trail2 258,30 320,48 c11`,
-      cycles: [{ name: "city", areas: ["citycore"], colors: [14, 12], style: "pingpong", ms: 2400 }] }
-  },
-  died: {
-    alt: "A white sheet of steam across a dark iron wall, and a dropped brass cap on the floor.",
-    picture: { version: 1, draw: `rect wall 0,0,320,136 fade:0,8/0,0/0,136
+      cycles: [{ name: "city", areas: ["citycore"], colors: [14, 12], style: "pingpong", ms: 2400 }] },
+  died: { version: 1, draw: `rect wall 0,0,320,136 fade:0,8/0,0/0,136
 line rivet1 0,20 320,20 c8
 line rivet2 0,60 320,60 c8
 line rivet3 0,100 320,100 c8
@@ -459,5 +431,4 @@ rect floor 0,112,320,24 0
 ellipse cap 120,120,18,4 6 e0
 rect capcrown 110,110,20,10 6 e0
 line capline 110,118 130,118 c0` }
-  }
 };
