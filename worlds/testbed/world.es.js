@@ -304,14 +304,33 @@ const rooms = {
     name: "EL SÓTANO", area: "hub", at: [0, 0, -1],
     describe: [
       "Un sótano bajo de piedra con tres puertas. La {puerta de la cámara|vault_door} está al este, y la {puerta de la despensa|cellar_door} al oeste. Un {cofre|chest} está junto a la pared, una {caja|box} en una balda y un {cubo|bin} debajo. Un {bote|boat} descansa sobre calzos.",
-      "El centro está arriba."
+      "El centro está arriba. Un arco al norte lleva a un sonido de agua."
     ],
-    exits: { u: "tb-hub", e: "tb-vault", w: "tb-pantry" },
+    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry" },
     scenery: [{ words: ["calzos", "pared", "balda", "piedra"], name: "la pared", says: "Piedra labrada, húmeda al tacto." }],
     mentions: ["trozo"],
     ambience: { lines: ["Gotea agua en algún sitio, y cuenta.", "El bote cruje sobre sus calzos, sin ir a ninguna parte."], every: [25, 60] },
     sleep: "En el sótano no: hay demasiada humedad.",
     alt: "Un sótano bajo de piedra con una puerta de cámara redonda de acero en la pared derecha, una puerta pequeña de madera a la izquierda, un cofre grande y oscuro junto a la pared del fondo y un bote pequeño sobre calzos en medio.",
+    overlayAlt: {}
+  },
+  // La cascada: un cuadro que se mueve (una cascada que corre, destellos que parpadean cada uno a su aire, una antorcha, una bandera y una onda).
+  "tb-falls": {
+    name: "LA CASCADA", area: "hub", at: [0, -1, -1],
+    describe: [
+      "Una cueva húmeda con una cascada que cae por la pared del fondo a una charca ancha y negra. Una antorcha arde en un soporte a la izquierda, y una bandera cuelga de un asta a la derecha.",
+      "El sótano está al sur."
+    ],
+    exits: { s: "tb-cellar" },
+    scenery: [
+      { words: ["cascada", "agua", "catarata"], name: "la cascada", says: "Agua, toda yendo hacia el mismo sitio." },
+      { words: ["charca", "destellos"], name: "la charca", says: "Negra y ancha, con lucecitas que van y vienen." },
+      { words: ["antorcha", "soporte", "llama"], name: "la antorcha", says: "Una antorcha, que arde baja y despareja." },
+      { words: ["bandera", "asta", "banderín"], name: "la bandera", says: "Una bandera roja en un asta gris, que se mueve aunque no hay viento." }
+    ],
+    ambience: { lines: ["La cascada sigue, el mismo ruido en otro orden.", "La antorcha vacila, y se recupera."], every: [25, 60] },
+    sleep: "Junto al agua no: el ruido se metería en el sueño.",
+    alt: "Una cueva húmeda de piedra con una cascada alta que cae por el centro de la pared del fondo a una charca ancha y oscura, lucecitas que destellan en el agua, una antorcha en un soporte de la pared izquierda y una bandera roja en un asta a la derecha.",
     overlayAlt: {}
   },
   "tb-vault": {
@@ -672,7 +691,8 @@ const rules = [
   { id: "tune_radio", match: { verb: "tune", obj: "radio" },
     do: [{ say: "Sintonizas la radio, y el siseo cesa, y llega una palabra: Testbed." }, { set: "radio.tuned", to: true }, { remove: "rule", id: "radio_hiss" },
          { move: "wire", to: "tb-lab" },
-         { draw: "tb-lab", overlays: [{ object: "wire", at: [236, 108] }], cycles: [{ name: "the lamp", areas: ["lever_lamp"], colors: [10, 2], style: "pingpong", ms: 1600 }] }] },
+         { draw: "tb-lab", overlays: [{ object: "wire", at: [236, 108] }], cycles: [{ name: "the lamp", areas: ["lever_lamp"], colors: [10, 2], style: "pingpong", ms: 1600 }],
+           loops: [{ name: "sparks", at: [226, 98], style: "random", ms: 150, frames: [["..f.", ".fef", "..f.", "...."], ["....", ".f..", "fef.", ".f.."]] }] }] },
   { id: "radio_hiss", when: "every", every: { turns: [4, 6] }, chance: 1, if: [{ "player.at": "tb-lab" }, { "radio.tuned": false }],
     do: [{ say: "La radio sisea, y casi sale una palabra." }] },
   { id: "whistle_note", match: { verb: "whistle" }, do: [{ say: "Silbas una nota fina. Los cables responden." }] },

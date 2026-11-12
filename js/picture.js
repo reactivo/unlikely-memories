@@ -121,6 +121,24 @@ export function formatShape(s) {
           s.after ? "after:" + s.after : ""].filter(Boolean).join(" ");
 }
 
+// A palette cycle's colours with its `rest` (a whole number: the last colour repeated that many more times, so [15, 7, 8] with rest 167 is a
+// round of 170): the list the engine and the checker count. The cycle itself is left as written (a scroll has no colours: unchanged).
+export const colorsOf = (c) => Array.isArray(c?.colors) && c.colors.length && Number.isInteger(c.rest) && c.rest > 0
+  ? [...c.colors, ...Array(c.rest).fill(c.colors[c.colors.length - 1])] : c?.colors;
+
+// An entry of a cycle's `areas`: a shape id, a list of shape ids (a group that moves together) or [x, y, width, height].
+export const isGroup = (a) => Array.isArray(a) && a.length > 0 && a.every(x => typeof x === "string");
+
+// The pixels of one entry of a cycle's `areas`: a shape id, a list of shape ids (a group), or [x, y, width, height]; `areas` is what
+// each shape id ended up showing (ui/draw.js, paintPicture).
+export function areaPixels(a, areas, w, h) {
+  if (typeof a === "string") return areas[a] || [];
+  if (isGroup(a)) return a.flatMap(id => areas[id] || []);
+  const [x0, y0, rw, rh] = a, out = [];
+  for (let y = Math.max(0, y0); y < Math.min(h, y0 + rh); y++) for (let x = Math.max(0, x0); x < Math.min(w, x0 + rw); x++) out.push(y * w + x);
+  return out;
+}
+
 // A picture written in the short notation (a room's, or an ending's): its drawing list parsed (js/picture.js), version 1
 // unless it says. Returns the picture as it is stored, or the reasons it can't be, as one string.
 export function readPicture(picture) {
@@ -129,7 +147,7 @@ export function readPicture(picture) {
 }
 
 // A picture with edits applied: shapes removed, replaced or restyled (new colours, same place) by id, shapes added (at the end, or `after` a shape's
-// id), cycles and overlays replaced when given. Returns the new picture (version + 1) or the reason it can't.
+// id), cycles, overlays and loops replaced when given. Returns the new picture (version + 1) or the reason it can't.
 export function editPicture(picture, e) {
   // Shapes to add or replace can be written in the short notation: a line each, or all in one string.
   const shapes = (x) => typeof x === "string" ? parseShapes(x) : { shapes: (x || []).map(s => (typeof s === "string" ? parseShape(s) : s)), problems: [] };
@@ -165,5 +183,5 @@ export function editPicture(picture, e) {
   }
   if (draw.length > art.draw.maxShapes) return "too many shapes";
   return { ...picture, version: picture.version + 1, draw,
-           ...(e.cycles ? { cycles: e.cycles } : {}), ...(e.overlays ? { overlays: e.overlays } : {}) };
+           ...(e.cycles ? { cycles: e.cycles } : {}), ...(e.overlays ? { overlays: e.overlays } : {}), ...(e.loops ? { loops: e.loops } : {}) };
 }

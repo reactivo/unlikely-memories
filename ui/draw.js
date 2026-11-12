@@ -1,11 +1,11 @@
-// Drawing lists → pixels (ART-DIRECTION.md §5). Paints a picture's shapes, in order, into a grid of palette
-// numbers (0–15), the way Sierra's games drew their rooms from commands. Pure: no page, so tests can run it too.
-// ui/scene.js turns the grid into colours on the canvas.
+// Drawing lists → pixels on the screen (ART-DIRECTION.md §5): painting a picture's shapes into a grid of palette numbers is js/paint.js (re-exported
+// here); this file puts a grid on the canvas, and holds the overlays, the thumbnails, the scroll's plan and the loops' sprites. Pure: no page, so tests
+// can run it too. ui/scene.js turns the grid into colours on the canvas.
 
 import art from "../content/art.js";
 import { parseShapes } from "../js/picture.js";
-
-const DITHER = art.dither.matrix;                 // Bayer 4×4: the order in which pixels switch to the second colour
+import { paint, paintPicture, threshold, lit } from "../js/paint.js";
+export { paint, paintPicture, threshold, lit };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].
 export const rgbOf = (hex) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
@@ -32,17 +32,6 @@ export function putPixels(image, px, rgb) {
   for (let k = 0; k < n; k++) view[k] = pal[px[k]];
 }
 
-// The dither threshold of a pixel (0–1): a pixel is lit while the level is past it.
-export const threshold = (x, y) => (DITHER[y & 3][x & 3] + 0.5) / 16;
-
-// Is this pixel past the dither threshold for a level (0–1)? The same test scene.py used.
-export const lit = (x, y, level) => threshold(x, y) < level;
-
-// Paint a drawing list into a new grid (width × height palette numbers, starting all black).
-export function paint(draw, width = art.picture.width, height = art.picture.height) {
-  return paintPicture(draw, width, height).px;
-}
-
 // A world's thumbnail on the landing page: the room's picture painted at its real size (320×136), no sprites, no cycling, then
 // the largest crop, THUMB.width pixels wide from column x, rows 0 to THUMB.height (always this crop: the landing page draws it at its own size and
 // CSS stretches it to the card's slot). `draw` is a drawing list or the short notation (a string).
@@ -51,137 +40,6 @@ export function thumbnailPixels(draw, x) {
   const full = paint(typeof draw === "string" ? parseShapes(draw).shapes : draw);
   const left = Math.max(0, Math.min(art.picture.width - THUMB.width, Math.round(x))), out = new Uint8Array(THUMB.width * THUMB.height);
   for (let y = 0; y < THUMB.height; y++) out.set(full.subarray(y * art.picture.width + left, y * art.picture.width + left + THUMB.width), y * THUMB.width);
-  return out;
-}
-
-// The same, also saying which pixels each named shape (`id`) ended up showing, after everything painted over it:
-// { px, areas: { id: [pixel index, …] } }. Palette cycles use the areas.
-export function paintPicture(draw, width = art.picture.width, height = art.picture.height) {
-  const px = new Uint8Array(width * height), owner = new Int16Array(width * height).fill(-1);
-  draw.forEach((shape, i) => paintShape(px, width, height, shape, (k) => { owner[k] = i; }));
-  const areas = {};
-  owner.forEach((i, k) => { const id = i >= 0 && draw[i].id; if (id) (areas[id] ||= []).push(k); });
-  return { px, areas };
-}
-
-// One shape: rect, poly, ellipse (filled, optional 1-pixel edge), line or dots (one colour).
-// mark(k) is told each pixel the shape paints.
-function paintShape(px, w, h, s, mark = () => {}) {
-  const set = (x, y, c) => {
-    if (c === null || c === undefined || x < 0 || y < 0 || x >= w || y >= h) return;
-    px[y * w + x] = c; mark(y * w + x);
-  };
-  if (s.line) return linePoints(s.line).forEach(([x, y]) => set(x, y, s.color));
-  if (s.dots) return s.dots.forEach(([x, y]) => set(x, y, s.color));
-  // A row of the shape as a mask (1: the pixel is covered), over columns x0 − 1 … x1 + 1 (a pixel's edge test looks one pixel each
-  // way, beyond the picture too). The rows above and below the one being painted are kept, so the edge test is three lookups, not
-  // four more tests of the shape.
-  const [x0, y0, x1, y1] = bounds(s, w, h), xa = x0 - 1, width = x1 - x0 + 3, row = rowOf(s);
-  let above = new Uint8Array(width), here = new Uint8Array(width), below = new Uint8Array(width);
-  const wantEdge = s.edge !== undefined;
-  if (wantEdge) { row(y0 - 1, xa, width, above); row(y0, xa, width, here); }
-  for (let y = y0; y <= y1; y++) {
-    if (wantEdge) row(y + 1, xa, width, below); else row(y, xa, width, here);
-    for (let x = x0; x <= x1; x++) {
-      const m = x - xa;
-      if (!here[m]) continue;
-      const edge = wantEdge && !(here[m - 1] && here[m + 1] && above[m] && below[m]);
-      set(x, y, edge ? s.edge : fillColor(s.fill, x, y));
-    }
-    if (wantEdge) [above, here, below] = [here, below, above];     // (the next row down: its mask is made at the top of the loop)
-  }
-}
-
-// Which pixels a filled shape covers (pixel corners: x, y are whole numbers), as a function that fills a mask for one row:
-// row(y, xa, n, mask) sets mask[i] to 1 where the pixel (xa + i, y) is covered and 0 where it is not.
-function rowOf(s) {
-  if (s.poly) return polygonRow(s.poly);
-  const inside = shapeTest(s);
-  return (y, xa, n, mask) => { for (let i = 0; i < n; i++) mask[i] = inside(xa + i, y) ? 1 : 0; };
-}
-
-function shapeTest(s) {
-  if (s.rect) { const [x, y, w, h] = s.rect; return (px, py) => px >= x && py >= y && px < x + w && py < y + h; }
-  if (s.ellipse) {
-    const [cx, cy, rx, ry] = s.ellipse;
-    return (px, py) => ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 < 1;
-  }
-  throw new Error("Unknown shape: " + JSON.stringify(s).slice(0, 60));
-}
-
-// The rectangle of pixels worth testing for a shape, clipped to the picture.
-function bounds(s, w, h) {
-  let xs, ys;
-  if (s.rect) { const [x, y, rw, rh] = s.rect; xs = [x, x + rw]; ys = [y, y + rh]; }
-  else if (s.ellipse) { const [cx, cy, rx, ry] = s.ellipse; xs = [cx - rx, cx + rx]; ys = [cy - ry, cy + ry]; }
-  else { xs = s.poly.map(p => p[0]); ys = s.poly.map(p => p[1]); }
-  const clamp = (v, max) => Math.max(0, Math.min(max, v));
-  return [clamp(Math.floor(Math.min(...xs)), w - 1), clamp(Math.floor(Math.min(...ys)), h - 1),
-          clamp(Math.ceil(Math.max(...xs)), w - 1), clamp(Math.ceil(Math.max(...ys)), h - 1)];
-}
-
-// A polygon, row by row (even-odd rule; points on the boundary count as inside). A row is worked out from where the polygon's edges
-// cross it, not by asking every pixel about every edge: the pixels on an edge (the same test as always, tried only near where the edge
-// crosses the row), and the runs between a crossing and the next one, which are inside by the even-odd rule: a pixel is inside when an
-// odd number of crossings lie to its right.
-function polygonRow(pts) {
-  const n = pts.length;
-  return (y, xa, count, mask) => {
-    const xb = xa + count - 1, crossings = [];
-    mask.fill(0, 0, count);
-    for (let i = 0, j = n - 1; i < n; j = i++) {
-      const [xi, yi] = pts[i], [xj, yj] = pts[j];
-      if (y >= Math.min(yi, yj) && y <= Math.max(yi, yj)) {            // the boundary: this edge's own pixels on this row
-        const lo = Math.max(xa, Math.ceil(Math.min(xi, xj))), hi = Math.min(xb, Math.floor(Math.max(xi, xj)));
-        if (yi === yj) { if (lo <= hi && onSegment(xi, yi, xj, yj, lo, y)) mask.fill(1, lo - xa, hi - xa + 1); }
-        else {
-          const at = (xj - xi) * (y - yi) / (yj - yi) + xi, near = 1e-9 / Math.abs(yj - yi) <= 0.25;   // (a nearly flat edge: every pixel along it is tried)
-          for (let x = near ? Math.max(lo, Math.floor(at) - 1) : lo, last = near ? Math.min(hi, Math.ceil(at) + 1) : hi; x <= last; x++)
-            if (onSegment(xi, yi, xj, yj, x, y)) mask[x - xa] = 1;
-        }
-      }
-      if ((yi > y) !== (yj > y)) crossings.push((xj - xi) * (y - yi) / (yj - yi) + xi);
-    }
-    crossings.sort((p, q) => p - q);
-    let inside = (crossings.length & 1) === 1, from = -Infinity;       // (left of every crossing: all of them lie to its right)
-    for (const c of [...crossings, Infinity]) {
-      if (inside) {
-        const first = Math.max(xa, from === -Infinity ? xa : Math.ceil(from)), last = Math.min(xb, c === Infinity ? xb : Math.ceil(c) - 1);
-        if (first <= last) mask.fill(1, first - xa, last - xa + 1);
-      }
-      inside = !inside; from = c;
-    }
-  };
-}
-const onSegment = (x1, y1, x2, y2, x, y) =>
-  Math.abs((x2 - x1) * (y - y1) - (y2 - y1) * (x - x1)) < 1e-9 &&
-  x >= Math.min(x1, x2) && x <= Math.max(x1, x2) && y >= Math.min(y1, y2) && y <= Math.max(y1, y2);
-
-// A fill's colour at a pixel: a palette number; { mix: [a, b], level }; { fade: [a, b], from, to } (a at `from`,
-// b at `to`, dithered in between); { stripes: [a, b] } (alternate rows). null in a pair = leave the pixel as it is.
-function fillColor(f, x, y) {
-  if (typeof f === "number" || f === null) return f;
-  if (f.mix) return lit(x, y, f.level) ? f.mix[1] : f.mix[0];
-  if (f.fade) {
-    const [fx, fy] = f.from, [tx, ty] = f.to, dx = tx - fx, dy = ty - fy;
-    let level = Math.max(0, Math.min(1, ((x - fx) * dx + (y - fy) * dy) / (dx * dx + dy * dy)));
-    // A fade into nothing (one empty colour) is a glow or a spill: its coloured end is at most half dense, thinning to nothing.
-    if (f.fade[1] === null && f.fade[0] !== null) level = 0.5 + level / 2;
-    else if (f.fade[0] === null && f.fade[1] !== null) level = level / 2;
-    return lit(x, y, level) ? f.fade[1] : f.fade[0];
-  }
-  if (f.stripes) return f.stripes[y & 1];
-  throw new Error("Unknown fill: " + JSON.stringify(f));
-}
-
-// The pixels of a line through points (each segment drawn with evenly spaced steps).
-function linePoints(points) {
-  const out = [];
-  for (let k = 0; k + 1 < points.length; k++) {
-    const [x0, y0] = points[k], [x1, y1] = points[k + 1];
-    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) + 1;
-    for (let i = 0; i <= n; i++) out.push([Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n)]);
-  }
   return out;
 }
 
@@ -196,16 +54,100 @@ export const overlayAlt = (room, overlay) => room?.overlayAlt?.[overlay.object] 
 // A sprite's characters as palette numbers: hex digits 0–f ("." and anything else stay clear).
 export const HEX_INDEX = Object.fromEntries([..."0123456789abcdef"].flatMap((c, i) => [[c, i], [c.toUpperCase(), i]]));
 
-// The whole picture for a room in this state: its painted shapes (cached by the caller) with the overlays on top, each
-// its object's own `floorSprite`, else its `sprite` (rows in hex, as the world writes them), at the overlay's `at`.
-export function compose(base, picture, state, roomId, width = art.picture.width, height = art.picture.height) {
-  const px = base.slice();
+// The pixels an overlay of this picture covers in this state (1 where one of its sprites has a pixel drawn, else 0): what a scroll
+// cycle leaves alone (ui/effects.js, cycleInto). Taken once when the picture is composed, not every frame.
+export function covered(picture, state, roomId, width = art.picture.width, height = art.picture.height) {
+  const mask = new Uint8Array(width * height);
+  overlayPixels(picture, state, roomId, width, height, (k) => { mask[k] = 1; });
+  return mask;
+}
+
+// Each pixel of each overlay shown: fn(index in the picture, palette number).
+function overlayPixels(picture, state, roomId, width, height, fn) {
   for (const o of overlaysShown(picture, state, roomId)) {
     const own = state.world.objects[o.object], rows = own.floorSprite || own.sprite;
     if (rows) rows.forEach((row, j) => [...row].forEach((ch, i) => {
       const c = HEX_INDEX[ch], x = o.at[0] + i, y = o.at[1] + j;
-      if (c !== undefined && x >= 0 && y >= 0 && x < width && y < height) px[y * width + x] = c;
+      if (c !== undefined && x >= 0 && y >= 0 && x < width && y < height) fn(y * width + x, c);
     }));
   }
+}
+
+// The whole picture for a room in this state: its painted shapes (cached by the caller) with the overlays on top, each
+// its object's own `floorSprite`, else its `sprite` (rows in hex, as the world writes them), at the overlay's `at`.
+export function compose(base, picture, state, roomId, width = art.picture.width, height = art.picture.height) {
+  const px = base.slice();
+  overlayPixels(picture, state, roomId, width, height, (k, c) => { px[k] = c; });
   return px;
+}
+
+// ---- Scroll: a cycle that slides an area's own pixels (ui/effects.js, CYCLES.scroll; ART-DIRECTION.md §6.1) ---------------------------------
+// An aligned scroll: every line along the flow wraps over the area's whole extent (down and up: every column over the area's full height,
+// top to bottom of its bounding box; left and right: every row over its full width), so rows across the flow stay straight in any shape.
+// Where a line has no area pixel at some point along the flow, it takes that point's pattern from the nearest line that has one. Made once
+// for a picture: { pixels, at (each pixel's place along the flow, from the box's start), line (its line's number), table (for each line, the
+// pixel whose colour each place along the flow shows: -1 where no line has a pixel there), length, sign }. `w` is the picture's width.
+export function scrollPlan(area, dir, w) {
+  const vertical = dir === "down" || dir === "up", sign = dir === "down" || dir === "right" ? 1 : -1;
+  const alongOf = (k) => vertical ? Math.floor(k / w) : k % w, acrossOf = (k) => vertical ? k % w : Math.floor(k / w);
+  const pixelAt = (a, c) => vertical ? a * w + c : c * w + a;
+  const pixels = Int32Array.from(new Set(area));
+  if (!pixels.length) return { pixels, at: pixels, line: pixels, table: pixels, length: 0, sign };
+  let top = Infinity, last = -Infinity;
+  for (const k of pixels) { const a = alongOf(k); if (a < top) top = a; if (a > last) last = a; }
+  const length = last - top + 1, own = new Set(pixels), across = new Map(), byAlong = new Map();   // across: line's across-coordinate → its number
+  for (const k of pixels) {
+    const c = acrossOf(k), a = alongOf(k);
+    if (!across.has(c)) across.set(c, across.size);
+    if (!byAlong.has(a)) byAlong.set(a, []);
+    byAlong.get(a).push(c);
+  }
+  const table = new Int32Array(across.size * length).fill(-1);
+  for (const [c, n] of across) for (let j = 0; j < length; j++) {
+    const a = top + j;
+    if (own.has(pixelAt(a, c))) { table[n * length + j] = pixelAt(a, c); continue; }
+    const cs = byAlong.get(a);
+    if (!cs) continue;
+    let best = cs[0];
+    for (const o of cs) if (Math.abs(o - c) < Math.abs(best - c) || (Math.abs(o - c) === Math.abs(best - c) && o < best)) best = o;
+    table[n * length + j] = pixelAt(a, best);
+  }
+  return { pixels, at: pixels.map(k => alongOf(k) - top), line: pixels.map(k => across.get(acrossOf(k))), table, length, sign };
+}
+
+// The area `step` pixels on: each pixel takes the one `step` places back along the flow in its own line (wrapping round the area's whole
+// extent), from `src`, the picture as painted, before any overlay (so what an overlay hides is not dragged along). Pixels in `covered`
+// (an overlay's, ui/draw.js `covered`) are left as they are, still covered. Writes into `out`; allocates nothing.
+export function scrollInto(out, src, covered, plan, step) {
+  const { pixels, at, line, table, length, sign } = plan, s = length ? step % length : 0;
+  if (!s) return;
+  for (let i = 0; i < pixels.length; i++) {
+    const k = pixels[i];
+    if (covered && covered[k]) continue;
+    let j = at[i] - sign * s; if (j < 0) j += length; else if (j >= length) j -= length;
+    const from = table[line[i] * length + j];
+    if (from >= 0) out[k] = src[from];
+  }
+}
+
+// ---- Loops: small animated sprites in a picture (a picture's `loops`; ART-DIRECTION.md §6.3) ---------------------------------------------
+// A loop's frames as palette numbers, once for a picture: { at, w, h, frames: [Uint8Array, …] }, 255 where a frame is clear ("." and
+// anything that isn't a hex digit), so a frame is drawn over the picture with holes where it is clear.
+export const CLEAR = 255;
+export function compileLoop(loop) {
+  const h = loop.frames[0].length, w = loop.frames[0][0]?.length ?? 0;
+  return { at: loop.at ?? loop.path?.[0], w, h, frames: loop.frames.map(rows => Uint8Array.from(rows.join(""), ch => HEX_INDEX[ch] ?? CLEAR)) };
+}
+
+// One frame of a compiled loop drawn into the picture's pixels, clipped to it, at its own `at` or, for a travelling loop, at `where`.
+export function drawLoop(out, lp, frame, width = art.picture.width, height = art.picture.height, where = lp.at) {
+  const px = lp.frames[frame];
+  for (let j = 0; j < lp.h; j++) {
+    const y = where[1] + j;
+    if (y < 0 || y >= height) continue;
+    for (let i = 0; i < lp.w; i++) {
+      const c = px[j * lp.w + i], x = where[0] + i;
+      if (c !== CLEAR && x >= 0 && x < width) out[y * width + x] = c;
+    }
+  }
 }

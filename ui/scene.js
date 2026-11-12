@@ -9,8 +9,8 @@
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
 import art from "../content/art.js";
-import { paintPicture, compose, overlaysShown, overlayAlt, putPixels, RGB } from "./draw.js";
-import { CYCLES, FILTERS, MOVING, reactionOf } from "./effects.js";
+import { paintPicture, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js";
+import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js";
 import { mount as mountSleep } from "./sleep.js";
 import { parseFilter, inOrder, COUNTS } from "../js/filters.js";
 import { transition, ROOM, ENDING } from "./transitions.js";
@@ -31,7 +31,9 @@ export function mount(root) {
   let frame = null;              // the picture now (palette numbers), without cycling
   let from = null;               // the picture being changed from, during a transition
   let change = null;             // the running transition: { shows, start, ms }
-  let cycles = [];               // the picture's palette cycles, ready to run
+  let cycles = [];               // the picture's cycles (palette cycles and scrolls), ready to run
+  let loops = [];                // the picture's loops (small animated sprites), ready to run
+  const layer = { src: null, covered: null };   // what a scroll needs: the picture as painted (no overlays) and the pixels overlays cover
   let drawnKey = null;           // what's drawn: room, version and overlays
   let loop = 0;                  // the animation frame request, while something moves
   let lastSteps = "";            // the cycles' steps last drawn (redraw only when one moves)
@@ -51,25 +53,19 @@ export function mount(root) {
   // game is replaced (a restore: a new game, UNDO, a loaded game, and the first draw of a view) nothing drawn before is kept.
   function forget() {
     painted.clear();
-    drawnKey = null; frame = null; from = null; change = null; cycles = []; lastSteps = ""; moment = null;
+    drawnKey = null; frame = null; from = null; change = null; cycles = []; loops = []; lastSteps = ""; moment = null;
     since.clear(); filters = [];
   }
 
-  // Prepare the picture's cycles: for each, the pixels it moves and where each starts in its colour list.
+  // Prepare the picture's cycles (ui/effects.js, prepareCycle: the pixels each moves, where each starts, a scroll's plan); and its loops:
+  // their frames as palette numbers.
   function prepare(picture, areas) {
     const now = performance.now();
-    return (picture.cycles || []).map(c => {
-      const pixels = [], start = [];
-      for (const a of c.areas) {
-        const list = typeof a === "string" ? (areas[a] || []) : rectPixels(a);
-        for (const k of list) { const i = c.colors.indexOf(frame[k]); if (i >= 0) { pixels.push(k); start.push(i); } }
-      }
-      return { c, pixels, start, mem: {}, t0: now };
-    });
+    cycles = (picture.cycles || []).map(c => prepareCycle(c, frame, areas, W, H, now));
+    loops = (picture.loops || []).map(l => ({ l, sprite: compileLoop(l), mem: { tick: 0, frame: 0 }, t0: now }));
   }
 
-  // Where each cycle is in its colour list now (all at the start with reduced motion).
-  const stepsAt = (now) => cycles.map(cy => calm() || !CYCLES[cy.c.style] ? 0 : CYCLES[cy.c.style](cy.c, cy.mem, now - cy.t0, now));
+  const stepsAt = (now) => stepsOf(cycles, loops, now, calm());
 
   // Draw one frame: the picture (mid-transition if one is running), with the cycles' colours at these steps.
   function render(now, steps = stepsAt(now)) {
@@ -79,10 +75,9 @@ export function mount(root) {
       for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (!change.shows(x, y, p, H)) out[y * W + x] = from[y * W + x];
       if (p >= 1) { change = null; from = null; }
     }
-    cycles.forEach((cy, j) => {
-      const step = steps[j], n = cy.c.colors.length;
-      if (step) cy.pixels.forEach((k, i) => { if (out[k] === cy.c.colors[cy.start[i]]) out[k] = cy.c.colors[(cy.start[i] + step) % n]; });
-    });
+    // Scrolls first (they move the painted pixels), then the loops over them, then the palette cycles, then the filters. With reduced
+    // motion none of it moves: no cycle is applied, a loop shows its first frame (a travelling one is not drawn).
+    motionInto(out, cycles, loops, steps, layer, calm(), W, H);
     lastSteps = steps.join();
     // The picture filters, in their order (content/art.js), on the picture's own pixels; a tint swaps the colours.
     let pic = { px: out, w: W, h: H, rgb: RGB };
@@ -105,7 +100,7 @@ export function mount(root) {
     const steps = stepsAt(now);
     const moving = moment !== null || sleeper.playing() || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
     if (change || steps.join() !== lastSteps || moving) render(now, steps);   // nothing moved: leave the canvas as it is
-    loop = (change || moving || (cycles.length && !calm())) ? requestAnimationFrame(tick) : 0;
+    loop = (change || moving || ((cycles.length || loops.length) && !calm())) ? requestAnimationFrame(tick) : 0;
   }
   const animate = () => { if (!loop) loop = requestAnimationFrame(tick); };
   const motionChanged = () => { if (frame) { render(performance.now()); animate(); } };
@@ -113,7 +108,7 @@ export function mount(root) {
   new MutationObserver(motionChanged).observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });   // (see calm)
 
   // The sleep (ui/sleep.js): its phases and its drawing; this file keeps the picture and the loop.
-  const sleeper = mountSleep({ W, H, base, animate, render, hold: (colour) => { frame = new Uint8Array(W * H).fill(colour); cycles = []; } });
+  const sleeper = mountSleep({ W, H, base, animate, render, hold: (colour) => { frame = new Uint8Array(W * H).fill(colour); cycles = []; loops = []; } });
 
   return {
     // A sleep, played on the picture (ui/sleep.js: its phases): see start() there. Returns { skip(), cancel() }.
@@ -142,13 +137,15 @@ export function mount(root) {
       const { px, areas } = base(where, picture);
       const old = frame;
       frame = compose(px, picture, s, roomId, W, H);
+      layer.src = px;                                            // (a scroll's pattern comes from the painted picture; overlays stay over it)
+      layer.covered = (picture.cycles || []).some(c => c.style === "scroll") ? covered(picture, s, roomId, W, H) : null;
       const t = transition(end ? ENDING : ROOM);
       if (old && reason !== "restore" && !calm() && t.ms > 0) {
         from = change ? from : old;
         // (A death's jolt plays on the room's picture first; the ending's picture comes in after it.)
         change = { ...t, start: performance.now() + (end && played ? played.o.ms : 0) };
       } else { change = null; from = null; }
-      if (drawnKey === null || !drawnKey.startsWith(where + "#" + picture.version + "|")) cycles = prepare(picture, areas);
+      if (drawnKey === null || !drawnKey.startsWith(where + "#" + picture.version + "|")) prepare(picture, areas);
       drawnKey = key;
       render(performance.now());
       animate();
@@ -171,11 +168,3 @@ function playing(prev, next, reason, ending) {
   const name = Object.keys(COUNTS).find(m => (next.state[COUNTS[m]] ?? 0) > (prev?.state?.[COUNTS[m]] ?? 0));
   return name ? { name, o: art.effects.filters[name], at: performance.now() } : null;
 }
-
-// The pixels of a rectangle area [x, y, width, height].
-function rectPixels([x0, y0, w, h]) {
-  const out = [];
-  for (let y = Math.max(0, y0); y < Math.min(H, y0 + h); y++) for (let x = Math.max(0, x0); x < Math.min(W, x0 + w); x++) out.push(y * W + x);
-  return out;
-}
-

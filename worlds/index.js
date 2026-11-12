@@ -37,7 +37,7 @@ export const WORLDS = {
   deadhour: { title: deadhourBible.title, blurb: deadhourBible.blurb, thumbnail: deadhourBible.thumbnail, made: "2026-11-06", model: "Claude Sonnet 5.5", effort: "medium", version: 4, minutes: 19, text: { en: deadhour } },     // "The Dead Hour at Pylon Nine"
   boathouse: { title: boathouseBible.title, blurb: boathouseBible.blurb, thumbnail: boathouseBible.thumbnail, made: "2026-11-10", model: "Claude Sonnet 5.5", effort: "medium", version: 6, minutes: 31, text: { en: boathouse } },     // "The Lake Lights It Again"
   buttons: { title: buttonsBible.title, blurb: buttonsBible.blurb, thumbnail: buttonsBible.thumbnail, made: "2026-11-11", model: "Claude Sonnet 5.5", effort: "medium", version: 4, minutes: 32, text: { en: buttons } },     // "The Button Hall"
-  testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 4, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
+  testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 5, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).

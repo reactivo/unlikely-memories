@@ -24,7 +24,24 @@ export default {
   // Picture effects (ui/scene.js, ui/effects.js). Change them here; nothing else needs to know. (Transitions: ui/transitions.js.)
   effects: {
     respectReducedMotion: true,                    // with reduce motion: no cycling, and changes simply cut
-    cycleStyles: ["rotate", "pingpong", "flicker", "blink"],
+    // The ways a picture's palette cycles move (ui/effects.js, CYCLES). "scroll" is not a palette cycle: it slides the area's own
+    // pixels along `dir` (scrollDirs), wrapping round inside the area. A cycle may also take `scatter: true` (rotate, pingpong,
+    // blink, flicker): see `scatter` below; a rotate may take `sweep`, a palette cycle `rest` (ui/effects.js, prepareCycle).
+    cycleStyles: ["rotate", "pingpong", "flicker", "blink", "scroll"],
+    scrollDirs: ["down", "up", "left", "right"],
+    // Scatter (a cycle's `scatter: true`): each pixel has its own phase, a stable number from its place (ui/effects.js, hash), so a
+    // field shimmers instead of changing at once. For flicker, time runs in windows of `window` ms and a pixel jumps in a window
+    // when a hash of the pixel and the window falls under window / the mean of the cycle's own `ms` [min, max]: each pixel flickers
+    // on average once in that mean.
+    scatter: { window: 100 },
+    // What the checker warns of in a picture's motion (never a problem; BRIEF.md §7, "Animation"): the fastest steps (ms) of
+    // pingpong, rotate and blink without a sweep, the shortest flicker wait, scroll and sweep steps; and the most of the picture's
+    // pixels all the cycles together move (flicker not counted).
+    pace: { step: 300, flicker: 400, scroll: 40, sweep: 45, moving: 1 / 6 },
+    // Loops (a picture's `loops`: small animated sprites drawn on the picture, as Sierra's views were): the styles they step by,
+    // and the limits the checker holds them to. `size` is the most a frame is, in pixels each way.
+    loopStyles: ["loop", "pingpong", "random"],
+    loops: { max: 1, size: 32, frames: [2, 6] },
     // Picture filters (ui/effects.js, FILTERS; js/filters.js): drawn on the scene's own 320×136 pixels while the state has
     // them on (the `filter` effect; a condition's `filters`). Each one's tunables, all sizes in picture pixels. The order
     // here is the order they are drawn in when several are on, whatever order they came on in: first what changes the

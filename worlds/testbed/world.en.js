@@ -308,14 +308,33 @@ const rooms = {
     name: "THE CELLAR", area: "hub", at: [0, 0, -1],
     describe: [
       "A low stone cellar with three doors. The {vault door|vault_door} is east, and the {pantry door|cellar_door} west. A {chest} stands by the wall, a {box} on a shelf, and a {bin} under it. A {boat} sits on blocks.",
-      "The hub is up."
+      "The hub is up. An arch north leads to the sound of water."
     ],
-    exits: { u: "tb-hub", e: "tb-vault", w: "tb-pantry" },
+    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry" },
     scenery: [{ words: ["blocks", "wall", "shelf", "stone"], name: "the wall", says: "Dressed stone, damp to the touch." }],
     mentions: ["scrap"],
     ambience: { lines: ["Water drips somewhere, and counts.", "The boat creaks on its blocks, going nowhere."], every: [25, 60] },
     sleep: "Not in the cellar: it is far too damp.",
     alt: "A low stone cellar with a round vault door of steel in the right wall, a small wooden door on the left, a big dark chest by the back wall and a small boat on blocks in the middle.",
+    overlayAlt: {}
+  },
+  // The falls: a picture that moves (a scrolling waterfall, glints that flicker each on their own, a torch, a pennant and a ripple).
+  "tb-falls": {
+    name: "THE FALLS", area: "hub", at: [0, -1, -1],
+    describe: [
+      "A wet cave with a waterfall pouring down the back wall into a wide black pool. A torch burns in a bracket on the left, and a pennant hangs from a pole on the right.",
+      "The cellar is south."
+    ],
+    exits: { s: "tb-cellar" },
+    scenery: [
+      { words: ["waterfall", "water", "fall", "falls"], name: "the waterfall", says: "Water, all of it going the same way." },
+      { words: ["pool", "glints"], name: "the pool", says: "Black and wide, with small lights that come and go on it." },
+      { words: ["torch", "bracket", "flame"], name: "the torch", says: "A torch, burning low and uneven." },
+      { words: ["pennant", "pole", "flag"], name: "the pennant", says: "A red pennant on a grey pole, moving though there is no wind." }
+    ],
+    ambience: { lines: ["The waterfall goes on, the same noise in a new order.", "The torch gutters, and recovers."], every: [25, 60] },
+    sleep: "Not by the water: the noise would get into the dream.",
+    alt: "A wet stone cave with a tall waterfall pouring down the middle of the back wall into a wide dark pool, small lights glinting on the water, a torch in a bracket on the left wall and a red pennant on a pole on the right.",
     overlayAlt: {}
   },
   "tb-vault": {
@@ -677,7 +696,8 @@ const rules = [
   { id: "tune_radio", match: { verb: "tune", obj: "radio" },
     do: [{ say: "You tune the radio, and the hiss stops, and one word comes through: Testbed." }, { set: "radio.tuned", to: true }, { remove: "rule", id: "radio_hiss" },
          { move: "wire", to: "tb-lab" },
-         { draw: "tb-lab", overlays: [{ object: "wire", at: [236, 108] }], cycles: [{ name: "the lamp", areas: ["lever_lamp"], colors: [10, 2], style: "pingpong", ms: 1600 }] }] },
+         { draw: "tb-lab", overlays: [{ object: "wire", at: [236, 108] }], cycles: [{ name: "the lamp", areas: ["lever_lamp"], colors: [10, 2], style: "pingpong", ms: 1600 }],
+           loops: [{ name: "sparks", at: [226, 98], style: "random", ms: 150, frames: [["..f.", ".fef", "..f.", "...."], ["....", ".f..", "fef.", ".f.."]] }] }] },
   { id: "radio_hiss", when: "every", every: { turns: [4, 6] }, chance: 1, if: [{ "player.at": "tb-lab" }, { "radio.tuned": false }],
     do: [{ say: "The radio hisses, and a word almost comes out of it." }] },
   { id: "whistle_note", match: { verb: "whistle" }, do: [{ say: "You whistle one thin note. The cables answer." }] },

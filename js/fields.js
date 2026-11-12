@@ -52,7 +52,7 @@ export const FIELDS = {
   rounds: ROUNDS_FIELDS,
   roundsEvery: ["seconds"],
   exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "passage"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking?, passage? }
-  picture: ["version", "draw", "cycles", "overlays", "shot"],   // `shot`: the drawing description (English, data only: BRIEF.md §7)
+  picture: ["version", "draw", "cycles", "overlays", "loops", "shot"],   // `shot`: the drawing description (English, data only: BRIEF.md §7)
   // Music (MUSIC.md §4): the world's, a room's, an instrument, a line, the theme and its chords. An unknown field inside music
   // only warns (MUSIC.md §2.4), in a world and in what the AI proposes alike.
   music: MUSIC,
@@ -86,7 +86,7 @@ export const FIELDS = {
     disconnect: ["disconnect", "dir"],
     inside: ["inside"], unlock: ["unlock"],
     change: ["change", "optional"],
-    draw: ["draw", "add", "remove", "replace", "restyle", "cycles", "overlays"],
+    draw: ["draw", "add", "remove", "replace", "restyle", "cycles", "overlays", "loops"],
     time: ["time", "weekday"],
     sleep: ["sleep"],                                          // the engine's own sleep, to a time a world's rule says (a `time` form)
     confirm: ["confirm", "yes", "no", "style", "arg"],

@@ -23,6 +23,7 @@
 //   tb-cellar   eye level, looking in; 78; the round vault door on the right third, the boat in the middle; dark grey 8
 //   tb-vault    close-up; none; brushed steel in two tones, the open door a dark disc at the left; white 15
 //   tb-pantry   from above; none; two shelves laid flat, the jar on the lower one; brown 6
+//   tb-falls    eye level, looking in; 92; the waterfall tall in the middle, the pool wide below it, a torch and a pennant on the walls; light blue 9
 //   lit         (ending) close-up; none; the lever thrown over, white sparks along a cable; yellow 14
 //   named       (ending) close-up; none; the open ledger on the desk, the last name in ink; white 15
 //   fell        (ending) from far above; none; the roof flat and grey, one small dark figure at its edge; dark grey 8
@@ -324,7 +325,9 @@ rect window_rim 156,56,8,10 none e6
       rect floor_mid 110,104,100,24 mix:8,0@0.5
       rect alarm 286,6,12,8 4 e0
     `,
-    cycles: [{ name: "the alarm", areas: ["alarm"], colors: [4, 12], style: "blink", ms: 1200 }],
+    // The wheel's spokes light in turn (sweep as a list, one step for each area; the two spokes of the first area are a group that moves together).
+    cycles: [{ name: "the alarm", areas: ["alarm"], colors: [4, 12], style: "blink", ms: 1200 },
+             { name: "the wheel", areas: [["wheel_s1", "wheel_s2"], "wheel_s3", "wheel_s4"], colors: [15, 7, 7, 7], style: "rotate", sweep: [0, 2, 1], ms: 450 }],
     overlays: [{ object: "pass", at: [62, 106] }]
   },
 
@@ -456,6 +459,14 @@ rect window_rim 156,56,8,10 none e6
       line brick_2 0,124 320,124 c8
       ellipse sun 276,12,10,8 14
     `,
+    loops: [{ name: "the flock", path: [[-30, 4], [330, 16]], travel: 16000, pause: 6000, style: "loop", ms: 340,
+      frames: [
+                 ["0...0...................", ".000....................", "........................", "........................", "........................", "..........000...........", ".........0...0..........", "........................", "..................00000.", "........................"],
+                 ["........................", "00000...................", "........................", "........................", "........................", ".........00000..........", "........................", "........................", "..................00000.", "........................"],
+                 ["........................", ".000....................", "0...0...................", "........................", "........................", ".........00000..........", "........................", "..................0...0.", "...................000..", "........................"],
+                 ["........................", "00000...................", "........................", "........................", "........................", ".........00000..........", "........................", "........................", "..................00000.", "........................"],
+                 ["........................", "00000...................", "........................", "........................", ".........0...0..........", "..........000...........", "........................", "........................", "...................000..", "..................0...0."],
+                 ["........................", "00000...................", "........................", "........................", "........................", ".........00000..........", "........................", "........................", "..................00000.", "........................"]] }],
     overlays: []
   },
 
@@ -492,6 +503,10 @@ rect window_rim 156,56,8,10 none e6
       rect water 0,128,320,8 mix:1,0@0.5
     `,
     cycles: [{ name: "the floor's water", areas: ["water"], colors: [1, 9], style: "rotate", ms: 2800 }],
+    loops: [{ name: "the ripple", at: [148, 129], style: "pingpong", ms: 260,
+      frames: [["............", ".....bb.....", "............"],
+               ["............", "...bb..bb...", "............"],
+               ["....bbbb....", ".bb......bb.", "....bbbb...."]] }],
     overlays: []
   },
 
@@ -510,7 +525,15 @@ rect window_rim 156,56,8,10 none e6
       ellipse door_light 50,66,12,32 mix:8,15@0.5
       rect floor_shadow 0,100,320,36 mix:7,0@0.2
       ellipse spot 180,114,60,8 mix:,15@0.4
+      line rail_1 100,96 130,96 c7
+      line rail_2 131,96 161,96 c7
+      line rail_3 162,96 192,96 c7
+      line rail_4 193,96 223,96 c7
+      line rail_5 224,96 254,96 c7
+      line rail_6 255,96 285,96 c7
     `,
+    // A glint along an edge: a bright spot runs along the rail in about a second (sweep: true, six segments in order) and it rests (rest: 33).
+    cycles: [{ name: "the rail", areas: ["rail_1", "rail_2", "rail_3", "rail_4", "rail_5", "rail_6"], colors: [15, 15, 7], rest: 33, style: "rotate", sweep: true, ms: 110 }],
     overlays: [{ object: "tin", at: [168, 104] }]
   },
 
@@ -532,10 +555,68 @@ rect window_rim 156,56,8,10 none e6
       line web_a 24,14 60,14 24,48 c7
       line web_b 296,14 260,14 296,48 c7
       rect slit 292,0,20,136 mix:,15@0.3
+      dots core 200,96 201,96 199,96 200,97 200,95 c6
+      dots middle 201,97 201,95 199,97 199,95 202,96 198,96 200,98 200,94 c6
+      dots tips 203,96 204,96 197,96 196,96 200,99 200,93 c6
     `,
+    // A sparkle beside the jar: three dots in the colour under them (unseen), a sweep opening a point into a star and fading, then nothing for about five seconds.
+    cycles: [{ name: "the sparkle", areas: ["core", "middle", "tips"], colors: [15, 15, 11, 6], rest: 46, style: "rotate", sweep: true, ms: 110 }],
+    overlays: []
+  },
+
+  // ---- THE FALLS: a cave: a waterfall with an outline (it scrolls down inside it), a pool of glints that each flicker on their own (a scatter flicker,
+  // paced by its own ms), a torch whose tips lean (a flicker) and a pennant (the picture's one loop: a picture has at most one) -----------------------------
+  // (The other loops are in other pictures: a ripple on the cellar's water, pingpong; a flock across the roof, travelling; the lab's sparks, random.)
+  "tb-falls": {
+    version: 1,
+    draw: `
+      rect wall 0,0,320,92 fade:8,0/0,0/0,92
+      line stone_1 0,30 108,30 c0
+      line stone_2 212,24 320,24 c0
+      line stone_3 0,60 108,60 c0
+      line stone_4 212,56 320,56 c0
+      line joint_1 60,0 60,30 c0
+      line joint_2 280,24 280,56 c0
+      rect ledge 112,0,96,8 7 e8
+      poly fall 128,6 188,6 194,40 186,98 130,98 122,40 mix:9,11@0.35
+      rect streak_a 138,8,3,60 11
+      rect streak_b 154,30,3,64 15
+      rect streak_c 168,6,2,44 11
+      rect streak_d 176,56,3,38 15
+      rect bracket 38,46,2,12 6 e0
+      ellipse torch_flame 39,42,3,5 12
+      rect torch_core 39,41,1,3 14
+      rect tip_l 37,35,2,3 12
+      rect tip_r 40,35,2,3 0
+      line pole 246,28 246,80 c8
+      rect floor 0,98,320,38 mix:1,9@0.2
+      ellipse spray 160,98,34,5 mix:,15@0.5
+      line shore 0,98 122,98 c8
+      line shore_2 198,98 320,98 c8
+      dots glints ${glints(60)} c9
+    `,
+    cycles: [
+      { name: "the fall", areas: ["fall", "streak_a", "streak_b", "streak_c", "streak_d"], style: "scroll", dir: "down", ms: 90 },
+      { name: "glints", areas: ["glints"], colors: [9, 15], style: "flicker", scatter: true, ms: [1500, 5000] },
+      { name: "the torch", areas: ["tip_l", "tip_r"], colors: [12, 0], style: "flicker", ms: [500, 1600] }
+    ],
+    loops: [
+      { name: "the pennant", at: [246, 28], style: "loop", ms: 220,
+        frames: [["8ccccccc..", "8cccccccc.", "8ccccccc..", "8.........", "8.........", "8........."],
+                 ["8.........", "8ccccccc..", "8cccccccc.", "8ccccccc..", "8.........", "8........."],
+                 ["8.........", "8.........", "8ccccccc..", "8cccccccc.", "8ccccccc..", "8........."],
+                 ["8.........", "8ccccccc..", "8cccccccc.", "8ccccccc..", "8.........", "8........."]] }
+    ],
     overlays: []
   }
 };
+
+// Where the falls' glints lie on the pool: 60 points scattered over it, the same every time (a small fixed walk, no random).
+function glints(n) {
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(`${8 + (i * 53 + (i % 7) * 11) % 304},${100 + (i * 29 + (i % 5) * 7) % 34}`);
+  return out.join(" ");
+}
 
 // ---- The endings: each the strongest shot of its kind, close up or from far above; no overlays, no edits ---------------------------------------
 export const endings = {
