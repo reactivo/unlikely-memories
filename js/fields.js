@@ -9,13 +9,13 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.48.2";
-import { PARTS, LINES } from "./opening.js?v=0.48.2";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.48.2";
-import { DIRECTIONS } from "./space.js?v=0.48.2";
-import { isObject, isLine } from "./shapes.js?v=0.48.2";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.48.2";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.48.2";
+import { ANSWERED } from "./verbs.js?v=0.48.3";
+import { PARTS, LINES } from "./opening.js?v=0.48.3";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.48.3";
+import { DIRECTIONS } from "./space.js?v=0.48.3";
+import { isObject, isLine } from "./shapes.js?v=0.48.3";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.48.3";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.48.3";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),

@@ -6,7 +6,7 @@
 //   makeTone(kit, name, dest, level) → { tick(from, to), stop(t), close() }   at `level` (its gain from its level: ui/sound/loudness.js); tick
 //                                                                    schedules the small events between two audio times; close lets go of its output once stopped
 
-import { src, filt, gain, lfo, chain } from "./synth.js?v=0.48.2";
+import { src, filt, gain, lfo, chain } from "./synth.js?v=0.48.3";
 
 export function makeTone(kit, name, dest, level = 1) {
   const { ctx, S, noise } = kit, T = S.tones[name] || {};

@@ -3,7 +3,7 @@
 // (`propertyText`, `propertyWords`, `PROPERTY_WORD`), and what the player typed to a question, [player.answers.<key>] (`answerText`,
 // `ANSWER_WORD`, `ASK_KEY`, `foldAnswer`: how an answer is compared). Pure: reads the state, never changes it.
 
-import { ownerOf } from "./fields.js?v=0.48.2";
+import { ownerOf } from "./fields.js?v=0.48.3";
 
 // What a language pack needs to name a thing in a sentence and agree with it, from its `words`: gender `g`, number `pl`, and
 // `proper` (a proper name: the pack's `the` adds no article, and the name keeps its capital: js/narrator.js, inSentence).

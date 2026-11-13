@@ -20,8 +20,8 @@
 // (`mask`); and `flicker`, one random brightness for the frame. The vignette is not here: it is a static gradient over the visible box
 // (CSS: ui/scene.css, ui/home.css, from --crt-vignette), so on an upright phone it darkens the box's edges, not the hidden sides'.
 
-import art from "../content/art.js?v=0.48.2";
-import { calm } from "./media.js?v=0.48.2";
+import art from "../content/art.js?v=0.48.3";
+import { calm } from "./media.js?v=0.48.3";
 
 // What each setting may be: [min, max, step], for the debug panel's sliders and for keeping a value sane.
 export const RANGES = {
@@ -141,7 +141,7 @@ const mark = (canvas, on) => canvas.parentElement?.toggleAttribute("data-crt", o
 export function screen(source, { w, h }) {
   let pass = null, canvas = null, image = null, flick = 1, dead = false;
 
-  // The WebGL canvas, made the first time it is wanted (right after the plain one: same CSS, so crop, pan and pinch move both).
+  // The WebGL canvas, made the first time it is wanted (right after the plain one: same CSS, so the crop and the pan move both).
   function make() {
     if (dead) return false;
     if (pass) return true;

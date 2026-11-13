@@ -24,9 +24,9 @@
 //   `Look`              a command → shown as <LOOK>; clicking runs it
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
-import { spriteSVG } from "./sprite.js?v=0.48.2";
-import { mount as mountFollow } from "./follow.js?v=0.48.2";
-import { figures } from "./crt.js?v=0.48.2";
+import { spriteSVG } from "./sprite.js?v=0.48.3";
+import { mount as mountFollow } from "./follow.js?v=0.48.3";
+import { figures } from "./crt.js?v=0.48.3";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).

@@ -204,12 +204,12 @@
       padding-top: var(--top-h, 0px);
     }
 
-    /* The picture (ui/scene.css reads these): the box's shape, and a sideways drag that shows what the crop hides (ui/crop.js;
-       up and down still scroll the page). The picture takes the whole finger (none), so a sideways drag is never taken over
-       halfway by the page's vertical scrolling; up and down are scrolled from the story, as under a toolbar. */
+    /* The picture (ui/scene.css reads these): the box's shape, and a sideways drag that shows what the crop hides (ui/crop.js).
+       The rest is the page's: a swipe up or down scrolls it and two fingers zoom it (pan-y pinch-zoom); the browser decides at
+       the start of a swipe, so a sideways drag is never taken over halfway. */
     .picture {
       --picture-ratio: var(--picture-crop);
-      --picture-touch: none;
+      --picture-touch: pan-y pinch-zoom;
       --picture-cursor: grab;
     }
   }

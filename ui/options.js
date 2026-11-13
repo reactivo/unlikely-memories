@@ -2,7 +2,7 @@
 // "Restart game" closes the panel and asks in the story, like every other yes/no question (js/main.js; after the end, no
 // question); "Quit" closes it and goes at once. Closing returns the focus to the command line.
 
-import { hang } from "./popup.js?v=0.48.2";
+import { hang } from "./popup.js?v=0.48.3";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {

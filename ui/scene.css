@@ -41,11 +41,6 @@
       max-width: none;
       image-rendering: crisp-edges;
       image-rendering: pixelated;
-
-      /* Pinch to zoom on the picture of an upright phone (ui/crop.js sets these on the picture): how much bigger, and
-         where it has moved, from the canvas's own top left corner. Without them the canvas is untouched. */
-      transform-origin: 0 0;
-      transform: translate(var(--zoom-x, 0px), var(--zoom-y, 0px)) scale(var(--zoom, 1));
     }
   }
 }
