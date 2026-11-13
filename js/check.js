@@ -57,14 +57,14 @@
 
 import { parse } from "./parser.js";
 import { step, applyChangeSet, holds, exitNow } from "./engine.js";
-import { placeOf, inScope } from "./place.js";
+import { placeOf, inScope, chainOf, shut } from "./place.js";
 import { solveCommand } from "./narrator.js";
 import { isExitObject, exitTo } from "./exits.js";
 import { moveTo, worldTime } from "./time.js";
 import * as opening from "./opening.js";
 import { musicOf } from "./music.js";
 import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js";
-import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route } from "./checklint.js";
+import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js";
 
 export function check(state, pack, bible, { before = null } = {}) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)
@@ -138,7 +138,7 @@ class Run {
   // prefer: { thing: puzzle }, the way to get a thing that more than one puzzle gives (else the first written).
   constructor(state, pack, puzzles, warnings = [], before = null, prefer = {}) {
     this.state = state; this.pack = pack; this.puzzles = puzzles; this.warnings = warnings; this.before = before; this.prefer = prefer;
-    this.solved = new Set(); this.played = []; this.problem = null; this.clock = 0;
+    this.solved = new Set(); this.played = []; this.problem = null; this.clock = 0; this.unlocking = new Set();
   }
 
   // Type a command, as a player would. Fails on words the parser can't read or effects the engine refuses.
@@ -234,21 +234,81 @@ class Run {
     const place = placeOf(this.state, thing);
     if (!o || !this.state.world.rooms[place]) return this.fail(`"${forPuzzle}" needs "${thing}", but it can't be found`);
     this.go(place);
+    this.openAround(thing);
+    if (this.problem) return;
     const noun = o.words?.nouns?.[0] ?? thing;
     const take = this.pack.words.verbs.take[0];
     this.type(take + " " + noun);
     if (!this.problem && !this.state.player.carrying.includes(thing)) this.fail(`"${take} ${noun}" didn't pick up "${thing}"`);
   }
 
+  // A thing lying in a closed container (a crate with a lid, a locked chest) is taken as a player takes it: the container is opened first, the
+  // outermost first, and a locked one unlocked with its key (the engine's own properties: the world writes no step for it). One that can't be
+  // opened (nothing opens it) is left shut, and the take that follows fails on its own.
+  openAround(thing) {
+    for (const id of chainOf(this.state, thing).slice(1).reverse()) {
+      const c = this.state.world.objects[id];
+      if (this.problem || !c.container || c.open || !shut(this.state, thing)) continue;
+      if (c.locked === true && typeof c.lock?.key === "string") this.unlock(id, c.lock.key);
+      else this.type(this.pack.words.verbs.open[0] + " " + (c.words?.nouns?.[0] ?? id));
+    }
+  }
+
+  // Unlock a locked thing (a door, a way, a container) with its key, as a player does: the key taken first (wherever it lies, or from the puzzle
+  // that gives it), then back to the thing, and "unlock <thing> with <key>". `here` is where the thing is.
+  unlock(id, key) {
+    const o = this.state.world.objects[id], here = o.at && this.state.world.rooms[o.at] ? o.at : placeOf(this.state, id);
+    if (!this.state.player.carrying.includes(key)) {
+      if (this.unlocking.has(key)) return this.fail(`"${id}" is locked, and its key "${key}" can't be taken without first getting through it`);
+      this.unlocking.add(key);
+      this.get(key, id);
+      this.unlocking.delete(key);
+      if (this.problem) return;
+      this.go(here);
+    }
+    const said = this.pack.useWith.unlock(o.words?.nouns?.[0] ?? id, this.state.world.objects[key].words?.nouns?.[0] ?? key);
+    this.type(said.charAt(0).toLowerCase() + said.slice(1));
+    if (!this.problem && this.state.world.objects[id].locked === true) this.fail(`"${id}" stays locked with its key "${key}"`);
+  }
+
+  // The keys of the locks on the way to a room, taken before setting off (a player who knows the way goes for the key first; a thing is not
+  // fetched from beyond the door it opens): the walk from here, by every way a lock or a time could open and every puzzle that `reaches` a room.
+  keysAhead(room) {
+    const s = this.state, seen = new Set([s.player.at]), queue = [[s.player.at, []]];
+    const edges = Object.values(this.puzzles).filter(p => p.reaches).map(p => [p.where, p.reaches]);
+    while (queue.length) {
+      const [at, keys] = queue.shift();
+      if (at === room) return keys;
+      const next = [];
+      for (const [dir, raw] of Object.entries(s.world.rooms[at].exits || {})) {
+        const to = exitTo(raw), lock = lockOn(s, at, dir);
+        if (typeof to !== "string" || !s.world.rooms[to]) continue;
+        if (exitNow(s, at, dir).go || opensByWaiting(s, at, dir)) next.push([to, keys]);
+        else if (lock) next.push([to, [...keys, lock.key]]);
+      }
+      for (const [from, to] of edges) if ((!from || from === at) && s.world.rooms[to]) next.push([to, keys]);
+      for (const [to, k] of next) if (!seen.has(to)) { seen.add(to); queue.push([to, k]); }
+    }
+    return [];
+  }
+
   // Walk to a room by its open exits (waiting for the hour of a timed one). If there's no way, solve a puzzle that opens one (it `reaches` somewhere and
   // can be reached itself: the green door, the boat), and try again.
   go(room) {
+    if (this.problem || this.state.player.at === room) return;
+    for (const key of this.keysAhead(room)) if (!this.problem && !this.unlocking.has(key)) {   // (the keys of its locks first)
+      this.unlocking.add(key); this.get(key, "the way to " + room); this.unlocking.delete(key);
+    }
     if (this.problem || this.state.player.at === room) return;
     let path = route(this.state, this.state.player.at, room);
     while (!path) {
       const opener = Object.entries(this.puzzles).find(([id, p]) => p.reaches && !this.solved.has(id) &&
         (!p.where || p.where === this.state.player.at || route(this.state, this.state.player.at, p.where)));
-      if (!opener) return this.fail(`can't get from ${this.state.player.at} to ${room}`);
+      if (!opener) {                                                 // no puzzle opens a way: a lock does, with its key
+        path = route(this.state, this.state.player.at, room, { locks: true });
+        if (!path) return this.fail(`can't get from ${this.state.player.at} to ${room}`);
+        break;
+      }
       this.solve(opener[0]);
       if (this.problem) return;
       path = route(this.state, this.state.player.at, room);
@@ -258,6 +318,8 @@ class Run {
     for (let steps = 0; path?.length && !this.problem; steps++) {
       if (steps > 60) return this.fail(`can't get from ${this.state.player.at} to ${room}: the walk keeps going astray`);
       const dir = path[0], here = this.state.player.at, raw = this.state.world.rooms[here].exits[dir];
+      const lock = lockOn(this.state, here, dir);
+      if (lock && !exitNow(this.state, here, dir).go) { this.unlock(lock.id, lock.key); if (this.problem) return; if (this.state.player.at !== here) { path = route(this.state, this.state.player.at, room, { locks: true }); if (!path) return this.fail(`can't get from ${this.state.player.at} to ${room}`); continue; } }
       const shut = !exitNow(this.state, here, dir).go;                   // (its `if`, or a locked thing that leads that way)
       if (shut) {                                                        // shut: wait for its hour (the clock moves, as a puzzle's `time` does)
         const later = opensByWaiting(this.state, here, dir);

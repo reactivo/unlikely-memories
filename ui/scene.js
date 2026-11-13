@@ -9,7 +9,7 @@
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
 import art from "../content/art.js";
-import { paintPicture, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js";
 import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js";
 import { mount as mountSleep } from "./sleep.js";
 import { parseFilter, inOrder, COUNTS } from "../js/filters.js";
@@ -27,7 +27,7 @@ export function mount(root) {
   const ctx = canvas.getContext("2d");
   const image = ctx.createImageData(W, H);                      // the canvas is the picture at its own 320×136
   const look = screen(canvas, { w: W, h: H });             // the CRT look: a WebGL canvas after this one, drawn from `image` (ui/crt.js)
-  const painted = new Map();     // painted pictures, by room + version (painting is the slow part); only valid within one game: see forget()
+  const painted = new Map();     // painted pictures, by world + room + version (painting is the slow part); only valid within one game: see forget()
   let frame = null;              // the picture now (palette numbers), without cycling
   let from = null;               // the picture being changed from, during a transition
   let change = null;             // the running transition: { shows, start, ms }
@@ -42,14 +42,15 @@ export function mount(root) {
   let moment = null;             // the moment now playing, once (a shake, a wave): { name, o: its tunables, at: when it began }
 
   // Paint (or reuse) a room's picture.
-  function base(roomId, picture) {
-    const key = roomId + "#" + picture.version;
+  function base(worldId, where, picture) {
+    const key = pictureKey(worldId, where, picture.version);
     if (!painted.has(key)) painted.set(key, paintPicture(picture.draw, W, H));
     return painted.get(key);
   }
 
-  // Forget everything drawn of a game, to draw afresh. A room id and a picture version are only the same picture within one game:
-  // two worlds share room ids (both "corridor", version 1), and after UNDO or a load a version can be another edit's. So whenever the
+  // Forget everything drawn of a game, to draw afresh. A picture is kept by its world's id, room id and version, so a room of
+  // one world never shows another's (two worlds may share a room id: both "corridor", version 1); and within one game
+  // a version can still be another edit's after UNDO or a load. So whenever the
   // game is replaced (a restore: a new game, UNDO, a loaded game, and the first draw of a view) nothing drawn before is kept.
   function forget() {
     painted.clear();
@@ -126,7 +127,7 @@ export function mount(root) {
       canvas.setAttribute("aria-label", [end ? end.alt : room.alt, ...shown.map(o => overlayAlt(room, o))].filter(Boolean).map(t => text(t, next.pack)).join(" "));
       // The picture filters on (none on an ending's picture: it is a shot of its own), and a new moment to play (below).
       const on = end ? [] : inOrder((s.filters || []).filter(f => FILTERS[parseFilter(f).name]));
-      const key = where + "#" + picture.version + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
+      const key = pictureKey(s.worldId, where, picture.version) + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
       if (!prev || reason === "restore") forget();
       const played = playing(prev, next, reason, !!end);
       if (played) moment = played;
@@ -134,7 +135,7 @@ export function mount(root) {
       for (const f of [...since.keys()]) if (!on.includes(f)) since.delete(f);
       for (const f of on) if (!since.has(f)) since.set(f, performance.now());
       filters = on;
-      const { px, areas } = base(where, picture);
+      const { px, areas } = base(s.worldId, where, picture);
       const old = frame;
       frame = compose(px, picture, s, roomId, W, H);
       layer.src = px;                                            // (a scroll's pattern comes from the painted picture; overlays stay over it)
@@ -145,7 +146,7 @@ export function mount(root) {
         // (A death's jolt plays on the room's picture first; the ending's picture comes in after it.)
         change = { ...t, start: performance.now() + (end && played ? played.o.ms : 0) };
       } else { change = null; from = null; }
-      if (drawnKey === null || !drawnKey.startsWith(where + "#" + picture.version + "|")) prepare(picture, areas);
+      if (drawnKey === null || !drawnKey.startsWith(pictureKey(s.worldId, where, picture.version) + "|")) prepare(picture, areas);
       drawnKey = key;
       render(performance.now());
       animate();

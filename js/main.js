@@ -269,7 +269,7 @@ function sleepThrough(applied, mark, was) {
   let told = false;
   const tellDark = () => { if (told) return 0; told = true; show(story(dark, state, pack)); ui.log.toEnd(); return ui.log.busyFor(); };
   const run = ui.scene.sleep({
-    kind: mark.sleep, wake: mark.wake !== false, vision: picture ? { id: mark.vision, picture: picture.picture } : null,
+    kind: mark.sleep, wake: mark.wake !== false, vision: picture ? { id: mark.vision, world: state.worldId, picture: picture.picture } : null,
     dark: tellDark,
     open: () => ui.scene.update(shown, { state, pack, music: soundpanel.audible(mix), mix }, "restore"),   // the picture woken to, under the lids
     done: () => {

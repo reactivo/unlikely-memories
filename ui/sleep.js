@@ -10,7 +10,7 @@ import { threshold } from "./draw.js";
 import { hash } from "./effects.js";
 import { calm } from "./media.js";
 
-// Set up the sleep on the scene's picture (W × H palette numbers): `base(id, picture)` paints a picture (a vision's), `animate()` asks
+// Set up the sleep on the scene's picture (W × H palette numbers): `base(worldId, id, picture)` paints a picture (a vision's), `animate()` asks
 // for the next frame, `render(now)` draws one, `hold(colour)` makes the dark the picture (a sleep you don't wake from).
 export function mount({ W, H, base, animate, render, hold }) {
   let run = null;                // a sleep playing: the lids, the dark, and where it has got to
@@ -73,14 +73,14 @@ export function mount({ W, H, base, animate, render, hold }) {
       if (!run.after && !run.visionPx && run.fade == null) run.after = afterimageOf(pic, run.o);   // (the room as the eyes close)
       return sleepPicture(pic, run, now, run.o);
     },
-    // A sleep, played on the picture: { kind: "nap" | "few" | "morning" (js/sleep.js), vision: { id, picture } (a world's picture,
+    // A sleep, played on the picture: { kind: "nap" | "few" | "morning" (js/sleep.js), vision: { id, world, picture } (a world's picture,
     // shown in the dark) or null, wake: false when you don't wake, dark(), open(), done() }: see advance(). Returns { skip(), cancel() }.
     // Never on a restore (the controller only plays a moment just played).
     start({ kind, vision = null, wake = true, dark, open, done }) {
       const o = art.effects.sleep;
       field ??= darkField(W, H, o);
       run = { o, plan: o[kind] || o.nap, wake, dark, open, done, phase: "close", t0: performance.now(), lid: 0, fade: calm() ? 0 : null,
-              glow: 0, darkAt: null, darkEnd: null, vision: 0, visionPx: vision ? base("vision:" + vision.id, vision.picture).px : null,
+              glow: 0, darkAt: null, darkEnd: null, vision: 0, visionPx: vision ? base(vision.world, "vision:" + vision.id, vision.picture).px : null,
               after: null, field };
       const mine = run;
       animate();

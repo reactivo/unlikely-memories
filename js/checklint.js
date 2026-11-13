@@ -258,6 +258,7 @@ function mentionProblems(state, pack, arrived, problems, warnings) {
     const room = placeOf(state, id);
     if (state.world.rooms[room]) s.player.at = room;
     s.world.objects[id].at = "player";
+    if (o.container) s.world.objects[id].open = true;   // (what its own text marks inside it answers once it is opened)
     const own = collectTexts({ ...o, starts: undefined, stops: undefined }, id, pack).filter(x => !x.pack && !/^(here|lies)$/.test(x.field));
     const labels = [...new Set(own.flatMap(x => marked(x.text)).map(([l]) => l))];
     for (const m of o.mentions || []) if (!answers(s, m)) problems.push(`${id} mentions "${m}", but nothing answers to it`);
@@ -451,7 +452,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   harmWarnings(state, problems, warnings);
   consumableProblems(state, problems, warnings);
   sourceProblems(state, problems, warnings);
-  warnings.push(...pictureWarnings(state));
+  warnings.push(...pictureWarnings(state, bible), ...removalWarnings(state), ...markedThingWarnings(state, pack));
   problems.push(...pictureProblems(state));   // the ending's picture: each `end` names one the world has; a world that can hurt you has a `died` one
   if (bible) problems.push(...bibleProblems(bible, state));
   roomLengthWarnings(state, warnings);
@@ -459,6 +460,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   // [time] (BRIEF.md §4); a way in or out has an exit; a verb offered on scenery is answered; no words of the other region;
   // every [..] is known. Then the exits and waits that can never open or fire.
   problems.push(...commandProblems(state, pack, arrived));
+  problems.push(...hedgeProblems(state, pack, bible));
   warnings.push(...clockTimeWarnings(state, pack, arrived));
   warnings.push(...listComparisons(state, arrived));
   warnings.push(...wayWarnings(pack, arrived));
@@ -470,6 +472,49 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   const never = neverHolds(state, arrived);
   warnings.push(...neverOpen(never, arrived, badExits));
   warnings.push(...neverWaits(never, arrived));
+}
+
+// A world written under BRIEF.md §7's "Animation" (some picture's shot has a "moves:" part): the warnings added since are only for such worlds,
+// the earlier ones would each be warned of many things.
+const plannedWorld = (state) => [...Object.values(state.world.rooms).map(r => r?.picture), ...Object.values(state.pictures || {}).map(p => p?.picture)]
+  .some(p => /moves:/i.test(typeof p?.shot === "string" ? p.shot : ""));
+
+// Every thing that can be taken is marked ({name} or {label|id}) in some text the player meets (BRIEF.md §4, "Say only what the game knows"): its room's
+// text, its own `here`, the examine or open text of what holds it, the line of whoever gives it. A thing in a container is listed, marked, by the container's
+// own "Inside:" line when it is opened; one carried from the start is known already. A warning naming a portable thing no text marks.
+function markedThingWarnings(state, pack) {
+  if (!plannedWorld(state)) return [];   // (gated: the earlier worlds would get 5 + 3 + 1 + 1)
+  const fold = (x) => normalise(String(x), pack.words.grammar), ids = new Set(), words = new Set();
+  for (const { text, pack: fromPack } of worldTexts(state, pack)) {
+    if (fromPack) continue;
+    for (const m of String(text).matchAll(/\{([^|}]+)(?:\|([^}]+))?\}/g)) { if (m[2]) ids.add(m[2].trim()); else words.add(fold(m[1])); }
+  }
+  const out = [];
+  for (const [id, o] of Object.entries(state.world.objects)) {
+    if (o.portable !== true || o.at === "player" || state.world.objects[o.at]?.container) continue;
+    if (ids.has(id) || [...(o.words?.nouns || []), o.name].filter(Boolean).some(w => words.has(fold(w)))) continue;
+    out.push(`${id}: can be taken, but no text the player meets marks it ({${o.words?.nouns?.[0] ?? id}}): mark it in its room's text, its \`here\` line or the line of whoever gives it, so it can be clicked and is plainly a thing`);
+  }
+  return out;
+}
+
+// A picture change (`{ draw: "<room>", remove: [...] }`) that removes some shapes of a group and leaves others of the same group in the picture:
+// a group is the shapes whose ids share the text before the first "_" ("jag_body", "jag_head": "jag"). A thing that leaves, or is taken, takes all its
+// shapes with it: remove them with the pattern "jag_*" (BRIEF.md §7). A warning naming the shapes left behind.
+function removalWarnings(state) {
+  // (only for a world whose shots plan their motion, like the other picture warnings: the earlier worlds name shapes as they pleased)
+  if (!plannedWorld(state)) return [];
+  const out = [], group = (id) => (typeof id === "string" && id.includes("_") ? id.slice(0, id.indexOf("_")) : null);
+  for (const { effect: e, where } of effectsOf(state)) {
+    if (typeof e.draw !== "string" || !Array.isArray(e.remove)) continue;
+    const ids = (state.world.rooms[e.draw]?.picture?.draw || []).map(x => x?.id).filter(Boolean);
+    const gone = new Set(e.remove.flatMap(r => typeof r === "string" && r.length > 1 && r.endsWith("*") ? ids.filter(i => i.startsWith(r.slice(0, -1))) : [r]));
+    for (const g of new Set([...gone].map(group).filter(Boolean))) {
+      const left = ids.filter(i => group(i) === g && !gone.has(i));
+      if (left.length) out.push(`${where}: removes some of the shapes "${g}_…" from ${e.draw} and leaves ${left.join(", ")}: a thing's shapes all start with its own prefix, and its removal is "${g}_*"`);
+    }
+  }
+  return out;
 }
 
 // A thing a rule or a change adds in play (not in the world yet), as it adds it: { add: "object", id, sprite?, … }.
@@ -628,8 +673,21 @@ function drawingProblems(picture) {
       else if (!(Array.isArray(a) && a.length === 4)) why.push(`${cn}: area ${JSON.stringify(a)} is neither a shape id of the picture, a list of shape ids nor [x, y, width, height]`);
     }
   }
-  if (!why.length) why.push(...scrollOverlaps(picture));
+  if (!why.length) why.push(...scrollOverlaps(picture), ...emptyAreas(picture));
   why.push(...loopProblems(picture.loops));
+  return why;
+}
+
+// A cycle's area (a shape's id, or an id in a group) that paints nothing: every pixel of the shape is covered by shapes drawn after it, so the
+// cycle has nothing of it to move (a glint under a later wall). A problem, naming the cycle and the area: draw the shape later, or point the cycle at one that shows.
+function emptyAreas(picture) {
+  const cycles = picture.cycles || [];
+  if (!cycles.length) return [];
+  let areas;
+  try { ({ areas } = paintPicture(picture.draw)); } catch { return []; }
+  const why = [];
+  for (const c of cycles) for (const a of (c.areas || []).flat())
+    if (typeof a === "string" && !areas[a]?.length) why.push(`cycle "${c.name ?? "?"}": its area "${a}" paints nothing (later shapes cover all of it), so the cycle has nothing of it to move`);
   return why;
 }
 
@@ -678,11 +736,21 @@ export function motionWarnings(picture) {
 // The warnings for the world's pictures, a room's and an ending's, with the names the problems use. Only for a world whose shots plan their
 // motion (some picture's shot has a "moves:" part: a world written under BRIEF.md §7's "Animation"): the repo's earlier worlds draw some motion
 // and plan none, and would each be warned of every picture.
-function pictureWarnings(state) {
+function pictureWarnings(state, bible) {
   const all = [...Object.entries(state.world.rooms).map(([id, r]) => [`rooms/${id}`, r?.picture]), ...Object.entries(state.pictures || {}).map(([id, p]) => [`pictures/${id}`, p?.picture])]
     .filter(([, pic]) => pic && typeof pic === "object");
   if (!all.some(([, pic]) => /moves:/i.test(typeof pic.shot === "string" ? pic.shot : ""))) return [];
-  return all.flatMap(([name, pic]) => motionWarnings(pic).map(why => `${name}: ${why}`));
+  return all.flatMap(([name, pic]) => [...motionWarnings(pic), ...shapeWarnings(pic, bible?.style ?? (bible ? "dithered" : null))].map(why => `${name}: ${why}`));
+}
+
+// A picture with fewer shapes than its style's lowest (art.draw.ranges: dithered 60, flat 120; the haze modifier, named in the shot next to the palette
+// ("goldenhour, haze"), its own: dithered 30, flat 80): never a problem. The style is the bible's (none: dithered); with no bible there is none to read.
+export function shapeWarnings(picture, style) {
+  const ranges = art.draw.ranges, n = Array.isArray(picture.draw) ? picture.draw.length : 0;
+  if (!ranges[style] || !n) return [];
+  const haze = /(?:^|;)\s*[a-z]+\s*,\s*haze\s*(?=[;,.]|$)/i.test(typeof picture.shot === "string" ? picture.shot : "");
+  const [lo, hi] = haze ? ranges.haze[style] : ranges[style];
+  return n < lo ? [`has ${n} shapes, fewer than the ${haze ? "haze " : ""}${style} style's ${lo} (${lo}-${hi}): add detail by the style's own rules (materials, marks, dressing the shot names), never padding`] : [];
 }
 
 // What is wrong with a picture's `loops` (small animated sprites: ART-DIRECTION.md §6.3): at most art.effects.loops.max, each with a name,
@@ -1222,16 +1290,10 @@ function answeredByWorld(state, there, v, word, scenery, pack) {
   });
 }
 
-// ---- Words of the other region ----------------------------------------------------------------------------------------------
-// A pack may list the words of one region of its language to avoid, with the one to prefer (`words.regional: { avoid: [word…],
-// prefer: { word: the other } }`: Spanish from Spain avoids Latin American words, "carro" for "coche"). Every text a world is
-// written in (what it says, the names and labels shown, the descriptions for screen readers, the card's title and blurb) is read
-// word by word, folded like the pack's own words; a hit is a warning naming the word, where, and the word to say instead. Only the
-// game's own text: what the player types is understood either way, and a world's word lists keep both forms.
-function regionalWarnings(state, pack, bible) {
-  const r = pack.words.regional, g = pack.words.grammar || {}, norm = (x) => normalise(String(x), g);
-  const avoid = new Map((r.avoid || []).map(w => [norm(w), w])), prefer = Object.fromEntries(Object.entries(r.prefer || {}).map(([k, v]) => [norm(k), v]));
-  const shown = [];                                   // names, labels and descriptions: what is shown but isn't one of the texts above
+// What the player is shown that isn't one of the texts of `worldTexts`: names, labels and descriptions (`alt`, `overlayAlt`), the endings'
+// alts and the bible's title and blurb: [{ where, field, text }].
+function shownTexts(state, bible) {
+  const shown = [];
   const SKIP = new Set(["picture", "draw", "words", "mentions", "sprite", "floorSprite", "if", "match", "id", "solve"]);
   const walk = (node, where, field, text) => {
     if (typeof node === "string") { if (text) shown.push({ where, field, text: node }); return; }
@@ -1243,6 +1305,32 @@ function regionalWarnings(state, pack, bible) {
   for (const [id, x] of Object.entries(state.world.objects)) walk(x, id, "", false);
   for (const [id, x] of Object.entries(state.pictures || {})) walk({ alt: x?.alt }, "pictures/" + id, "", false);
   for (const k of ["title", "blurb"]) if (typeof bible?.[k] === "string") shown.push({ where: "bible", field: k, text: bible[k] });
+  return shown;
+}
+
+// The narrator states and never hedges (BRIEF.md §6, "The voice"): English text with one of these words is a problem, naming the text and the word.
+export const HEDGES = ["seems to", "apparently", "perhaps"];
+function hedgeProblems(state, pack, bible) {
+  if (state.lang !== "en") return [];
+  const out = [], seen = new Set(), re = new RegExp(`(?<![\\p{L}])(${HEDGES.join("|")})(?![\\p{L}])`, "iu");
+  for (const { where, field, text, pack: fromPack } of [...worldTexts(state, pack), ...shownTexts(state, bible)]) {
+    const m = !fromPack && re.exec(unmarked(text));
+    const line = m && `${where} (${field}): hedges with "${m[1].toLowerCase()}" in "${text.length > 70 ? text.slice(0, 70) + "…" : text}": the narrator states and never hedges (BRIEF.md §6)`;
+    if (line && !seen.has(line)) { seen.add(line); out.push(line); }
+  }
+  return out;
+}
+
+// ---- Words of the other region ----------------------------------------------------------------------------------------------
+// A pack may list the words of one region of its language to avoid, with the one to prefer (`words.regional: { avoid: [word…],
+// prefer: { word: the other } }`: Spanish from Spain avoids Latin American words, "carro" for "coche"). Every text a world is
+// written in (what it says, the names and labels shown, the descriptions for screen readers, the card's title and blurb) is read
+// word by word, folded like the pack's own words; a hit is a warning naming the word, where, and the word to say instead. Only the
+// game's own text: what the player types is understood either way, and a world's word lists keep both forms.
+function regionalWarnings(state, pack, bible) {
+  const r = pack.words.regional, g = pack.words.grammar || {}, norm = (x) => normalise(String(x), g);
+  const avoid = new Map((r.avoid || []).map(w => [norm(w), w])), prefer = Object.fromEntries(Object.entries(r.prefer || {}).map(([k, v]) => [norm(k), v]));
+  const shown = shownTexts(state, bible);            // names, labels and descriptions: what is shown but isn't one of the texts above
   const out = [], seen = new Set();
   for (const { where, field, text, pack: fromPack } of [...worldTexts(state, pack), ...shown]) {
     if (fromPack) continue;
@@ -1488,13 +1576,16 @@ export function checkOpening(state, pack) {
       .flatMap(([rid, r]) => (r.scenery || []).map(x => ({ id: null, owner: rid, label: `the scenery "${x.name ?? x.words?.[0]}" of room "${rid}" (scenery)`, words: fold(x.words) })))];
   const MAIN = [["hints", H], ["intro", I], ["way", W]], clash = new Set();
   const name = (id) => `the ${MAIN.find(([, x]) => x === id)[0]} thing "${id}" (${kindOf(id)})`;
-  const report = (w, x, y, text) => {
+  const report = (w, x, y, text, why = "") => {
     const key = [w, x, y].sort().join("|");
-    if (!clash.has(key)) { clash.add(key); problems.push(`"${w}" names two things${text}: ${x} and ${y}; rename one of them, so each thing has its own word`); }
+    if (!clash.has(key)) { clash.add(key); problems.push(`"${w}" names two things${text}: ${x} and ${y}; rename one of them, so each thing has its own word${why}`); }
   };
+  const CLAIMS = { hints: "the hints thing's words are claimed against every other thing and scenery in the world, not only those in the opening room",
+    intro: "the intro's words are claimed against every other thing and scenery in the world, not only those in the opening room",
+    way: "the way on's words are claimed against everything else in its own room" };
   for (const [k, id] of MAIN)                                          // a word of one of the three: nothing else answers to it
     for (const w of fold(objects[id].words.nouns)) for (const x of things(k === "way"))
-      if (!(x.id === id) && x.words.includes(w)) report(w, name(id), x.label, "");
+      if (!(x.id === id) && x.words.includes(w)) report(w, name(id), x.label, "", ` (${CLAIMS[k]})`);
   const inside = things(true).filter(x => !MAIN.some(([, id]) => x.id === id));   // the others: their parts, the room's scenery, the rest
   for (let a = 0; a < inside.length; a++) for (let b = a + 1; b < inside.length; b++)
     for (const w of inside[a].words) if (inside[b].words.includes(w)) report(w, inside[a].label, inside[b].label, " in the opening");
@@ -1507,8 +1598,8 @@ export function checkOpening(state, pack) {
 // command is typed through the parser and the engine. Returns { state, refused: [reasons], error } (error: not understood).
 
 // The shortest walk between two rooms by exits that lead to rooms (a shut one counts when waiting for its hour opens
-// it): a list of directions, or null.
-export function route(state, from, to) {
+// it; with `locks`, a way shut by a locked thing counts too, the player unlocking it on the way: see lockOn): a list of directions, or null.
+export function route(state, from, to, { locks = false } = {}) {
   const seen = new Set([from]), queue = [[from, []]];
   while (queue.length) {
     const [room, path] = queue.shift();
@@ -1516,9 +1607,17 @@ export function route(state, from, to) {
     for (const [dir, raw] of Object.entries(state.world.rooms[room].exits || {})) {
       const next = exitTo(raw);
       if (typeof next !== "string" || seen.has(next) || !state.world.rooms[next]) continue;
-      if (!exitNow(state, room, dir).go && !opensByWaiting(state, room, dir)) continue;   // shut, and waiting won't open it
+      if (!exitNow(state, room, dir).go && !opensByWaiting(state, room, dir) && !(locks && lockOn(state, room, dir))) continue;   // shut, and waiting won't open it
       seen.add(next); queue.push([next, [...path, dir]]);
     }
   }
+  return null;
+}
+
+// The locked thing that shuts a way (its `door` or `leads` that way, `locked: true`) and has a key to open it (`lock.key`), as { id, key }; else null.
+// This is the engine's own property (js/engine.js, lockedWay and unlock): the planner follows it, so a world needs no puzzle to say "take the key".
+export function lockOn(state, room, dir) {
+  for (const [id, o] of Object.entries(state.world.objects))
+    if (o.at === room && o.locked === true && waysOf(o).includes(dir) && typeof o.lock?.key === "string" && state.world.objects[o.lock.key]) return { id, key: o.lock.key };
   return null;
 }

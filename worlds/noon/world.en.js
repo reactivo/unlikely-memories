@@ -281,9 +281,9 @@ const objects = {
     words: { nouns: ["canoe", "boat", "dugout"], adj: [] },
     enter: "You step into the canoe. It settles, and points both ways at once.",
     examine: "A dugout, black with use, pointed at both ends so that it never has to decide which way it is going. The gunwale is worn pale in two places, one for each direction." },
-  crate: { at: "landing", container: true, open: true, material: "wood", name: "Crate", note: "The Society's stores.",
+  crate: { at: "landing", container: true, material: "wood", name: "Crate", note: "The Society's stores.",
     words: { nouns: ["crate", "box", "case"], adj: ["society's", "packing"] },
-    examine: "A packing crate stencilled STORES - THIS WAY UP, lying on its side, so that the stencil is hopeful. The lid is not nailed. A list pasted inside would say hooks, salt and soap, in that order of use." },
+    examine: "A packing crate stencilled STORES - THIS WAY UP, lying on its side, so that the stencil is hopeful. The lid is not nailed. A list pasted inside says {hooks} and {salt}, in that order of use." },
   hooks: { at: "crate", portable: true, material: "metal", name: "Fishhooks", note: "Brass, forty of them.",
     words: { nouns: ["hooks", "hook", "fishhooks"], adj: ["brass", "fish"] },
     examine: "Forty brass fishhooks in oiled paper, the kind the Society sends to people who have fish. Brass, in this valley, is better than bone, and everyone knows it.",
@@ -395,18 +395,18 @@ const objects = {
 // ---- Puzzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
   get_paddle: { where: "village", needs: ["hooks"], solve: ["ask kito for paddle"], gives: ["paddle"], clues: ["hooks", "kito", "crate"],
-    hints: ["The man at the next house makes paddles, and wants something from the Society's crate.", "Take the hooks from the crate on the landing, and ask Kito for a paddle."] },
+    hints: ["The man at the next house makes paddles, and wants something from the Society's crate.", "Open the crate on the landing, take the hooks, and ask Kito for a paddle."] },
   get_shell: { where: "village", needs: ["salt"], solve: ["ask ennu for shell"], gives: ["shell"], clues: ["salt", "ennu", "crate"],
-    hints: ["Ennu counts guests in the good salt from your crate.", "Take the salt from the crate and ask Ennu for a shell."] },
+    hints: ["Ennu counts guests in the good salt from your crate.", "Open the crate, take the salt, and ask Ennu for a shell."] },
   get_clapper: { where: "fig", needs: ["fish"], solve: ["give fish to jaguar", "take clapper"], gives: ["clapper"], clues: ["fish", "jaguar", "ennu", "kito"],
     hints: ["The cat in the fig is thin, and the stone beside her is not hers.", "Give the fish from the landing to the jaguar, and take the stone tongue when she has gone."] },
   ride: { where: "landing", needs: ["paddle"], time: "next 12:00", solve: ["enter canoe", "paddle"], reaches: "steps", clues: ["canoe", "post", "ennu", "noon_landing"],
     hints: ["The river runs up the valley for an hour after noon, and carries what floats on it.", "With a paddle in hand, wait for noon on the landing, get into the canoe and paddle."] },
   open_gate: { where: "steps", needs: ["shell"], solve: ["unlock gate with shell", "go north"], reaches: "court", clues: ["gate", "shell", "ennu"],
     hints: ["The frog's mouth has a notch at its lip, the shape of something the river gave.", "Unlock the gate with the shell, and go north."] },
-  ring_bell: { where: "chamber", needs: ["clapper", "shell"], time: "next 12:00", solve: ["put clapper in bell", "ring bell"], ending: true, clues: ["frieze", "bell", "ennu"],
+  ring_bell: { where: "chamber", needs: ["clapper"], time: "next 12:00", solve: ["put clapper in bell", "ring bell"], ending: true, clues: ["frieze", "bell", "ennu"],
     hints: ["The frieze in the court shows what the bell wants, and when.", "Put the stone tongue in the bell, and ring it at noon."] },
-  carry_off: { where: "chamber", needs: ["shell"], solve: ["take bell"], ending: true, clues: ["bell", "frieze"],
+  carry_off: { where: "chamber", needs: [], solve: ["take bell"], ending: true, clues: ["bell", "frieze"],
     hints: ["The bell is gold, and hangs by a hook.", "Take the bell."] },
   fell: { where: "gorge", needs: [], solve: ["go east"], ending: true, clues: ["bridge", "kito"],
     hints: ["The bridge is old, and the planks are grey as bone.", "Go east, over the bridge."] }
@@ -418,7 +418,7 @@ const changes = {
     { set: "fig.fed", to: true },
     { remove: "object", id: "fish" },
     { remove: "object", id: "jaguar" },
-    { draw: "fig", remove: ["jag_body", "jag_head", "jag_tail", "jag_spots", "jag_eye", "jag_legs", "jag_shade"] },
+    { draw: "fig", remove: ["jag_*"] },
     { set: "fig.describe", to: [
       "A strangler fig has taken a dead tree and kept its shape. The roots make rooms, and in the largest the air is warm and smells of cat, though the cat has gone down to the water.",
       "The lowest limb lies bare and flattened where she lay. The trail is south."

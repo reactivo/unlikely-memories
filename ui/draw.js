@@ -8,6 +8,9 @@ import { paint, paintPicture, threshold, lit } from "../js/paint.js";
 export { paint, paintPicture, threshold, lit };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].
+// Where a game's picture is kept (ui/scene.js): the world's id, then the room (or "ending:<name>"). A room id is only unique inside its
+// world, so the world's id is part of the key; the picture's version follows it ("sea/dunes#1").
+export const pictureKey = (worldId, where, version) => `${worldId ?? ""}/${where}#${version}`;
 export const rgbOf = (hex) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
 
 // Each palette number's colour as [r, g, b], for putting a grid of palette numbers on a canvas (the scene, the thumbnails).

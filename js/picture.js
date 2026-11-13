@@ -146,7 +146,7 @@ export function readPicture(picture) {
   return problems.length ? problems.join("; ") : { version: 1, ...picture, draw: shapes };
 }
 
-// A picture with edits applied: shapes removed, replaced or restyled (new colours, same place) by id, shapes added (at the end, or `after` a shape's
+// A picture with edits applied: shapes removed (by id, or a prefix pattern "jag_*"), replaced or restyled (new colours, same place) by id, shapes added (at the end, or `after` a shape's
 // id), cycles, overlays and loops replaced when given. Returns the new picture (version + 1) or the reason it can't.
 export function editPicture(picture, e) {
   // Shapes to add or replace can be written in the short notation: a line each, or all in one string.
@@ -160,7 +160,12 @@ export function editPicture(picture, e) {
   } catch (err) { return err.message; }
   let draw = picture.draw.map(x => x);
   const has = (id) => draw.some(x => x.id === id);
-  for (const id of e.remove || []) { if (!has(id)) return "no such shape: " + id; draw = draw.filter(x => x.id !== id); }
+  // `remove` takes shape ids, or a prefix pattern ("jag_*": every shape whose id starts with "jag_"; it must match at least one)
+  for (const id of e.remove || []) {
+    const prefix = typeof id === "string" && id.length > 1 && id.endsWith("*") ? id.slice(0, -1) : null;
+    if (prefix !== null ? !draw.some(x => typeof x.id === "string" && x.id.startsWith(prefix)) : !has(id)) return "no such shape: " + id;
+    draw = draw.filter(x => prefix !== null ? !(typeof x.id === "string" && x.id.startsWith(prefix)) : x.id !== id);
+  }
   for (const shape of e.replace || []) {
     if (!has(shape.id)) return "no such shape: " + shape.id;
     draw = draw.map(x => (x.id === shape.id ? shape : x));
