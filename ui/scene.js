@@ -8,15 +8,15 @@
 // is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
-import art from "../content/art.js?v=0.48.0";
-import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js?v=0.48.0";
-import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.48.0";
-import { mount as mountSleep } from "./sleep.js?v=0.48.0";
-import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.48.0";
-import { transition, ROOM, ENDING } from "./transitions.js?v=0.48.0";
-import { text } from "../js/narrator.js?v=0.48.0";                  // "@key" → the pack's text, dotted keys too, as the story says it
-import { reducedMotion, calm } from "./media.js?v=0.48.0";
-import { screen } from "./crt.js?v=0.48.0";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import art from "../content/art.js?v=0.48.1";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js?v=0.48.1";
+import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.48.1";
+import { mount as mountSleep } from "./sleep.js?v=0.48.1";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.48.1";
+import { transition, ROOM, ENDING } from "./transitions.js?v=0.48.1";
+import { text } from "../js/narrator.js?v=0.48.1";                  // "@key" → the pack's text, dotted keys too, as the story says it
+import { reducedMotion, calm } from "./media.js?v=0.48.1";
+import { screen } from "./crt.js?v=0.48.1";                      // the CRT look, drawn over the finished picture (ui/crt.js)
 
 const W = art.picture.width, H = art.picture.height;
 

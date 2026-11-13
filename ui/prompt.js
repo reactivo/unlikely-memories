@@ -4,8 +4,8 @@
 // room's description has appeared; it steps aside while you type, and goes with your command. After two minutes with
 // no command and nothing typed (IDLE_HINT), it fades in again.
 
-import { makeHistory } from "./history.js?v=0.48.0";
-import { touch } from "./media.js?v=0.48.0";
+import { makeHistory } from "./history.js?v=0.48.1";
+import { touch } from "./media.js?v=0.48.1";
 
 const IDLE_HINT = 120000;   // ms with no command and nothing typed before the hint comes back
 
