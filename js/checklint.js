@@ -6,22 +6,22 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.48.1";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.48.1";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.48.1";
-import { isAction } from "./actions.js?v=0.48.1";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.48.1";
-import { isLine } from "./shapes.js?v=0.48.1";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.48.1";
-import { nextCell } from "./space.js?v=0.48.1";
-import { moveTo, worldTime, parts } from "./time.js?v=0.48.1";
-import * as opening from "./opening.js?v=0.48.1";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.48.1";
-import art from "../content/art.js?v=0.48.1";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.48.1";
-import { paintPicture } from "./paint.js?v=0.48.1";
-import { filterProblem } from "./filters.js?v=0.48.1";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.48.1";
+import { parse, normalise } from "./parser.js?v=0.48.2";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.48.2";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.48.2";
+import { isAction } from "./actions.js?v=0.48.2";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.48.2";
+import { isLine } from "./shapes.js?v=0.48.2";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.48.2";
+import { nextCell } from "./space.js?v=0.48.2";
+import { moveTo, worldTime, parts } from "./time.js?v=0.48.2";
+import * as opening from "./opening.js?v=0.48.2";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.48.2";
+import art from "../content/art.js?v=0.48.2";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.48.2";
+import { paintPicture } from "./paint.js?v=0.48.2";
+import { filterProblem } from "./filters.js?v=0.48.2";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.48.2";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -754,7 +754,7 @@ function pictureWarnings(state, bible) {
   return all.flatMap(([name, pic]) => [...motionWarnings(pic), ...shapeWarnings(pic, bible?.style ?? (bible ? "dithered" : null))].map(why => `${name}: ${why}`));
 }
 
-// A picture with fewer shapes than its style's lowest (art.draw.ranges: dithered 60, flat 120; the haze modifier, named in the shot next to the palette
+// A picture with fewer shapes than its style's lowest (art.draw.ranges: dithered 60, flat 100; the haze modifier, named in the shot next to the palette
 // ("goldenhour, haze"), its own: dithered 30, flat 80): never a problem. The style is the bible's (none: dithered); with no bible there is none to read.
 export function shapeWarnings(picture, style) {
   const ranges = art.draw.ranges, n = Array.isArray(picture.draw) ? picture.draw.length : 0;

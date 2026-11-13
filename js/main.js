@@ -3,39 +3,39 @@
 // Also the session: undo, oops, saving and loading (js/saves.js), and which view the page shows: the list of games (no hash) or one
 // world (#<id>, js/route.js). Never touches the page (that's ui/).
 
-import en from "../content/en.js?v=0.48.1";
-import es from "../content/es.js?v=0.48.1";
-import { newState, FORMAT } from "./state.js?v=0.48.1";
-import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.48.1";
-import { parse, retype } from "./parser.js?v=0.48.1";
-import { inScope } from "./place.js?v=0.48.1";
-import { tell, describe, text, listName, placeName, joined } from "./narrator.js?v=0.48.1";
-import { parts, hhmm } from "./time.js?v=0.48.1";
-import * as saves from "./saves.js?v=0.48.1";
-import { suggestion, topicsLine, story } from "./view.js?v=0.48.1";
-import { walk, tripWords } from "./map.js?v=0.48.1";
-import { createClock } from "./clock.js?v=0.48.1";
-import { routeOf, hashOf } from "./route.js?v=0.48.1";
-import { listFor, thumbnailFor } from "../worlds/index.js?v=0.48.1";
-import { load, store } from "./prefs.js?v=0.48.1";
-import { examineSVG } from "../ui/sprite.js?v=0.48.1";
-import * as titlebar from "../ui/titlebar.js?v=0.48.1";
-import * as scene from "../ui/scene.js?v=0.48.1";
-import * as crop from "../ui/crop.js?v=0.48.1";
-import * as log from "../ui/log.js?v=0.48.1";
-import * as prompt from "../ui/prompt.js?v=0.48.1";
-import * as compass from "../ui/compass.js?v=0.48.1";
-import * as inventory from "../ui/inventory.js?v=0.48.1";
-import * as options from "../ui/options.js?v=0.48.1";
-import * as soundpanel from "../ui/soundpanel.js?v=0.48.1";
-import * as map from "../ui/map.js?v=0.48.1";
-import * as page from "../ui/page.js?v=0.48.1";
-import * as tools from "../ui/tools.js?v=0.48.1";
-import * as tabs from "../ui/tabs.js?v=0.48.1";
-import * as keys from "../ui/keys.js?v=0.48.1";
-import * as home from "../ui/home.js?v=0.48.1";
-import * as crt from "../ui/crt.js?v=0.48.1";
-import * as sound from "../ui/sound.js?v=0.48.1";
+import en from "../content/en.js?v=0.48.2";
+import es from "../content/es.js?v=0.48.2";
+import { newState, FORMAT } from "./state.js?v=0.48.2";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.48.2";
+import { parse, retype } from "./parser.js?v=0.48.2";
+import { inScope } from "./place.js?v=0.48.2";
+import { tell, describe, text, listName, placeName, joined } from "./narrator.js?v=0.48.2";
+import { parts, hhmm } from "./time.js?v=0.48.2";
+import * as saves from "./saves.js?v=0.48.2";
+import { suggestion, topicsLine, story } from "./view.js?v=0.48.2";
+import { walk, tripWords } from "./map.js?v=0.48.2";
+import { createClock } from "./clock.js?v=0.48.2";
+import { routeOf, hashOf } from "./route.js?v=0.48.2";
+import { listFor, thumbnailFor } from "../worlds/index.js?v=0.48.2";
+import { load, store } from "./prefs.js?v=0.48.2";
+import { examineSVG } from "../ui/sprite.js?v=0.48.2";
+import * as titlebar from "../ui/titlebar.js?v=0.48.2";
+import * as scene from "../ui/scene.js?v=0.48.2";
+import * as crop from "../ui/crop.js?v=0.48.2";
+import * as log from "../ui/log.js?v=0.48.2";
+import * as prompt from "../ui/prompt.js?v=0.48.2";
+import * as compass from "../ui/compass.js?v=0.48.2";
+import * as inventory from "../ui/inventory.js?v=0.48.2";
+import * as options from "../ui/options.js?v=0.48.2";
+import * as soundpanel from "../ui/soundpanel.js?v=0.48.2";
+import * as map from "../ui/map.js?v=0.48.2";
+import * as page from "../ui/page.js?v=0.48.2";
+import * as tools from "../ui/tools.js?v=0.48.2";
+import * as tabs from "../ui/tabs.js?v=0.48.2";
+import * as keys from "../ui/keys.js?v=0.48.2";
+import * as home from "../ui/home.js?v=0.48.2";
+import * as crt from "../ui/crt.js?v=0.48.2";
+import * as sound from "../ui/sound.js?v=0.48.2";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -662,7 +662,7 @@ if (DEBUG_PANEL) {
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js?v=0.48.1"), import("./debug.js?v=0.48.1")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.48.2"), import("./debug.js?v=0.48.2")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on

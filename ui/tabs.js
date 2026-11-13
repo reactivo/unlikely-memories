@@ -5,7 +5,7 @@
 //   - closes the panel when you pick something in it (an open exit, an item);
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
-import { wide } from "./media.js?v=0.48.1";
+import { wide } from "./media.js?v=0.48.2";
 
 const anchored = CSS.supports("anchor-name: --a");   // tabs.css hangs the panels from their tabs itself
 

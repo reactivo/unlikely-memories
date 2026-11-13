@@ -5,10 +5,10 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.48.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.48.1";
-import levels from "./levels.js?v=0.48.1";
-import sprites from "./sprites.js?v=0.48.1";
+import pictures, { endings } from "./pictures.js?v=0.48.2";
+import music, { rooms as roomMusic } from "./music.js?v=0.48.2";
+import levels from "./levels.js?v=0.48.2";
+import sprites from "./sprites.js?v=0.48.2";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.

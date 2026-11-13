@@ -5,10 +5,10 @@
 // `start()` begins a sleep, `advance(now)` moves it on each frame while it `playing()`, `frame(pic, now)` draws it over a frame.
 // Purely visual: never the game's state; the specks' randomness is a hash of the pixel, so a sleep draws the same each time.
 
-import art from "../content/art.js?v=0.48.1";
-import { threshold } from "./draw.js?v=0.48.1";
-import { hash } from "./effects.js?v=0.48.1";
-import { calm } from "./media.js?v=0.48.1";
+import art from "../content/art.js?v=0.48.2";
+import { threshold } from "./draw.js?v=0.48.2";
+import { hash } from "./effects.js?v=0.48.2";
+import { calm } from "./media.js?v=0.48.2";
 
 // Set up the sleep on the scene's picture (W × H palette numbers): `base(worldId, id, picture)` paints a picture (a vision's), `animate()` asks
 // for the next frame, `render(now)` draws one, `hold(colour)` makes the dark the picture (a sleep you don't wake from).

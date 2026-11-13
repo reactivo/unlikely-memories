@@ -1,8 +1,8 @@
 // Sprites: turns a thing's pixel art into crisp inline SVG. A world's things carry their own sprites (`sprite`: rows of
 // palette numbers in hex, 0–f, "." = clear), which is how the AI writes them (ART-DIRECTION.md §3).
 
-import art from "../content/art.js?v=0.48.1";
-import { HEX_INDEX } from "./draw.js?v=0.48.1";
+import art from "../content/art.js?v=0.48.2";
+import { HEX_INDEX } from "./draw.js?v=0.48.2";
 
 // A thing's sprite as SVG, for the inventory and beside its description in the story: one 1×1 square per coloured pixel
 // ("." and unknown characters are left empty). Null if it has none.

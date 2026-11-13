@@ -1,7 +1,7 @@
 // Title bar: the place name, and the world's time ("Day 1 / 17:15:00": play time plus however far the story has
 // moved it, js/time.js; a new day at midnight).
 
-import { placeName } from "../js/narrator.js?v=0.48.1";
+import { placeName } from "../js/narrator.js?v=0.48.2";
 
 // Set up the title bar on its element. Returns update() and showClock().
 export function mount(root) {
