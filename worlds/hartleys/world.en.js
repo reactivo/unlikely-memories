@@ -270,7 +270,7 @@ const objects = {
     words: { nouns: ["door", "doors"], adj: ["revolving", "front", "turning"] },
     examine: "Four leaves of mahogany and bevelled panes, turning slowly. Through it, the arcade is the colour of tea.",
     push: "You push. The door turns you all the way round and sets you down inside again, a little more politely than before. Hartley's doesn't let its customers go without something." },
-  gage: { at: "front_hall", name: "Mr Gage", note: "The floorwalker.",
+  gage: { portrait: sprites.gage_portrait, at: "front_hall", name: "Mr Gage", note: "The floorwalker.",
     words: { nouns: ["gage", "floorwalker", "man", "carnation"], adj: ["mr", "mister"], proper: true },
     examine: "A tall man in a morning coat with a carnation that has been fresh for thirty years. He looks at you the way he looks at stock.",
     talk: ["\"Is madam being served?\" he says, and then, looking again, \"Is sir?\" He settles on neither. \"Everything has a price at Hartley's. Do look around.\"", "\"We close at six,\" he says. \"We have never quite managed to be closed.\""],
@@ -283,7 +283,7 @@ const objects = {
     } },
 
   // Perfumery
-  corre: { at: "perfumery", name: "Madame Corre", note: "Perfumer. White gloves.",
+  corre: { portrait: sprites.corre_portrait, at: "perfumery", name: "Madame Corre", note: "Perfumer. White gloves.",
     words: { nouns: ["corre", "perfumer", "woman", "madame"], adj: ["madame"], proper: true },
     examine: "A tall woman with her hair up like a question. Her white gloves have never touched anything that didn't want to be touched.",
     parts: [{ words: ["gloves", "hair"], name: "her gloves", says: "White gloves, buttoned at the wrist. She takes them off for nobody." }], mentions: ["gloves"],
@@ -304,7 +304,7 @@ const objects = {
     smell: "Rain, toast, a radio in the next room. You had that afternoon. You had forgotten you had it." },
 
   // Gloves
-  glove: { at: "gloves", name: "Glove", note: "Holding something.", actions: ["Shake glove"],
+  glove: { portrait: sprites.glove_portrait, at: "gloves", name: "Glove", note: "Holding something.", actions: ["Shake glove"],
     words: { nouns: ["glove", "fingers"], adj: ["cream", "lone", "single", "kid"] },
     examine: "A cream kid glove, a left one, with its fingers closed around something. It is warm, like a hand that has just been holding another.",
     take: "It won't be carried. It would rather be held.",
@@ -315,7 +315,7 @@ const objects = {
     examine: "A long brass key with a paper label: ROOF. MENDED. It has been mended so carefully that it's hard to say where." },
 
   // The lift
-  pell: { at: "lift", name: "Mr Pell", note: "The lift man.",
+  pell: { portrait: sprites.pell_portrait, at: "lift", name: "Mr Pell", note: "The lift man.",
     words: { nouns: ["pell", "man", "operator", "liftman", "attendant"], adj: ["mr", "mister", "lift"], proper: true },
     examine: "A small man in a maroon uniform with a stripe down each leg. He has taken the lift up and down for so long he no longer believes in stairs.",
     talk: "\"Fourth floor only,\" says Mr Pell. \"Stairs for the rest. By appointment.\"",
@@ -330,7 +330,7 @@ const objects = {
     pull: "Mr Pell puts his hand over yours, kindly, and takes it off the lever. \"Mine,\" he says." },
 
   // Haberdashery
-  thimble: { at: "haberdashery", name: "Miss Thimble", note: "Measures twice.",
+  thimble: { portrait: sprites.thimble_portrait, at: "haberdashery", name: "Miss Thimble", note: "Measures twice.",
     words: { nouns: ["thimble", "woman", "haberdasher", "assistant"], adj: ["miss"], proper: true },
     examine: "A small woman with a tape measure round her neck and pins along her lapel in order of size.",
     talk: "\"Measure twice, pay once,\" says Miss Thimble. \"Payments go up the tube.\"",
@@ -364,7 +364,7 @@ const objects = {
     words: { nouns: ["sofa", "settee", "couch", "cushions", "dent"], adj: ["deep", "parlour"] },
     examine: "A deep sofa in faded green. The dent in its cushions is the shape of someone sitting with their feet tucked under them, reading.",
     enter: "You sit. The dent fits you nearly, the way a borrowed coat fits. From here the store sounds very far away." },
-  dot: { at: "tea_room", name: "Dot", note: "The waitress.",
+  dot: { portrait: sprites.dot_portrait, at: "tea_room", name: "Dot", note: "The waitress.",
     words: { nouns: ["dot", "waitress", "woman"], adj: [], proper: true },
     examine: "A waitress in a black dress and a white cap, with a teapot she has never once put down.",
     talk: "\"Tea?\" says Dot. \"There's always tea.\"",
@@ -388,7 +388,7 @@ const objects = {
             { words: ["ticket"], name: "the ticket on the sleeve", says: "FOURTH FLOOR. PAID FOR IN FULL, BY TUBE. Pinned on, the way they pin a price." }], mentions: ["sleeve", "pocket", "hats", "ticket"] },
 
   // Basement
-  ruth: { at: "basement", name: "Miss Ruth", note: "The cash office.",
+  ruth: { portrait: sprites.ruth_portrait, at: "basement", name: "Miss Ruth", note: "The cash office.",
     words: { nouns: ["ruth", "cashier", "woman", "shape"], adj: ["miss"], proper: true },
     examine: "A shape behind frosted panes, quick and neat, catching canisters as they fall and sending them back up with change.",
     talk: "Miss Ruth can't hear you through the panes. She points, without looking up, at the sign: ALL PAYMENTS BY TUBE.",
@@ -404,7 +404,7 @@ const objects = {
     words: { nouns: ["afternoon", "one"], adj: ["missed", "your", "lamp"] },
     examine: "Soft as an old coat, the colour of a bus window in June. The label says: THE SEA. YOU STAYED IN. It smells of salt and of someone calling your name from the top of a beach.",
     take: "\"Try it on,\" says the fitter, round her pins. \"Afternoons aren't for carrying.\"" },
-  fitter: { at: "fourth_floor", name: "The fitter", note: "Pins in her mouth.",
+  fitter: { portrait: sprites.fitter_portrait, at: "fourth_floor", name: "The fitter", note: "Pins in her mouth.",
     words: { nouns: ["fitter", "woman", "seamstress", "tailor"], adj: [] },
     examine: "A woman in a grey smock with a pincushion on her wrist and a mouthful of pins. She has altered afternoons for every size of regret.",
     talk: "\"Paid for,\" she says, round the pins. \"Try it on. It'll take you in at the waist.\"",

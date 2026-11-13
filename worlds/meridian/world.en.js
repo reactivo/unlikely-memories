@@ -167,7 +167,7 @@ export default {
       sleep: "Not in the Records Office. Mrs Hale would file you under Pending.",
       alt: "A desk and ledgers seen from above, one lamp lit on the desk and a drawer open in its front.",
       picture: pictures.records, music: roomMusic.records },
-    { add: "object", id: "archivist", at: "records", name: "Mrs Hale", note: "Sorting cards.",
+    { add: "object", id: "archivist", portrait: sprites.archivist_portrait, at: "records", name: "Mrs Hale", note: "Sorting cards.",
       words: { nouns: ["mrs", "hale", "archivist"], adj: [], g: "f", proper: true },
       topics: {
         stair_gate: { words: ["gate", "stairs", "override"], open: true,

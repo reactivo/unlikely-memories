@@ -308,7 +308,7 @@ const objects = {
     examine: "Las portezuelas plegables del coche están abiertas a una niebla tan espesa que tiene veta, como el papel. En algún punto de ella, muy lejos, hay un farol encendido, o recordado." },
 
   // Lantern Row
-  pye: { at: "row", name: "Agente Pye", note: "Haciendo su ronda.",
+  pye: { portrait: sprites.pye_portrait, at: "row", name: "Agente Pye", note: "Haciendo su ronda.",
     words: { nouns: ["pye", "agente", "policia", "guardia", "bobby"], adj: ["agente", "policia"], g: "m" },
     examine: "Un agente joven y alto, con capa, con un farol propio y una {libreta|notebook} que sostiene como un devocionario. En la copa del casco se le ha juntado un poco de niebla.",
     parts: [{ words: ["casco", "capa"], name: "su casco", says: "La niebla se ha estancado en la copa. Él no se ha dado cuenta, o es demasiado educado para decirlo." }], mentions: ["casco", "capa"],
@@ -330,7 +330,7 @@ const objects = {
     examine: "Puertas de roble con una cartulina clavada: «Investigación. A. Fenn, farolero. Medianoche». Se abren cuando el tribunal se reúne, y no antes." },
 
   // The Bell
-  cotter: { at: "bell", name: "Señor Cotter", note: "El tabernero.",
+  cotter: { portrait: sprites.cotter_portrait, at: "bell", name: "Señor Cotter", note: "El tabernero.",
     words: { nouns: ["cotter", "tabernero", "posadero", "camarero"], adj: ["señor", "senor"], g: "m" },
     examine: "Un hombre ancho en mangas de camisa y chaleco, que ha oído cada canción de The Bell cantada mal y no ha perdonado ninguna.",
     talk: "«¿Qué te pongo?», dice el señor Cotter. «Cerramos a las once. Después, la calle queda tan quieta que se oye caer una palabra».",
@@ -356,7 +356,7 @@ const objects = {
     examine: "Oscura como el río y más caliente." },
 
   // La tienda de pasteles
-  halloran: { at: "pie_shop", name: "Señora Halloran", note: "Harina hasta los codos.",
+  halloran: { portrait: sprites.halloran_portrait, at: "pie_shop", name: "Señora Halloran", note: "Harina hasta los codos.",
     words: { nouns: ["halloran", "mujer", "pastelera", "panadera"], adj: ["señora", "senora"], g: "f" },
     examine: "Una mujer menuda con gorro blanco y delantal enharinado. Las manos siguen trabajando cuando el resto de ella ha parado.",
     parts: [{ words: ["harina", "delantal", "manos", "gorro"], name: "su delantal", says: "Harina hasta los codos, y en el delantal dos huellas enharinadas de manos, donde ha apretado algo contra él." }], mentions: ["harina", "delantal"],
@@ -380,7 +380,7 @@ const objects = {
     examine: "Un pastel envuelto en papel, demasiado caliente para sostenerlo y demasiado bueno para soltarlo." },
 
   // El tribunal
-  mabbott: { at: "court", name: "Doctor Mabbott", note: "El forense.",
+  mabbott: { portrait: sprites.mabbott_portrait, at: "court", name: "Doctor Mabbott", note: "El forense.",
     words: { nouns: ["mabbott", "forense", "doctor", "juez"], adj: ["doctor", "dr"], g: "m" },
     examine: "Un hombre delgado con abrigo negro, con una pluma detrás de cada oreja y una tercera en la mano. Ha presidido la investigación de cada muerte de la calle desde los tiempos de la vieja Reina, y ha estado de acuerdo con casi todas.",
     parts: [{ words: ["pluma", "plumas", "tinta", "plumilla"], name: "su pluma", says: "De plumilla de acero, y seca. Espera un nombre." }], mentions: ["pluma"],
@@ -398,7 +398,7 @@ const objects = {
     examine: "Un recinto de madera barnizada, con una barandilla gastada hasta quedar clara por las manos de quienes vieron algo. Es exactamente de tu medida." },
 
   // El último farol
-  fenn: { at: "last_lamp", name: "Señor Fenn", note: "Muerto, y de servicio.",
+  fenn: { portrait: sprites.fenn_portrait, at: "last_lamp", name: "Señor Fenn", note: "Muerto, y de servicio.",
     words: { nouns: ["fenn", "farolero", "albert", "hombre", "cuerpo", "difunto", "cadaver"], adj: ["señor", "senor", "muerto", "viejo"], g: "m" },
     examine: "Un hombre menudo con gorra y un abrigo verdoso en las costuras, sentado muy recto en el bordillo con las manos en las rodillas. Lleva una {llave|hut_key} colgada de un cordel al cuello. Está muerto, y sigue de servicio.",
     take: "Pesa más de lo que parece. Lleva mucho tiempo en su puesto.",
@@ -445,7 +445,7 @@ const objects = {
     examine: "Cada farol de cada noche durante cuarenta años, a lápiz. La página de hoy: «Farol uno, encendido. Dos, encendido. Tres, encendido. Visita de Voss, desagradable. Cuatro, encendido», y así hasta once, y luego: «Pastel». Debajo, «Doce», y nada después." },
 
   // La subestación
-  voss: { at: "substation", name: "Señor Voss", note: "La Compañía Eléctrica.",
+  voss: { portrait: sprites.voss_portrait, at: "substation", name: "Señor Voss", note: "La Compañía Eléctrica.",
     words: { nouns: ["voss", "hombre", "compania", "empleado"], adj: ["señor", "senor", "electrica"], g: "m" },
     examine: "Un hombre pulcro de cuello de celuloide y un {sombrero hongo|bowler}, que mira la dínamo como otros hombres miran a sus hijos.",
     talk: "«Voss, de la Compañía Eléctrica», dice, y te tiende una mano que no has pedido. «El lunes la calle se pasa a la electricidad. Querrás preguntarme por Fenn. Todo el mundo lo hace».",
@@ -470,7 +470,7 @@ const objects = {
     examine: "Columnas de cifras y, al pie de la de hoy, con letra pulcra: «Informado F. del lunes, en su tercer farol. Me dio las gracias. Regreso aquí». La palabra «gracias» está subrayada dos veces." },
 
   // La escalera del río
-  pip: { at: "river_steps", name: "Pip", note: "Rebusca en el fango.",
+  pip: { portrait: sprites.pip_portrait, at: "river_steps", name: "Pip", note: "Rebusca en el fango.",
     words: { nouns: ["pip", "niña", "nina", "chica", "rebuscadora"], adj: [], g: "f", proper: true },
     examine: "Una niña de unos diez años con un abrigo de hombre, con barro hasta la rodilla, un {cubo|bucket} de cosas perdidas y un palo para encontrar más.",
     parts: [{ words: ["cubo", "palo", "abrigo"], name: "su cubo", says: "Cucharas, botones, un pomo de puerta, medio par de gafas. Y en el fondo, algo pequeño y pálido que tapa con la mano cuando lo miras." }], mentions: ["palo"],

@@ -270,7 +270,7 @@ const objects = {
     words: { nouns: ["puerta", "puertas"], adj: ["giratoria", "principal", "delantera", "entrada"], g: "f" },
     examine: "Cuatro hojas de caoba y cristales biselados, girando despacio. A través de ellas, el pasaje tiene el color del té.",
     push: "Empujas. La puerta te da la vuelta entera y te deja otra vez dentro, algo más cortésmente que antes. Hartley's no deja marchar a nadie sin quedarse con algo." },
-  gage: { at: "front_hall", name: "Señor Gage", note: "El jefe de planta.",
+  gage: { portrait: sprites.gage_portrait, at: "front_hall", name: "Señor Gage", note: "El jefe de planta.",
     words: { nouns: ["gage", "encargado", "jefe", "hombre", "clavel"], adj: ["señor", "senor", "planta"], g: "m" },
     examine: "Un hombre alto, de chaqué, con un clavel que lleva treinta años fresco. Te mira como mira la mercancía.",
     talk: ["«¿La atienden, señora?», dice, y luego, mirándote otra vez, «¿Y a usted, caballero?». No se decide por ninguno. «Todo tiene su precio en Hartley's. Échele un vistazo».", "«Cerramos a las seis», dice. «Nunca hemos conseguido estar cerrados del todo»."],
@@ -283,7 +283,7 @@ const objects = {
     } },
 
   // Perfumería
-  corre: { at: "perfumery", name: "Madame Corre", note: "Perfumista. Guantes blancos.",
+  corre: { portrait: sprites.corre_portrait, at: "perfumery", name: "Madame Corre", note: "Perfumista. Guantes blancos.",
     words: { nouns: ["corre", "perfumista", "señora", "senora", "madame", "mujer"], adj: ["madame"], g: "f", proper: true },
     examine: "Una mujer alta, con el pelo recogido en lo alto, curvo como una pregunta. Sus guantes blancos nunca han tocado nada que no quisiera ser tocado.",
     parts: [{ words: ["guantes", "guante", "moño", "mono", "pelo"], name: "sus guantes", says: "Guantes blancos, abotonados en la muñeca. No se los quita por nadie." }], mentions: ["guantes"],
@@ -304,7 +304,7 @@ const objects = {
     smell: "Lluvia, tostadas, una radio en la habitación de al lado. Tuviste esa tarde. Habías olvidado que la tenías." },
 
   // Guantería
-  glove: { at: "gloves", name: "Guante", note: "Sujetando algo.", actions: ["Estrechar la mano al guante"],
+  glove: { portrait: sprites.glove_portrait, at: "gloves", name: "Guante", note: "Sujetando algo.", actions: ["Estrechar la mano al guante"],
     words: { nouns: ["guante", "dedos"], adj: ["crema", "solo", "suelto", "cabritilla", "izquierdo", "único", "unico", "solitario"], g: "m" },
     examine: "Un guante de cabritilla color crema, izquierdo, con los dedos cerrados en torno a algo. Está tibio, como una mano que acabara de sostener otra.",
     take: "No se deja llevar. Prefiere que le den la mano.",
@@ -315,7 +315,7 @@ const objects = {
     examine: "Una llave larga de latón con una etiqueta de papel: AZOTEA. ARREGLADA. La han arreglado con tanto cuidado que cuesta decir dónde." },
 
   // El ascensor
-  pell: { at: "lift", name: "Señor Pell", note: "El ascensorista.",
+  pell: { portrait: sprites.pell_portrait, at: "lift", name: "Señor Pell", note: "El ascensorista.",
     words: { nouns: ["pell", "ascensorista", "hombre", "operador", "empleado"], adj: ["señor", "senor", "ascensor"], g: "m" },
     examine: "Un hombrecillo de uniforme granate, con una franja en cada pernera. Ha subido y bajado en el ascensor durante tanto tiempo que ya no cree en las escaleras.",
     talk: "«Solo la cuarta», dice el señor Pell. «Para el resto, escaleras. Con cita previa».",
@@ -330,7 +330,7 @@ const objects = {
     pull: "El señor Pell pone su mano sobre la tuya, con amabilidad, y la aparta de la palanca. «Mía», dice." },
 
   // Mercería
-  thimble: { at: "haberdashery", name: "Señorita Thimble", note: "Mide dos veces.",
+  thimble: { portrait: sprites.thimble_portrait, at: "haberdashery", name: "Señorita Thimble", note: "Mide dos veces.",
     words: { nouns: ["thimble", "dedal", "mercera", "dependienta", "mujer"], adj: ["señorita", "senorita"], g: "f" },
     examine: "Una mujer menuda con un metro al cuello y alfileres en la solapa, por orden de tamaño.",
     talk: "«Se mide dos veces y se paga una», dice la señorita Thimble. «Los pagos suben por el tubo».",
@@ -364,7 +364,7 @@ const objects = {
     words: { nouns: ["sofá", "sofa", "canapé", "canape", "diván", "divan", "cojines", "cojín", "cojin", "hueco"], adj: ["hondo", "verde", "sala", "estar"], g: "m" },
     examine: "Un sofá hondo, de un verde desteñido. El hueco de los cojines tiene la forma de alguien sentado con los pies recogidos, leyendo.",
     enter: "Te sientas. El hueco te sienta casi bien, como un abrigo prestado. Desde aquí la tienda suena muy lejos." },
-  dot: { at: "tea_room", name: "Dot", note: "La camarera.",
+  dot: { portrait: sprites.dot_portrait, at: "tea_room", name: "Dot", note: "La camarera.",
     words: { nouns: ["dot", "camarera", "mujer"], adj: [], g: "f", proper: true },
     examine: "Una camarera de vestido negro y cofia blanca, con una tetera que no ha soltado ni una vez.",
     talk: "«¿Té?», dice Dot. «Siempre hay té».",
@@ -388,7 +388,7 @@ const objects = {
             { words: ["etiqueta", "cartulina", "talón", "talon"], name: "la etiqueta de la manga", says: "CUARTA PLANTA. PAGADO POR COMPLETO, POR TUBO. Prendida como se prende un precio." }], mentions: ["manga", "bolsillo", "sombreros", "etiqueta"] },
 
   // Sótano
-  ruth: { at: "basement", name: "Señorita Ruth", note: "La caja.",
+  ruth: { portrait: sprites.ruth_portrait, at: "basement", name: "Señorita Ruth", note: "La caja.",
     words: { nouns: ["ruth", "cajera", "mujer", "silueta", "sombra"], adj: ["señorita", "senorita"], g: "f" },
     examine: "Una silueta tras los cristales esmerilados, rápida y pulcra, que atrapa las cápsulas al caer y las devuelve hacia arriba con el cambio.",
     talk: "La señorita Ruth no te oye a través de los cristales. Señala, sin levantar la vista, el cartel: TODOS LOS PAGOS POR TUBO.",
@@ -404,7 +404,7 @@ const objects = {
     words: { nouns: ["tarde"], adj: ["perdida", "tuya", "lámpara", "lampara", "mar"], g: "f" },
     examine: "Suave como un abrigo viejo, del color de la ventanilla de un autobús en junio. La etiqueta dice: EL MAR. TE QUEDASTE EN CASA. Huele a sal y a alguien que te llama por tu nombre desde lo alto de una playa.",
     take: "«Pruébesela», dice la modista, entre los alfileres. «Las tardes no se llevan en la mano»." },
-  fitter: { at: "fourth_floor", name: "La modista", note: "Alfileres en la boca.",
+  fitter: { portrait: sprites.fitter_portrait, at: "fourth_floor", name: "La modista", note: "Alfileres en la boca.",
     words: { nouns: ["modista", "costurera", "sastra", "probadora", "mujer"], adj: [], g: "f" },
     examine: "Una mujer con bata gris, un acerico en la muñeca y la boca llena de alfileres. Ha arreglado tardes para todas las tallas de arrepentimiento.",
     talk: "«Pagada», dice, con los alfileres entre los labios. «Pruébesela. Se la meto un poco de cintura».",

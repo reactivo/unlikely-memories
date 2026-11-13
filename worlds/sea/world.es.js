@@ -495,7 +495,7 @@ const objects = {
     push: "Tilín. No viene nadie. Arriba, una puerta se abre y se cierra, con educación.",
     words: { nouns: ["campanilla", "timbre", "campana"], adj: ["laton", "servicio", "mostrador"], g: "f" },
     examine: "Una campanilla de latón para el servicio, pulida por muchas manos." },
-  guests: { at: "dining", name: "Comensales", note: "En el postre desde hace mucho.",
+  guests: { portrait: sprites.guests_portrait, at: "dining", name: "Comensales", note: "En el postre desde hace mucho.",
     topics: {
       postmaster: { words: ["administrador", "correos", "cartas", "paquete", "cartero"], says: "«¿El administrador?», dice una mujer de verde. «No te dará nada sin un nombre. A menos que el mar responda por ti. A veces responde»." },
       lighthouse: { about: "lighthouse_far", words: ["faro", "lampara", "luz"], says: "«El faro», dice un hombre, a nadie. «Mi hermano lo encendió una vez. Quemó su anillo de boda. Ya no recordaba por qué le había importado nunca»." },
@@ -521,7 +521,7 @@ const objects = {
   // vez acariciado, te sigue por el hotel y el pueblo (hasta Correos, donde responde por ti), y te espera si vas más allá; espantado,
   // vuelve a sus vueltas por el hotel. El juego lo mueve, dice cuándo llega y se va, y lo dibuja (una capa en cada uno de los seis
   // dibujos).
-  cat: { at: "lobby", name: "Almirante", note: "El gato del hotel.", actions: ["Acariciar a Almirante"],
+  cat: { portrait: sprites.cat_portrait, at: "lobby", name: "Almirante", note: "El gato del hotel.", actions: ["Acariciar a Almirante"],
     rounds: { rooms: ["lobby", "dining", "hallway"], every: [3, 6], random: true },
     places: [{ at: "player", if: [{ "cat.stroked": true }], within: ["lobby", "dining", "hallway", "promenade", "square", "post_office"] }],
     sprite: sprites.cat, floorSprite: sprites.cat_floor,
@@ -559,7 +559,7 @@ const objects = {
     examine: "Las agujas siguen en las cinco y cuarto. Tras la esfera, un péndulo oscila de todos modos, marcando el tiempo para nadie." },
 
   // Correos
-  postmaster: { at: "post_office", name: "Administrador de Correos", note: "Tras la reja.",
+  postmaster: { portrait: sprites.postmaster_portrait, at: "post_office", name: "Administrador de Correos", note: "Tras la reja.",
     topics: {
       name: { open: true, label: "mi nombre", words: ["nombre", "nombres"], says: "«Los nombres son cosa del mar», dice. «Los devuelve cuando está listo. No antes»." },
       sea: { open: true, words: ["mar", "caracola", "playa"], says: "«El mar sabe de dónde es cada uno», dice. «Escucha detrás de la puerta»." },
@@ -578,7 +578,7 @@ const objects = {
     examine: "Una llavecita de latón en una etiqueta de cartón. En la etiqueta, con tu letra: 7." },
 
   // El café
-  waiter: { at: "cafe", name: "Camarero", note: "Doblando una servilleta.",
+  waiter: { portrait: sprites.waiter_portrait, at: "cafe", name: "Camarero", note: "Doblando una servilleta.",
     topics: {
       lighthouse: { about: "lighthouse_far", words: ["faro", "lampara", "luz"], says: "«Te sentabas ahí, junto a la ventana, y lo mirabas», dice. «Decías que algún día lo encenderías. Lo decías como si fuera una broma»." },
       coffee: { words: ["cafe", "habitual", "azucar", "terron"], says: "«Con un terrón», dice. «Siempre tomabas uno. Luego dejaste de venir, y nadie volvió a tomar azúcar»." },

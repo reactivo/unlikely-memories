@@ -297,7 +297,7 @@ const objects = {
     examine: "The cab's folding doors stand open on a fog so thick it has a grain, like paper. Somewhere in it, very far off, a lamp is lit, or remembered." },
 
   // Lantern Row
-  pye: { at: "row", name: "Constable Pye", note: "On his beat.",
+  pye: { portrait: sprites.pye_portrait, at: "row", name: "Constable Pye", note: "On his beat.",
     words: { nouns: ["pye", "constable", "policeman", "officer", "bobby"], adj: ["constable", "police"], proper: true },
     examine: "A tall young constable in a cape, with a lamp of his own and a {notebook} he holds like a hymn book. His helmet has collected a little fog in its crown.",
     parts: [{ words: ["helmet", "cape"], name: "his helmet", says: "Fog has pooled in the crown of it. He hasn't noticed, or is too polite to." }], mentions: ["helmet", "cape"],
@@ -319,7 +319,7 @@ const objects = {
     examine: "Oak doors with a card pinned to them: \"Inquest. A. Fenn, lamplighter. Midnight.\" They open when the court sits, and not before." },
 
   // The Bell
-  cotter: { at: "bell", name: "Mr Cotter", note: "The landlord.",
+  cotter: { portrait: sprites.cotter_portrait, at: "bell", name: "Mr Cotter", note: "The landlord.",
     words: { nouns: ["cotter", "landlord", "publican", "barman"], adj: ["mr", "mister"], proper: true },
     examine: "A broad man in shirtsleeves and a waistcoat, who has heard every song in the Bell sung wrong and forgiven none of them.",
     talk: "\"What'll it be?\" says Mr Cotter. \"We shut at eleven. After that the Row's so quiet you could hear a word drop.\"",
@@ -345,7 +345,7 @@ const objects = {
     examine: "Dark as the river and warmer." },
 
   // The pie shop
-  halloran: { at: "pie_shop", name: "Mrs Halloran", note: "Flour to the elbow.",
+  halloran: { portrait: sprites.halloran_portrait, at: "pie_shop", name: "Mrs Halloran", note: "Flour to the elbow.",
     words: { nouns: ["halloran", "woman", "baker", "piewoman"], adj: ["mrs", "missus"], proper: true },
     examine: "A small woman in a white cap and a floury apron. Her hands keep working when the rest of her has stopped.",
     parts: [{ words: ["flour", "apron", "hands", "cap"], name: "her apron", says: "Flour to the elbow, and on the apron, two floury handprints, where she has held something against it." }], mentions: ["flour", "apron"],
@@ -369,7 +369,7 @@ const objects = {
     examine: "A pie in a paper, too hot to hold and too good to put down." },
 
   // The court
-  mabbott: { at: "court", name: "Dr Mabbott", note: "The coroner.",
+  mabbott: { portrait: sprites.mabbott_portrait, at: "court", name: "Dr Mabbott", note: "The coroner.",
     words: { nouns: ["mabbott", "coroner", "doctor"], adj: ["dr", "doctor"], proper: true },
     examine: "A thin man in a black coat, with a pen behind each ear and a third in his hand. He has held an inquest on every death on the Row since the old Queen, and agreed with most of them.",
     parts: [{ words: ["pen", "pens", "ink"], name: "his pen", says: "Steel-nibbed, and dry. It is waiting for a name." }], mentions: ["pen"],
@@ -387,7 +387,7 @@ const objects = {
     examine: "A pen of varnished wood with a rail worn pale by the hands of people who saw something. It is exactly your size." },
 
   // The last lamp
-  fenn: { at: "last_lamp", name: "Mr Fenn", note: "Dead, and on duty.",
+  fenn: { portrait: sprites.fenn_portrait, at: "last_lamp", name: "Mr Fenn", note: "Dead, and on duty.",
     words: { nouns: ["fenn", "lamplighter", "albert", "man", "body"], adj: ["mr", "mister", "dead", "old"], proper: true },
     examine: "A small man in a cap and a coat gone green at the seams, sitting very straight on the kerb with his hands on his knees. There is a {key|hut_key} on a string round his neck. He is dead, and still on duty.",
     take: "He is heavier than he looks. He has been at his post a long time.",
@@ -434,7 +434,7 @@ const objects = {
     examine: "Every lamp of every night for forty years, in pencil. Today's page: \"Lamp one, lit. Two, lit. Three, lit. Voss called, unpleasant. Four, lit,\" and so on to eleven, and then: \"Pie.\" Under that, \"Twelve,\" and nothing after it." },
 
   // The substation
-  voss: { at: "substation", name: "Mr Voss", note: "The Electric Company.",
+  voss: { portrait: sprites.voss_portrait, at: "substation", name: "Mr Voss", note: "The Electric Company.",
     words: { nouns: ["voss", "man", "company"], adj: ["mr", "mister", "electric"], proper: true },
     examine: "A neat man in a celluloid collar and a {bowler hat|bowler}, who looks at the dynamo the way other men look at their sons.",
     talk: "\"Voss, Electric Company,\" he says, and offers a hand you didn't ask for. \"On Monday the Row goes electric. You'll be wanting to ask me about Fenn. Everybody is.\"",
@@ -459,7 +459,7 @@ const objects = {
     examine: "Columns of figures, and at the bottom of today, in a neat hand: \"Informed F. of Monday, at his third lamp. He thanked me. Returned here.\" The word thanked is underlined twice." },
 
   // The river steps
-  pip: { at: "river_steps", name: "Pip", note: "A mudlark.",
+  pip: { portrait: sprites.pip_portrait, at: "river_steps", name: "Pip", note: "A mudlark.",
     words: { nouns: ["pip", "mudlark", "girl", "child"], adj: [], proper: true },
     examine: "A girl of about ten in a man's coat, mud to the knee, with a {bucket} of things that were lost and a stick for finding more.",
     parts: [{ words: ["bucket", "stick", "coat"], name: "her bucket", says: "Spoons, buttons, a doorknob, half a pair of spectacles. And at the bottom, something small and pale that she covers with her hand when you look." }], mentions: ["stick"],

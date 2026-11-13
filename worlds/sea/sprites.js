@@ -264,5 +264,81 @@ export default {
     "..0ff777777070",
     "..0ff07777770.",
     "...00.000000.."
+  ],
+  // A woman in green from the dining room: hair up in a bun, pearls (the guests' face, shown when they are examined).
+  guests_portrait: [
+    "......0000......",
+    "......0660......",
+    "...0066666600...",
+    "...0666666660...",
+    "...066ccccc60...",
+    "...0ccccccc60...",
+    "...0cc0cc0c60...",
+    "...0ccccccc60...",
+    "...0ccc44cc60...",
+    "....0ccccc60....",
+    ".....0cccc0.....",
+    ".....0cccc0.....",
+    "..0222ffff22220.",
+    ".02222222222220.",
+    "0222222222222220",
+    "0000000000000000"
+  ],
+  // The postmaster's face: a small man in a blue cap and round wire spectacles, two small frames each round one eye.
+  postmaster_portrait: [
+    "................",
+    "................",
+    "....019999110...",
+    "...01999111110..",
+    "..0011111111100.",
+    "...0cc8ccc8c60..",
+    "...0c808c80860..",
+    "...0cc8ccc8c60..",
+    "...0cccccccc60..",
+    "...0ccc44ccc60..",
+    "....0cccccc60...",
+    "......0ccc0.....",
+    "...0011111110...",
+    "..011111c111110.",
+    ".01111111111110.",
+    "0000000000000000"
+  ],
+  // The waiter's face: an old man, bald on top with grey at the sides, a black jacket and a white collar.
+  waiter_portrait: [
+    "................",
+    "................",
+    ".....0000000....",
+    "....0ccccccc0...",
+    "...0cccccccc0...",
+    "...07cccccc70...",
+    "...07c0cc0c70...",
+    "...07cccccc70...",
+    "...07cc44cc70...",
+    "....0cccccc70...",
+    ".....0ccccc0....",
+    "...0888fcfff880.",
+    "..08888fffff8880",
+    ".088888f8f888880",
+    "0888888888888880",
+    "0000000000000000"
+  ],
+  // Admiral's face: a big grey cat with a white bib, a torn ear and a brass tag on his collar.
+  cat_portrait: [
+    "..00............",
+    "..0770....0.0...",
+    "..07770..07770..",
+    "..077777777770..",
+    "..077777777780..",
+    "..077077770780..",
+    "..07777cc77780..",
+    "..077770077780..",
+    "..077ffffff780..",
+    "...07ffffff70...",
+    "....0ffffff0....",
+    "...0444444440...",
+    "..077ffeeff770..",
+    ".0777ffffff7780.",
+    "07777ffffff77780",
+    "0000000000000000"
   ]
 };

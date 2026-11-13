@@ -170,5 +170,24 @@ export default {
     "................",
     "................",
     "................"
+  ],
+  // Mrs Pell's face: square, quiet and ageless, brown hair pulled flat, a striped tea towel over one shoulder.
+  pell_portrait: [
+    "................",
+    "....00000000....",
+    "...0666666660...",
+    "...0666666660...",
+    "...066cccccc0...",
+    "...0ccccccc60...",
+    "...0cc0cc0c60...",
+    "...0ccccccc60...",
+    "...0ccc44cc60...",
+    "...0ccccccc60...",
+    "....0cccccc0....",
+    ".....0cccc0.....",
+    "...0333cc3ff90..",
+    "..03333339f9f90.",
+    ".0333333339f9f90",
+    "0000000000000000"
   ]
 };

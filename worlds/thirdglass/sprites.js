@@ -171,5 +171,62 @@ export default {
     "....000ee000....",
     ".......00.......",
     "................"
+  ],
+  // Fadimata's face: a small, upright old woman, brown skin, a deep red headcloth, silver earrings and necklace, a green robe.
+  fadimata_portrait: [
+    "................",
+    ".....000000.....",
+    "....0c444440....",
+    "...0cc4444440...",
+    "...0466666640...",
+    "...0466666640...",
+    "...0460660640...",
+    "...0466666640...",
+    "..704660066407..",
+    "..7.06666660.7..",
+    ".....066660.....",
+    ".....077770.....",
+    "...022a77a220...",
+    "..0222aaaa2220..",
+    ".02222222222220.",
+    "0000000000000000"
+  ],
+  // Aghali's face: a young Tuareg in an indigo turban and veil, only his eyes free of it, the dye gone into his forehead, a cyan tunic.
+  aghali_portrait: [
+    "................",
+    ".....000000.....",
+    "....01999110....",
+    "...0199911110...",
+    "...0111111110...",
+    "...0166116610...",
+    "...0160660610...",
+    "...0166666610...",
+    "...0919191910...",
+    "....01911910....",
+    ".....019910.....",
+    ".....011110.....",
+    "...033bbbb330...",
+    "..0333bbbb3330..",
+    ".03333333333330.",
+    "0000000000000000"
+  ],
+  // Afternoon's face: a dromedary's head and neck in profile, facing left: ear up, a long face running down to the muzzle with a nostril and a hanging pink lip, a brown halter strap, an eye.
+  afternoon_portrait: [
+    "................",
+    "..........00....",
+    "........000ff0..",
+    "......000fffff0.",
+    "....000fffffff0.",
+    "..000ffff0ffff70",
+    ".0fff6ffffffff70",
+    "0ff0f6ffffffff70",
+    "0cccc0fffffff70.",
+    ".0cc0.0fffff70..",
+    "......0ffffff70.",
+    ".....0fffffff70.",
+    ".....0ffffffff70",
+    "....0fffffffff70",
+    "...0ffffffffff70",
+    "0000000000000000"
   ]
 };

@@ -297,7 +297,7 @@ const objects = {
     examine: "Two ash oars, the looms worn to the shape of a man who held them a particular way. The blades are painted with a band of yellow, like a lamp.", ...item("oars") },
 
   // People and fixtures.
-  pell: { at: "inn", name: "Mrs Pell", note: "Drying a dry cup.", material: "soft",
+  pell: { portrait: sprites.pell_portrait, at: "inn", name: "Mrs Pell", note: "Drying a dry cup.", material: "soft",
     here: "{Mrs Pell|pell} stands behind the bar, drying a cup that is already dry.",
     words: { nouns: ["pell", "landlady", "woman", "mrs"], adj: [], g: "f", proper: true },
     examine: "Mrs Pell is square, quiet and ageless, with her sleeves rolled and a tea towel over one shoulder. She does not look at the window. She keeps a great many things from looking at it.",

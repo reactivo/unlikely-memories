@@ -333,7 +333,7 @@ const objects = {
     examine: "Un vagón verde, uno solo, con la puerta abierta y un escalón hasta la grava. La luz de dentro es la amarilla de una habitación de la que alguien acaba de levantarse." },
 
   // Objetos perdidos
-  ambrose: { at: "lost_property", name: "Señor Ambrose", note: "El empleado de objetos perdidos.",
+  ambrose: { portrait: sprites.ambrose_portrait, at: "lost_property", name: "Señor Ambrose", note: "El empleado de objetos perdidos.",
     words: { nouns: ["ambrose", "señor", "senor", "empleado", "hombre"], adj: ["viejo", "pequeño", "pequeno", "don"], g: "m" },
     examine: "Un hombre pequeño con manguitos. Te mira como si intentara recordar dónde te dejaron.",
     talk: ["«¿Has perdido algo?», dice. «Todo el mundo. Di qué, y lo busco en el libro».", "«Descríbelo», dice, «y si es tuyo, él lo sabrá»."],
@@ -376,7 +376,7 @@ const objects = {
     examine: "Una reja de latón, un postigo y un cartel: BILLETES DESDE LAS 21:00. UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA.",
     mentions: ["reja", "postigo", "cartel"] },
   // Cumple el horario de la ventanilla (de nueve de la noche a seis de la mañana): el juego la mueve, dice cuándo llega y se va, y la dibuja.
-  booking_clerk: { at: null, name: "Taquillera", note: "Tras la reja.",
+  booking_clerk: { portrait: sprites.booking_clerk_portrait, at: null, name: "Taquillera", note: "Tras la reja.",
     places: [{ at: "station_hall", if: [hours(21, 6)] }],
     arrives: "Se levanta el postigo de la ventanilla de billetes. Una mujer tras la reja dispone su sacabocados.",
     leaves: "Baja el postigo de la ventanilla de billetes, y el sacabocados con él.",
@@ -403,7 +403,7 @@ const objects = {
   photograph: { at: null, portable: true, material: "paper", name: "Fotografía", note: "De mañana, aún mojada.",
     words: { nouns: ["fotografía", "fotografia", "foto", "fotos", "tira"], adj: ["mojada", "húmeda", "humeda"], g: "f" }, ...item("photograph"),
     examine: "Una tira de cuatro fotografías, todavía mojada, a la luz del día: los escalones del ayuntamiento; luego una mujer con rebeca gris, arriba, en una ventana, enseñando una hoja de calendario que dice LUNES. En el último fotograma la coges tú." },
-  oduya: { at: "waiting_room", name: "Señora Oduya", note: "Esperando, con una maleta.",
+  oduya: { portrait: sprites.oduya_portrait, at: "waiting_room", name: "Señora Oduya", note: "Esperando, con una maleta.",
     words: { nouns: ["oduya", "señora", "senora", "mujer", "viajera", "anciana", "maleta"], adj: ["vieja", "mayor"], g: "f" },
     examine: "Una anciana pulcra con un sombrero cuya pluma se ha rendido. Su billete es para el de las ocho y doce a Lunes. Es muy antiguo.",
     talk: "«Espero al de las ocho y doce», dice. «Ya no circula. Soy muy paciente».",
@@ -434,7 +434,7 @@ const objects = {
     listen: "Un zumbido bajo y paciente. Suena como una multitud diciendo una palabra que aún no ha aprendido." },
 
   // Caseta de señales
-  signalman: { at: "signal_box", name: "Guardagujas", note: "La mano en la palanca.",
+  signalman: { portrait: sprites.signalman_portrait, at: "signal_box", name: "Guardagujas", note: "La mano en la palanca.",
     words: { nouns: ["guardagujas", "señalero", "senalero", "hombre"], adj: [], g: "m" },
     examine: "Mangas de camisa, brazalete, un bigote adiestrado durante muchos años. No aparta la mano de la palanca.",
     talk: "«A las doce menos veinte», dice. «Todas las noches. Nunca he dejado salir tarde a la máquina».",
@@ -462,7 +462,7 @@ const objects = {
     parts: [{ words: ["pedestal", "pluma", "mano"], name: "el pedestal" }], mentions: ["pedestal", "pluma"] },
 
   // Hotel
-  porter: { at: "hotel", name: "Conserje de noche", note: "Leyendo el sábado.",
+  porter: { portrait: sprites.porter_portrait, at: "hotel", name: "Conserje de noche", note: "Leyendo el sábado.",
     words: { nouns: ["conserje", "portero", "recepcionista"], adj: ["noche", "nocturno"], g: "m" },
     examine: "Un hombre largo, plegado tras un mostrador corto. Lee el mismo periódico todas las noches y sigue sorprendiéndose.",
     talk: "«¿Una habitación?», dice, sin levantar la vista. «Pídela, entonces».",
@@ -479,7 +479,7 @@ const objects = {
     examine: "Una cama de hierro, abierta. La almohada está fresca. Quien debía acostarse en ella se hace esperar desde hace años." },
 
   // Café
-  ines: { at: "cafe", name: "Inés", note: "Tras la barra.",
+  ines: { portrait: sprites.ines_portrait, at: "cafe", name: "Inés", note: "Tras la barra.",
     words: { nouns: ["ines", "camarera", "mujer"], adj: [], g: "f", proper: true },
     examine: "Una mujer con las mangas remangadas y un lápiz detrás de cada oreja, por si uno se rinde.",
     talk: "«¿Café?», dice. Es la única pregunta que hace.",
@@ -505,7 +505,7 @@ const objects = {
   plate: { at: "high_street", name: "Placa de latón", note: "Horario de oficina.", opens: ["monday"],
     words: { nouns: ["placa", "horario", "horas"], adj: ["latón", "laton", "oficina"], g: "f" },
     examine: "AYUNTAMIENTO, ABIERTO DE 09:00 A 17:00, ARCHIVO ARRIBA, CERRADO LOS LUNES. La última línea está más pulida que las otras." },
-  archivist: { at: "archive", name: "Archivera", note: "Guarda el último lunes.",
+  archivist: { portrait: sprites.archivist_portrait, at: "archive", name: "Archivera", note: "Guarda el último lunes.",
     words: { nouns: ["archivera", "archivista", "mujer", "señora", "senora"], adj: [], g: "f" },
     examine: "Una rebeca gris, gafas de media luna y la paciencia de quien archiva por orden alfabético de sentimientos.",
     give: "«Eso no es de un lunes», dice, amable, y te lo devuelve.",
@@ -520,7 +520,7 @@ const objects = {
     examine: "Una hoja de calendario: LUNES, en negro, sin nada escrito debajo. Pesa más de lo que debería pesar un papel. Está todo por hacer." },
 
   // Relojería
-  clockmaker: { at: "clock_shop", name: "Relojero", note: "Arreglando un minuto.",
+  clockmaker: { portrait: sprites.clockmaker_portrait, at: "clock_shop", name: "Relojero", note: "Arreglando un minuto.",
     words: { nouns: ["relojero", "hombre", "anciano"], adj: ["viejo"], g: "m" },
     examine: "Un anciano con una lupa enroscada en un ojo y un minuto entre las pinzas. El minuto se resiste un poco.",
     talk: "«Cada reloj de aquí lleva la hora de alguien», dice. «El del mostrador lleva la de ayer. Dale cuerda, si necesitas que te devuelva uno».",
@@ -546,7 +546,7 @@ const objects = {
   train_window: { at: "compartment", name: "Ventanilla", note: "Con correa de cuero.", actions: ["Mirar por ventanilla"],
     words: { nouns: ["ventanilla", "ventana", "correa"], adj: ["cuero", "tren"], g: "f" },
     examine: "Tu cara en el cristal, y detrás el andén, y detrás el pueblo, que ya se ve más pequeño." },
-  guard: { at: "dining_car", name: "Revisor", note: "Haciendo cuentas.",
+  guard: { portrait: sprites.guard_portrait, at: "dining_car", name: "Revisor", note: "Haciendo cuentas.",
     words: { nouns: ["revisor", "interventor", "jefe", "hombre"], adj: [], g: "m" },
     examine: "Un revisor con un abrigo de demasiados botones, sumando una columna que no acaba nunca.",
     talk: "«Billetes», dice, y luego, al ver el tuyo, «Ah. Solo de ida».",

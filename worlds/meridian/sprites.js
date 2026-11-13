@@ -114,5 +114,24 @@ export default {
     "................",
     "................",
     "................"
+  ],
+  // Mrs Hale's face: the archivist, brown hair going grey in a tight bun, her spectacles on a gold chain round her neck, a blue cardigan.
+  archivist_portrait: [
+    "......0000......",
+    "......0660......",
+    "...0066666600...",
+    "...0667666660...",
+    "...0667ccccc0...",
+    "...0ccccccc60...",
+    "...0cc0cc0c60...",
+    "...0ccccccc60...",
+    "...0ccc44cc60...",
+    "....0cccccc0....",
+    ".....0cccc0.....",
+    ".....0eccce0....",
+    "...0911cccc110..",
+    "..09911b11b1110.",
+    ".09911111111110.",
+    "0000000000000000"
   ]
 };

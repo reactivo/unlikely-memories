@@ -332,7 +332,7 @@ const objects = {
     examine: "A green carriage, one only, with its door open and a step down to the gravel. The light inside is the yellow of a room where someone has just stood up." },
 
   // Lost property
-  ambrose: { at: "lost_property", name: "Mr Ambrose", note: "The lost property clerk.",
+  ambrose: { portrait: sprites.ambrose_portrait, at: "lost_property", name: "Mr Ambrose", note: "The lost property clerk.",
     words: { nouns: ["ambrose", "clerk", "man"], adj: ["mr", "mister", "old"], proper: true },
     examine: "A small man in sleeve protectors. He looks at you as though trying to remember where you were left.",
     talk: ["\"Lost something?\" he says. \"Everyone has. Say what, and I'll look in the book.\"", "\"Describe it,\" he says, \"and if it's yours it will know.\""],
@@ -375,7 +375,7 @@ const objects = {
     examine: "A brass grille, a shutter, and a card: TICKETS FROM 21:00. ONE FARE: ONE COIN. OLD CURRENCY ONLY.",
     mentions: ["grille", "shutter", "card"] },
   // She keeps the window's hours (nine at night to six in the morning): the game moves her, says her coming and going, and draws her.
-  booking_clerk: { at: null, name: "Booking clerk", note: "Behind the grille.",
+  booking_clerk: { portrait: sprites.booking_clerk_portrait, at: null, name: "Booking clerk", note: "Behind the grille.",
     places: [{ at: "station_hall", if: [hours(21, 6)] }],
     arrives: "The shutter of the ticket window goes up. A woman behind the grille sets out her punch.",
     leaves: "The shutter of the ticket window comes down, and the punch with it.",
@@ -402,7 +402,7 @@ const objects = {
   photograph: { at: null, portable: true, material: "paper", name: "Photograph", note: "Tomorrow's, still wet.",
     words: { nouns: ["photograph", "photo", "picture", "strip"], adj: ["wet"] }, ...item("photograph"),
     examine: "A strip of four photographs, still wet, in daylight: the town hall steps, then a woman in a grey cardigan upstairs at a window, holding up a calendar page that says MONDAY. In the last frame you are taking it." },
-  oduya: { at: "waiting_room", name: "Mrs Oduya", note: "Waiting, with a suitcase.",
+  oduya: { portrait: sprites.oduya_portrait, at: "waiting_room", name: "Mrs Oduya", note: "Waiting, with a suitcase.",
     words: { nouns: ["oduya", "woman", "traveller", "lady", "suitcase"], adj: ["mrs", "old"], proper: true },
     examine: "A neat old woman in a hat with a feather that has given up. Her ticket is for the eight-twelve to Monday. It is very old.",
     talk: "\"I'm waiting for the eight-twelve,\" she says. \"It doesn't run any more. I'm very patient.\"",
@@ -433,7 +433,7 @@ const objects = {
     listen: "A hum, low, patient. It sounds like a crowd saying a word it hasn't learned yet." },
 
   // Signal box
-  signalman: { at: "signal_box", name: "Signalman", note: "Hand on the lever.",
+  signalman: { portrait: sprites.signalman_portrait, at: "signal_box", name: "Signalman", note: "Hand on the lever.",
     words: { nouns: ["signalman", "man"], adj: [] },
     examine: "Shirtsleeves, armbands, a moustache trained over many years. He doesn't take his hand off the lever.",
     talk: "\"Twenty to midnight,\" he says. \"Every night. I've never once let her go late.\"",
@@ -461,7 +461,7 @@ const objects = {
     parts: [{ words: ["plinth", "pen", "hand"], name: "the plinth" }], mentions: ["plinth", "pen"] },
 
   // Hotel
-  porter: { at: "hotel", name: "Night porter", note: "Reading Saturday.",
+  porter: { portrait: sprites.porter_portrait, at: "hotel", name: "Night porter", note: "Reading Saturday.",
     words: { nouns: ["porter"], adj: ["night"] },
     examine: "A long man folded behind a short desk. He reads the same paper every night and is still surprised by it.",
     talk: "\"A room?\" he says, without looking up. \"Ask, then.\"",
@@ -478,7 +478,7 @@ const objects = {
     examine: "An iron bed, turned down. The pillow is cool. Whoever it was turned down for has been expected for years." },
 
   // Café
-  ines: { at: "cafe", name: "Inés", note: "Behind the counter.",
+  ines: { portrait: sprites.ines_portrait, at: "cafe", name: "Inés", note: "Behind the counter.",
     words: { nouns: ["ines", "waitress", "woman"], adj: [], proper: true },
     examine: "A woman with her sleeves rolled and a pencil behind each ear, in case one gives up.",
     talk: "\"Coffee?\" she says. It is the only question she asks.",
@@ -504,7 +504,7 @@ const objects = {
   plate: { at: "high_street", name: "Brass plate", note: "Office hours.", opens: ["monday"],
     words: { nouns: ["plate", "hours"], adj: ["brass", "office"] },
     examine: "TOWN HALL, OPEN 09:00 TO 17:00, ARCHIVE UPSTAIRS, CLOSED MONDAYS. The last line has been polished more than the others." },
-  archivist: { at: "archive", name: "Archivist", note: "Keeps the last Monday.",
+  archivist: { portrait: sprites.archivist_portrait, at: "archive", name: "Archivist", note: "Keeps the last Monday.",
     words: { nouns: ["archivist", "woman"], adj: [] },
     examine: "A grey cardigan, half-moon glasses, and the patience of someone who files things alphabetically by feeling.",
     give: "\"That isn't from a Monday,\" she says, kindly, and gives it back.",
@@ -519,7 +519,7 @@ const objects = {
     examine: "A calendar page: MONDAY, in black, with nothing written under it. It is heavier than paper should be. It is all still to do." },
 
   // Clockmaker's
-  clockmaker: { at: "clock_shop", name: "Clockmaker", note: "Mending a minute.",
+  clockmaker: { portrait: sprites.clockmaker_portrait, at: "clock_shop", name: "Clockmaker", note: "Mending a minute.",
     words: { nouns: ["clockmaker", "man", "watchmaker"], adj: ["old"] },
     examine: "An old man with a lens screwed into one eye and a minute in his tweezers. It struggles a little.",
     talk: "\"Every clock here keeps somebody's time,\" he says. \"That one on the counter keeps yesterday's. Wind it, if you need one back.\"",
@@ -545,7 +545,7 @@ const objects = {
   train_window: { at: "compartment", name: "Window", note: "Leather strap.", actions: ["Look through window"],
     words: { nouns: ["window", "strap"], adj: ["leather", "train"] },
     examine: "Your face in the glass, and behind it the platform, and behind that the town, already looking smaller." },
-  guard: { at: "dining_car", name: "Guard", note: "Doing sums.",
+  guard: { portrait: sprites.guard_portrait, at: "dining_car", name: "Guard", note: "Doing sums.",
     words: { nouns: ["guard", "conductor"], adj: [] },
     examine: "A guard in a coat with too many buttons, adding up a column that never ends.",
     talk: "\"Tickets,\" he says, and then, seeing yours, \"Ah. One way.\"",

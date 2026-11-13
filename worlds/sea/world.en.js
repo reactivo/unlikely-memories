@@ -492,7 +492,7 @@ const objects = {
     push: "Ding. Nobody comes. Upstairs, a door opens and closes, politely.",
     words: { nouns: ["bell"], adj: ["brass", "service", "desk"] },
     examine: "A brass bell for service, polished by many hands." },
-  guests: { at: "dining", name: "Guests", note: "At dessert, for a long time.",
+  guests: { portrait: sprites.guests_portrait, at: "dining", name: "Guests", note: "At dessert, for a long time.",
     topics: {
       postmaster: { words: ["postmaster", "post", "letters", "parcel"], says: "\"The postmaster?\" says a woman in green. \"He'll give you nothing without a name. Unless the sea vouches for you. It does, sometimes.\"" },
       lighthouse: { about: "lighthouse_far", words: ["lighthouse", "lamp", "light"], says: "\"The lighthouse,\" says a man, to nobody. \"My brother lit it once. He burned his wedding ring. Couldn't remember why he'd ever minded.\"" },
@@ -518,7 +518,7 @@ const objects = {
   // stroked, he follows you round the hotel and the town (as far as the post office, where he vouches for you), and waits for you
   // wherever you go beyond; shooed, he goes back to wandering the hotel. The game moves him, says his coming and going, and draws
   // him (an overlay in each of the six pictures).
-  cat: { at: "lobby", name: "Admiral", note: "The hotel cat.", actions: ["Stroke Admiral"],
+  cat: { portrait: sprites.cat_portrait, at: "lobby", name: "Admiral", note: "The hotel cat.", actions: ["Stroke Admiral"],
     rounds: { rooms: ["lobby", "dining", "hallway"], every: [3, 6], random: true },
     places: [{ at: "player", if: [{ "cat.stroked": true }], within: ["lobby", "dining", "hallway", "promenade", "square", "post_office"] }],
     sprite: sprites.cat, floorSprite: sprites.cat_floor,
@@ -556,7 +556,7 @@ const objects = {
     examine: "Its hands are still at a quarter past five. Behind the face, a pendulum swings anyway, keeping time for nobody." },
 
   // The post office
-  postmaster: { at: "post_office", name: "Postmaster", note: "Behind the grille.",
+  postmaster: { portrait: sprites.postmaster_portrait, at: "post_office", name: "Postmaster", note: "Behind the grille.",
     topics: {
       name: { open: true, label: "my name", words: ["name", "names", "my"], says: "\"Names are the sea's business,\" he says. \"It gives them back, when it's ready. Not before.\"" },
       sea: { open: true, words: ["sea", "shell", "beach"], says: "\"The sea knows where everyone's from,\" he says. \"It listens at the door.\"" },
@@ -575,7 +575,7 @@ const objects = {
     examine: "A small brass key on a cardboard tag. On the tag, in your handwriting: 7." },
 
   // The café
-  waiter: { at: "cafe", name: "Waiter", note: "Folding a napkin.",
+  waiter: { portrait: sprites.waiter_portrait, at: "cafe", name: "Waiter", note: "Folding a napkin.",
     topics: {
       lighthouse: { about: "lighthouse_far", words: ["lighthouse", "lamp", "light"], says: "\"You used to sit there, by the window, and look at it,\" he says. \"You said one day you'd light it. You said it as if it were a joke.\"" },
       coffee: { words: ["coffee", "usual", "sugar"], says: "\"One sugar,\" he says. \"You always took one sugar. Then you stopped coming, and nobody took sugar at all.\"" },
