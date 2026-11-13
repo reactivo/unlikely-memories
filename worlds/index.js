@@ -10,21 +10,21 @@
 // the deliveries recorded in git since then, plus their making and their Spanish versions; earlier changes weren't recorded.
 // A new world: add its folder, import it here and add it to WORLDS.
 
-import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js";
-import sea, { bible as seaBible } from "./sea/world.en.js";
-import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js";
-import lantern, { bible as lanternBible } from "./lantern/world.en.js";
-import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js";
-import seaEs, { bible as seaBibleEs } from "./sea/world.es.js";
-import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js";
-import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js";
-import meridian, { bible as meridianBible } from "./meridian/world.en.js";
-import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js";
-import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js";
-import noon, { bible as noonBible } from "./noon/world.en.js";
-import testbed, { bible as testbedBible } from "./testbed/world.en.js";
-import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js";
-import { parseShapes } from "../js/picture.js";
+import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.48.0";
+import sea, { bible as seaBible } from "./sea/world.en.js?v=0.48.0";
+import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.48.0";
+import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.48.0";
+import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.48.0";
+import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.48.0";
+import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.48.0";
+import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.48.0";
+import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.48.0";
+import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.48.0";
+import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.48.0";
+import noon, { bible as noonBible } from "./noon/world.en.js?v=0.48.0";
+import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.48.0";
+import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.48.0";
+import { parseShapes } from "../js/picture.js?v=0.48.0";
 
 export const WORLDS = {
   sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 11, minutes: null, bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"

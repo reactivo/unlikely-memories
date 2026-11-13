@@ -8,9 +8,9 @@
 // Language-free and deterministic: the changes are picked with the state's own random numbers (js/random.js), so a
 // replay slurs the same way. Pure.
 
-import { random } from "./random.js";
-import { ACTIONS } from "./actions.js";
-import { modifiers } from "./conditions.js";
+import { random } from "./random.js?v=0.48.0";
+import { ACTIONS } from "./actions.js?v=0.48.0";
+import { modifiers } from "./conditions.js?v=0.48.0";
 
 // Is this action words said (with words to say)?
 export const spoken = (state, action) => typeof action.text === "string" && action.text.trim() !== "" && action.verb !== "answer"

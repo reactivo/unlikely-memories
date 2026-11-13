@@ -4,15 +4,15 @@
 // how a condition ends, the line of a health tick), so this file never imports the engine back. `makeSleeping(host)` returns { sleep,
 // conditionHold }: what the engine calls. Everything inside is as it was in the engine.
 
-import { worldTime, moveTo, parts, hhmm } from "./time.js";
-import { lengthOf, kindOf, healOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js";
-import { activeIds, conditionClass } from "./conditions.js";
-import { RANGES } from "./fields.js";
-import { clean, isLine } from "./shapes.js";
-import { placeOf, person } from "./place.js";
-import { isAction } from "./actions.js";
-import { spoken, slurring, slur } from "./speech.js";
-import { movementNow, stray } from "./movement.js";
+import { worldTime, moveTo, parts, hhmm } from "./time.js?v=0.48.0";
+import { lengthOf, kindOf, healOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js?v=0.48.0";
+import { activeIds, conditionClass } from "./conditions.js?v=0.48.0";
+import { RANGES } from "./fields.js?v=0.48.0";
+import { clean, isLine } from "./shapes.js?v=0.48.0";
+import { placeOf, person } from "./place.js?v=0.48.0";
+import { isAction } from "./actions.js?v=0.48.0";
+import { spoken, slurring, slur } from "./speech.js?v=0.48.0";
+import { movementNow, stray } from "./movement.js?v=0.48.0";
 
 export function makeSleeping(host) {
   const { apply, roll, rollBetween, isFixed, activeRules, fits, exitNow, solved, met, endCondition, saysOf } = host;

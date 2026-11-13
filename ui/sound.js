@@ -47,11 +47,11 @@
 //   - The sliders are the player's three buses (musicBus, toneBus, sfx), set with a short glide (player.volume) to the panel's curve
 //     (gainOf); a fresh player starts at them.
 
-import S from "../content/music.js";
-import { musicOf } from "../js/music.js";
-import { nightAt, unwellAt, effectsOf, soundsOf, SOUND_KINDS, MATERIALS } from "./moments.js";
-import { createPlayer, openAudio } from "./sound/player.js";
-import { PARTS, gainOf } from "./soundpanel.js";
+import S from "../content/music.js?v=0.48.0";
+import { musicOf } from "../js/music.js?v=0.48.0";
+import { nightAt, unwellAt, effectsOf, soundsOf, SOUND_KINDS, MATERIALS } from "./moments.js?v=0.48.0";
+import { createPlayer, openAudio } from "./sound/player.js?v=0.48.0";
+import { PARTS, gainOf } from "./soundpanel.js?v=0.48.0";
 
 // The death ending: the engine's own (`died`, when health runs out) or a world's ending of that name; or no health left.
 const died = (state) => state.ending === "died" || state.player.health <= 0;

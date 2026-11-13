@@ -3,39 +3,39 @@
 // Also the session: undo, oops, saving and loading (js/saves.js), and which view the page shows: the list of games (no hash) or one
 // world (#<id>, js/route.js). Never touches the page (that's ui/).
 
-import en from "../content/en.js";
-import es from "../content/es.js";
-import { newState, FORMAT } from "./state.js";
-import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js";
-import { parse, retype } from "./parser.js";
-import { inScope } from "./place.js";
-import { tell, describe, text, listName, placeName, joined } from "./narrator.js";
-import { parts, hhmm } from "./time.js";
-import * as saves from "./saves.js";
-import { suggestion, topicsLine, story } from "./view.js";
-import { walk, tripWords } from "./map.js";
-import { createClock } from "./clock.js";
-import { routeOf, hashOf } from "./route.js";
-import { listFor, thumbnailFor } from "../worlds/index.js";
-import { load, store } from "./prefs.js";
-import { examineSVG } from "../ui/sprite.js";
-import * as titlebar from "../ui/titlebar.js";
-import * as scene from "../ui/scene.js";
-import * as crop from "../ui/crop.js";
-import * as log from "../ui/log.js";
-import * as prompt from "../ui/prompt.js";
-import * as compass from "../ui/compass.js";
-import * as inventory from "../ui/inventory.js";
-import * as options from "../ui/options.js";
-import * as soundpanel from "../ui/soundpanel.js";
-import * as map from "../ui/map.js";
-import * as page from "../ui/page.js";
-import * as tools from "../ui/tools.js";
-import * as tabs from "../ui/tabs.js";
-import * as keys from "../ui/keys.js";
-import * as home from "../ui/home.js";
-import * as crt from "../ui/crt.js";
-import * as sound from "../ui/sound.js";
+import en from "../content/en.js?v=0.48.0";
+import es from "../content/es.js?v=0.48.0";
+import { newState, FORMAT } from "./state.js?v=0.48.0";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.48.0";
+import { parse, retype } from "./parser.js?v=0.48.0";
+import { inScope } from "./place.js?v=0.48.0";
+import { tell, describe, text, listName, placeName, joined } from "./narrator.js?v=0.48.0";
+import { parts, hhmm } from "./time.js?v=0.48.0";
+import * as saves from "./saves.js?v=0.48.0";
+import { suggestion, topicsLine, story } from "./view.js?v=0.48.0";
+import { walk, tripWords } from "./map.js?v=0.48.0";
+import { createClock } from "./clock.js?v=0.48.0";
+import { routeOf, hashOf } from "./route.js?v=0.48.0";
+import { listFor, thumbnailFor } from "../worlds/index.js?v=0.48.0";
+import { load, store } from "./prefs.js?v=0.48.0";
+import { examineSVG } from "../ui/sprite.js?v=0.48.0";
+import * as titlebar from "../ui/titlebar.js?v=0.48.0";
+import * as scene from "../ui/scene.js?v=0.48.0";
+import * as crop from "../ui/crop.js?v=0.48.0";
+import * as log from "../ui/log.js?v=0.48.0";
+import * as prompt from "../ui/prompt.js?v=0.48.0";
+import * as compass from "../ui/compass.js?v=0.48.0";
+import * as inventory from "../ui/inventory.js?v=0.48.0";
+import * as options from "../ui/options.js?v=0.48.0";
+import * as soundpanel from "../ui/soundpanel.js?v=0.48.0";
+import * as map from "../ui/map.js?v=0.48.0";
+import * as page from "../ui/page.js?v=0.48.0";
+import * as tools from "../ui/tools.js?v=0.48.0";
+import * as tabs from "../ui/tabs.js?v=0.48.0";
+import * as keys from "../ui/keys.js?v=0.48.0";
+import * as home from "../ui/home.js?v=0.48.0";
+import * as crt from "../ui/crt.js?v=0.48.0";
+import * as sound from "../ui/sound.js?v=0.48.0";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -662,7 +662,7 @@ if (DEBUG_PANEL) {
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js"), import("./debug.js")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.48.0"), import("./debug.js?v=0.48.0")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on

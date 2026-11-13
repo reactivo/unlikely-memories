@@ -6,7 +6,7 @@
 // An entry: { ms, shows(x, y, p, height) }. `ms` is how long it takes; `shows` says, for the pixel at x, y and progress p
 // (0 → 1), whether it already shows the new picture. Add an entry, then name it in a constant below (or ask for it by name).
 
-import { lit } from "./draw.js";
+import { lit } from "./draw.js?v=0.48.0";
 
 // The transition used for a change of room (or of a room's picture version, or an object taken), for an ending, and when none is asked for.
 export const ROOM = "dissolve";
