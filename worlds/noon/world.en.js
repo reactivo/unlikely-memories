@@ -299,7 +299,7 @@ const objects = {
     ...item("fish") },
 
   // The village
-  ennu: { at: "village", name: "Ennu", note: "Keeps the accounts.", material: "soft",
+  ennu: { at: "village", name: "Ennu", note: "Keeps the accounts.", material: "soft", portrait: sprites.ennu_portrait,
     here: "{Ennu|ennu}, who keeps the village accounts, sits at the middle house with a cord of knots across her knees, and is not surprised by you.",
     words: { nouns: ["ennu", "woman", "elder"], adj: ["old"], g: "f", proper: true },
     parts: [{ words: ["cord", "knots", "accounts"], name: "the cord", says: "Rows of knots in three colours, each row an account. You are on it, towards the end of a long one." }],
@@ -315,7 +315,7 @@ const objects = {
         says: "\"It has hung without its tongue since my grandmother's time,\" says Ennu. \"Noon is quiet. We have managed. The tongue went up the trail in the arms of one of your people, long ago, who met the cat. The cat has it still.\"" },
       default: "\"That is not on the cord,\" says Ennu. \"Ask me something that is.\""
     } },
-  kito: { at: "village", name: "Kito", note: "Shapes paddles.", material: "soft",
+  kito: { at: "village", name: "Kito", note: "Shapes paddles.", material: "soft", portrait: sprites.kito_portrait,
     here: "{Kito|kito} is shaping a paddle blade at the next house, and looks at your empty hands before he looks at you.",
     words: { nouns: ["kito", "man", "boy"], adj: ["young"], g: "m", proper: true },
     examine: "Kito is young, long-armed and unhurried, with a knife and a half-made blade. He has made every paddle in the village, and has opinions about every one.",

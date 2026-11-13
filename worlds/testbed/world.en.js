@@ -513,7 +513,7 @@ const objects = {
     examine: "A long trough of ice. It does not melt. Nobody has asked it to." },
 
   // The office
-  oduya: { at: "tb-office", name: "Mrs Oduya", note: "Keeps the book.",
+  oduya: { at: "tb-office", name: "Mrs Oduya", portrait: sprites.oduya_portrait, note: "Keeps the book.",
     words: { nouns: ["oduya", "mrs", "registrar"], adj: ["mrs"], g: "f", proper: true },
     examine: "A woman in a grey cardigan, writing in a ledger. She has been writing since the floor opened.",
     talk: "\"Yes?\" says Mrs Oduya, without looking up.",

@@ -34,8 +34,8 @@ export const WORLDS = {
   meridian: { title: meridianBible.title, blurb: meridianBible.blurb, thumbnail: meridianBible.thumbnail, made: "2026-10-30", model: "Claude Haiku 5.5", effort: "default", version: 8, minutes: 28, text: { en: meridian } },     // "Please Remain Present"
   thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 6, minutes: 34, text: { en: thirdglass } },     // "The Third Glass"
   boathouse: { title: boathouseBible.title, blurb: boathouseBible.blurb, thumbnail: boathouseBible.thumbnail, made: "2026-11-10", model: "Claude Sonnet 5.5", effort: "medium", version: 6, minutes: 31, text: { en: boathouse } },     // "The Lake Lights It Again"
-  noon: { title: noonBible.title, blurb: noonBible.blurb, thumbnail: noonBible.thumbnail, made: "2026-11-12", model: "Claude Sonnet 5.5", effort: "medium", version: 2, minutes: 34, text: { en: noon } },     // "The River Turns at Noon"
-  testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 5, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
+  noon: { title: noonBible.title, blurb: noonBible.blurb, thumbnail: noonBible.thumbnail, made: "2026-11-12", model: "Claude Sonnet 5.5", effort: "medium", version: 3, minutes: 34, text: { en: noon } },     // "The River Turns at Noon"
+  testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 6, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
 };
 
 // The world newState plays when none is named (the tests, mostly: the game itself always names one).

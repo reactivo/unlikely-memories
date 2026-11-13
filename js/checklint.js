@@ -8,7 +8,7 @@
 
 import { parse, normalise } from "./parser.js";
 import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js";
-import { placeOf, inScope, holderOf } from "./place.js";
+import { placeOf, inScope, holderOf, person } from "./place.js";
 import { isAction } from "./actions.js";
 import { TEXT_WORDS, PROPERTY_WORD } from "./words.js";
 import { isLine } from "./shapes.js";
@@ -16,7 +16,7 @@ import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js"
 import { nextCell } from "./space.js";
 import { moveTo, worldTime, parts } from "./time.js";
 import * as opening from "./opening.js";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite } from "./fields.js";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js";
 import art from "../content/art.js";
 import { isGroup, colorsOf, areaPixels } from "./picture.js";
 import { paintPicture } from "./paint.js";
@@ -97,6 +97,16 @@ function spriteProblems(state, problems) {
     ...state.rules.map(r => ({ where: r.id ?? "a rule", match: r.match, effects: r.do })),
     ...Object.entries(state.changes || {}).map(([name, effects]) => ({ where: "change " + name, effects }))]))
     if (!hasSprite(state.world.objects[h.id] ?? spriteOf(state, h.id))) problems.push(h.where === `objects/${h.id}` ? noSprite(h) : `${h.where}: ${noSprite(h)}`);
+}
+
+// A character's face: a malformed `portrait` is a problem (16 rows of 16, hex and "."); a character with none is a warning, only for a world
+// written under BRIEF.md §7's "Animation" (gated as the other newer warnings are; the older worlds would each be warned of every character).
+function portraitChecks(state, problems, warnings) {
+  const planned = plannedWorld(state);
+  for (const [id, o] of Object.entries(state.world.objects)) {
+    if (o.portrait !== undefined) { const why = portraitFault(o.portrait); if (why) problems.push(`${id}: ${why}`); }
+    else if (planned && person(o)) warnings.push(`${id}: a character with no \`portrait\` (BRIEF.md §7, "Portraits"): give them a face, shown when they are examined`);
+  }
 }
 
 // An exit with a condition is well formed. Returns the exits that are not ("room.dir"): the playthrough leaves them out.
@@ -435,6 +445,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   idProblems(state, problems);
   puzzleProblems(state, pack, puzzles, problems, warnings);
   spriteProblems(state, problems);
+  portraitChecks(state, problems, warnings);
   problems.push(...cellProblems(state));
   const badExits = exitShapeProblems(state, problems);
   // The game as it is after its arrival (the opening may be at another hour): where the exits are walked and the texts read.
@@ -1085,7 +1096,7 @@ export function clockMentions(raw) {
 // Every player-facing text of a world: [{ where, field, text }]. Not pictures or their descriptions (`alt`).
 const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "lies", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines", "again", "already", "brought", "eat", "drink",
   "starts", "ends", "status", "answer", "arrives", "leaves"]);   // (starts…answer: a condition's lines; arrives, leaves: a thing that moves)
-const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "words", "mentions", "if", "match", "id", "name", "label"]);
+const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "portrait", "words", "mentions", "if", "match", "id", "name", "label"]);
 function worldTexts(state, pack) {
   const out = [];
   for (const [id, r] of Object.entries(state.world.rooms)) collectTexts(r, id, pack, out);
@@ -1294,7 +1305,7 @@ function answeredByWorld(state, there, v, word, scenery, pack) {
 // alts and the bible's title and blurb: [{ where, field, text }].
 function shownTexts(state, bible) {
   const shown = [];
-  const SKIP = new Set(["picture", "draw", "words", "mentions", "sprite", "floorSprite", "if", "match", "id", "solve"]);
+  const SKIP = new Set(["picture", "draw", "words", "mentions", "sprite", "floorSprite", "portrait", "if", "match", "id", "solve"]);
   const walk = (node, where, field, text) => {
     if (typeof node === "string") { if (text) shown.push({ where, field, text: node }); return; }
     if (Array.isArray(node)) return node.forEach(x => walk(x, where, field, text));

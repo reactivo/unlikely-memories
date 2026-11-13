@@ -1,5 +1,5 @@
 // Sprites for "The River Turns at Noon": 16 × 16, rows of palette numbers in hex (0–f), "." clear, outlined in black so they read on
-// the dark inventory slot. Each carried thing has one.
+// the dark inventory slot. Each carried thing has one, and each character a `portrait` (a face, `<id>_portrait`).
 export default {
   // A grey parrot with a red tail in a small wicker cage.
   parrot: [
@@ -152,5 +152,43 @@ export default {
     ".....088880.....",
     "......0000......",
     "................"
+  ],
+  // Ennu's face (`portrait`, shown when she is examined).
+  ennu_portrait: [
+    "................",
+    ".....000000.....",
+    "....07777770....",
+    "...0777777770...",
+    "...0776666670...",
+    "...0766666670...",
+    "...0760660670...",
+    "...0766666670...",
+    "...0766006670...",
+    "...0776666700...",
+    "..07770660770...",
+    "..0777444447770.",
+    ".07774444444470.",
+    "0774444444444440",
+    "0444444444444440",
+    "0000000000000000"
+  ],
+  // Kito's face (`portrait`, shown when he is examined).
+  kito_portrait: [
+    ".......88.......",
+    "......8008......",
+    ".....880088.....",
+    "...8000000008...",
+    "...8066666608...",
+    "...0666666600...",
+    "...0660660600...",
+    "...0666666600...",
+    "...0666006600...",
+    "....06666600....",
+    ".....066600.....",
+    "....022226662220",
+    "...022222222220.",
+    "..02222222222220",
+    ".022222222222220",
+    "0000000000000000"
   ]
 };

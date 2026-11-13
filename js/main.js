@@ -18,7 +18,7 @@ import { createClock } from "./clock.js";
 import { routeOf, hashOf } from "./route.js";
 import { listFor, thumbnailFor } from "../worlds/index.js";
 import { load, store } from "./prefs.js";
-import { itemSVG } from "../ui/sprite.js";
+import { examineSVG } from "../ui/sprite.js";
 import * as titlebar from "../ui/titlebar.js";
 import * as scene from "../ui/scene.js";
 import * as crop from "../ui/crop.js";
@@ -441,7 +441,7 @@ function restore(r) {
   ui.log.clear(); ui.prompt.clear();
   ui.prompt.hint(ui.log.markup(packOf(state).hint), 0, false);   // not shown; it comes back if you're idle
   for (const p of r.transcript || []) {
-    const el = ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, true, p.level, p.slot);
+    const el = ui.log.say(p.text, p.style || "", p.img ? examineSVG(p.img, state) : undefined, true, p.level, p.slot);
     keep(p);
     if (p.visit) ui.log.newVisit(el, true);               // a room entered here: earlier text is past
   }
@@ -480,7 +480,7 @@ function tick() {
 // sprite has none). The paragraph is kept whole in the transcript, so a loaded game draws them again (and a line saved with an
 // empty slot draws none: ui/log.js slotArt).
 function show(paragraphs) {
-  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? itemSVG(p.img, state) : undefined, false, p.level, p.slot), p);
+  for (const p of paragraphs) note(ui.log.say(p.text, p.style || "", p.img ? examineSVG(p.img, state) : undefined, false, p.level, p.slot), p);
 }
 // A moment's sounds (ui/sound.js, moment): its list, handed over as the log's paragraphs are, with the game before it (`was`) and
 // after (the state now). Only for a moment played: a restore, UNDO, a load and a new game hand over none.

@@ -12,7 +12,7 @@ import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDA
 import * as opening from "./opening.js";
 import { translate as translateUse } from "./use.js";
 import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite } from "./fields.js";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js";
 import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js";
 import { ACTIONS, isAction } from "./actions.js";
 import { makeSleeping } from "./sleeping.js";
@@ -545,7 +545,7 @@ function read(g, path, action) {
   if (prop === "chain" && g.world.objects[id]) return chainOf(g, id);   // "<id>.chain": itself, then what it is in, and what that is in…
   if (prop === "person" && g.world.objects[id]) return person(o);       // "<id>.person": someone you can talk to
   if (prop === "holder" && g.world.objects[id]) return holderOf(g, id); // "<id>.holder": the person who has it, if one does
-  if (prop === "img" && g.world.objects[id]) return o.img ?? (hasSprite(o) ? id : null);   // its picture beside its line: its own sprite, unless it names another
+  if (prop === "img" && g.world.objects[id]) return o.img ?? (hasSprite(o) || hasPortrait(o) ? id : null);   // its picture beside its line: its own sprite (a character's face, its portrait), unless it names another
   if (rest.length > 1) return rest.reduce((x, k) => (x == null ? x : x[k]), o) ?? null;   // deeper: "beach.describe.0"
   return o[prop] ?? DEFAULTS[prop] ?? startOf(g, id, prop);
 }

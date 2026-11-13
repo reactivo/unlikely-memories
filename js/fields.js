@@ -22,7 +22,7 @@ import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js";
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
 const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "music", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
-  "here", "lies", "words", "sprite", "floorSprite", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
+  "here", "lies", "words", "sprite", "floorSprite", "portrait", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
   "requires", "spends", "lacking", "dream", "places", "rounds", "arrives", "leaves", "material", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
@@ -192,6 +192,11 @@ export function heldThings(things, groups) {
 }
 // Has it a sprite to show (rows to draw)?
 export const hasSprite = (o) => Array.isArray(o?.sprite) && o.sprite.length > 0;
+// Has it a portrait (a character's face, shown when it is examined)? Rows of the same form as a sprite's, kept apart: a sprite is for what is carried.
+export const hasPortrait = (o) => Array.isArray(o?.portrait) && o.portrait.length > 0;
+// What is wrong with a portrait: not 16 rows of 16 characters, hex 0-f and "." only. Empty when it is well formed.
+export const portraitFault = (rows) => !Array.isArray(rows) || rows.length !== 16 || rows.some(r => typeof r !== "string" || !/^[0-9a-f.]{16}$/.test(r))
+  ? "a portrait is 16 rows of 16 characters, hex 0-f and \".\" for clear" : "";
 // The sentence for a thing you can hold that has no sprite (a problem for the checker, a finding for the field check).
 export const noSprite = (h) => `${h.id} can end up in the player's hands (${h.why}) but has no sprite: every thing you can carry has one (the inventory and the echoes of what you gain and lose show it)`;
 

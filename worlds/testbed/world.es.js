@@ -509,7 +509,7 @@ const objects = {
     examine: "Un cubo largo lleno de hielo. No se derrite. Nadie se lo ha pedido." },
 
   // El despacho
-  oduya: { at: "tb-office", name: "La señora Oduya", note: "Lleva el libro.",
+  oduya: { at: "tb-office", name: "La señora Oduya", portrait: sprites.oduya_portrait, note: "Lleva el libro.",
     words: { nouns: ["oduya", "senora", "registradora"], adj: ["senora"], g: "f", proper: true },
     examine: "Una mujer con una rebeca gris, escribiendo en un libro mayor. Lleva escribiendo desde que se abrió el piso.",
     talk: "«¿Sí?», dice la señora Oduya, sin levantar la vista.",
