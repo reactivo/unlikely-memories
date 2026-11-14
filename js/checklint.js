@@ -6,22 +6,22 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.49.1";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.49.1";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.49.1";
-import { isAction } from "./actions.js?v=0.49.1";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.49.1";
-import { isLine } from "./shapes.js?v=0.49.1";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.49.1";
-import { nextCell } from "./space.js?v=0.49.1";
-import { moveTo, worldTime, parts } from "./time.js?v=0.49.1";
-import * as opening from "./opening.js?v=0.49.1";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.49.1";
-import art from "../content/art.js?v=0.49.1";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.49.1";
-import { paintPicture } from "./paint.js?v=0.49.1";
-import { filterProblem } from "./filters.js?v=0.49.1";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.49.1";
+import { parse, normalise } from "./parser.js?v=0.49.2";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.49.2";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.49.2";
+import { isAction } from "./actions.js?v=0.49.2";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.49.2";
+import { isLine } from "./shapes.js?v=0.49.2";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.49.2";
+import { nextCell } from "./space.js?v=0.49.2";
+import { moveTo, worldTime, parts } from "./time.js?v=0.49.2";
+import * as opening from "./opening.js?v=0.49.2";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.49.2";
+import art from "../content/art.js?v=0.49.2";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.49.2";
+import { paintPicture } from "./paint.js?v=0.49.2";
+import { filterProblem } from "./filters.js?v=0.49.2";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.49.2";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -463,7 +463,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   harmWarnings(state, problems, warnings);
   consumableProblems(state, problems, warnings);
   sourceProblems(state, problems, warnings);
-  warnings.push(...pictureWarnings(state, bible), ...removalWarnings(state), ...markedThingWarnings(state, pack));
+  warnings.push(...pictureWarnings(state, bible), ...paletteWarnings(state, bible), ...removalWarnings(state), ...markedThingWarnings(state, pack));
   problems.push(...pictureProblems(state));   // the ending's picture: each `end` names one the world has; a world that can hurt you has a `died` one
   if (bible) problems.push(...bibleProblems(bible, state));
   roomLengthWarnings(state, warnings);
@@ -592,6 +592,12 @@ export function altNames(room, o) {
   if (!o?.portable || !room?.picture || o.shape || typeof o.name !== "string" || !o.name.trim()) return false;
   return new RegExp(`\\b${o.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "iu").test(room.alt ?? "");
 }
+// Does a thing that can be taken lack its overlay where it starts: it is in a room with a picture, is not a long thing (`shape`), and the
+// room's picture does not draw it as an overlay (BRIEF.md §7: a takeable thing is an overlay, never painted in). tests/worlds.test.js asks the same.
+export function lacksOverlay(room, id, o) {
+  if (!o?.portable || !room?.picture || o.shape) return false;
+  return !(room.picture.overlays || []).some(x => x?.object === id);
+}
 function pictureProblems(state) {
   const problems = [], pictures = state.pictures || {}, file = `world.${state.lang || "en"}.js`;
   const described = (x) => typeof x === "string" && x.trim();
@@ -616,6 +622,8 @@ function pictureProblems(state) {
         problems.push(`rooms/${id}: overlayAlt.${thing} describes an overlay the room's picture doesn't have (add { "object": "${thing}", "at": [x, y] } to its overlays, or take the entry out)`);
     for (const o of Object.entries(state.world.objects).filter(([, x]) => x?.at === id && altNames(room, x)).map(([k]) => k))
       problems.push(`rooms/${id}: its alt names "${state.world.objects[o].name}" (${o}), a thing that can be taken: that is an overlay (overlayAlt.${o}), never named in the room's alt (BRIEF.md §7)`);
+    for (const [oid, o] of Object.entries(state.world.objects)) if (o?.at === id && lacksOverlay(room, oid, o))
+      problems.push(`rooms/${id}: "${o.name}" (${oid}) can be taken and starts here, but the room's picture has no overlay for it (add { "object": "${oid}", "at": [x, y] } to its overlays and overlayAlt.${oid} to the room: BRIEF.md §7)`);
     if (!room?.picture) continue;
     carried(`rooms/${id}`, room.picture, "describe it as the room's alt");
     overlaysDescribed(`rooms/${id}`, id, room.picture.overlays);
@@ -766,6 +774,40 @@ function pictureWarnings(state, bible) {
     .filter(([, pic]) => pic && typeof pic === "object");
   if (!all.some(([, pic]) => /moves:/i.test(typeof pic.shot === "string" ? pic.shot : ""))) return [];
   return all.flatMap(([name, pic]) => [...motionWarnings(pic), ...shapeWarnings(pic, bible?.style ?? (bible ? "dithered" : null), name.startsWith("pictures/"))].map(why => `${name}: ${why}`));
+}
+
+// The palette a room's `shot` names, by the palette table's names (content/art.js `palettes`): a bare name between semicolons ("...; lamplight; one
+// lantern..."), with a modifier after a comma ("gaslight, haze") or not, or "<name> palette" ("forest palette"). The first one named, in the order of the
+// text (a view out may name the sky's after the room's); null when none is.
+export function shotPalette(shot) {
+  if (typeof shot !== "string") return null;
+  const names = new Set(art.palettes);
+  let found = null;
+  for (const part of shot.split(";")) {
+    const bare = part.trim().split(",")[0].trim().toLowerCase();
+    const named = names.has(bare) ? bare : (part.toLowerCase().match(/\b([a-z]+) palette\b/g) || []).map(m => m.split(" ")[0]).find(n => names.has(n));
+    if (named) { found = named; break; }
+  }
+  return found;
+}
+// The names a bible's `palettes` line gives: "lamplight: the gas-lit rooms; cellar: below stairs" (or a list of such entries): each entry's name before its colon.
+export function biblePalettes(bible) {
+  const line = bible?.palettes;
+  if (line == null) return null;
+  const entries = Array.isArray(line) ? line : typeof line === "string" ? line.split(";") : [];
+  return entries.map(e => String(e).split(":")[0].trim().toLowerCase()).filter(Boolean);
+}
+// Warnings, never problems (an older world has no `palettes` line, and none is asked of it): a room picture whose `shot` names a palette the bible's
+// `palettes` doesn't list, and a `palettes` entry the palette table doesn't have. Endings' pictures are exempt (BRIEF.md §7, "Colour").
+function paletteWarnings(state, bible) {
+  const listed = biblePalettes(bible);
+  if (!listed) return [];
+  const warnings = listed.filter(n => !art.palettes.includes(n)).map(n => `bible: palettes names "${n}", which the palette table (BRIEF.md §7) doesn't have`);
+  for (const [id, room] of Object.entries(state.world.rooms)) {
+    const n = shotPalette(room?.picture?.shot);
+    if (n && !listed.includes(n)) warnings.push(`rooms/${id}: its shot names the palette "${n}", which the bible's palettes (${listed.join(", ") || "none"}) don't list; use one of them, or add it to the bible's palettes line`);
+  }
+  return warnings;
 }
 
 // A picture with fewer shapes than its style's lowest (art.draw.ranges: a room's dithered 60, flat 100; an ending's dithered 40, flat 70; the haze modifier,

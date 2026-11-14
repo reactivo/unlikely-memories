@@ -20,6 +20,10 @@ export default {
     ranges: { dithered: [60, 120], flat: [100, 220], haze: { dithered: [30, 60], flat: [80, 150] }, endings: { dithered: [40, 120], flat: [70, 220] } },
     edits: ["add", "remove", "replace", "restyle"]
   },
+  // The palettes a picture is drawn in, by the names BRIEF.md §7's table gives them (a `shot` names one; a bible's `palettes` line lists the world's):
+  // tests/sample.test.js keeps this list and the table the same.
+  palettes: ["moonlight", "deepnight", "dusk", "desertdawn", "noon", "sea", "harbournight", "storm", "fog", "forest", "goldenhour", "lowsun", "lamplight", "ember",
+             "cellar", "gaslight", "arcade", "institution", "cafe", "pinklobby", "dream", "eerie"],
   styles: ["dithered", "flat"],                    // a world's `style` (its bible; none means dithered), BRIEF.md §7
   viewpoints: ["eye level", "wide landscape", "far away", "looking up at something outdoors",
                "looking down at an angle from the rim"],   // BRIEF.md §7, "Viewpoints"
