@@ -870,71 +870,90 @@ line near_edge 0,102 320,98 c1`,
 export const endings = {
   caught: {
     version: 1,
-    shot: "Ending. Eye level from the street, facing north at the Galerie's front, frontal; no vanishing point. Palette fog (night rain): black, dark grey, light grey, white, with one coloured light, red. Light: every {window} blazing white, a small second light, the gendarme's {lantern} in light red with a halo. Gradient 1: the night sky, a dense black dither at the top running into dark grey, because the sky dies into the wet fog above the roofline. Gradient 2: the facade, dark grey at the cornice to light grey at the foot, because fog glows low where the lit windows and lamps reach the street. Subject: the door in its pillared porch with the steps, red and lit, columns 174-262 (right third), and the long solid black shadow of the gendarme thrown up the steps and across the door; the gendarme, a black silhouette with his lantern on the left third (columns 98-130), 60 tall. Left wing: a street lamp {post} with a red lamp and its halo; right wing: a second small {figure} at the foot of the steps and the {rail}. Dressing: eight barred windows with sills, {cobbles} on the pavement, {rain} streaks, low {fog} over the pavement. moves: nothing.",
-    draw: `rect sky 0,0,320,44 fade:0,8/0,-11/0,44
-rect front 18,22,284,80 fade:7,8/0,102/0,22
-rect pave 0,102,320,34 8
-rect pave_dark 0,124,320,12 mix:8,0@0.5
-rect cornice 14,18,292,5 7 e0
-poly pediment 174,38 213,22 252,38 7 e0
-rect pil_l 178,42,9,60 7 e0
-rect pil_r 238,42,9,60 7 e0
-rect win1 24,28,20,24 15 e0
-rect win2 52,28,20,24 15 e0
-rect win3 80,28,20,24 15 e0
-rect win4 108,28,20,24 15 e0
-rect win5 252,28,20,24 15 e0
-rect win6 280,28,18,24 15 e0
-rect win7 24,62,20,24 15 e0
-rect win8 52,62,20,24 15 e0
-line bar1 34,28 34,52 c0
-line bar2 62,28 62,52 c0
-line bar3 90,28 90,52 c0
-line bar4 118,28 118,52 c0
-line bar5 262,28 262,52 c0
-line bar6 289,28 289,52 c0
-line bar7 34,62 34,86 c0
-line bar8 62,62 62,86 c0
-line sill1 22,53 46,53 c7
-line sill2 50,53 74,53 c7
-line sill3 78,53 102,53 c7
-line sill4 106,53 130,53 c7
-line sill5 250,53 274,53 c7
-line sill6 278,53 300,53 c7
-line sill7 22,87 46,87 c7
-line sill8 50,87 74,87 c7
-rect door 192,48,44,54 12 e0
-line door_bar 214,48 214,102 c0
-ellipse lamp_red 214,44,4,4 4 e0
-poly steps 172,102 254,102 262,110 164,110 7 e0
-poly step1 164,110 262,110 270,118 156,118 8 e0
-poly step2 156,118 270,118 278,126 148,126 7 e0
-line rail_l 150,126 176,104 c7
-line rail_r 276,126 252,104 c7
-line cobble1 20,112 70,112 c0
-line cobble2 190,132 250,132 c0
-line cobble3 100,120 150,120 c0
-line cobble4 290,116 316,116 c0
-rect fog_low 0,104,320,18 mix:,7@0.25
-poly shadow 112,126 170,122 190,104 192,54 214,40 236,50 236,92 208,106 196,124 0
-rect figure_body 100,66,14,38 0 e7
-ellipse figure_head 107,59,5,6 0 e7
-poly figure_cap 102,52 112,52 114,56 100,56 0 e7
-rect figure_leg1 101,104,5,20 0
-rect figure_leg2 109,104,5,20 0
-line figure_arm 114,72 124,82 c0
-line lantern_h 124,82 124,86 c0
-rect lantern 121,86,6,8 0 e7
-rect lantern_pane 122,87,4,6 12
-ellipse lantern_glow 124,90,16,12 mix:,12@0.15
-line post 12,40 12,122 c0
-ellipse post_lamp 12,38,5,5 4 e0
-ellipse post_glow 12,38,14,10 mix:,4@0.15
-ellipse fig2_head 268,95,3,3 0 e7
-rect fig2_body 264,98,8,16 0 e7
-rect fig2_leg 265,114,3,10 0
-rect fig2_leg2 269,114,3,10 0
-dots rain 20,10 50,24 90,6 130,18 170,8 200,30 240,12 280,22 310,8 40,60 150,70 260,64 300,90 c7`,
+    shot: "Ending. Eye level, facing north, frontal on the Galerie's facade; vanishing point none (flat frontal). Palette fog, the lantern's light red (12) the one coloured light. Light: the red {lantern} set on the pavement at the left, low, the one near light; the blazing {windows} are flat white and light red, no halo. Gradient 1: the sky, dark grey at the top to light grey toward the roofline, because fog thickens toward the horizon. Gradient 2: the facade wall, light grey at the foot to dark grey at the roofline, because the windows' glow dies out up the wall into the fog. Subject: the {gendarme}, a black silhouette in kepi and cape, 50 tall, feet at y 127, columns 110-132 (left third), the lantern just left of him; the {steps} (four) rise to the arched {door} at columns 184-242 (right third). Cast shadow: the lantern is on his left, so his shadow starts at his feet, keeps his outline stretched to the right, along the pavement, bends up each riser and tread of the steps, and climbs the door, a head and shoulders at the top; a black dither (70%) over what lies under it. Left wing: a bare {plane tree} and an iron {railing} on the pavement; right wing: a {drainpipe}, a {bollard} and a railing. Dressing: the {cornice}, the {sills}, {chimneys} against the sky, {cobbles}. moves: nothing.",
+    draw: `rect sky 0,0,320,100 fade:8,7/0,0/0,100
+rect ground 0,100,320,36 mix:8,7@0.5
+poly roof 0,22 0,14 36,10 120,10 130,6 190,6 200,10 280,10 320,14 320,22 0
+rect chim1 52,2,8,10 0
+rect chim2 232,0,9,12 0
+rect wall 0,22,320,78 fade:7,8/0,100/0,22
+rect cornice 0,22,320,4 8
+rect course 0,56,320,3 8
+rect u1 8,28,18,18 15 e8
+rect u2 44,28,20,18 mix:15,12@0.4 e8
+rect u3 82,28,19,19 15 e8
+rect u4 120,28,21,18 15 e8
+rect u5 158,28,20,18 mix:15,12@0.4 e8
+rect u6 196,28,20,18 15 e8
+rect u7 236,28,19,19 15 e8
+rect u8 274,28,20,18 mix:15,12@0.4 e8
+rect l1 6,62,20,24 15 e8
+rect l2 44,62,19,25 15 e8
+rect l3 84,62,20,24 mix:15,12@0.4 e8
+rect l4 124,62,21,24 15 e8
+rect l5 252,62,20,25 15 e8
+rect l6 290,62,22,24 mix:15,12@0.4 e8
+rect sill_l 0,87,150,2 8
+rect sill_r 246,87,74,2 8
+poly doorframe 184,100 184,62 190,51 236,51 242,62 242,100 8
+poly door 188,100 188,63 193,54 233,54 238,63 238,100 mix:7,15@0.5
+line door_p1 200,64 200,98 c8
+line door_p2 226,64 226,98 c8
+line door_p3 200,80 226,80 c8
+rect door_knob 229,82,2,3 8
+ellipse door_red 192,92,16,10 mix:,12@0.15
+rect step_a_t 172,100,74,2 mix:7,15@0.5
+rect step_a_r 172,102,74,5 8
+rect step_b_t 166,107,86,2 mix:7,15@0.5
+rect step_b_r 166,109,86,5 8
+rect step_c_t 160,114,98,2 mix:7,15@0.5
+rect step_c_r 160,116,98,5 8
+rect step_d_t 154,121,110,2 mix:7,15@0.5
+rect step_d_r 154,123,110,5 8
+ellipse lant_halo2 101,122,22,15 mix:,12@0.2
+ellipse lant_halo 101,122,11,8 mix:,12@0.35
+ellipse lant_pool 112,128,30,5 mix:,12@0.12
+rect lant_base 96,127,10,2 0
+rect lant_body 97,118,8,9 12 e0
+rect lant_cap 98,115,6,3 0
+line lant_handle 98,115 101,111 104,115 c0
+rect lant_flame 100,121,2,4 14
+rect gend_boot_l 113,124,6,3 0
+rect gend_boot_r 122,124,6,3 0
+rect gend_leg_l 114,111,4,13 0
+rect gend_leg_r 123,111,4,13 0
+poly gend_cape 110,112 113,90 129,90 132,112 0
+poly gend_arm 113,93 109,104 106,113 109,114 113,106 0
+ellipse gend_head 121,84,4,5 0
+poly gend_kepi 116,80 116,75 125,75 126,80 0
+line gend_lit 112,93 110,111 c12
+line gend_sabre 131,98 134,116 c8
+poly gend_pave_cast 115,128 127,128 154,128 154,122 121,124 mix:,0@0.7
+rect gend_contact 113,127,16,1 0
+poly sh_riser_d 154,123 166,123 168,128 154,128 mix:,0@0.7
+poly sh_tread_d 160,121 176,121 178,123 162,123 mix:,0@0.7
+poly sh_riser_c 170,116 186,116 188,121 172,121 mix:,0@0.7
+poly sh_tread_c 176,114 194,114 196,116 178,116 mix:,0@0.7
+poly sh_riser_b 186,109 204,109 206,114 188,114 mix:,0@0.7
+poly sh_tread_b 190,107 210,107 212,109 192,109 mix:,0@0.7
+poly sh_riser_a 196,102 218,102 220,107 198,107 mix:,0@0.7
+poly sh_tread_a 200,100 224,100 226,102 202,102 mix:,0@0.7
+poly sh_door 202,100 228,100 230,92 226,84 222,76 221,68 224,64 222,58 216,56 210,58 208,64 211,68 210,76 206,84 203,92 mix:,0@0.7
+poly tree_trunk 14,128 15,70 19,40 22,70 23,128 0
+line tree_b1 17,50 6,34 2,28 c0
+line tree_b2 19,58 30,42 36,36 c0
+line tree_b3 17,66 8,60 3,58 c0
+poly rail_l_top 0,112 46,112 46,114 0,114 0
+dots rail_l_posts 3,114 12,114 24,114 36,114 44,114 c0
+rect rail_l_bar 0,121,46,2 0
+rect pipe 296,26,4,86 8
+rect pipe_foot 294,110,8,4 0
+poly bollard 282,112 288,112 289,126 281,126 0
+rect rail_r_bar 304,121,16,2 0
+rect rail_r_top 304,112,16,2 0
+dots cobbles 8,132 40,130 76,133 132,131 160,134 210,130 250,133 290,131 c7
+dots cobbles2 24,134 60,131 100,134 190,133 232,132 270,134 c8
+rect gutter 0,132,320,4 mix:8,0@0.6`,
     cycles: [],
     overlays: []
   },

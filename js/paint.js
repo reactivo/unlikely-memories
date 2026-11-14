@@ -2,7 +2,7 @@
 // Sierra's games drew their rooms from commands. Pure: no page, so the screen (ui/draw.js, which re-exports it), the tests and the checker (the
 // motion's limits need what each shape ends up showing) all use it.
 
-import art from "../content/art.js?v=0.51.0";
+import art from "../content/art.js?v=0.51.1";
 
 const DITHER = art.dither.matrix;                 // Bayer 4×4: the order in which pixels switch to the second colour
 
@@ -21,10 +21,22 @@ export function paint(draw, width = art.picture.width, height = art.picture.heig
 // { px, areas: { id: [pixel index, …] } }. Palette cycles use the areas.
 export function paintPicture(draw, width = art.picture.width, height = art.picture.height) {
   const px = new Uint8Array(width * height), owner = new Int16Array(width * height).fill(-1);
-  draw.forEach((shape, i) => paintShape(px, width, height, shape, (k) => { owner[k] = i; }));
+  draw.forEach((shape, i) => shape.outline ? paintOutline(px, width, height, draw, owner, shape)
+    : paintShape(px, width, height, shape, (k) => { owner[k] = i; }));
   const areas = {};
   owner.forEach((i, k) => { const id = i >= 0 && draw[i].id; if (id) (areas[id] ||= []).push(k); });
   return { px, areas };
+}
+
+// One outline round a whole element: the pixels now showing a shape of it (id = the name, or starting with name + "_") that touch,
+// left, right, above or below, a pixel that doesn't (the picture's own edge doesn't count). They take the colour; their owner stays.
+function paintOutline(px, w, h, draw, owner, s) {
+  const name = s.outline, of = (k) => { const id = owner[k] >= 0 && draw[owner[k]].id; return !!id && (id === name || id.startsWith(name + "_")); };
+  const inEl = new Uint8Array(w * h);
+  for (let k = 0; k < w * h; k++) inEl[k] = of(k) ? 1 : 0;
+  const out = (x, y) => x >= 0 && y >= 0 && x < w && y < h && !inEl[y * w + x];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++)
+    if (inEl[y * w + x] && (out(x - 1, y) || out(x + 1, y) || out(x, y - 1) || out(x, y + 1))) px[y * w + x] = s.edge;
 }
 
 // One shape: rect, poly, ellipse (filled, optional 1-pixel edge), line or dots (one colour).

@@ -11,6 +11,8 @@
 //   a fill: a palette number 0–15; none (only the edge is drawn); mix:a,b@level; fade:a,b/fx,fy/tx,ty;
 //           stripes:a,b (in mix and fade, an empty colour leaves what's underneath: mix:,14@0.3)
 //   cN  the colour of a line or dots        eN  a 1-pixel edge in colour N        after:id  (in edits only)
+// "outline <name> eN" (not a shape: no numbers, no fill): one 1-pixel line in colour N round a whole element, every shape whose id is
+// <name> or starts with <name>_, where it meets what lies outside it; none inside. It goes after the element's shapes.
 // rect: x,y,width,height · ellipse: cx,cy,rx,ry · poly, line, dots: x,y points. Blank lines and # notes are ignored.
 //
 // Perspective: a line "vp x,y" sets the picture's vanishing point (not a shape, not counted towards the shape limit). After it, a point
@@ -18,7 +20,7 @@
 // the point itself, t = 0 the vanishing point:   vp 160,60   poly wall 40,120@1 40,120@0.5 ...   rect and ellipse take plain numbers.
 // Pure: no page, no state.
 
-import art from "../content/art.js?v=0.51.0";
+import art from "../content/art.js?v=0.51.1";
 
 const SHAPES = ["rect", "poly", "ellipse", "line", "dots"];
 const num = (s) => { const n = Number(s); if (s === "" || !Number.isFinite(n)) throw new Error(`"${s}" isn't a number`); return n; };
@@ -30,7 +32,14 @@ const isPoint = (t) => /^-?[\d.]+,-?[\d.]+(,-?[\d.]+)*$/.test(t);
 export function parseShape(line) {
   const t = line.trim().split(/\s+/);
   const kind = t[0];
-  if (!SHAPES.includes(kind)) throw new Error(`"${kind}" isn't a shape (${SHAPES.join(", ")})`);
+  // One outline round a whole element (a person, a cart): every shape whose id is the name or starts with it and "_", as they show
+  // where this line comes in the order; nothing inside it. "outline ines e0".
+  if (kind === "outline") {
+    const m = /^outline\s+([A-Za-z][\w]*)\s+e(\d+)$/.exec(line.trim());
+    if (!m) throw new Error('an outline is "outline <name> eN": the element\'s name (its shapes\' ids start with it) and a colour');
+    return { outline: m[1], edge: colour(m[2]) };
+  }
+  if (!SHAPES.includes(kind)) throw new Error(`"${kind}" isn't a shape (${SHAPES.join(", ")}, or outline)`);
   if (t.length < 3) throw new Error(`a ${kind} needs an id (or -) and its numbers`);
   if (t[2] === "-" && t[1] !== "-") t.splice(2, 1);          // an id and a stray "-" both: as if the "-" weren't there
   const shape = {};
@@ -109,6 +118,7 @@ const isDepth = (tok) => /^-?[\d.]/.test(tok) && tok.includes("@");
 
 // A shape → its line (for converting JSON drawing lists, and for showing a picture to the AI).
 export function formatShape(s) {
+  if (s.outline) return `outline ${s.outline} e${s.edge}`;
   const kind = SHAPES.find(k => s[k]);
   const pts = kind === "rect" || kind === "ellipse" ? s[kind].join(",") : s[kind].map(p => p.join(",")).join(" ");
   const c = (n) => (n === null || n === undefined ? "" : n);

@@ -6,22 +6,22 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.51.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.51.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.51.0";
-import { isAction } from "./actions.js?v=0.51.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.51.0";
-import { isLine } from "./shapes.js?v=0.51.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.51.0";
-import { nextCell } from "./space.js?v=0.51.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.51.0";
-import * as opening from "./opening.js?v=0.51.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.51.0";
-import art from "../content/art.js?v=0.51.0";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.51.0";
-import { paintPicture } from "./paint.js?v=0.51.0";
-import { filterProblem } from "./filters.js?v=0.51.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.51.0";
+import { parse, normalise } from "./parser.js?v=0.51.1";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.51.1";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.51.1";
+import { isAction } from "./actions.js?v=0.51.1";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.51.1";
+import { isLine } from "./shapes.js?v=0.51.1";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.51.1";
+import { nextCell } from "./space.js?v=0.51.1";
+import { moveTo, worldTime, parts } from "./time.js?v=0.51.1";
+import * as opening from "./opening.js?v=0.51.1";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.51.1";
+import art from "../content/art.js?v=0.51.1";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.51.1";
+import { paintPicture } from "./paint.js?v=0.51.1";
+import { filterProblem } from "./filters.js?v=0.51.1";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.51.1";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -669,6 +669,11 @@ function drawingProblems(picture) {
   if (picture.draw.length > art.draw.maxShapes) why.push(`has ${picture.draw.length} shapes, at most ${art.draw.maxShapes}`);
   if (new Set(ids).size !== ids.length) why.push("has a shape id used twice");
   picture.draw.forEach((s, i) => {
+    if (s && typeof s.outline === "string") {        // an element's outline (js/picture.js): a name its shapes start with, and a colour
+      if (!colour(s.edge)) why.push(`shape ${i + 1} (outline ${s.outline}) has a colour outside 0–15`);
+      else if (!ids.some(id => id === s.outline || id.startsWith(s.outline + "_"))) why.push(`shape ${i + 1} (outline ${s.outline}) outlines no shape: no id is ${s.outline} or starts with ${s.outline}_`);
+      return;
+    }
     const kinds = art.draw.shapes.filter(k => s && k in s);
     if (kinds.length !== 1) return why.push(`shape ${i + 1} is not one of ${art.draw.shapes.join(", ")}`);
     const f = s.fill, k = kinds[0];
