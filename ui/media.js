@@ -2,7 +2,7 @@
 // and where the CSS decides a layout (css/layout.css) the script asks the CSS, never a copy of its breakpoints. `matchMedia` is
 // missing in Node (a test that imports a ui/ module), so there a query simply doesn't match.
 
-import art from "../content/art.js?v=0.48.3";
+import art from "../content/art.js?v=0.48.4";
 
 const ask = (query) => (typeof matchMedia === "function" ? matchMedia(query) : { matches: false, addEventListener() {}, removeEventListener() {} });
 

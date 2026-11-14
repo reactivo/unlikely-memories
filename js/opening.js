@@ -9,9 +9,9 @@
 // (The hour the opening plays at is an ordinary `time` effect in the world's change set, before the world's own
 // `arrival` change sets its start.)
 
-import { DIRECTIONS } from "./space.js?v=0.48.3";
-import { called } from "./names.js?v=0.48.3";
-import { wayOf } from "./exits.js?v=0.48.3";
+import { DIRECTIONS } from "./space.js?v=0.48.4";
+import { called } from "./names.js?v=0.48.4";
+import { wayOf } from "./exits.js?v=0.48.4";
 
 export const PARTS = ["room", "hints", "intro", "way"];
 export const THINGS = ["hints", "intro", "way"];

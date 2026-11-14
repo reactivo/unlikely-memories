@@ -24,12 +24,12 @@
 // A part: { key, group: "notes" | "rhythm" | "tones" | "sounds" | "colours" | "reference", label, seconds, slices, play(ctx, dest), ref?,
 // chance (randomness in its sound: measured several times over) }.
 
-import { NOISES, TONES, COLOURS, LIMITS, freqOf, themeIn } from "../../js/music.js?v=0.48.3";
-import { makeKit, note, filt } from "./synth.js?v=0.48.3";
-import { makeTone } from "./tones.js?v=0.48.3";
-import { makeColour } from "./colours.js?v=0.48.3";
-import { planOf, playNote, EFFECT_KINDS } from "./sounds.js?v=0.48.3";
-import { keyOf, stable } from "./loudness.js?v=0.48.3";
+import { NOISES, TONES, COLOURS, LIMITS, freqOf, themeIn } from "../../js/music.js?v=0.48.4";
+import { makeKit, note, filt } from "./synth.js?v=0.48.4";
+import { makeTone } from "./tones.js?v=0.48.4";
+import { makeColour } from "./colours.js?v=0.48.4";
+import { planOf, playNote, EFFECT_KINDS } from "./sounds.js?v=0.48.4";
+import { keyOf, stable } from "./loudness.js?v=0.48.4";
 
 const lowpass = (ctx, S, f = S.lowpass.frequency) => filt(ctx, "lowpass", f, S.lowpass.q);
 const lead = 0.02;                                 // each slice's sound starts this far in

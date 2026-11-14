@@ -1,10 +1,10 @@
 // "The River Turns at Noon": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.48.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.48.3";
-import levels from "./levels.js?v=0.48.3";
-import sprites from "./sprites.js?v=0.48.3";
+import pictures, { endings } from "./pictures.js?v=0.48.4";
+import music, { rooms as roomMusic } from "./music.js?v=0.48.4";
+import levels from "./levels.js?v=0.48.4";
+import sprites from "./sprites.js?v=0.48.4";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

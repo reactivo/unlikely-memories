@@ -7,15 +7,16 @@
 //   Drag     the picture can be dragged sideways to see what the crop hides (--pan, -1 ... 1: ui/scene.css works out the
 //            offset). A new room's crop starts centred.
 //
-// Everything else is the page's (css/layout.css gives the picture `touch-action: pan-y pinch-zoom`): a swipe up or down
-// scrolls the page, two fingers zoom the page. The browser decides at the start of a swipe: one that starts sideways stays
-// a drag to the end; one it takes for the page ends here with a pointercancel. A second finger ends the drag too (the
-// browser's pinch). The picture has no zoom of its own (it had, up to 3x, until 13 Nov 2026: two zooms were confusing).
+// One finger is the picture's (css/layout.css gives it `touch-action: pinch-zoom`): its up and down do nothing, so a
+// slanted drag still drags; the page is scrolled from the story. Two fingers are the page's: they zoom it, and the second
+// finger ends the drag (a pointercancel). The picture has no zoom of its own (it had, up to 3x, until 13 Nov 2026: two zooms
+// were confusing). Letting a swipe up or down scroll the page (pan-y) was tried on 13 Nov 2026: Safari took any slanted
+// drag for a scroll, and the crop was hard to move.
 //
 // Nothing here is drawn from the game's state: log.js, which knows when a room is entered, is given this and calls room().
 // Mounted on the top (index.html).
 
-import { topMode } from "./media.js?v=0.48.3";
+import { topMode } from "./media.js?v=0.48.4";
 
 const MOVE = 8;       // px a finger may move and still be still (not yet a drag)
 

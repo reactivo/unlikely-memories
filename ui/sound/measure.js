@@ -17,11 +17,11 @@
 //   measureWorld(changeSet, worldId, opts)         the world-making step: the change set, its `add music` with `levels` (opts:
 //                                                  { S, shared, onPart, measure }: measure, worldLevels unless a test gives another)
 
-import S0 from "../../content/music.js?v=0.48.3";
-import SHARED from "../../content/levels.js?v=0.48.3";
-import { readMusic } from "../../js/music.js?v=0.48.3";
-import { weighSlices, hash, isLevel, toDb } from "./loudness.js?v=0.48.3";
-import { fixedParts, musicParts } from "./parts.js?v=0.48.3";
+import S0 from "../../content/music.js?v=0.48.4";
+import SHARED from "../../content/levels.js?v=0.48.4";
+import { readMusic } from "../../js/music.js?v=0.48.4";
+import { weighSlices, hash, isLevel, toDb } from "./loudness.js?v=0.48.4";
+import { fixedParts, musicParts } from "./parts.js?v=0.48.4";
 
 const RATE = 44100;
 const round = (v) => Math.round(v * 100) / 100;

@@ -14,11 +14,11 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.48.3";
-import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.48.3";
-import { inScope, person } from "./place.js?v=0.48.3";
-import { ACTIONS, isAction } from "./actions.js?v=0.48.3";
-import { distance } from "./fields.js?v=0.48.3";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.48.4";
+import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.48.4";
+import { inScope, person } from "./place.js?v=0.48.4";
+import { ACTIONS, isAction } from "./actions.js?v=0.48.4";
+import { distance } from "./fields.js?v=0.48.4";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
