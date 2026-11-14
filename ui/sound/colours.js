@@ -7,7 +7,7 @@
 //                                                                                      is a loop, which some browsers never free)
 // (The music box's other half, every note an octave up as a small tine, is the synth's: playEvent's `box`.)
 
-import { src, filt, gain, lfo, chain } from "./synth.js?v=0.49.3";
+import { src, filt, gain, lfo, chain } from "./synth.js?v=0.50.0";
 
 // A gentle saturation: a tanh curve of this drive.
 function shaper(ctx, drive, n) {

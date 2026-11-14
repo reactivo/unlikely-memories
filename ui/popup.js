@@ -1,4 +1,4 @@
-// A popover that hangs from a tool button (≡ options: ui/options.js; ♫ sound: ui/soundpanel.js). The HTML popover API does the
+// A popover that hangs from a tool button (≡ options: ui/options.js). The HTML popover API does the
 // rest (non-modal: Esc, a click outside or the button again close it). This only places it: under the button, right edges lined up.
 
 // Hang `panel` from `button`; `opened()` and `closed()` are called as it opens (after it is placed) and as it closes.

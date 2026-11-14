@@ -9,7 +9,7 @@
    and line heights under :root[data-font="<id>"]. The old computers' fonts in fonts/ are not declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
-  src: url("../fonts/m5x7-patched.ttf?v=0.49.3") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
+  src: url("../fonts/m5x7-patched.ttf?v=0.50.0") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
 }
 
 @layer typography {

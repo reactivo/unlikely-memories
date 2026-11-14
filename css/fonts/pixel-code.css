@@ -9,7 +9,7 @@
    The grid: 1008 units per em, one font pixel is 112 units: 9 font pixels to the em. Capitals 7 pixels, accented capitals
    10, descenders 1 (2 for g y). Sharp at multiples of 9px: at 18px a font pixel is 2 CSS pixels (capitals 14px). */
 
-@font-face { font-family: "Pixel Code"; src: url("../../fonts/PixelCode.woff2?v=0.49.3") format("woff2"); }
+@font-face { font-family: "Pixel Code"; src: url("../../fonts/PixelCode.woff2?v=0.50.0") format("woff2"); }
 
 :root[data-font="pixel-code"] {
   --font-game: "Pixel Code", ui-monospace, monospace;

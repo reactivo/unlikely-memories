@@ -1,12 +1,12 @@
-/* Options popover, opened from ≡ (ui/tools.css), and the sound panel opened from ♫ (ui/soundpanel.css adds its sliders). Placed under
-   the button, right edges aligned (ui/popup.js).
+/* Options popover, opened from ≡ (ui/tools.css): a SOUND block (ui/soundpanel.css draws its sliders) and a GAME block, each with a
+   small heading, no title for the whole. Placed under the button, right edges aligned (ui/popup.js).
    Framed with a line in the surface colour. It lives in the browser's top layer, outside .layout, so its text style
    is a class of its own: .text-ui (css/typography.css), put on it in index.html. */
 @layer ui {
-  :is(.options, .sound-panel) {
+  .options {
     /* Colours in the options panel, by meaning. */
     --frame:        var(--color-surface);     /* the border */
-    --heading:      var(--color-text-dim);    /* OPTIONS */
+    --heading:      var(--color-text-dim);    /* SOUND, GAME */
     --choice:       var(--color-text);        /* a button: the off-white text */
     --choice-hover: var(--color-highlight);   /* …under the pointer: yellow */
 
@@ -21,8 +21,17 @@
     max-width: 80vw;                              /* never wider than 80% of the window (so never off screen on a phone) */
     box-sizing: border-box;
 
-    & h2 {
+    /* The blocks, one under the other, and each one's heading. */
+    & section {
       margin: 0 0 var(--space-m);
+    }
+
+    & section:last-child {
+      margin: 0;
+    }
+
+    & h2 {
+      margin: 0 0 var(--space-s);
       color: var(--heading);
     }
 

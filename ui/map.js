@@ -6,8 +6,8 @@
 // Closes with the ×, Esc or a click outside (the browser does the last two: it is a popover). Never changes the game itself:
 // it only asks the controller to travel. The game keeps running while it is open, so the map redraws as it changes.
 
-import { mapOf, levelName } from "../js/map.js?v=0.49.3";
-import { wide } from "./media.js?v=0.49.3";
+import { mapOf, levelName } from "../js/map.js?v=0.50.0";
+import { wide } from "./media.js?v=0.50.0";
 
 const DRAG = 5;   // px a press may move and still count as a click on a room
 const KEY = 48;   // px an arrow key moves the map
