@@ -398,7 +398,7 @@ export default {
               "get onto", "get aboard", "go aboard", "climb aboard", "climb in", "climb into", "hop on", "hop in",
               "hop into", "step on", "step onto", "step aboard", "embark"],
       exit: ["exit", "go out", "get out", "step out", "leave", "get off", "climb out", "get out of"],
-      climb: ["climb", "scale", "climb up", "climb on", "climb over", "ascend", "clamber", "ride", "mount"],
+      climb: ["climb", "scale", "climb up", "climb on", "climb over", "ascend", "clamber", "ride", "mount", "slide down", "shin up", "shin down", "shimmy up", "shimmy down"],
       jump: ["jump", "leap", "hop", "skip", "jump over", "jump on"],
       sit: ["sit", "sit down", "sit on", "sit in"],
       lie: ["lie", "lie down", "lie on", "recline"],

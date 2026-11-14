@@ -6,7 +6,7 @@
 // the bars): moved out of ui/log.js as it was, no rewrites; tests/follow.py plays it. The story's own DOM (paragraphs, phrases, visits)
 // stays in ui/log.js, which asks this. Also here: `page()`, the measurements the debug panel's Page section shows (ui/debug.js).
 
-import { reducedMotion, topMode } from "./media.js?v=0.50.0";
+import { reducedMotion, topMode } from "./media.js?v=0.50.1";
 
 // Set up the following on the story's element. Returns toEnd(), atEnd(), toTop(), glideTo(), typing(), forget(), added(), suggesting() and page().
 export function mount(root) {

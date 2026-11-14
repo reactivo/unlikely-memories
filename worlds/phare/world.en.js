@@ -1,10 +1,10 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.50.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.50.0";
-import levels from "./levels.js?v=0.50.0";
-import sprites from "./sprites.js?v=0.50.0";
+import pictures, { endings } from "./pictures.js?v=0.50.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.50.1";
+import levels from "./levels.js?v=0.50.1";
+import sprites from "./sprites.js?v=0.50.1";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -422,6 +422,10 @@ const rules = [
       { say: "You put your shoulder to the lens. It swings, and the beam goes out of the dome and goes round Paris: roofs, river, a window with someone at it, a bridge. You keep it turning until the whistles reach the stairs, and you are still turning it, the keeper of a light nobody asked for." },
       { end: true, picture: "keeper" }
     ] },
+  { id: "canvas_on_pipe", match: { verb: ["put", "tie", "drop", "throw", "lower", "use"], obj: "canvas", obj2: "drainpipe" }, if: [{ "canvas.at": "player" }],
+    do: [
+      { say: "The pipe won't carry it for you, so you roll the canvas under your coat and go down the pipe with it. In the alley a van waits under its tarpaulin, and a horn on a nail says, very quietly, \"Well.\" Behind you, high in the dome, the lens is still burning, and nobody in Paris has asked why." },
+      { end: true, picture: "carried" }] },
   { id: "climb_pipe_empty", match: { verb: ["climb", "enter", "use"], obj: "drainpipe" }, if: [{ "canvas.at": { "!=": "player" } }],
     do: [{ say: "You lay a hand on the pipe, and stop. You came for the picture." }] },
   { id: "climb_pipe", match: { verb: ["climb", "enter", "use"], obj: "drainpipe" }, if: [{ "canvas.at": "player" }],

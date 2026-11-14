@@ -16,7 +16,7 @@
 // Nothing here is drawn from the game's state: log.js, which knows when a room is entered, is given this and calls room().
 // Mounted on the top (index.html).
 
-import { topMode } from "./media.js?v=0.50.0";
+import { topMode } from "./media.js?v=0.50.1";
 
 const MOVE = 8;       // px a finger may move and still be still (not yet a drag)
 

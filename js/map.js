@@ -5,12 +5,12 @@
 // visited rooms (by an exit from them, or by one of theirs that leads back to them); other areas on that level that a passage reaches are placed beside the room it leaves from, so the
 // passage reads as one step. Coordinates are the cells of the area you are in: x grows east, y south.
 
-import { exitTo } from "./exits.js?v=0.50.0";
-import { STEP } from "./space.js?v=0.50.0";
-import { text, describe } from "./narrator.js?v=0.50.0";
-import { step } from "./engine.js?v=0.50.0";
-import { parse } from "./parser.js?v=0.50.0";
-import { story } from "./view.js?v=0.50.0";
+import { exitTo } from "./exits.js?v=0.50.1";
+import { STEP } from "./space.js?v=0.50.1";
+import { text, describe } from "./narrator.js?v=0.50.1";
+import { step } from "./engine.js?v=0.50.1";
+import { parse } from "./parser.js?v=0.50.1";
+import { story } from "./view.js?v=0.50.1";
 
 const COMPASS = ["n", "s", "e", "w"];    // the only directions a map can draw: the others have no cell next door
 const BACK = { n: "s", s: "n", e: "w", w: "e" };

@@ -4,7 +4,7 @@
 // What a device remembers is one value, { muted, music, tone, sounds } (js/prefs.js), kept by the controller (js/main.js): the
 // pure parts are here, the panel only reads and tells it what was moved.
 
-import S from "../content/music.js?v=0.50.0";
+import S from "../content/music.js?v=0.50.1";
 
 export const KEY = "parser-sound";                        // the remembered value
 export const PARTS = ["music", "tone", "sounds"];         // the sliders, and the player's buses (the Room slider is the `tone` bus)

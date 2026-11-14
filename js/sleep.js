@@ -5,7 +5,7 @@
 // { minutes }. A world writes nothing for any of it: a room may refuse (`sleep: "<line>"`), a room or a thing you sleep in may
 // give a vision (`dream`), and a rule of its own may send you to sleep its own way (`{ "sleep": "next 07:30" }`).
 
-import { MINUTE, HOUR, nextAt } from "./time.js?v=0.50.0";
+import { MINUTE, HOUR, nextAt } from "./time.js?v=0.50.1";
 
 const NAP = HOUR;                 // "A short nap": an hour
 const FEW = 4 * HOUR;             // "A few hours": four

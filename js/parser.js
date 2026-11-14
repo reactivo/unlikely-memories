@@ -14,11 +14,11 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.50.0";
-import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.50.0";
-import { inScope, person } from "./place.js?v=0.50.0";
-import { ACTIONS, isAction } from "./actions.js?v=0.50.0";
-import { distance } from "./fields.js?v=0.50.0";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.50.1";
+import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.50.1";
+import { inScope, person } from "./place.js?v=0.50.1";
+import { ACTIONS, isAction } from "./actions.js?v=0.50.1";
+import { distance } from "./fields.js?v=0.50.1";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
@@ -457,6 +457,9 @@ function readCommand(tokens, state, W, recent) {
     if (room) return { actions: [{ verb: "go", dir: room }] };
     const thing = resolve(tail, state, W, false);
     if (thing.leads && typed(d.id, thing)) return { actions: [{ verb: "go", dir: d.id }] };
+    // A thing here that is not a way out ("climb down the drainpipe", "go up the rope"): climbing it, as "climb the drainpipe";
+    // the world's own rule for climbing it decides what happens (a way down it is the world's, not the room's exit).
+    if ((thing.id && !thing.absent || thing.scenery) && !thing.leads) { verb = "climb"; verbText = show(tokens.slice(0, v ? v.len : 0), W); rest = rest.slice(rest.indexOf(tail[0])); }
   }
   if (verb === "go" && !rest.length) return { error: { say: "@whatTo", arg: verbText } };
 

@@ -10,22 +10,22 @@
 // the deliveries recorded in git since then, plus their making and their Spanish versions; earlier changes weren't recorded.
 // A new world: add its folder, import it here and add it to WORLDS.
 
-import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.50.0";
-import sea, { bible as seaBible } from "./sea/world.en.js?v=0.50.0";
-import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.50.0";
-import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.50.0";
-import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.50.0";
-import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.50.0";
-import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.50.0";
-import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.50.0";
-import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.50.0";
-import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.50.0";
-import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.50.0";
-import noon, { bible as noonBible } from "./noon/world.en.js?v=0.50.0";
-import phare, { bible as phareBible } from "./phare/world.en.js?v=0.50.0";
-import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.50.0";
-import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.50.0";
-import { parseShapes } from "../js/picture.js?v=0.50.0";
+import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.50.1";
+import sea, { bible as seaBible } from "./sea/world.en.js?v=0.50.1";
+import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.50.1";
+import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.50.1";
+import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.50.1";
+import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.50.1";
+import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.50.1";
+import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.50.1";
+import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.50.1";
+import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.50.1";
+import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.50.1";
+import noon, { bible as noonBible } from "./noon/world.en.js?v=0.50.1";
+import phare, { bible as phareBible } from "./phare/world.en.js?v=0.50.1";
+import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.50.1";
+import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.50.1";
+import { parseShapes } from "../js/picture.js?v=0.50.1";
 
 export const WORLDS = {
   sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 12, minutes: null, bible: { es: seaBibleEs }, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
@@ -36,7 +36,7 @@ export const WORLDS = {
   thirdglass: { title: thirdglassBible.title, blurb: thirdglassBible.blurb, thumbnail: thirdglassBible.thumbnail, made: "2026-11-03", model: "Claude Sonnet 5.5", effort: "high", version: 7, minutes: 34, text: { en: thirdglass } },     // "The Third Glass"
   boathouse: { title: boathouseBible.title, blurb: boathouseBible.blurb, thumbnail: boathouseBible.thumbnail, made: "2026-11-10", model: "Claude Sonnet 5.5", effort: "medium", version: 7, minutes: 31, text: { en: boathouse } },     // "The Lake Lights It Again"
   noon: { title: noonBible.title, blurb: noonBible.blurb, thumbnail: noonBible.thumbnail, made: "2026-11-12", model: "Claude Sonnet 5.5", effort: "medium", version: 3, minutes: 34, text: { en: noon } },     // "The River Turns at Noon"
-  phare: { title: phareBible.title, blurb: phareBible.blurb, thumbnail: phareBible.thumbnail, made: "2026-11-14", model: "Claude Sonnet 5.5", effort: "medium", version: 2, minutes: 24, text: { en: phare } },     // "A Light for the Galerie Aubry"
+  phare: { title: phareBible.title, blurb: phareBible.blurb, thumbnail: phareBible.thumbnail, made: "2026-11-14", model: "Claude Sonnet 5.5", effort: "medium", version: 3, minutes: 24, text: { en: phare } },     // "A Light for the Galerie Aubry"
   testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 6, minutes: null, bible: { es: testbedBibleEs }, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
 };
 
