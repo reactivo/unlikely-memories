@@ -2,10 +2,10 @@
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, applied after the opening, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -102,7 +102,7 @@ const rooms = {
     describe: [
       "A tiled hall under a glass roof. The station {clock|station_clock} says [time]. Below it, a {tear-off calendar|calendar} and, framed, the {decree}.",
       "The {ticket window|window} has a brass grille and a shutter. The {timetable} takes up a whole wall and lists one train.",
-      "The platform is north, the square south. Lost property is west; the waiting room, east."
+      "The platform is north, the square south through the {doors|station_doors}. Lost property is west; the waiting room, east."
     ],
     exits: { n: "platform", s: { to: "square", out: true }, w: "lost_property", e: "waiting_room" },
     waitFor: { time: "next 21:00", says: "You wait under the clock. It is honest about every minute.", if: [hours(6, 21)] },
@@ -154,10 +154,10 @@ const rooms = {
     name: "SIGNAL BOX", area: "town", at: [0, -1, 0],
     describe: [
       "A wooden box on stilts, all windows. A row of levers stands like a choir. The {signalman} keeps his hand on the one that matters and his eyes on the {diagram} of the line, which is a single stroke.",
-      "The platform is east, down the steps."
+      "The platform is east, down the {steps|box_steps}."
     ],
     exits: { e: { to: "platform", out: true } },
-    scenery: [{ words: ["levers", "lever", "windows", "window", "stilts", "steps"], name: "the levers", says: "Taller than you, polished at the grip, and not yours to pull." }],
+    scenery: [{ words: ["levers", "lever", "windows", "window", "stilts"], name: "the levers", says: "Taller than you, polished at the grip, and not yours to pull." }],
     sleep: "Not in the signal box. The signalman has never once closed his eyes on duty, and he won't have you doing it.",
     alt: "Inside a signal box: a row of tall levers, windows all round, a man in shirtsleeves with one hand on a lever, a diagram of a single line on the wall."
   },
@@ -175,7 +175,7 @@ const rooms = {
     name: "HOTEL TERMINUS", area: "town", at: [0, 1, 0],
     describe: [
       "A narrow lobby that smells of polish and boiled cabbage. Behind the desk, the {night porter|porter} reads yesterday's paper, which is always Saturday's.",
-      "Stairs go up to the rooms. The square is east."
+      "Stairs go up to the rooms. The square is east, through the {door|hotel_door}."
     ],
     exits: { e: { to: "square", out: true }, u: { to: "hotel_room", if: { "room_key.at": "player" },
       closed: "The porter clears his throat. \"Rooms are for guests,\" he says. \"Guests ask.\"" } },
@@ -199,7 +199,7 @@ const rooms = {
     name: "CAFÉ DOMINGO", area: "town", at: [2, 1, 0],
     describe: [
       "Six tables, a zinc counter, a radio playing the same waltz. {Inés|ines} wipes the counter in slow circles. A chalk {board|menu} lists what there is, which is coffee.",
-      "The square is west."
+      "The square is west, through the {door|cafe_door}."
     ],
     exits: { w: { to: "square", out: true } },
     scenery: [{ words: ["tables", "table", "counter", "zinc", "radio", "waltz", "chairs"], name: "the café", says: "The waltz ends and begins again without a pause, like a person who has never been interrupted." }],
@@ -224,7 +224,7 @@ const rooms = {
     name: "TOWN HALL", area: "town", at: [0, 2, 0],
     describe: [
       "A marble hall with a counter for everything and nobody behind most of them. A sign points upstairs: ARCHIVE. Another points nowhere: COMPLAINTS.",
-      "The high street is east."
+      "The high street is east, through the {doors|hall_doors}."
     ],
     exits: { e: { to: "high_street", out: true }, u: "archive" },
     scenery: [{ words: ["stairs", "archive", "staircase"], name: "the stairs", says: "Marble stairs, worn in the middle, going up to the archive.", leads: "u" },
@@ -248,7 +248,7 @@ const rooms = {
     name: "THE CLOCKMAKER'S", area: "town", at: [2, 2, 0],
     describe: [
       "Clocks on every wall, each keeping somebody's time, none of them yours. The {clockmaker} sits with a lens in one eye, mending a minute.",
-      "On the counter stands a {clock|backwards_clock} that runs backwards. The high street is west."
+      "On the counter stands a {clock|backwards_clock} that runs backwards. The high street is west, through the {door|shop_door}."
     ],
     exits: { w: { to: "high_street", out: true } },
     scenery: [{ words: ["counter", "bench", "tweezers"], name: "the counter" },
@@ -261,7 +261,7 @@ const rooms = {
     name: "THE PARK", area: "town", at: [1, 3, 0],
     describe: [
       "Gravel paths, a bandstand with no band, and a hedge clipped into the shape of a week with a day missing.",
-      "The high street is north. The chapel is west; the pond, east."
+      "The high street is north. The {chapel|chapel_front} is west; the pond, east."
     ],
     exits: { n: "high_street", w: { to: "chapel", in: true }, e: "pond" },
     scenery: [
@@ -422,7 +422,7 @@ const objects = {
     words: { nouns: ["board"], adj: ["timetable", "hanging"] },
     examine: "TUESDAY, DEPARTS 23:40. The train is in ten minutes before. Passengers with tickets only." },
   train: { at: null, name: "Train", note: "For Tuesday.", actions: ["Board train"],
-    words: { nouns: ["train", "carriage", "carriages", "engine"], adj: ["tuesday", "night"] }, enterable: "in",
+    words: { nouns: ["train", "carriage", "carriages", "engine"], adj: ["tuesday", "night"] }, leads: "n",
     examine: "Three green carriages and an engine breathing steam in slow, deliberate breaths. Every window is lit. Nobody looks out.",
     here: "The {train} stands at the platform, breathing. North, its doors are open." },
 
@@ -531,6 +531,31 @@ const objects = {
   backwards_clock: { at: "clock_shop", name: "Backwards clock", note: "Yesterday's time.", actions: ["Wind clock"],
     words: { nouns: ["clock"], adj: ["backwards", "backward", "wrong"] },
     examine: "A brass carriage clock whose hands go round the wrong way, unhurried. A key sits in its back." },
+
+  // The ways in and out (BRIEF.md §8, "Exits": every way in or out is a thing): the doors out of the station hall, the hotel, the café,
+  // the town hall and the clockmaker's, and the signal box's steps (their exits marked `out: true`); the chapel, entered from the park by
+  // its direction (marked `in: true`). The train is the platform's way in while it is there (it leads north).
+  station_doors: { at: "station_hall", door: "s", material: "glass", name: "Doors", note: "Out to the square.",
+    words: { nouns: ["doors", "door"], adj: ["station", "glass"], pl: true },
+    examine: "Tall glass doors with brass push-plates, worn bright where everybody has pushed." },
+  box_steps: { at: "signal_box", leads: "e", name: "Steps", note: "Down to the platform.",
+    words: { nouns: ["steps", "stairs"], adj: ["wooden"], pl: true },
+    examine: "Wooden steps going down the stilts to the platform, a rope for a rail." },
+  hotel_door: { at: "hotel", door: "e", material: "wood", name: "Door", note: "Out to the square.",
+    words: { nouns: ["door"], adj: ["hotel", "front"] },
+    examine: "The hotel's front door, with a bell over it that rings for coming in and not for going out." },
+  cafe_door: { at: "cafe", door: "w", material: "glass", name: "Door", note: "Out to the square.",
+    words: { nouns: ["door"], adj: ["cafe"] },
+    examine: "A glass door with the café's name on it backwards, from in here." },
+  hall_doors: { at: "town_hall", door: "e", material: "wood", name: "Doors", note: "Out to the high street.",
+    words: { nouns: ["doors", "door"], adj: ["front", "big"], pl: true },
+    examine: "Big doors that keep office hours. From inside, they only ever let you out." },
+  shop_door: { at: "clock_shop", door: "w", material: "glass", name: "Door", note: "Out to the high street.",
+    words: { nouns: ["door"], adj: ["shop"] },
+    examine: "A glass door with a clock painted on it, stopped at the time the shop shuts." },
+  chapel_front: { at: "park", leads: "w", name: "Chapel", note: "West of the park.",
+    words: { nouns: ["chapel"], adj: [] },
+    examine: "A small grey chapel with its door ajar, as if someone had just gone in to sit down." },
 
   // Chapel, pond
   gravestones: { at: "chapel", name: "Stones", note: "All Mondays.", opens: ["monday"],
@@ -660,7 +685,7 @@ const rules = [
   { id: "board_no_ticket", match: { verb: ["enter", "go", "board"], obj: [null, "train"] }, if: [at("platform"), { "train.at": "platform" }, { "ticket.at": { "!=": "player" } }, { "$exit": { in: ["compartment", null] } }],
     do: [{ say: "The guard steps down and stands in the door. \"Tickets,\" he says, and waits, and you have none." }] },
   { id: "board", match: { verb: ["enter", "board"], obj: "train" }, if: [at("platform"), holding("ticket")], do: pastTheGuard },
-  // The carriage is marked as the platform's way in, so "in" and a bare "enter" go north (the engine turns the one into the other).
+  // The train is the platform's way in (it leads north, the exit marked `in: true`), so "in" and a bare "enter" go north through it.
   { id: "board_by_way", match: { verb: "go", dir: "n" }, if: [at("platform"), { "train.at": "platform" }, holding("ticket")], do: pastTheGuard },
   { id: "no_train", match: { verb: ["enter", "go", "board"], obj: [null, "train"] }, if: [at("platform"), { "train.at": { "!=": "platform" } }, { "$exit": { in: [true, null] } }],
     do: [{ say: "The rails are empty. The board says the train is in at half past eleven." }] },

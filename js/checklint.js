@@ -6,22 +6,22 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.51.4";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.51.4";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.51.4";
-import { isAction } from "./actions.js?v=0.51.4";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.51.4";
-import { isLine } from "./shapes.js?v=0.51.4";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.51.4";
-import { nextCell } from "./space.js?v=0.51.4";
-import { moveTo, worldTime, parts } from "./time.js?v=0.51.4";
-import * as opening from "./opening.js?v=0.51.4";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.51.4";
-import art from "../content/art.js?v=0.51.4";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.51.4";
-import { paintPicture } from "./paint.js?v=0.51.4";
-import { filterProblem } from "./filters.js?v=0.51.4";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.51.4";
+import { parse, normalise } from "./parser.js?v=0.52.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.52.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.52.0";
+import { isAction } from "./actions.js?v=0.52.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.52.0";
+import { isLine } from "./shapes.js?v=0.52.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.52.0";
+import { nextCell } from "./space.js?v=0.52.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.52.0";
+import * as opening from "./opening.js?v=0.52.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.52.0";
+import art from "../content/art.js?v=0.52.0";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.52.0";
+import { paintPicture } from "./paint.js?v=0.52.0";
+import { filterProblem } from "./filters.js?v=0.52.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.52.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -171,6 +171,27 @@ function exitsLeadProblems(state, pack, arrived, badExits, problems, warnings) {
       const missing = waysOf(thing).filter(dir => !(dir in (room.exits || {})));
       for (const dir of missing) problems.push(`${id}: "${word}" leads ${dir}, but there's no way ${dir} from here`);
       if (!missing.length && travels(there, climb + " " + word) !== wayOf(thing)) problems.push(`${id}: "${climb} ${word}" doesn't go ${wayOf(thing)}`);
+    }
+  }
+}
+
+// Every way in or out of somewhere is a thing in the room (BRIEF.md §8, "Exits"): an `in` or `out` exit, or an exit marked `in: true` /
+// `out: true`, needs an object in that room that is that way (its `door` or `leads` that direction, or "in" / "out" there: thingsFor in
+// js/exits.js), marked in the text where it comes into view, so it is seen, clicked and gone through. Scenery is not one: it offers
+// nothing. A problem. A way a `connect` makes in play (a train come in) the same: an object that is that way, in that room or moved
+// there by some effect.
+function inOutProblems(state, problems) {
+  const { rooms, objects } = state.world, how = (dir, way) => (dir === way ? `an \`${way}\` exit` : `exit ${dir}, marked \`${way}: true\``);
+  const fix = (dir) => `give the door, gate, hatch, building or tent the text names \`door: "${dir}"\` or \`leads: "${dir}"\` (BRIEF.md §8, "Exits")`;
+  for (const [id, room] of Object.entries(rooms)) for (const [dir, way] of inOutExits(room?.exits))
+    if (!thingsFor(state.world, id, dir).length) problems.push(`${id}: ${how(dir, way)} is a way ${way}, but no thing in the room is that way: ${fix(dir)}`);
+  const movedTo = (room) => new Set(effectsOf(state).filter(({ effect: e }) => typeof e.move === "string" && e.to === room).map(({ effect: e }) => e.move));
+  for (const { effect: e, where } of effectsOf(state)) {
+    if (typeof e.connect !== "string" || typeof e.dir !== "string") continue;
+    for (const [dir, way] of inOutExits({ [e.dir]: e.dir === "in" || e.dir === "out" ? e.to : e })) {
+      const can = movedTo(e.connect), ways = (o) => waysOf(o).some(w => w === dir || w === way);
+      if (!Object.entries(objects).some(([oid, o]) => (o.at === e.connect || can.has(oid)) && ways(o)))
+        problems.push(`${where}: connect ${e.connect} ${how(dir, way)} is a way ${way}, but no thing there is that way: ${fix(dir)}`);
     }
   }
 }
@@ -452,6 +473,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   const arrived = applyChangeSet(state, { effects: [{ change: "arrival", optional: true }] }).next;
   exitsLeadProblems(state, pack, arrived, badExits, problems, warnings);
   pairProblems(arrived, problems);
+  inOutProblems(state, problems);
   offeredWarnings(state, pack, warnings);
   sourceTopicWarnings(state, pack, warnings);
   mentionProblems(state, pack, arrived, problems, warnings);

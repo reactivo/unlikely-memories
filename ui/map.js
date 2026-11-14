@@ -1,13 +1,13 @@
 // Map popup: the rooms you have visited on your level (js/map.js works out what to show), drawn as boxes with lines between
-// neighbours and short stubs for ways not taken. It opens from the M on the compass or the MAP command, always centred on
+// neighbours and short stubs for ways not taken. It opens from SEE MAP under the compass or the MAP command, always centred on
 // your room at full size; a drag (mouse or finger) or the arrow keys move it; two fingers pinch it bigger or smaller around
 // their middle (a trackpad pinch, Ctrl or ⌘ with the mouse wheel, and + and − do the same); a click on a room (not a drag,
 // never a pinch) closes it and walks there.
 // Closes with the ×, Esc or a click outside (the browser does the last two: it is a popover). Never changes the game itself:
 // it only asks the controller to travel. The game keeps running while it is open, so the map redraws as it changes.
 
-import { mapOf, levelName } from "../js/map.js?v=0.51.4";
-import { wide } from "./media.js?v=0.51.4";
+import { mapOf, levelName } from "../js/map.js?v=0.52.0";
+import { wide } from "./media.js?v=0.52.0";
 
 const DRAG = 5;   // px a press may move and still count as a click on a room
 const KEY = 48;   // px an arrow key moves the map

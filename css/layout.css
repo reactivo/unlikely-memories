@@ -61,7 +61,9 @@
     :root {
       --page-bottom: max(var(--space-l), env(safe-area-inset-bottom, 0px));  /* below the prompt (the home indicator, if any) */
       --strip-height: 40dvh;                                                  /* the strip's share of the window's height */
-      --tile: min(var(--tile-max), calc(var(--strip-height) / 8.333));        /* what fits: 7 tiles high plus gaps adding up to 1⅓ tiles */
+      --tile: min(var(--tile-max), calc(var(--strip-height) / 8.333));        /* what fits: 7 tiles high (the compass's two rows and SEE MAP,
+                                                                                 the inventory's three, SETTINGS) plus gaps adding up to 1⅓
+                                                                                 tiles (four --tile-gap inside the blocks, two --block-gap) */
       --tile-gap: calc(var(--tile) / 6);                                      /* between tiles: 8px at full size */
       --block-gap: calc(var(--tile) / 3);                                     /* between the strip's blocks (≡, compass, inventory): 16px at full size */
       --strip: calc(3 * var(--tile) + 2 * var(--tile-gap));                   /* the strip's width: three tiles and their two gaps */
@@ -296,9 +298,10 @@
       order: 1;   /* under the inventory (the last of the strip) */
     }
 
-    /* The characters on the compass follow their tiles (two thirds of a tile: 32px at full size). */
+    /* The compass's words (SEE MAP: its tiles are icons) at SETTINGS' size, S (until 14 November 2026 the compass's characters
+       followed their tiles, two thirds of one). */
     .compass {
-      --button-text: calc(var(--tile) * 2 / 3);
+      --button-text: var(--text-s);
     }
 
     /* Tabs (ui/tabs.css): gone, the strip shows directions and inventory. */

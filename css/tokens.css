@@ -38,7 +38,6 @@
     /* Greys with the same faint warmth (hue 40°, about 6% saturation: neutral, but never a cold default grey),
        numbered by darkness. */
     --palette-ink-950:    #1b1a18;   /* near black */
-    --palette-ink-925:    #1f1e1c;   /* a step above it: 30% of 900 over 950 */
     --palette-ink-900:    #2a2926;   /* lifted: about 6 points lighter than 950 */
     --palette-stone-700:  #42403c;   /* darker grey */
     --palette-stone-600:  #6b6964;   /* dark grey */
@@ -60,7 +59,6 @@
     --color-bg:            var(--color-bg-rest);      /* the page background: at rest, or flashing when you are hurt or healed (css/base.css) */
     --color-bg-rest:       var(--palette-ink-950);    /* the page background at rest: the page's own colour, change it here */
     --color-surface:       var(--palette-ink-900);    /* raised areas: buttons, tabs, tiles, filled slots, outlines */
-    --color-surface-faint: var(--palette-ink-925);    /* barely raised: tiles that do nothing (the compass corners) */
     --color-text:          var(--palette-paper-50);   /* main text, and anything bright: the cursor, open exits, hovers */
     --color-text-dim:      var(--palette-stone-400);  /* secondary text: labels, headings, hints, echoed commands, fades */
     --color-text-faint:    var(--palette-stone-700);  /* barely there: inactive things, notes, buttons at rest */

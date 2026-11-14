@@ -2,10 +2,10 @@
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, applied after the opening, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -110,13 +110,12 @@ const rooms = {
   lift_lobby: {
     name: "THE LIFTS", area: "store", at: [1, 0, 0],
     describe: [
-      "Brass lift doors under an {indicator} that points to floors nobody has asked for in years: B, G, 1, 2, 4.",
+      "Brass {lift doors|lobby_doors} under an {indicator} that points to floors nobody has asked for in years: B, G, 1, 2, 4.",
       "The lift is north, its gate open. Stairs go up to the first floor; steps go down to the basement. The hall is south."
     ],
     exits: { n: { to: "lift", in: true }, s: "front_hall", u: "first_landing", d: "basement" },
     scenery: [{ words: ["stairs", "staircase", "banister"], name: "the stairs", says: "A wide staircase with a mahogany banister, going up.", leads: "u" },
-              { words: ["steps", "basement"], name: "the steps", says: "Stone steps going down to the basement, with a smell of soap coming up them.", leads: "d" },
-              { words: ["doors", "gate", "lift"], name: "the lift doors", says: "Brass doors, and inside them a brass gate, folded open.", leads: "n" }],
+              { words: ["steps", "basement"], name: "the steps", says: "Stone steps going down to the basement, with a smell of soap coming up them.", leads: "d" }],
     alt: "A lift lobby: brass doors with a folding gate open, a semicircular floor indicator above them, a staircase going up on one side and stone steps going down on the other."
   },
   lift: {
@@ -236,7 +235,7 @@ const rooms = {
     name: "THE FOURTH FLOOR", area: "fourth", at: [0, 0, 4],
     describe: [
       "A long room of rails, and on the rails, afternoons, hung like coats, each with a label in a careful hand. A rainy one in a grey that would suit you. A blue one that smells of the sea.",
-      "Under its own lamp hangs the {afternoon} you didn't go. {The fitter|fitter} waits with pins in her mouth. The lift is south."
+      "Under its own lamp hangs the {afternoon} you didn't go. {The fitter|fitter} waits with pins in her mouth. The {lift|fourth_lift} is south."
     ],
     exits: { s: { to: "lift", in: true } },
     scenery: [{ words: ["rails", "rail", "afternoons", "labels", "label", "grey", "blue", "lamp"], name: "the afternoons", says: "AUGUST 1958, THE FAIR. A SUNDAY, NOT VISITING. THE BUS NOT TAKEN. Each one cut to fit somebody, and none of them collected." }],
@@ -314,7 +313,14 @@ const objects = {
     lies: "A long brass {key|roof_key} lies here, labelled ROOF.",
     examine: "A long brass key with a paper label: ROOF. MENDED. It has been mended so carefully that it's hard to say where." },
 
-  // The lift
+  // The lift, and the ways into it (BRIEF.md §8, "Exits": every way in is a thing): the lobby's doors, and the lift itself on the
+  // fourth floor (both exits marked `in: true`).
+  lobby_doors: { at: "lift_lobby", door: "n", material: "metal", name: "Lift doors", note: "Brass, the gate folded open.",
+    words: { nouns: ["doors", "door", "gate", "lift"], adj: ["lift", "brass"], pl: true },
+    examine: "Brass doors, and inside them a brass gate, folded open." },
+  fourth_lift: { at: "fourth_floor", leads: "s", name: "Lift", note: "Waiting, its gate open.",
+    words: { nouns: ["lift", "gate"], adj: [] },
+    examine: "The lift waits with its gate folded open, Mr Pell on his stool inside, looking at the ceiling." },
   pell: { portrait: sprites.pell_portrait, at: "lift", name: "Mr Pell", note: "The lift man.",
     words: { nouns: ["pell", "man", "operator", "liftman", "attendant"], adj: ["mr", "mister", "lift"], proper: true },
     examine: "A small man in a maroon uniform with a stripe down each leg. He has taken the lift up and down for so long he no longer believes in stairs.",

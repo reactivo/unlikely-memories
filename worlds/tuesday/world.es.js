@@ -3,10 +3,10 @@
 // conjunto de cambios, aplicado tras la apertura, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
-import pictures, { endings } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- La biblia del juego -------------------------------------------------------------------------------------------
 export const bible = {
@@ -104,7 +104,7 @@ const rooms = {
     describe: [
       "Un vestíbulo de azulejos bajo un techo de cristal. El {reloj de la estación|station_clock} marca [time]. Debajo, un {calendario|calendar} de hojas y, enmarcado, el {decreto|decree}.",
       "La {ventanilla|window} tiene una reja de latón y un postigo. El {horario|timetable} ocupa una pared entera y anuncia un solo tren.",
-      "El andén queda al norte, la plaza al sur. Objetos perdidos está al oeste; la sala de espera, al este."
+      "El andén queda al norte, la plaza al sur, tras las {puertas|station_doors}. Objetos perdidos está al oeste; la sala de espera, al este."
     ],
     exits: { n: "platform", s: { to: "square", out: true }, w: "lost_property", e: "waiting_room" },
     waitFor: { time: "next 21:00", says: "Esperas bajo el reloj. No miente en ningún minuto.", if: [hours(6, 21)] },
@@ -156,10 +156,10 @@ const rooms = {
     name: "CASETA DE SEÑALES", area: "town", at: [0, -1, 0],
     describe: [
       "Una caja de madera sobre pilotes, toda ventanas. Una hilera de palancas se alinea como un coro. El {guardagujas|signalman} tiene la mano en la que importa y los ojos en el {esquema|diagram} de la línea, que es un solo trazo.",
-      "El andén queda al este, bajando los escalones."
+      "El andén queda al este, bajando los {escalones|box_steps}."
     ],
     exits: { e: { to: "platform", out: true } },
-    scenery: [{ words: ["palancas", "palanca", "ventanas", "ventana", "pilotes", "escalones"], name: "las palancas", says: "Más altas que tú, pulidas en la empuñadura, y no te toca tirar de ellas." }],
+    scenery: [{ words: ["palancas", "palanca", "ventanas", "ventana", "pilotes"], name: "las palancas", says: "Más altas que tú, pulidas en la empuñadura, y no te toca tirar de ellas." }],
     sleep: "En la caseta de señales no. El guardagujas no ha cerrado los ojos en su turno ni una sola vez, y no va a consentir que tú lo hagas.",
     alt: "El interior de una caseta de señales: una hilera de palancas altas, ventanas por todas partes, un hombre en mangas de camisa con una mano en una palanca y un esquema de una sola línea en la pared."
   },
@@ -177,7 +177,7 @@ const rooms = {
     name: "HOTEL TÉRMINO", area: "town", at: [0, 1, 0],
     describe: [
       "Un vestíbulo estrecho que huele a cera y a col hervida. Tras el mostrador, el {conserje de noche|porter} lee el periódico de ayer, que siempre es el del sábado.",
-      "Una escalera sube a las habitaciones. La plaza queda al este."
+      "Una escalera sube a las habitaciones. La plaza queda al este, tras la {puerta|hotel_door}."
     ],
     exits: { e: { to: "square", out: true }, u: { to: "hotel_room", if: { "room_key.at": "player" },
       closed: "El conserje carraspea. «Las habitaciones son para los huéspedes», dice. «Los huéspedes las piden»." } },
@@ -201,7 +201,7 @@ const rooms = {
     name: "CAFÉ DOMINGO", area: "town", at: [2, 1, 0],
     describe: [
       "Seis mesas, una barra de zinc, una radio que pone el mismo vals. {Inés|ines} limpia la barra con círculos lentos. Una {pizarra|menu} de tiza anuncia lo que hay, que es café.",
-      "La plaza queda al oeste."
+      "La plaza queda al oeste, tras la {puerta|cafe_door}."
     ],
     exits: { w: { to: "square", out: true } },
     scenery: [{ words: ["mesas", "mesa", "barra", "zinc", "radio", "vals", "sillas"], name: "el café", says: "El vals termina y vuelve a empezar sin una pausa, como alguien a quien nunca han interrumpido." }],
@@ -225,7 +225,7 @@ const rooms = {
     name: "AYUNTAMIENTO", area: "town", at: [0, 2, 0],
     describe: [
       "Un vestíbulo de mármol con una ventanilla para cada trámite y nadie detrás de la mayoría. Un cartel señala arriba: ARCHIVO. Otro no señala a ninguna parte: QUEJAS.",
-      "La calle Mayor queda al este."
+      "La calle Mayor queda al este, tras las {puertas|hall_doors}."
     ],
     exits: { e: { to: "high_street", out: true }, u: "archive" },
     scenery: [{ words: ["escalera", "escaleras", "archivo"], name: "la escalera", says: "Una escalera de mármol, gastada en el centro, que sube al archivo.", leads: "u" },
@@ -249,7 +249,7 @@ const rooms = {
     name: "LA RELOJERÍA", area: "town", at: [2, 2, 0],
     describe: [
       "Relojes en todas las paredes, cada uno con la hora de alguien, ninguno con la tuya. El {relojero|clockmaker} está sentado con una lupa en un ojo, arreglando un minuto.",
-      "Sobre el mostrador hay un {reloj|backwards_clock} que anda hacia atrás. La calle Mayor queda al oeste."
+      "Sobre el mostrador hay un {reloj|backwards_clock} que anda hacia atrás. La calle Mayor queda al oeste, tras la {puerta|shop_door}."
     ],
     exits: { w: { to: "high_street", out: true } },
     scenery: [{ words: ["mostrador", "banco", "pinzas"], name: "el mostrador" },
@@ -262,7 +262,7 @@ const rooms = {
     name: "EL PARQUE", area: "town", at: [1, 3, 0],
     describe: [
       "Caminos de grava, un quiosco de música sin banda y un seto recortado con la forma de una semana a la que le falta un día.",
-      "La calle Mayor queda al norte. La capilla, al oeste; el estanque, al este."
+      "La calle Mayor queda al norte. La {capilla|chapel_front}, al oeste; el estanque, al este."
     ],
     exits: { n: "high_street", w: { to: "chapel", in: true }, e: "pond" },
     scenery: [
@@ -423,7 +423,7 @@ const objects = {
     words: { nouns: ["panel", "cuadro", "horario", "horarios"], adj: ["colgante"], g: "m" },
     examine: "MARTES, SALIDA 23:40. El tren llega diez minutos antes. Solo pasajeros con billete." },
   train: { at: null, name: "Tren", note: "Para el martes.", actions: ["Subir al tren"],
-    words: { nouns: ["tren", "vagón", "vagon", "vagones", "locomotora", "coche"], adj: ["martes", "noche", "verde"], g: "m" }, enterable: "in",
+    words: { nouns: ["tren", "vagón", "vagon", "vagones", "locomotora", "coche"], adj: ["martes", "noche", "verde"], g: "m" }, leads: "n",
     examine: "Tres vagones verdes y una locomotora que respira vapor en bocanadas lentas y deliberadas. Todas las ventanillas están encendidas. Nadie mira hacia fuera.",
     here: "El {tren|train} está en el andén, respirando. Al norte, tiene las puertas abiertas." },
 
@@ -532,6 +532,31 @@ const objects = {
   backwards_clock: { at: "clock_shop", name: "Reloj del revés", note: "La hora de ayer.", actions: ["Dar cuerda al reloj"],
     words: { nouns: ["reloj"], adj: ["revés", "reves", "atrás", "atras", "atrasado", "contrario", "inverso"], g: "m" },
     examine: "Un reloj de sobremesa, de latón, cuyas manecillas giran al revés, sin prisa. Lleva una llave en la espalda." },
+
+  // Las entradas y salidas (BRIEF.md §8, "Exits": cada entrada o salida es una cosa): las puertas del vestíbulo de la estación, del
+  // hotel, del café, del ayuntamiento y de la relojería, y los escalones de la caseta de señales (sus salidas, marcadas `out: true`); la
+  // capilla, en la que se entra desde el parque por su dirección (marcada `in: true`). El tren es la entrada del andén mientras está.
+  station_doors: { at: "station_hall", door: "s", material: "glass", name: "Puertas", note: "Salen a la plaza.",
+    words: { nouns: ["puertas", "puerta"], adj: ["estacion", "cristal"], pl: true, g: "f" },
+    examine: "Unas puertas altas de cristal con placas de latón para empujar, brillantes donde todo el mundo empuja." },
+  box_steps: { at: "signal_box", leads: "e", name: "Escalones", note: "Bajan al andén.",
+    words: { nouns: ["escalones", "escalera"], adj: ["madera"], pl: true, g: "m" },
+    examine: "Unos escalones de madera que bajan por los pilotes hasta el andén, con una cuerda por barandilla." },
+  hotel_door: { at: "hotel", door: "e", material: "wood", name: "Puerta", note: "Sale a la plaza.",
+    words: { nouns: ["puerta"], adj: ["hotel", "principal"], g: "f" },
+    examine: "La puerta principal del hotel, con una campanilla encima que suena cuando llega alguien y no cuando se va." },
+  cafe_door: { at: "cafe", door: "w", material: "glass", name: "Puerta", note: "Sale a la plaza.",
+    words: { nouns: ["puerta"], adj: ["cristal"], g: "f" },
+    examine: "Una puerta de cristal con el nombre del café escrito al revés, visto desde aquí." },
+  hall_doors: { at: "town_hall", door: "e", material: "wood", name: "Puertas", note: "Salen a la calle Mayor.",
+    words: { nouns: ["puertas", "puerta"], adj: ["grandes", "principales"], pl: true, g: "f" },
+    examine: "Unas puertas grandes que cumplen horario de oficina. Desde dentro, solo dejan salir." },
+  shop_door: { at: "clock_shop", door: "w", material: "glass", name: "Puerta", note: "Sale a la calle Mayor.",
+    words: { nouns: ["puerta"], adj: ["tienda"], g: "f" },
+    examine: "Una puerta de cristal con un reloj pintado, parado a la hora en que cierra la tienda." },
+  chapel_front: { at: "park", leads: "w", name: "Capilla", note: "Al oeste del parque.",
+    words: { nouns: ["capilla"], adj: [], g: "f" },
+    examine: "Una capilla pequeña y gris con la puerta entornada, como si alguien acabara de entrar a sentarse." },
 
   // Capilla, estanque
   gravestones: { at: "chapel", name: "Lápidas", note: "Todas lunes.", opens: ["monday"],
@@ -667,7 +692,7 @@ const rules = [
   { id: "board_no_ticket", match: { verb: [...BOARD, "go"], obj: [null, "train"] }, if: [at("platform"), { "train.at": "platform" }, { "ticket.at": { "!=": "player" } }, { "$exit": { in: ["compartment", null] } }],
     do: [{ say: "El revisor baja y se planta en la puerta. «Billetes», dice, y espera, y tú no tienes ninguno." }] },
   { id: "board", match: { verb: BOARD, obj: "train" }, if: [at("platform"), holding("ticket")], do: pastTheGuard },
-  // El vagón está marcado como la entrada del andén, así que «dentro» y un «entrar» a secas van al norte (el motor convierte lo uno en lo otro).
+  // El tren es la entrada del andén (lleva al norte, la salida marcada `in: true`), así que «dentro» y un «entrar» a secas van al norte a través de él.
   { id: "board_by_way", match: { verb: "go", dir: "n" }, if: [at("platform"), { "train.at": "platform" }, holding("ticket")], do: pastTheGuard },
   { id: "no_train", match: { verb: [...BOARD, "go"], obj: [null, "train"] }, if: [at("platform"), { "train.at": { "!=": "platform" } }, { "$exit": { in: [true, null] } }],
     do: [{ say: "Los raíles están vacíos. El panel dice que el tren llega a las once y media." }] },

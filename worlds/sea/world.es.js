@@ -7,10 +7,10 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.
@@ -54,7 +54,7 @@ const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floo
 // Textos de sala que los cambios ponen y quitan (la playa y la linterna). Un cambio reescribe todo el texto de una sala; cuando
 // dos cambios pueden tocar la misma sala, el posterior tiene en cuenta al anterior (BRIEF.md §9): encender la lámpara
 // cuando la puerta ya es madera de deriva usa los textos con los dos.
-const sand = "La línea de la marea sigue hacia el oeste. Al este, rocas negras y la boca de una cueva. Al sur, las dunas.";
+const sand = "La línea de la marea sigue hacia el oeste. Al este, rocas negras y la boca de una {cueva|cave_mouth}. Al sur, las dunas.";
 const doorStands = "Una playa de noche. La arena aún está tibia, como si el sol acabara de irse. La {puerta verde|beach_door} se alza sola, sin nada que la sujete, respirando.";
 const doorGone = "Una playa de noche. La arena aún está tibia, como si el sol acabara de irse. Donde estaba la puerta verde hay un trozo de {madera de deriva|beach_door} clavado en la arena, del tamaño de una puertecita.";
 const seaDark = "El mar está en calma y es muy grande. Un muelle de madera echa a andar hacia el norte. A lo lejos, sobre una roca, un {faro|lighthouse_far} a oscuras.";
@@ -116,7 +116,7 @@ const rooms = {
     scenery: [
       { words: ["arena", "playa"], name: "la arena" }, { words: ["mar", "agua", "olas", "ola", "oceano"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." },
       { words: ["luna", "cielo", "estrellas"], name: "el cielo" }, { words: ["muelle", "embarcadero"], name: "el muelle" },
-      { words: ["rocas", "roca", "cueva", "boca"], name: "las rocas", leads: "e" }, { words: ["dunas", "duna"], name: "las dunas" }
+      { words: ["rocas", "roca"], name: "las rocas", leads: "e" }, { words: ["dunas", "duna"], name: "las dunas" }
     ]
   },
   tideline: {
@@ -210,14 +210,14 @@ const rooms = {
     name: "EL PASEO MARÍTIMO", area: "coast", at: [0, 2, 0],
     describe: [
       "Barandillas blancas y farolas encendidas que no dan luz. Todo el mundo ha entrado a merendar.",
-      "Al oeste, el hotel Miramar tiene la puerta abierta. Al este, un tiovivo gira sin nadie encima. La plaza queda al sur; las dunas, al norte."
+      "Al oeste, el {hotel Miramar|hotel} tiene la puerta abierta. Al este, un tiovivo gira sin nadie encima. La plaza queda al sur; las dunas, al norte."
     ],
     exits: { n: "dunes", s: "square", w: { to: "lobby", in: true }, e: "carousel" },
     overlayAlt: { cat: "Un gato gris está sentado en el paseo, entre el hotel y las farolas." },
     alt: "Un paseo marítimo de noche: barandillas blancas delante, tres farolas encendidas, un hotel alto a la izquierda con una ventana iluminada y la puerta abierta, un tiovivo a rayas a la derecha.",
     scenery: [
       { words: ["barandillas", "barandilla", "baranda"], name: "las barandillas" }, { words: ["farolas", "farola", "luces", "luz", "lamparas"], name: "las farolas" },
-      { words: ["hotel", "miramar", "puerta"], name: "el hotel", leads: "w" }, { words: ["tiovivo", "carrusel", "caballitos"], name: "el tiovivo" },
+      { words: ["tiovivo", "carrusel", "caballitos"], name: "el tiovivo" },
       { words: ["plaza"], name: "la plaza" }
     ]
   },
@@ -320,7 +320,7 @@ const rooms = {
     name: "CORREOS", area: "coast", at: [-1, 3, 0],
     describe: [
       "Mostradores de madera, olor a cola y a lluvia. Tras la reja, el {administrador|postmaster} clasifica cartas en casillas marcadas con fechas en lugar de nombres. Las casillas se hunden más allá de donde acaba la sala.",
-      "La puerta está al este."
+      "La {puerta|po_door} está al este."
     ],
     exits: { e: { to: "square", out: true } },
     sleep: "Sobre el mostrador no. El administrador tiene cartas que clasificar, y te clasificaría a ti.",
@@ -328,14 +328,14 @@ const rooms = {
     alt: "Entre los barrotes de la reja de una oficina de correos: un administrador con gorra azul y gafas bajo una lámpara verde, y casillas llenas de cartas a su espalda.",
     scenery: [
       { words: ["mostrador", "mostradores", "reja", "barrotes"], name: "el mostrador" }, { words: ["casillas", "casilla", "cartas", "fechas"], name: "las casillas" },
-      { words: ["lampara", "cola"], name: "la lámpara" }, { words: ["puerta", "umbral"], name: "la puerta", leads: "e" }
+      { words: ["lampara", "cola"], name: "la lámpara" }
     ]
   },
   cafe: {
     name: "EL CAFÉ", area: "coast", at: [1, 3, 0],
     describe: [
       "Cuatro mesas y un {camarero|waiter}, que lleva doblando la misma servilleta desde que se tiene memoria. La servilleta se dobla, se desdobla y se dobla otra vez, un poco distinta cada vez. La cafetera suspira.",
-      "La plaza queda al oeste."
+      "La plaza queda al oeste, al otro lado de la {puerta|cafe_door}."
     ],
     exits: { w: { to: "square", out: true } },
     sleep: "En el café no. El camarero te doblaría, como la servilleta.",
@@ -343,8 +343,7 @@ const rooms = {
     overlayAlt: { coffee: "Una taza de café humea sobre la mesa." },
     scenery: [
       { words: ["mesas", "mesa", "sillas", "silla"], name: "las mesas" }, { words: ["cafetera", "maquina", "vapor"], name: "la cafetera" },
-      { words: ["servilleta"], name: "la servilleta" }, { words: ["ventana", "plaza"], name: "la ventana" },
-      { words: ["puerta", "umbral"], name: "la puerta", leads: "w" }
+      { words: ["servilleta"], name: "la servilleta" }, { words: ["ventana", "plaza"], name: "la ventana" }
     ]
   },
   station: {
@@ -424,6 +423,21 @@ const objects = {
   lighthouse_far: { at: "beach", name: "Faro", note: "A lo lejos, apagado.",
     words: { nouns: ["faro", "torre", "lampara", "linterna"], adj: ["oscuro", "apagado", "lejano", "lejos"], g: "m" },
     examine: "Tiene la lámpara apagada. Hace mucho que nadie la enciende, y no llega ningún barco." },
+
+  // Las entradas y salidas (BRIEF.md §8, "Exits": cada entrada o salida es una cosa): la boca de la cueva junto a la playa y el hotel
+  // junto al paseo, en los que se entra por su dirección (marcada `in: true`); las puertas de Correos y del café, sus salidas (`out: true`).
+  cave_mouth: { at: "beach", leads: "e", name: "Cueva", note: "Al este, en las rocas.",
+    words: { nouns: ["cueva", "boca"], adj: [], g: "f" },
+    examine: "Una boca baja entre las rocas negras. Dentro algo gotea, y otra cosa espera para repetirlo." },
+  hotel: { at: "promenade", leads: "w", name: "Hotel", note: "Con la puerta abierta.",
+    words: { nouns: ["hotel", "miramar", "puerta"], adj: ["miramar"], g: "m" },
+    examine: "El hotel Miramar, blanco y alto, con una ventana encendida y la puerta abierta para quien entre a merendar." },
+  po_door: { at: "post_office", door: "e", material: "wood", name: "Puerta", note: "Sale a la plaza.",
+    words: { nouns: ["puerta", "umbral"], adj: [], g: "f" },
+    examine: "Una puerta de madera con una ranura de latón para las cartas: la salida a la plaza." },
+  cafe_door: { at: "cafe", door: "w", material: "glass", name: "Puerta", note: "Sale a la plaza.",
+    words: { nouns: ["puerta", "umbral"], adj: [], g: "f" },
+    examine: "Una puerta de cristal, empañada por dentro. Al otro lado, la plaza." },
 
   // La línea de la marea
   shell: { at: "tideline", portable: true, ...item("shell"), material: "stone", name: "Caracola", note: "Pálida, enroscada como una oreja.",

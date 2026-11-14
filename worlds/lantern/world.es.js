@@ -2,10 +2,10 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings, visions } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -141,7 +141,7 @@ const rooms = {
     name: "THE BELL", area: "row", at: [0, 0, 0],
     describe: [
       "The Bell: barniz marrón, vigas bajas y un calor como el del interior del abrigo de alguien. Unos hombres de gorra cantan en la barra, cada uno un poco por detrás del anterior.",
-      "{El señor Cotter|cotter}, el tabernero, saca brillo a un vaso que nunca estará lo bastante limpio para él. En la chimenea arde un {fuego|fire}. La calle queda al este."
+      "{El señor Cotter|cotter}, el tabernero, saca brillo a un vaso que nunca estará lo bastante limpio para él. En la chimenea arde un {fuego|fire}. La calle queda al este, tras la {puerta|bell_door}."
     ],
     exits: { e: { to: "row", out: true } },
     scenery: [
@@ -165,7 +165,7 @@ const rooms = {
     name: "HALLORAN'S", area: "row", at: [2, 0, 0],
     describe: [
       "Una tienda de pasteles tan ancha como un perchero: un mostrador, un escaparate empañado hasta la ceguera y un {horno|oven} que no se ha apagado desde los tiempos de la vieja Reina. Todo huele a masa y a grasa caliente.",
-      "{La señora Halloran|halloran} está tras el mostrador con harina hasta los codos, pasando el trapo por un sitio que ya está limpio. La calle queda al oeste."
+      "{La señora Halloran|halloran} está tras el mostrador con harina hasta los codos, pasando el trapo por un sitio que ya está limpio. La calle queda al oeste, tras la {puerta|pie_door}."
     ],
     exits: { w: { to: "row", out: true } },
     scenery: [
@@ -181,7 +181,7 @@ const rooms = {
     name: "TRIBUNAL DEL FORENSE", area: "row", at: [1, -1, 0],
     describe: [
       "Una sala barnizada con un pupitre alto, un {estrado de testigos|witness_box} y un jurado de doce sillas, ocupadas por la niebla, que escucha. Las investigaciones de la calle se celebran a medianoche, para que el difunto pueda asistir si le apetece.",
-      "{El doctor Mabbott|mabbott}, el forense, espera en el pupitre con su pluma. La calle queda al sur."
+      "{El doctor Mabbott|mabbott}, el forense, espera en el pupitre con su pluma. La calle queda al sur, tras las {puertas|court_doors_in}."
     ],
     exits: { s: { to: "row", out: true } },
     scenery: [
@@ -239,7 +239,7 @@ const rooms = {
     name: "LA SUBESTACIÓN", area: "row", at: [0, 1, 0],
     describe: [
       "La subestación de la Compañía Eléctrica: una sala de ladrillo con la única bombilla eléctrica de la calle y una {dínamo|dynamo} que zumba como un hombre que sabe que tiene razón.",
-      "{El señor Voss|voss} está sentado bajo la bombilla, ante un escritorio, con el {libro de cuentas|ledger} abierto y un sombrero hongo que no se ha quitado desde que lo envió la Compañía. El último farol queda al este."
+      "{El señor Voss|voss} está sentado bajo la bombilla, ante un escritorio, con el {libro de cuentas|ledger} abierto y un sombrero hongo que no se ha quitado desde que lo envió la Compañía. El último farol queda al este, tras la {puerta|substation_door}."
     ],
     exits: { e: { to: "last_lamp", out: true } },
     scenery: [
@@ -303,7 +303,7 @@ const objects = {
   summons: { at: "player", portable: true, material: "paper", name: "Citación", note: "Doblada, oficial.",
     words: { nouns: ["citacion", "citatorio", "papel", "documento", "carta"], adj: ["doblada", "oficial", "judicial"], g: "f" }, ...item("summons"),
     examine: "«Se cita como testigo en la investigación de la muerte de Albert Fenn, farolero, de Lantern Row. El tribunal se reúne a medianoche». Bajo el sello, con otra letra, más pequeña: «El difunto estará presente»." },
-  cab_fog: { at: "cab", name: "Niebla", note: "El único camino.",
+  cab_fog: { at: "cab", leads: "out", name: "Niebla", note: "El único camino.",
     words: { nouns: ["niebla", "portezuelas", "portezuela", "puertas", "puerta", "blanco", "bruma"], adj: ["plegables", "abiertas", "espesa", "blanca"], g: "f" },
     examine: "Las portezuelas plegables del coche están abiertas a una niebla tan espesa que tiene veta, como el papel. En algún punto de ella, muy lejos, hay un farol encendido, o recordado." },
 
@@ -396,6 +396,21 @@ const objects = {
     words: { nouns: ["estrado"], adj: ["testigo", "testigos", "de"], g: "m" },
     enter: "Entras en el estrado. Es exactamente de tu medida, como si el carpintero lo hubiera sabido.",
     examine: "Un recinto de madera barnizada, con una barandilla gastada hasta quedar clara por las manos de quienes vieron algo. Es exactamente de tu medida." },
+
+  // Las salidas de The Bell, la tienda de pasteles, el tribunal y la subestación (marcadas `out: true`): cada una su puerta (BRIEF.md
+  // §8, "Exits": cada entrada o salida es una cosa). La del coche es la niebla, su camino (lleva fuera).
+  bell_door: { at: "bell", door: "e", material: "wood", name: "Puerta", note: "Sale a la calle.",
+    words: { nouns: ["puerta"], adj: ["taberna"], g: "f" },
+    examine: "Una puerta pesada con un tirador de latón gastado. Cada vez que se abre, la niebla se asoma." },
+  pie_door: { at: "pie_shop", door: "w", material: "glass", name: "Puerta", note: "Sale a la calle.",
+    words: { nouns: ["puerta"], adj: ["tienda"], g: "f" },
+    examine: "Una puerta de cristal, empañada como el escaparate, con una campanilla de muelle encima." },
+  court_doors_in: { at: "court", door: "s", material: "wood", name: "Puertas", note: "Salen a la calle.",
+    words: { nouns: ["puertas", "puerta"], adj: ["roble", "tribunal"], pl: true, g: "f" },
+    examine: "Las puertas de roble, vistas desde dentro. La niebla te ha seguido por debajo de ellas." },
+  substation_door: { at: "substation", door: "e", material: "metal", name: "Puerta", note: "Sale al último farol.",
+    words: { nouns: ["puerta"], adj: ["hierro", "subestacion"], g: "f" },
+    examine: "Una puerta de hierro con el nombre de la Compañía, pintado encima del nombre antiguo, que se transparenta." },
 
   // El último farol
   fenn: { portrait: sprites.fenn_portrait, at: "last_lamp", name: "Señor Fenn", note: "Muerto, y de servicio.",

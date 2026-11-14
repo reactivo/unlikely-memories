@@ -319,13 +319,13 @@ export default {
   home: { subtitle: "Ficción Artificial Interactiva", newGame: "Nueva partida", resume: "Continuar", version: "Versión",
           language: (l) => `Idioma: ${{ en: "inglés", es: "español" }[l]}`,   // los botones del selector, arriba a la derecha
           none: "Todavía no hay juegos en español." },
-  labels: { directions: "DIRECCIONES", inv: "INVENTARIO", map: "Mapa" },
+  labels: { directions: "DIRECCIONES", inv: "INVENTARIO", map: "Mapa", seeMap: "Ver mapa" },   // seeMap: el botón bajo la brújula
   // El mapa (js/map.js, ui/map.js): su hoja de estilos lo muestra en mayúsculas. `level(n)` nombra una planta que no es la baja.
   map: { title: "Mapa", close: "Cerrar el mapa", hint: "Arrastra o pellizca el mapa", ground: "Planta baja",
          level: (n) => `Planta ${n < 0 ? "−" : ""}${Math.abs(n)}`, rooms: "Salas de esta planta", here: "estás aquí" },
   dirs: { n: "Norte", s: "Sur", e: "Este", w: "Oeste", u: "Arriba", d: "Abajo", in: "Dentro", out: "Fuera" }, noExit: "sin salida",
   // Los nombres de los botones de la brújula: su tooltip, lo que dice el lector de pantalla y lo que escribe un clic (el mapa camina con dirs, arriba).
-  dirTips: { n: "Norte", s: "Sur", e: "Este", w: "Oeste", u: "Subir", d: "Bajar", in: "Entrar", out: "Salir" },
+  dirTips: { n: "Norte", s: "Sur", e: "Este", w: "Oeste", u: "Subir", d: "Bajar" },
 
   // Respuestas normales, por acción (js/actions.js): lo que dice una acción cuando ninguna regla le da sentido.
   // Neutras, para cualquier partida; 2–3 versiones, nunca la misma dos veces seguidas.

@@ -9,7 +9,7 @@
    and line heights under :root[data-font="<id>"]. The old computers' fonts in fonts/ are not declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
-  src: url("../fonts/m5x7-patched.ttf?v=0.51.4") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
+  src: url("../fonts/m5x7-patched.ttf?v=0.52.0") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
 }
 
 @layer typography {
@@ -96,8 +96,10 @@
   /* Its buttons' labels: the box trimmed to the capitals (top of the capitals to the baseline), so a label sits exactly in
      the middle of its button and the button's padding is all the space around it (29 Oct 2026; the pieces give their buttons
      equal padding above and below). On the buttons themselves: text-box is not inherited from .text-button, which is on their
-     container. */
-  .text-button button {
+     container. A button whose words sit beside an icon (SEE MAP: a flex box, which is not trimmed) has them in a `.label`, trimmed
+     the same. */
+  .text-button button,
+  .text-button button > .label {
     text-box: trim-both cap alphabetic;
   }
 

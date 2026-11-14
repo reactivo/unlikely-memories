@@ -5,10 +5,10 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.
@@ -51,7 +51,7 @@ const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floo
 // Room texts that changes swap in and out (the beach and the lantern room). A change rewrites a room's whole text; when two changes can touch the same room, the
 // later one accounts for the earlier (BRIEF.md §9): lighting the lamp after the door has turned to driftwood uses
 // the texts with both.
-const sand = "The tide line runs west. To the east, black rocks and the mouth of a cave. Dunes rise to the south.";
+const sand = "The tide line runs west. To the east, black rocks and the mouth of a {cave|cave_mouth}. Dunes rise to the south.";
 const doorStands = "A beach at night. The sand is still warm, as if the sun had only just left. The green {door|beach_door} stands alone in the sand, attached to nothing, breathing.";
 const doorGone = "A beach at night. The sand is still warm, as if the sun had only just left. Where the green door stood, a piece of {driftwood|beach_door} stands upright in the sand, about the size of a small door.";
 const seaDark = "The sea is calm and very large. A wooden pier walks out into it to the north. Far off, on a rock, a {lighthouse|lighthouse_far} stands dark.";
@@ -113,7 +113,7 @@ const rooms = {
     scenery: [
       { words: ["sand", "beach"], name: "the sand" }, { words: ["sea", "water", "waves", "ocean"], name: "the sea", says: "Black, and very cold to look at. Further out it pulls, patiently, like something that has all the time in the world." },
       { words: ["moon", "sky", "stars"], name: "the sky" }, { words: ["pier", "jetty"], name: "the pier" },
-      { words: ["rocks", "rock", "cave", "mouth"], name: "the rocks", leads: "e" }, { words: ["dunes", "dune"], name: "the dunes" }
+      { words: ["rocks", "rock"], name: "the rocks", leads: "e" }, { words: ["dunes", "dune"], name: "the dunes" }
     ]
   },
   tideline: {
@@ -207,14 +207,14 @@ const rooms = {
     name: "THE PROMENADE", area: "coast", at: [0, 2, 0],
     describe: [
       "White railings, and lamps that are lit but give no light. Everyone has gone in for tea.",
-      "West, the Hotel Miramar keeps its door open. East, a carousel turns with nobody on it. The square is south; the dunes, north."
+      "West, the {Hotel Miramar|hotel} keeps its door open. East, a carousel turns with nobody on it. The square is south; the dunes, north."
     ],
     exits: { n: "dunes", s: "square", w: { to: "lobby", in: true }, e: "carousel" },
     overlayAlt: { cat: "A grey cat sits on the promenade, between the hotel and the lamps." },
     alt: "A seaside promenade at night: white railings in front, three lit lamps, a tall hotel on the left with one window lit and its door open, a striped carousel on the right.",
     scenery: [
       { words: ["railings", "railing", "rail"], name: "the railings" }, { words: ["lamps", "lamp", "light", "lights"], name: "the lamps" },
-      { words: ["hotel", "miramar", "door"], name: "the hotel", leads: "w" }, { words: ["carousel", "merry-go-round", "roundabout"], name: "the carousel" },
+      { words: ["carousel", "merry-go-round", "roundabout"], name: "the carousel" },
       { words: ["square"], name: "the square" }
     ]
   },
@@ -317,7 +317,7 @@ const rooms = {
     name: "POST OFFICE", area: "coast", at: [-1, 3, 0],
     describe: [
       "Wooden counters, a smell of glue and rain. Behind the grille, the {postmaster} sorts letters into pigeonholes marked with dates instead of names. The pigeonholes go back further than the room does.",
-      "The door is east."
+      "The {door|po_door} is east."
     ],
     exits: { e: { to: "square", out: true } },
     sleep: "Not across the counter. The postmaster has letters to sort, and would sort you.",
@@ -325,14 +325,14 @@ const rooms = {
     alt: "Through the bars of a post office grille: a postmaster in a blue cap and spectacles under a green lamp, pigeonholes full of letters behind him.",
     scenery: [
       { words: ["counter", "counters", "grille", "bars"], name: "the counter" }, { words: ["pigeonholes", "letters", "dates"], name: "the pigeonholes" },
-      { words: ["lamp", "glue"], name: "the lamp" }, { words: ["door", "doorway", "post", "office"], name: "the door", leads: "e" }
+      { words: ["lamp", "glue"], name: "the lamp" }
     ]
   },
   cafe: {
     name: "THE CAFÉ", area: "coast", at: [1, 3, 0],
     describe: [
       "Four tables, and one {waiter}, who has been folding the same napkin for as long as anyone remembers. The napkin is folded, unfolded and folded again, a little differently each time. The coffee machine sighs.",
-      "The square is west."
+      "The square is west, through the {door|cafe_door}."
     ],
     exits: { w: { to: "square", out: true } },
     sleep: "Not at the café. The waiter would fold you, like the napkin.",
@@ -340,8 +340,7 @@ const rooms = {
     overlayAlt: { coffee: "A cup of coffee steams on the table." },
     scenery: [
       { words: ["tables", "table", "chairs", "chair"], name: "the tables" }, { words: ["machine", "steam"], name: "the coffee machine" },
-      { words: ["napkin"], name: "the napkin" }, { words: ["window", "square"], name: "the window" },
-      { words: ["door", "doorway", "cafe"], name: "the door", leads: "w" }
+      { words: ["napkin"], name: "the napkin" }, { words: ["window", "square"], name: "the window" }
     ]
   },
   station: {
@@ -421,6 +420,21 @@ const objects = {
   lighthouse_far: { at: "beach", name: "Lighthouse", note: "Far off, dark.",
     words: { nouns: ["lighthouse", "tower", "lamp"], adj: ["dark", "far", "distant"] },
     examine: "Its lamp is dark. Nobody has lit it for a long time, and no ships come in." },
+
+  // The ways in and out (BRIEF.md §8, "Exits": every way in or out is a thing): the cave's mouth off the beach and the hotel off the
+  // promenade, entered by their directions (marked `in: true`); the doors of the post office and the café, their ways out (`out: true`).
+  cave_mouth: { at: "beach", leads: "e", name: "Cave", note: "East, in the rocks.",
+    words: { nouns: ["cave", "mouth"], adj: [] },
+    examine: "A low mouth in the black rocks. Inside, something drips, and something else waits to say it back." },
+  hotel: { at: "promenade", leads: "w", name: "Hotel", note: "Its door open.",
+    words: { nouns: ["hotel", "miramar", "door"], adj: ["miramar"] },
+    examine: "The Hotel Miramar, white and tall, with one window lit and its door left open for whoever is coming in to tea." },
+  po_door: { at: "post_office", door: "e", material: "wood", name: "Door", note: "Out to the square.",
+    words: { nouns: ["door", "doorway", "office"], adj: ["post"] },
+    examine: "A wooden door with a brass letter slot, the way out to the square." },
+  cafe_door: { at: "cafe", door: "w", material: "glass", name: "Door", note: "Out to the square.",
+    words: { nouns: ["door", "doorway", "cafe"], adj: [] },
+    examine: "A glass door, misted on the inside. Through it, the square." },
 
   // The tide line
   shell: { at: "tideline", portable: true, ...item("shell"), material: "stone", name: "Shell", note: "Pale, curled like an ear.",

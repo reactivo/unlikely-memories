@@ -1,18 +1,20 @@
-/* Compass (directions): a 3 x 3 grid of square tiles, the map (M) in the middle, the four corners for in, up, out, down:
-      →|  ▲  ⇧
-       ◄  M  ►
-      ←|  ▼  ⇩
-   Every tile shows an icon (img/icons/, through .icon in utilities.css), centred. An open exit is a bright arrow (click = go that way); the
-   others are faint and inert. In and out (left) and up and down (right) are in the corners (an arrow to a bar) and only
-   show when the room has that exit: otherwise the corner is just an empty dark tile. M opens the map (map.css): bright like an open exit.
+/* Compass (directions): six square tiles in two rows of three, and under them, part of the same block, SEE MAP, a row the
+   whole width and a tile high:
+      ⇩  ▲  ⇧
+      ◄  ▼  ►
+      [⌖ SEE MAP]
+   Every direction tile shows an icon (img/icons/, through .icon in utilities.css), centred. An open exit is a bright arrow (click = go
+   that way); the others are faint and inert, up and down too (all six are always there: since 14 November 2026 there are no
+   corners, and no in or out: a way in or out is a thing in the room, BRIEF.md §8). SEE MAP opens the map (map.css): the map pin and
+   its words, centred, bright like an open exit; a plain button like SETTINGS (ui/tools.css), its words at the same size.
    The tiles are --tile square in the strip (a size that follows the window's height: layout.css), with --tile-gap
-   between them; on phones they fill the panel's width (tabs.css).
+   between them; on phones they fill the panel's width (tabs.css). The rows are all one height (grid-auto-rows), so the map's row
+   is a tile high wherever the tiles are.
    The text style is .text-button (css/typography.css), put on the compass in index.html. */
 @layer ui {
   .compass {
     /* Colours in the compass, by meaning (pointing at roles in tokens.css). */
-    --tile-bg:           var(--color-surface);        /* every tile… */
-    --corner:            var(--color-surface-faint);  /* …except the empty corners */
+    --tile-bg:           var(--color-surface);        /* every tile, and SEE MAP */
     --exit-open:         var(--color-text);           /* a way you can go */
     --exit-closed:       var(--color-text-faint);     /* no way out */
     --exit-press:        var(--color-press);          /* an open exit pressed */
@@ -22,16 +24,16 @@
 
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
     gap: var(--tile-gap);
 
     & > * {
-      aspect-ratio: 1;
       background: var(--tile-bg);
-      min-width: var(--tile);
     }
 
-    & > .corner {
-      background: var(--corner);
+    & > [data-dir] {
+      aspect-ratio: 1;
+      min-width: var(--tile);
     }
 
     & button {
@@ -45,25 +47,30 @@
       justify-content: center;
     }
 
+    /* SEE MAP: the whole row; the pin in a box as wide as the pin itself at the words' size (0.6em: its 14px at S; the icon fills
+       its box, utilities.css), a tile gap, then the words (the label, on one line, trimmed to its capitals as a button's word is:
+       typography.css), the two centred together. Narrow enough for the strip's smallest tiles (a 560px-high window). */
+    & > .map {
+      grid-column: 1 / -1;
+      gap: var(--tile-gap);
+
+      & .pin {
+        display: flex;
+        align-self: stretch;
+        width: 0.6em;
+      }
+
+      & .label {
+        white-space: nowrap;
+      }
+    }
+
     & button.open {
       color: var(--exit-open);
       cursor: pointer;
     }
 
-    /* A corner with an exit (in, out, up, down) becomes a normal tile; without one it is an empty corner with nothing in it. */
-    & > button.corner.open {
-      background: var(--tile-bg);
-    }
-
-    & > button.corner:not(.open) {
-      pointer-events: none;
-    }
-
-    & > button.corner:not(.open) .icon {
-      visibility: hidden;
-    }
-
-    /* Under the pointer: a border inside the tile, like an inventory item (M has the class `open` too: it always works). */
+    /* Under the pointer: a border inside the tile, like an inventory item (SEE MAP has the class `open` too: it always works). */
     & button.open:hover {
       box-shadow: var(--hover-ring);
     }

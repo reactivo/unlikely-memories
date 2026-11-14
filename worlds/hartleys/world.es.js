@@ -3,10 +3,10 @@
 // Un solo conjunto de cambios, aplicado tras la apertura, todo o nada. Los ids, las coordenadas, las cifras, los dibujos y los
 // sprites son los de la versión inglesa; solo cambia lo que lleva lenguaje.
 
-import pictures, { endings } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
 export const bible = {
@@ -113,13 +113,12 @@ const rooms = {
   lift_lobby: {
     name: "LOS ASCENSORES", area: "store", at: [1, 0, 0],
     describe: [
-      "Puertas de ascensor, de latón, bajo un {indicador|indicator} que señala plantas que nadie pide desde hace años: S, PB, 1, 2, 4.",
+      "{Puertas de ascensor|lobby_doors}, de latón, bajo un {indicador|indicator} que señala plantas que nadie pide desde hace años: S, PB, 1, 2, 4.",
       "El ascensor está al norte, con la reja abierta. Una escalera sube a la primera planta; unos escalones bajan al sótano. El vestíbulo queda al sur."
     ],
     exits: { n: { to: "lift", in: true }, s: "front_hall", u: "first_landing", d: "basement" },
     scenery: [{ words: ["escalera", "escaleras", "barandilla", "pasamanos"], name: "la escalera", says: "Una escalera ancha, con barandilla de caoba, que sube.", leads: "u" },
-              { words: ["escalones", "escalón", "escalon", "sótano", "sotano"], name: "los escalones", says: "Escalones de piedra que bajan al sótano, con un olor a jabón que sube por ellos.", leads: "d" },
-              { words: ["puertas", "puerta", "reja", "ascensor", "ascensores"], name: "las puertas del ascensor", says: "Puertas de latón y, tras ellas, una reja de latón, plegada.", leads: "n" }],
+              { words: ["escalones", "escalón", "escalon", "sótano", "sotano"], name: "los escalones", says: "Escalones de piedra que bajan al sótano, con un olor a jabón que sube por ellos.", leads: "d" }],
     alt: "Un vestíbulo de ascensores: puertas de latón con una reja plegable abierta, un indicador semicircular de plantas encima, una escalera que sube a un lado y escalones de piedra que bajan al otro."
   },
   lift: {
@@ -237,7 +236,7 @@ const rooms = {
     name: "LA CUARTA PLANTA", area: "fourth", at: [0, 0, 4],
     describe: [
       "Una sala larga de barras y, en las barras, tardes, colgadas como abrigos, cada una con una etiqueta de letra cuidadosa. Una lluviosa, de un gris que te favorecería. Una azul que huele a mar.",
-      "Bajo su propia lámpara cuelga la {tarde|afternoon} a la que no fuiste. La {modista|fitter} espera con alfileres en la boca. El ascensor queda al sur."
+      "Bajo su propia lámpara cuelga la {tarde|afternoon} a la que no fuiste. La {modista|fitter} espera con alfileres en la boca. El {ascensor|fourth_lift} queda al sur."
     ],
     exits: { s: { to: "lift", in: true } },
     scenery: [{ words: ["barras", "barra", "tardes", "etiquetas", "etiqueta", "gris", "azul", "lámpara", "lampara"], name: "las tardes", says: "AGOSTO DE 1958, LA FERIA. UN DOMINGO SIN VISITAS. EL AUTOBÚS QUE SE DEJÓ PASAR. Cada una cortada a la medida de alguien, y ninguna recogida." }],
@@ -314,7 +313,14 @@ const objects = {
     lies: "Una {llave|roof_key} larga de latón yace aquí, con una etiqueta que dice AZOTEA.",
     examine: "Una llave larga de latón con una etiqueta de papel: AZOTEA. ARREGLADA. La han arreglado con tanto cuidado que cuesta decir dónde." },
 
-  // El ascensor
+  // El ascensor, y sus entradas (BRIEF.md §8, "Exits": cada entrada es una cosa): las puertas del vestíbulo, y el propio ascensor en
+  // la cuarta planta (las dos salidas marcadas `in: true`).
+  lobby_doors: { at: "lift_lobby", door: "n", material: "metal", name: "Puertas del ascensor", note: "De latón, con la reja plegada.",
+    words: { nouns: ["puertas", "puerta", "reja", "ascensor", "ascensores"], adj: ["laton"], pl: true, g: "f" },
+    examine: "Puertas de latón y, tras ellas, una reja de latón, plegada." },
+  fourth_lift: { at: "fourth_floor", leads: "s", name: "Ascensor", note: "Esperando, con la reja abierta.",
+    words: { nouns: ["ascensor", "reja"], adj: [], g: "m" },
+    examine: "El ascensor espera con la reja plegada, y dentro el señor Pell en su taburete, mirando el techo." },
   pell: { portrait: sprites.pell_portrait, at: "lift", name: "Señor Pell", note: "El ascensorista.",
     words: { nouns: ["pell", "ascensorista", "hombre", "operador", "empleado"], adj: ["señor", "senor", "ascensor"], g: "m" },
     examine: "Un hombrecillo de uniforme granate, con una franja en cada pernera. Ha subido y bajado en el ascensor durante tanto tiempo que ya no cree en las escaleras.",

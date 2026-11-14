@@ -1,10 +1,10 @@
-/* Map popup, opened from M on the compass or by MAP (ui/map.js). A popover in the browser's top layer: centred, over the
+/* Map popup, opened from SEE MAP under the compass or by MAP (ui/map.js). A popover in the browser's top layer: centred, over the
    game, which the backdrop dims. Inside: the map area (rooms, lines and stubs, moved by dragging) with the × at its
    top left, and the location bar below it (the level's name, and how to move the map); the × and the bar have the same
    padding, so the × lines up with the level's name. A room's size is built from its text size
    (tokens.css, --map-*), so it grows with it; the popup is --map-w wide at most, and fits a narrow window. It sits outside .layout, so its
    text style is a class of its own: .text-ui (css/typography.css), put on it in index.html; the room names, the level and the
-   hint have theirs too. Root class `mapview`, not `map`: the compass's M button already has that one. */
+   hint have theirs too. Root class `mapview`, not `map`: the compass's SEE MAP button already has that one. */
 @layer ui {
   .mapview {
     --map-w: 912px;   /* the popup's widest. Its height and the space kept free above and below it (so the game shows around it)

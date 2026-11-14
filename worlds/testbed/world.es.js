@@ -6,10 +6,10 @@
 // El mapa: la apertura (una sala de admisión), luego un centro con un camino corto a la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings, visions } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -70,7 +70,7 @@ const rooms = {
   "tb-hub": {
     name: "EL CENTRO", area: "hub", at: [0, 0, 0],
     describe: [
-      "Una sala redonda con una puerta en cada pared. Un {tablón|board} anuncia lo que hay detrás de cada una: la clínica al norte, el bar al este, el dormitorio al sur, el patio al oeste.",
+      "Una sala redonda con una puerta en cada pared. Un {tablón|board} anuncia lo que hay detrás de cada una: la clínica al norte, el {bar|bar_front} al este, el dormitorio al sur, el patio al oeste.",
       "Unas escaleras de hierro suben a los accesos, y unos escalones de piedra bajan al sótano."
     ],
     exits: { n: "tb-clinic", e: { to: "tb-bar", in: true }, s: "tb-bedroom", w: "tb-yard", u: "tb-ways", d: "tb-cellar" },
@@ -107,7 +107,7 @@ const rooms = {
   "tb-lab": {
     name: "LABORATORIO", area: "hub", at: [1, -1, 0],
     describe: [
-      "Una sala de banco, llena de cables. Una {palanca|lever} se alza en una ranura de acero junto a un {zócalo|socket} abierto, un {dial} está en la pared y un {botón|button} brilla junto a la puerta. Una {radio} sisea en una balda.",
+      "Una sala de banco, llena de cables. Una {palanca|lever} se alza en una ranura de acero junto a un {zócalo|socket} abierto, un {dial} está en la pared y un {botón|button} brilla junto a la {puerta|lab_door}. Una {radio} sisea en una balda.",
       "Un gancho cuelga del techo. La clínica está al oeste."
     ],
     exits: { w: { to: "tb-clinic", out: true } },
@@ -207,7 +207,7 @@ const rooms = {
     name: "LOS ACCESOS", area: "hub", at: [0, 0, 1],
     describe: [
       "Un descansillo con una salida de distinta clase a cada lado. Una gran {rueda|wheel} de hierro está en la pared, y una {escalera de mano|ladder} sube.",
-      "Al norte está el anexo, tras un guardia. Al este, el rellano, y al oeste, el tobogán. Hay un armario en el rincón. El centro está abajo."
+      "Al norte está el anexo, tras un guardia. Al este, el rellano, y al oeste, el tobogán. Hay un {armario|cupboard} en el rincón. El centro está abajo."
     ],
     exits: {
       n: { to: "tb-annex", requires: "pass", spends: true, lacking: "El guardia mira tus manos vacías y no se mueve." },
@@ -220,7 +220,6 @@ const rooms = {
     scenery: [
       { words: ["guardia"], name: "el guardia", says: "Un guardia de gris está en la puerta del norte, con una mano tendida." },
       { words: ["persiana", "cartel"], name: "la persiana", says: "Una persiana de acero, con un cartel: Abierto de Ocho a Ocho." },
-      { words: ["armario", "rincon"], name: "el armario", says: "Un armario bajo, con sitio para meterse.", leads: "in" },
       { words: ["tobogan", "agujero", "conducto"], name: "el tobogán", says: "Un conducto redondo en la pared del oeste, que baja y se aleja.", leads: "w" }
     ],
     ambience: { lines: ["La rueda da una vuelta sola, una vez.", "El guardia cambia el peso de pie y mantiene la mano tendida."], every: [30, 70] },
@@ -266,7 +265,7 @@ const rooms = {
   },
   "tb-closet": {
     name: "ARMARIO", area: "hub", at: [0, 0, 2],
-    placeholder: "Un armario con nada dentro, todavía.",
+    placeholder: "Un armario con nada dentro, todavía, y su {puerta|closet_door} para salir.",
     exits: { out: "tb-ways" },
     alt: "El interior de un armario: tablas desnudas y una fina línea de luz bajo la puerta.",
     overlayAlt: {}
@@ -274,8 +273,7 @@ const rooms = {
   "tb-pit": {
     name: "EL FOSO", area: "hub", at: [0, 1, 1],
     describe: [
-      "Un agujero cuadrado en el suelo de los accesos, cavado por una rueda. Está seco, y llega luz desde arriba.",
-      "Un camino va al norte."
+      "Un agujero cuadrado en el suelo de los accesos, cavado por una rueda. Está seco, y llega luz desde arriba."
     ],
     exits: {},
     scenery: [{ words: ["agujero", "foso", "suelo", "hoyo"], name: "el foso", says: "Tierra seca y olor a monedas." }],
@@ -372,6 +370,9 @@ const objects = {
     examine: "Un torniquete de tres barras de acero. Gira en un solo sentido." },
 
   // El centro
+  bar_front: { at: "tb-hub", leads: "e", material: "wood", name: "Bar", note: "Al este, la entrada.",
+    words: { nouns: ["bar"], adj: [], g: "m" },
+    examine: "La puerta del bar, al este, con una copa pintada encima. Detrás, una sala larga y baja y una estufa." },
   board: { at: "tb-hub", name: "Tablón", note: "Qué hay dónde.",
     words: { nouns: ["tablon", "tablero"], adj: ["anuncios"], g: "m" },
     examine: "Un tablón con seis líneas: Clínica, Bar, Dormitorio, Patio, Accesos, Sótano. Una séptima línea está borrada.",
@@ -448,6 +449,9 @@ const objects = {
   dial: { at: "tb-lab", name: "Dial", note: "En nada.",
     words: { nouns: ["dial", "rueda"], adj: ["redondo"], g: "m" },
     examine: "Un dial redondo con seis marcas. Gira solo cuando se lo pides, y la imagen cambia." },
+  lab_door: { at: "tb-lab", door: "w", material: "wood", name: "Puerta del laboratorio", note: "De vuelta a la clínica.",
+    words: { nouns: ["puerta"], adj: ["laboratorio"], g: "f" },
+    examine: "Una puerta sencilla, la salida a la clínica." },
   button: { at: "tb-lab", name: "Botón", note: "Verde, y encendido.",
     words: { nouns: ["boton", "pulsador"], adj: ["verde", "encendido"], g: "m" },
     examine: "Un botón verde en la pared, iluminado por dentro. Una tarjeta dice que lleva al rellano." },
@@ -597,6 +601,23 @@ const objects = {
   wheel: { at: "tb-ways", name: "Rueda", note: "Cava, y rellena.",
     words: { nouns: ["rueda"], adj: ["hierro", "grande"], g: "f" },
     examine: "Una gran rueda de hierro en la pared. Gírala, y se abre un camino a un foso; gírala otra vez, y el camino se cierra." },
+  // Cada entrada o salida es una cosa (BRIEF.md §8, "Exits"): el armario es la entrada de los accesos al armario de dentro, una salida
+  // `in` real; su puerta, la salida; el bar (un sitio en el que se entra por su dirección, marcada `in: true`), la entrada del centro, y
+  // la puerta del laboratorio, su salida (marcada `out: true`); los escalones y el hueco del foso, que entran cuando la rueda lo cava.
+  cupboard: { at: "tb-ways", leads: "in", material: "wood", name: "Armario", note: "Con sitio para meterse.",
+    words: { nouns: ["armario"], adj: ["bajo"], g: "m" },
+    examine: "Un armario bajo, con sitio para meterse." },
+  closet_door: { at: "tb-closet", door: "out", material: "wood", name: "Puerta del armario", note: "Para salir.",
+    words: { nouns: ["puerta"], adj: ["armario"], g: "f" },
+    examine: "La puerta del armario, con una fina línea de luz por debajo." },
+  pit_steps: { at: null, leads: "n", name: "Escalones", note: "De vuelta a los accesos.",
+    words: { nouns: ["escalones"], adj: ["tierra"], pl: true, g: "m" },
+    here: "Unos {escalones|pit_steps} de tierra suben por el lado norte, de vuelta a los accesos.",
+    examine: "Escalones cortados en la tierra, que suben a los accesos." },
+  pit_gap: { at: null, leads: "s", name: "Hueco", note: "Al armario.",
+    words: { nouns: ["hueco"], adj: ["bajo"], g: "m" },
+    here: "Un {hueco|pit_gap} bajo en la pared del sur da al armario.",
+    examine: "Un hueco bajo en la pared de tierra, y a través de él, el fondo del armario." },
   ladder: { at: "tb-ways", leads: ["u", "d"], name: "Escalera de mano", note: "Arriba, o abajo.",
     words: { nouns: ["escalera"], adj: ["hierro", "mano"], g: "f" },
     examine: "Una escalera de mano de hierro. Subir lleva arriba; bajar, abajo." },
@@ -752,7 +773,7 @@ const rules = [
          { draw: "tb-ways", add: ["rect hatch 130,112,60,14 0 e8"] },
          { connect: "tb-ways", dir: "s", to: "tb-pit" },
          { connect: "tb-pit", dir: "s", to: "tb-closet", passage: true, in: true },
-         { connect: "tb-pit", dir: "n", to: "tb-ways", out: true },
+         { connect: "tb-pit", dir: "n", to: "tb-ways", out: true }, { move: "pit_steps", to: "tb-pit" }, { move: "pit_gap", to: "tb-pit" },
          { connect: "tb-pit", dir: "e", to: "tb-landing", passage: true, if: { "wheel.stage": { ">=": 1 } }, closed: "El muro es macizo hasta que la rueda haya girado." },
          { connect: "tb-pit", dir: "w", to: "tb-chute", passage: true, requires: "pass", spends: true, lacking: "Necesitarías un pase." },
          { change: "no_such_change", optional: true },
@@ -761,6 +782,7 @@ const rules = [
     do: [{ say: "La rueda gira hacia atrás, y la trampilla se cierra sobre el foso." },
          { draw: "tb-ways", remove: ["hatch"] },
          { disconnect: "tb-ways", dir: "s" }, { disconnect: "tb-pit", dir: "s" }, { disconnect: "tb-pit", dir: "n" }, { disconnect: "tb-pit", dir: "e" }, { disconnect: "tb-pit", dir: "w" },
+         { move: "pit_steps", to: null }, { move: "pit_gap", to: null },
          { set: "wheel.stage", to: 0 }] },
   { id: "jump_roof", match: { verb: "jump" }, if: [{ "player.at": "tb-roof" }],
     do: [{ say: "Te lanzas por el borde. El suelo sube, bastante despacio, y luego nada despacio." }, { hurt: 5, says: "El suelo es muy duro." },

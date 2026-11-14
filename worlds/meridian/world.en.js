@@ -2,10 +2,10 @@
 // (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings as endingPictures } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -111,7 +111,7 @@ export default {
       words: { nouns: ["summons"], adj: [] },
       examine: "A summons in the Authority's own typeface, asking you to present yourself in person at the Registry, fourteenth floor. Underneath, in smaller type: Do not use the lifts.",
       sprite: sprites.summons },
-    { add: "object", id: "door", at: "yard", name: "Door", note: "Shut, for now.",
+    { add: "object", id: "door", at: "yard", door: "in", material: "metal", name: "Door", note: "Shut, for now.",
       actions: ["Open door"], words: { nouns: ["door", "service door"], adj: ["steel"] },
       examine: "A steel service door, painted the colour of a lunch eaten years ago. Round its edge comes a seam of cooler air, and the sound of a corridor with nobody in it." },
 

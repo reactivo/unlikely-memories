@@ -14,12 +14,12 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.51.4";
-import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.51.4";
-import { inScope, person } from "./place.js?v=0.51.4";
-import { receives } from "./use.js?v=0.51.4";
-import { ACTIONS, isAction } from "./actions.js?v=0.51.4";
-import { distance } from "./fields.js?v=0.51.4";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.52.0";
+import { exitTo, wayAt, wayOf, waysOf, waysAsThings } from "./exits.js?v=0.52.0";
+import { inScope, person } from "./place.js?v=0.52.0";
+import { receives } from "./use.js?v=0.52.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.52.0";
+import { distance } from "./fields.js?v=0.52.0";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
@@ -406,10 +406,31 @@ function splitEnclitic(token, W) {
 // but not on a locked thing (that goes to its lock: the key turns, or the lock says what it wants) nor on a container.
 const LEADS_VERBS = new Set(["go", "climb", "enter", "exit", "use", "take", "open"]);
 
-// What a verb typed alone means when the room has that way (an `in` / `out` exit, one marked `in: true` / `out: true`, or the way back
-// from a place entered by one marked `in: true`):
-// "enter" / "get in" is IN, "leave" / "get out" is OUT.
+// What a verb typed alone means: "enter" / "get in" is IN, "leave" / "get out" is OUT (inOrOut, below).
 const WAY_OF = { enter: "in", exit: "out" };
+
+// IN or OUT typed alone ("in", "go in", "enter", "leave", *entra*, *sal*): every way in or out of somewhere is a thing in the room
+// (js/exits.js, waysAsThings: a door, a hatch, a tent; for IN also a thing you get into, `enterable: "in"`, that is no way). One such
+// thing (or several that all go the same way) is taken: going its way, or getting into it. Several ask which (the "Which do you
+// mean…?" every ambiguous name gets; the answer comes back as a pick for `phrase`, the words typed). None: null, and the words keep
+// the meaning they had (the way the room has by its exits, or the verb's own answer). OUT inside something you got into: null too
+// (the engine gets you out of it first).
+function inOrOut(way, phrase, state, W) {
+  if (way === "out" && state.player.in) return null;
+  const room = state.player.at, objects = state.world.objects;
+  const ways = waysAsThings(state.world, room, way).filter(t => inScope(state, t.id));
+  const into = way === "in" ? Object.keys(objects).filter(id => objects[id].at === room && objects[id].enterable === "in" && !wayOf(objects[id]) &&
+                                                         state.player.in !== id && inScope(state, id)) : [];
+  const own = wayAt(state.world.rooms, room, way);
+  if (own && !ways.some(t => t.dir === own)) return null;        // (a way in with no thing for it: the checker's problem; it is still the way)
+  const options = [...ways.map(t => ({ id: t.id, action: { verb: "go", dir: t.dir } })), ...into.map(id => ({ id, action: { verb: "enter", obj: id } }))];
+  if (!options.length) return null;
+  const picked = options.find(o => W.picks.some(p => p.phrase === phrase && p.id === o.id));
+  if (picked) return { actions: [picked.action] };
+  const kinds = new Set(options.map(o => JSON.stringify(o.action)));
+  if (kinds.size === 1) return { actions: [options[0].action] };
+  return { error: { say: "@which", arg: [...new Set(options.map(o => o.id))], phrase } };
+}
 
 // A contraction right after the verb (or verb phrase) is written out: Spanish "sal del coche" → "sal de el coche", "sube al
 // tren" → "sube a el tren", which then reads as the phrases "sube a" or "tira de" do. Anywhere else it stays as it is, so
@@ -505,15 +526,21 @@ function readCommand(tokens, state, W, recent) {
 
   // A direction alone, or after "go": go that way. (In and out are also prepositions: "in", "dentro", so the whole
   // rest is tried first.)
+  // IN and OUT (and "enter" / "leave" alone) go through the thing that is the way, or ask which (inOrOut).
+  const said = tokens.filter(t => !W.punct.has(t)).join(" ");
+  const going = (dir) => (dir === "in" || dir === "out") && inOrOut(dir, said, state, W) || { actions: [{ verb: "go", dir }] };
   const whole = matchPhrase(rest, 0, W.dirs);
-  if ((verb === null || verb === "go") && whole && whole.len === rest.length) return { actions: [{ verb: "go", dir: whole.id }] };
+  if ((verb === null || verb === "go") && whole && whole.len === rest.length) return going(whole.id);
   // "enter" / "leave" alone, in a room with a way in / out, go that way (not while in or on something: that gets you out
   // of it). Without such a way they keep their own meaning.
-  if (WAY_OF[verb] && !rest.length && !pronoun && wayAt(state.world.rooms, state.player.at, WAY_OF[verb]) &&
-      !(verb === "exit" && state.player.in)) return { actions: [{ verb: "go", dir: WAY_OF[verb] }] };
+  if (WAY_OF[verb] && !rest.length && !pronoun) {
+    const way = inOrOut(WAY_OF[verb], said, state, W);
+    if (way) return way;
+    if (wayAt(state.world.rooms, state.player.at, WAY_OF[verb]) && !(verb === "exit" && state.player.in)) return { actions: [{ verb: "go", dir: WAY_OF[verb] }] };
+  }
   const bare = rest.filter(t => !W.preps.has(t));
   const d = matchPhrase(bare, 0, W.dirs);
-  if ((verb === null || verb === "go") && d && d.len === bare.length) return { actions: [{ verb: "go", dir: d.id }] };
+  if ((verb === null || verb === "go") && d && d.len === bare.length) return going(d.id);
   // A way typed with a thing that is a way wins over the thing's own `leads` when the thing or the room goes that way ("climb down the
   // stairs" that lead up, in a room with a way down); else the thing's own way stands (steps that go down to the river, south).
   const here = state.world.rooms[state.player.at]?.exits || {};
@@ -526,7 +553,7 @@ function readCommand(tokens, state, W, recent) {
     const room = neighbourNamed(tail, state, W);
     if (room) return { actions: [{ verb: "go", dir: room }] };
     const thing = resolve(tail, state, W, false);
-    if (thing.leads && typed(d.id, thing)) return { actions: [{ verb: "go", dir: d.id }] };
+    if (thing.leads) return { actions: [{ verb: "go", dir: typed(d.id, thing) || thing.leads }] };   // (else its own way: steps down to the platform, east)
     // A thing here that is not a way out ("climb down the drainpipe", "go up the rope"): climbing it, as "climb the drainpipe";
     // the world's own rule for climbing it decides what happens (a way down it is the world's, not the room's exit).
     if ((thing.id && !thing.absent || thing.scenery) && !thing.leads) { verb = "climb"; verbText = show(tokens.slice(0, v ? v.len : 0), W); rest = rest.slice(rest.indexOf(tail[0])); }

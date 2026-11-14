@@ -16,7 +16,7 @@
 //
 // A `connect` effect writes an exit too, and may carry the same fields beside `connect`, `dir` and `to` (connectedExit).
 
-import { isObject } from "./shapes.js?v=0.51.4";
+import { isObject } from "./shapes.js?v=0.52.0";
 export const isExitObject = isObject;
 
 // The ways a thing is: the directions going through it takes, from its `door` (a door, gate or hatch on that way) or its `leads` (stairs,
@@ -62,6 +62,30 @@ export function wayAt(rooms, roomId, dir) {
   const entered = Object.entries(rooms || {}).filter(([id, r]) => id !== roomId && markedDirs(r.exits, "in").some(d => exitTo(r.exits[d]) === roomId)).map(([id]) => id);
   return Object.keys(exits || {}).find(d => d !== "in" && d !== "out" && entered.includes(exitTo(exits[d]))) ?? null;
 }
+
+// Every way in or out of somewhere is a thing in the room (a door, a hatch, a hole, a gate, a tent: BRIEF.md §8, "Exits"). The way
+// a thing is in a room, as the direction going through it takes there: its own `door` / `leads`, with "in" / "out" turned into the
+// room's way in / out (wayAt: the exit marked `in: true`, or the real `in` exit). [] for a thing that is no way.
+const dirsThrough = (rooms, roomId, o) => waysOf(o).map(w => (w === "in" || w === "out" ? wayAt(rooms, roomId, w) ?? w : w));
+
+// The things of the world in a room that are its way `dir` (a direction it has an exit in): `{ id, dir }` for each object there whose
+// `door` or `leads` goes that way. The checker asks it of every in / out exit and every exit marked `in` / `out` (one is a problem
+// without its thing); IN and OUT typed alone ask it which things to go through (js/parser.js). Pure: `world` is { rooms, objects }.
+export const thingsFor = (world, roomId, dir) =>
+  Object.entries(world?.objects || {}).filter(([, o]) => o?.at === roomId && dirsThrough(world.rooms, roomId, o).includes(dir)).map(([id]) => ({ id, dir }));
+
+// The ways into (`way` "in") or out of ("out") a room that are things: the things that are the room's way in / out (its `in` exit,
+// or the one marked `in: true`; for "out" also the way back, wayAt), and the things whose own way is "in" / "out". `{ id, dir }`.
+export function waysAsThings(world, roomId, way) {
+  const dir = wayAt(world?.rooms, roomId, way);
+  return Object.entries(world?.objects || {}).filter(([, o]) => o?.at === roomId)
+    .flatMap(([id, o]) => { const ds = dirsThrough(world.rooms, roomId, o); return ds.includes(dir) ? [{ id, dir }] : ds.includes(way) ? [{ id, dir: way }] : []; });
+}
+
+// The exits of a room that are a way in or out of somewhere: its `in` and `out` exits (not `false`), and the ones marked `in: true` /
+// `out: true`. Each needs its thing in the room (thingsFor; js/checklint.js, inOutProblems). [direction, "in" | "out"] pairs.
+export const inOutExits = (exits) => Object.entries(exits || {}).flatMap(([d, x]) =>
+  (d === "in" || d === "out") ? (exitTo(x) !== false ? [[d, d]] : []) : isExitObject(x) ? ["in", "out"].filter(w => x[w] === true).map(w => [d, w]) : []);
 
 // What a `connect` effect writes into the room's exits: the plain room id, or, when the effect carries any of the
 // exit's other fields (`in`, `out`, `if`, `closed`), the exit object. `disconnect` writes false, whatever the form.

@@ -2,10 +2,10 @@
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.51.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
-import levels from "./levels.js?v=0.51.4";
-import sprites from "./sprites.js?v=0.51.4";
+import pictures, { endings, visions } from "./pictures.js?v=0.52.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.52.0";
+import levels from "./levels.js?v=0.52.0";
+import sprites from "./sprites.js?v=0.52.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -131,7 +131,7 @@ const rooms = {
     name: "THE BELL", area: "row", at: [0, 0, 0],
     describe: [
       "The Bell: brown varnish, low beams, and a warmth like the inside of somebody's coat. Men in caps sing at the bar, each a little behind the one before.",
-      "{Mr Cotter|cotter}, the landlord, polishes a glass that will never be clean enough for him. A {fire} burns in the grate. The Row is east."
+      "{Mr Cotter|cotter}, the landlord, polishes a glass that will never be clean enough for him. A {fire} burns in the grate. The Row is east, through the {door|bell_door}."
     ],
     exits: { e: { to: "row", out: true } },
     scenery: [
@@ -154,7 +154,7 @@ const rooms = {
     name: "HALLORAN'S PIES", area: "row", at: [2, 0, 0],
     describe: [
       "A pie shop the width of a coat rack: a counter, a window steamed blind, and an {oven} that has not gone out since the old Queen. Everything smells of pastry and hot fat.",
-      "{Mrs Halloran|halloran} stands behind the counter with flour to the elbow, wiping a place that is already clean. The Row is west."
+      "{Mrs Halloran|halloran} stands behind the counter with flour to the elbow, wiping a place that is already clean. The Row is west, through the {shop door|pie_door}."
     ],
     exits: { w: { to: "row", out: true } },
     scenery: [
@@ -170,7 +170,7 @@ const rooms = {
     name: "CORONER'S COURT", area: "row", at: [1, -1, 0],
     describe: [
       "A varnished room with a bench, a {witness box|witness_box} and a jury of twelve chairs, in which the fog sits, listening. Inquests on the Row are held at midnight, so the deceased can attend if he likes.",
-      "{Dr Mabbott|mabbott}, the coroner, waits at the bench with his pen. The Row is south."
+      "{Dr Mabbott|mabbott}, the coroner, waits at the bench with his pen. The Row is south, through the {doors|court_doors_in}."
     ],
     exits: { s: { to: "row", out: true } },
     scenery: [
@@ -228,7 +228,7 @@ const rooms = {
     name: "THE SUBSTATION", area: "row", at: [0, 1, 0],
     describe: [
       "The Electric Company's substation: a brick room with the only electric bulb on the Row, and a {dynamo} that hums like a man who knows he is right.",
-      "{Mr Voss|voss} sits at a desk under the bulb with his {ledger} open, in a bowler hat he has not taken off since the Company sent him. The last lamp is east."
+      "{Mr Voss|voss} sits at a desk under the bulb with his {ledger} open, in a bowler hat he has not taken off since the Company sent him. The last lamp is east, through the {door|substation_door}."
     ],
     exits: { e: { to: "last_lamp", out: true } },
     scenery: [
@@ -292,7 +292,7 @@ const objects = {
   summons: { at: "player", portable: true, material: "paper", name: "Summons", note: "Folded, official.",
     words: { nouns: ["summons"], adj: ["folded", "official"] }, ...item("summons"),
     examine: "\"You are called as witness to the inquest into the death of Albert Fenn, lamplighter, of Lantern Row. The court sits at midnight.\" Under the seal, in another hand, smaller: \"The deceased will be present.\"" },
-  cab_fog: { at: "cab", name: "Fog", note: "The only way on.",
+  cab_fog: { at: "cab", leads: "out", name: "Fog", note: "The only way on.",
     words: { nouns: ["fog", "doors", "door", "white"], adj: ["folding", "open", "thick"] },
     examine: "The cab's folding doors stand open on a fog so thick it has a grain, like paper. Somewhere in it, very far off, a lamp is lit, or remembered." },
 
@@ -385,6 +385,21 @@ const objects = {
     words: { nouns: ["box"], adj: ["witness"] },
     enter: "You step into the witness box. It is exactly your size, as if the carpenter had known.",
     examine: "A pen of varnished wood with a rail worn pale by the hands of people who saw something. It is exactly your size." },
+
+  // The ways out of the Bell, the pie shop, the court and the substation (their exits marked `out: true`): each its door (BRIEF.md §8,
+  // "Exits": every way in or out is a thing). The cab's is the fog, its way on (it leads out).
+  bell_door: { at: "bell", door: "e", material: "wood", name: "Door", note: "Out to the Row.",
+    words: { nouns: ["door"], adj: ["bell", "pub"] },
+    examine: "A heavy door with a brass handle worn thin. Every time it opens, the fog looks in." },
+  pie_door: { at: "pie_shop", door: "w", material: "glass", name: "Shop door", note: "Out to the Row.",
+    words: { nouns: ["shop door", "door"], adj: ["shop"] },
+    examine: "A glass door, steamed blind like the window, with a bell on a spring above it." },
+  court_doors_in: { at: "court", door: "s", material: "wood", name: "Doors", note: "Out to the Row.",
+    words: { nouns: ["doors", "door"], adj: ["oak", "court"], pl: true },
+    examine: "The oak doors, from the inside. The fog has followed you in under them." },
+  substation_door: { at: "substation", door: "e", material: "metal", name: "Door", note: "Out to the last lamp.",
+    words: { nouns: ["door"], adj: ["iron", "substation"] },
+    examine: "An iron door with the Company's name on it, painted over the old name, which shows through." },
 
   // The last lamp
   fenn: { portrait: sprites.fenn_portrait, at: "last_lamp", name: "Mr Fenn", note: "Dead, and on duty.",
