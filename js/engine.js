@@ -2,24 +2,24 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.51.1";
-import standardVerbs from "./verbs.js?v=0.51.1";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.51.1";
-import { clean, isLine } from "./shapes.js?v=0.51.1";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.51.1";
-import { readPicture, editPicture } from "./picture.js?v=0.51.1";
-import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.51.1";
-import * as opening from "./opening.js?v=0.51.1";
-import { translate as translateUse } from "./use.js?v=0.51.1";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.51.1";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.51.1";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.51.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.51.1";
-import { makeSleeping } from "./sleeping.js?v=0.51.1";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.51.1";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.51.1";
-import { answerLine } from "./speech.js?v=0.51.1";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.51.1";
+import { random, between } from "./random.js?v=0.51.2";
+import standardVerbs from "./verbs.js?v=0.51.2";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.51.2";
+import { clean, isLine } from "./shapes.js?v=0.51.2";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.51.2";
+import { readPicture, editPicture } from "./picture.js?v=0.51.2";
+import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.51.2";
+import * as opening from "./opening.js?v=0.51.2";
+import { translate as translateUse } from "./use.js?v=0.51.2";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.51.2";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.51.2";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.51.2";
+import { ACTIONS, isAction } from "./actions.js?v=0.51.2";
+import { makeSleeping } from "./sleeping.js?v=0.51.2";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.51.2";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.51.2";
+import { answerLine } from "./speech.js?v=0.51.2";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.51.2";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -156,12 +156,14 @@ function echoesLast(list, came = []) {
 
 // ---- What comes into view ---------------------------------------------------------------------------------------
 // What is in view where you are: what you carry, and the things in your room that aren't shut away in a closed container,
-// nor `unnoticed` and not yet come across. (What you carry counts, so a thing you put down has not come into view: it was with you.)
+// nor `unnoticed` and not yet come across, nor someone else's (a key on the watchman's chain is his: when it falls to the floor,
+// or he puts it down, it comes into view as a thing of its own). (What you carry counts, so a thing you put down has not come
+// into view: it was with you.)
 function inView(g) {
   const ids = new Set();
   for (const id of Object.keys(g.world.objects)) {
     const place = placeOf(g, id);
-    if (place === "player" || (place === g.player.at && !shut(g, id) && noticed(g, id))) ids.add(id);
+    if (place === "player" || (place === g.player.at && !shut(g, id) && noticed(g, id) && !holderOf(g, id))) ids.add(id);
   }
   return ids;
 }
