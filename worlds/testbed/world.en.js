@@ -10,10 +10,10 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers) > vault (east), pantry (west)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.51.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.3";
-import levels from "./levels.js?v=0.51.3";
-import sprites from "./sprites.js?v=0.51.3";
+import pictures, { endings, visions } from "./pictures.js?v=0.51.4";
+import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
+import levels from "./levels.js?v=0.51.4";
+import sprites from "./sprites.js?v=0.51.4";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -515,7 +515,7 @@ const objects = {
   // The office
   oduya: { at: "tb-office", name: "Mrs Oduya", portrait: sprites.oduya_portrait, note: "Keeps the book.",
     words: { nouns: ["oduya", "mrs", "registrar"], adj: ["mrs"], g: "f", proper: true },
-    examine: "A woman in a grey cardigan, writing in a ledger. She has been writing since the floor opened.",
+    examine: "A woman in a grey cardigan, writing in a ledger with a black {pen}. She has been writing since the floor opened.",
     talk: "\"Yes?\" says Mrs Oduya, without looking up.",
     give: "\"Put it on the desk,\" says Mrs Oduya, and then, \"No. Take it back.\"",
     topics: {
@@ -524,8 +524,13 @@ const objects = {
       debt: { about: "debt", label: "who owes", words: ["debt", "owes", "owe", "owing"], opens: ["verdict"], says: "\"Somebody always owes,\" says Mrs Oduya. \"The book keeps the name until it is paid.\"" },
       verdict: { about: "verdict", label: "whose name", words: ["verdict", "name", "whose"], says: "\"Ask me properly.\"" },
       monday: { about: "monday", label: "Monday", words: ["monday", "day", "week"], says: "\"Mondays are a fact. I do not argue with facts.\"" },
+      pen: { about: "pen", label: "her pen", words: ["pen", "nib"], says: "\"It is a pen,\" says Mrs Oduya. \"It writes.\"" },
       default: "\"That is not in the book,\" says Mrs Oduya."
     } },
+  // A thing someone holds that comes into view when she puts it down (the ask_pen rule): marked where the line names it.
+  pen: { at: "oduya", portable: true, material: "metal", name: "Pen", note: "Mrs Oduya's.",
+    words: { nouns: ["pen", "nib"], adj: ["black", "fountain"] }, ...item("pen"),
+    examine: "A black fountain pen with a brass clip. The nib is still wet." },
   ledger: { at: "tb-office", name: "Ledger", note: "Who owes what.", opens: ["debt"],
     words: { nouns: ["ledger", "book"], adj: ["thick", "black"] },
     parts: [{ words: ["columns", "column", "page", "pages"], name: "the columns", says: "Names on the left, sums on the right, and nothing in the middle." }],
@@ -768,6 +773,8 @@ const rules = [
   // The office: topics that open topics, and the question.
   { id: "ask_verdict", match: { verb: "ask", obj: "oduya", topic: "verdict" },
     do: [{ say: "\"Whose name goes in the book?\" says Mrs Oduya, pen up." }, { ask: "verdict" }] },
+  { id: "ask_pen", match: { verb: "ask", obj: "oduya", topic: "pen" }, if: [{ "pen.holder": "oduya" }],
+    do: [{ move: "pen", to: "tb-office" }, { say: "\"This?\" Mrs Oduya holds up her pen, considers it, and lays it down on the desk. \"Borrow it. Bring it back.\"" }] },
   { id: "verdict_right", match: { verb: "answer", question: "verdict" },
     if: [{ "player.answers.verdict": { in: ["oduya", "mrs oduya", "the registrar", "registrar"] } }],
     do: [{ say: "\"[player.answers.verdict],\" Mrs Oduya says, and writes it down. \"At last. I was beginning to think I would have to.\"" },

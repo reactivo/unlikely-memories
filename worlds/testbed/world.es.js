@@ -6,10 +6,10 @@
 // El mapa: la apertura (una sala de admisión), luego un centro con un camino corto a la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.51.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.51.3";
-import levels from "./levels.js?v=0.51.3";
-import sprites from "./sprites.js?v=0.51.3";
+import pictures, { endings, visions } from "./pictures.js?v=0.51.4";
+import music, { rooms as roomMusic } from "./music.js?v=0.51.4";
+import levels from "./levels.js?v=0.51.4";
+import sprites from "./sprites.js?v=0.51.4";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -511,7 +511,7 @@ const objects = {
   // El despacho
   oduya: { at: "tb-office", name: "La señora Oduya", portrait: sprites.oduya_portrait, note: "Lleva el libro.",
     words: { nouns: ["oduya", "senora", "registradora"], adj: ["senora"], g: "f", proper: true },
-    examine: "Una mujer con una rebeca gris, escribiendo en un libro mayor. Lleva escribiendo desde que se abrió el piso.",
+    examine: "Una mujer con una rebeca gris, escribiendo en un libro mayor con una {pluma|pen} negra. Lleva escribiendo desde que se abrió el piso.",
     talk: "«¿Sí?», dice la señora Oduya, sin levantar la vista.",
     give: "«Póngalo en el escritorio», dice la señora Oduya, y luego: «No. Lléveselo».",
     topics: {
@@ -520,8 +520,13 @@ const objects = {
       debt: { about: "debt", label: "quién debe", words: ["deuda", "deudas", "debe", "deben", "deber"], opens: ["verdict"], says: "«Siempre hay alguien que debe», dice la señora Oduya. «El libro guarda el nombre hasta que se paga»." },
       verdict: { about: "verdict", label: "de quién", words: ["veredicto", "nombre", "quien", "cuyo"], says: "«Pregúntemelo como es debido»." },
       monday: { about: "monday", label: "el lunes", words: ["lunes", "dia", "semana"], says: "«Los lunes son un hecho. Yo no discuto con los hechos»." },
+      pen: { about: "pen", label: "su pluma", words: ["pluma", "plumin"], says: "«Es una pluma», dice la señora Oduya. «Escribe»." },
       default: "«Eso no está en el libro», dice la señora Oduya."
     } },
+  // Algo que alguien tiene y que aparece a la vista cuando lo deja (la regla ask_pen): marcado donde la línea lo nombra.
+  pen: { at: "oduya", portable: true, material: "metal", name: "Pluma", note: "De la señora Oduya.",
+    words: { nouns: ["pluma", "plumin"], adj: ["negra", "estilografica"], g: "f" }, ...item("pen"),
+    examine: "Una pluma estilográfica negra con un clip de latón. El plumín todavía está húmedo." },
   ledger: { at: "tb-office", name: "Libro mayor", note: "Quién debe qué.", opens: ["debt"],
     words: { nouns: ["libro", "mayor", "registro"], adj: ["grueso", "negro"], g: "m" },
     parts: [{ words: ["columnas", "columna", "pagina", "paginas"], name: "las columnas", says: "Nombres a la izquierda, sumas a la derecha, y nada en el medio." }],
@@ -763,6 +768,8 @@ const rules = [
   // El despacho: temas que abren temas, y la pregunta.
   { id: "ask_verdict", match: { verb: "ask", obj: "oduya", topic: "verdict" },
     do: [{ say: "«¿Cuyo nombre va en el libro?», dice la señora Oduya, con la pluma en alto." }, { ask: "verdict" }] },
+  { id: "ask_pen", match: { verb: "ask", obj: "oduya", topic: "pen" }, if: [{ "pen.holder": "oduya" }],
+    do: [{ move: "pen", to: "tb-office" }, { say: "«¿Esto?», la señora Oduya levanta su pluma, la mira y la deja sobre el escritorio. «Llévesela. Y devuélvamela»." }] },
   { id: "verdict_right", match: { verb: "answer", question: "verdict" },
     if: [{ "player.answers.verdict": { in: ["oduya", "senora oduya", "la senora oduya", "la señora oduya", "señora oduya", "registradora", "la registradora"] } }],
     do: [{ say: "«[player.answers.verdict]», dice la señora Oduya, y lo apunta. «Por fin. Ya empezaba a pensar que tendría que hacerlo yo»." },
