@@ -2,8 +2,8 @@
 // been typed (js/engine.js, the `useAs` effect; ARCHITECTURE.md §3 "Using things", PARSER.md §4b). This module is the one place
 // that knows which pairs mean which action. Pure: reads the state, never changes it. (Where things are: js/place.js.)
 
-import { carried, within, person } from "./place.js?v=0.48.4";
-import { isAction } from "./actions.js?v=0.48.4";
+import { carried, within, person } from "./place.js?v=0.49.0";
+import { isAction } from "./actions.js?v=0.49.0";
 
 // Someone who'd take what you give: a person, or anything a world rule for `give` names.
 export function receives(g, id) {

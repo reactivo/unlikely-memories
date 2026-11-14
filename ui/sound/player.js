@@ -18,14 +18,14 @@
 //   levelsOf(S, music) — the levels a world's parts play at (the shared and its own), and which of its parts have none.
 // And openAudio(ctx): the AudioContext made or woken inside a tap (the rules browsers set: MUSIC.md §7).
 
-import { sceneOf, themePart, freqOf, variant, shiftOctave } from "../../js/music.js?v=0.48.4";
-import { makeKit, playEvent, note, gain, filt, chain } from "./synth.js?v=0.48.4";
-import { makeTone } from "./tones.js?v=0.48.4";
-import { makeColour } from "./colours.js?v=0.48.4";
-import { playSounds } from "./sounds.js?v=0.48.4";
-import { createLevels } from "./loudness.js?v=0.48.4";
-import { instrumentPart, tonePart, colourPart, soundParts, soundId, musicParts } from "./parts.js?v=0.48.4";
-import SHARED from "../../content/levels.js?v=0.48.4";
+import { sceneOf, themePart, freqOf, variant, shiftOctave } from "../../js/music.js?v=0.49.0";
+import { makeKit, playEvent, note, gain, filt, chain } from "./synth.js?v=0.49.0";
+import { makeTone } from "./tones.js?v=0.49.0";
+import { makeColour } from "./colours.js?v=0.49.0";
+import { playSounds } from "./sounds.js?v=0.49.0";
+import { createLevels } from "./loudness.js?v=0.49.0";
+import { instrumentPart, tonePart, colourPart, soundParts, soundId, musicParts } from "./parts.js?v=0.49.0";
+import SHARED from "../../content/levels.js?v=0.49.0";
 
 // ---- The clockwork: what plays when ------------------------------------------------------------------------------------------
 

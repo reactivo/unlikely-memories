@@ -3,10 +3,10 @@
 // conjunto de cambios, aplicado tras la apertura, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
-import pictures, { endings } from "./pictures.js?v=0.48.4";
-import music, { rooms as roomMusic } from "./music.js?v=0.48.4";
-import levels from "./levels.js?v=0.48.4";
-import sprites from "./sprites.js?v=0.48.4";
+import pictures, { endings } from "./pictures.js?v=0.49.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.49.0";
+import levels from "./levels.js?v=0.49.0";
+import sprites from "./sprites.js?v=0.49.0";
 
 // ---- La biblia del juego -------------------------------------------------------------------------------------------
 export const bible = {
