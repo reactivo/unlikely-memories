@@ -171,7 +171,7 @@ export default {
   // ---- PACKING ROOM: a bench, drifts of wood-wool, the label on a bare frame ----------------------------------------------
   packing_room: {
     version: 1,
-    shot: "Three-quarter view from a corner, north; goldenhour; one low lamp from the left throwing brown-yellow on the bench top; the bare frame with its {label} on the left third, light on the label; the {bench} on the right third with a hammer on a nail; wings: {frames} leaning against the wall, drifts of {wood-wool} on the floor; dressing: {crowbars} hung on the wall; moves: the lamp glow (lamplight)",
+    shot: "Three-quarter view from a corner, north; lamplight; one low lamp from the left throwing yellow on the bench top, brown walls, black shadows; the bare frame with its {label} on the left third, light on the label; the {bench} on the right third with a hammer on a nail; wings: {frames} leaning against the wall, drifts of {wood-wool} on the floor; dressing: {crowbars} hung on the wall; moves: the lamp glow (lamplight)",
     draw: `
       vp 120,64
       rect wall 0,0,320,100 6
@@ -188,35 +188,35 @@ export default {
       line frame_gild 80,20 136,20 c14
       line frame_gild2 80,20 80,84 c14
       rect label 96,42,24,14 15 e0
-      line - 100,46 116,46 c8
-      line - 100,50 112,50 c8
-      line - 100,53 114,53 c8
-      dots tacks 98,44 118,44 98,54 118,54 c8
+      line - 100,46 116,46 c0
+      line - 100,50 112,50 c0
+      line - 100,53 114,53 c0
+      dots tacks 98,44 118,44 98,54 118,54 c0
       rect frame2 150,34,40,50 6 e0
       rect frame2_in 156,40,28,38 mix:6,0@0.5
       line frame2_gild 150,34 190,34 c14
       rect frame3 22,40,40,44 6 e0
       rect frame3_in 28,46,28,32 mix:6,0@0.5
-      rect paper_wrap 24,50,36,26 7 e0
-      line - 24,58 60,58 c8
-      line - 24,66 60,66 c8
+      rect paper_wrap 24,50,36,26 15 e0
+      line - 24,58 60,58 c0
+      line - 24,66 60,66 c0
       poly bench_top 196,76 316,76 320,86 190,86 14 e0
       rect bench_body 200,86,112,28 6 e0
       line - 200,94 312,94 c0
       rect bench_leg1 202,114,8,22 6 e0
       rect bench_leg2 302,114,8,22 6 e0
-      line crowbar1 222,28 222,64 c8
-      line crowbar1_hook 222,28 228,24 c8
-      line crowbar2 240,32 240,66 c7
-      line crowbar2_hook 240,32 246,28 c7
-      line crowbar3 258,30 258,64 c8
-      rect hammer_head 280,46,12,5 7 e0
+      line crowbar1 222,28 222,64 c0
+      line crowbar1_hook 222,28 228,24 c0
+      line crowbar2 240,32 240,66 c15
+      line crowbar2_hook 240,32 246,28 c15
+      line crowbar3 258,30 258,64 c0
+      rect hammer_head 280,46,12,5 15 e0
       line hammer_shaft 286,51 286,72 c6
-      rect nail 284,44,3,3 8
+      rect nail 284,44,3,3 0
       ellipse lamp_glow 40,16,28,20 mix:,14@0.2
       ellipse lamp_glow2 40,16,14,10 mix:,14@0.35
       rect lamp_pane 36,10,8,12 14
-      line lamp_cord 40,0 40,10 c8
+      line lamp_cord 40,0 40,10 c0
       poly bench_lit 196,76 316,76 320,86 190,86 mix:14,6@0.5
       poly wool1 20,112 50,104 80,110 90,120 60,128 26,126 14 e6
       poly wool2 120,118 150,112 180,118 176,128 130,130 14 e6
@@ -226,14 +226,14 @@ export default {
       line wool_strand3 262,126 296,122 c6
       poly shadow_frame 80,84 136,84 150,100 94,100 0
       poly shadow_bench 190,114 312,114 320,128 200,128 0
-      rect nail_box 160,100,22,12 7 e0
-      line - 160,106 182,106 c8
+      rect nail_box 160,100,22,12 15 e0
+      line - 160,106 182,106 c0
       poly shadow_wool 90,128 126,128 140,134 100,134 0
-      poly saw 300,40 316,44 316,54 300,50 7 e0
-      line saw_teeth 300,50 316,54 c8
+      poly saw 300,40 316,44 316,54 300,50 15 e0
+      line saw_teeth 300,50 316,54 c0
       ellipse twine 120,128,8,4 14 e6
       ellipse twine_in 120,128,3,1 6
-      rect paper_roll 28,92,10,30 7 e0
+      rect paper_roll 28,92,10,30 15 e0
     `,
     cycles: [{ name: "the lamp", areas: ["lamp_glow", "lamp_glow2", "lamp_pane"], colors: [14, 6], style: "flicker", ms: [700, 2200] }],
     overlays: []
@@ -313,12 +313,12 @@ export default {
   // ---- VESTIBULE: marble, a stand with the visitors' book, doors ahead -----------------------------------------------------
   vestibule: {
     version: 1,
-    shot: "One-point view, north, vanishing point at x 160,62; gaslight; marble floor in dark grey and brown squares running to the great hall's doorway, a gas globe either side; the visitors' {book} on its stand on the left third; wings: a marble pilaster and the {marble} floor, the cloakroom doorway on the right; dressing: gas globes on brackets; moves: the globes (lamplight)",
+    shot: "One-point view, north, vanishing point at x 160,62; lamplight; marble floor in brown and black squares running to the great hall's doorway, a gas globe either side; the visitors' {book} on its stand on the left third; wings: a marble pilaster and the {marble} floor, the cloakroom doorway on the right; dressing: gas globes on brackets; moves: the globes (lamplight)",
     draw: `
       vp 160,62
-      rect wall 0,0,320,100 mix:8,6@0.4
-      rect ceiling 0,0,320,26 mix:8,0@0.5
-      poly floor 0,136@1 320,136@1 320,136@0.2 0,136@0.2 mix:8,6@0.3
+      rect wall 0,0,320,100 mix:6,0@0.35
+      rect ceiling 0,0,320,26 mix:6,0@0.6
+      poly floor 0,136@1 320,136@1 320,136@0.2 0,136@0.2 mix:6,0@0.5
       poly wall_l 0,0@1 0,136@1 0,136@0.2 0,0@0.2 mix:6,0@0.4
       poly wall_r 320,0@1 320,136@1 320,136@0.2 320,0@0.2 mix:6,0@0.4
       poly door_far 138,40 182,40 182,92 138,92 0 e14
@@ -345,15 +345,15 @@ export default {
       rect stand_foot 94,118,18,4 6 e0
       poly stand_top 84,80 126,72 130,86 88,92 6 e0
       poly book 90,76 118,72 120,80 92,84 15 e0
-      line book_spine 104,74 106,82 c8
-      line book_line1 94,78 102,76 c8
-      line book_line2 108,76 116,74 c8
+      line book_spine 104,74 106,82 c0
+      line book_line1 94,78 102,76 c0
+      line book_line2 108,76 116,74 c0
       line pen 124,70 134,64 c0
-      rect globe_l_post 60,24,3,40 8
+      rect globe_l_post 60,24,3,40 0
       ellipse globe_l 62,22,6,7 14
       ellipse globe_l_glow 62,22,18,14 mix:,14@0.22
       ellipse globe_l_glow2 62,22,10,8 mix:,14@0.38
-      rect globe_r_post 258,24,3,40 8
+      rect globe_r_post 258,24,3,40 0
       ellipse globe_r 260,22,6,7 14
       ellipse globe_r_glow 260,22,18,14 mix:,14@0.22
       ellipse globe_r_glow2 260,22,10,8 mix:,14@0.38
@@ -361,16 +361,16 @@ export default {
       poly pool_r 220,136 290,136 270,112 200,112 mix:6,14@0.25
       poly shadow_stand 100,122 130,122 150,130 110,130 0
       rect door_far_lintel 134,34,52,6 14 e0
-      dots tile_marks 40,130 120,122 200,124 280,132 c7
+      dots tile_marks 40,130 120,122 200,124 280,132 c15
       ellipse mat 160,126,28,5 4 e0
-      poly step_r 276,100 320,104 320,112 270,110 7 e0
+      poly step_r 276,100 320,104 320,112 270,110 15 e0
       rect umb_stand 268,104,12,24 6 e0
-      line umb1 272,104 270,90 c8
-      line umb2 276,104 280,88 c8
+      line umb1 272,104 270,90 c0
+      line umb2 276,104 280,88 c0
       rect plaque_l 44,50,10,14 14 e0
       rect plaque_r 266,50,10,14 14 e0
       ellipse bust_head 224,76,5,6 15 e0
-      rect bust_plinth 218,82,14,22 7 e0
+      rect bust_plinth 218,82,14,22 15 e0
       ellipse clock 160,20,6,6 15 e0
       line clock_h 160,20 160,16 c0
       line clock_h2 160,20 164,20 c0
@@ -384,43 +384,46 @@ export default {
   // ---- CLOAKROOM: a counter, pegs, a heavy coat -------------------------------------------------------------------------------
   cloakroom: {
     version: 1,
-    shot: "Frontal at a counter, north; cafe; yellow-brown walls, a red floor, grey furniture; the one {coat} on a peg on the left third, big and dark; a brass {bell} on the green counter on the right third, the flask beside it; wings: rows of empty {pegs}, a ticket rack; dressing: a ticket rack; moves: the bell's glint (glint)",
+    shot: "Frontal at a counter, north; lamplight; brown walls and floor, a lit yellow counter top, white fittings; the one {coat} on a peg on the left third, big and dark; a brass {bell} on the green counter on the right third, the flask beside it; wings: rows of empty {pegs}, a ticket rack; dressing: a ticket rack; moves: the bell's glint (glint)",
     draw: `
-      rect wall 0,0,320,100 mix:14,6@0.45
+      rect wall 0,0,320,100 mix:6,0@0.35
       rect wall_top 0,0,320,12 6
-      rect floor 0,100,320,36 4
+      rect floor 0,100,320,36 mix:6,0@0.45
       line floor_line1 0,112 320,112 c0
       line floor_line2 0,126 320,126 c0
-      line peg_rail 20,28 300,28 c8
+      line peg_rail 20,28 300,28 c0
       rect rail_board 14,24,292,8 6 e0
-      rect peg1 30,32,3,10 7
-      rect peg2 54,32,3,10 7
-      rect peg3 78,32,3,10 7
-      rect peg4 190,32,3,10 7
-      rect peg5 214,32,3,10 7
-      rect peg6 238,32,3,10 7
-      rect peg7 262,32,3,10 7
-      rect peg8 286,32,3,10 7
-      poly coat 84,32 130,32 138,96 76,96 0 e8
-      poly coat_collar 94,32 120,32 114,48 100,48 8
-      line coat_seam 107,48 107,96 c8
-      rect coat_pocket 112,70,16,12 8
+      rect peg1 30,32,3,10 15
+      rect peg2 54,32,3,10 15
+      rect peg3 78,32,3,10 15
+      rect peg4 190,32,3,10 15
+      rect peg5 214,32,3,10 15
+      rect peg6 238,32,3,10 15
+      rect peg7 262,32,3,10 15
+      rect peg8 286,32,3,10 15
+      poly coat 84,32 130,32 138,96 76,96 0 e6
+      poly coat_collar 94,32 120,32 114,48 100,48 0
+      line coat_seam 107,48 107,96 c0
+      rect coat_pocket 112,70,16,12 0
       line coat_hem 76,96 138,96 c4
-      line coat_sleeve 84,36 78,86 c8
+      line coat_sleeve 84,36 78,86 c0
       rect hook_coat 104,26,8,6 14
       rect counter 0,84,320,18 6 e0
-      rect counter_top 0,78,320,8 2 e0
+      rect counter_top 0,80,320,4 14 e0
       rect counter_front 0,102,320,10 6 e0
+      line counter_p1 80,86 80,102 c0
+      line counter_p2 160,86 160,102 c0
+      line counter_p3 240,86 240,102 c0
       line - 0,106 320,106 c0
-      rect baize 150,78,80,6 2
+      poly baize 152,77 230,77 234,84 148,84 4 e0
       ellipse bell_base 208,74,10,3 14 e0
       ellipse bell_dome 208,68,8,7 14 e0
       rect bell_knob 206,58,4,4 14
       rect bell_glint 204,64,2,6 15
-      rect rack 20,52,40,24 7 e0
-      line rack_l1 20,60 60,60 c8
-      line rack_l2 20,68 60,68 c8
-      line rack_v 40,52 40,76 c8
+      rect rack 20,52,40,24 15 e0
+      line rack_l1 20,60 60,60 c0
+      line rack_l2 20,68 60,68 c0
+      line rack_v 40,52 40,76 c0
       rect ticket1 24,54,6,5 15
       rect ticket2 44,62,6,5 15
       rect ticket3 24,70,6,5 15
@@ -429,36 +432,36 @@ export default {
       line clock_h2 272,58 278,58 c0
       ellipse clock_dot 272,58,1,1 0
       poly shadow_counter 0,112 320,112 320,122 0,122 0
-      rect stool 250,92,22,4 7 e0
-      rect stool_leg1 252,96,3,16 7
-      rect stool_leg2 268,96,3,16 7
+      rect stool 250,92,22,4 15 e0
+      rect stool_leg1 252,96,3,16 15
+      rect stool_leg2 268,96,3,16 15
       dots wall_stains 40,12 90,8 150,16 220,10 290,14 c6
       line frame_line 0,12 320,12 c14
-      rect mirror 170,30,24,26 11 e0
+      rect mirror 170,30,24,26 9 e0
       line mirror_glint 174,34 180,44 c15
       rect hat_shelf 230,10,70,4 6 e0
-      rect hatbox_a 238,0,16,10 7 e0
+      rect hatbox_a 238,0,16,10 15 e0
       rect hatbox_b 262,2,14,8 14 e0
-      rect hatbox_c 282,0,14,10 12 e0
+      rect hatbox_c 282,0,14,10 4 e0
       line umbrella 300,70 306,98 c0
-      poly umb_cloth 296,62 312,62 308,76 300,76 8 e0
-      rect lost_glove 44,92,8,6 7
+      poly umb_cloth 296,62 312,62 308,76 300,76 0 e0
+      rect lost_glove 44,92,8,6 15
       ellipse floor_mat 130,128,30,5 14 e6
-      ellipse ink_pot 130,76,4,3 8 e0
+      ellipse ink_pot 130,76,4,3 0 e0
       rect docket 100,74,16,4 15 e0
     `,
     cycles: [{ name: "the bell's glint", areas: ["bell_glint"], colors: [15, 14], style: "flicker", ms: [900, 2600] }],
-    overlays: [{ object: "flask", at: [180, 62] }]
+    overlays: [{ object: "flask", at: [180, 64] }]
   },
 
   // ---- SALLE DES MARINES: a long hall of sea pictures under gas, a stair on the right ---------------------------------------------
   hall: {
     version: 1,
-    shot: "One-point view, north, vanishing point at x 213,60; arcade; blue walls going to black at the far end, gilt frames lit by a gas jet each, a {wire} from every frame to a brass bell on the cornice; the stair climbing on the right third; the {pictures} marching away down the left wall; wings: nearer frames, the doorway to the {jets}; dressing: bells on the cornice, gas jets; moves: the jets (lamplight)",
+    shot: "One-point view, north, vanishing point at x 213,60; deepnight; blue walls going to black at the far end, gilt frames lit by a gas jet each, a {wire} from every frame to a brass bell on the cornice; the stair climbing on the right third; the {pictures} marching away down the left wall; wings: nearer frames, the doorway to the {jets}; dressing: bells on the cornice, gas jets; moves: the jets (lamplight)",
     draw: `
       vp 213,60
       rect wall 0,0,320,136 1
-      poly floor 0,136@1 320,136@1 320,136@0.15 0,136@0.15 mix:1,0@0.5
+      poly floor 0,136@1 320,136@1 320,136@0.15 0,136@0.15 mix:1,3@0.35
       poly wall_l 0,0@1 0,136@1 0,136@0.15 0,0@0.15 mix:1,0@0.2
       poly wall_r 320,0@1 320,136@1 320,136@0.15 320,0@0.15 mix:1,0@0.25
       poly ceil 0,0@1 320,0@1 320,0@0.15 0,0@0.15 mix:1,0@0.55
@@ -467,17 +470,17 @@ export default {
       poly frame_l1_in 12,34 50,40 50,86 12,92 mix:1,0@0.5
       poly frame_l2 68,34 110,40 110,84 68,90 14 e0
       poly frame_l2_in 74,41 104,45 104,78 74,83 mix:1,0@0.4
-      poly frame_l3 120,40 150,43 150,76 120,79 6 e0
+      poly frame_l3 120,40 150,43 150,76 120,79 3 e0
       poly frame_l3_in 124,45 146,47 146,72 124,74 mix:1,0@0.5
       poly frame_r1 314,26 280,34 280,92 314,100 14 e0
       poly frame_r1_in 308,34 286,40 286,86 308,92 mix:1,0@0.5
-      poly frame_r2 270,36 250,40 250,80 270,86 6 e0
+      poly frame_r2 270,36 250,40 250,80 270,86 3 e0
       poly frame_r2_in 266,40 254,43 254,78 266,82 mix:1,0@0.4
-      line sea_l1 14,70 46,66 c9
+      line sea_l1 14,70 46,66 c3
       line sea_l2 76,64 100,62 c3
-      line sea_r1 288,70 304,66 c9
-      line wave_l 18,60 28,56 38,60 c15
-      line wave_l2 80,58 90,54 98,58 c15
+      line sea_r1 288,70 304,66 c3
+      line wave_l 18,60 28,56 38,60 c11
+      line wave_l2 80,58 90,54 98,58 c11
       rect bell_a 30,16,8,8 14 e0
       rect bell_b 90,20,6,6 14 e0
       rect bell_c 288,16,8,8 14 e0
@@ -501,17 +504,17 @@ export default {
       line floor_l4 320,136@1 320,136@0.15 c0
       line floor_c1 0,120 320,120 c0
       line floor_c2 40,106 290,106 c0
-      poly stair_a 236,76 276,76 276,96 236,96 8 e0
-      poly step_1 230,96 282,96 290,104 222,104 7 e0
-      poly step_2 236,88 276,88 280,96 232,96 7 e0
-      poly step_3 240,80 272,80 276,88 236,88 8 e0
+      poly stair_a 236,76 276,76 276,96 236,96 1 e0
+      poly step_1 230,96 282,96 290,104 222,104 3 e0
+      poly step_2 236,88 276,88 280,96 232,96 3 e0
+      poly step_3 240,80 272,80 276,88 236,88 1 e0
       line stair_rail 280,104 250,70 c14
       rect rail_post 248,70,3,14 14
-      poly rug 90,128 210,128 224,134 76,134 4 e0
-      poly door_l 130,48 150,48 150,80 130,80 0 e8
+      poly rug 90,128 210,128 224,134 76,134 5 e0
+      poly door_l 130,48 150,48 150,80 130,80 0 e1
       dots floor_gleam 60,126 140,112 180,124 260,116 c11
-      rect plinth 160,86,12,18 7 e0
-      ellipse bust 166,82,5,6 15 e0
+      rect plinth 160,86,12,18 3 e0
+      ellipse bust 166,82,5,6 11 e0
       rect sconce_l 150,52,6,10 14 e0
       rect sconce_r 232,50,6,10 14 e0
       dots frame_nails 14,28 48,34 76,36 104,42 c14
@@ -597,39 +600,39 @@ export default {
   // ---- THE CASTS: plaster gods under the jets, Gaspard on his chair -------------------------------------------------------------
   west_gallery: {
     version: 1,
-    shot: "Seen from the doorway, north-west; institution; dark grey walls, white plaster {casts} on grey pedestals under gas jets, a bentwood chair on the left third with Gaspard slumped in it, his kepi black; a brass key on the floor by the chair when it falls; one green door ahead; wings: more {plaster} athletes either side; dressing: pedestals; moves: the jets (lamplight)",
+    shot: "Seen from the doorway, north-west; deepnight; dark blue walls, pale cyan plaster {casts} on blue pedestals under gas jets, a bentwood chair on the left third with Gaspard seated in it, a dark blue coat with a light edge, a pale face, a black kepi with a yellow band; a brass key on the floor by the chair when it falls; one door ahead in the gallery's blues with a lit pale edge; wings: more {plaster} athletes either side; dressing: pedestals; moves: the jets (lamplight)",
     draw: `
       vp 160,60
-      rect wall 0,0,320,136 mix:8,0@0.35
-      poly floor 0,136@1 320,136@1 320,136@0.2 0,136@0.2 mix:8,7@0.3
-      poly wall_l 0,0@1 0,136@1 0,136@0.2 0,0@0.2 8
-      poly wall_r 320,0@1 320,136@1 320,136@0.2 320,0@0.2 8
-      poly door 140,44 180,44 180,96 140,96 2 e0
+      rect wall 0,0,320,136 mix:1,0@0.35
+      poly floor 0,136@1 320,136@1 320,136@0.2 0,136@0.2 mix:1,3@0.3
+      poly wall_l 0,0@1 0,136@1 0,136@0.2 0,0@0.2 1
+      poly wall_r 320,0@1 320,136@1 320,136@0.2 320,0@0.2 1
+      poly door 140,44 180,44 180,96 140,96 mix:1,3@0.4 e11
       line door_bar 160,44 160,96 c0
       rect door_knob 172,72,3,3 14
-      poly ped_l 14,84 54,84 56,126 12,126 8 e0
-      ellipse cast_l_body 34,56,12,26 15 e0
-      ellipse cast_l_head 34,28,6,7 15 e0
-      line cast_l_arm 24,48 14,70 c7
-      line cast_l_arm2 44,48 56,66 c7
-      poly ped_r 266,84 306,84 308,126 264,126 8 e0
-      ellipse cast_r_body 286,56,12,26 15 e0
-      ellipse cast_r_head 286,28,6,7 15 e0
-      line cast_r_arm 276,48 266,64 c7
-      poly ped_m 104,84 134,84 136,114 102,114 8 e0
-      ellipse cast_m_body 119,64,8,18 7 e0
-      ellipse cast_m_head 119,44,5,6 7 e0
-      poly ped_m2 186,84 216,84 218,114 184,114 8 e0
-      ellipse cast_m2_body 201,64,8,18 7 e0
-      ellipse cast_m2_head 201,44,5,6 7 e0
+      poly ped_l 14,84 54,84 56,126 12,126 1 e0
+      ellipse cast_l_body 34,56,12,26 11 e0
+      ellipse cast_l_head 34,28,6,7 11 e0
+      line cast_l_arm 24,48 14,70 c3
+      line cast_l_arm2 44,48 56,66 c3
+      poly ped_r 266,84 306,84 308,126 264,126 1 e0
+      ellipse cast_r_body 286,56,12,26 11 e0
+      ellipse cast_r_head 286,28,6,7 11 e0
+      line cast_r_arm 276,48 266,64 c3
+      poly ped_m 104,84 134,84 136,114 102,114 1 e0
+      ellipse cast_m_body 119,64,8,18 3 e0
+      ellipse cast_m_head 119,44,5,6 3 e0
+      poly ped_m2 186,84 216,84 218,114 184,114 1 e0
+      ellipse cast_m2_body 201,64,8,18 3 e0
+      ellipse cast_m2_head 201,44,5,6 3 e0
       ellipse jet_l 66,34,3,4 14
       ellipse jet_l_glow 66,34,14,10 mix:,14@0.2
       ellipse jet_l_glow2 66,34,7,5 mix:,14@0.35
       ellipse jet_r 254,34,3,4 14
       ellipse jet_r_glow 254,34,14,10 mix:,14@0.2
       ellipse jet_r_glow2 254,34,7,5 mix:,14@0.35
-      line bracket_l 66,40 66,52 c8
-      line bracket_r 254,40 254,52 c8
+      line bracket_l 66,40 66,52 c1
+      line bracket_r 254,40 254,52 c1
       poly chair_seat 66,102 100,102 102,108 64,108 6 e0
       line chair_back 68,72 68,102 c6
       line chair_back2 98,72 98,102 c6
@@ -637,40 +640,40 @@ export default {
       line chair_leg1 66,108 64,128 c6
       line chair_leg2 100,108 102,128 c6
       line chair_leg3 80,108 80,128 c6
-      rect gaspard_thighs 68,98,36,10 1 e9
-      rect gaspard_shin_l 70,108,8,18 1 e9
-      rect gaspard_shin_r 90,108,8,18 1 e9
+      rect gaspard_thighs 68,98,36,10 0 e1
+      rect gaspard_shin_l 70,108,8,18 0 e1
+      rect gaspard_shin_r 90,108,8,18 0 e1
       rect gaspard_boot_l 66,126,14,4 0
       rect gaspard_boot_r 88,126,14,4 0
-      poly gaspard_body 66,76 100,76 106,100 62,100 9 e1
-      rect gaspard_shade 92,78,10,22 mix:9,1@0.5
+      poly gaspard_body 66,76 100,76 106,100 62,100 1 e3
+      rect gaspard_shade 92,78,10,22 mix:1,0@0.5
       dots gaspard_buttons 82,82 82,88 82,94 c14
-      line gaspard_strap 72,78 92,98 c7
-      rect gaspard_clock 90,94,10,9 7 e0
+      line gaspard_strap 72,78 92,98 c3
+      rect gaspard_clock 90,94,10,9 3 e0
       dots gaspard_clock_dot 94,98 c0
       line gaspard_chain 76,96 80,100 c14
-      ellipse gaspard_head 82,66,8,9 12 e0
-      poly gaspard_kepi 71,58 93,58 95,63 69,63 1 e0
-      rect gaspard_band 71,60,22,2 4
+      ellipse gaspard_head 82,66,8,9 11 e0
+      poly gaspard_kepi 71,58 93,58 95,63 69,63 0 e3
+      rect gaspard_band 71,60,22,2 14
       rect gaspard_brim 68,63,28,2 0
-      ellipse gaspard_nose 82,68,2,2 4
-      rect gaspard_moustache 76,71,12,2 8
+      ellipse gaspard_nose 82,68,2,2 3
+      rect gaspard_moustache 76,71,12,2 0
       dots gaspard_eyes 78,66 86,66 c0
-      ellipse gaspard_hand_l 68,100,4,3 12 e0
-      ellipse gaspard_hand_r 98,100,4,3 12 e0
-      poly pool_floor 40,136 280,136 240,112 80,112 mix:8,7@0.35
+      ellipse gaspard_hand_l 68,100,4,3 11 e0
+      ellipse gaspard_hand_r 98,100,4,3 11 e0
+      poly pool_floor 40,136 280,136 240,112 80,112 mix:1,3@0.35
       poly shadow_l 14,126 54,126 78,132 30,132 0
       poly shadow_r 266,126 306,126 296,132 256,132 0
-      dots floor_marks 50,124 120,118 200,120 270,126 c7
+      dots floor_marks 50,124 120,118 200,120 270,126 c3
       line plinth_line 0,100 320,100 c0
-      rect fire_bucket 232,100,12,16 4 e0
-      rect sign 150,24,20,8 7 e0
-      rect tag_l 20,126,28,4 7 e0
-      rect tag_r 270,126,28,4 7 e0
-      rect tag_m 106,114,24,3 7 e0
-      rect tag_m2 188,114,24,3 7 e0
-      line lintel_door 138,42 182,42 c7
-      dots plaster_dust 100,122 150,126 210,124 c15
+      rect fire_bucket 232,100,12,16 1 e3
+      rect sign 150,24,20,8 3 e0
+      rect tag_l 20,126,28,4 3 e0
+      rect tag_r 270,126,28,4 3 e0
+      rect tag_m 106,114,24,3 3 e0
+      rect tag_m2 188,114,24,3 3 e0
+      line lintel_door 138,42 182,42 c3
+      dots plaster_dust 100,122 150,126 210,124 c11
     `,
     cycles: [{ name: "the jets", areas: ["jet_l", "jet_l_glow", "jet_l_glow2", "jet_r", "jet_r_glow", "jet_r_glow2"], colors: [14, 6], style: "flicker", ms: [800, 2200] }],
     overlays: [{ object: "lens_key", at: [40, 118] }]
@@ -679,9 +682,9 @@ export default {
   // ---- THE LANDING: a round window, a heavy door with a brass plate ------------------------------------------------------------------
   landing: {
     version: 1,
-    shot: "Eye level, frontal on a half-landing, north; gaslight, brown haze; the round window with a pale moon on the left third; the heavy {door} with its brass {plate} on the right third; stair rails at the foot; wings: panelled wall and a gas bracket either side; dressing: the plate; moves: the gas (lamplight)",
+    shot: "Eye level, frontal on a half-landing, north; lamplight, brown; the round window with a pale moon on the left third; the heavy {door} with its brass {plate} on the right third; stair rails at the foot; wings: panelled wall and a gas bracket either side; dressing: the plate; moves: the gas (lamplight)",
     draw: `
-      rect wall 0,0,320,136 mix:8,6@0.5
+      rect wall 0,0,320,136 mix:6,0@0.35
       rect panel_l 0,40,320,70 mix:6,0@0.3
       line dado 0,84 320,84 c14
       line dado2 0,110 320,110 c14
@@ -703,14 +706,14 @@ export default {
       line plate_l2 226,66 252,66 c6
       ellipse knob 270,76,3,3 14
       rect keyhole 268,82,3,6 0
-      rect door_hinge1 206,40,4,8 8
-      rect door_hinge2 206,98,4,8 8
+      rect door_hinge1 206,40,4,8 0
+      rect door_hinge2 206,98,4,8 0
       rect arch 196,24,92,6 14 e0
-      line bracket_a 30,24 30,50 c8
+      line bracket_a 30,24 30,50 c0
       ellipse flame_a 30,22,4,5 14
       ellipse flame_a_glow 30,24,18,14 mix:,14@0.22
       ellipse flame_a_glow2 30,24,9,7 mix:,14@0.38
-      line bracket_b 160,20 160,44 c8
+      line bracket_b 160,20 160,44 c0
       ellipse flame_b 160,18,4,5 14
       ellipse flame_b_glow 160,20,18,14 mix:,14@0.22
       ellipse flame_b_glow2 160,20,9,7 mix:,14@0.38
@@ -719,20 +722,20 @@ export default {
       rect post1 0,106,5,30 6 e0
       rect post2 40,106,5,26 6 e0
       rect post3 80,102,5,26 6 e0
-      poly step_edge 0,128 112,124 112,136 0,136 7 e0
+      poly step_edge 0,128 112,124 112,136 0,136 15 e0
       poly pool 150,136 230,136 250,116 170,116 mix:6,14@0.4
       poly shadow_door 204,112 284,112 300,124 216,124 0
       rect mat 210,116,60,6 4 e0
-      line sconce_wire 30,50 30,74 c8
+      line sconce_wire 30,50 30,74 c0
       rect frame_small 300,44,16,22 14 e0
       rect frame_small_in 303,48,10,14 1
       line skirt 0,106 320,106 c0
       rect frame_b 20,56,18,24 14 e0
-      rect frame_b_in 23,59,12,18 5
+      rect frame_b_in 23,59,12,18 4
       rect frame_c 140,56,20,24 14 e0
       rect frame_c_in 143,59,14,18 1
       poly vase 52,96 66,96 64,110 54,110 6 e0
-      poly fern 50,80 58,70 66,80 62,96 56,96 2
+      poly fern 50,80 58,70 66,80 62,96 56,96 0
       dots door_studs 214,40 270,40 214,106 270,106 c14
       line crack 20,90 26,100 c0
       rect rail_cap 0,102,90,3 14
@@ -740,7 +743,7 @@ export default {
       rect window_sill 72,80,56,4 6 e0
       line door_gap 206,112 278,112 c0
       dots dust 160,60 180,70 150,80 c15
-      line cobweb 270,30 284,44 c7
+      line cobweb 270,30 284,44 c15
     `,
     cycles: [{ name: "the gas", areas: ["flame_a", "flame_a_glow", "flame_a_glow2", "flame_b", "flame_b_glow", "flame_b_glow2"], colors: [14, 6], style: "flicker", ms: [900, 2400] }],
     overlays: []

@@ -6,8 +6,8 @@
 // The map tile (M) opens the map: the button itself does it (popovertarget, index.html; ui/map.js). Once the story has ended the whole
 // compass, M included, is dim and ignores clicks and Tab (the game is locked).
 
-import { exitTo } from "../js/exits.js?v=0.49.2";
-import { DIRECTIONS } from "../js/space.js?v=0.49.2";
+import { exitTo } from "../js/exits.js?v=0.49.3";
+import { DIRECTIONS } from "../js/space.js?v=0.49.3";
 
 const CORNERS = ["in", "out", "u", "d"];
 

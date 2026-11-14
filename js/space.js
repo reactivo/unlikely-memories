@@ -3,7 +3,7 @@
 // the next cell north; exits that break that, or lead to another area, are **passages** (doors to elsewhere,
 // loops, a staircase to another world). Pure: reads the state, never changes it.
 
-import { exitTo } from "./exits.js?v=0.49.2";
+import { exitTo } from "./exits.js?v=0.49.3";
 
 // The cell one step away in each direction: x grows to the east, y to the south, z upwards.
 export const STEP = { n: [0, -1, 0], s: [0, 1, 0], e: [1, 0, 0], w: [-1, 0, 0], u: [0, 0, 1], d: [0, 0, -1] };

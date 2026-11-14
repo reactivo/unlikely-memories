@@ -1,10 +1,10 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.49.2";
-import music, { rooms as roomMusic } from "./music.js?v=0.49.2";
-import levels from "./levels.js?v=0.49.2";
-import sprites from "./sprites.js?v=0.49.2";
+import pictures, { endings } from "./pictures.js?v=0.49.3";
+import music, { rooms as roomMusic } from "./music.js?v=0.49.3";
+import levels from "./levels.js?v=0.49.3";
+import sprites from "./sprites.js?v=0.49.3";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -15,6 +15,7 @@ export const bible = {
     "Aubry on the Quai Voltaire: a lighthouse at night, hung in a room that holds the lens from a real lighthouse. Every frame in " +
     "the building is wired to a bell, and a watchman walks the galleries. The picture is dark, and the lens is cold.",
   style: "dithered",
+  palettes: "lamplight: the lamp- and gas-lit rooms (the van, the packing room, the vestibule, the cloakroom, the office, the landing); cellar: below stairs (the cellar); ember: the boiler room, by its fire; deepnight: the dark galleries and the lens room under its dome (the hall, the casts, the lens room); moonlight: the roof",
   genre: "heist caper, told as a thief's walk-through",
   strangeness: 1,
   size: "medium",

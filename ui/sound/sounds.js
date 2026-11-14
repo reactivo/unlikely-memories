@@ -10,8 +10,8 @@
 //                                                                              note's from its level (ui/sound/loudness.js), 1 if none
 //   playNote(kit, dest, p, t)                                                  one planned note, at audio time t (measured alone too)
 
-import { freqOf } from "../../js/music.js?v=0.49.2";
-import { note, filt } from "./synth.js?v=0.49.2";
+import { freqOf } from "../../js/music.js?v=0.49.3";
+import { note, filt } from "./synth.js?v=0.49.3";
 
 // A material's instrument: the spec's, or the generic one for none or a word it doesn't have.
 export const materialOf = (name, S) => S.sounds.materials[name] ?? S.sounds.materials.generic;
