@@ -18,7 +18,7 @@
 // the point itself, t = 0 the vanishing point:   vp 160,60   poly wall 40,120@1 40,120@0.5 ...   rect and ellipse take plain numbers.
 // Pure: no page, no state.
 
-import art from "../content/art.js?v=0.50.1";
+import art from "../content/art.js?v=0.50.2";
 
 const SHAPES = ["rect", "poly", "ellipse", "line", "dots"];
 const num = (s) => { const n = Number(s); if (s === "" || !Number.isFinite(n)) throw new Error(`"${s}" isn't a number`); return n; };

@@ -4,7 +4,7 @@
 // A few actions are handled here in full (look, take…); every other action (js/actions.js) answers with its
 // standard reply from the pack (replies.<action>, varied).
 
-import { ACTIONS, BUILT_IN } from "./actions.js?v=0.50.1";
+import { ACTIONS, BUILT_IN } from "./actions.js?v=0.50.2";
 
 const reachable = { "$obj.place": { in: ["$here", "player"] } };   // in the room or carried (or inside those)
 const reachable2 = { "$obj2.place": { in: ["$here", "player"] } };  // the same for the action's second object
@@ -202,6 +202,9 @@ const rules = [
   { id: "std_go_locked_plain", match: { verb: "go" }, if: [{ "$exit.by": { "!=": null } }, { "$exit.closed": "@locked" }], do: [{ say: "@locked", things: ["$exit.by"] }] },
   { id: "std_go_lacking", match: { verb: "go" }, if: [{ "$exit.needs": { "!=": null } }, { "$exit.closed": "@lacking" }], do: [{ say: "@lacking", things: ["$exit.needs"] }] },
   { id: "std_go_closed", match: { verb: "go" }, if: [{ "$exit.closed": { "!=": null } }], do: [{ say: "$exit.closed" }] },
+  // "Go to the lamp", "walk to the gate" with the thing here and not a way out (a way out is read as going that way: js/parser.js):
+  // it is right here. The world's own rule for going to it comes first, as everywhere.
+  { id: "std_go_here", match: { verb: "go" }, if: [{ "$obj.name": { "!=": null } }], do: [{ say: "@hereAlready" }] },
   { id: "std_go_blocked", match: { verb: "go" }, if: [{ "$exit": { in: [false, true, null] } }], do: [{ say: "@noWay", vary: true }] },
   { id: "std_go", match: { verb: "go" }, do: [{ travel: "$exit" }] },
 
@@ -238,7 +241,7 @@ const rules = [
 // (std_go_lacking: the pack's `lacking`, but it names the world's thing). The engine's `bring` and `unlock` mark their own stock
 // refusals generic (js/engine.js); the opening's "not yet" is the world's line too (js/opening.js).
 const GENERIC = new Set(["std_in_already", "std_not_in", "std_locked_plain", "std_wait_nothing", "std_ask_unknown",
-  "std_examine_plain", "std_take_not_in", "std_take_have", "std_take_fixed", "std_drop_not", "std_go_blocked", "std_unknown",
+  "std_examine_plain", "std_take_not_in", "std_take_have", "std_take_fixed", "std_drop_not", "std_go_blocked", "std_go_here", "std_unknown",
   "std_put_not_carried", "std_put_inside", "std_put_closed", "std_use_alone", "std_unheard", "std_open_already", "std_close_already", "std_close_locked", "std_open_always", "std_close_always",
   "std_locked_in_plain", "std_get_in_closed", "std_take_on", "std_take_inside", "std_take_person",
   "std_drop_kept", "std_drop_kept_plain", "std_put_kept", "std_put_kept_plain", "std_go_locked_plain"]);

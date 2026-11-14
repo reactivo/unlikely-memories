@@ -3,8 +3,8 @@
 // timing: tokens.css). A restore (new game, undo, a loaded game) shows the inventory at once. Once the story has ended the
 // items are dim and don't respond (the game is locked).
 
-import { itemSVG } from "./sprite.js?v=0.50.1";
-import { text } from "../js/narrator.js?v=0.50.1";
+import { itemSVG } from "./sprite.js?v=0.50.2";
+import { text } from "../js/narrator.js?v=0.50.2";
 
 // Set up the inventory on its section. Returns update().
 export function mount(root, on) {

@@ -14,11 +14,11 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.50.1";
-import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.50.1";
-import { inScope, person } from "./place.js?v=0.50.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.50.1";
-import { distance } from "./fields.js?v=0.50.1";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.50.2";
+import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.50.2";
+import { inScope, person } from "./place.js?v=0.50.2";
+import { ACTIONS, isAction } from "./actions.js?v=0.50.2";
+import { distance } from "./fields.js?v=0.50.2";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
@@ -63,10 +63,19 @@ function note(into, text, grammar) {
 const show = (tokens, W) => tokens.map(t => W.shown.get(t) ?? t).join(" ");
 
 // The player's own text with one word put right, in the spelling they typed ("¿Querías decir…?"): the unknown word (as
-// parse() reports it, normalised) is replaced by the suggestion, as the pack or the world writes it.
+// parse() reports it, normalised) is replaced by the suggestion, as the pack or the world writes it. `word` may be several words
+// ("drain pipe", typed side by side, only spaces between them): they are replaced together, so a compound's two words become one.
 export function retype(raw, word, fix, grammar = {}) {
-  let done = false;
-  return raw.toLowerCase().replace(/[\p{L}\p{M}\p{N}'’]+/gu, w => (!done && normalise(w, grammar) === word ? ((done = true), fix) : w)).trim();
+  const parts = word.split(" "), lower = raw.toLowerCase();
+  const found = [...lower.matchAll(/[\p{L}\p{M}\p{N}'’]+/gu)], norms = found.map(m => normalise(m[0], grammar));
+  for (let i = 0; i + parts.length <= found.length; i++) {
+    if (!parts.every((p, k) => norms[i + k] === p)) continue;
+    const apart = found.slice(i, i + parts.length - 1).some((m, k) => !/^\s+$/.test(lower.slice(m.index + m[0].length, found[i + k + 1].index)));
+    if (apart) continue;
+    const last = found[i + parts.length - 1];
+    return (lower.slice(0, found[i].index) + fix + lower.slice(last.index + last[0].length)).trim();
+  }
+  return lower.trim();
 }
 
 // Read what you typed. A "did you mean…?" is only offered when the corrected command would be understood here: each
@@ -76,7 +85,7 @@ export function retype(raw, word, fix, grammar = {}) {
 export function parse(text, state, words, seen = "", which = null) {
   const r = read(text, state, words, seen, which);
   const options = r.error?.options;
-  if (!options) return r;
+  if (!options) return r.error && COMPOUNDABLE.has(r.error.say) ? withCompound(r, text, state, words, seen) : r;
   const { options: _, ...error } = r.error;
   // Offered only if the corrected command would be accepted now; a doubtful typo only if something answers it (a
   // rule or the thing itself, not a verb's stock reply: "miss the train" isn't offered as "kiss the train").
@@ -90,7 +99,37 @@ export function parse(text, state, words, seen = "", which = null) {
   };
   const fix = options.find(offers);
   const shown = vocabulary(withWorld(words, state)).shown;           // the suggestion as it is written, not folded ("enseñar")
+  if (!fix) { const c = compoundFix(text, state, words, seen); if (c) return { error: { ...error, ...c } }; }
   return { error: { ...error, didYouMean: fix ? shown.get(fix.word) ?? fix.word : null } };
+}
+
+// The replies a compound word can be behind: the words weren't understood, or named nothing here.
+const COMPOUNDABLE = new Set(["@unsure", "@notHere", "@onlyMentioned"]);
+const withCompound = (r, text, state, words, seen) => { const c = compoundFix(text, state, words, seen); return c ? { error: { ...r.error, ...c } } : r; };
+
+// Compound words, offered and never joined silently: two typed words that, together, are a noun of a thing in reach or of this
+// room's scenery ("drain pipe" for the drainpipe, "light house" for the lighthouse), or one word that is a noun of several words
+// of such a thing, run together ("fireplace" for "fire place"). The suggestion is made only when the command, with the words put
+// right, would be understood here (as a typo's is). { word, didYouMean }, `word` the typed words (normalised) for OOPS; or null.
+function compoundFix(text, state, words, seen) {
+  const W = vocabulary(withWorld(words, state));
+  const ids = Object.keys(W.names).filter(id => state.world.objects[id] && inScope(state, id));
+  const nouns = ids.flatMap(id => W.names[id].nouns || []).concat(sceneryHere(state, W).flatMap(s => s.words));
+  const single = new Set(nouns.filter(n => !n.includes(" "))), several = [...new Set(nouns.filter(n => n.includes(" ")))];
+  if (!single.size && !several.length) return null;
+  const tokens = normalise(text, words.words.grammar).split(" ").filter(Boolean), isWord = (t) => t && !W.punct.has(t);
+  const shown = (n) => n.split(" ").map(t => W.shown.get(t) ?? t).join(" ");
+  const tries = [];
+  tokens.forEach((t, i) => {
+    if (isWord(t) && isWord(tokens[i + 1]) && single.has(t + tokens[i + 1])) tries.push({ at: i, len: 2, to: t + tokens[i + 1] });
+    for (const n of several) if (isWord(t) && n.replaceAll(" ", "") === t) tries.push({ at: i, len: 1, to: n });
+  });
+  for (const c of tries) {
+    const fixed = [...tokens.slice(0, c.at), c.to, ...tokens.slice(c.at + c.len)].join(" ");
+    const r = read(fixed, state, words, seen);
+    if (r.actions || r.error?.scenery) return { word: tokens.slice(c.at, c.at + c.len).join(" "), didYouMean: W.shown.get(c.to) ?? shown(c.to) };
+  }
+  return null;
 }
 
 // The reading itself (parse() adds the "did you mean"): layer 0 (an answer, the end, "which do you mean"), session

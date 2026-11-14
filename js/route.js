@@ -1,7 +1,7 @@
 // Which view a page address shows: the list of games (no hash), or one world (#<its id>). Pure: no page, so tests can run it.
 // The controller (js/main.js) reads location.hash through this and never decides it itself.
 
-import { WORLDS } from "../worlds/index.js?v=0.50.1";
+import { WORLDS } from "../worlds/index.js?v=0.50.2";
 
 // The view for an address's hash, in a language: { view: "home" } or { view: "game", id }. An id that is no world written in
 // this language gives the list, with replace: true (the controller replaces the address, so back doesn't return to it).

@@ -86,6 +86,7 @@ export default {
   askAbout: (l) => `Preguntar por ${l}`,
   talkedOut: (d, w) => `No tienes nada más de lo que hablar con ${el(d.name, w)}${d.forNow ? " (por ahora)" : ""}.`,
   noWay: ["Por ahí no se puede ir.", "No hay paso por ahí.", "Por ahí no se va a ninguna parte."],
+  hereAlready: "Está aquí mismo.",                                    // "ir a la lámpara" con la lámpara aquí y que no es una salida
   // Cuando nada da sentido a lo escrito: con la voz del mundo, nunca hablando de palabras (varias, alternadas).
   unsure: ["No sabes muy bien cómo hacer eso.", "No sale nada de ahí.", "Eso no te lleva a ninguna parte.",
            "Nada de aquí parece reaccionar a eso."],

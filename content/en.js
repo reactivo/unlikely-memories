@@ -48,6 +48,7 @@ export default {
   askAbout: (l) => `Ask about ${l}`,   // a topic offered after someone answers you ("Ask about umbrella")
   talkedOut: (d, w) => `You have nothing else to talk about with ${theW(d.name, w)}${d.forNow ? " (for now)" : ""}.`,   // after they answer, when nothing is left
   noWay: ["You can't go that way.", "There's no way through there.", "That way leads nowhere."],
+  hereAlready: "It's right here.",                                  // "go to the lamp" with the lamp here and not a way out
   // When nothing makes sense of what you typed: in the world's voice, never about words (several, varied).
   unsure: ["You're not sure how to do that.", "Nothing comes of it.", "That doesn't get you anywhere.",
            "Nothing here seems to respond to that."],
