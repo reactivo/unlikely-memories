@@ -288,7 +288,7 @@ export default {
   home: { subtitle: "Artificial Interactive Fiction", newGame: "New game", resume: "Continue", version: "Version",
           language: (l) => `Language: ${{ en: "English", es: "Spanish" }[l]}`,   // the switch's buttons, top right
           none: "There are no games in English yet." },
-  labels: { directions: "DIRECTIONS", inv: "INVENTORY", day: "Day", map: "Map" },
+  labels: { directions: "DIRECTIONS", inv: "INVENTORY", map: "Map" },
   // The map (js/map.js, ui/map.js): shown in capitals by its stylesheet. `level(n)` names a level that isn't the ground.
   map: { title: "Map", close: "Close the map", hint: "Drag to move, pinch to zoom", ground: "Ground level",
          level: (n) => `Level ${n < 0 ? "−" : ""}${Math.abs(n)}`, rooms: "Rooms on this level", here: "you are here" },

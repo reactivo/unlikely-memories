@@ -319,7 +319,7 @@ export default {
   home: { subtitle: "Ficción Artificial Interactiva", newGame: "Nueva partida", resume: "Continuar", version: "Versión",
           language: (l) => `Idioma: ${{ en: "inglés", es: "español" }[l]}`,   // los botones del selector, arriba a la derecha
           none: "Todavía no hay juegos en español." },
-  labels: { directions: "DIRECCIONES", inv: "INVENTARIO", day: "Día", map: "Mapa" },
+  labels: { directions: "DIRECCIONES", inv: "INVENTARIO", map: "Mapa" },
   // El mapa (js/map.js, ui/map.js): su hoja de estilos lo muestra en mayúsculas. `level(n)` nombra una planta que no es la baja.
   map: { title: "Mapa", close: "Cerrar el mapa", hint: "Arrastra o pellizca el mapa", ground: "Planta baja",
          level: (n) => `Planta ${n < 0 ? "−" : ""}${Math.abs(n)}`, rooms: "Salas de esta planta", here: "estás aquí" },
