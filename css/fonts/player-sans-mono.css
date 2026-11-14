@@ -10,7 +10,7 @@
    The grid: 80 units per em, one font pixel is 10 units: 8 font pixels to the em. Capitals 7 pixels, accented capitals 10,
    descenders 3: a 13-pixel cell. Sharp at multiples of 8px: at 16px a font pixel is 2 CSS pixels (capitals 14px). */
 
-@font-face { font-family: "Player Sans Mono"; src: url("../../fonts/PlayerSansMono8x13-Classic.woff2?v=0.50.3") format("woff2"); }
+@font-face { font-family: "Player Sans Mono"; src: url("../../fonts/PlayerSansMono8x13-Classic.woff2?v=0.50.4") format("woff2"); }
 
 :root[data-font="player-sans-mono"] {
   --font-game: "Player Sans Mono", ui-monospace, monospace;

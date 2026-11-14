@@ -55,16 +55,16 @@
 // The lints of a world as written (everything above but the playthrough: js/checklint.js, `lintWorld`) run first; the playthrough here only
 // when they found no problem. The checker's cache key (tools/checked.mjs) hashes every file of js/, so both files are in it.
 
-import { parse } from "./parser.js?v=0.50.3";
-import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.50.3";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.50.3";
-import { solveCommand } from "./narrator.js?v=0.50.3";
-import { isExitObject, exitTo } from "./exits.js?v=0.50.3";
-import { moveTo, worldTime } from "./time.js?v=0.50.3";
-import * as opening from "./opening.js?v=0.50.3";
-import { musicOf } from "./music.js?v=0.50.3";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.50.3";
-import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.50.3";
+import { parse } from "./parser.js?v=0.50.4";
+import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.50.4";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.50.4";
+import { solveCommand } from "./narrator.js?v=0.50.4";
+import { isExitObject, exitTo } from "./exits.js?v=0.50.4";
+import { moveTo, worldTime } from "./time.js?v=0.50.4";
+import * as opening from "./opening.js?v=0.50.4";
+import { musicOf } from "./music.js?v=0.50.4";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.50.4";
+import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.50.4";
 
 export function check(state, pack, bible, { before = null } = {}) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)

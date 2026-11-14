@@ -24,10 +24,10 @@
 // made with the first, so a world with nothing that moves has no key).
 // A new way of moving is one more fact here: a name in KINDS (and its fields in js/fields.js), and a function that says where it is next.
 
-import { between } from "./random.js?v=0.50.3";
-import { exitTo } from "./exits.js?v=0.50.3";
-import { isObject, isLine as line, gap } from "./shapes.js?v=0.50.3";
-import { placeOf } from "./place.js?v=0.50.3";
+import { between } from "./random.js?v=0.50.4";
+import { exitTo } from "./exits.js?v=0.50.4";
+import { isObject, isLine as line, gap } from "./shapes.js?v=0.50.4";
+import { placeOf } from "./place.js?v=0.50.4";
 
 const KINDS = ["places", "rounds"];
 // The fields of a place and of a round (js/fields.js lists them for the checks).

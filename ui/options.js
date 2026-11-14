@@ -4,7 +4,7 @@
 // question); "Quit" closes it and goes at once. Opening focuses the panel's first control (the Music slider); closing returns
 // the focus to the command line.
 
-import { hang } from "./popup.js?v=0.50.3";
+import { hang } from "./popup.js?v=0.50.4";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {

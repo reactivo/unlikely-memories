@@ -2,10 +2,10 @@
 // (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures } from "./pictures.js?v=0.50.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.50.3";
-import levels from "./levels.js?v=0.50.3";
-import sprites from "./sprites.js?v=0.50.3";
+import pictures, { endings as endingPictures } from "./pictures.js?v=0.50.4";
+import music, { rooms as roomMusic } from "./music.js?v=0.50.4";
+import levels from "./levels.js?v=0.50.4";
+import sprites from "./sprites.js?v=0.50.4";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

@@ -20,8 +20,8 @@
 // (`mask`); and `flicker`, one random brightness for the frame. The vignette is not here: it is a static gradient over the visible box
 // (CSS: ui/scene.css, ui/home.css, from --crt-vignette), so on an upright phone it darkens the box's edges, not the hidden sides'.
 
-import art from "../content/art.js?v=0.50.3";
-import { calm } from "./media.js?v=0.50.3";
+import art from "../content/art.js?v=0.50.4";
+import { calm } from "./media.js?v=0.50.4";
 
 // What each setting may be: [min, max, step], for the debug panel's sliders and for keeping a value sane.
 export const RANGES = {

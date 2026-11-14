@@ -15,7 +15,7 @@
 // (The reactions to a hurt and a heal play a shake and a wave too, with tunables of their own: the engine counts those in
 // state.reactions, not here; content/art.js, effects.reactions.)
 
-import art from "../content/art.js?v=0.50.3";
+import art from "../content/art.js?v=0.50.4";
 
 const TUNED = art.effects.filters;
 // Every filter, in the order they are drawn (content/art.js).

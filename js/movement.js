@@ -5,8 +5,8 @@
 // locked way, never into a place you couldn't have seen, and never sets anything off. The map stays truthful: a wrong turn
 // is an ordinary move along a real exit. Pure.
 
-import { random } from "./random.js?v=0.50.3";
-import { modifiers } from "./conditions.js?v=0.50.3";
+import { random } from "./random.js?v=0.50.4";
+import { modifiers } from "./conditions.js?v=0.50.4";
 
 // The movement now: the first active condition's ({ chance, says }), or null.
 export const movementNow = (state) => modifiers(state, "movement")[0] ?? null;

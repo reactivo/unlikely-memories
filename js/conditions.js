@@ -11,8 +11,8 @@
 // The active ones are in state.player.conditions: { id: { turn?, at?, tickTurn?, tickAt? } } (made with the first, removed with the last,
 // so a game saved before conditions loads unchanged). Pure: reads the state, never changes it (js/engine.js does).
 
-import { filterProblem } from "./filters.js?v=0.50.3";
-import { gap, isLine as line } from "./shapes.js?v=0.50.3";
+import { filterProblem } from "./filters.js?v=0.50.4";
+import { gap, isLine as line } from "./shapes.js?v=0.50.4";
 
 // The modifier kinds a condition may have, and the fields of each (js/fields.js lists them for the checks).
 export const MODIFIERS = { health: ["every", "hurt", "heal", "says"], speech: ["slur", "answer"], movement: ["chance", "says"] };
