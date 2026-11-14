@@ -6,22 +6,22 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.49.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.49.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.49.0";
-import { isAction } from "./actions.js?v=0.49.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.49.0";
-import { isLine } from "./shapes.js?v=0.49.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.49.0";
-import { nextCell } from "./space.js?v=0.49.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.49.0";
-import * as opening from "./opening.js?v=0.49.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.49.0";
-import art from "../content/art.js?v=0.49.0";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.49.0";
-import { paintPicture } from "./paint.js?v=0.49.0";
-import { filterProblem } from "./filters.js?v=0.49.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.49.0";
+import { parse, normalise } from "./parser.js?v=0.49.1";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.49.1";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.49.1";
+import { isAction } from "./actions.js?v=0.49.1";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.49.1";
+import { isLine } from "./shapes.js?v=0.49.1";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf } from "./exits.js?v=0.49.1";
+import { nextCell } from "./space.js?v=0.49.1";
+import { moveTo, worldTime, parts } from "./time.js?v=0.49.1";
+import * as opening from "./opening.js?v=0.49.1";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.49.1";
+import art from "../content/art.js?v=0.49.1";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.49.1";
+import { paintPicture } from "./paint.js?v=0.49.1";
+import { filterProblem } from "./filters.js?v=0.49.1";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.49.1";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -586,6 +586,12 @@ export function bibleProblems(bible, state) {
 // and has no `died` picture; a picture, a room's or an ending's, that is badly drawn; an ending with no description (`alt` on its `add picture`, in the
 // world file); a room's overlay with no description (`overlayAlt`, on the room); and a picture, or one of its overlays, that
 // carries an `alt` itself (pictures.js holds shapes, not words).
+// Does the room's `alt` name a thing that can be taken, where it starts (BRIEF.md §7: a takeable thing is an overlay, never named in the room's alt)?
+// Only a thing with a picture to be drawn in as an overlay: not a long one (`shape`, a shape of the room's own picture). tests/worlds.test.js asks the same.
+export function altNames(room, o) {
+  if (!o?.portable || !room?.picture || o.shape || typeof o.name !== "string" || !o.name.trim()) return false;
+  return new RegExp(`\\b${o.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "iu").test(room.alt ?? "");
+}
 function pictureProblems(state) {
   const problems = [], pictures = state.pictures || {}, file = `world.${state.lang || "en"}.js`;
   const described = (x) => typeof x === "string" && x.trim();
@@ -601,7 +607,15 @@ function pictureProblems(state) {
       if (!described(state.world.rooms[roomId]?.overlayAlt?.[o?.object]))
         problems.push(`${name}: the overlay "${o?.object}" has no alt, its description for screen readers; add overlayAlt.${o?.object} to room "${roomId}" in ${file}`);
   };
+  // An overlay a rule sets later (`{ draw: "<room>", overlays: [...] }`) counts as the room's too.
+  const later = {};
+  for (const { effect: e } of effectsOf(state)) if (typeof e.draw === "string" && Array.isArray(e.overlays)) for (const o of e.overlays) (later[e.draw] ??= new Set()).add(o?.object);
   for (const [id, room] of Object.entries(state.world.rooms)) {
+    if (room?.overlayAlt && typeof room.overlayAlt === "object") for (const thing of Object.keys(room.overlayAlt))
+      if (!(room.picture?.overlays || []).some(o => o?.object === thing) && !later[id]?.has(thing))
+        problems.push(`rooms/${id}: overlayAlt.${thing} describes an overlay the room's picture doesn't have (add { "object": "${thing}", "at": [x, y] } to its overlays, or take the entry out)`);
+    for (const o of Object.entries(state.world.objects).filter(([, x]) => x?.at === id && altNames(room, x)).map(([k]) => k))
+      problems.push(`rooms/${id}: its alt names "${state.world.objects[o].name}" (${o}), a thing that can be taken: that is an overlay (overlayAlt.${o}), never named in the room's alt (BRIEF.md §7)`);
     if (!room?.picture) continue;
     carried(`rooms/${id}`, room.picture, "describe it as the room's alt");
     overlaysDescribed(`rooms/${id}`, id, room.picture.overlays);
@@ -751,17 +765,19 @@ function pictureWarnings(state, bible) {
   const all = [...Object.entries(state.world.rooms).map(([id, r]) => [`rooms/${id}`, r?.picture]), ...Object.entries(state.pictures || {}).map(([id, p]) => [`pictures/${id}`, p?.picture])]
     .filter(([, pic]) => pic && typeof pic === "object");
   if (!all.some(([, pic]) => /moves:/i.test(typeof pic.shot === "string" ? pic.shot : ""))) return [];
-  return all.flatMap(([name, pic]) => [...motionWarnings(pic), ...shapeWarnings(pic, bible?.style ?? (bible ? "dithered" : null))].map(why => `${name}: ${why}`));
+  return all.flatMap(([name, pic]) => [...motionWarnings(pic), ...shapeWarnings(pic, bible?.style ?? (bible ? "dithered" : null), name.startsWith("pictures/"))].map(why => `${name}: ${why}`));
 }
 
-// A picture with fewer shapes than its style's lowest (art.draw.ranges: dithered 60, flat 100; the haze modifier, named in the shot next to the palette
-// ("goldenhour, haze"), its own: dithered 30, flat 80): never a problem. The style is the bible's (none: dithered); with no bible there is none to read.
-export function shapeWarnings(picture, style) {
+// A picture with fewer shapes than its style's lowest (art.draw.ranges: a room's dithered 60, flat 100; an ending's dithered 40, flat 70; the haze modifier,
+// named in the shot next to the palette ("goldenhour, haze"), its own: dithered 30, flat 80, and for an ending the lower of the two): never a problem.
+// The style is the bible's (none: dithered); with no bible there is none to read. `ending`: the picture is an ending's, not a room's.
+export function shapeWarnings(picture, style, ending = false) {
   const ranges = art.draw.ranges, n = Array.isArray(picture.draw) ? picture.draw.length : 0;
   if (!ranges[style] || !n) return [];
   const haze = /(?:^|;)\s*[a-z]+\s*,\s*haze\s*(?=[;,.]|$)/i.test(typeof picture.shot === "string" ? picture.shot : "");
-  const [lo, hi] = haze ? ranges.haze[style] : ranges[style];
-  return n < lo ? [`has ${n} shapes, fewer than the ${haze ? "haze " : ""}${style} style's ${lo} (${lo}-${hi}): add detail by the style's own rules (materials, marks, dressing the shot names), never padding`] : [];
+  let [lo, hi] = haze ? ranges.haze[style] : ranges[style];
+  if (ending) lo = Math.min(lo, ranges.endings[style][0]);
+  return n < lo ? [`has ${n} shapes, fewer than the ${haze ? "haze " : ""}${ending ? "ending " : ""}${style} style's ${lo} (${lo}-${hi}): add detail by the style's own rules (materials, marks, dressing the shot names), never padding`] : [];
 }
 
 // What is wrong with a picture's `loops` (small animated sprites: ART-DIRECTION.md §6.3): at most art.effects.loops.max, each with a name,
@@ -1319,8 +1335,10 @@ function shownTexts(state, bible) {
   return shown;
 }
 
-// The narrator states and never hedges (BRIEF.md §6, "The voice"): English text with one of these words is a problem, naming the text and the word.
-export const HEDGES = ["seems to", "apparently", "perhaps"];
+// The narrator states and never hedges (BRIEF.md §6, "The voice": the rule is by meaning; these are the wordings the checker can tell by sight):
+// English text with one of these is a problem, naming the text and the words. Left out on purpose, because each hits an honest use in the worlds
+// or in a character's speech: "has the look of", "as though it" (similes), "maybe" and "might be" (a character may be unsure aloud).
+export const HEDGES = ["seems to", "apparently", "perhaps", "looks as though", "looks as if", "looked as though", "looked as if", "appears to", "it would seem"];
 function hedgeProblems(state, pack, bible) {
   if (state.lang !== "en") return [];
   const out = [], seen = new Set(), re = new RegExp(`(?<![\\p{L}])(${HEDGES.join("|")})(?![\\p{L}])`, "iu");
@@ -1555,6 +1573,13 @@ export function checkOpening(state, pack) {
     if (id !== roomId && r.area === room.area) problems.push(`room "${id}" is in the opening's area "${room.area}": the opening has an area of its own`);
     for (const [dir, to] of Object.entries(r.exits || {}))
       if (exitTo(to) === roomId) problems.push(`${id} has an exit ${dir} back to the opening room: it is never returned to`);
+  }
+  // ...and no rule makes a way into or out of it later (`connect`, from either side).
+  const seenConnect = new Set();
+  for (const { effect: e, where } of effectsOf(state)) {
+    if (typeof e.connect !== "string" || (e.connect !== roomId && e.to !== roomId)) continue;
+    const line = `${where}: connects ${e.connect} ${e.dir ?? "?"} to ${e.to}, a way into or out of the opening room: it is never returned to, and its only way out is the way on (BRIEF.md §3)`;
+    if (!seenConnect.has(line)) { seenConnect.add(line); problems.push(line); }
   }
   // A closed place (BRIEF.md §3): the way on is the only way out. No exit to an open area (a room), and no second way on: every
   // other exit is `false` or absent. Nor a thing that leads somewhere else (stairs, a path: `leads`), here or as scenery.

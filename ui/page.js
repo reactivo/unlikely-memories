@@ -4,8 +4,8 @@
 // on phones, whether you are typing (see followTyping), the background's flash when you are hurt or healed (see flash), and what is
 // locked while you sleep (see sleeper).
 
-import { reactionOf } from "./effects.js?v=0.49.0";
-import { touch, topMode } from "./media.js?v=0.49.0";
+import { reactionOf } from "./effects.js?v=0.49.1";
+import { touch, topMode } from "./media.js?v=0.49.1";
 
 // The page scrolls and two parts of it stick: the top (title bar and picture) and the bottom (prompt and tabs). How
 // tall they are depends on the window and the text, so the page measures them and reports them, as the one exception to

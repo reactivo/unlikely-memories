@@ -9,7 +9,7 @@
    pixels, accented capitals 12, descenders 2. Sharp at multiples of 19px. At 28.5px a font pixel is 1.5 CSS pixels
    (3 device pixels on a 2× screen) and the capitals are 13.5px, about m5x7's in the strip layout (14px at 32px). */
 
-@font-face { font-family: "Silver"; src: url("../../fonts/Silver-Latin.woff?v=0.49.0") format("woff"); }
+@font-face { font-family: "Silver"; src: url("../../fonts/Silver-Latin.woff?v=0.49.1") format("woff"); }
 
 :root[data-font="silver"] {
   --font-game: "Silver", ui-monospace, monospace;

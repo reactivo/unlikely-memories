@@ -3,12 +3,12 @@
 // the page (ui/debug.js draws the panel) and never changes a state itself: the engine does. Nothing in the game imports this
 // file but the panel's block at the end of js/main.js; delete both and the panel is gone.
 
-import { step, applyChangeSet } from "./engine.js?v=0.49.0";
-import { parse } from "./parser.js?v=0.49.0";
-import { text, listName } from "./narrator.js?v=0.49.0";
-import { ORDER, PARAMS, MOMENTS } from "./filters.js?v=0.49.0";
-import { levelName } from "./map.js?v=0.49.0";
-import { musicOf, sceneOf } from "./music.js?v=0.49.0";
+import { step, applyChangeSet } from "./engine.js?v=0.49.1";
+import { parse } from "./parser.js?v=0.49.1";
+import { text, listName } from "./narrator.js?v=0.49.1";
+import { ORDER, PARAMS, MOMENTS } from "./filters.js?v=0.49.1";
+import { levelName } from "./map.js?v=0.49.1";
+import { musicOf, sceneOf } from "./music.js?v=0.49.1";
 
 // What you type at the prompt to open the panel. Read before the parser: never a turn, never echoed, never kept.
 export const COMMAND = "/debug";

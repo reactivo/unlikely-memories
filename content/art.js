@@ -16,7 +16,8 @@ export default {
     maxShapes: 250,                                // every picture, in either style (BRIEF.md §7)
     // The shapes a picture is drawn in, by style (BRIEF.md §7, "Enough to look at"), and with the haze modifier (`haze`): [fewest, most]. Fewer than
     // the lowest is warned of by the checker (only for a world whose shots plan their motion); more than `maxShapes` is a problem.
-    ranges: { dithered: [60, 120], flat: [100, 220], haze: { dithered: [30, 60], flat: [80, 150] } },
+    // An ending's picture has a lower floor than a room's (the same upper limits): `endings`; with haze, the lower of the two floors.
+    ranges: { dithered: [60, 120], flat: [100, 220], haze: { dithered: [30, 60], flat: [80, 150] }, endings: { dithered: [40, 120], flat: [70, 220] } },
     edits: ["add", "remove", "replace", "restyle"]
   },
   styles: ["dithered", "flat"],                    // a world's `style` (its bible; none means dithered), BRIEF.md §7

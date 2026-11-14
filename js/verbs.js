@@ -4,7 +4,7 @@
 // A few actions are handled here in full (look, take…); every other action (js/actions.js) answers with its
 // standard reply from the pack (replies.<action>, varied).
 
-import { ACTIONS, BUILT_IN } from "./actions.js?v=0.49.0";
+import { ACTIONS, BUILT_IN } from "./actions.js?v=0.49.1";
 
 const reachable = { "$obj.place": { in: ["$here", "player"] } };   // in the room or carried (or inside those)
 const reachable2 = { "$obj2.place": { in: ["$here", "player"] } };  // the same for the action's second object

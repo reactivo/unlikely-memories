@@ -2,9 +2,9 @@
 // Plain data, no behaviour. Only the engine (js/engine.js) makes a new one; everything else only reads it.
 // Interface-only things (text reveal, focus, "restarting…") stay out.
 
-import { worldFor, DEFAULT } from "../worlds/index.js?v=0.49.0";
-import { applyChangeSet } from "./engine.js?v=0.49.0";
-import { newSeed } from "./random.js?v=0.49.0";
+import { worldFor, DEFAULT } from "../worlds/index.js?v=0.49.1";
+import { applyChangeSet } from "./engine.js?v=0.49.1";
+import { newSeed } from "./random.js?v=0.49.1";
 
 // The shape of the state. Bump it when the state changes shape, so older saved games aren't loaded into code
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.

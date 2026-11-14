@@ -9,13 +9,13 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.49.0";
-import { PARTS, LINES } from "./opening.js?v=0.49.0";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.49.0";
-import { DIRECTIONS } from "./space.js?v=0.49.0";
-import { isObject, isLine } from "./shapes.js?v=0.49.0";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.49.0";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.49.0";
+import { ANSWERED } from "./verbs.js?v=0.49.1";
+import { PARTS, LINES } from "./opening.js?v=0.49.1";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.49.1";
+import { DIRECTIONS } from "./space.js?v=0.49.1";
+import { isObject, isLine } from "./shapes.js?v=0.49.1";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.49.1";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.49.1";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
@@ -243,6 +243,10 @@ export function conditionProblems(conditions) {
         continue;
       }
       if (Array.isArray(want)) why.push(`"${path}": a list isn't a value; use { in: [ … ] } for one of several`);
+      else if (typeof want === "string" && /^\s*(!=|>=|<=|<|>)/.test(want)) {
+        const m = /^\s*(!=|>=|<=|<|>)\s*(.*)$/s.exec(want);
+        why.push(`"${path}": the value ${JSON.stringify(want)} starts with an operator, so it would be compared as plain text; write { ${JSON.stringify(path)}: { ${JSON.stringify(m[1])}: ${JSON.stringify(m[2])} } } (BRIEF.md §8, "Conditions in \`if\`")`);
+      }
       else if (want !== null && typeof want === "object") for (const [op, v] of Object.entries(want)) {
         const number = (x) => Number.isFinite(x) || (typeof x === "string" && x.startsWith("$"));
         if (!OPERATORS.includes(op)) why.push(`"${path}": unknown operator "${op}" (use ${OPERATORS.join(" ")})`);
