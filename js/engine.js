@@ -2,24 +2,24 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.50.2";
-import standardVerbs from "./verbs.js?v=0.50.2";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.50.2";
-import { clean, isLine } from "./shapes.js?v=0.50.2";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.50.2";
-import { readPicture, editPicture } from "./picture.js?v=0.50.2";
-import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.50.2";
-import * as opening from "./opening.js?v=0.50.2";
-import { translate as translateUse } from "./use.js?v=0.50.2";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.50.2";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.50.2";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.50.2";
-import { ACTIONS, isAction } from "./actions.js?v=0.50.2";
-import { makeSleeping } from "./sleeping.js?v=0.50.2";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.50.2";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.50.2";
-import { answerLine } from "./speech.js?v=0.50.2";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.50.2";
+import { random, between } from "./random.js?v=0.50.3";
+import standardVerbs from "./verbs.js?v=0.50.3";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.50.3";
+import { clean, isLine } from "./shapes.js?v=0.50.3";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.50.3";
+import { readPicture, editPicture } from "./picture.js?v=0.50.3";
+import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.50.3";
+import * as opening from "./opening.js?v=0.50.3";
+import { translate as translateUse } from "./use.js?v=0.50.3";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.50.3";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.50.3";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.50.3";
+import { ACTIONS, isAction } from "./actions.js?v=0.50.3";
+import { makeSleeping } from "./sleeping.js?v=0.50.3";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.50.3";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.50.3";
+import { answerLine } from "./speech.js?v=0.50.3";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.50.3";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -374,6 +374,12 @@ function runAction(g, action, out, question) {
     return BEGIN_AGAIN.forEach((e, i) => apply(g, e, action, out, "again#" + i));
   }
   const rule = [...activeRules(g), ...standardVerbs].find(r => isAction(r) && (fits(g, r, action) || answersAgain(g, r, action)));
+  // GO with a thing that is not a way out (the parser makes those a direction) and no rule of the world for going to it: if the world has
+  // a rule that names it for climbing, that is what "go <thing>" means ("go pipe" for "climb pipe"). Else the standard "It's right here."
+  if (action.verb === "go" && action.obj && (!rule || STANDARD.has(rule))) {
+    const climb = { ...action, verb: "climb" };
+    if (activeRules(g).some(r => isAction(r) && r.match?.obj != null && matches(r.match, climb))) return runAction(g, climb, out, null);
+  }
   if (!rule) return;
   out.answer = { rule: rule.id, generic: !!rule.generic };
   if (spent(g, rule)) apply(g, { say: rule.again }, action, out, rule.id + "#again");   // its one time is used: its `again` line

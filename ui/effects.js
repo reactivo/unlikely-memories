@@ -3,9 +3,9 @@
 // hash of the pixel and the moment, so the same moment always draws the same.
 // (How one picture changes into another, a room's or an ending's, is not here: it is all in ui/transitions.js.)
 
-import art from "../content/art.js?v=0.50.2";
-import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.50.2";
-import { colorsOf, areaPixels } from "../js/picture.js?v=0.50.2";
+import art from "../content/art.js?v=0.50.3";
+import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.50.3";
+import { colorsOf, areaPixels } from "../js/picture.js?v=0.50.3";
 
 // A tint's palette as [r, g, b] colours, parsed once for each palette (the scene asks every frame).
 const tints = new WeakMap();

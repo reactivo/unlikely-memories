@@ -14,11 +14,12 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.50.2";
-import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.50.2";
-import { inScope, person } from "./place.js?v=0.50.2";
-import { ACTIONS, isAction } from "./actions.js?v=0.50.2";
-import { distance } from "./fields.js?v=0.50.2";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.50.3";
+import { exitTo, wayAt, wayOf, waysOf } from "./exits.js?v=0.50.3";
+import { inScope, person } from "./place.js?v=0.50.3";
+import { receives } from "./use.js?v=0.50.3";
+import { ACTIONS, isAction } from "./actions.js?v=0.50.3";
+import { distance } from "./fields.js?v=0.50.3";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
@@ -427,12 +428,42 @@ function upOrDown(words, W) {
   return words.map(w => matchPhrase([w], 0, W.dirs)?.id).find(dir => dir === "u" || dir === "d") ?? null;
 }
 
+// A verb's particle typed after the thing ("pick key up", "switch lamp off", "put coat on", "wake guard up"): a last word that, put right
+// after the verb, makes a longer verb phrase of the pack ("pick up", "switch off", "put on", "wake up") is moved there, so the command
+// reads as it would with the particle in its place. Only with something between the verb and that word, and never a word that names a thing
+// (or part of a name) here: the pack's own phrase lists decide, there is no list of particles.
+function particleMoved(tokens, W) {
+  const v = matchPhrase(tokens, 0, W.verbs), last = tokens.length - 1;
+  if (!v || last <= v.len) return tokens;
+  const middle = tokens.slice(v.len, last), word = tokens[last];
+  if (W.punct.has(word) || W.articles.has(word) || W.thingWords.has(word) || !middle.some(t => !W.articles.has(t) && !W.preps.has(t) && !W.punct.has(t))) return tokens;
+  const moved = [...tokens.slice(0, v.len), word, ...middle], m = matchPhrase(moved, 0, W.verbs);
+  return m && m.len === v.len + 1 ? moved : tokens;
+}
+
+// "give B A" / "show B A": the person first, with no "to" ("give gaspard flask", "show camel rubbing"). The words are cut where the
+// first part names someone here who would take it (a character, or a thing a rule of the world gives to; a pronoun that means one) and the rest names another thing here; read as
+// "give A to B". Null when no cut does (then the words are read as they are). Tried before the whole, so "give camel bell" is the
+// bell to the camel, not a camel bell given to nobody.
+function personFirst(words, state, W, recent) {
+  const read = (ws) => ws.length === 1 && W.it.has(ws[0]) ? resolvePronoun(ws[0], recent, state, W) : resolve(ws, state, W, false);
+  for (let i = 1; i < words.length; i++) {
+    const who = read(words.slice(0, i));
+    if (!who.id || who.scenery || who.absent || !receives(state, who.id)) continue;
+    const what = read(words.slice(i));
+    if (what.id && !what.scenery && !what.absent && what.id !== who.id)
+      return [{ words: words.slice(i), prep: null }, { words: words.slice(0, i), prep: W.speechTo.size ? [...W.speechTo][0] : null }];
+  }
+  return null;
+}
+
 // One command (layer 2): its verb, then a direction, or its objects and what comes with them. { actions } or { error }.
 // recent: the things mentioned lately, newest first (what a pronoun can mean).
 function readCommand(tokens, state, W, recent) {
   tokens = withoutFiller(tokens.filter(t => t !== ","), W);
   if (!tokens) return { error: { say: "@unsure" } };
   tokens = splitContraction(tokens, W);
+  tokens = particleMoved(tokens, W);
   let verb = null, rest = tokens, pronoun = null, verbText = null, indirect = null;
 
   // The verb first, with its articles still in place ("dar un golpe", "dar la vuelta" are phrases).
@@ -520,12 +551,13 @@ function readCommand(tokens, state, W, recent) {
   // Taking something out of something ("take letter from bottle", "saca la carta de la botella"): the thing, and where it
   // comes out of. Only when the words don't already name one thing whole ("caja de pastillas"). Taking follows
   // containers, so the second thing only has to be found.
-  if (verb === "take" && !pronoun) {
+  // REMOVE with a place it comes out of ("remove fuse from chest") is taking it from there; REMOVE alone takes off what you wear.
+  if ((verb === "take" || verb === "remove") && !pronoun) {
     const cut = sourceCut(rest, W);
     if (cut && resolve(rest, state, W, false, false, verb).error) {
       const thing = resolve(rest.slice(0, cut.at), state, W, false, false, verb);
       const from = thing.id && !thing.scenery ? resolve(rest.slice(cut.at + cut.len), state, W, false) : null;
-      if (from?.id) return { actions: [{ verb, obj: thing.id, prep: rest.slice(cut.at, cut.at + cut.len).join(" "), obj2: from.id }] };
+      if (from?.id) return { actions: [{ verb: "take", obj: thing.id, prep: rest.slice(cut.at, cut.at + cut.len).join(" "), obj2: from.id }] };
       if (from?.error && !from.scenery) return { error: from.error };
     }
   }
@@ -533,6 +565,10 @@ function readCommand(tokens, state, W, recent) {
   if (W.whom.size && (verb === "ask" || verb === "order")) rest = whomPlaced(verb, rest, state, W);
   // The object(s): noun phrases joined by "and"; a preposition can introduce a second object ("with key").
   const objs = [], phrases = splitPhrases(rest, W, !!pronoun, (ws) => namesOne(ws, state, W));
+  if ((verb === "give" || verb === "show") && !pronoun && phrases.length === 1 && !phrases[0].prep) {
+    const swapped = personFirst(phrases[0].words, state, W, recent);
+    if (swapped) phrases.splice(0, 1, ...swapped);
+  }
   // Asking with no one named ("ask about the umbrella", "pregunta por la llave"): it goes to whoever you're talking
   // to, or the only one here with something to say.
   if (verb === "ask" && !pronoun && phrases.length) {
@@ -614,6 +650,9 @@ function readCommand(tokens, state, W, recent) {
     return { error: { say: "@noVerb" } };
   }
   if (verb === "look") verb = "examine";                    // "look door", "mirar puerta"
+  // "drop A in B", *deja A en B*: putting it there, not dropping it here. Not with the words that say "to" a person or thing (the pack's
+  // `speechTo`: *tira X a Y*, "drop A to B"), which are not a place.
+  if (verb === "drop" && obj2 && !W.speechTo.has(prep)) verb = "put";
   const extra = { ...(topic ? { prep, topic } : {}), ...(absent.length ? { absent } : {}), ...(verb === "ask" && W.askFor.has(prep) ? { askFor: true } : {}) };
   return { actions: objs.map(obj => (obj2 ? { verb, obj, prep, obj2, ...extra } : { verb, obj, ...extra })) };
 }
