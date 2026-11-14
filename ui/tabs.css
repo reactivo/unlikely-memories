@@ -1,4 +1,4 @@
-/* Tabs (phones only): DIRECTIONS and INVENTORY under the prompt, side by side. Each opens its panel just above it,
+/* Tabs (phones only): DIRECTIONS and INVENTORY under the prompt, side by side, with the ≡ tile (ui/tools.css) right of them. Each opens its panel just above it,
    lined up with it: the panel is as wide as its tab, with --space-m of space around, in the page colour, over
    the story. The open tab turns yellow. A panel closes when you pick something in it, press its tab again or tap
    anywhere else (tabs.js; the closing comes free with popovers).
@@ -10,12 +10,12 @@
     /* Colours of the tabs, by meaning. */
     --tab:           var(--color-surface);    /* a tab */
     --tab-text:      var(--color-text);
-    --tab-open:      var(--color-highlight);  /* the tab whose panel is open */
-    --tab-open-text: var(--color-bg);
+    --tab-open:      var(--color-press);      /* the tab pressed, or whose panel is open */
+    --tab-open-text: var(--color-press-text);
 
     display: var(--tabs-display, grid);
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-m);
+    grid-template-columns: 1fr 1fr auto;   /* the two tabs share the width; the ≡ tile (ui/tools.css) at the right end */
+    gap: var(--space-s);   /* between the tabs and ≡ (16px until 14 November 2026) */
 
     & .tab {
       color: var(--tab-text);
@@ -26,9 +26,15 @@
       cursor: pointer;
     }
 
+    & .tab:hover {
+      box-shadow: var(--hover-ring);
+    }
+
+    & .tab:active,
     & .tab[aria-expanded="true"] {
       color: var(--tab-open-text);
       background: var(--tab-open);
+      box-shadow: none;   /* no hover line while pressed or open */
     }
 
     & #tab-exits {

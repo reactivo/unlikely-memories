@@ -167,7 +167,7 @@
       flex-direction: var(--where-direction, column);
       justify-content: space-between;
       align-items: var(--where-align, stretch);
-      gap: var(--where-gap, var(--space-s));
+      gap: var(--where-gap, var(--space-xs));   /* phones: the level and the hint one above the other, close */
     }
 
     & .where p {

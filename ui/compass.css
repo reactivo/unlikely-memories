@@ -15,8 +15,8 @@
     --corner:            var(--color-surface-faint);  /* …except the empty corners */
     --exit-open:         var(--color-text);           /* a way you can go */
     --exit-closed:       var(--color-text-faint);     /* no way out */
-    --exit-hover:        var(--color-text);           /* an open exit under the pointer: stays white… */
-    --exit-hover-border: var(--color-text);           /* …with a border inside its tile, like an inventory item */
+    --exit-press:        var(--color-press);          /* an open exit pressed */
+    --exit-press-text:   var(--color-press-text);
     --exit-flash:        var(--color-highlight);      /* an exit that just opened or closed blinks in this */
     --over:              var(--color-text-faint);     /* once the story is over: every exit dim, and nothing responds */
 
@@ -65,8 +65,13 @@
 
     /* Under the pointer: a border inside the tile, like an inventory item (M has the class `open` too: it always works). */
     & button.open:hover {
-      color: var(--exit-hover);
-      box-shadow: inset 0 0 0 2px var(--exit-hover-border);
+      box-shadow: var(--hover-ring);
+    }
+
+    & button.open:active {
+      color: var(--exit-press-text);
+      background: var(--exit-press);
+      box-shadow: none;   /* no hover line while pressed */
     }
 
     /* The story is over (compass.js adds "over"), or you are asleep (ui/page.js: data-asleep on <html>, and the compass inert):

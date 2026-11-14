@@ -9,7 +9,7 @@
    and line heights under :root[data-font="<id>"]. The old computers' fonts in fonts/ are not declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
-  src: url("../fonts/m5x7-patched.ttf?v=0.50.4") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
+  src: url("../fonts/m5x7-patched.ttf?v=0.51.0") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
 }
 
 @layer typography {
@@ -85,7 +85,7 @@
     line-height: var(--line-xxs);
   }
 
-  /* One-line boxes you click, in capitals: the tools ♫ ≡, the compass, the tabs, the landing page's buttons. In the
+  /* One-line boxes you click, in capitals: the tool ≡, the compass, the tabs, the landing page's buttons. In the
      strip layout the tools and the compass follow their tiles (layout.css sets --button-text there). */
   .text-button {
     font-size: var(--button-text, var(--text-m));
@@ -108,10 +108,10 @@
   }
 
   /* The map's hint under the popup (how to move the map), and the level's name in the map's location bar: the same size, so
-     the bar reads as one line of status, in capitals, with the line height of interface text. */
+     the bar reads as one line of status, in capitals, on tight lines (1: on a phone the two sit one above the other, close). */
   .text-hint, .text-level {
-    font-size: var(--text-xs);
-    line-height: var(--line-s);
+    font-size: var(--text-s);
+    line-height: var(--line-xs);
     text-transform: uppercase;
   }
 

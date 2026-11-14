@@ -311,8 +311,8 @@ export default {
              text: "Todavía no hay ningún mundo que jugar en este idioma. Vuelve a la lista de juegos y elige otro idioma." },
 
   // Interface
-  options: "Opciones",
-  sound: { title: "SONIDO", music: "Música", tone: "Ambiente", sounds: "Sonidos", mute: "Silenciar todo", unmute: "Activar todo" },   // el bloque SONIDO de las opciones (ui/soundpanel.js); mute y unmute son lo que hace tocar ♫ (ui/tools.js)
+  options: "Ajustes",
+  sound: { title: "SONIDO", music: "Música", tone: "Ambiente", sounds: "Sonidos" },   // el bloque SONIDO de las opciones (ui/soundpanel.js)
   a11y: { story: "Historia", command: "Escribe una orden" },
   panel: { game: "JUEGO", restart: "Reiniciar partida", quit: "Salir" },
   // La página de inicio (ui/home.js). El nombre del juego no se traduce. Los botones salen en mayúsculas (home.css).

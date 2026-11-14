@@ -23,8 +23,8 @@
     --card-blurb:     var(--color-text-soft);
     --play:           var(--color-surface);     /* CONTINUE / NEW GAME */
     --play-text:      var(--color-text);
-    --play-on:        var(--color-highlight);   /* the button under the pointer… */
-    --play-on-text:   var(--color-bg);          /* …and its text */
+    --play-on:        var(--color-press);        /* the button pressed… */
+    --play-on-text:   var(--color-press-text);   /* …and its text */
     --none:           var(--color-text-dim);    /* "There are no games in English yet." */
 
     box-sizing: border-box;
@@ -235,8 +235,13 @@
     }
 
     & .play:hover {
+      box-shadow: var(--hover-ring);
+    }
+
+    & .play:active {
       color: var(--play-on-text);
       background: var(--play-on);
+      box-shadow: none;   /* no hover line while pressed */
     }
 
     & .play:focus-visible {

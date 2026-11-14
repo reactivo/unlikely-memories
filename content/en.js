@@ -280,8 +280,8 @@ export default {
              text: "There is no world to play in this language yet. Go back to the list of games and choose another language." },
 
   // Interface
-  options: "Options",
-  sound: { title: "SOUND", music: "Music", tone: "Room", sounds: "Sounds", mute: "Mute all", unmute: "Unmute all" },   // the SOUND block of the options (ui/soundpanel.js); mute and unmute are what a tap on ♫ does (ui/tools.js)
+  options: "Settings",
+  sound: { title: "SOUND", music: "Music", tone: "Room", sounds: "Sounds" },   // the SOUND block of the options (ui/soundpanel.js)
   a11y: { story: "Story", command: "Type a command" },
   panel: { game: "GAME", restart: "Restart game", quit: "Quit" },
   // The landing page (ui/home.js). The game's name is not translated. The buttons show in capitals (home.css): CONTINUE on a world with a saved game, NEW GAME always.

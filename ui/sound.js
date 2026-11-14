@@ -31,8 +31,8 @@
 //     never on the list of games, and a world picked makes none), or the sound panel's (ui/soundpanel.js: Unmute, or a slider raised
 //     from silence: on.soundMoved() → redraw("tap") → update()). A page loaded with the sound unmuted starts nothing by itself.
 //   - When the system takes the sound away while the page stays in view (a call, the player's own music: the context
-//     `interrupted`, or suspended not by us), the piece tells the controller (on.musicStopped()) and the sound shows muted (♫
-//     faint, the sliders where they were); Unmute starts it again. It never resumes by itself.
+//     `interrupted`, or suspended not by us), the piece tells the controller (on.musicStopped()) and the sound shows muted (the switch
+//     off, the sliders where they were); Unmute starts it again. It never resumes by itself.
 //   - Leaving the page is never the system taking the sound: on iOS the context goes `interrupted` as you switch away, before the
 //     page is hidden, so a context that stops is judged only after `LEAVING` ms, and not at all if by then the page is hidden or
 //     gone (pagehide). A hidden tab suspends it, and a visible one (or pageshow) tries to resume it (the game clock pauses too);
@@ -47,11 +47,11 @@
 //   - The sliders are the player's three buses (musicBus, toneBus, sfx), set with a short glide (player.volume) to the panel's curve
 //     (gainOf); a fresh player starts at them.
 
-import S from "../content/music.js?v=0.50.4";
-import { musicOf } from "../js/music.js?v=0.50.4";
-import { nightAt, unwellAt, effectsOf, soundsOf, SOUND_KINDS, MATERIALS } from "./moments.js?v=0.50.4";
-import { createPlayer, openAudio } from "./sound/player.js?v=0.50.4";
-import { PARTS, gainOf } from "./soundpanel.js?v=0.50.4";
+import S from "../content/music.js?v=0.51.0";
+import { musicOf } from "../js/music.js?v=0.51.0";
+import { nightAt, unwellAt, effectsOf, soundsOf, SOUND_KINDS, MATERIALS } from "./moments.js?v=0.51.0";
+import { createPlayer, openAudio } from "./sound/player.js?v=0.51.0";
+import { PARTS, gainOf } from "./soundpanel.js?v=0.51.0";
 
 // The death ending: the engine's own (`died`, when health runs out) or a world's ending of that name; or no health left.
 const died = (state) => state.ending === "died" || state.player.health <= 0;
@@ -164,7 +164,7 @@ export function mount(on) {
     update(prev, next, reason) {
       state = next.state;
       if (next.mix !== mix) { mix = next.mix; for (const p of PARTS) player?.volume(p, gainOf(p, mix[p])); }   // (a short glide)
-      const tapped = reason === "tap" && next.music && !want;    // the sound turned on (♫ tapped, or a slider raised): a tap (unmuted, or a slider raised from silence)
+      const tapped = reason === "tap" && next.music && !want;    // the sound turned on (the switch turned on, or a slider raised): a tap (unmuted, or a slider raised from silence)
       if (next.music !== want) {
         want = next.music;
         if (!want) return quiet();

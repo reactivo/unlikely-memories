@@ -17,7 +17,7 @@
     --column-max: 960px;                       /* widest: the game's column and the landing page's */
     --column:     100%;                         /* phones: the whole width inside the side padding */
 
-    /* The tiles (♫ ≡, compass, inventory) and the gap between them. On phones the panels keep these sizes. */
+    /* The tiles (≡, compass, inventory) and the gap between them. On phones the panels keep these sizes. */
     --tile:     var(--tile-max);                /* phones: full size */
     --tile-gap: var(--space-s);                 /* phones: 8px */
 
@@ -33,15 +33,15 @@
          (min-height: 560px)                         the title bar and the picture stick at the top of the window; below
                                                      that (a phone turned sideways) they scroll away with the story.
                                                      The prompt (and the tabs) always stick at the bottom.
-         (min-width: 760px) and (min-height: 560px)  the strip layout: the strip (♫ ≡, directions, inventory) sits beside
+         (min-width: 760px) and (min-height: 560px)  the strip layout: the strip (≡, directions, inventory) sits beside
                                                      the story, no tabs, bigger text (tokens.css). Anything smaller,
                                                      a phone turned sideways too, gets the phone layout.
          (width < 760px) and (height >= 560px)       an upright phone: the phone layout with a picture that sticks (the
                                                      first one, without the second), and there it is the crop (the third
                                                      block below; ui/crop.js asks the CSS whether it is, it has no copy).
        Everything is written for phones first; the bigger layout overrides it.
-         phones   the story takes the whole width; ♫ ≡ go beside the title bar; directions and inventory open from two
-                  tabs at the bottom; text is smaller. */
+         phones   the story takes the whole width; the title bar has all of it (place left, clock right); directions and inventory
+                  open from two tabs at the bottom, with ≡ a tile right of them; text is smaller. */
   }
 
   /* When the picture sticks (windows at least 560px tall): it takes at most 40% of the window's height, and the column
@@ -63,7 +63,7 @@
       --strip-height: 40dvh;                                                  /* the strip's share of the window's height */
       --tile: min(var(--tile-max), calc(var(--strip-height) / 8.333));        /* what fits: 7 tiles high plus gaps adding up to 1⅓ tiles */
       --tile-gap: calc(var(--tile) / 6);                                      /* between tiles: 8px at full size */
-      --block-gap: calc(var(--tile) / 3);                                     /* between the strip's blocks (♫ ≡, compass, inventory): 16px at full size */
+      --block-gap: calc(var(--tile) / 3);                                     /* between the strip's blocks (≡, compass, inventory): 16px at full size */
       --strip: calc(3 * var(--tile) + 2 * var(--tile-gap));                   /* the strip's width: three tiles and their two gaps */
       --strip-gap: calc(var(--tile) * 4 / 3);                                 /* between the story and the strip: 64px at full size */
 
@@ -97,14 +97,14 @@
          │ PLACE          Day 1 │ … │ │ the top: sticks
          │ picture                  │ │
          ├──────────────────────────┤ ┘
-         │ story ……………………  ♫ ≡    │ ┐
+         │ story ……………………    ≡    │ ┐
          │ story ……………………  compass │ │ the page scrolls under the top;
          │ story ……………………  items   │ │ the strip sticks with it
          │ ░ the two faded lines ░  │ ┘
          │ > _             hint →   │   the bottom: sticks
          └──────────────────────────┘
-     Phones: ♫ ≡ sit beside the title bar, inside the top; directions and inventory become panels opened from two tabs
-     under the prompt, inside the bottom (ui/tabs.css).
+     Phones: directions and inventory become panels opened from two tabs under the prompt, inside the bottom (ui/tabs.css),
+     with ≡ a tile at the tabs' right end (ui/tools.css).
 
      Upright phones (under 760px wide, at least 560px tall) always show the picture as a tall crop of the middle of the
      scene (--picture-crop, tokens.css), never folded. The top is fixed there, not sticky (a later change may make it
@@ -140,14 +140,14 @@
     box-sizing: border-box;
   }
 
-  /* The top. Phones: the title bar with ♫ ≡ beside it, then the picture. (.strip is only a wrapper here.) */
+  /* The top. Phones: the title bar with ≡ beside it, then the picture. (.strip is only a wrapper here.) */
   .top {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "title   tools"
-      "picture picture";
-    gap: var(--row-gap) var(--space-m);
+      "title"
+      "picture";
+    gap: var(--row-gap);
     padding-top: var(--page-top);
     padding-bottom: var(--row-gap);   /* the gap between the picture and the story */
     background: var(--color-bg);
@@ -160,10 +160,6 @@
 
   .titlebar {
     grid-area: title;
-  }
-
-  .tools {
-    grid-area: tools;
   }
 
   .picture {
@@ -266,13 +262,6 @@
   /* The strip layout: the strip hangs from the bottom edge of the top (so it sticks with it) and the story leaves room
      for it. Its height is --strip-height (the tiles and gaps add up to it exactly). */
   @media (min-width: 760px) and (min-height: 560px) {
-    .top {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas:
-        "title"
-        "picture";
-    }
-
     .strip {
       display: grid;
       position: absolute;
@@ -280,10 +269,6 @@
       right: 0;
       width: var(--strip);
       gap: var(--block-gap);
-    }
-
-    .tools {
-      grid-area: auto;   /* (a row of the strip, not the phone's place beside the title bar) */
     }
 
     .log {
@@ -298,20 +283,20 @@
      the phone value is the fallback written in the piece (var(--name, phone value)). */
   @media (min-width: 760px) and (min-height: 560px) {
 
-    /* Title bar (ui/titlebar.css): the place name and the clock in one row, not one above the other. */
-    .titlebar {
-      --titlebar-direction: row;
-      --titlebar-justify: space-between;
-    }
-
-    /* Tools ♫ ≡ (ui/tools.css): in the strip, as wide as their half of it and as high as a compass tile. */
+    /* Tools ≡ (ui/tools.css): shown here only, in the strip, under the inventory: one row as high as a compass tile and the whole
+       strip wide, its name (SETTINGS) alone at size S, no icon (until 14 November 2026 one tile at the top of the strip, at its right end). */
     .tools {
-      --tool-width: auto;
+      --tools-display: grid;
+      --tools-columns: 1fr;
+      --tool-display: block;
+      --tool-width: 100%;
       --tool-height: var(--tile);
+      --tool-min-height: 0px;
+      --button-text: var(--text-s);           /* the word at size S (24px at full size); centred like the tabs (typography.css: .text-button button) */
+      order: 1;   /* under the inventory (the last of the strip) */
     }
 
-    /* The characters on the tools and the compass follow their tiles (two thirds of a tile: 32px at full size). */
-    .tools,
+    /* The characters on the compass follow their tiles (two thirds of a tile: 32px at full size). */
     .compass {
       --button-text: calc(var(--tile) * 2 / 3);
     }

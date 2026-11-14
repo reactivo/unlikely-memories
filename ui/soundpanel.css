@@ -1,9 +1,95 @@
-/* The sound block's three sliders (ui/soundpanel.js), inside the options panel: native <input type="range">, a label above each, the
-   browser's own track and thumb in the game's text colour. The frame and heading are the options popover's (ui/options.css). */
+/* The sound block (ui/soundpanel.js), inside the options panel: the heading line with the on/off switch at its right end, and three
+   sliders: native <input type="range">, a label above each, the browser's own track and thumb in the game's text colour. The frame and
+   the heading's colour are the options popover's (ui/options.css). */
 @layer ui {
   .sound {
     /* Colours of the sliders, by meaning. */
-    --slider: var(--color-text);   /* the browser's track and thumb */
+    --slider:      var(--color-text);         /* the thumb and the filled part of the track; also the switch's knob, which looks like the thumb */
+    --slider-drag: var(--color-highlight);    /* the thumb and the filled part while it is being dragged */
+    --slider-rest: var(--color-text-faint);   /* the rest of the track: plain grey, no border */
+
+    /* Colours of the switch, by meaning. */
+    --switch-on:  var(--color-highlight);    /* the track while the sound plays: the one bright accent */
+    --switch-off: var(--color-text-faint);   /* the track while muted: dim, like a closed exit */
+    --knob-on:    var(--color-bg);           /* the knob while the sound plays: dark on the yellow track */
+
+    /* The switch's size: the knob is as big as the sliders' thumb (both drawn here, so they match in every browser). */
+    --knob:       16px;
+    --track:      4px;    /* the sliders' track height */
+    --switch-pad: 2px;
+    --switch-fade: 150ms;   /* the knob slides and the track fades over this time (no duration token fits: the others are 300ms and up) */
+
+    /* SOUND ……… [switch]: the heading and the switch on one line, the switch at the right end. */
+    & .heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+      margin: 0 0 var(--space-s);
+    }
+
+    & .heading h2 {
+      margin: 0;
+    }
+
+    & .switch {
+      position: relative;
+      flex: none;
+      box-sizing: content-box;
+      width: calc(var(--knob) * 2);
+      height: var(--knob);
+      padding: var(--switch-pad);
+      margin: 0;
+      border: 0;
+      border-radius: calc(var(--knob) / 2 + var(--switch-pad));
+      background: var(--switch-off);
+      cursor: pointer;
+    }
+
+    & .switch[aria-checked="true"] {
+      background: var(--switch-on);
+    }
+
+    /* A touch target at least a tile tall without a taller heading line: the button's own box stays small, and its invisible
+       ::before reaches out to the tile minimum (44px) above and below, and sideways. */
+    & .switch::before {
+      content: "";
+      position: absolute;
+      inset-block: calc((100% - var(--tile-touch)) / 2);
+      inset-inline: calc((100% - var(--tile-touch)) / 2);
+    }
+
+    & .knob {
+      display: block;
+      width: var(--knob);
+      height: var(--knob);
+      border-radius: 50%;
+      background: var(--slider);
+      transform: translateX(0);
+    }
+
+    & .switch[aria-checked="true"] .knob {
+      background: var(--knob-on);
+      transform: translateX(var(--knob));
+    }
+
+    & .switch:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
+
+    /* Animated unless the player asked for less motion (the other pieces do the same). */
+    @media (prefers-reduced-motion: no-preference) {
+      & .switch {
+        transition: background-color var(--switch-fade) ease;
+      }
+
+      & .knob {
+        transition:
+          transform var(--switch-fade) ease,
+          background-color var(--switch-fade) ease;
+      }
+    }
 
     & .sliders {
       display: grid;
@@ -12,9 +98,61 @@
       min-width: 12rem;
     }
 
+    /* The sliders, drawn here rather than by the browser (14 November 2026): a flat grey track with no border, the part up to the
+       thumb filled, and a round thumb like the switch's knob; the filled part and the thumb turn yellow while dragged. --fill (0% to
+       100%) is set by ui/soundpanel.js from the value, and the class .dragging while a finger or the mouse holds it (:active is
+       unreliable on iPhones). WebKit and Blink draw the track with -webkit- parts, Firefox with -moz- parts. */
     & input[type="range"] {
+      --now: var(--slider);
+      appearance: none;
+      -webkit-appearance: none;
       width: 100%;
-      accent-color: var(--slider);
+      height: var(--knob);
+      margin: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    & input[type="range"].dragging {
+      --now: var(--slider-drag);
+    }
+
+    & input[type="range"]::-webkit-slider-runnable-track {
+      height: var(--track);
+      border: 0;
+      border-radius: var(--track);
+      background: linear-gradient(to right, var(--now) var(--fill, 0%), var(--slider-rest) var(--fill, 0%));
+    }
+
+    & input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: var(--knob);
+      height: var(--knob);
+      margin-top: calc((var(--track) - var(--knob)) / 2);
+      border: 0;
+      border-radius: 50%;
+      background: var(--now);
+    }
+
+    & input[type="range"]::-moz-range-track {
+      height: var(--track);
+      border: 0;
+      border-radius: var(--track);
+      background: var(--slider-rest);
+    }
+
+    & input[type="range"]::-moz-range-progress {
+      height: var(--track);
+      border-radius: var(--track);
+      background: var(--now);
+    }
+
+    & input[type="range"]::-moz-range-thumb {
+      width: var(--knob);
+      height: var(--knob);
+      border: 0;
+      border-radius: 50%;
+      background: var(--now);
     }
 
     & input[type="range"]:focus-visible {

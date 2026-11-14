@@ -4,16 +4,18 @@
 // question); "Quit" closes it and goes at once. Opening focuses the panel's first control (the Music slider); closing returns
 // the focus to the command line.
 
-import { hang } from "./popup.js?v=0.50.4";
+import { hang } from "./popup.js?v=0.51.0";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {
-  const button = document.getElementById("options");             // the ≡ button that opens it
+  const buttons = [document.getElementById("options"), document.getElementById("options-tab")];   // the ≡ buttons that open it (the strip's, the phones')
   const $ = (id) => panel.querySelector("#" + id);
   const restart = $("restart-game"), quit = $("quit-game");
 
   // Opening: focus the first control. Closing: focus the command line.
-  hang(panel, button, { opened: () => panel.querySelector("input, button").focus(), closed: () => on.focus() });
+  // While open, both settings buttons say so (aria-expanded: yellow, as an open tab; ui/tools.css).
+  const mark = (open) => { for (const b of buttons) b.setAttribute("aria-expanded", String(open)); };
+  hang(panel, buttons, { opened: () => { mark(true); panel.querySelector("input").focus(); }, closed: () => { mark(false); on.focus(); } });
   restart.addEventListener("click", () => { panel.hidePopover(); on.restart(); });
   quit.addEventListener("click", () => { panel.hidePopover(); on.quit(); });
 

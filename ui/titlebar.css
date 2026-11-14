@@ -1,6 +1,6 @@
 /* Title bar above the picture: the place name, and the day and time, "Day 1 / 00:00:00" (a slash;
-   the colons blink slowly, like an old digital clock). On phones one above the other, with ♫ ≡ beside them; side by
-   side on wider windows (the direction and justify come from layout.css; phone values here; the gap is a fixed 0).
+   the colons blink slowly, like an old digital clock). The place name on the left, the day and time on the right, in one row on every window (until 14 November 2026 one above the other on phones;
+   the clock never wraps; a place name too long for the row is cut with an ellipsis, on one line: Diego, 14 November 2026).
    The text style is .text-title (css/typography.css), put on the title bar in index.html. */
 @layer ui {
   .titlebar {
@@ -9,9 +9,10 @@
     --clock: var(--color-text);       /* day and time: the same as the place name and the story */
 
     display: flex;
-    flex-direction: var(--titlebar-direction, column);
-    justify-content: var(--titlebar-justify, center);
-    gap: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-m);
     color: var(--clock);
 
     & h1,
@@ -20,10 +21,15 @@
     }
 
     & > :first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       color: var(--place);
     }
 
     & > :last-child {
+      flex: none;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }

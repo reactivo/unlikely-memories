@@ -68,6 +68,9 @@
     --color-mark:          var(--palette-stone-600);  /* small marks around or between things: brackets, the compass dot */
     --color-highlight:     var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
+    --hover-ring:          inset 0 0 0 2px var(--color-text);   /* a tile button under the pointer: a white line inside it (box-shadow) */
+    --color-press:         var(--color-highlight);   /* a tile button pressed, or open (its panel showing): yellow… */
+    --color-press-text:    var(--color-bg);          /* …with dark text or icon */
     --focus-ring:          2px solid var(--color-focus);   /* the ring's line: each piece's own :focus-visible rule reads it (outline: var(--focus-ring)) */
     --focus-offset:        2px;                            /* …and its gap from the thing (outline-offset: var(--focus-offset)) */
     --color-hurt:          var(--palette-red-400);    /* harm: the echo when you lose health, and the death lines */

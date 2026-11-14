@@ -21,11 +21,11 @@
 // sections are open, the CRT look's values (crt: null until one is changed). Closing it with × forgets all of that, the CRT look's
 // values too (art.js's come back); /debug opens it fresh.
 
-import * as debug from "../js/debug.js?v=0.50.4";
-import { parts, hhmm } from "../js/time.js?v=0.50.4";
-import { text } from "../js/narrator.js?v=0.50.4";
-import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.50.4";
-import { touch } from "./media.js?v=0.50.4";
+import * as debug from "../js/debug.js?v=0.51.0";
+import { parts, hhmm } from "../js/time.js?v=0.51.0";
+import { text } from "../js/narrator.js?v=0.51.0";
+import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.51.0";
+import { touch } from "./media.js?v=0.51.0";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
 // font, logRem, logLine, letter: the Typography section's (null: the font's own value). (logRem: the story's size in rem; until
@@ -105,7 +105,7 @@ function sync(a, b) {
 
 // Build the panel (hidden) and add it to the page. Returns open(), update(), showsRules() and wholeMap().
 export function mount(dev) {
-  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.50.4", import.meta.url).href });
+  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.51.0", import.meta.url).href });
   document.head.append(css);
   const html = document.documentElement;
   let v = null;                                    // what it remembers while open (null: closed)
@@ -308,8 +308,8 @@ export function mount(dev) {
   // What plays now, in a few words: off, silent after the end, resting, the theme's part playing, or when its next turn comes;
   // an ending under way.
   function nowPlaying(info, st) {
-    if (!info) return "off (♫)";
-    if (!info.playing) return st?.ended ? "silent: the story has ended" : "off (♫)";
+    if (!info) return "off (muted)";
+    if (!info.playing) return st?.ended ? "silent: the story has ended" : "off (muted)";
     const e = info.ending, th = info.theme, when = (t) => Math.max(0, Math.round(t - info.now)) + " s";
     const part = e ? (e.death ? "the death ending: " : "the ending: ") + (!e.theme ? "the lines fading, then silence"
         : info.now < e.at ? "the lines fading, the theme in " + when(e.at) : "the theme (whole) playing, then silence")

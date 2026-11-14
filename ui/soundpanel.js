@@ -1,10 +1,10 @@
 // The sound block of the options panel (≡): three sliders, Music, Room and Sounds (INTERFACE.md §2c, docs/sound/PLAN.md, build 2;
-// until 14 November 2026 they had a popover of their own, opened by ♫, with a Mute all button: ♫ now does that, ui/tools.js). A slider is a native <input type="range">, 0 to 100, and sets the
+// until 14 November 2026 they had a popover of their own, opened by ♫, with a Mute all button; then ♫ was a mute switch beside the title bar: now the SOUND heading's on/off switch is that). A slider is a native <input type="range">, 0 to 100, and sets the
 // player's bus of that part (ui/sound.js): `gainOf`, one loudness curve, 100 being the part's own level (nothing gets louder).
 // What a device remembers is one value, { muted, music, tone, sounds } (js/prefs.js), kept by the controller (js/main.js): the
-// pure parts are here, the panel only reads and tells it what was moved.
+// pure parts are here, the panel only reads and tells it what was moved or switched.
 
-import S from "../content/music.js?v=0.50.4";
+import S from "../content/music.js?v=0.51.0";
 
 export const KEY = "parser-sound";                        // the remembered value
 export const PARTS = ["music", "tone", "sounds"];         // the sliders, and the player's buses (the Room slider is the `tone` bus)
@@ -22,20 +22,33 @@ export function readMix(raw, old = null, spec = S) {
   return { muted: raw == null ? old === "off" : m.muted === true, music: at("music"), tone: at("tone"), sounds: at("sounds") };
 }
 
-// Whether anything can be heard: not muted, and some slider above 0 (♫ shows faint otherwise).
+// Whether anything can be heard: not muted, and some slider above 0 (what the player hears: ui/sound.js).
 export const audible = (mix) => !mix.muted && PARTS.some(p => mix[p] > 0);
-// A slider moved to `v`; raising one while muted unmutes (all keep their places).
-export const moved = (mix, part, v) => ({ ...mix, [part]: v, muted: mix.muted && v <= mix[part] });
-// ♫ tapped: mute all, or unmute (with every slider at 0 there is nothing to hear: back to the defaults).
+// A slider moved to `v`; moving any of them while muted, up or down, unmutes (all keep their places). Until 14 November 2026 only
+// raising one did, so Room and Sounds, at 100 by default, could never unmute.
+export const moved = (mix, part, v) => ({ ...mix, [part]: v, muted: mix.muted && v === mix[part] });
+// The switch toggled: mute all, or unmute (with every slider at 0 there is nothing to hear: back to the defaults).
 export const toggled = (mix, spec = S) =>
   audible(mix) ? { ...mix, muted: true } : { ...(PARTS.some(p => mix[p] > 0) ? mix : spec.panel.defaults), muted: false };
+
+// How far a slider's track is filled (soundpanel.css draws the part up to the thumb from --fill).
+const fill = (s) => s.style.setProperty("--fill", `${(s.value - s.min) / (s.max - s.min) * 100}%`);
 
 // Set up the block on its element (the options panel's SOUND section). Returns update().
 export function mount(panel, on) {
   const $ = (id) => panel.querySelector("#" + id);
   const sliders = Object.fromEntries(PARTS.map(p => [p, $("sound-" + p)]));
 
-  for (const p of PARTS) sliders[p].addEventListener("input", () => on.soundMoved(p, +sliders[p].value));
+  const sw = $("sound-switch");                            // role=switch: ON = sound plays (not muted)
+  sw.addEventListener("click", () => on.soundToggled());
+  for (const p of PARTS) {
+    const s = sliders[p];
+    s.addEventListener("input", () => { fill(s); on.soundMoved(p, +s.value); });
+    // Yellow while held (soundpanel.css): from the press to the release, wherever the finger ends up.
+    s.addEventListener("pointerdown", () => s.classList.add("dragging"));
+    for (const e of ["pointerup", "pointercancel", "lostpointercapture", "blur"]) s.addEventListener(e, () => s.classList.remove("dragging"));
+  }
+  addEventListener("pointerup", () => { for (const p of PARTS) sliders[p].classList.remove("dragging"); });   // a release off the slider
 
   return {
     // On a language change, translate the block; when a slider changes, show it.
@@ -45,7 +58,10 @@ export function mount(panel, on) {
         $("sound-title").textContent = t.title;
         for (const p of PARTS) $("label-" + p).textContent = t[p];
       }
-      if (!prev || prev.mix !== next.mix) for (const p of PARTS) sliders[p].value = next.mix[p];
+      if (!prev || prev.mix !== next.mix) {
+        for (const p of PARTS) { sliders[p].value = next.mix[p]; fill(sliders[p]); }
+        sw.setAttribute("aria-checked", String(!next.mix.muted));   // only muted or not (every slider at 0 is still "on")
+      }
     }
   };
 }

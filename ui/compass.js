@@ -6,8 +6,8 @@
 // The map tile (M) opens the map: the button itself does it (popovertarget, index.html; ui/map.js). Once the story has ended the whole
 // compass, M included, is dim and ignores clicks and Tab (the game is locked).
 
-import { exitTo } from "../js/exits.js?v=0.50.4";
-import { DIRECTIONS } from "../js/space.js?v=0.50.4";
+import { exitTo } from "../js/exits.js?v=0.51.0";
+import { DIRECTIONS } from "../js/space.js?v=0.51.0";
 
 const CORNERS = ["in", "out", "u", "d"];
 
@@ -31,7 +31,7 @@ export function mount(root, on) {
       const t = next.pack;
       const m = root.querySelector(".map");              // M: the map, while the story goes on
       m.setAttribute("aria-label", t.labels.map);
-      if (over) m.removeAttribute("title"); else m.title = t.labels.map;   // the tooltip, like ♫ ≡ (ui/tools.js)
+      if (over) m.removeAttribute("title"); else m.title = t.labels.map;   // the tooltip, like ≡ (ui/tools.js)
       m.setAttribute("aria-disabled", over ? "true" : "false");
       m.tabIndex = over ? -1 : 0;
       buttons.forEach(b => {

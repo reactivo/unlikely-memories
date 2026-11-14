@@ -5,7 +5,7 @@
   .inventory {
     /* Colours in the inventory, by meaning. */
     --slot:       var(--color-surface);   /* a filled slot, and the outline of an empty one */
-    --slot-hover: var(--color-text);      /* the border drawn inside a filled slot under the pointer */
+    --slot-press: var(--color-press);     /* a filled slot pressed */
     --over-dim:   0.4;                    /* once the story is over: the items fade to this, and nothing responds */
 
     & .slots {
@@ -47,7 +47,12 @@
 
     /* Hover: a white border drawn inside the slot, so nothing shifts. */
     & .item:hover {
-      box-shadow: inset 0 0 0 2px var(--slot-hover);
+      box-shadow: var(--hover-ring);
+    }
+
+    & .item:active {
+      background: var(--slot-press);
+      box-shadow: none;   /* no hover line while pressed */
     }
 
     & .item:focus-visible {
