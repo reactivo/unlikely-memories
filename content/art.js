@@ -114,7 +114,7 @@ export default {
     // copy its values here). Strengths are 0 (off) to 1 (full) unless said; sizes are in the picture's own pixels unless said.
     crt: {
       on: true,                                    // the whole look; off, or with no WebGL, the plain picture shows
-      scan: 0.2,                                   // scanlines: how dark the lower half of every picture row is
+      scan: 0.2,                                   // scanlines: how dark every picture row gets at its darkest (a smooth wave, darkest at the row's lower quarter)
       mask: 0.06,                                  // RGB phosphor stripes, 1 CSS pixel each (R, G, B repeating across): how dark the other two colours are
       vignette: 0.24,                              // black at this opacity at the edge of the visible picture, clear inside 55% of the way out
       rgb: 0.4,                                    // colour fringing: red shifted left and blue right by this many picture pixels

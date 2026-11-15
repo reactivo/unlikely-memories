@@ -16,19 +16,20 @@
 // The look, in the shader's order: the picture's own pixels, hard-edged (nearest); colour fringing (red looks `rgb` source pixels
 // to the right, blue as far to the left: so red lands left, blue right); glow (a soft blur of about 1.5 pixels, screen-blended at
 // `glow`; blurred from the unfringed picture, which at that size looks the same and costs a third); the grade (contrast,
-// saturation, brightness); one dark scanline for each source row (`scan`: its lower half), RGB phosphor stripes 1 CSS pixel wide
+// saturation, brightness); one dark scanline for each source row (`scan`: a smooth wave, darkest at its lower quarter), RGB phosphor stripes 1 CSS pixel wide
 // (`mask`); and `flicker`, one random brightness for the frame. The vignette is not here: it is a static gradient over the visible box
 // (CSS: ui/scene.css, ui/home.css, from --crt-vignette), so on an upright phone it darkens the box's edges, not the hidden sides'.
 
-import art from "../content/art.js?v=0.52.0";
-import { calm } from "./media.js?v=0.52.0";
+import art from "../content/art.js?v=0.52.1";
+import { calm } from "./media.js?v=0.52.1";
 
 // What each setting may be: [min, max, step], for the debug panel's sliders and for keeping a value sane.
 export const RANGES = {
   scan: [0, 1, 0.01], mask: [0, 0.5, 0.01], vignette: [0, 1, 0.01], rgb: [0, 2, 0.05], glow: [0, 1, 0.01], flicker: [0, 0.2, 0.005],
   contrast: [0.5, 2, 0.01], saturation: [0, 2, 0.01], brightness: [0.5, 1.5, 0.01]
 };
-const MAX_RATIO = 2;                                   // the most device pixels per CSS pixel it draws (an iPhone's 3 would cost more than it shows)
+const MAX_RATIO = 3;                                   // the most device pixels per CSS pixel it draws: the screen's own (an iPhone's 3), so the browser never
+                                                       // stretches the result (stretched 2 → 3, the thin scanlines of a phone came out uneven: banding)
 
 // ---- The settings in effect: one place ----
 let current = { ...art.effects.crt };
@@ -68,7 +69,11 @@ uniform vec2 src, dst;                                  // the picture's size in
 uniform float dpr, rows, unit, scan, mask, rgb, glow, contrast, sat, bright, flick;
 varying vec2 uv;
 vec3 at(vec2 p) { return texture2D(tex, p / src).rgb; }                       // p in picture pixels; the texture is nearest
-float below(float y) { return floor(y) * .5 + clamp(fract(y) - .5, 0., .5); }   // how much of the rows' lower halves lie above y
+// The scanline: each row darkens in a smooth wave, clear at its top quarter and darkest at its lower quarter (on average as dark as the old
+// hard lower half). wave(y): the wave's integral up to y, so a device pixel takes its exact share however few pixels a row has (a hard
+// edge that thin aliased into bands on a phone).
+const float TAU = 6.2831853;
+float wave(float y) { return .5 * y - sin(TAU * (y - .25)) / (2. * TAU); }
 void main() {
   vec2 p = uv * src;
   vec3 c = vec3(at(p + vec2(rgb * unit, 0.)).r, at(p).g, at(p - vec2(rgb * unit, 0.)).b);
@@ -77,7 +82,7 @@ void main() {
   c = (c - .5) * contrast + .5;
   c = mix(vec3(dot(c, vec3(.299, .587, .114))), c, sat);
   float y = uv.y * rows, h = rows / dst.y;                                      // this pixel's row (a picture row), and its height in rows
-  c *= 1. - scan * (below(y + h * .5) - below(y - h * .5)) / h;            // the share of this pixel in a lower half
+  c *= 1. - scan * (wave(y + h * .5) - wave(y - h * .5)) / h;              // the wave's mean over this pixel
   float s = mod(floor(gl_FragCoord.x / dpr), 3.);                              // R, G, B stripes, 1 CSS pixel each
   c *= 1. - mask * (1. - vec3(float(s < .5), float(s > .5 && s < 1.5), float(s > 1.5)));
   gl_FragColor = vec4(clamp(c * bright * flick, 0., 1.), 1.);
@@ -134,6 +139,9 @@ function makePass(canvas, attrs, onLost) {
 
 const ratio = () => Math.min(MAX_RATIO, (typeof devicePixelRatio === "number" && devicePixelRatio) || 1);
 // The attribute the CSS vignette follows (on the box: .picture, .tile, .figure): present while the look is drawn there.
+// An element's size on screen in device pixels, from its exact CSS size (not clientWidth's rounded one, which made the browser
+// stretch the result by a hair, doubling a column or a row here and there).
+const pixels = (el, r) => { const b = el.getBoundingClientRect(); return [Math.round(b.width * r), Math.round(b.height * r)]; };
 const mark = (canvas, on) => canvas.parentElement?.toggleAttribute("data-crt", on);
 
 // ---- The scene's picture ----
@@ -167,7 +175,7 @@ export function screen(source, { w, h }) {
     canvas.style.display = "";
     const r = ratio(), cw = canvas.clientWidth, ch = canvas.clientHeight;
     if (!cw || !ch) return;                                        // not on the page (the list of games shows): it comes back with a resize
-    pass.draw(Math.round(cw * r), Math.round(ch * r), r, current, flick);
+    pass.draw(...pixels(canvas, r), r, current, flick);
     source.style.visibility = "hidden";
     mark(source, true);
   }
@@ -206,7 +214,7 @@ export function thumbnails() {
     if (pass && cw && ch) {
       pass.source(image.width, image.height);
       pass.upload(image);
-      pass.draw(Math.round(cw * r), Math.round(ch * r), r, current, 1);   // (no flicker on a thumbnail)
+      pass.draw(...pixels(canvas, r), r, current, 1);   // (no flicker on a thumbnail)
       if (canvas.width !== pass.canvas.width || canvas.height !== pass.canvas.height) { canvas.width = pass.canvas.width; canvas.height = pass.canvas.height; }
       ctx.drawImage(pass.canvas, 0, 0);
       mark(canvas, true);
@@ -261,7 +269,7 @@ export function figures(box) {
     for (const [x, y, fill] of it.rects) { g.fillStyle = fill; g.fillRect(at(x, x0), at(y, y0), at(x + 1, x0) - at(x, x0), at(y + 1, y0) - at(y, y0)); }
     pass.source(cw, ch);
     pass.upload(tex);
-    pass.draw(Math.round(cw * r), Math.round(ch * r), r, current, 1, ch / row, row);
+    pass.draw(...pixels(fig, r), r, current, 1, ch / row, row);
     if (!it.canvas) { it.canvas = document.createElement("canvas"); it.canvas.setAttribute("aria-hidden", "true"); fig.append(it.canvas); }
     const out = it.canvas;
     if (out.width !== pass.canvas.width || out.height !== pass.canvas.height) { out.width = pass.canvas.width; out.height = pass.canvas.height; }
