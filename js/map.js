@@ -5,12 +5,12 @@
 // visited rooms (by an exit from them, or by one of theirs that leads back to them); other areas on that level that a passage reaches are placed beside the room it leaves from, so the
 // passage reads as one step. Coordinates are the cells of the area you are in: x grows east, y south.
 
-import { exitTo } from "./exits.js?v=0.53.0";
-import { STEP } from "./space.js?v=0.53.0";
-import { text, describe } from "./narrator.js?v=0.53.0";
-import { step } from "./engine.js?v=0.53.0";
-import { parse } from "./parser.js?v=0.53.0";
-import { story } from "./view.js?v=0.53.0";
+import { exitTo } from "./exits.js?v=0.53.1";
+import { STEP } from "./space.js?v=0.53.1";
+import { text, describe } from "./narrator.js?v=0.53.1";
+import { step } from "./engine.js?v=0.53.1";
+import { parse } from "./parser.js?v=0.53.1";
+import { story } from "./view.js?v=0.53.1";
 
 const COMPASS = ["n", "s", "e", "w"];    // the only directions a map can draw: the others have no cell next door
 const BACK = { n: "s", s: "n", e: "w", w: "e" };
@@ -88,16 +88,21 @@ function layout(state) {
 // A room's name on the map: its own (in the pack's words if it is a key), else the pack's, else its id.
 const roomName = (room, id, pack) => (room?.name ? text(room.name, pack) : pack?.place ?? id);
 
+// Has a room a way in this direction, as the compass shows it (open or shut, or one a rule answers)?
+const hasWay = (room, dir) => !!exitTo(room?.exits?.[dir]);
+
 // The map of the room you are in:
-//   { level, opening, rooms: [{ id, name, x, y, current }], lines: [[a, b]], stubs: [{ room, dir }] }
+//   { level, opening, rooms: [{ id, name, x, y, current, up, down }], lines: [[a, b]], stubs: [{ room, dir }] }
 // level: the z of your room (the pack names it: levelName). opening: you are in the opening, a map of one room, no
-// lines, no stubs. lines: a full line between two shown rooms joined by an exit and in neighbouring cells (each pair
+// lines, no stubs. up, down: the room has a way up or down (as the compass shows it: open or shut, or one a rule answers;
+// the map marks it in the room's corner). lines: a full line between two shown rooms joined by an exit and in neighbouring cells (each pair
 // once, sorted by id). stubs: a short line out of a room for each exit the compass would show (open or shut, or one a
 // rule answers) that leads to a room not shown, north, south, east and west only. pack is optional: without it the
 // names are the world's own text.
 export function mapOf(state, pack) {
   const L = layout(state), rooms = state.world.rooms, here = state.player.at;
-  const list = [...L.placed].map(([id, p]) => ({ id, name: roomName(rooms[id], id, pack), x: p.x, y: p.y, current: id === here }))
+  const list = [...L.placed].map(([id, p]) => ({ id, name: roomName(rooms[id], id, pack), x: p.x, y: p.y, current: id === here,
+                                                 up: hasWay(rooms[id], "u"), down: hasWay(rooms[id], "d") }))
     .sort((a, b) => a.y - b.y || a.x - b.x || (a.id < b.id ? -1 : 1));
   const lines = [], seen = new Set();
   for (const { from, to } of L.edges) {
@@ -131,6 +136,12 @@ export function routeTo(state, roomId) {
     }
   }
   return how.get(roomId) ?? null;
+}
+
+// A room as the map's list for screen readers says it, in the pack's words: "The hub (up, down) (you are here)".
+export function roomWords(room, pack) {
+  const ways = [room.up && pack.dirs.u, room.down && pack.dirs.d].filter(Boolean).map(w => w.toLowerCase());
+  return room.name + (ways.length ? " (" + ways.join(", ") + ")" : "") + (room.current ? " (" + pack.map.here + ")" : "");
 }
 
 // The name of a level, from its z, in the pack's words: "Ground level", "Level 1", "Level −1".

@@ -1,13 +1,13 @@
 // Map popup: the rooms you have visited on your level (js/map.js works out what to show), drawn as boxes with lines between
-// neighbours and short stubs for ways not taken. It opens from SEE MAP under the compass or the MAP command, always centred on
-// your room at full size; a drag (mouse or finger) or the arrow keys move it; two fingers pinch it bigger or smaller around
-// their middle (a trackpad pinch, Ctrl or ⌘ with the mouse wheel, and + and − do the same); a click on a room (not a drag,
+// neighbours, short stubs for ways not taken, and the up and down icons in the corner of a room with a way up or down. It opens
+// from SEE MAP under the compass or the MAP command, always centred on your room at full size; a drag (mouse or finger) or the
+// arrow keys move it; two fingers pinch it bigger or smaller around their middle (a trackpad pinch, Ctrl or ⌘ with the mouse wheel, and + and − do the same); a click on a room (not a drag,
 // never a pinch) closes it and walks there.
 // Closes with the ×, Esc or a click outside (the browser does the last two: it is a popover). Never changes the game itself:
 // it only asks the controller to travel. The game keeps running while it is open, so the map redraws as it changes.
 
-import { mapOf, levelName } from "../js/map.js?v=0.53.0";
-import { wide } from "./media.js?v=0.53.0";
+import { mapOf, levelName, roomWords } from "../js/map.js?v=0.53.1";
+import { wide } from "./media.js?v=0.53.1";
 
 const DRAG = 5;   // px a press may move and still count as a click on a room
 const KEY = 48;   // px an arrow key moves the map
@@ -111,6 +111,17 @@ export function mount(panel, on) {
       const name = document.createElement("span");
       name.textContent = r.name;                                  // (one line, cut with … in map.css if too long)
       box.append(name);
+      if (r.up || r.down) {                                       // a way up and/or down: its icons in the top right corner, up first
+        const ways = document.createElement("i");
+        ways.className = "ways";
+        for (const [has, file] of [[r.up, "icon-up"], [r.down, "icon-down"]]) {
+          if (!has) continue;
+          const icon = document.createElement("i");
+          icon.style.maskImage = `url(img/icons/${file}.svg)`;
+          ways.append(icon);
+        }
+        box.append(ways);
+      }
       nodes.push(box);
     }
     // A desktop window centres the whole map in the area; a phone or small window centres your room.
@@ -119,7 +130,7 @@ export function mount(panel, on) {
     level.textContent = levelName(m.level, pack);
     places.replaceChildren(...m.rooms.map(r => {
       const li = document.createElement("li");
-      li.textContent = r.name + (r.current ? " (" + pack.map.here + ")" : "");
+      li.textContent = roomWords(r, pack);                        // "The hub (up, down) (you are here)"
       return li;
     }));
     drawn = key;

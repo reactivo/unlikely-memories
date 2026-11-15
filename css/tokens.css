@@ -143,6 +143,12 @@
     --map-room-h: calc(var(--map-text) * 4);     /* …and height */
     --map-gap:    calc(var(--map-text) * 2);     /* between rooms, where the lines run */
     --map-stub:   calc(var(--map-text) * 1.5);   /* a way not yet taken: a short line out of its room */
+    /* A room's way up and down: the icons in its top right corner (CSS only, ui/map.css; 12px in and 4px apart at the full size,
+       24px text). The icons at their file's own size, 14px, at every text size, as on the compass: a pixel icon scaled by a part
+       of a pixel blurs. The distances follow the text, in whole pixels for the same reason. */
+    --map-mark-inset: round(calc(var(--map-text) / 2), 1px);   /* from the room's top and right edges */
+    --map-mark-icon:  14px;                                    /* each icon, square: the SVG's own size */
+    --map-mark-gap:   round(calc(var(--map-text) / 6), 1px);   /* between up and down */
   }
 
   /* Windows big enough for the strip beside the story: bigger text. The strip layout needs a window at least 760px wide

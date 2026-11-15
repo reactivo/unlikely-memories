@@ -109,6 +109,34 @@
       color: var(--here);
     }
 
+    /* A way up and/or down: the icons on one line in the room's top right corner, UP then DOWN; one alone sits in the same
+       corner. Faint like the lines (yellow in your room); sizes from the text's (tokens.css, --map-mark-*), so they grow with
+       it. Above the name, which is one line in the middle: they never meet. Each is a stencil like .icon (css/utilities.css),
+       but scaled to its box: .icon shows the file at its own size and fills its button, and its layer (utilities) comes
+       after this one, so it can't be resized here. */
+    & .ways {
+      position: absolute;
+      top: var(--map-mark-inset);
+      right: var(--map-mark-inset);
+      display: flex;
+      gap: var(--map-mark-gap);
+      color: var(--way);
+      pointer-events: none;
+    }
+
+    & .ways > i {
+      width: var(--map-mark-icon);
+      height: var(--map-mark-icon);
+      background: currentColor;
+      mask-position: center;
+      mask-size: contain;
+      mask-repeat: no-repeat;
+    }
+
+    & .room.current .ways {
+      color: var(--here);
+    }
+
     &.over .room {
       cursor: default;   /* the story is over: nowhere to walk to */
     }
