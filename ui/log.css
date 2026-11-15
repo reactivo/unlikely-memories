@@ -56,7 +56,7 @@
       min-height: calc(100dvh - var(--top-h, 0px) - var(--bottom-h, 0px) - var(--fade));
     }
 
-    /* Rooms you've left: all one grey, pictures without colour, and nothing reacts (the buttons are disabled by
+    /* Rooms you've left: all one grey, pictures without colour, and nothing reacts (the markers are aria-disabled by
        log.js; here they lose their hover and pointer). Commands keep their brackets and objects their +. */
     & .past {
       color: var(--past);
@@ -306,22 +306,17 @@
 
   /* Command marker: a typeable command mentioned in the story, shown as <COMMAND>.
      Change the look with the --command-* variables at the top of this file. The brackets are drawn by CSS, so
-     the text itself stays just the command. Each marker is a button: clicking it runs the command at once, echoed
+     the text itself stays just the command. Each marker is an inline span acting as a button (role="button"): clicking it runs the command at once, echoed
      in sentence case ("> Examinar puerta"), as if typed. Commands are written in sentence case and shown in
      capitals (.text-command, typography.css). */
   .command {
     color: var(--command-text);
     background: var(--command-bg);
-    border: 0;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    text-align: start;   /* (a button centres its text by default) */
     white-space: normal;   /* not inherited from .keep (a marker and its punctuation): its own words may still wrap */
     cursor: pointer;
-    /* A command is a button, so it never breaks across lines by itself: one that doesn't fit at the end of a line moves
-       whole to the next. Only one longer than a whole line wraps inside, between its words ("ABRIR PUERTA DE INCENDIOS
-       CON PALANCA" on a phone; until 15 November 2026 nowrap let it run off the screen). */
+    /* A command is a plain inline span (role="button", log.js), not a <button>, which browsers lay out as one inline-block box:
+       its words wrap like the text around it, between words only, and the punctuation after it (.keep) follows its last word
+       (until 15 November 2026 a wrapped command's box took the whole line and pushed its comma to the far right). */
 
     &::before {
       content: var(--command-open);
@@ -346,15 +341,10 @@
   }
 
   /* Object marker: the object's name looks like normal text, followed by a small + (--object-sign); on hover the
-     name takes the mark's colour (with a pointer cursor). A button: clicking examines the object (as if you'd typed
+     name takes the mark's colour (with a pointer cursor). An inline button (role="button"): clicking examines the object (as if you'd typed
      "Examine …"), then suggests what else you could do with it. Change the look with the --object-* variables at the top of .log. */
   .object {
     color: var(--object);
-    background: none;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
     white-space: nowrap;
     cursor: pointer;
 

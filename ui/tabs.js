@@ -10,8 +10,8 @@
 //     new room's text is seen; a room visited before, or a way that doesn't move you (a locked door), leaves it open;
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
-import { wide } from "./media.js?v=0.59.1";
-import { follow } from "./popup.js?v=0.59.1";
+import { wide } from "./media.js?v=0.59.2";
+import { follow } from "./popup.js?v=0.59.2";
 
 // Set up the tabs on their element. Returns update().
 export function mount(root) {
@@ -23,7 +23,11 @@ export function mount(root) {
     panel.addEventListener("beforetoggle", (e) => {
       if (wide.matches) { e.preventDefault?.(); return; }            // never a popover beside the strip
       if (e.newState === "open") place(panel, tab);
+      tab.setAttribute("aria-expanded", e.newState === "open");     // at once, not at "toggle" (a frame later): see below
     });
+    // The tab stays yellow from the press straight into "open": marked as it opens (beforetoggle), so no frame comes between
+    // the press (:active) and the open look; until 15 November 2026 it was marked at "toggle", and a phone showed the tab
+    // pressed, plain for an instant, then pressed again.
     panel.addEventListener("toggle", (e) => {
       tab.setAttribute("aria-expanded", e.newState === "open");
       if (e.newState === "open") follow(panel, () => place(panel, tab));
@@ -31,7 +35,7 @@ export function mount(root) {
     });
     // Something picked (a button that does something): close. Not a compass direction: arriving somewhere new closes it (update).
     panel.addEventListener("click", (e) => {
-      const b = e.target.closest("button");
+      const b = e.target.closest("button, [role=button]");
       if (b && !b.dataset.dir && b.getAttribute("aria-disabled") !== "true" && panel.matches(":popover-open")) panel.hidePopover();
     });
     wide.addEventListener("change", () => { if (panel.matches(":popover-open")) panel.hidePopover(); });

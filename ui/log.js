@@ -24,9 +24,9 @@
 //   `Look`              a command → shown as <LOOK>; clicking runs it
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
-import { spriteSVG } from "./sprite.js?v=0.59.1";
-import { mount as mountFollow } from "./follow.js?v=0.59.1";
-import { figures } from "./crt.js?v=0.59.1";
+import { spriteSVG } from "./sprite.js?v=0.59.2";
+import { mount as mountFollow } from "./follow.js?v=0.59.2";
+import { figures } from "./crt.js?v=0.59.2";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
@@ -36,6 +36,9 @@ const PARAGRAPH_GAP = 150;       // extra ms between paragraphs
 // One phrase = text up to and including , ; : . ! ? … (and a closing quote), or the rest of the text.
 const PHRASE_END = /[^,;:.!?…]*[,;:.!?…]+["»”]?\s*|[^,;:.!?…]+$/g;
 // Punctuation right after a marker ("tin of mints+,"): kept on the same line as it, never wrapped on its own.
+const MARKER = '[role="button"]';                               // a story marker (log.js `marker`)
+// Switch a marker off or on: out of the tab order, and aria-disabled (what `disabled` did on a button).
+const disable = (m, off) => { m.setAttribute("aria-disabled", off); m.tabIndex = off ? -1 : 0; };
 const GLUED = /^[,;:.!?…)\]"»”']+/;
 
 // What goes in the small inventory slot of a line's `slot` ({ sprite: rows }): the sprite as SVG, or null when there is none
@@ -43,7 +46,7 @@ const GLUED = /^[,;:.!?…)\]"»”']+/;
 export const slotArt = (slot) => (slot && typeof slot === "object" ? spriteSVG(slot.sprite) : null);
 
 // Set up the log on its element, with the picture's crop (ui/crop.js) it tells when a room starts. Returns
-// update(), say(), clear(), suggest(), newVisit(), markup(), busy(), busyFor(), page(), seen(), toEnd() and atEnd().
+// update(), say(), clear(), suggest(), newVisit(), markup(), busy(), hurry(), busyFor(), page(), seen(), toEnd() and atEnd().
 export function mount(root, on, crop) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   const follow = mountFollow(root);   // where the page is put and kept (ui/follow.js)
@@ -85,8 +88,14 @@ export function mount(root, on, crop) {
     revealAt = t + PARAGRAPH_GAP;
   }
 
-  // Any key or click: show all text that is still fading in, at once.
-  function finishReveal() {
+  // Any key, or a press anywhere but on a control: show all text that is still fading in, at once. A press on a control
+  // (a direction, a tab, a command in the story…) changes nothing on screen: on an iPhone, text that appears during the tap
+  // makes Safari take the tap for a hover and wait for a second one to click ("tap twice to move", 15 November 2026). What
+  // the control then does shows the text at once itself, before its answer (hurry(), from js/main.js: a command, a walk on
+  // the map, an object examined).
+  const CONTROL = "button, a, input, select, textarea, label, [role='button'], [tabindex]";
+  function finishReveal(e) {
+    if (e?.type === "pointerdown" && e.target.closest?.(CONTROL)) return;   // (its click comes)
     if (revealAt <= performance.now()) return;                      // nothing pending
     for (const el of fading) el.style.animation = "none";
     fading = [];
@@ -115,7 +124,7 @@ export function mount(root, on, crop) {
     for (const v of root.children) {
       if (v === visit || v.classList.contains("past")) continue;
       v.classList.add("past");
-      v.querySelectorAll("button").forEach(b => { b.disabled = true; });   // past text: nothing to click
+      v.querySelectorAll(MARKER).forEach(m => disable(m, true));              // past text: nothing to click
     }
     // Typing on a phone: the keyboard closes, so the room starts as a new page, with its picture (Diego, 28 Oct 2026).
     if (follow.typing()) document.activeElement?.blur();
@@ -174,6 +183,20 @@ export function mount(root, on, crop) {
     return mark;
   }
 
+  // A marker is a real inline element that acts as a button (<span role="button" tabindex="0">): unlike a <button>, which
+  // browsers lay out as one inline-block box, its words wrap like the text around it. Enter and Space run it, as on a button.
+  function marker(cls, label, run) {
+    const m = document.createElement("span");
+    m.setAttribute("role", "button"); m.tabIndex = 0; m.className = cls; m.textContent = label;
+    const go = () => { if (m.getAttribute("aria-disabled") !== "true") run(); };
+    m.addEventListener("click", go);
+    m.addEventListener("keydown", (e) => {
+      if (e.target !== m || e.metaKey || e.ctrlKey || e.altKey || (e.key !== "Enter" && e.key !== " ")) return;
+      e.preventDefault(); go();                                     // (Space must not scroll the page)
+    });
+    return m;
+  }
+
   // Build story text into an element: plain parts, `commands` (buttons that run them) and {objects} (buttons that
   // examine them), punctuation right after a marker kept with it.
   function build(into, text) {
@@ -181,22 +204,18 @@ export function mount(root, on, crop) {
       if (!part) return;
       if (part[0] === "`") {                                        // `Command` → <COMMAND> button
         const cmdText = part.slice(1, -1);
-        const c = document.createElement("button");
-        c.type = "button"; c.className = "command text-command"; c.textContent = cmdText;
-        c.addEventListener("click", () => on.useCommand(cmdText));
-        into.appendChild(c);
+        into.appendChild(marker("command text-command", cmdText, () => on.useCommand(cmdText)));
       } else if (part[0] === "{") {                                 // {label|id} → object button
         const [label, id] = part.slice(1, -1).split("|");
-        const o = document.createElement("button");
-        o.type = "button"; o.className = "object"; o.textContent = label;
-        o.addEventListener("click", () => { if (!root.classList.contains("over")) on.showObject(id || label, label); });
+        const o = marker("object", label, () => { if (!root.classList.contains("over")) on.showObject(id || label, label); });
+        if (root.classList.contains("over")) disable(o, true);
         into.appendChild(o);
       }
       else {                                                        // plain text
-        const glued = part.match(GLUED)?.[0], marker = into.lastChild;
-        if (glued && marker?.nodeName === "BUTTON") {               // punctuation right after a marker: join them
+        const glued = part.match(GLUED)?.[0], last = into.lastChild;
+        if (glued && last?.matches?.(MARKER)) {               // punctuation right after a marker: join them
           const keep = document.createElement("span"); keep.className = "keep";
-          into.replaceChild(keep, marker); keep.append(marker, glued);
+          into.replaceChild(keep, last); keep.append(last, glued);
           part = part.slice(glued.length);
         }
         if (part) into.appendChild(document.createTextNode(part));
@@ -209,12 +228,14 @@ export function mount(root, on, crop) {
     update(prev, next) {
       if (!prev || prev.state.lang !== next.state.lang) root.setAttribute("aria-label", next.pack.a11y.story);
       root.classList.toggle("over", !!next.state.ended);
+      root.querySelectorAll(".object:not(.past *)").forEach(o => disable(o, !!next.state.ended));
     },
     say, newVisit,
     // Story text built outside the log, with working markers (the hint beside the prompt). Returns a fragment.
     markup(text) { const f = document.createDocumentFragment(); build(f, text); return f; },
     // Is text still fading in? (The world waits for it before acting on its own.)
     busy() { return revealAt > performance.now(); },
+    hurry() { finishReveal(); },                                    // show all text still fading in, at once (before an answer)
     // How long until all of it has appeared (ms; 0 if nothing is fading in).
     busyFor() { return Math.max(0, revealAt - performance.now()); },
     // Empty the log (new story): the page starts at its top again, with the picture open and its crop in the middle.

@@ -4,8 +4,8 @@
 // room's description has appeared; it steps aside while you type, and goes with your command. After two minutes with
 // no command and nothing typed (IDLE_HINT), it fades in again.
 
-import { makeHistory } from "./history.js?v=0.59.1";
-import { touch } from "./media.js?v=0.59.1";
+import { makeHistory } from "./history.js?v=0.59.2";
+import { touch } from "./media.js?v=0.59.2";
 
 const IDLE_HINT = 120000;   // ms with no command and nothing typed before the hint comes back
 
@@ -48,7 +48,7 @@ export function mount(root, on) {
   window.addEventListener("focus", focus);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) focus(); });
   document.addEventListener("click", (e) => {
-    if (e.target.closest("button, select, a, [popover]")) return;
+    if (e.target.closest("button, [role=button], select, a, [popover]")) return;
     if (String(window.getSelection && window.getSelection()).length) return;
     focus();
   });
@@ -56,19 +56,19 @@ export function mount(root, on) {
   // The invisible input lies over the line and takes most taps itself; this covers what lies above it (the hint).
   // A tap on the hint's <HELP> button runs the command and leaves the keyboard shut.
   root.addEventListener("click", (e) => {
-    if (!touch.matches || e.target.closest("button, a")) return;
+    if (!touch.matches || e.target.closest("button, [role=button], a")) return;
     cmd.focus();   // (letting the browser scroll it into view, above the keyboard)
   });
   // While you type on a touch screen, a tap on a button in the story or on the line (<HELP>) keeps the keyboard open: the tap
   // would take focus from the line, the keyboard closing changed the page under the finger, and the click was lost (Diego's
   // iPhone, 28 Oct 2026).
   document.addEventListener("mousedown", (e) => {
-    if (touch.matches && document.activeElement === cmd && e.target.closest(".log button, .prompt button")) e.preventDefault();
+    if (touch.matches && document.activeElement === cmd && e.target.closest(".log [role=button], .prompt [role=button], .log button, .prompt button")) e.preventDefault();
   });
   document.addEventListener("keydown", (e) => {
     if (e.target === cmd || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target.closest && e.target.closest("[popover]")) return;
-    if (e.target.closest && e.target.closest("button, select") && (e.key === "Enter" || e.key === " " || e.key === "Tab")) return;
+    if (e.target.closest && e.target.closest("button, [role=button], select") && (e.key === "Enter" || e.key === " " || e.key === "Tab")) return;
     if (e.key.length === 1 || e.key === "Backspace" || e.key === "Enter") focus();
   });
   // Mirror the typed text into the visible line.

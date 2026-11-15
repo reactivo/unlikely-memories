@@ -19,7 +19,7 @@ export function mount(doc) {
   const idle = (e) => !e.metaKey && !e.ctrlKey && !e.altKey && !doc.querySelector(":popover-open");
   doc.addEventListener("keydown", (e) => {
     if (down && e.key === down.key) { e.preventDefault(); return; }          // held: no repeats
-    if (!idle(e) || e.target.closest?.("button, select, [popover]")) return;
+    if (!idle(e) || e.target.closest?.("button, [role=button], select, [popover]")) return;
     const s = shortcuts.find(x => x.key === e.key && (!x.when || x.when()));
     if (!s) return;
     e.preventDefault();                              // (an arrow would otherwise move the cursor or scroll)
