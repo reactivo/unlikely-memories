@@ -123,8 +123,11 @@
       }
     }
 
-    /* Pressed, open or on: down, yellow, the bevel turned round, no hover line. */
-    &:active,
+    /* Pressed, open or on: down, yellow, the bevel turned round, no hover line. A key that opens and closes something (a tab,
+       the settings: aria-expanded) or switches on and off (aria-pressed) shows only its state, never the press itself: on a
+       phone the press look ended before the open one began, and the tab flickered (Diego, 15 November 2026: "I see them as
+       tabs, they should be active/inactive"). */
+    &:active:not([aria-expanded], [aria-pressed]),
     &[aria-expanded="true"],
     &[aria-pressed="true"] {
       --key-down: 1;
