@@ -12,28 +12,27 @@ export function hang(panel, buttons, { opened, closed }) {
   let from = null;                                          // the button that opened it
   for (const b of buttons) b.addEventListener("click", () => { from = b; });
   const shown = () => (from && from.offsetParent !== null ? from : buttons.find((b) => b.offsetParent !== null)) || buttons[0];
-  // Place the panel under (or above) the button, right edges aligned.
+  // Place the panel under (or above) the button, right edges aligned. Above: its bottom edge a gap over the button's top, by
+  // putting its top there and lifting it by its own height (translateY(-100%)), so no window height is needed: iPhone Safari's
+  // documentElement.clientHeight stays the same while its toolbar shrinks and grows, and a panel placed from the window's
+  // bottom with it slid down over ≡ as you scrolled (until 15 November 2026).
   function place() {
-    const button = shown(), r = button.getBoundingClientRect(), H = document.documentElement.clientHeight;
+    const button = shown(), r = button.getBoundingClientRect();
     panel.style.right = Math.max(8, document.documentElement.clientWidth - r.right) + "px";
-    const side = button.dataset.hang === "above" ? "above" : "below";
-    if (side === "below") {
-      panel.style.top = (r.bottom + gap()) + "px";
-      panel.style.bottom = "auto";
+    panel.style.bottom = "auto";
+    if (button.dataset.hang === "above") {
+      panel.style.top = (r.top - gap()) + "px";
+      panel.style.transform = "translateY(-100%)";
     } else {
-      panel.style.bottom = (H - r.top + gap()) + "px";
-      panel.style.top = "auto";
+      panel.style.top = (r.bottom + gap()) + "px";
+      panel.style.transform = "none";
     }
   }
   // On a low window the panel can reach past the screen: slide it back until its edge is in view (it then covers the button).
   function keepOnScreen() {
-    const r = panel.getBoundingClientRect(), H = document.documentElement.clientHeight;
-    if (panel.style.top !== "auto") {
-      const over = r.bottom + gap() - H;
-      if (over > 0) panel.style.top = Math.max(gap(), r.top - over) + "px";
-    } else if (r.top < gap()) {
-      panel.style.bottom = Math.max(gap(), H - r.bottom - (gap() - r.top)) + "px";
-    }
+    const r = panel.getBoundingClientRect(), H = window.innerHeight, top = parseFloat(panel.style.top) || 0;
+    if (r.top < gap()) panel.style.top = (top + gap() - r.top) + "px";
+    else if (r.bottom + gap() > H) panel.style.top = Math.max(top - (r.bottom + gap() - H), top - (r.top - gap())) + "px";
   }
   panel.addEventListener("beforetoggle", (e) => { if (e.newState === "open") place(); });
   panel.addEventListener("toggle", (e) => {

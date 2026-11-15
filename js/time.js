@@ -6,7 +6,7 @@
 //
 //   world time (ms since day 1, 00:00) = state.clock + state.time.shift
 
-import PARTS from "../content/time.js?v=0.53.3";
+import PARTS from "../content/time.js?v=0.53.4";
 
 export const MINUTE = 60000, HOUR = 60 * MINUTE, DAY = 24 * HOUR;
 export const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];   // ids; each language names them

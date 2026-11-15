@@ -10,8 +10,8 @@
 //     new room's text is seen; a room visited before, or a way that doesn't move you (a locked door), leaves it open;
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
-import { wide } from "./media.js?v=0.53.3";
-import { follow } from "./popup.js?v=0.53.3";
+import { wide } from "./media.js?v=0.53.4";
+import { follow } from "./popup.js?v=0.53.4";
 
 // Set up the tabs on their element. Returns update().
 export function mount(root) {
@@ -53,13 +53,16 @@ export function mount(root) {
 // Have you just come into a room you had not visited before?
 const arrived = (was, now) => was.player.at !== now.player.at && !(was.seen?.visited ?? []).includes(now.player.at);
 
-// Put the panel just above its tab, measured now: the panel's content as wide as the tab, its padding around it. Writes only what
-// changed (most frames, nothing).
+// Put the panel just above its tab, measured now: the panel's content as wide as the tab, its padding around it. Its top on the tab's
+// top, lifted by its own height (translateY(-100%)), so no window height is needed (iPhone Safari's documentElement.clientHeight
+// stays the same while its toolbar shrinks and grows: placed from the window's bottom, the panel slid as you scrolled). Writes only
+// what changed (most frames, nothing).
 function place(panel, tab) {
   const r = tab.getBoundingClientRect(), pad = parseFloat(getComputedStyle(panel).paddingLeft) || 0;
   const set = (k, v) => { if (panel.style[k] !== v) panel.style[k] = v; };
   set("left", (r.left - pad) + "px");
   set("width", (r.width + 2 * pad) + "px");
-  set("bottom", (document.documentElement.clientHeight - r.top) + "px");
+  set("bottom", "auto");
+  set("top", r.top + "px");
+  set("transform", "translateY(-100%)");
 }
-
