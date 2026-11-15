@@ -3,10 +3,10 @@
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 // Reescrito el 2026-11-15 (extrañeza 0): ahora la historia es la caza de un camello que hace su ronda por las salas de la avenida.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -44,7 +44,7 @@ export const bible = {
     "En la avenida nadie da nada por nada y nadie olvida lo que le deben: un favor es una deuda con mejores modales.",
     "Pasada la medianoche cada cual va por el nombre que le puso la calle; el de los papeles es para el día y para quien te conoció de pequeño."
   ],
-  opening: "Un callejón sin salida detrás de un club, la sala del comienzo, al sur de su trastienda: una radio de transistores sobre un cajón (pistas, un programa de llamadas de madrugada), un posavasos que ya llevas (por qué has venido). La puerta de incendios del fondo está pintada contra su marco: una palanca apoyada en el contenedor la fuerza.",
+  opening: "Un callejón sin salida detrás de un club, la sala del comienzo, al sur de su trastienda: una radio de transistores sobre un cajón (pistas, un programa de llamadas de madrugada), la introducción, el mensaje de un posavasos sobre el Ministro (por qué has venido). La puerta de incendios del fondo está pintada contra su marco: una palanca apoyada en el contenedor la fuerza.",
   music: "un chacachá dórico nervioso, oído a través de la pared de un club; un bombo que se salta un golpe, una guitarra barata sobre un solo acorde y el silbido de un deshollinador; la radio entre dos emisoras",
   characters: ["Cuco, que lleva el sonido de El Charlie", "Pelayo, que lleva su barra", "doña Aurora, dueña y cantante de La Ópera", "Marisol, que trabaja la esquina",
     "doña Remedios, de la estafeta", "Tomás, el deshollinador", "don Nicanor, de la Pensión Esperanza", "Marga, la batería de la fábrica",
@@ -437,14 +437,11 @@ const rooms = {
 
 // ---- Objetos -----------------------------------------------------------------------------------------------------------
 const objects = {
-  // La sala del comienzo: las pistas, lo que ya llevas, la salida (una puerta pintada contra su marco) y la palanca que la abre (BRIEF.md §3).
+  // La sala del comienzo: las pistas, la salida (una puerta pintada contra su marco) y la palanca que la abre (BRIEF.md §3).
   radio: { at: "callejon", portable: true, material: "metal", name: "Radio", note: "Un programa de madrugada.",
     words: { nouns: ["radio", "transistor", "transistores"], adj: ["transistor", "pequeña", "vieja"], g: "f" }, ...item("radio"),
     here: "Una {radio} de transistores sobre un cajón está sintonizada en un programa de llamadas de madrugada.",
     examine: "Una radio de transistores pequeña, sujeta con esparadrapo. Está puesta en un programa donde, de noche, desconocidos llaman para darse consejos unos a otros, y algunos son buenos." },
-  posavasos: { at: "player", portable: true, material: "paper", name: "Posavasos", note: "Con letra por detrás.", opens: ["dealer"],
-    words: { nouns: ["posavasos", "posavaso"], adj: ["húmedo", "humedo", "cerveza"], g: "m" }, ...item("posavasos"),
-    examine: "Un posavasos húmedo de El Charlie. Por detrás, en mayúsculas, con una letra que aprieta mucho: «EL MINISTRO HACE SU RONDA ESTA NOCHE. TIENE LO QUE QUIERES. NO ACEPTA DINERO»." },
   puerta: { at: "callejon", material: "metal", name: "Puerta de incendios", note: "Pintada contra el marco.", door: "n", locked: true,
     lock: { key: "palanca",
       says: "La puerta de incendios está pintada contra su marco. Hay una rendija por el lado de las bisagras, lo bastante ancha para el pico de algo plano y fuerte.",
@@ -479,7 +476,7 @@ const objects = {
       deck: { open: true, label: "la cinta", words: ["cinta", "casete", "cassette", "musica", "música", "mesa", "noche", "sonido"], says: "«Entre grupo y grupo pongo una cinta, siempre la misma, y esta noche es la que no es —dice Cuco—. La que es se la quedó alguien a quien no sé cómo pedírsela. El orgullo es mala tarima para bailar»." },
       marisol: { label: "Marisol", words: ["marisol", "esquina", "mujer"], says: "Algo le cruza la cara y lo guarda enseguida. «¿Marisol? En la esquina, donde siempre. Fuimos amigos. Tiene mi cinta, y no pienso pedírsela»." },
       tie: { label: "una corbata negra", words: ["corbata", "negra", "seda", "entierro", "funeral"], says: "«¿Una corbata negra?». Cuco te mira como si le hubieras pedido el hígado. «Tengo una, en el cajón de la mesa. La de mi padre, para su entierro y para el mío. De seda, por cierto. La daría por la cinta, y por nada más»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿Él? Se planta junto a la mesa del fondo cuando viene, y no mira el espejo, y los chavales que sí lo miran lo miran a él —dice Cuco—. Pregunta a Pelayo cuándo toca. Pelayo lleva el reloj»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿Él? Se planta junto a la mesa del fondo cuando viene, y no mira el espejo, y los chavales que sí lo miran lo miran a él —dice Cuco—. Pregunta a Pelayo cuándo toca. Pelayo lleva el reloj»." },
       default: "«Perdona —dice Cuco, por encima del bajo—. Solo oigo lo que me llega por los cascos»."
     },
     give: "«Qué detalle —dice Cuco—. Pero esa no es mi cinta»." },
@@ -490,7 +487,7 @@ const objects = {
     topics: {
       band: { open: true, label: "el grupo", words: ["grupo", "nacho", "cuerda", "cuerdas", "fabrica", "fábrica", "bajo", "bajista"], says: "«Nada Personal están esta noche en la fábrica, ensayando con un horno —dice Pelayo—. A Nacho se le rompió una cuerda del bajo el martes y se pone borde sin ella. Hay un juego de recambio en la funda de guitarra de la trastienda, por si alguien quisiera hacerse el héroe»." },
       bar: { open: true, label: "la barra", words: ["barra", "cerveza", "copa", "precio", "fiado"], says: "«La cerveza son treinta pelas —dice Pelayo—. Tú no las tienes. No pidas fiado, que he visto tu cara en un cartel de se busca»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer", "ronda", "cuando"], says: "«Puntual como el correo —dice Pelayo—. Hace El Charlie, una cerveza, baja por la avenida a La Ópera, vuelve por la avenida a la estafeta a por su carta, otra vez la avenida y vuelta conmigo. Cuatro minutos por puerta y ni un segundo más, porque quien se queda es quien llama la atención»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "ronda", "cuando"], says: "«Puntual como el correo —dice Pelayo—. Hace El Charlie, una cerveza, baja por la avenida a La Ópera, vuelve por la avenida a la estafeta a por su carta, otra vez la avenida y vuelta conmigo. Cuatro minutos por puerta y ni un segundo más, porque quien se queda es quien llama la atención»." },
       default: "«No es cosa mía —dice Pelayo—. Lo mío es ese vaso»."
     },
     give: "«Yo cobro en efectivo o no cobro —dice Pelayo, y te lo devuelve»." },
@@ -524,7 +521,7 @@ const objects = {
       eyes: { open: true, label: "sus ojos", words: ["ojos", "cara", "kohl", "maquillaje", "cansada"], opens: ["tape"], says: "«Tengo mala cara porque se me ha acabado el kohl —dice—. Quince años con el mismo negro, y la tienda que lo vendía ha quebrado. El hollín de un deshollinador hace por una señora lo que no hace un tarro, y el único deshollinador que queda está en la azotea de la casa tomada»." },
       tape: { label: "la cinta", words: ["cinta", "casete", "cassette", "cuco"], says: "«La cinta de Cuco —dice, sin sonreír—. La dejó conmigo la noche que dejó de hablarme. Lleva la canción que no puede tocar ni puede dejar de tocar. Si alguien me trajera un poco de ese negro para los ojos, podría prescindir de ella»." },
       name: { label: "tu nombre", words: ["nombre", "javier", "emperador", "papeles"], says: "«Eres el Emperador desde que fuiste un chiste que alguien contó —dice—. Antes eras Javier, el del tercero, el de la tos. Doña Matilde, la portera, te daba de comer en la escalera. Nicanor lo tiene apuntado en algún sitio»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿El Ministro? No intentes comprarle. Mira el dinero como un cura mira una cuenta atrás —dice Marisol—. Acepta favores. Y va de ronda: pregunta en El Charlie, que le llevan el horario»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿El Ministro? No intentes comprarle. Mira el dinero como un cura mira una cuenta atrás —dice Marisol—. Acepta favores. Y va de ronda: pregunta en El Charlie, que le llevan el horario»." },
       default: "«De eso no sé, cariño —dice Marisol—, pero si lo averiguas, cuéntaselo a la farola»."
     },
     give: "«Para mí no, cariño —dice Marisol—. Yo solo cojo lo que puedo usar»." },
@@ -539,7 +536,7 @@ const objects = {
     talk: "«El siguiente —dice doña Remedios, aunque no hay nadie más—. Nombre, calle, piso, por ese orden. Por ese no. Primero el piso».",
     topics: {
       post: { open: true, label: "el correo", words: ["correo", "cartas", "saco", "sello", "trabajo", "furgoneta"], says: "«Clasifico lo que llega, sello lo que sale, devuelvo lo que no tiene a quién ir —dice doña Remedios—. Nueve de cada diez son devoluciones. La gente se muda más deprisa que sus direcciones»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer", "carta", "correo"], says: "«Cada sábado una carta certificada, su pensión del Colegio de Farmacéuticos —dice doña Remedios—. El único dinero que acepta, y lo llama devolución. Firma con letra de receta. Un boticario expulsado, si quiere mi opinión, y nadie me la ha pedido»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "carta", "correo"], says: "«Cada sábado una carta certificada, su pensión del Colegio de Farmacéuticos —dice doña Remedios—. El único dinero que acepta, y lo llama devolución. Firma con letra de receta. Un boticario expulsado, si quiere mi opinión, y nadie me la ha pedido»." },
       matilde: { label: "Matilde", words: ["matilde", "portera", "peláez", "pelaez", "entierro"], says: "«Treinta años de cartas de Matilde a un chico del tercero del nueve, y treinta años de devueltas con el sello de desconocido —dice doña Remedios—. Javier Ortega, calle Hierro, nueve. No dejó de escribir. Yo no dejé de devolverlas. No me mires a mí: yo sello lo que viene sellado»." },
       default: "«Eso no lo puedo sellar —dice doña Remedios, y sella otra cosa»."
     },
@@ -554,7 +551,7 @@ const objects = {
       rooms: { open: true, label: "una habitación", words: ["habitacion", "habitación", "habitaciones", "cama", "noche", "hora", "alquiler"], says: "«Ocho pesetas la hora, treinta la noche, y sin preguntas a ninguna de las dos tarifas. La única habitación que no alquilo es la siete. Esa está ocupada, por una señora que paga el día uno»." },
       book: { open: true, opens: ["name"], label: "el Libro de Horas", words: ["libro", "registro", "horas", "nombres"], says: "«Todo nombre que se ha alojado aquí está en el Libro —dice don Nicanor—. También el tuyo. Javier Ortega, número siete, 1979, tercera noche. Un bebé con tos, en una habitación sin calefacción, y una madre en el turno de noche. La portera de la calle Hierro subió una cazuela de sopa por la escalera. Lo recuerdo porque dormías mejor que tu madre»." },
       marisol: { label: "Marisol", words: ["marisol", "siete", "inquilina"], says: "«La siete es de Marisol —dice don Nicanor—. Paga el día uno y no ha dado un portazo en su vida. Si quiere ver cómo vive una señora, suba y mire. No le importa. Deja la puerta abierta»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«Un caballero —dice don Nicanor—. Alquiló la habitación del rincón por noches durante veinte años, hasta la noche en que dejó de hacerlo. No pregunto qué lleva un caballero en el maletín, y un caballero no me lo dice»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«Un caballero —dice don Nicanor—. Alquiló la habitación del rincón por noches durante veinte años, hasta la noche en que dejó de hacerlo. No pregunto qué lleva un caballero en el maletín, y un caballero no me lo dice»." },
       default: "«No sabría decirle —dice don Nicanor, y anota algo en el Libro»."
     },
     give: "«Se lo agradezco, pero llevo un establecimiento muy serio —dice don Nicanor, y te lo devuelve»." },
@@ -578,7 +575,7 @@ const objects = {
     talk: "«Cariño —dice doña Aurora entre dos compases—, si has venido a escuchar, calla. Si has venido a beber, Gaspar es sordo».",
     topics: {
       room: { open: true, label: "la sala", words: ["sala", "bar", "ópera", "opera", "escenario", "cantar", "canta"], says: "«Hace cuarenta años esto era el café de enfrente de la ópera, y todas las coristas de la ciudad tomaban el café en esa mesa —dice doña Aurora—. La ópera es un banco ahora. Las coristas son abuelas. Yo soy la última que sigue con plumas»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer", "mesa", "caballero"], says: "«¿Don Ildefonso? Mesa redonda, espalda a la pared, un carajillo que no acaba nunca —dice doña Aurora—. Es un caballero y lleva once años de ministro, porque visita sus circunscripciones con puntualidad. Espera un poco y llegará, a mí me da cuatro minutos»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "mesa", "caballero"], says: "«¿Don Ildefonso? Mesa redonda, espalda a la pared, un carajillo que no acaba nunca —dice doña Aurora—. Es un caballero y lleva once años de ministro, porque visita sus circunscripciones con puntualidad. Espera un poco y llegará, a mí me da cuatro minutos»." },
       tie: { label: "una corbata negra", words: ["corbata", "negra", "seda", "entierro"], says: "«¿Una corbata negra? Anoche me pidió una, pobre hombre, con su hermana aún sin enterrar —dice doña Aurora—. Las que tengo son pajaritas y amarillas. Pregunta por los bares, cariño. Alguien habrá enterrado a alguien»." },
       matilde: { label: "Matilde", words: ["matilde", "hermana", "portera", "entierro"], says: "«Matilde Peláez, la portera de la calle Hierro nueve. No dijo nunca a nadie que tenía una hermana, hasta que fue una muerta —dice doña Aurora—. Mantuvo vivo a un chico del tercero a base de sopa, y le escribió cartas durante treinta años que no lo encontraron nunca. El Ministro lo cuenta él mismo, con su carajillo, todas las noches de esta semana»." },
       default: "«No sabría decirte, cariño —dice doña Aurora—, y me haría falta un coro para decirlo por mí»."
@@ -625,7 +622,7 @@ const objects = {
     topics: {
       sweeping: { open: true, label: "el deshollinado", words: ["deshollinar", "deshollinado", "chimenea", "chimeneas", "trabajo", "hollin", "hollín", "oficio"], says: "«Hay once chimeneas aquí arriba y una duodécima en la fábrica que es más grande que todas —dice Tomás—. Llevo cuarenta años deshollinándolas. Quien deshollina una chimenea se queda con el hollín. Esa es toda la ley»." },
       brush: { open: true, label: "su cepillo", words: ["cepillo", "perdido", "mango"], says: "«Lo dejé en la secadora de la Lavandería el invierno pasado, en el mono —dice Tomás—. El pestillo se cerró sobre él y no tenía ficha para dar el ciclo, y el dueño está en Valencia. Un deshollinador sin cepillo es un hombre con una chimenea en la cabeza»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿Don Ildefonso? A mí me paga con amabilidad y yo le pago con hollín —dice Tomás—. Cada chimenea bajo la que se ha sentado la ha deshollinado un hombre que le debía algo. Eso es un ministro, supongo»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿Don Ildefonso? A mí me paga con amabilidad y yo le pago con hollín —dice Tomás—. Cada chimenea bajo la que se ha sentado la ha deshollinado un hombre que le debía algo. Eso es un ministro, supongo»." },
       default: "«No sé decirle —dice Tomás—. Yo solo sé de hollín»."
     },
     give: "«Eso no es mío —dice Tomás—, pero gracias»." },
@@ -638,7 +635,7 @@ const objects = {
     topics: {
       band: { open: true, opens: ["strings"], label: "el grupo", words: ["grupo", "nada", "personal", "nacho", "ensayo", "bateria", "batería", "baquetas"], says: "«Nada Personal. Cuatro, y tres aquí: Nacho se ha ido a ponerse borde. Se le rompió una cuerda del bajo el martes y la tienda de música no abre hasta el lunes, y dice que sin ella no puede tocar, lo cual es mentira, pero testaruda —dice Marga»." },
       strings: { label: "las cuerdas", words: ["cuerdas", "cuerda", "bajo", "sobre", "juego"], says: "«¿Cuerdas de bajo? ¿Tienes un juego de recambio? Tráelo y te doy el fondo de la colada del grupo. Catorce fichas en una lata de café. Nacho puede lavar los calcetines el lunes, y se alegrará —dice Marga»." },
-      dealer: { label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿El Ministro? Vino una vez a oírnos. Se quedó al fondo tres canciones, con el sombrero puesto. Dejó una propina en la lata: cien pesetas, en monedas, como un sombrero en una iglesia —dice Marga»." },
+      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿El Ministro? Vino una vez a oírnos. Se quedó al fondo tres canciones, con el sombrero puesto. Dejó una propina en la lata: cien pesetas, en monedas, como un sombrero en una iglesia —dice Marga»." },
       default: "«Ni idea —dice Marga, y golpea el cubo»."
     },
     give: "«No es mío —dice Marga—. Las cuerdas, en cambio, sí las cojo»." }
@@ -661,7 +658,7 @@ const puzzles = {
     hints: ["El tarro de kohl de Marisol está vacío, y el hollín de deshollinador hace por los ojos lo que no hace un tarro.", "Da el hollín a Marisol, en la esquina, y te dará la cinta de Cuco."] },
   tape_for_tie: { where: "charlie", needs: ["cinta"], solve: ["dar cinta a cuco"], gives: ["corbata"], clues: ["cuco", "pintada"],
     hints: ["La cinta de Cuco está en la esquina, y él tiene la única corbata negra que necesita el Ministro.", "Da la cinta a Cuco, en El Charlie, y coge la corbata negra."] },
-  corona: { where: "avenida", needs: ["corbata"], solve: ["dar corbata a ministro", "decir emperador"], ending: true, clues: ["ministro", "posavasos", "cuco"],
+  corona: { where: "avenida", needs: ["corbata"], solve: ["dar corbata a ministro", "decir emperador"], ending: true, clues: ["ministro", "cuco"],
     hints: ["El Ministro no acepta dinero y quiere una corbata negra para un entierro por la mañana. Preguntará a nombre de quién lo apunta.", "Da la corbata al Ministro y dile que eres el Emperador."] },
   nombre: { where: "avenida", needs: ["corbata"], solve: ["dar corbata a ministro", "decir javier"], ending: true, clues: ["ministro", "marisol", "nicanor"],
     hints: ["Marisol y don Nicanor recuerdan un nombre que no es el de Emperador.", "Da la corbata al Ministro y dile que eres Javier."] }
@@ -714,10 +711,10 @@ const rules = [
 
 // ---- La sala del comienzo, declarada (BRIEF.md §3) ----------------------------------------------------------------------------------------
 const opening = {
-  room: "callejon", hints: "radio", intro: "posavasos", way: "puerta",
+  room: "callejon", hints: "radio", way: "puerta",
+  intro: "Eres el Emperador de Prosperidad, y esta noche el Emperador quiere algo. Lo tiene el Ministro, que hace cada noche su ronda de bares y no acepta dinero. Te lo dijo un posavasos, en mayúsculas, antes de que se lo llevara el viento. Es la una de la madrugada, y de todos modos no tienes dinero.",
   lines: {
-    hintFrame: "Te pones la radio al oído. En el programa de llamadas de madrugada alguien dice:",
-    farewell: "El viento te saca el posavasos de la mano, le lee el reverso al callejón y lo suelta."
+    hintFrame: "Te pones la radio al oído. En el programa de llamadas de madrugada alguien dice:"
   }
 };
 

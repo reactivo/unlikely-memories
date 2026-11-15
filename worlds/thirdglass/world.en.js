@@ -1,10 +1,10 @@
 // "The Third Glass": a world, in English, written the way the AI is asked to write a world
 // (BRIEF.md). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -25,7 +25,7 @@ export const bible = {
     "Tea is poured in three glasses: bitter as life, strong as love, gentle as death. A guest who finishes the third is no longer a guest.",
     "Nobody who walks east alone into the sand sea has been seen to come back; the tracks all point the same way."
   ],
-  opening: "A night desert of identical dunes, the start room, south of the camel lines: a shell that murmurs the sea that was here (the hints), a cord of knots in your pocket (the intro), a door standing in its frame with no wall (the way out), opened from the other side when you knock.",
+  opening: "A night desert of identical dunes, the start room, south of the camel lines: a shell that murmurs the sea that was here (the hints), the intro, the walk you have forgotten the reason for, a door standing in its frame with no wall (the way out), opened from the other side when you knock.",
   music: "patient hushed mode; a one-string imzad and a tea glass struck three times; the brazier ticking, heard from " +
     "across the sand",
   start: { day: 1, time: "06:10" },
@@ -39,15 +39,14 @@ export const bible = {
   chaos: 0.15
 };
 
-// The opening's declaration (BRIEF.md §3): the start room, the hints thing, the intro, the way out, and the two lines.
+// The opening's declaration (BRIEF.md §3): the start room, the hints thing, the way out, the intro, and the line it says.
 const opening = {
   room: "dunes",
   hints: "shell",
-  intro: "tally",
   way: "door",
+  intro: "You have walked the sand sea for more days than you can count, though you tried: a knot on a leather cord for every day, so as not to forget where you were going. Somewhere behind you the last knot came undone, and the reason went with it.",
   lines: {
-    hintFrame: "The shell murmurs, and out of the murmur someone says:",
-    farewell: "The cord goes slack in your fingers, and is a line drawn in the sand, and then only sand."
+    hintFrame: "The shell murmurs, and out of the murmur someone says:"
   }
 };
 
@@ -84,7 +83,7 @@ const endingAlts = {
 export default {
   because: "The start room in a night desert, then a well camp, a dry river and a cave of painted walls; a lamp, a copy of a painted woman, a camel that stands, a skin of old rain, a well, a bell; and an elder's three glasses.",
   facts: [
-    "The tally cord is the intro: it is out of play once read. The door is the way out; knocked on, it opens on the camel lines, where it is morning.",
+    "The door is the way out; knocked on, it opens on the camel lines, where it is morning.",
     "Chain: lamp (tent) -> cloth (camel lines) + charcoal (camp fire) -> rub the painted woman in the gallery -> show the rubbing to Afternoon, who stands and lets go of the goatskin -> fill it in the cistern -> put it in the well, which gives up a bell -> give the bell to Afternoon and ride her: departed.",
     "Fadimata's tea comes three times: the third drunk ends the story (stayed). Walking east from the camp kills outright (lost). The viper under the flat stone hurts once (2). The tea and the handprint heal.",
     "A lit lamp is needed to go down from the cave mouth. The lamp lights anywhere, with no match."
@@ -129,12 +128,8 @@ export default {
     { add: "object", id: "shell", at: "dunes", portable: true, material: "stone", name: "Shell", note: "Murmuring the old sea.",
       here: "At the foot of the door a {shell} lies on its side, murmuring.",
       words: { nouns: ["shell", "seashell"], adj: ["spiral", "pale"] },
-      examine: "A spiral shell, pale with salt, the size of a fist. Held to the ear it keeps the sea that was here once, and it is still arguing with the sand about it.",
+      examine: "A spiral shell, pale with salt, the size of a fist. Held to the ear it keeps the sea that was here once, and it is still arguing with the sand about it. Under the murmur, now and then, someone knocks.",
       sprite: sprites.shell },
-    { add: "object", id: "tally", at: "player", portable: true, material: "soft", name: "Tally cord", note: "One knot undone.",
-      words: { nouns: ["tally", "cord"], adj: ["knotted", "leather"] },
-      examine: "A leather cord with a knot for every day of walking. You tied them so as not to forget where you were going, and the last one has come undone.",
-      sprite: sprites.cord },
     { add: "object", id: "door", at: "dunes", door: "n", material: "wood", name: "Door", note: "Alone in its frame.",
       actions: ["Knock on door"],
       words: { nouns: ["door", "frame"], adj: ["grey", "wooden"] },
@@ -147,7 +142,7 @@ export default {
         { say: "You knock. After a while someone on the other side lifts the latch, politely, and is gone before the door has finished opening. Beyond it it is morning, and cool, and the air smells of woodsmoke and tea." },
         { connect: "dunes", dir: "n", to: "lines" }
       ] } },
-    { add: "puzzle", id: "knock", where: "dunes", needs: [], solve: ["knock on door", "north"], reaches: "lines", clues: ["door", "tally"],
+    { add: "puzzle", id: "knock", where: "dunes", needs: [], solve: ["knock on door", "north"], reaches: "lines", clues: ["door", "shell"],
       hints: ["A door with no wall is still somebody's door, and a guest knocks.", "Knock on the door, then go north through it."] },
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 

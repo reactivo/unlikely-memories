@@ -2,10 +2,10 @@
 // (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings as endingPictures } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -25,7 +25,7 @@ export const bible = {
     "The Authority never fails. It sends notices, and the notices are kind.",
     "The lifts are out of order; the stairs are the only way up that anyone admits to."
   ],
-  opening: "A fenced service yard behind the Meridian Block, the start room: an intercom on its cord (the hints), a summons in your pocket (the intro), the one service door in (the way out), opened by the buzzer beside it, onto the sixth floor.",
+  opening: "A fenced service yard behind the Meridian Block, the start room: an intercom on its cord (the hints), the intro, a summons to the Registry (why you came), the one service door in (the way out), opened by the buzzer beside it, onto the sixth floor.",
   music: "slow waltz; a harmonium asking politely, one beat short; a stair clock that is not right; a radiator told to wait",
   start: { day: 1, time: "06:50", weekday: "mon" },
   characters: ["Mrs Hale, the Archivist, who keeps the paper and sorts cards nobody has asked for."],
@@ -33,15 +33,14 @@ export const bible = {
   chaos: 0.2
 };
 
-// The opening's declaration (BRIEF.md §3): the start room, the hints thing, the intro, the way out, and the two lines.
+// The opening's declaration (BRIEF.md §3): the start room, the hints thing, the way out, the intro, and the line it says.
 const opening = {
   room: "yard",
   hints: "intercom",
-  intro: "summons_notice",
   way: "door",
+  intro: "The Authority has written to you, in its own typeface. You are to present yourself in person at the Registry, on the fourteenth floor of the Meridian Block, and confirm that you are still on the register. Underneath, in smaller type: Do not use the lifts.",
   lines: {
-    hintFrame: "The intercom crackles. Someone says:",
-    farewell: "The summons goes soft in your fingers and runs off into the grain of the paper."
+    hintFrame: "The intercom crackles. Someone says:"
   }
 };
 
@@ -64,7 +63,6 @@ const endingAlts = {
 export default {
   because: "The start room, a fenced service yard behind the block, whose one door opens on the sixth floor; then the Meridian Block: sixth-floor corridor, records, canteen, staff room, stairwell, lobby, cellar, registry; a slip to reprint, a crank for the gate, and the registry's slot, last booth or shredder.",
   facts: [
-    "The summons is the intro: it is out of play once read.",
     "The slip comes from the Staff Room printer (once). The crank is in the Records drawer.",
     "The stair gate's lock takes the crank; it opens the stairs to the registry (up from the stairwell).",
     "The lift shaft kills outright (hurt 5, with the shaft picture). The cable hurts once (2); the biscuit and the urn's first cup heal 1 each.",
@@ -106,10 +104,6 @@ export default {
       words: { nouns: ["intercom", "receiver", "handset"], adj: ["grey"] },
       examine: "An intercom handset on a coiled cord, the mouthpiece worn pale by other people's breath. Someone at the far end is breathing slowly, and does not mind waiting for you.",
       sprite: sprites.receiver, floorSprite: sprites.receiver_floor },
-    { add: "object", id: "summons_notice", at: "player", portable: true, material: "paper", name: "Summons", note: "Stamped and folded.",
-      words: { nouns: ["summons"], adj: [] },
-      examine: "A summons in the Authority's own typeface, asking you to present yourself in person at the Registry, fourteenth floor. Underneath, in smaller type: Do not use the lifts.",
-      sprite: sprites.summons },
     { add: "object", id: "door", at: "yard", door: "in", material: "metal", name: "Door", note: "Shut, for now.",
       actions: ["Open door"], words: { nouns: ["door", "service door"], adj: ["steel"] },
       examine: "A steel service door, painted the colour of a lunch eaten years ago. Round its edge comes a seam of cooler air, and the sound of a corridor with nobody in it." },
@@ -435,7 +429,7 @@ export default {
       clues: ["shredder", "slot"],
       hints: ["Something in this room is quieter than the slot, and it destroys.", "Put the slip in the shredder."] },
     { add: "puzzle", id: "step_into_shaft", where: "corridor", needs: [], solve: ["enter shaft"], ending: true,
-      clues: ["shaft", "summons_notice"],
+      clues: ["shaft", "generator"],
       hints: ["The lift shaft stands open on a warm dark, and its sign asks you kindly not to.", "Step into the lift shaft."] }
   ]
 };

@@ -39,25 +39,6 @@ export default {
     ".....0..........",
     "......0........."
   ],
-  // A folded summons: white paper, grey lines of type, a red stamp.
-  summons: [
-    "................",
-    "................",
-    "................",
-    "..000000000000..",
-    "..0ffffffffff0..",
-    "..0f77777777f0..",
-    "..0f77777777f0..",
-    "..0ffffffffff0..",
-    "..0ff44ffffff0..",
-    "..0ff44ffffff0..",
-    "..0ffffffffff0..",
-    "..0f77777777f0..",
-    "..0ffffffffff0..",
-    "..000000000000..",
-    "................",
-    "................"
-  ],
   // A brass crank: a long rod with a handle at the foot.
   crank: [
     "................",

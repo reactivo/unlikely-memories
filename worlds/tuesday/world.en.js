@@ -2,10 +2,10 @@
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -17,8 +17,8 @@ export const bible = {
     "back. Upstairs at the town hall, someone has kept the last Monday, in case.",
   tone: "WRITING-DIRECTION.md. Railway-town melancholy: timetables, lost things, a decree framed in the station.",
   start: "Sunday, 19:30, at Monday Halt, west of the station's lost property office.",
-  opening: "A halt on a branch line, Sunday evening, west of the lost property office: a cocoa tin on a string (hints), a " +
-    "diary leaf you already carry (why you came). The one carriage is the way out: it takes you once you have sat on the bench.",
+  opening: "A halt on a branch line, Sunday evening, west of the lost property office: a cocoa tin on a string (hints); the intro, a " +
+    "diary with Monday rubbed out (why you came). The one carriage is the way out: it takes you once you have sat on the bench.",
   music: "slow lydian; a ledger cello and a plucked birdcage wire; an honest station clock that skips one tick in seven",
   rules: [
     "Monday was abolished by decree. The town goes from Sunday night to Tuesday by train.",
@@ -320,14 +320,11 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The start room: the hints thing, the intro you carry, the way out, and the bench you wait on for it (BRIEF.md §3).
+  // The start room: the hints thing, the way out, and the bench you wait on for it (BRIEF.md §3).
   tin: { at: "halt", portable: true, material: "metal", name: "Cocoa tin", note: "Someone at the other end.",
     words: { nouns: ["tin", "string", "cocoa"], adj: ["cocoa", "cold", "long"] }, ...item("tin"),
     here: "On the bench a cocoa {tin} sends its string off the end of the platform.",
     examine: "A cocoa tin with a hole punched in the base and a length of string running out of it, along the platform and over the edge into the dark. The string is taut, as if something were on the other end." },
-  diary_leaf: { at: "player", portable: true, material: "paper", name: "Diary leaf", note: "Ruled for a week.",
-    words: { nouns: ["leaf", "diary"], adj: ["folded", "yellow", "ruled", "diary"] }, ...item("diary_leaf"),
-    examine: "A diary leaf, ruled for a week. Sunday and Tuesday are filled in, in your hand; where Monday should be is a clean, careful gap, rubbed through to the next page." },
   halt_bench: { at: "halt", material: "wood", name: "Bench", note: "Painted, not long ago.", actions: ["Sit on bench"],
     words: { nouns: ["bench", "seat"], adj: ["painted", "platform"] },
     examine: "A platform bench, painted since the line closed, and not very long ago. It faces the carriage, the way a waiting-room chair faces a door." },
@@ -764,12 +761,12 @@ const puzzles = {
 };
 
 // ---- The change set -----------------------------------------------------------------------------------------------------
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says --------------------
+// ---- The opening, declared (BRIEF.md §3): the ids of its room and two things, its intro, and the line it says --------------
 const opening = {
-  room: "halt", hints: "tin", intro: "diary_leaf", way: "carriage_door",
+  room: "halt", hints: "tin", way: "carriage_door",
+  intro: "You have lost a Monday. In your diary at home, Sunday and Tuesday are written in your own hand, and between them is a careful gap, rubbed through to the next page. So you took the branch line as far as it goes, to look for it.",
   lines: {
-    hintFrame: "You put the tin to your ear. Down the string, someone with a stationmaster's patience says:",
-    farewell: "You hold the leaf up to the lamp. The week comes apart along its ruled lines, and is gone, Sunday first."
+    hintFrame: "You put the tin to your ear. Down the string, someone with a stationmaster's patience says:"
   }
 };
 

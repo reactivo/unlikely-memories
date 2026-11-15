@@ -3,10 +3,10 @@
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 // Reworked 2026-11-15 (strangeness 0): the story is now the hunt for a dealer who walks a round of the strip's rooms.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -43,7 +43,7 @@ export const bible = {
     "Nobody on the strip gives anything for nothing, and nobody forgets what they are owed: a favour is a debt with better manners.",
     "After midnight everybody goes by the name the strip gave them; the name on the papers is for daylight and for the people who knew you when you were small."
   ],
-  opening: "A blind alley behind a club, the start room, south of its backstage: a transistor radio on a crate (hints, a late-night call-in), a beer mat you already carry (why you came). The fire door at the far end is painted into its frame: a crowbar that leans against the bin prises it open.",
+  opening: "A blind alley behind a club, the start room, south of its backstage: a transistor radio on a crate (hints, a late-night call-in), the intro, a beer mat's message about the Minister (why you came). The fire door at the far end is painted into its frame: a crowbar that leans against the bin prises it open.",
   music: "a nervous dorian shuffle heard through a club wall; a bass drum that misses a beat, a cheap guitar on one chord and a chimney sweep's whistle; the radio between stations",
   characters: ["Cuco, who runs the sound at El Charlie", "Pelayo, who runs its bar", "Doña Aurora, who owns and sings at La Ópera", "Marisol, who works the corner",
     "Doña Remedios, of the all-night post office", "Tomás, the chimney sweep", "Don Nicanor, of the Pensión Esperanza", "Marga, the drummer at the works",
@@ -436,14 +436,11 @@ const rooms = {
 
 // ---- Objects -----------------------------------------------------------------------------------------------------------
 const objects = {
-  // The start room: the hints thing, the one you carry, the way out (a fire door painted shut) and the crowbar that opens it (BRIEF.md §3).
+  // The start room: the hints thing, the way out (a fire door painted shut) and the crowbar that opens it (BRIEF.md §3).
   radio: { at: "callejon", portable: true, material: "metal", name: "Transistor radio", note: "A late-night call-in.",
     words: { nouns: ["radio", "transistor"], adj: ["transistor", "little", "old", "small"] }, ...item("radio"),
     here: "A {transistor radio|radio} stands on a crate, tuned to a late-night call-in.",
     examine: "A little transistor radio held together with sticking plaster. It is tuned to a call-in show where strangers phone in at night to give each other advice, and some of it is good." },
-  posavasos: { at: "player", portable: true, material: "paper", name: "Beer mat", note: "Writing on the back.", opens: ["dealer"],
-    words: { nouns: ["mat", "coaster", "posavasos"], adj: ["beer", "damp"] }, ...item("posavasos"),
-    examine: "A damp beer mat from El Charlie. On the back, in capitals, in a hand that presses hard: \"THE MINISTER DOES HIS ROUND TONIGHT. HE HAS WHAT YOU WANT. HE DOESN'T TAKE MONEY.\"" },
   puerta: { at: "callejon", material: "metal", name: "Fire door", note: "Painted shut.", door: "n", locked: true,
     lock: { key: "palanca",
       says: "The fire door is painted into its frame. There is a seam along the hinge side, wide enough for the lip of something flat and strong.",
@@ -478,7 +475,7 @@ const objects = {
       deck: { open: true, label: "the tape", words: ["tape", "cassette", "music", "desk", "night", "sound"], says: `"Between bands I play one tape, always the same, and tonight it's the wrong one," says Cuco. "The right one left with somebody, and I've no way to ask for it. Pride's a bad stand to be dancing on."` },
       marisol: { label: "Marisol", words: ["marisol", "corner", "woman"], says: `Something goes across his face and is put away. "Marisol? She's on the corner, where she's always been. We were friends once. She has my tape, and I'm not going to ask her."` },
       tie: { label: "a black tie", words: ["tie", "black", "silk", "funeral", "corbata"], says: `"A black tie?" Cuco looks at you as if you had asked for his liver. "I've got one, in the desk drawer. My father's, for his funeral and mine. Silk, as it happens. I'd give it up for the tape, and for nothing else."` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"Him? He stands by the back table when he comes, and he doesn't look at the mirror, and the kids who do look at him," says Cuco. "Ask Pelayo when he's due. Pelayo keeps the clock."` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"Him? He stands by the back table when he comes, and he doesn't look at the mirror, and the kids who do look at him," says Cuco. "Ask Pelayo when he's due. Pelayo keeps the clock."` },
       default: `"Sorry," says Cuco, over the bass. "I only hear what's coming through the headphones."`
     },
     give: `"That's nice," says Cuco. "But it isn't my tape."` },
@@ -489,7 +486,7 @@ const objects = {
     topics: {
       band: { open: true, label: "the band", words: ["band", "nacho", "string", "strings", "works", "bass", "bassist"], says: `"Nada Personal are down at the works tonight, rehearsing with a furnace," says Pelayo. "Nacho snapped a bass string on Tuesday and sulks without one. There's a spare pack in the guitar case backstage, if somebody wanted to be a hero."` },
       bar: { open: true, label: "the bar", words: ["bar", "beer", "drink", "price", "tab"], says: `"A beer's thirty pesetas," says Pelayo. "You haven't got thirty. Don't ask for credit, I've seen your face on a wanted list."` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro", "round", "when"], says: `"Regular as the post," says Pelayo. "He does El Charlie, a beer, then down the Avenida to La Ópera, back by the Avenida to the post for his letter, then the Avenida again, and round to me. He gives each door four minutes and not a second more, because a man who stays is a man who gets noticed."` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro", "round", "when"], says: `"Regular as the post," says Pelayo. "He does El Charlie, a beer, then down the Avenida to La Ópera, back by the Avenida to the post for his letter, then the Avenida again, and round to me. He gives each door four minutes and not a second more, because a man who stays is a man who gets noticed."` },
       default: `"Not my business," says Pelayo. "My business is that glass."`
     },
     give: `"I take cash or I take nothing," says Pelayo, and hands it back.` },
@@ -523,7 +520,7 @@ const objects = {
       eyes: { open: true, label: "her eyes", words: ["eyes", "face", "kohl", "makeup", "make-up", "tired"], opens: ["tape"], says: `"My eyes look bad because my kohl pot is empty," she says. "Fifteen years I've used the same black, and the shop that sold it has gone out of business. A sweep's soot does for a lady what a pot can't, and the only sweep left is on the roof of the casa tomada."` },
       tape: { label: "the tape", words: ["tape", "cassette", "cuco"], says: `"Cuco's tape," she says, and does not smile. "He left it with me the night he stopped speaking to me. It has the one song he can't play and can't live without. If somebody brought me a bit of the black stuff for my eyes, I could spare it."` },
       name: { label: "your name", words: ["name", "javier", "emperor", "emperador"], says: `"You've been the Emperor since you were a joke someone told," she says. "Before that you were Javier, from the third floor, with the cough. Matilde the portera fed you on the stair. Nicanor's got it written down somewhere."` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"The Minister? Don't try to buy. He has a manner of looking at money like a priest at a bikini," says Marisol. "He takes favours. And he's on his round: ask at El Charlie, they keep his hours."` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"The Minister? Don't try to buy. He has a manner of looking at money like a priest at a bikini," says Marisol. "He takes favours. And he's on his round: ask at El Charlie, they keep his hours."` },
       default: `"I don't know about that, love," says Marisol, "but if you find out, tell the lamp."`
     },
     give: `"Not for me, love," says Marisol. "I only take what I can use."` },
@@ -538,7 +535,7 @@ const objects = {
     talk: `"Next," says Doña Remedios, though there is no one else. "Name, street, floor, in that order. Not that order. Floor first."`,
     topics: {
       post: { open: true, label: "the post", words: ["post", "letters", "mail", "sack", "stamp", "work", "van"], says: `"I sort what comes, I stamp what goes, I return what has nobody to go to," says Doña Remedios. "Nine out of ten are returns. People move faster than their addresses."` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro", "letter", "post"], says: `"Every Saturday, a registered letter, his pension from the Pharmacists' College," says Doña Remedios. "The only money he takes, and he calls it a refund. He signs with a hand like a prescription. A struck-off chemist, if you want my opinion, and nobody has asked for it."` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro", "letter", "post"], says: `"Every Saturday, a registered letter, his pension from the Pharmacists' College," says Doña Remedios. "The only money he takes, and he calls it a refund. He signs with a hand like a prescription. A struck-off chemist, if you want my opinion, and nobody has asked for it."` },
       matilde: { label: "Matilde", words: ["matilde", "portera", "peláez", "pelaez", "funeral"], says: `"Thirty years of Matilde's letters to a boy on the third floor of number nine, and thirty years of 'Return to sender: not known'," says Doña Remedios. "Javier Ortega, Calle Hierro nine. She never stopped writing. I never stopped sending them back. Don't look at me: I stamp what's stamped."` },
       default: `"I cannot stamp that," says Doña Remedios, and stamps something else.`
     },
@@ -553,7 +550,7 @@ const objects = {
       rooms: { open: true, label: "a room", words: ["room", "rooms", "bed", "night", "hour", "rent"], says: `"Eight pesetas an hour, thirty a night, and no questions at either rate. The only room I don't rent is seven. That one's taken, by a lady who pays on the first."` },
       book: { open: true, opens: ["name"], label: "the Book of Hours", words: ["book", "ledger", "hours", "names", "register"], says: `"Every name that has ever stayed here is in the Book," says Don Nicanor. "Even yours. Javier Ortega, number seven, 1979, third night. A baby with a cough, in a room with no heating, and a mother on the late shift. The portera from the corner of Calle Hierro brought a pan of soup up the stairs. I remember because you were a better sleeper than your mother."` },
       marisol: { label: "Marisol", words: ["marisol", "seven", "tenant"], says: `"Room seven is Marisol's," says Don Nicanor. "She pays on the first and she has never once slammed a door. If you want to see how a lady lives, go up and look. She does not mind. She leaves it open."` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"A gentleman," says Don Nicanor. "He rented the corner room by the night for forty years, until the night he did not. I do not ask what a gentleman carries in his case, and a gentleman does not tell me."` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"A gentleman," says Don Nicanor. "He rented the corner room by the night for forty years, until the night he did not. I do not ask what a gentleman carries in his case, and a gentleman does not tell me."` },
       default: `"I could not say," says Don Nicanor, and writes something in the Book.`
     },
     give: `"Thank you, but I run a very strict establishment," says Don Nicanor, and gives it back.` },
@@ -577,7 +574,7 @@ const objects = {
     talk: `"Darling," says Doña Aurora between two bars, "if you've come to listen, shut up. If you've come to drink, Gaspar is deaf."`,
     topics: {
       room: { open: true, label: "the room", words: ["room", "bar", "ópera", "opera", "stage", "singing", "sing"], says: `"Forty years ago this was the café opposite the opera house, and every chorus girl in the city took her coffee at that table," says Doña Aurora. "The opera house is a bank now. The chorus girls are grandmothers. I am the last of them still in feathers."` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro", "table", "gentleman"], says: `"Don Ildefonso? Round table, back to the wall, a carajillo he never finishes," says Doña Aurora. "He's a gentleman and he has been a minister for eleven years, because he visits his constituencies on schedule. Wait a few minutes and he'll be along, he gives me four."` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro", "table", "gentleman"], says: `"Don Ildefonso? Round table, back to the wall, a carajillo he never finishes," says Doña Aurora. "He's a gentleman and he has been a minister for eleven years, because he visits his constituencies on schedule. Wait a few minutes and he'll be along, he gives me four."` },
       tie: { label: "a black tie", words: ["tie", "black", "silk", "funeral"], says: `"A black tie? Last night he asked me for one, poor man, with his sister still warm on a slab," says Doña Aurora. "The ones I have are bow ties and yellow. Ask round the bars, darling. Someone has buried somebody."` },
       matilde: { label: "Matilde", words: ["matilde", "sister", "portera", "funeral"], says: `"Matilde Peláez, the portera of Calle Hierro nine. He never told anyone he had a sister, until she was a death," says Doña Aurora. "She kept a boy on the third floor alive with soup, and wrote him letters for thirty years. He never wrote back. The Minister says so himself, over his carajillo, every night this week."` },
       default: `"I could not say, darling," says Doña Aurora, "and I would have a chorus to say it for me."`
@@ -624,7 +621,7 @@ const objects = {
     topics: {
       sweeping: { open: true, label: "the sweeping", words: ["sweep", "sweeping", "chimney", "chimneys", "pots", "work", "job", "soot"], says: `"Eleven pots up here, and a twelfth at the works that's bigger than all of them," says Tomás. "I've swept them for forty years. Whoever sweeps a chimney keeps the soot. That's the whole of the law."` },
       brush: { open: true, label: "his brush", words: ["brush", "lost", "cane"], says: `"I left it in the dryer at the Lavandería last winter, in my overalls," says Tomás. "The latch locked on it and I'd no token to run the cycle, and the owner's in Valencia. A sweep without a brush is a man with a chimney in his head."` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"Don Ildefonso? He pays me in kindness, and I pay him in soot," says Tomás. "Every chimney he's ever sat under has been swept by a man who owed him. That's a minister, I suppose."` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"Don Ildefonso? He pays me in kindness, and I pay him in soot," says Tomás. "Every chimney he's ever sat under has been swept by a man who owed him. That's a minister, I suppose."` },
       default: `"Can't say," says Tomás. "I only know soot."` },
     give: `"That's not mine," says Tomás, "but thank you."` },
 
@@ -636,7 +633,7 @@ const objects = {
     topics: {
       band: { open: true, opens: ["strings"], label: "the band", words: ["band", "nada", "personal", "nacho", "rehearsal", "drums", "sticks"], says: `"Nada Personal. Four of us, three here: Nacho's gone to sulk. He broke a bass string on Tuesday and the music shop's shut till Monday, and he says he can't play without it, which is a lie, but a stubborn one," says Marga.` },
       strings: { label: "the strings", words: ["strings", "string", "bass", "sleeve", "pack"], says: `"Bass strings? You've got a spare pack? Bring it, and I'll give you the band's laundry fund. Fourteen tokens in a coffee tin. Nacho can wash his socks on Monday, he'll be glad to," says Marga.` },
-      dealer: { label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"The Minister? He came here once, to hear us. Stood at the back for three songs with his hat on. Left a tip in the tin. A hundred pesetas, in coins, like a hat in a church," says Marga.` },
+      dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"The Minister? He came here once, to hear us. Stood at the back for three songs with his hat on. Left a tip in the tin. A hundred pesetas, in coins, like a hat in a church," says Marga.` },
       default: `"Dunno," says Marga, and hits the bucket.`
     },
     give: `"Not mine," says Marga. "I'll take strings, though."` }
@@ -659,7 +656,7 @@ const puzzles = {
     hints: ["Marisol's kohl pot is empty, and sweeps' soot does for the eyes what a pot cannot.", "Give the soot to Marisol on the corner, and she will give you Cuco's tape."] },
   tape_for_tie: { where: "charlie", needs: ["cinta"], solve: ["give tape to cuco"], gives: ["corbata"], clues: ["cuco", "pintada"],
     hints: ["Cuco's tape is on the corner, and he owns the one black tie the Minister needs.", "Give the tape to Cuco, at El Charlie, and take the black tie."] },
-  corona: { where: "avenida", needs: ["corbata"], solve: ["give tie to minister", "say emperor"], ending: true, clues: ["ministro", "posavasos", "cuco"],
+  corona: { where: "avenida", needs: ["corbata"], solve: ["give tie to minister", "say emperor"], ending: true, clues: ["ministro", "cuco"],
     hints: ["The Minister takes no money, and wants a black tie for a morning funeral. He will ask in whose name he writes it.", "Give the tie to the Minister, and tell him you are the Emperor."] },
   nombre: { where: "avenida", needs: ["corbata"], solve: ["give tie to minister", "say javier"], ending: true, clues: ["ministro", "marisol", "nicanor"],
     hints: ["Marisol and Don Nicanor both remember a name that is not the Emperor.", "Give the tie to the Minister, and tell him you are Javier."] }
@@ -713,10 +710,10 @@ const rules = [
 
 // ---- The opening, declared (BRIEF.md §3) ----------------------------------------------------------------------------------------
 const opening = {
-  room: "callejon", hints: "radio", intro: "posavasos", way: "puerta",
+  room: "callejon", hints: "radio", way: "puerta",
+  intro: "You are the Emperor of Prosperidad, and tonight the Emperor wants something. The Minister has it: he walks his round of the bars every night, and he doesn't take money. A beer mat told you so, in capitals, before the wind had it. It is one in the morning, and you have no money anyway.",
   lines: {
-    hintFrame: "You put the radio to your ear. On the late-night call-in a caller says:",
-    farewell: "The wind takes the mat out of your hand, reads the back to the alley, then lets it go."
+    hintFrame: "You put the radio to your ear. On the late-night call-in a caller says:"
   }
 };
 

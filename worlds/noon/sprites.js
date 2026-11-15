@@ -20,25 +20,6 @@ export default {
     "....00000000....",
     "................"
   ],
-  // A folded letter with a red seal.
-  letter: [
-    "................",
-    "................",
-    "..000000000000..",
-    "..0ffffffffff0..",
-    "..0f0000000f0f0.",
-    "..0ffffffffff0..",
-    "..0f00000000f0..",
-    "..0ffffffffff0..",
-    "..0f000000fff0..",
-    "..0fffff00ffff0.",
-    "..0fffff04c0ff0.",
-    "..0fffff0440ff0.",
-    "..0ffffff00fff0.",
-    "..000000000000..",
-    "................",
-    "................"
-  ],
   // A paper packet of brass fishhooks, three showing.
   hooks: [
     "................",

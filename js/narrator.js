@@ -3,12 +3,12 @@
 // without words of their own (a move, a set) say nothing: the rule that caused them says what happened.
 // Pure: never touches the page or the state.
 
-import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.56.0";
-import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.56.0";
-import { activeIds, conditionTone } from "./conditions.js?v=0.56.0";
-import { placeOf, noticed } from "./place.js?v=0.56.0";
-import { isMover } from "./movers.js?v=0.56.0";
-import { clean } from "./shapes.js?v=0.56.0";
+import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.57.0";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.57.0";
+import { activeIds, conditionTone } from "./conditions.js?v=0.57.0";
+import { placeOf, noticed } from "./place.js?v=0.57.0";
+import { isMover } from "./movers.js?v=0.57.0";
+import { clean } from "./shapes.js?v=0.57.0";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -177,6 +177,14 @@ export function describe(state, roomId, pack, without = []) {
   if (inside && roomId === state.player.at)
     lines.push({ text: text(inside.enterable === "on" ? "@youAreOn" : "@youAreIn", pack, listName(state.player.in, state, pack), undefined, undefined, whoOf(inside)) });
   return lines;
+}
+
+// The world's intro (its opening's `intro`, BRIEF.md §3): the short text shown once as a new game starts, in a paragraph of its own above
+// the start room's (js/main.js, begin), read as a room's text is ([time], [way]). Never again: a game continued or loaded shows its kept
+// story. [] for a world with none (a placeholder game).
+export function introOf(state, pack) {
+  const t = state.opening?.intro;
+  return typeof t === "string" && t.trim() ? [{ text: timed(text(t, pack), state, pack) }] : [];
 }
 
 // Is a thing's `here` line said where it lies? A thing that can be taken: until it is first taken (decision 33, Inform's initial

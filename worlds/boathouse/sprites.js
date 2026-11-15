@@ -20,25 +20,6 @@ export default {
     ".....000000.....",
     "................"
   ],
-  // A ferry ticket, third class, punched once.
-  ticket: [
-    "................",
-    "................",
-    ".0000000000000..",
-    ".0fffffffffff0..",
-    ".0f1111111f1f0..",
-    ".0fffffffffff0..",
-    ".0f11111f111f0..",
-    ".0fffffffffff0..",
-    ".0f111111fffff0.",
-    ".0fffffffffff0..",
-    ".0f1f1f1f1ffff0.",
-    ".0fffffffffff0..",
-    ".0000000000000..",
-    "................",
-    "................",
-    "................"
-  ],
   // An iron key on a loop of wet string.
   boat_key: [
     "................",

@@ -2,15 +2,15 @@
 // Plain data, no behaviour. Only the engine (js/engine.js) makes a new one; everything else only reads it.
 // Interface-only things (text reveal, focus, "restarting…") stay out.
 
-import { worldFor, DEFAULT } from "../worlds/index.js?v=0.56.0";
-import { applyChangeSet } from "./engine.js?v=0.56.0";
-import { newSeed } from "./random.js?v=0.56.0";
+import { worldFor, DEFAULT } from "../worlds/index.js?v=0.57.0";
+import { applyChangeSet } from "./engine.js?v=0.57.0";
+import { newSeed } from "./random.js?v=0.57.0";
 
 // The shape of the state. Bump it when the state changes shape, so older saved games aren't loaded into code
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
 // 11: `fired`, the `once` rules that have had their one time. 12: every key starts in blank(). 13: `pictures` (pictures that
 // aren't a room's) and `ending` (the one the story ended with).)
-export const FORMAT = 18;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh). 17: the engine audit (the worlds' rules became facts on their things; older saves hold the old rules, so they start afresh). 18: the start room (no `entrance`, no opening puzzles or way rules; older saves start afresh)
+export const FORMAT = 19;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh). 17: the engine audit (the worlds' rules became facts on their things; older saves hold the old rules, so they start afresh). 18: the start room (no `entrance`, no opening puzzles or way rules; older saves start afresh). 19: the shown intro (the opening's `intro` is a text; older saves hold the carried intro thing and its rules, so they start afresh)
 
 // Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit takes what it takes (1 to 5,
 // the checker holds worlds to the scale: BRIEF.md §5), with no warning turn; at 0 the story ends.
@@ -37,7 +37,7 @@ export function newState({ lang, health = 5, seed = newSeed(), sequel = true, pr
 function blank({ lang, health, seed }) {
   return {
     worldId: null,                 // which world of worlds/index.js this game plays (beginning again keeps it)
-    opening: null,                 // the world's opening, as it declared it (js/opening.js): its start room, hints, intro, way out, lines
+    opening: null,                 // the world's opening, as it declared it (js/opening.js): its start room, hints, way out, intro (a text), lines
     format: FORMAT,                // the state's shape (see FORMAT)
     properties: {},                // the properties the world declared: "thing.name" → { type, min?, max?, start? } (js/fields.js)
     warnings: [],                  // what the world's file got wrong, found when it loaded (js/fields.js); it still plays

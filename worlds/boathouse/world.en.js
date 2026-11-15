@@ -1,10 +1,10 @@
 // "The Lake Lights It Again": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -18,7 +18,7 @@ export const bible = {
   tone: "The everyday, slightly wrong (BRIEF §6): a small lake village that keeps a missing man's habits as if he were late, not gone. " +
     "Plain, tender and dry. Water, wood, lamp oil and slate. Nobody is amazed that the lake keeps lights.",
   start: "Sunday, 17:10, in the funicular car, at the foot of its tunnel, west of the quay.",
-  opening: "A funicular car stopped in its tunnel: a green bottle with a voice in it (hints), a ferry ticket you already carry (why you came). " +
+  opening: "A funicular car stopped in its tunnel: a green bottle with a voice in it (hints); the intro, a ferry ticket's \"Row home before the lamps go out\" (why you came). " +
     "The iron grille at the lower end, on a bright arch, is the way out, onto the quay; the red lever by the door rolls it aside.",
   music: "wistful dorian; a bottle played like a flute, a chapel bell, oarlocks knocking in the dark; the village heard across water",
   rules: [
@@ -249,14 +249,11 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // The start room's things: the bottle (hints), the ticket (intro), the grille (the way out) and the lever that rolls it aside.
+  // The start room's things: the bottle (hints), the grille (the way out) and the lever that rolls it aside.
   bottle: { at: "car", portable: true, material: "glass", name: "Green bottle", note: "A voice, corked.",
     here: "A {green bottle|bottle} stands on the bench by the window, corked, with a small light moving in it.",
     words: { nouns: ["bottle"], adj: ["green"] },
     examine: "A green glass bottle, corked with a stub of cork. Inside, instead of a message, a small voice, which clears its throat whenever you look at it.", ...item("bottle") },
-  ticket: { at: "player", portable: true, material: "paper", name: "Ferry ticket", note: "One crossing, not yet used.",
-    words: { nouns: ["ticket"], adj: ["ferry"] },
-    examine: "A ferry ticket, one crossing, stamped with a sunset and no date. On the back, in your handwriting: \"Row home before the lamps go out.\"", ...item("ticket") },
   grille: { at: "car", name: "Grille", note: "Slid half open.", material: "metal",
     words: { nouns: ["grille", "bars"], adj: ["iron"] }, leads: "e",
     examine: "An iron grille on a runner, slid half across the bright arch below. The gap is the width of a bottle." },
@@ -370,7 +367,7 @@ const puzzles = {
     hints: ["The lantern wants oil in its font, and then a flame.", "Fill the lantern with the oil, then light it."] },
   hang_lamp: { where: "jetty", needs: ["lit_lantern"], solve: ["wait for dusk", "hang lantern on post"], ending: true, clues: ["post", "pell", "lit_lantern"],
     hints: ["The post at the end of the jetty has a hook at lamp height, bright at the tip.", "Wait on the jetty for the windows to light, then hang the lit lantern on the post."] },
-  row_out: { where: "boathouse", needs: ["oars", "lit_lantern"], solve: ["wait for night", "enter boat", "row"], ending: true, clues: ["boat", "ticket", "pell"],
+  row_out: { where: "boathouse", needs: ["oars", "lit_lantern"], solve: ["wait for night", "enter boat", "row"], ending: true, clues: ["boat", "pell"],
     hints: ["The boat leaves the shore only for someone who carries a light, and the island's lamp is dark.", "Wait in the boathouse until the island is ready for it, then get into the boat with the oars and the lit lantern and row."] },
   walk_street: { where: "jetty", needs: [], solve: ["wait for dusk", "go north"], ending: true, clues: ["street", "post"],
     hints: ["The reflection of the jetty is keeping something back for the evening, and the village lights its windows at dusk.", "Wait on the jetty for the windows to light, then go north, off the end of the jetty."] }
@@ -542,10 +539,10 @@ export default {
   ],
   properties: { "lantern.fueled": { type: "boolean", start: false }, "lever.pulled": { type: "boolean", start: false } },
   opening: {
-    room: "car", hints: "bottle", intro: "ticket", way: "grille",
+    room: "car", hints: "bottle", way: "grille",
+    intro: "You are going down to the lake village by the funicular, for one crossing at nightfall. Your ferry ticket was stamped with a sunset and no date, and on the back, in your own handwriting, it said: Row home before the lamps go out. You don't remember writing it.",
     lines: {
-      hintFrame: "The cork twitches, and from the bottle someone says:",
-      farewell: "The ticket goes soft in your fingers and is a small piece of lake, which runs off your sleeve."
+      hintFrame: "The cork twitches, and from the bottle someone says:"
     }
   },
   effects: [

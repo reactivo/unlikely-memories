@@ -2,10 +2,10 @@
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -18,8 +18,8 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Department-store manners: mahogany, brass, floorwalkers, cash railways, a store that " +
     "has never quite managed to close.",
   start: "Saturday, 17:10, in the arcade behind the store, south of the ground floor.",
-  opening: "The arcade behind the store, at ten past five: a wireless (hints), a " +
-    "shopping list you already carry (why you came). The revolving door is the way in: push it, and it brings round a gap for you.",
+  opening: "The arcade behind the store, at ten past five: a wireless (hints); the intro, a " +
+    "shopping list with its second line rubbed out (why you came). The revolving door is the way in: push it, and it brings round a gap for you.",
   music: "an unhurried palm-court waltz; perfume bottles that sing, the cash railway's brass and canisters, a lift bell " +
     "for a floor nobody asked for; a store that plays on past closing",
   rules: [
@@ -248,14 +248,11 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the thing to take, the one you carry, and the way in (BRIEF.md §3).
+  // The opening: the thing to take and the way in (BRIEF.md §3).
   wireless: { at: "pavement", portable: true, material: "stone", name: "Wireless", note: "Reading out the departments.",
     words: { nouns: ["wireless", "radio"], adj: ["cream", "small"] }, ...item("wireless"),
     here: "On the sill of the nearest window a small {wireless} murmurs to itself.",
     examine: "A cream wireless the size of a loaf, tuned between two stations. A woman's voice reads out the departments of Hartley's, one floor at a time, and starts again at the top." },
-  shopping_list: { at: "player", portable: true, material: "paper", name: "Shopping list", note: "Mostly rubbed out.",
-    words: { nouns: ["list"], adj: ["shopping", "pencil", "folded"] }, ...item("shopping_list"),
-    examine: "In your own pencil: \"Something I should remember.\" Under it, rubbed out so often the paper has worn through, a second line." },
   street_door: { at: "pavement", door: "n", material: "glass", name: "Revolving door", note: "Turning, with nobody in it.", actions: ["Push"],
     words: { nouns: ["door", "bar"], adj: ["revolving", "brass", "front"] },
     examine: "Brass and glass, turning slowly with nobody in it. Each pane shows a slightly later afternoon than the one before. The brass bar across it says PUSH, in letters worn thin by hands." },
@@ -549,12 +546,12 @@ const puzzles = {
 };
 
 // ---- The change set -----------------------------------------------------------------------------------------------------
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says --------------------
+// ---- The opening, declared (BRIEF.md §3): the ids of its room and two things, its intro, and the line it says --------------
 const opening = {
-  room: "pavement", hints: "wireless", intro: "shopping_list", way: "street_door",
+  room: "pavement", hints: "wireless", way: "street_door",
+  intro: "You came out this afternoon with a shopping list of one line, in your own pencil: \"Something I should remember.\" There was a second line under it, rubbed out until the paper wore through. Hartley's sells everything. It will have that too, if you are quick: the store is about to close.",
   lines: {
-    hintFrame: "The wireless goes quiet between two departments, and a voice, quite kindly, says:",
-    farewell: "You fold the list once, and it keeps folding, smaller, until you are holding nothing, carefully."
+    hintFrame: "The wireless goes quiet between two departments, and a voice, quite kindly, says:"
   }
 };
 

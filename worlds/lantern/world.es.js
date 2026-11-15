@@ -2,10 +2,10 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -20,7 +20,7 @@ export const bible = {
     "de policía; una muerte sin una sola marca en el cuerpo. Tierno: el crimen es una bondad dicha a destiempo.",
   start: "Jueves, 22:30, en el coche, detenido en la niebla en Lantern Row.",
   opening: "Dentro de un coche de punto detenido en la niebla en Lantern Row, la sala de inicio: un canario en " +
-    "una jaula (pistas), una citación que ya llevas (por qué has venido), un chelín en el asiento para la carrera. La niebla " +
+    "una jaula (pistas); la introducción, una citación a la investigación (por qué has venido); un chelín en el asiento para la carrera. La niebla " +
     "en las portezuelas plegables es la salida, y se aparta, como un portero, en cuanto se le paga.",
   music: "vals de salón lento en menor armónica; el aliento de una llama de gas, un arpa de faroles y las botas de un " +
     "agente; un disco viejo que sigue sonando en la niebla",
@@ -297,14 +297,11 @@ const rooms = {
 
 // ---- Objetos -----------------------------------------------------------------------------------------------------------
 const objects = {
-  // La sala de inicio: la cosa de las pistas, la que ya llevas, la salida y la carrera que la abre (BRIEF.md §3).
+  // La sala de inicio: la cosa de las pistas, la salida y la carrera que la abre (BRIEF.md §3).
   canary: { at: "cab", portable: true, material: "metal", name: "Canario", note: "Vigilando la niebla por ti.",
     words: { nouns: ["canario", "pajaro", "ave", "jaula", "pajarito"], adj: ["amarillo", "laton", "pequeno", "pequeño", "dorado"], g: "m" }, ...item("canary"),
     here: "De un gancho del techo cuelga un {canario|canary} en una pequeña jaula de latón, vigilando la niebla por ti.",
     examine: "Un canario amarillo en una jaula de latón del tamaño de un sombrero. Los mineros los bajan a la mina para saber cuándo el aire se echa a perder. A este lo han traído a Londres, donde tiene mucho que decir." },
-  summons: { at: "player", portable: true, material: "paper", name: "Citación", note: "Doblada, oficial.",
-    words: { nouns: ["citacion", "citatorio", "papel", "documento", "carta"], adj: ["doblada", "oficial", "judicial"], g: "f" }, ...item("summons"),
-    examine: "«Se cita como testigo en la investigación de la muerte de Albert Fenn, farolero, de Lantern Row. El tribunal se reúne a medianoche». Bajo el sello, con otra letra, más pequeña: «El difunto estará presente»." },
   cab_fog: { at: "cab", leads: "out", name: "Niebla", note: "La única salida.",
     words: { nouns: ["niebla", "portezuelas", "portezuela", "puertas", "puerta", "blanco", "bruma", "coche", "coche de punto"], adj: ["plegables", "abiertas", "espesa", "blanca", "punto"], g: "f" },
     examine: "Las portezuelas plegables del coche están abiertas a una niebla tan espesa que tiene veta, como el papel. En algún punto de ella, muy lejos, hay un farol encendido, o recordado." },
@@ -730,12 +727,12 @@ const puzzles = {
     hints: ["El doctor Mabbott quiere un nombre, y el señor Voss espera que sea el suyo.", "En el tribunal, acusa al señor Voss, y di que sí."] }
 };
 
-// ---- La apertura, declarada (BRIEF.md §3): la sala de inicio, la cosa de las pistas, la que llevas y la salida, y las dos líneas
+// ---- La apertura, declarada (BRIEF.md §3): la sala de inicio, la cosa de las pistas y la salida, la introducción y la línea que dice
 const opening = {
-  room: "cab", hints: "canary", intro: "summons", way: "cab_fog",
+  room: "cab", hints: "canary", way: "cab_fog",
+  intro: "Te han citado como testigo en la investigación de la muerte de Albert Fenn, farolero, de Lantern Row. El tribunal se reúne a medianoche. Bajo el sello de la citación, con otra letra, más pequeña, alguien añadió: el difunto estará presente.",
   lines: {
-    hintFrame: "El canario ladea la cabeza y canta, con una voz de agente de policía muy pequeño:",
-    farewell: "La niebla se asoma por las portezuelas y lee la citación por encima de tu hombro. Cuando termina, se la lleva, y la dejas."
+    hintFrame: "El canario ladea la cabeza y canta, con una voz de agente de policía muy pequeño:"
   }
 };
 

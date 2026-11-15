@@ -139,25 +139,6 @@ export default {
     ".000000."
   ],
 
-  // A folded diary leaf, pencil lines on yellowed paper (the opening's intro).
-  diary_leaf: [
-    "................",
-    "................",
-    "....000000......",
-    "...0eeeeee00....",
-    "...0e0e0e0ee0...",
-    "...0eeeeeeeee0..",
-    "...0e0e0e0e0e0..",
-    "...0eeeeeeeee0..",
-    "...0e0e0e0eee0..",
-    "...0eeeeeeeee0..",
-    "...0e0e0e0e0e0..",
-    "....0eeeeeee0...",
-    ".....0000000....",
-    "................",
-    "................",
-    "................"
-  ],
   // The booking clerk (she moves: there from nine at night to six in the morning): head and shoulders, beside her examine.
   booking_clerk: [
     "......0880......",

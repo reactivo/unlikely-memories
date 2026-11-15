@@ -116,25 +116,6 @@ export default {
     ".07880..........",
     "..000..........."
   ],
-  // A round beer mat, white, with lines of writing across it and a red stroke under them.
-  posavasos: [
-    "................",
-    "......0000......",
-    "....00ffff00....",
-    "...0fff77fff0...",
-    "..0ff777777ff0..",
-    "..0f00000000f0..",
-    ".0ff77777777ff0.",
-    ".0f7000000007f0.",
-    ".0f7777777777f0.",
-    ".0ff0000000fff0.",
-    "..0f77777777f0..",
-    "..0ff444447ff0..",
-    "...0fff77fff0...",
-    "....00ffff00....",
-    "......0000......",
-    "................"
-  ],
   // A paper envelope of bass strings: white, a red stamp, a grey flap.
   cuerdas: [
     "................",

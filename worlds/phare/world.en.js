@@ -1,10 +1,10 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -38,7 +38,7 @@ export const bible = {
     "The painted lighthouse lights its lamp only when the real lens is lit.",
     "The street doors are chained after the last visitor, and the way out is never the way in."
   ],
-  opening: "A packing van backed against the Galerie's loading dock: a speaking horn on a nail (hints), a calling card you carry (why you are here), and the hatch in the floor, which opens down into the cellar, nailed down for the drive; a rope on its ring lifts it.",
+  opening: "A packing van backed against the Galerie's loading dock: a speaking horn on a nail (hints), the intro, a calling card's instructions (why you are here), and the hatch in the floor, which opens down into the cellar, nailed down for the drive; a rope on its ring lifts it.",
   music: "wry dorian; a plucked bell-wire, a reed speaking horn and the glass chime of a lens; a watch-clock ticking in a big quiet house",
   characters: ["Gaspard, the watchman", "Madame Lenoir, the voice in the horn"],
   endings: ["The bell: take the picture before the lens is lit.", "Carried: the canvas over the roofs and down a drainpipe.", "The keeper: turn the lit lens over Paris."],
@@ -260,11 +260,6 @@ const objects = {
     here: "A brass speaking {horn} hangs on a nail by the tailboard, murmuring.",
     words: { nouns: ["horn"], adj: ["speaking", "brass"] }, ...item("horn"),
     examine: "A brass horn on a long tube that runs under the tarpaulin to somewhere warm. It listens, and sometimes it answers."
-  },
-  card: {
-    at: "player", portable: true, material: "paper", name: "Calling card", note: "Cream and curled.",
-    words: { nouns: ["card"], adj: ["calling"] }, ...item("card"),
-    examine: "Aubry & Fils, Quai Voltaire. Come after the last visitor. On the back, in a quick hand: Bring patience. The picture likes the dark."
   },
   hatch: {
     at: "cart", name: "Hatch", note: "Nailed down.", leads: "d",
@@ -508,10 +503,10 @@ const puzzles = {
 
 // ---- The opening, declared (BRIEF.md §3) ------------------------------------------------------------------------------
 const opening = {
-  room: "cart", hints: "horn", intro: "card", way: "hatch",
+  room: "cart", hints: "horn", way: "hatch",
+  intro: "Tonight you are the crew's hands. The job is one painting from the Galerie Aubry, on the Quai Voltaire: a lighthouse at night. The calling card said to come after the last visitor, and on the back, in a quick hand: Bring patience. The picture likes the dark.",
   lines: {
-    hintFrame: "The horn crackles, and Madame Lenoir says:",
-    farewell: "The card goes into the lantern flame and is smoke before you can read it twice."
+    hintFrame: "The horn crackles, and Madame Lenoir says:"
   }
 };
 

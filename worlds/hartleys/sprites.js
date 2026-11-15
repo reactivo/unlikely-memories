@@ -88,25 +88,6 @@ export default {
     "000000000"
   ],
 
-  // A shopping list, one line underlined in red (the opening's intro).
-  shopping_list: [
-    "................",
-    "..00000000000...",
-    "..0fffffffff0...",
-    "..0f8888f88f0...",
-    "..0fffffffff0...",
-    "..0f88888f8f0...",
-    "..0fffffffff0...",
-    "..0f8f8888ff0...",
-    "..0fffffffff0...",
-    "..0f88f888f0....",
-    "..0fffffffff0...",
-    "..0f8888cccf0...",
-    "..0fffffffff0...",
-    "..0fffffffff0...",
-    "..00000000000...",
-    "................"
-  ],
   // Mr Gage's face: a tall man with slicked black hair, a long face, a white wing collar and a carnation on the lapel of a black morning coat.
   gage_portrait: [
     "................",

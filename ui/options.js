@@ -5,7 +5,7 @@
 // sound switch, Esc closes it; until 15 November 2026 the Music slider, which showed the keyboard ring on a phone); closing
 // returns the focus to the command line.
 
-import { hang } from "./popup.js?v=0.56.0";
+import { hang } from "./popup.js?v=0.57.0";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {
@@ -16,7 +16,7 @@ export function mount(panel, on) {
   // Opening: focus the panel. Closing: focus the command line.
   // While open, both settings buttons say so (aria-expanded: yellow, as an open tab; ui/tools.css).
   const mark = (open) => { for (const b of buttons) b.setAttribute("aria-expanded", String(open)); };
-  hang(panel, buttons, { opened: () => { mark(true); panel.focus(); }, closed: () => { mark(false); on.focus(); } });
+  hang(panel, buttons, { opened: () => { mark(true); panel.focus({ preventScroll: true }); }, closed: () => { mark(false); on.focus(); } });
   restart.addEventListener("click", () => { panel.hidePopover(); on.restart(); });
   quit.addEventListener("click", () => { panel.hidePopover(); on.quit(); });
 

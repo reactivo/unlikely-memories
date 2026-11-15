@@ -7,10 +7,10 @@
 // la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -22,7 +22,7 @@ export const bible = {
     "recipientes, gente y preguntas, una palanca, una azotea. Aquí no hay historia. Todo lo que hay funciona.",
   tone: "Llano y corto. Cada sala dice para qué sirve y enseña una sola cosa. Ninguna broma que estorbe a la prueba.",
   start: "Lunes, mediodía, en la sala de admisión, al sur del centro.",
-  opening: "Una sala de admisión al sur del centro, que se deja por su torniquete con la ficha del platillo: un auricular (pistas) y una papeleta que ya llevas.",
+  opening: "Una sala de admisión al sur del centro, que se deja por su torniquete con la ficha del platillo: un auricular (pistas); una papeleta que ya llevas; la introducción dice que vienes a probarlo todo.",
   music: "dórico lento; un hilo de señal y una campana de banco; un tono de prueba que nunca se asienta",
   rules: [
     "Cada sala sirve para un mecanismo, y lo enseña una vez.",
@@ -360,14 +360,15 @@ const rooms = {
 
 // ---- Objetos ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // La sala de inicio: la cosa de las pistas, la introducción que llevas, la salida, y la ficha que la abre (BRIEF.md §3).
+  // La sala de inicio: la cosa de las pistas, la salida, y la ficha que la abre (BRIEF.md §3); y la papeleta, una cosa corriente que
+  // llevas desde el principio (un mundo puede empezar con algo en tus manos, como cualquier cosa: el motor no hace nada especial con ella).
   handset: { at: "tb-start", portable: true, material: "stone", name: "Auricular", note: "Una voz, esperando.",
     words: { nouns: ["auricular", "telefono"], adj: ["gris"], g: "m" }, ...item("handset"),
     here: "Un {auricular|handset} cuelga de un gancho junto al torniquete, crepitando para sí.",
     examine: "Un auricular gris con un cable enroscado. Escúchalo, y te dice qué probar." },
   slip: { at: "player", portable: true, material: "paper", name: "Papeleta", note: "Tu papeleta de prueba.",
     words: { nouns: ["papeleta", "hoja"], adj: ["prueba", "blanca"], g: "f" }, ...item("slip"),
-    examine: "Una papeleta blanca: «Probador. Prueba todo. Informa de lo que se rompa»." },
+    examine: "Una papeleta blanca con una casilla para cada sala del piso. Todavía no hay ninguna marcada." },
   gate: { at: "tb-start", door: "n", material: "metal", name: "Torniquete", note: "Hacia el centro.",
     words: { nouns: ["torniquete", "puerta"], adj: ["acero"], g: "m" },
     examine: "Un torniquete de tres barras de acero, con una ranura para una ficha. Gira en un solo sentido." },
@@ -701,7 +702,7 @@ const changes = {
 // ---- Reglas ----------------------------------------------------------------------------------------------------------------
 const rules = [
   // La salida de la sala de inicio: la ficha en la ranura del torniquete la abre (una regla que `connect`a la salida). Las reglas de
-  // la cosa de las pistas y de la introducción salen de la declaración.
+  // la cosa de las pistas salen de la declaración.
   { id: "turnstile_token", match: { verb: ["put", "use"], obj: "token", obj2: "gate" }, if: [{ "token.at": "player" }],
     do: [{ say: "El torniquete se traga la ficha y hace clic. Sus barras ya giran." }, { move: "token", to: null },
          { connect: "tb-start", dir: "n", to: "tb-hub" }] },
@@ -864,10 +865,11 @@ const puzzles = {
 
 // ---- La apertura, declarada: la sala de inicio (BRIEF.md §3) -------------------------------------------------------------------
 const opening = {
-  room: "tb-start", hints: "handset", intro: "slip", way: "gate",
+  room: "tb-start", hints: "handset", way: "gate",
+  // La introducción: se muestra una vez al empezar una partida, encima del texto de la sala de inicio, leída como el de una sala ([time]).
+  intro: "Eres quien prueba, y entras en el turno de [time]. Esto es el piso de pruebas: un centro, y desde él un camino corto hasta cada cosa que el juego sabe hacer. Las órdenes son breves: prueba todo, e informa de lo que se rompa.",
   lines: {
-    hintFrame: "El auricular crepita. Una voz plana dice:",
-    farewell: "La papeleta se lee, y se pone gris, y desaparece."
+    hintFrame: "El auricular crepita. Una voz plana dice:"
   }
 };
 

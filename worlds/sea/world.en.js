@@ -5,10 +5,10 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.
@@ -21,8 +21,8 @@ export const bible = {
     "with their coat, a letter in their handwriting, a bathing hut with their number. Across the water, a dark " +
     "lighthouse burns only what you are willing to forget.",
   tone: "WRITING-DIRECTION.md: the everyday, slightly wrong; calm, concise, with echoes of what could have been.",
-  opening: "Corridor 7-B at the Ministry, a Monday morning, level minus four, under the beach: a suggestion box (hints), a " +
-    "memo you already carry (why you came). The small green door that breathes is the way out: knock, and give it your name.",
+  opening: "Corridor 7-B at the Ministry, a Monday morning, level minus four, under the beach: a suggestion box (hints); the intro, a Ministry memo about a door " +
+    "that is not there (why you came). The small green door that breathes is the way out: knock, and give it your name.",
   music: "a palm-court waltz in mixolydian, slowed to a quarter past five; a radio in the dunes and the carousel's music " +
     "box; the sea breathing on the sand",
   rules: [
@@ -394,14 +394,11 @@ const rooms = {
 // "order" verb can name it anyway, ARCHITECTURE.md §3.)
 
 const objects = {
-  // The start room: the hints thing, the intro you carry, and the way out, which opens to a knock (BRIEF.md §3).
+  // The start room: the hints thing and the way out, which opens to a knock (BRIEF.md §3).
   suggestion_box: { at: "corridor", portable: true, material: "wood", name: "Suggestion box", note: "Someone is reading it aloud.",
     words: { nouns: ["box", "slot"], adj: ["suggestion", "wooden", "brass"] }, ...item("suggestion_box"),
     here: "Under the poster, a {suggestion box|suggestion_box} hangs by one screw.",
     examine: "A small wooden box with a brass slot, labelled \"Suggestions.\" It has not been emptied in your time, and it is not full. From inside, very faintly, a voice is reading." },
-  memo: { at: "player", portable: true, material: "paper", name: "Ministry memo", note: "Folded in four.",
-    words: { nouns: ["memo", "memorandum"], adj: ["ministry", "folded"] }, ...item("memo"),
-    examine: "A Ministry memo, folded in four, the seal still green. \"To all staff: a door has been reported on level minus four. It is not there. Please do not use it.\"" },
   green_door: { at: "corridor", door: "u", material: "wood", name: "Green door", note: "Small, and breathing.", actions: ["Knock"],
     words: { nouns: ["door", "keyhole", "wood"], adj: ["green", "small", "little", "breathing", "tiny"] },
     examine: "The wood is warm, like skin. It rises and falls slowly, in time with your own breathing. Above it, a brass plaque: \"Knock only if you remember your name.\"" },
@@ -871,12 +868,12 @@ const puzzles = {
                 hints: ["The sea takes your ankle and lets go, and each time it holds on longer.", "Swim from the beach three times; the third time, the sea keeps you."] }
 };
 
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says --------------------
+// ---- The opening, declared (BRIEF.md §3): the ids of its room and two things, its intro, and the line it says --------------
 const opening = {
-  room: "corridor", hints: "suggestion_box", intro: "memo", way: "green_door",
+  room: "corridor", hints: "suggestion_box", way: "green_door",
+  intro: "You file papers for the Ministry, and have done for longer than you like to count. This morning a memo went round to all staff, its seal still green: a door has been reported on your floor. It is not there, says the memo. Please do not use it.",
   lines: {
-    hintFrame: "You put your ear to the slot. Someone elsewhere in the Ministry reads out a suggestion:",
-    farewell: "The memo creases along its folds, one by one, as if being filed, and is not in your hand."
+    hintFrame: "You put your ear to the slot. Someone elsewhere in the Ministry reads out a suggestion:"
   }
 };
 

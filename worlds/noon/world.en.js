@@ -1,10 +1,10 @@
 // "The River Turns at Noon": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -22,8 +22,8 @@ export const bible = {
     "right. Sample lines: \"The rain stops as you step out, politely, as if it had been waiting for you to be ready.\" / " +
     "\"The jaguar is thin, and has noticed that you are not.\" / \"Noon has been quiet in the valley since the bell lost its tongue. Everyone has managed.\"",
   start: "Tuesday, 06:10, in the tent on the landing.",
-  opening: "A canvas tent on a mud bank, in the rain: a parrot in a cage that reads your journal aloud (hints), the Society's letter " +
-    "you already carry (why you came). The tent flap, tied half back on the wet green, is the way out, onto the landing, once your boots are on.",
+  opening: "A canvas tent on a mud bank, in the rain: a parrot in a cage that reads your journal aloud (hints), the intro, the Society's letter " +
+    "(why you came). The tent flap, tied half back on the wet green, is the way out, onto the landing, once your boots are on.",
   music: "slow in-mode river music, far away and under water; a cane flute, a log drum and a plucked tally cord; a bell that never sounds",
   rules: [
     "The river runs up the valley for the hour after noon, and carries whatever floats on it.",
@@ -262,16 +262,12 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The start room: the parrot (hints), the letter (intro), the flap (the way out) and the boots that let you through it.
+  // The start room: the parrot (hints), the flap (the way out) and the boots that let you through it.
   parrot: { at: "bivouac", portable: true, material: "wood", name: "Parrot", note: "Reads your journal aloud.",
     here: "A {parrot} sits in its cage on the chest, reading your journal aloud to nobody and getting the dates wrong.",
     words: { nouns: ["parrot", "bird", "cage"], adj: [] },
     examine: "A grey parrot with a red tail, in a wicker cage, who has been through the whole journal and has opinions. When it is quiet enough to listen, it tells you what you wrote.",
     ...item("parrot") },
-  letter: { at: "player", portable: true, material: "paper", name: "Letter", note: "The Society's orders.",
-    words: { nouns: ["letter", "orders"], adj: [] },
-    examine: "The Society's letter, Latin at the top and plain at the bottom: \"Find what the river keeps. Return with it, or with a reason.\" It is signed by a secretary, in ink that has never been wet.",
-    ...item("letter") },
   flap: { at: "bivouac", name: "Tent flap", note: "Tied half back.", leads: "n",
     words: { nouns: ["flap"], adj: ["tent"] },
     examine: "The tent flap, tied half back with a bootlace. Beyond it the bank is grey mud and the forest is a green wall that has not yet been introduced." },
@@ -541,10 +537,10 @@ export default {
     "bell.tongued": { type: "boolean", start: false }
   },
   opening: {
-    room: "bivouac", hints: "parrot", intro: "letter", way: "flap",
+    room: "bivouac", hints: "parrot", way: "flap",
+    intro: "The Society has sent you up the Ketari with a letter, Latin at the top and plain at the bottom: Find what the river keeps. Return with it, or with a reason. You have reached the last landing on the map, and the rain reached it first.",
     lines: {
-      hintFrame: "The parrot, who has read your journal, says:",
-      farewell: "The letter drinks the damp until the ink lets go of it, and then it is only a leaf, which you let fall."
+      hintFrame: "The parrot, who has read your journal, says:"
     }
   },
   effects: [

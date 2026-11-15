@@ -1,16 +1,16 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.56.0";
-import { grammarOf } from "./words.js?v=0.56.0";
-import { parse } from "./parser.js?v=0.56.0";
-import { answers } from "./engine.js?v=0.56.0";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.56.0";
-import { ACTIONS } from "./actions.js?v=0.56.0";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.56.0";
-import { receives } from "./use.js?v=0.56.0";
-import { spellings, called } from "./names.js?v=0.56.0";
-import { wayOf, waysOf } from "./exits.js?v=0.56.0";
-import { LISTEN, READ } from "./opening.js?v=0.56.0";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.57.0";
+import { grammarOf } from "./words.js?v=0.57.0";
+import { parse } from "./parser.js?v=0.57.0";
+import { answers } from "./engine.js?v=0.57.0";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.57.0";
+import { ACTIONS } from "./actions.js?v=0.57.0";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.57.0";
+import { receives } from "./use.js?v=0.57.0";
+import { spellings, called } from "./names.js?v=0.57.0";
+import { wayOf, waysOf } from "./exits.js?v=0.57.0";
+import { LISTEN } from "./opening.js?v=0.57.0";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
@@ -39,9 +39,8 @@ function worthOffering(command, state, t, memo) {
 // Which commands to offer for a thing: those worth offering (worthOffering), but never one the game would answer with
 // its stock reply that only shows the thing's examine (verbs.js EXAMINED: std_read, for a thing with nothing else to
 // answer reading it), when its EXAMINE is the stock one too: READ of a thing whose writing its EXAMINE already shows.
-// A command a rule of the game answers (a world's, the opening's: the intro's READ, which says its text, then its farewell,
-// and is gone) is always offered, even if it says what EXAMINE says; so is EXAMINE itself, and a command about another
-// thing (the chair's "Read card"). Pure: the thing's EXAMINE is tried once per line, only when a command needs it.
+// A command a rule of the game answers (a world's, the opening's) is always offered, even if it says what EXAMINE says; so is
+// EXAMINE itself, and a command about another thing (the chair's "Read card"). Pure: the thing's EXAMINE is tried once per line, only when a command needs it.
 function offering(state, t, id, memo) {
   let plain;
   return (command) => {
@@ -215,7 +214,7 @@ function unlockActions(state, t, id, memo) {
 //   a line for a verb (listen, push, smell, read…) .................... that verb, but not take, drop, put, give, throw, attack
 //   `use: "pull"` ..................................................... that verb
 //   a source (a thing's `from` names it) .............................. Order X / Buy X (what costs something), while it can come
-//   the opening: the hints thing .. Listen to; the intro .. Read (its way out is a `door` or `leads`, above)
+//   the opening: the hints thing .. Listen to (its way out is a `door` or `leads`, above)
 // `held`: the inventory's side (the thing is in your hands), which has no Take and no sitting on it.
 export function basicActions(state, t, id, held = inHands(state, id), memo = new Map()) {
   const o = state.world.objects[id], b = t.basic;
@@ -251,7 +250,6 @@ export function basicActions(state, t, id, held = inHands(state, id), memo = new
     if (c) out.push(c);
   }
   if (op && id === op.hints) add(b.listen, is(...LISTEN));
-  if (op && id === op.intro && carried(state, id)) add(b.read, is(...READ));
   return out.filter(offering(state, t, id, memo));
 }
 
@@ -274,8 +272,8 @@ function merged(state, t, engine, world, memo) {
 function withExamine(state, t, id, list, memo) {
   const c = t.basic?.examine && inScope(state, id) && wording(state, t, id, t.basic.examine, (a) => a.obj === id && a.verb === "examine", memo);
   if (!c || !offering(state, t, id, memo)(c)) return list;
-  // (a world's own Examine of this thing, worded as it likes, makes way for the engine's; a command that merely shares its answer, the
-  // intro's READ, which the same rule answers, stays)
+  // (a world's own Examine of this thing, worded as it likes, makes way for the engine's; a command that merely shares its answer, a READ
+  // that the same rule answers, stays)
   const examines = (x) => { const a = look(memo, state, t, x).r.actions; return a?.length === 1 && a[0].verb === "examine" && a[0].obj === id; };
   return [...list.filter(x => !examines(x)), c];
 }

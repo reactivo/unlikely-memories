@@ -12,10 +12,10 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers) > vault (east), pantry (west)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -27,7 +27,7 @@ export const bible = {
     "containers, people and questions, a lever, a roof. Nothing here is a story. Everything here works.",
   tone: "Plain and short. Each room says what it is for and shows the one thing. No jokes that get in the way of the test.",
   start: "Monday, noon, in the intake room south of the hub.",
-  opening: "An intake room south of the hub, left through its turnstile with the token from the dish: a handset (hints) and a test slip you carry.",
+  opening: "An intake room south of the hub, left through its turnstile with the token from the dish: a handset (hints) and a test slip you carry; the intro says you are a tester, let in to try everything.",
   music: "slow dorian; a signal wire and a bench bell; a test tone that never settles",
   rules: [
     "Each room is for one mechanism, and shows it once.",
@@ -365,14 +365,15 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // The start room: the hints thing, the intro you carry, the way out, and the token that opens it (BRIEF.md §3).
+  // The start room: the hints thing, the way out, and the token that opens it (BRIEF.md §3); and the slip, an ordinary thing you carry
+  // from the start (a world may start you carrying something, as any thing: the engine does nothing special with it).
   handset: { at: "tb-start", portable: true, material: "stone", name: "Handset", note: "A voice, waiting.",
     words: { nouns: ["handset", "phone"], adj: ["grey"] }, ...item("handset"),
     here: "A {handset} hangs on a hook by the turnstile, crackling to itself.",
     examine: "A grey handset on a curly cord. Listen to it, and it tells you what to try." },
   slip: { at: "player", portable: true, material: "paper", name: "Slip", note: "Your test slip.",
     words: { nouns: ["slip", "sheet"], adj: ["test", "white"] }, ...item("slip"),
-    examine: "A white slip: \"Tester. Try everything. Report what breaks.\"" },
+    examine: "A white slip with a box for each room of the floor. None of them is ticked yet." },
   gate: { at: "tb-start", door: "n", material: "metal", name: "Turnstile", note: "To the hub.",
     words: { nouns: ["turnstile", "gate"], adj: ["steel"] },
     examine: "A turnstile of three steel bars, with a slot for a token. It turns one way." },
@@ -706,8 +707,8 @@ const changes = {
 // ---- Rules -----------------------------------------------------------------------------------------------------------------
 // The dial turns through the settings, one rule each (a filter on, the last one off), counting up with `add`.
 const rules = [
-  // The start room's way out: the token in the turnstile's slot opens it (a rule that `connect`s the exit). The hints thing's and
-  // the intro's own rules come from the declaration.
+  // The start room's way out: the token in the turnstile's slot opens it (a rule that `connect`s the exit). The hints thing's own
+  // rules come from the declaration.
   { id: "turnstile_token", match: { verb: ["put", "use"], obj: "token", obj2: "gate" }, if: [{ "token.at": "player" }],
     do: [{ say: "The turnstile swallows the token and clicks. Its bars are free to turn." }, { move: "token", to: null },
          { connect: "tb-start", dir: "n", to: "tb-hub" }] },
@@ -870,10 +871,11 @@ const puzzles = {
 
 // ---- The opening, declared: the start room (BRIEF.md §3) ---------------------------------------------------------------------
 const opening = {
-  room: "tb-start", hints: "handset", intro: "slip", way: "gate",
+  room: "tb-start", hints: "handset", way: "gate",
+  // The intro: shown once as a new game starts, above the start room's text, read as a room's text is ([time]).
+  intro: "You are a tester, let in at [time]. This is the test floor: a hub, and a short way from it to each thing the game can do. Your orders are short: try everything, and report what breaks.",
   lines: {
-    hintFrame: "The handset crackles. A flat voice says:",
-    farewell: "The slip is read, and goes grey, and is gone."
+    hintFrame: "The handset crackles. A flat voice says:"
   }
 };
 

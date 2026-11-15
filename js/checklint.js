@@ -6,23 +6,23 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.56.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.56.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.56.0";
-import { isAction } from "./actions.js?v=0.56.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.56.0";
-import { solveCommand } from "./narrator.js?v=0.56.0";
-import { isLine } from "./shapes.js?v=0.56.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.56.0";
-import { nextCell } from "./space.js?v=0.56.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.56.0";
-import * as opening from "./opening.js?v=0.56.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.56.0";
-import art from "../content/art.js?v=0.56.0";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.56.0";
-import { paintPicture } from "./paint.js?v=0.56.0";
-import { filterProblem } from "./filters.js?v=0.56.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.56.0";
+import { parse, normalise } from "./parser.js?v=0.57.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.57.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.57.0";
+import { isAction } from "./actions.js?v=0.57.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.57.0";
+import { solveCommand } from "./narrator.js?v=0.57.0";
+import { isLine } from "./shapes.js?v=0.57.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.57.0";
+import { nextCell } from "./space.js?v=0.57.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.57.0";
+import * as opening from "./opening.js?v=0.57.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.57.0";
+import art from "../content/art.js?v=0.57.0";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.57.0";
+import { paintPicture } from "./paint.js?v=0.57.0";
+import { filterProblem } from "./filters.js?v=0.57.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.57.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -460,6 +460,23 @@ function roomLengthWarnings(state, warnings) {
   }
 }
 
+// The intro (BRIEF.md §3, §6 "How long"): the text shown once at the start, above the start room's, its `opening.intro`. It is there
+// (js/opening.js refuses a world without one, or one that names a thing), in the world's language, and near its length: about 50 words,
+// 2–4 sentences, warned past 80 like a room. The language is told by the pack's own small words (its articles, prepositions and "and"):
+// a text in the world's language uses at least three different ones in 50 words; one in another language, almost none. The voice
+// wordings the checker refuses (hedges) and the other text checks read it with the world's texts (worldTexts).
+const INTRO_AIM = 50, INTRO_FAR = 80, INTRO_SMALL = 3;
+function introChecks(state, pack, problems, warnings) {
+  const t = state.opening?.intro;
+  if (typeof t !== "string" || !t.trim()) return;
+  const words = unmarked(t).split(/\s+/).filter(Boolean);
+  if (words.length > INTRO_FAR) warnings.push(`opening (intro): ${words.length} words; the intro aims at about ${INTRO_AIM} words, 2–4 sentences; ${words.length} is far past it`);
+  const w = pack.words, small = new Set([...(w.articles || []), ...(w.preps || []), ...(w.and || [])].map(x => String(x).toLowerCase()));
+  const used = new Set((unmarked(t).toLowerCase().match(/\p{L}+/gu) ?? []).filter(x => small.has(x)));
+  if (small.size && used.size < INTRO_SMALL)
+    problems.push(`opening (intro): "${t.length > 70 ? t.slice(0, 70) + "…" : t}" doesn't read as the world's language: it uses ${used.size ? [...used].map(x => `"${x}"`).join(", ") : "none"} of its articles, prepositions and "and"; write the intro in the world's own language (BRIEF.md §3)`);
+}
+
 // Every lint of the world as written (not played): the problems and warnings, in the order the checker has always listed them.
 export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   idProblems(state, problems);
@@ -487,6 +504,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   problems.push(...pictureProblems(state));   // the ending's picture: each `end` names one the world has; a world that can hurt you has a `died` one
   if (bible) problems.push(...bibleProblems(bible, state));
   roomLengthWarnings(state, warnings);
+  introChecks(state, pack, problems, warnings);
   // What the texts say: the commands in them parse; a clock time they name has something in the world at that hour, or
   // [time] (BRIEF.md §4); a way in or out has an exit; a verb offered on scenery is answered; no words of the other region;
   // every [..] is known. Then the exits and waits that can never open or fire.
@@ -1189,6 +1207,7 @@ function worldTexts(state, pack) {
   for (const [name, effects] of Object.entries(state.changes || {})) collectTexts(effects, "change " + name, pack, out);
   for (const [id, p] of Object.entries(state.puzzles || {})) collectTexts(p, id, pack, out);
   for (const [id, c] of Object.entries(state.conditions || {})) collectTexts(c, "condition " + id, pack, out);
+  if (typeof state.opening?.intro === "string") out.push({ where: "opening", field: "intro", text: state.opening.intro });   // (shown at the start)
   return out;
 }
 
@@ -1635,16 +1654,17 @@ function conditionChecks(state, arrived, problems, warnings) {
 //      exit leads to, through that exit;
 //   5. nothing it needs can be lost or wasted there: eaten, drunk, thrown, given to someone or put away in something in the start
 //      room, or spoilt by any rule of the world whose match names it, and the way can still be opened (the same play, after each);
-//   6. the hints thing in the room with a `here` line, and the three things with words of their own (below);
+//   6. the hints thing in the room with a `here` line, and the two things with words of their own (below);
 //   7. once out, you can go back in: from the room the way out leads to, with the way open, an exit takes you back into the start room
 //      (any way: north, up, in…; the same play, then that step: goesBack).
-// The hints thing's and the intro's mechanics (the framed hint; the intro read and gone; neither dropped) are the engine's, built the
-// same for every world from the declaration: tests/openings.test.js pins them in every world and language, so they are not played here.
+// The hints thing's mechanics (the framed hint; never dropped) are the engine's, built the same for every world from the declaration:
+// tests/openings.test.js pins them in every world and language, so they are not played here. The intro, the text shown at the start, is
+// read with the world's texts (introChecks, and worldTexts for the voice).
 // Returns the problems found.
 export function checkOpening(state, pack, play) {
   const d = state.opening, why = opening.problems(state, d);
   if (why.length) return why;
-  const problems = [], { hints: H, intro: I, way: W, room: roomId } = d;
+  const problems = [], { hints: H, way: W, room: roomId } = d;
   const objects = state.world.objects, rooms = state.world.rooms, room = rooms[roomId];
   const dir = opening.direction(state, d);
 
@@ -1683,7 +1703,7 @@ export function checkOpening(state, pack, play) {
       };
       let out = null, clock = 0;   // (the state once the first puzzle has opened the way and you are through, and its clock: 7 starts there)
       const fails = opens(state, (s, c) => { out = s; clock = c; });
-      if (fails) problems.push(`${named} doesn't open the way out from the start room alone (only what is in it, and the intro): ${fails}`);
+      if (fails) problems.push(`${named} doesn't open the way out from the start room alone (only what is in it, and what you carry): ${fails}`);
       else {
         // 5. Nothing it needs can be lost or wasted there.
         for (const why of wasted(state, p, roomId, dir, pack, opens)) problems.push(`${named}: ${why}`);
@@ -1696,7 +1716,7 @@ export function checkOpening(state, pack, play) {
   if (typeof objects[H].here !== "string" || !objects[H].here.trim()) problems.push(`the hints thing "${H}" needs a \`here\` line: where it is in the start room, marked`);
 
   // Every thing in the start room has its own nouns (BRIEF.md §3): a word that names two things there is a clash, and so is a word of
-  // the three things that names anything else in the world (the way's: anything else in its own room). Things are the objects in
+  // the hints thing that names anything else in the world (the way's: anything else in its own room). Things are the objects in
   // the room or carried, their parts, and the room's scenery; each is told apart in the message by id and kind, so one can be renamed.
   const fold = (list) => (list || []).map(x => normalise(String(x), pack.words.grammar));
   const kindOf = (id) => objects[id].at === "player" ? "carried" : "an object";
@@ -1707,16 +1727,15 @@ export function checkOpening(state, pack, play) {
       .flatMap(([oid, o]) => (o.parts || []).map(x => ({ id: null, owner: oid, label: `the part "${x.name ?? x.words?.[0]}" of "${oid}" (part)`, words: fold(x.words) }))),
     ...Object.entries(rooms).filter(([rid]) => !only || rid === roomId)
       .flatMap(([rid, r]) => (r.scenery || []).map(x => ({ id: null, owner: rid, label: `the scenery "${x.name ?? x.words?.[0]}" of room "${rid}" (scenery)`, words: fold(x.words) })))];
-  const MAIN = [["hints", H], ["intro", I], ["way", W]], clash = new Set();
+  const MAIN = [["hints", H], ["way", W]], clash = new Set();
   const name = (id) => `the ${MAIN.find(([, x]) => x === id)[0]} thing "${id}" (${kindOf(id)})`;
   const report = (w, x, y, text, why = "") => {
     const key = [w, x, y].sort().join("|");
     if (!clash.has(key)) { clash.add(key); problems.push(`"${w}" names two things${text}: ${x} and ${y}; rename one of them, so each thing has its own word${why}`); }
   };
   const CLAIMS = { hints: "the hints thing's words are claimed against every other thing and scenery in the world, not only those in the start room",
-    intro: "the intro's words are claimed against every other thing and scenery in the world, not only those in the start room",
     way: "the way out's words are claimed against everything else in its own room" };
-  for (const [k, id] of MAIN)                                          // a word of one of the three: nothing else answers to it
+  for (const [k, id] of MAIN)                                          // a word of one of the two: nothing else answers to it
     for (const w of fold(objects[id].words.nouns)) for (const x of things(k === "way"))
       if (!(x.id === id) && x.words.includes(w)) report(w, name(id), x.label, "", ` (${CLAIMS[k]})`);
   const inside = things(true).filter(x => !MAIN.some(([, id]) => x.id === id));   // the others: their parts, the room's scenery, the rest
@@ -1751,7 +1770,7 @@ function wasted(state, p, roomId, dir, pack, opens) {
   const said = (a) => `${a.verb}${a.obj ? " " + a.obj : ""}${a.obj2 ? (a.verb === "give" ? " to " : a.verb === "put" ? " in " : " with ") + a.obj2 : ""}`;
   const seen = new Set();
   for (const t of things) {
-    if (state.opening?.hints === t || state.opening?.intro === t) continue;
+    if (state.opening?.hints === t) continue;
     const starts = [state];
     if (objects[t].portable && placeOf(state, t) !== "player") {
       const r = step(state, { verb: "take", obj: t, at: 500 });
@@ -1772,7 +1791,7 @@ function wasted(state, p, roomId, dir, pack, opens) {
     }
   }
   for (const t of things) {
-    if (!objects[t].portable || state.opening?.hints === t || state.opening?.intro === t) continue;
+    if (!objects[t].portable || state.opening?.hints === t) continue;
     let s = state;
     if (placeOf(s, t) !== "player") {
       const r = step(s, { verb: "take", obj: t, at: 500 });

@@ -20,25 +20,6 @@ export default {
     "..0666666666660.",
     "...00000000000.."
   ],
-  // A folded summons with a red seal.
-  summons: [
-    "................",
-    "................",
-    "..000000000000..",
-    "..0ffffffffff0..",
-    "..0f77777777f0..",
-    "..0ffffffffff0..",
-    "..0f7777777ff0..",
-    "..0ffffffffff0..",
-    "..0f777777fff0..",
-    "..0ffffffffff0..",
-    "..0fffff00fff0..",
-    "..0ffff0440ff0..",
-    "..0ffff0440ff0..",
-    "..0fffff00fff0..",
-    "..000000000000..",
-    "................"
-  ],
   // A silver shilling, the fare: in the hand, and lying on the cab seat.
   shilling: [
     "................",

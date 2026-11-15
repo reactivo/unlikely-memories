@@ -3,10 +3,10 @@
 // conjunto de cambios, con su sala del comienzo, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- La biblia del juego -------------------------------------------------------------------------------------------
 export const bible = {
@@ -19,7 +19,7 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Melancolía de pueblo ferroviario: horarios, cosas perdidas, un decreto enmarcado en la estación.",
   start: "Domingo, 19:30, en el apeadero Lunes, al oeste de la oficina de objetos perdidos de la estación.",
   opening: "Un apeadero de vía secundaria, un domingo por la tarde, al oeste de objetos perdidos: una lata de " +
-    "cacao con un cordel (las pistas), una página de agenda que ya llevas encima (por qué has venido). El único vagón es " +
+    "cacao con un cordel (las pistas); la introducción, una agenda con el lunes borrado (por qué has venido). El único vagón es " +
     "la salida: te lleva cuando te has sentado en el banco.",
   music: "lidio, despacio; el violonchelo del libro de registro y un alambre de jaula pulsado; el reloj honrado de la " +
     "estación, que se salta un tic de cada siete",
@@ -321,14 +321,11 @@ const rooms = {
 
 // ---- Objetos ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // La sala del comienzo: la cosa de las pistas, la que llevas, la salida y el banco en que la esperas (BRIEF.md §3).
+  // La sala del comienzo: la cosa de las pistas, la salida y el banco en que la esperas (BRIEF.md §3).
   tin: { at: "halt", portable: true, material: "metal", name: "Lata de cacao", note: "Alguien al otro lado.",
     words: { nouns: ["lata", "cordel", "cuerda", "cacao", "bote"], adj: ["cacao", "fría", "fria", "larga"], g: "f" }, ...item("tin"),
     here: "Sobre el banco, una {lata|tin} de cacao tiende su cordel más allá del borde del andén.",
     examine: "Una lata de cacao con un agujero en el fondo y un cordel que sale de él, a lo largo del andén y por el borde hacia la oscuridad. El cordel está tenso, como si hubiera algo en el otro extremo." },
-  diary_leaf: { at: "player", portable: true, material: "paper", name: "Página de agenda", note: "Rayada para una semana.",
-    words: { nouns: ["página", "pagina", "agenda", "diario"], adj: ["hoja", "doblada", "amarilla", "rayada"], g: "f" }, ...item("diary_leaf"),
-    examine: "Una página de agenda, rayada para una semana. El domingo y el martes están escritos, de tu puño y letra; donde debería estar el lunes hay un hueco limpio y cuidadoso, frotado hasta gastar el papel." },
   halt_bench: { at: "halt", material: "wood", name: "Banco", note: "Pintado, no hace mucho.", actions: ["Sentarse en banco"],
     words: { nouns: ["banco", "asiento"], adj: ["pintado", "anden"], g: "m" },
     examine: "Un banco de andén, pintado desde que cerraron la línea, y no hace mucho. Mira al vagón, como una silla de sala de espera mira a una puerta." },
@@ -776,12 +773,12 @@ const puzzles = {
 };
 
 // ---- El conjunto de cambios ---------------------------------------------------------------------------------------------------
-// ---- La apertura, declarada (BRIEF.md §3): las ids de su sala y de sus tres cosas, y las líneas que dice ---------------------
+// ---- La apertura, declarada (BRIEF.md §3): las ids de su sala y de sus dos cosas, su introducción y la línea que dice ---------
 const opening = {
-  room: "halt", hints: "tin", intro: "diary_leaf", way: "carriage_door",
+  room: "halt", hints: "tin", way: "carriage_door",
+  intro: "Has perdido un lunes. En tu agenda, en casa, el domingo y el martes están escritos de tu puño y letra, y entre los dos hay un hueco limpio y cuidadoso, frotado hasta gastar el papel. Así que has tomado la vía secundaria hasta donde llega, a buscarlo.",
   lines: {
-    hintFrame: "Te acercas la lata al oído. Por el cordel, alguien con la paciencia de un jefe de estación dice:",
-    farewell: "Alzas la página hacia la farola. La semana se deshace por sus líneas, y desaparece, el domingo primero."
+    hintFrame: "Te acercas la lata al oído. Por el cordel, alguien con la paciencia de un jefe de estación dice:"
   }
 };
 

@@ -2,24 +2,24 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.56.0";
-import standardVerbs from "./verbs.js?v=0.56.0";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.56.0";
-import { clean, isLine } from "./shapes.js?v=0.56.0";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.56.0";
-import { readPicture, editPicture } from "./picture.js?v=0.56.0";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.56.0";
-import * as opening from "./opening.js?v=0.56.0";
-import { translate as translateUse } from "./use.js?v=0.56.0";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.56.0";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.56.0";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.56.0";
-import { ACTIONS, isAction } from "./actions.js?v=0.56.0";
-import { makeSleeping } from "./sleeping.js?v=0.56.0";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.56.0";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.56.0";
-import { answerLine } from "./speech.js?v=0.56.0";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.56.0";
+import { random, between } from "./random.js?v=0.57.0";
+import standardVerbs from "./verbs.js?v=0.57.0";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.57.0";
+import { clean, isLine } from "./shapes.js?v=0.57.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.57.0";
+import { readPicture, editPicture } from "./picture.js?v=0.57.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.57.0";
+import * as opening from "./opening.js?v=0.57.0";
+import { translate as translateUse } from "./use.js?v=0.57.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.57.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.57.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.57.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.57.0";
+import { makeSleeping } from "./sleeping.js?v=0.57.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.57.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.57.0";
+import { answerLine } from "./speech.js?v=0.57.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.57.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -299,10 +299,10 @@ export function applyChangeSet(state, set, { protect = true, fields = null } = {
 // that isn't declared (a set may declare a new one itself, in its `properties`).
 export const applyProposal = (state, set) => applyChangeSet(state, set, { fields: "refuse" });
 
-// Build a world's opening from its declaration (js/opening.js): the player starts in the start room carrying the intro, and the hints
-// thing and the intro get their rules (tried before the world's). The room is an ordinary room, and the way out is the world's own:
-// the world's rules act in it from the first turn. Only the hints thing and the intro are `fixed`: no later effect from a world may
-// move, change or remove them, so the hints are always there.
+// Build a world's opening from its declaration (js/opening.js): the player starts in the start room, and the hints thing gets its
+// rules (tried before the world's). The room is an ordinary room, and the way out is the world's own: the world's rules act in it from
+// the first turn. Only the hints thing is `fixed`: no later effect from a world may move, change or remove it, so the hints are always
+// there. The intro is a text, kept in the declaration: the controller shows it as a new game starts (js/narrator.js, introOf).
 function buildOpening(g, d, out, protect) {
   const refuse = (reason) => out.refused.push({ effect: { opening: d?.room ?? null }, reason });
   if (g.opening) return refuse("the world already has an opening");
@@ -312,10 +312,10 @@ function buildOpening(g, d, out, protect) {
   g.player.at = d.room;
   g.player.in = null;
   g.seen.visited = [d.room];
-  for (const [id, o] of Object.entries(g.world.objects))          // what you carry from the start (the intro)
+  for (const [id, o] of Object.entries(g.world.objects))          // what you carry from the start, if anything
     if (o.at === "player" && !g.player.carrying.includes(id)) { g.player.carrying.push(id); g.seen.held.push(id); }
   g.rules.unshift(...opening.rules(g, d).map(r => ({ ...r, fixed: protect })));
-  if (protect) for (const id of [d.hints, d.intro]) g.world.objects[id].fixed = true;
+  if (protect) g.world.objects[d.hints].fixed = true;
   out.applied.push({ opening: d.room });
 }
 
@@ -402,7 +402,7 @@ export function answers(state, actions) {
 // The game's rules that can act now: all of them (the opening's own first: js/opening.js).
 const activeRules = (g) => g.rules;
 const STANDARD = new Set(standardVerbs);
-// Is this thing one of the opening's own, the hints thing or the intro (never changed by a world)?
+// Is this thing the opening's own, the hints thing (never changed by a world)?
 const isFixed = (g, id) => !!g.world.objects[id]?.fixed;
 // What the engine hands to the movers' runtime (js/movers.js), which never imports the engine back.
 const host = { apply: (...a) => apply(...a), holds: (...a) => holds(...a) };
@@ -770,7 +770,7 @@ function describedLater(out, room) {
 function apply(g, e, action, out, key) {
   const { refuse, done } = outcome(e, out);
   const touched = out.trusted ? null : fixedTarget(g, e, action);
-  if (touched) return refuse(`${touched} is the opening's own (its hints thing, its intro, its rules): a world can't change it`);
+  if (touched) return refuse(`${touched} is the opening's own (its hints thing, its rules): a world can't change it`);
 
   // `add` and `remove` first: what they add carries its own fields, which can share names with effects (a room's
   // `describe`, an object's `move`), so those mustn't be read as effects.
@@ -1229,7 +1229,7 @@ function echo(done, g, kind, level) {
   done({ echo: kind === "hurt" ? "@health." + level : `@echo.${kind}.${level}`, kind, level, at: worldTime(g) });
 }
 
-// What part of the opening an effect would change, if any (for effects from a world: they may not): its hints thing, its intro, its
+// What part of the opening an effect would change, if any (for effects from a world: they may not): its hints thing, its
 // rules (the start room itself is an ordinary room, the world's to change). Which id each kind of effect touches:
 // the first of these a (not added or removed) effect has, in this order.
 const TOUCHES = {

@@ -3,10 +3,10 @@
 // Un solo conjunto de cambios, todo o nada. Los ids, las coordenadas, las cifras, los dibujos y los
 // sprites son los de la versión inglesa; solo cambia lo que lleva lenguaje.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
 export const bible = {
@@ -20,7 +20,7 @@ export const bible = {
     "un comercio que nunca ha logrado cerrar del todo.",
   start: "Sábado, 17:10, en el pasaje de atrás de los almacenes, al sur de la planta baja.",
   opening: "El pasaje de atrás de los almacenes, a las cinco y diez: una " +
-    "radio (pistas), una lista de la compra que ya llevas (por qué viniste). La puerta giratoria es la entrada: la empujas, y te trae un hueco.",
+    "radio (pistas); la introducción, una lista de la compra con la segunda línea borrada (por qué viniste). La puerta giratoria es la entrada: la empujas, y te trae un hueco.",
   music: "un vals de salón de té sin prisas; frascos de perfume que cantan, el latón y los cartuchos del correo " +
     "neumático, el timbre del ascensor en una planta que nadie ha pedido; unos almacenes que siguen sonando después del " +
     "cierre",
@@ -248,14 +248,11 @@ const rooms = {
 
 // ---- Cosas -----------------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: la cosa que se coge, la que ya llevas y el camino hacia dentro (BRIEF.md §3).
+  // La apertura: la cosa que se coge y el camino hacia dentro (BRIEF.md §3).
   wireless: { at: "pavement", portable: true, material: "stone", name: "Radio", note: "Anunciando las secciones.",
     words: { nouns: ["radio", "transistor", "aparato", "receptor", "emisora"], adj: ["crema", "pequeña", "pequena", "vieja"], g: "f" }, ...item("wireless"),
     here: "En la repisa del escaparate más cercano, una {radio|wireless} pequeña murmura para sí.",
     examine: "Una radio color crema, del tamaño de una hogaza, sintonizada entre dos emisoras. Una voz de mujer anuncia las secciones de Hartley's, planta por planta, y vuelve a empezar por arriba." },
-  shopping_list: { at: "player", portable: true, material: "paper", name: "Lista de la compra", note: "Casi borrada.",
-    words: { nouns: ["lista", "papelito", "apunte"], adj: ["compra", "lapiz", "doblada"], g: "f" }, ...item("shopping_list"),
-    examine: "Con tu propio lápiz: «Algo que debería recordar». Debajo, borrada tantas veces que el papel se ha gastado hasta romperse, una segunda línea." },
   street_door: { at: "pavement", door: "n", material: "glass", name: "Puerta giratoria", note: "Girando, sin nadie dentro.", actions: ["Empujar"],
     words: { nouns: ["puerta", "barra"], adj: ["giratoria", "latón", "laton", "principal", "delantera"], g: "f" },
     examine: "Latón y cristal, girando despacio sin nadie dentro. Cada vidrio muestra una tarde un poco posterior a la del anterior. La barra de latón que la cruza dice EMPUJE, con las letras gastadas de tantas manos." },
@@ -549,12 +546,12 @@ const puzzles = {
 };
 
 // ---- El conjunto de cambios ------------------------------------------------------------------------------------------------------------
-// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y sus tres cosas, y las líneas que dice ----------------------------------
+// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y sus dos cosas, su introducción y la línea que dice --------------------
 const opening = {
-  room: "pavement", hints: "wireless", intro: "shopping_list", way: "street_door",
+  room: "pavement", hints: "wireless", way: "street_door",
+  intro: "Has salido esta tarde con una lista de la compra de una sola línea, con tu propio lápiz: «Algo que debería recordar». Debajo había otra, borrada tantas veces que el papel se gastó. En Hartley's venden de todo. También tendrán eso, si te das prisa: están a punto de cerrar.",
   lines: {
-    hintFrame: "La radio se queda callada entre dos secciones, y una voz, con bastante amabilidad, dice:",
-    farewell: "Doblas la lista una vez, y sigue doblándose, cada vez más pequeña, hasta que no sostienes nada, con mucho cuidado."
+    hintFrame: "La radio se queda callada entre dos secciones, y una voz, con bastante amabilidad, dice:"
   }
 };
 

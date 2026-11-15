@@ -7,10 +7,10 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.
@@ -24,7 +24,7 @@ export const bible = {
     "un faro apagado solo quema lo que alguien acepta olvidar.",
   tone: "WRITING-DIRECTION.md: lo cotidiano, ligeramente torcido; sereno, conciso, con ecos de lo que pudo ser.",
   opening: "Pasillo 7-B del Ministerio, una mañana de lunes, planta menos cuatro, bajo la playa: un buzón de " +
-    "sugerencias (las pistas), un memorando que ya llevas encima (por qué has venido). La puertecita verde que respira " +
+    "sugerencias (las pistas); la introducción, un memorando sobre una puerta que no está ahí (por qué has venido). La puertecita verde que respira " +
     "es la salida: llamas, y le das tu nombre.",
   music: "un vals de salón de té en mixolidio, que se ha quedado en las cinco y cuarto; una radio en las dunas y la caja " +
     "de música del tiovivo; el mar que respira sobre la arena",
@@ -397,14 +397,11 @@ const rooms = {
 // (El café empieza fuera de juego; el verbo "pedir" puede nombrarlo igualmente, ARCHITECTURE.md §3.)
 
 const objects = {
-  // La apertura: la cosa que coger, la que llevas y el camino (BRIEF.md §3).
+  // La apertura: la cosa que coger y el camino (BRIEF.md §3).
   suggestion_box: { at: "corridor", portable: true, material: "wood", name: "Buzón de sugerencias", note: "Alguien lee en voz alta.",
     words: { nouns: ["buzon", "ranura"], adj: ["sugerencias", "madera", "laton"], g: "m" }, ...item("suggestion_box"),
     here: "Bajo el cartel, un {buzón de sugerencias|suggestion_box} cuelga de un solo tornillo.",
     examine: "Un buzoncito de madera con una ranura de latón y una etiqueta: «Sugerencias». No lo han vaciado en tu tiempo y no está lleno. Desde dentro, muy bajito, una voz lee." },
-  memo: { at: "player", portable: true, material: "paper", name: "Memorando del Ministerio", note: "Doblado en cuatro.",
-    words: { nouns: ["memorando", "memo"], adj: ["ministerio", "doblado"], g: "m" }, ...item("memo"),
-    examine: "Un memorando del Ministerio, doblado en cuatro, con el membrete todavía verde. «Al personal: se ha informado de la existencia de una puerta en la planta menos cuatro. No está ahí. Se ruega no usarla»." },
   green_door: { at: "corridor", door: "u", material: "wood", name: "Puerta verde", note: "Pequeña, y respira.", actions: ["Llamar"],
     words: { nouns: ["puerta", "puertecita", "cerradura", "madera"], adj: ["verde", "pequeña", "pequena", "chiquita", "respirando", "diminuta"], g: "f" },
     examine: "La madera está tibia, como la piel. Sube y baja despacio, al compás de tu propia respiración. Encima, una placa de latón: «Llama solo si recuerdas tu nombre»." },
@@ -874,12 +871,12 @@ const puzzles = {
                 hints: ["El mar te agarra el tobillo y te suelta, y cada vez tarda más en soltarte.", "Métete a nadar desde la playa tres veces; a la tercera, el mar se queda contigo."] }
 };
 
-// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y de sus tres cosas, y las líneas que dice --------------------
+// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y de sus dos cosas, su introducción y la línea que dice --------
 const opening = {
-  room: "corridor", hints: "suggestion_box", intro: "memo", way: "green_door",
+  room: "corridor", hints: "suggestion_box", way: "green_door",
+  intro: "Archivas papeles para el Ministerio desde hace más tiempo del que te gusta contar. Esta mañana ha circulado un memorando para todo el personal, con el membrete todavía verde: se ha informado de una puerta en tu planta. No está ahí, dice el memorando. Se ruega no usarla.",
   lines: {
-    hintFrame: "Pegas la oreja a la ranura. En otro punto del Ministerio, alguien lee en voz alta una sugerencia:",
-    farewell: "El memorando se arruga por sus pliegues, uno a uno, como si lo archivaran, y ya no está en tu mano."
+    hintFrame: "Pegas la oreja a la ranura. En otro punto del Ministerio, alguien lee en voz alta una sugerencia:"
   }
 };
 

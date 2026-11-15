@@ -5,8 +5,8 @@
 //
 // Also: the world's start room keeps the guarantees of BRIEF.md §3 (checkOpening in js/checklint.js): one way out, the way thing's exit,
 // closed at the start; the world's first puzzle opens it from the start room alone, with its hints; nothing it needs can be lost there;
-// the hints thing and the intro in place, with words of their own; once out, a way back in. The hints thing's and the intro's mechanics are the engine's, pinned
-// in tests/openings.test.js, not played here.
+// the hints thing in place, with words of its own; once out, a way back in; the intro (the text shown at the start) there, in the world's
+// language and near its length. The hints thing's mechanics are the engine's, pinned in tests/openings.test.js, not played here.
 //
 // Also: the ending's picture (BRIEF.md §7): every `end` effect (and every vision's `dream.picture`) names a picture the world has, a world that can hurt the player
 // has a `died` picture (the one the story ends with when health runs out), and each picture in `state.pictures` is well formed
@@ -56,15 +56,15 @@
 // The lints of a world as written (everything above but the playthrough: js/checklint.js, `lintWorld`) run first; the playthrough here only
 // when they found no problem. The checker's cache key (tools/checked.mjs) hashes every file of js/, so both files are in it.
 
-import { parse } from "./parser.js?v=0.56.0";
-import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.56.0";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.56.0";
-import { solveCommand } from "./narrator.js?v=0.56.0";
-import { isExitObject, exitTo } from "./exits.js?v=0.56.0";
-import { moveTo, worldTime } from "./time.js?v=0.56.0";
-import { musicOf } from "./music.js?v=0.56.0";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.56.0";
-import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.56.0";
+import { parse } from "./parser.js?v=0.57.0";
+import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.57.0";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.57.0";
+import { solveCommand } from "./narrator.js?v=0.57.0";
+import { isExitObject, exitTo } from "./exits.js?v=0.57.0";
+import { moveTo, worldTime } from "./time.js?v=0.57.0";
+import { musicOf } from "./music.js?v=0.57.0";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.57.0";
+import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.57.0";
 
 export function check(state, pack, bible, { before = null } = {}) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)

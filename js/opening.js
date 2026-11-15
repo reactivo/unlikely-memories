@@ -3,28 +3,29 @@
 // left only through the `way` thing's exit (any direction, n/s/e/w, up, down, in or out, to a room of its own area on any level),
 // closed at the start and opened by an action the world writes with the engine's own
 // mechanisms (a locked door and its key, a rule that `connect`s the way, USE on a rope, a thing given to someone). The world names
-// the room and its three things (the hints thing, the intro, the way out) and writes two lines; this module gives the hints thing
-// and the intro their mechanics, the same for every world. The way out is the world's own: no rule here touches it.
-// (Beginning again is not in the opening: it is the session's, in js/main.js.)
-// Pure: reads the state, never changes it. The engine (js/engine.js) applies what these return and keeps the hints thing and the
-// intro fixed; the checker (js/checklint.js, checkOpening) holds the start room to its guarantees.
+// the room and its two things (the hints thing, the way out), writes its intro (the short text shown once, above the start room's, as a
+// new game starts: js/main.js, js/narrator.js `introOf`) and one line; this module gives the hints thing its mechanics, the same for
+// every world. The way out is the world's own: no rule here touches it. (Beginning again is not in the opening: it is the session's,
+// in js/main.js.)
+// Pure: reads the state, never changes it. The engine (js/engine.js) applies what these return and keeps the hints thing fixed; the
+// checker (js/checklint.js, checkOpening) holds the start room to its guarantees.
 //
-//   opening: { room, hints, intro, way, lines: { hintFrame, farewell } }
+//   opening: { room, hints, way, intro, lines: { hintFrame } }
 
-import { DIRECTIONS } from "./space.js?v=0.56.0";
-import { waysOf, wayAt, exitTo } from "./exits.js?v=0.56.0";
+import { DIRECTIONS } from "./space.js?v=0.57.0";
+import { waysOf, wayAt, exitTo } from "./exits.js?v=0.57.0";
 
-export const PARTS = ["room", "hints", "intro", "way"];
-export const THINGS = ["hints", "intro", "way"];
-export const LINES = ["hintFrame", "farewell"];
+export const IDS = ["room", "hints", "way"];                       // the parts that name a room or a thing, by id
+export const PARTS = [...IDS, "intro"];                            // and the intro, a text
+export const THINGS = ["hints", "way"];
+export const LINES = ["hintFrame"];
 // The lines and the key of the old opening (held back until the hints thing was carried, then through to `game.entrance`): a world
 // still declaring them is refused with the reason, so it is rewritten for the start room (BRIEF.md §3). Every world is converted (stage 4
 // of docs/start-room/PLAN.md); this stays as a guard, for a world written from an old brief or an old copy (Diego, 15 November 2026: H).
 const OLD_LINES = ["notYet", "through"];
 
-// The verbs that use each thing (js/actions.js). Examining and taking are the standard ones.
-export const LISTEN = ["listen", "use", "talk", "ask"];                                           // the hints thing
-export const READ = ["read", "examine", "open"];                                                  // the intro
+// The verbs that use the hints thing (js/actions.js). Examining and taking are the standard ones.
+export const LISTEN = ["listen", "use", "talk", "ask"];
 
 // The start room's exit the way out is: the way thing's own `door` / `leads`, one direction (IN or OUT is the exit that answers it
 // there, js/exits.js wayAt). Null if it isn't one.
@@ -60,18 +61,25 @@ export function problems(g, d) {
   if (old.length || g.entrance != null)
     why.push(`the old opening (${[...old.map(l => "lines." + l), ...(g.entrance != null ? ["game.entrance"] : [])].join(", ")}) is gone: a world starts in a start room, ` +
       "an ordinary room of its first area left by its way out, closed at the start and opened by an action the world writes (BRIEF.md §3)");
-  for (const k of PARTS) if (typeof d[k] !== "string" || !d[k]) why.push(`opening.${k} must be the id of its ${k === "room" ? "room" : "thing"}`);
+  // The intro is the text shown once at the start, above the start room's (Diego, 15 November 2026): the carried intro thing, read and
+  // then gone with its farewell, is no more. A world still naming a thing, or writing a farewell, is refused with the reason.
+  if (typeof d.intro === "string" && obj(d.intro))
+    why.push(`opening.intro "${d.intro}" names a thing: the intro is now the text shown at the start of the game, above the start room's ` +
+      "(2–4 sentences: where you are, how you got here, what pulls you on); the carried intro thing is gone (BRIEF.md §3)");
+  else if (typeof d.intro !== "string" || !d.intro.trim())
+    why.push("opening.intro must be the intro: the text shown at the start of the game, above the start room's (BRIEF.md §3)");
+  if (d.lines && "farewell" in d.lines)
+    why.push("opening.lines.farewell is gone with the carried intro thing: the intro is now the text shown at the start (BRIEF.md §3)");
+  for (const k of IDS) if (typeof d[k] !== "string" || !d[k]) why.push(`opening.${k} must be the id of its ${k === "room" ? "room" : "thing"}`);
   if (why.length) return why;
   const room = g.world.rooms[d.room];
   if (!room) why.push(`opening.room "${d.room}" isn't a room`);
   for (const k of THINGS) if (!obj(d[k])) why.push(`opening.${k} "${d[k]}" isn't an object`);
-  if (new Set(PARTS.map(k => d[k])).size < PARTS.length) why.push("the opening's room, hints, intro and way must all be different");
+  if (new Set(IDS.map(k => d[k])).size < IDS.length) why.push("the opening's room, hints and way must all be different");
   if (why.length) return why;
   if (typeof room.area !== "string" || !Array.isArray(room.at)) why.push(`the start room "${d.room}" needs an \`area\` and an \`at\`: it is an ordinary room of the first area, on the map`);
   if (obj(d.hints).at !== d.room) why.push(`the hints thing "${d.hints}" must be in the start room`);
   if (!obj(d.hints).portable) why.push(`the hints thing "${d.hints}" must be portable`);
-  if (obj(d.intro).at !== "player") why.push(`the intro "${d.intro}" must be carried from the start (at: "player")`);
-  if (typeof obj(d.intro).examine !== "string" || !obj(d.intro).examine.trim()) why.push(`the intro "${d.intro}" needs an examine text: what it says`);
   if (obj(d.way).at !== d.room) why.push(`the way out "${d.way}" must be in the start room`);
   if (obj(d.way).portable) why.push(`the way out "${d.way}" can't be portable`);
   for (const k of THINGS) if (!obj(d[k]).words?.nouns?.length) why.push(`"${d[k]}" needs words.nouns, so it can be named`);
@@ -90,17 +98,13 @@ export function problems(g, d) {
 
 // The opening's rules (tried before every other, so no world rule can answer for them). `fixed` and the rest are the engine's to add.
 export function rules(g, d) {
-  const { hints: H, intro: I, lines: L } = d;
-  const held = (id) => ({ [id + ".at"]: "player" });
+  const { hints: H, lines: L } = d;
   return [
     // The hints thing: listening gives the next hint, in the world's frame.
     { id: "opening_hints", match: { verb: LISTEN, obj: H }, do: [{ hint: L.hintFrame }] },
-    // The intro: it says its text, then its farewell, and is gone.
-    { id: "opening_intro", match: { verb: READ, obj: I }, if: [held(I)],
-      do: [{ say: `$${I}.examine`, img: `$${I}.img` }, { say: L.farewell }, { move: I, to: null }] },
-    // Neither the hints thing nor the intro can be dropped, or put away in something else (the hints are always to hand). A refusal,
-    // so `generic`: the suggestion lines never offer it ("Put box in boat"), as they never offer a verb's stock reply (js/engine.js `answers`).
-    { id: "opening_drop", match: { verb: "drop", obj: [H, I] }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }], generic: true },
-    { id: "opening_put", match: { verb: "put", obj: [H, I] }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }], generic: true }
+    // It can't be dropped, or put away in something else (the hints are always to hand). A refusal, so `generic`: the suggestion lines
+    // never offer it ("Put box in boat"), as they never offer a verb's stock reply (js/engine.js `answers`).
+    { id: "opening_drop", match: { verb: "drop", obj: H }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }], generic: true },
+    { id: "opening_put", match: { verb: "put", obj: H }, if: [{ "$obj.at": "player" }], do: [{ say: "@cantDrop" }], generic: true }
   ];
 }

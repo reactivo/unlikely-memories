@@ -2,10 +2,10 @@
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.56.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.56.0";
-import levels from "./levels.js?v=0.56.0";
-import sprites from "./sprites.js?v=0.56.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.57.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.57.0";
+import levels from "./levels.js?v=0.57.0";
+import sprites from "./sprites.js?v=0.57.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -19,8 +19,8 @@ export const bible = {
   tone: "WRITING-DIRECTION.md. Fog-bound London of gas lamps, pie shops and inquests; police manners; a murder with no " +
     "mark on the body. Tender: the killing is a kindness said at the wrong moment.",
   start: "Thursday, 22:30, in the cab, stopped in the fog on Lantern Row.",
-  opening: "Inside a hansom cab stopped in the fog on Lantern Row, the start room: a canary in a cage (hints), a " +
-    "summons you already carry (why you came), a shilling on the seat for the fare. The fog in the folding doors is the way out, " +
+  opening: "Inside a hansom cab stopped in the fog on Lantern Row, the start room: a canary in a cage (hints); the intro, a " +
+    "summons to the inquest (why you came); a shilling on the seat for the fare. The fog in the folding doors is the way out, " +
     "and stands aside, like a doorman, once it is paid.",
   music: "slow harmonic-minor parlour waltz; a gas jet's breath, a harp of street lamps and a constable's boots; an old " +
     "record playing on in the fog",
@@ -287,14 +287,11 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The start room: the hints thing, the one you carry, the way out, and the fare that opens it (BRIEF.md §3).
+  // The start room: the hints thing, the way out, and the fare that opens it (BRIEF.md §3).
   canary: { at: "cab", portable: true, material: "metal", name: "Canary", note: "Watching the fog for you.",
     words: { nouns: ["canary", "bird", "cage"], adj: ["yellow", "brass", "small", "little"] }, ...item("canary"),
     here: "From a hook in the roof hangs a {canary} in a small brass cage, watching the fog for you.",
     examine: "A yellow canary in a brass cage the size of a hat. Miners take them underground to tell them when the air goes bad. This one has been brought to London, where it has a great deal to say." },
-  summons: { at: "player", portable: true, material: "paper", name: "Summons", note: "Folded, official.",
-    words: { nouns: ["summons"], adj: ["folded", "official"] }, ...item("summons"),
-    examine: "\"You are called as witness to the inquest into the death of Albert Fenn, lamplighter, of Lantern Row. The court sits at midnight.\" Under the seal, in another hand, smaller: \"The deceased will be present.\"" },
   cab_fog: { at: "cab", leads: "out", name: "Fog", note: "The only way out.",
     words: { nouns: ["fog", "doors", "door", "white", "cab", "hansom"], adj: ["folding", "open", "thick", "hansom"] },
     examine: "The cab's folding doors stand open on a fog so thick it has a grain, like paper. Somewhere in it, very far off, a lamp is lit, or remembered." },
@@ -720,12 +717,12 @@ const puzzles = {
     hints: ["Dr Mabbott wants a name, and Mr Voss expects it to be his.", "In the court, accuse Mr Voss, and say yes."] }
 };
 
-// ---- The opening, declared (BRIEF.md §3): the start room, the hints thing, the intro and the way out, and the two lines -
+// ---- The opening, declared (BRIEF.md §3): the start room, the hints thing and the way out, the intro, and the line it says -
 const opening = {
-  room: "cab", hints: "canary", intro: "summons", way: "cab_fog",
+  room: "cab", hints: "canary", way: "cab_fog",
+  intro: "You have been called as witness to the inquest into the death of Albert Fenn, lamplighter, of Lantern Row. The court sits at midnight. Under the seal of the summons, in another hand, smaller, someone added: the deceased will be present.",
   lines: {
-    hintFrame: "The canary puts its head on one side and sings, in a voice like a very small police constable:",
-    farewell: "The fog leans in through the doors and reads the summons over your shoulder. When it has finished, it takes it, and you let it."
+    hintFrame: "The canary puts its head on one side and sings, in a voice like a very small police constable:"
   }
 };
 

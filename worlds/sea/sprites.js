@@ -210,25 +210,6 @@ export default {
     ".000000."
   ],
 
-  // A folded Ministry memo with a green seal (the opening's intro).
-  memo: [
-    "................",
-    "................",
-    ".000000000000...",
-    ".0fffffffffff0..",
-    ".0f88888f888f0..",
-    ".0fffffffffff0..",
-    ".0f8f8888f88f0..",
-    ".0fffffffffff0..",
-    ".0fffffffffff0..",
-    ".0f88888c33ff0..",
-    ".0fffffffffff0..",
-    ".000000000000...",
-    "................",
-    "................",
-    "................",
-    "................"
-  ],
   // Admiral, the hotel cat (he moves: wandering the lobby, the dining room and the first floor): grey, a white bib, green eyes;
   // sitting, seen from the front, beside his examine; and side on, small, where the pictures draw him.
   cat: [
