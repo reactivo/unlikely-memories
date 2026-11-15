@@ -1,16 +1,16 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.53.6";
-import { grammarOf } from "./words.js?v=0.53.6";
-import { parse } from "./parser.js?v=0.53.6";
-import { answers } from "./engine.js?v=0.53.6";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.53.6";
-import { ACTIONS } from "./actions.js?v=0.53.6";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.53.6";
-import { receives } from "./use.js?v=0.53.6";
-import { spellings, called } from "./names.js?v=0.53.6";
-import { wayOf, waysOf } from "./exits.js?v=0.53.6";
-import { LISTEN, READ, GO_THROUGH } from "./opening.js?v=0.53.6";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.53.7";
+import { grammarOf } from "./words.js?v=0.53.7";
+import { parse } from "./parser.js?v=0.53.7";
+import { answers } from "./engine.js?v=0.53.7";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.53.7";
+import { ACTIONS } from "./actions.js?v=0.53.7";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.53.7";
+import { receives } from "./use.js?v=0.53.7";
+import { spellings, called } from "./names.js?v=0.53.7";
+import { wayOf, waysOf } from "./exits.js?v=0.53.7";
+import { LISTEN, READ, GO_THROUGH } from "./opening.js?v=0.53.7";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't

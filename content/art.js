@@ -23,7 +23,7 @@ export default {
   // The palettes a picture is drawn in, by the names BRIEF.md §7's table gives them (a `shot` names one; a bible's `palettes` line lists the world's):
   // tests/sample.test.js keeps this list and the table the same.
   palettes: ["moonlight", "deepnight", "dusk", "desertdawn", "noon", "sea", "harbournight", "storm", "fog", "forest", "goldenhour", "lowsun", "lamplight", "ember",
-             "cellar", "gaslight", "arcade", "institution", "cafe", "pinklobby", "dream", "eerie"],
+             "cellar", "gaslight", "arcade", "institution", "cafe", "pinklobby", "neon", "dream", "eerie"],
   styles: ["dithered", "flat"],                    // a world's `style` (its bible; none means dithered), BRIEF.md §7
   viewpoints: ["eye level", "wide landscape", "far away", "looking up at something outdoors",
                "looking down at an angle from the rim"],   // BRIEF.md §7, "Viewpoints"
