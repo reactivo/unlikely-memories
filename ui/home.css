@@ -21,10 +21,6 @@
     --tile-bg:        var(--color-surface);     /* behind a thumbnail */
     --card-title:     var(--color-text);
     --card-blurb:     var(--color-text-soft);
-    --play:           var(--color-surface);     /* CONTINUE / NEW GAME */
-    --play-text:      var(--color-text);
-    --play-on:        var(--color-press);        /* the button pressed… */
-    --play-on-text:   var(--color-press-text);   /* …and its text */
     --none:           var(--color-text-dim);    /* "There are no games in English yet." */
 
     box-sizing: border-box;
@@ -223,30 +219,13 @@
       margin-top: var(--buttons-margin-top, var(--space-m));   /* phones: M above the buttons; wider windows: layout.css */
     }
 
+    /* CONTINUE and NEW GAME: keys (css/key.css: their look, hover and press). */
     & .play {
+      --key-pad-y: var(--space-s);   /* around the capitals: the label's box is trimmed to them (typography.css) */
       flex: 1 1 0;
       min-width: 0;
-      padding: var(--space-m);   /* around the capitals: the label's box is trimmed to them (typography.css) */
-      border: 0;
+      --key-pad-x: var(--space-m);
       white-space: nowrap;
-      color: var(--play-text);
-      background: var(--play);
-      cursor: pointer;
-    }
-
-    & .play:hover {
-      box-shadow: var(--hover-ring);
-    }
-
-    & .play:active {
-      color: var(--play-on-text);
-      background: var(--play-on);
-      box-shadow: none;   /* no hover line while pressed */
-    }
-
-    & .play:focus-visible {
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
     }
   }
 

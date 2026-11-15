@@ -61,11 +61,12 @@
     :root {
       --page-bottom: max(var(--space-l), env(safe-area-inset-bottom, 0px));  /* below the prompt (the home indicator, if any) */
       --strip-height: 40dvh;                                                  /* the strip's share of the window's height */
-      --tile: min(var(--tile-max), calc(var(--strip-height) / 8.333));        /* what fits: 7 tiles high (the compass's two rows and SEE MAP,
+      --tile: round(down, min(var(--tile-max), calc(var(--strip-height) / 8.333)), 1px);   /* what fits, in whole pixels (so the keys'
+                                                                                 1px lines stay sharp: css/key.css): 7 tiles high (the compass's two rows and SEE MAP,
                                                                                  the inventory's three, SETTINGS) plus gaps adding up to 1⅓
                                                                                  tiles (four --tile-gap inside the blocks, two --block-gap) */
-      --tile-gap: calc(var(--tile) / 6);                                      /* between tiles: 8px at full size */
-      --block-gap: calc(var(--tile) / 3);                                     /* between the strip's blocks (≡, compass, inventory): 16px at full size */
+      --tile-gap: round(calc(var(--tile) / 6), 1px);                          /* between tiles: 8px at full size (whole pixels) */
+      --block-gap: round(calc(var(--tile) / 3), 1px);                                   /* between the strip's blocks (≡, compass, inventory): 16px at full size */
       --strip: calc(3 * var(--tile) + 2 * var(--tile-gap));                   /* the strip's width: three tiles and their two gaps */
       --strip-gap: calc(var(--tile) * 4 / 3);                                 /* between the story and the strip: 64px at full size */
 

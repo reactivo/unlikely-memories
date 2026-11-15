@@ -5,13 +5,14 @@
      a size step (text, line, space) ... here
      how one kind of text looks ........ css/typography.css (the .text-* classes, the fonts)
      column width, strip, tiles, gutters, the breakpoints ... the top of css/layout.css
+     the keys (every tile button) ...... css/key.css (their sizes and colours: here, "Keys")
      one piece (log, compass, map…) .... ui/<piece>.css
    See ARCHITECTURE.md §7 "Styles" for how the CSS is organised. */
 
 /* The layer order for the whole page. It is declared here, in the first stylesheet to load, so it holds whatever
-   order the other files load in: a later layer wins, so a piece (ui) is never overridden by the page layout by
-   accident. (base.css is the one exception: it is not in a layer, see the note there.) */
-@layer tokens, base, typography, layout, ui, utilities;
+   order the other files load in: a later layer wins, so a piece (ui) is never overridden by the page layout or by a shared
+   component (components: the keys, css/key.css) by accident. (base.css is the one exception: it is not in a layer, see the note there.) */
+@layer tokens, base, typography, layout, components, ui, utilities;
 
 /* The picture on upright phones (css/layout.css, ui/crop.js) is always a crop of the scene: its shape is --picture-crop (with
    the shared sizes), registered as a number so that it can be read. (@property is global: it lives outside the layers.) */
@@ -39,6 +40,7 @@
        numbered by darkness. */
     --palette-ink-950:    #1b1a18;   /* near black */
     --palette-ink-900:    #2a2926;   /* lifted: about 6 points lighter than 950 */
+    --palette-stone-800:  #35332f;   /* between 900 and 700: a key's front and shaded side */
     --palette-stone-700:  #42403c;   /* darker grey */
     --palette-stone-600:  #6b6964;   /* dark grey */
     --palette-stone-400:  #97948e;   /* mid grey */
@@ -47,6 +49,7 @@
 
     --palette-amber-300:  #e8c46a;   /* soft amber */
     --palette-yellow-300: #f2d25c;
+    --palette-yellow-500: #c4a43e;   /* darker yellow: the shading inside a pressed key */
     --palette-orange-400: #e8964a;   /* oranger amber: warm, clearly apart from the focus amber and the yellow */
     --palette-red-400:    #e0645a;   /* soft red: bright enough on near black, not alarm red */
     --palette-green-400:  #8cc97a;   /* soft green */
@@ -66,8 +69,7 @@
     --color-mark:          var(--palette-stone-600);  /* small marks around or between things: brackets, the compass dot */
     --color-highlight:     var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */
-    --hover-ring:          inset 0 0 0 2px var(--color-text);   /* a tile button under the pointer: a white line inside it (box-shadow) */
-    --color-press:         var(--color-highlight);   /* a tile button pressed, or open (its panel showing): yellow… */
+    --color-press:         var(--color-highlight);   /* a key pressed, or open (its panel showing): yellow… */
     --color-press-text:    var(--color-bg);          /* …with dark text or icon */
     --focus-ring:          2px solid var(--color-focus);   /* the ring's line: each piece's own :focus-visible rule reads it (outline: var(--focus-ring)) */
     --focus-offset:        2px;                            /* …and its gap from the thing (outline-offset: var(--focus-offset)) */
@@ -80,6 +82,26 @@
        at its height; with reduce motion, half of it. The timings: --duration-hurt and --duration-heal, below. */
     --reaction-hurt:       25%;   /* of --color-hurt, at once */
     --reaction-heal:       12%;   /* of --color-healed, rising and falling */
+
+    /* ---- Keys: every tile or block button, drawn as a key of an old keyboard (css/key.css; INTERFACE.md §5, "Keys"). ---- */
+    --color-key-face:          var(--palette-stone-700);    /* the face */
+    --color-key-side:          var(--palette-stone-800);    /* the front, under the face */
+    --color-key-light:         var(--palette-stone-600);    /* the bevel's light line, top and left */
+    --color-key-shade:         var(--palette-stone-800);    /* the bevel's shaded line, right */
+    --color-key-hover:         var(--color-text);           /* the line round a key under the pointer */
+    --color-key-pressed-shade: var(--palette-yellow-500);   /* a pressed key's bevel, turned round (top and left) */
+    --color-key-inert:         var(--color-surface);        /* a key that does nothing (no way): flat and dim */
+    --key-depth:      4px;    /* how far a key stands up, and how far it goes down when pressed */
+    --key-line:       1px;    /* the bevel's lines */
+    --key-corner:     2px;    /* the corners: an L of this many pixels cut from each (a round step over 3 pixels) */
+    --key-fade-1:     100%;   /* the light fades from the top left corner: how much of it each quarter of its line keeps */
+    --key-fade-2:     70%;
+    --key-fade-3:     40%;
+    --key-fade-4:     15%;
+    --key-hover-line: 1px;    /* the line round a key under the pointer… */
+    --key-hover-gap:  2px;    /* …this far from it (its corners are drawn for these two and --key-corner: css/key.css) */
+    --key-socket-line: 2px;   /* the outline of a key's place (an empty inventory slot) */
+
 
     /* ---- Text sizes ----
        Phones first, windows big enough for the strip further down. In rem (Diego, 5 Nov 2026: all font sizes relative), so
@@ -133,6 +155,7 @@
     --duration-heal:        1.4s;    /* healed: the page background rises to green and fades back over this time (css/base.css) */
     --duration-cursor:      1.06s;   /* the command line's block cursor blinks once (ui/prompt.css) */
     --duration-colon:       2s;      /* the clock's colons blink once (ui/titlebar.css) */
+    --duration-press:       60ms;    /* a key goes down and comes back up (css/key.css) */
 
 
     /* ---- The map's sizes (ui/map.css) ----

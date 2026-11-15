@@ -1,4 +1,4 @@
-/* Tools: ≡ options, one icon (img/icons/, through .icon in utilities.css) centred on one square tile (until 14 November 2026 ♫, a mute switch,
+/* Tools: ≡ options (a key: css/key.css), one icon (img/icons/, through .icon in utilities.css) centred on one square tile (until 14 November 2026 ♫, a mute switch,
    was a second). There are two ≡ buttons with this look: the one in .tools, at the top of the strip on wider windows (one tile, at its
    right end, where the options panel hangs from; .tools is shown only there), and, on phones, the one at the right end of the tabs' row
    (ui/tabs.css), as tall as the tabs and at least the touch size. The sizes come from layout.css; phone values here. The text style is
@@ -14,41 +14,12 @@
   }
 
   .tool {
-    /* Colours of a tool tile, by meaning. */
-    --tile-bg:           var(--color-surface);     /* the tile behind the icon or the word */
-    --tool:              var(--color-text);        /* the icon or the word */
-    --tool-open:         var(--color-press);       /* pressed, or the settings open */
-    --tool-open-text:    var(--color-press-text);
-
-    color: var(--tool);
-    background: var(--tile-bg);
-    border: 0;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
+    /* A key (css/key.css: its look, hover and press, open while the settings show); here only its shape and place. */
     display: var(--tool-display, flex);              /* the icon fills the tile; a word (the strip's) is a plain button like a tab, */
     align-items: center;                             /* so its label is trimmed to the capitals and centred (typography.css) */
     justify-content: center;
     width: var(--tool-width, var(--tile-touch));     /* phones: squares, big enough for a finger */
     height: var(--tool-height, auto);                /* phones: as tall as the tabs beside it (a grid row stretches it) */
     min-height: var(--tool-min-height, var(--tile-touch));   /* the strip's tiles follow the compass (layout.css), however small */
-    box-sizing: border-box;
-
-
-    &:hover {
-      box-shadow: var(--hover-ring);
-    }
-
-    &:active,
-    &[aria-expanded="true"] {
-      color: var(--tool-open-text);
-      background: var(--tool-open);
-      box-shadow: none;   /* no hover line while pressed or open */
-    }
-
-    &:focus-visible {
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
-    }
   }
 }

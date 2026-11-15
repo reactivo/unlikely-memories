@@ -3,22 +3,19 @@
       ⇩  ▲  ⇧
       ◄  ▼  ►
       [⌖ SEE MAP]
-   Every direction tile shows an icon (img/icons/, through .icon in utilities.css), centred. An open exit is a bright arrow (click = go
-   that way); the others are faint and inert, up and down too (all six are always there: since 14 November 2026 there are no
+   Every tile is a key (css/key.css: its look, hover and press) with an icon (img/icons/, through .icon in utilities.css), centred.
+   An open exit is a raised key with a bright arrow (click = go that way); the others are "no way" keys, flat, faint and inert
+   (compass.js sets aria-disabled on them), up and down too (all six are always there: since 14 November 2026 there are no
    corners, and no in or out: a way in or out is a thing in the room, BRIEF.md §8). SEE MAP opens the map (map.css): the map pin and
    its words, centred, bright like an open exit; a plain button like SETTINGS (ui/tools.css), its words at the same size.
    The tiles are --tile square in the strip (a size that follows the window's height: layout.css), with --tile-gap
-   between them; on phones they fill the panel's width (tabs.css). The rows are all one height (grid-auto-rows), so the map's row
+   between them; on phones they share the panel's width, which is its tab's (tabs.css): narrower than --tile on a narrow phone. The rows are all one height (grid-auto-rows), so the map's row
    is a tile high wherever the tiles are.
    The text style is .text-button (css/typography.css), put on the compass in index.html. */
 @layer ui {
   .compass {
-    /* Colours in the compass, by meaning (pointing at roles in tokens.css). */
-    --tile-bg:           var(--color-surface);        /* every tile, and SEE MAP */
-    --exit-open:         var(--color-text);           /* a way you can go */
-    --exit-closed:       var(--color-text-faint);     /* no way out */
-    --exit-press:        var(--color-press);          /* an open exit pressed */
-    --exit-press-text:   var(--color-press-text);
+    /* Colours in the compass, by meaning (pointing at roles in tokens.css). The keys' own colours: css/key.css. */
+    --exit-closed:       var(--color-text-faint);     /* no way out (the blink below goes back to it) */
     --exit-flash:        var(--color-highlight);      /* an exit that just opened or closed blinks in this */
     --over:              var(--color-text-faint);     /* once the story is over: every exit dim, and nothing responds */
 
@@ -27,21 +24,11 @@
     grid-auto-rows: 1fr;
     gap: var(--tile-gap);
 
-    & > * {
-      background: var(--tile-bg);
-    }
-
     & > [data-dir] {
       aspect-ratio: 1;
-      min-width: var(--tile);
     }
 
     & button {
-      border: 0;
-      padding: 0;
-      margin: 0;
-      color: var(--exit-closed);
-      cursor: default;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -65,37 +52,13 @@
       }
     }
 
-    & button.open {
-      color: var(--exit-open);
-      cursor: pointer;
-    }
-
-    /* Under the pointer: a border inside the tile, like an inventory item (SEE MAP has the class `open` too: it always works). */
-    & button.open:hover {
-      box-shadow: var(--hover-ring);
-    }
-
-    & button.open:active {
-      color: var(--exit-press-text);
-      background: var(--exit-press);
-      box-shadow: none;   /* no hover line while pressed */
-    }
-
     /* The story is over (compass.js adds "over"), or you are asleep (ui/page.js: data-asleep on <html>, and the compass inert):
        all dim, no hover, no clicks. */
     &.over button,
-    &.over button.open,
-    :root[data-asleep] & button,
-    :root[data-asleep] & button.open {
+    :root[data-asleep] & button {
       color: var(--over);
       cursor: default;
       pointer-events: none;
-      box-shadow: none;
-    }
-
-    & button:focus-visible {
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
     }
 
     /* An exit that just opened or closed blinks twice, then settles (compass.js adds the class; timing in tokens.css). */

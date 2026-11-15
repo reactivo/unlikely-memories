@@ -1,7 +1,6 @@
 /* Map popup, opened from SEE MAP under the compass or by MAP (ui/map.js). A popover in the browser's top layer: centred, over the
    game, which the backdrop dims. Inside: the map area (rooms, lines and stubs, moved by dragging) with the × at its
-   top left, and the location bar below it (the level's name, and how to move the map); the × and the bar have the same
-   padding, so the × lines up with the level's name. A room's size is built from its text size
+   top left (a key), and the location bar below it (the level's name, and how to move the map). A room's size is built from its text size
    (tokens.css, --map-*), so it grows with it; the popup is --map-w wide at most, and fits a narrow window. It sits outside .layout, so its
    text style is a class of its own: .text-ui (css/typography.css), put on it in index.html; the room names, the level and the
    hint have theirs too. Root class `mapview`, not `map`: the compass's SEE MAP button already has that one. */
@@ -17,8 +16,6 @@
     --room-name:   var(--color-text);         /* its name */
     --here:        var(--color-highlight);    /* the room you are in: border and name (also under the pointer) */
     --way:         var(--color-text-faint);   /* lines between rooms, and stubs */
-    --close:       var(--color-text-dim);     /* the × … */
-    --close-hover: var(--color-text);         /* …under the pointer */
     --level:       var(--color-text);         /* the level's name */
     --note:        var(--color-text-dim);     /* how to move the map */
     --veil:        color-mix(in srgb, var(--color-bg) 72%, transparent);   /* the game behind, dimmed */
@@ -157,30 +154,17 @@
       width: 1px;
     }
 
-    /* The × at the top left: in the corner, its padding the space around it (the same as the location bar's), so the
-       whole padded box is what a finger taps. */
+    /* The × at the top left: a key (css/key.css: its look, hover and press), a touch tile square, a step in from the corner. */
     & .close {
       position: absolute;
       z-index: 1;
-      top: 0;
-      left: 0;
+      top: var(--space-s);
+      left: var(--space-s);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--close);
-      background: none;
-      border: 0;
-      padding: var(--space-m);
-      cursor: pointer;
-    }
-
-    & .close:hover {
-      color: var(--close-hover);
-    }
-
-    & .close:focus-visible {
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
+      width: var(--tile-touch);
+      height: var(--tile-touch);
     }
 
     /* The location bar: the level you are on at the left, how to move the map at the right, both in the same text size

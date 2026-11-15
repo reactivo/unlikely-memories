@@ -3,8 +3,8 @@
 // timing: tokens.css). A restore (new game, undo, a loaded game) shows the inventory at once. Once the story has ended the
 // items are dim and don't respond (the game is locked).
 
-import { itemSVG } from "./sprite.js?v=0.57.0";
-import { text } from "../js/narrator.js?v=0.57.0";
+import { itemSVG } from "./sprite.js?v=0.58.0";
+import { text } from "../js/narrator.js?v=0.58.0";
 
 // Set up the inventory on its section. Returns update().
 export function mount(root, on) {
@@ -19,7 +19,7 @@ export function mount(root, on) {
       const name = obj?.name ? text(obj.name, pack) : null;   // the world's own name
       if (!id || !name) return;                             // empty slot
       const b = document.createElement("button");           // the item: a button with its sprite
-      b.type = "button"; b.className = "item";
+      b.type = "button"; b.className = "item key";
       b.title = name; b.setAttribute("aria-label", name);
       b.innerHTML = itemSVG(id, state) || "";
       b.disabled = !!state.ended;                           // the story is over: nothing responds

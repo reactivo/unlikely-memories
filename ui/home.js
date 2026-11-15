@@ -3,9 +3,9 @@
 // Never decides which games exist or what a saved game is (js/main.js, worlds/index.js, js/saves.js); CONTINUE is the intent
 // on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)).
 
-import { VERSION } from "../js/version.js?v=0.57.0";
-import { THUMB, thumbnailPixels, putPixels, RGB } from "./draw.js?v=0.57.0";
-import { thumbnails } from "./crt.js?v=0.57.0";
+import { VERSION } from "../js/version.js?v=0.58.0";
+import { THUMB, thumbnailPixels, putPixels, RGB } from "./draw.js?v=0.58.0";
+import { thumbnails } from "./crt.js?v=0.58.0";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
@@ -38,7 +38,7 @@ export function mount(root, on) {
 
   // A card's button: its label in capitals (.text-button, typography.css), named for the world, and what a click does.
   function button(label, title, click) {
-    const b = el("button", "play", label);
+    const b = el("button", "play key", label);
     b.type = "button"; b.setAttribute("aria-label", `${label}: ${title}`); b.addEventListener("click", click);
     return b;
   }

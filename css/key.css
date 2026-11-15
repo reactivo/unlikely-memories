@@ -1,0 +1,211 @@
+/* KEYS: every button of the interface that is a tile or a block (the compass, SEE MAP, the inventory's items, SETTINGS and ≡, the
+   phones' tabs, the landing page's NEW GAME and CONTINUE, the map's ×) is drawn as a key of an old keyboard, in flat pixel art
+   (INTERFACE.md §5, "Keys"). One class, .key, on the button: this file draws it and gives it its states; the piece only places
+   and sizes it. Text links (the story's words, Restart game, Quit, the language switch, the map's rooms) and the switches are
+   not keys.
+
+   What a key is, from the outside in (all sizes and colours: tokens.css, "Keys"):
+     the face     the button's background (--color-key-face); its icon or word in the text colour
+     the bevel    a light line along the face's top and left that fades from the top left corner in four steps, and a shaded
+                  line down its right side
+     the front    a band --key-depth high under the face (--color-key-side): the key stands up
+     the corners  rounded in pixel steps (--key-corner): page-coloured pixels cut them, and the bevel follows the cut
+   Its states, from the button itself (a piece adds nothing):
+     hover        a thin line outside the key, a gap away, round its whole shape (::before, drawn only while hovered)
+     pressed      :active, or open (aria-expanded="true", e.g. a tab whose panel shows, SETTINGS while shown) or on
+                  (aria-pressed="true"): the face sinks into the front and turns yellow with dark text; its bevel turns round
+                  (darker yellow at the top and left: it sits in a hole). With reduce motion: the colours only.
+     no way       aria-disabled="true" (a compass direction you can't go): flat, dim, inert
+     disabled     :disabled (an item once the story is over): no hover, no press; the piece decides how it looks
+   The button's box never changes size: the front is drawn inside it, and pressed, the face moves down into it (its padding
+   follows, so the icon or word moves with it). A piece that pads its key gives the padding above and below as --key-pad-y
+   (the front is added to it) and at the sides as --key-pad-x (none by default: a key is as wide as the piece makes it).
+
+   An empty inventory slot is the outline of a key (.key-socket): the same corners, no face. */
+@layer components {
+  .key {
+    /* What the piece may set (defaults here): its padding above and below (the front is added to it) and at the sides. */
+    --key-pad-y: 0px;
+    --key-pad-x: 0px;
+
+    /* The press, worked out: --key-down is 0 or 1 (the state rules below), --key-move 0 with reduce motion. */
+    --key-now:   calc(var(--key-down, 0) * var(--key-move, 1));
+    --key-top:   calc(var(--key-raise, var(--key-depth)) * var(--key-now));   /* the page showing above a pressed face */
+    --key-front: calc(var(--key-raise, var(--key-depth)) - var(--key-top));   /* the front still showing below the face */
+
+    /* The bevel's colours: at rest light top and left, shaded right; pressed, dark yellow top and left (the state rules). */
+    --key-light-now: var(--key-light, var(--color-key-light));
+    --key-shade-now: var(--key-shade, var(--color-key-shade));
+    --key-fade-1-now: color-mix(in srgb, var(--key-light-now) var(--key-fade-1), transparent);
+    --key-fade-2-now: color-mix(in srgb, var(--key-light-now) var(--key-fade-2), transparent);
+    --key-fade-3-now: color-mix(in srgb, var(--key-light-now) var(--key-fade-3), transparent);
+    --key-fade-4-now: color-mix(in srgb, var(--key-light-now) var(--key-fade-4), transparent);
+    --key-corner-1: max(0px, calc(var(--key-corner) - 1px));   /* the bevel's step inside the cut: one pixel shorter */
+    --key-side-h:   calc(100% - var(--key-corner) - var(--key-front));   /* the left and right lines: under the corner, down to the front */
+
+    position: relative;
+    margin: 0;
+    border: 0;
+    padding-top: calc(var(--key-pad-y) + var(--key-top));
+    padding-bottom: calc(var(--key-pad-y) + var(--key-front));
+    padding-inline: var(--key-pad-x);
+    box-sizing: border-box;
+    color: var(--color-text);
+    background: var(--color-key-face);
+    cursor: pointer;
+    box-shadow:
+      inset 0 var(--key-top) 0 var(--color-bg),
+      inset 0 calc(-1 * var(--key-front)) 0 var(--color-key-side),
+      inset calc(-1 * var(--key-line)) 0 0 var(--key-shade-now);
+
+    /* Over the face: the light along the top and down the left (fading in four quarters), the cut corners, and the bevel's step
+       inside each top corner (light at the left, the light's last quarter and the shade at the right). It follows the face down. */
+    &::after {
+      content: "";
+      position: absolute;
+      inset: var(--key-top) 0 0 0;
+      pointer-events: none;
+      background:
+        linear-gradient(var(--key-light-now) 0 0) left 1px top 1px / var(--key-corner-1) 1px no-repeat,
+        linear-gradient(var(--key-light-now) 0 0) left 1px top 1px / 1px var(--key-corner-1) no-repeat,
+        linear-gradient(var(--key-shade-now) 0 0) right 1px top 1px / 1px var(--key-corner-1) no-repeat,
+        linear-gradient(var(--key-fade-4-now) 0 0) right 2px top 1px / max(0px, calc(var(--key-corner) - 2px)) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left top / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left top / 1px var(--key-corner) no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right top / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right top / 1px var(--key-corner) no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left bottom / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left bottom / 1px var(--key-corner) no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right bottom / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right bottom / 1px var(--key-corner) no-repeat,
+        linear-gradient(to right, var(--key-fade-1-now) 0 25%, var(--key-fade-2-now) 25% 50%, var(--key-fade-3-now) 50% 75%, var(--key-fade-4-now) 75%)
+          left var(--key-corner) top 0 / calc(100% - 2 * var(--key-corner)) var(--key-line) no-repeat,
+        linear-gradient(to bottom, var(--key-fade-1-now) 0 25%, var(--key-fade-2-now) 25% 50%, var(--key-fade-3-now) 50% 75%, var(--key-fade-4-now) 75%)
+          left 0 top var(--key-corner) / var(--key-line) var(--key-side-h) no-repeat;
+    }
+
+    /* Hover: the line outside the key (only drawn while hovered). Its box is the key's, grown by the gap and the line; its
+       corners are a round pixel step a gap away from the key's own. That step is drawn pixel by pixel for the corner, gap and
+       line in tokens.css (--key-corner 2px, --key-hover-gap 2px, --key-hover-line 1px): if one of them changes, redraw it. */
+    &:hover::before {
+      --out: calc(var(--key-hover-gap) + var(--key-hover-line));
+      --run: calc(var(--key-corner) + var(--out));   /* where the straight lines start, from each corner of the box */
+      content: "";
+      position: absolute;
+      inset: calc(var(--key-top) - var(--out)) calc(-1 * var(--out)) calc(-1 * var(--out));
+      pointer-events: none;
+      background:
+        linear-gradient(var(--key-ring) 0 0) left var(--run) top 0 / calc(100% - 2 * var(--run)) var(--key-hover-line) no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left var(--run) bottom 0 / calc(100% - 2 * var(--run)) var(--key-hover-line) no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left 0 top var(--run) / var(--key-hover-line) calc(100% - 2 * var(--run)) no-repeat,
+        linear-gradient(var(--key-ring) 0 0) right 0 top var(--run) / var(--key-hover-line) calc(100% - 2 * var(--run)) no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left 3px top 1px / 2px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left 2px top 2px / 1px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left 1px top 3px / 1px 2px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) right 3px top 1px / 2px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) right 2px top 2px / 1px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) right 1px top 3px / 1px 2px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left 3px bottom 1px / 2px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left 2px bottom 2px / 1px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) left 1px bottom 3px / 1px 2px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) right 3px bottom 1px / 2px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) right 2px bottom 2px / 1px 1px no-repeat,
+        linear-gradient(var(--key-ring) 0 0) right 1px bottom 3px / 1px 2px no-repeat;
+    }
+
+    &:hover {
+      --key-ring: var(--color-key-hover);
+    }
+
+    /* Pressed, open or on: down, yellow, the bevel turned round, no hover line. */
+    &:active,
+    &[aria-expanded="true"],
+    &[aria-pressed="true"] {
+      --key-down: 1;
+      --key-ring: transparent;
+      --key-light: var(--color-key-pressed-shade);
+      --key-shade: transparent;
+      color: var(--color-press-text);
+      background: var(--color-press);
+    }
+
+    /* No way: flat, dim, inert. */
+    &[aria-disabled="true"] {
+      --key-raise: 0px;
+      --key-light: transparent;
+      --key-shade: transparent;
+      color: var(--color-text-faint);
+      background: var(--color-key-inert);
+      cursor: default;
+    }
+
+    /* No way, or disabled: no hover line, no press. */
+    &[aria-disabled="true"],
+    &:disabled {
+      --key-down: 0;
+      --key-ring: transparent;
+    }
+
+    &:is([aria-disabled="true"], :disabled):hover::before {
+      content: none;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .key {
+      transition:
+        padding var(--duration-press) linear,
+        box-shadow var(--duration-press) linear;
+    }
+
+    .key::after {
+      transition: inset var(--duration-press) linear;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .key {
+      --key-move: 0;
+    }
+  }
+
+  /* The outline of a key, for a place where a key can be (an empty inventory slot): a line --key-socket-line wide in the
+     surface colour, with the keys' corners; the pixel inside each corner rounds its inner edge too. Gone once a key is in it. */
+  .key-socket {
+    position: relative;
+    box-shadow: inset 0 0 0 var(--key-socket-line) var(--color-surface);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(var(--color-surface) 0 0) left var(--key-socket-line) top var(--key-socket-line) / 1px 1px no-repeat,
+        linear-gradient(var(--color-surface) 0 0) right var(--key-socket-line) top var(--key-socket-line) / 1px 1px no-repeat,
+        linear-gradient(var(--color-surface) 0 0) left var(--key-socket-line) bottom var(--key-socket-line) / 1px 1px no-repeat,
+        linear-gradient(var(--color-surface) 0 0) right var(--key-socket-line) bottom var(--key-socket-line) / 1px 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left top / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left top / 1px var(--key-corner) no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right top / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right top / 1px var(--key-corner) no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left bottom / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) left bottom / 1px var(--key-corner) no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right bottom / var(--key-corner) 1px no-repeat,
+        linear-gradient(var(--color-bg) 0 0) right bottom / 1px var(--key-corner) no-repeat;
+    }
+
+    &:has(.key) {
+      box-shadow: none;
+
+      &::before {
+        content: none;
+      }
+    }
+  }
+}

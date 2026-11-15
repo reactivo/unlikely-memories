@@ -1,11 +1,8 @@
 /* Inventory: 9 square slots (3 x 3), the same size as the compass tiles, filled in order with pixel-art sprites of
-   what you carry. A slot with something in it is a filled tile; an empty one is just an outline. Clicking an item
-   examines it, then suggests what else to do with it. */
+   what you carry. An item is a key (css/key.css: its look, hover and press) filling its slot; an empty slot is the outline of
+   one (.key-socket, css/key.css). Clicking an item examines it, then suggests what else to do with it. */
 @layer ui {
   .inventory {
-    /* Colours in the inventory, by meaning. */
-    --slot:       var(--color-surface);   /* a filled slot, and the outline of an empty one */
-    --slot-press: var(--color-press);     /* a filled slot pressed */
     --over-dim:   0.4;                    /* once the story is over: the items fade to this, and nothing responds */
 
     & .slots {
@@ -19,45 +16,21 @@
 
     & .slot {
       aspect-ratio: 1;
-      min-width: var(--tile);
-      box-shadow: inset 0 0 0 2px var(--slot);   /* outline: a thin line */
     }
 
-    & .slot:has(.item) {
-      background: var(--slot);
-    }
-
-    /* An item in a slot: a pixel-art sprite filling the slot (kept square, centred). */
+    /* An item in a slot: a key filling the slot, its pixel-art sprite on the face (kept square, centred). */
     & .item {
+      --key-pad-y: var(--tile-gap);   /* (8px at full size; smaller with smaller tiles) */
       display: block;
       width: 100%;
       height: 100%;
-      padding: var(--tile-gap);   /* (8px at full size; smaller with smaller tiles) */
-      box-sizing: border-box;
-      border: 0;
-      background: none;
-      cursor: pointer;
+      --key-pad-x: var(--tile-gap);
     }
 
     & .item svg {
       display: block;
       width: 100%;
       height: 100%;
-    }
-
-    /* Hover: a white border drawn inside the slot, so nothing shifts. */
-    & .item:hover {
-      box-shadow: var(--hover-ring);
-    }
-
-    & .item:active {
-      background: var(--slot-press);
-      box-shadow: none;   /* no hover line while pressed */
-    }
-
-    & .item:focus-visible {
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
     }
 
     /* The story is over (inventory.js adds "over"), or you are asleep (ui/page.js: data-asleep on <html>): dim, no hover, no clicks. */
