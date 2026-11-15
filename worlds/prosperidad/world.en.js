@@ -3,10 +3,10 @@
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 // Reworked 2026-11-15 (strangeness 0): the story is now the hunt for a dealer who walks a round of the strip's rooms.
 
-import pictures, { endings } from "./pictures.js?v=0.58.2";
-import music, { rooms as roomMusic } from "./music.js?v=0.58.2";
-import levels from "./levels.js?v=0.58.2";
-import sprites from "./sprites.js?v=0.58.2";
+import pictures, { endings } from "./pictures.js?v=0.58.3";
+import music, { rooms as roomMusic } from "./music.js?v=0.58.3";
+import levels from "./levels.js?v=0.58.3";
+import sprites from "./sprites.js?v=0.58.3";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

@@ -317,6 +317,7 @@
     margin: 0;
     border-radius: 0;
     text-align: start;   /* (a button centres its text by default) */
+    white-space: normal;   /* not inherited from .keep (a marker and its punctuation): its own words may still wrap */
     cursor: pointer;
     /* A command is a button, so it never breaks across lines by itself: one that doesn't fit at the end of a line moves
        whole to the next. Only one longer than a whole line wraps inside, between its words ("ABRIR PUERTA DE INCENDIOS
