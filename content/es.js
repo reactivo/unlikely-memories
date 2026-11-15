@@ -72,7 +72,7 @@ const playedFor = (ms) => {
 export default {
   titled,
   lowerNumbers: true,           // un nombre con número se escribe en minúscula en una orden («Entrar en caseta 7»), como en una frase («la caseta 7»)
-  hint: "Escribe `Ayuda` si la necesitas",
+  hint: "`Ayuda` si la necesitas",
   or: " o ",
   and: " y ",
   // El final de la historia (cualquier final): no se pregunta nada. Primero una nota breve en gris, una sola vez (d = { ms:
@@ -175,7 +175,12 @@ export default {
   // Una pregunta que se contesta con palabras (`ask`: un nombre, una contraseña): la línea gris tras ella, y la respuesta cuando ninguna regla la recoge.
   typeAnswer: "Escribe tu respuesta.",
   answerUnheard: "No contestas nada.",
-  help: "Escribe lo que quieres hacer en pocas palabras, como «abre la puerta» o «coge la lámpara». Haz clic en un objeto+ para examinarlo, o en una orden en mayúsculas para hacerla al momento.\n\nAcciones comunes: `Mirar`, `Examinar`, `Coger`, `Dejar`, `Abrir`, `Inventario`, `Hora`, `Estado`, `Hablar con`, `Esperar`.\n\nDirecciones: `N`, `S`, `E`, `O`, `Arriba`, `Abajo`, `Dentro`, `Fuera`. `Mapa` muestra por dónde has estado, y un clic en una sala te lleva hasta ella.\n\nPartida: `Deshacer`, `Grabar`, `Cargar`, `Salir` (vuelve a la lista de juegos).",
+  // La cosa de práctica de la AYUDA (js/practice.js): el objeto+ al que apunta su texto. Su nombre y sus palabras, lo que dice al examinarla, su
+  // única acción (la orden como se ofrece y como se escribe) y la respuesta a esa acción. Una cosa del propio mundo con una de estas palabras
+  // gana a esta.
+  practice: { name: "Objeto", words: { nouns: ["objeto"], g: "m" }, examine: "Al examinar algo, debajo aparecen las acciones posibles. Pulsa una para llevarla a cabo.",
+              action: "Acción de prueba", test: "Es solo una prueba." },
+  help: "Escribe lo que quieres hacer en pocas palabras, como «abre la puerta» o «coge la lámpara». Haz clic en un {objeto|practice_thing} para examinarlo, o en una orden en mayúsculas para hacerla al momento.\n\nAcciones comunes: `Mirar`, `Examinar`, `Coger`, `Dejar`, `Abrir`, `Inventario`, `Hora`, `Estado`, `Hablar con`, `Esperar`.\n\nDirecciones: `N`, `S`, `E`, `O`, `Arriba`, `Abajo`. `Mapa` muestra por dónde has estado, y un clic en una sala te lleva hasta ella.\n\n`Dentro`, `Fuera` y `Entrar` usan una puerta o abertura de la habitación.\n\nPartida: `Deshacer`, `Grabar`, `Cargar`, `Salir` (vuelve a la lista de juegos).",
   hintCarried: (n) => `Algo que llevas quizá sepa más. Prueba \`Escuchar ${n}\`.`,
   hintHere: (n) => `Algo de aquí quizá sepa más. Prueba \`Escuchar ${n}\`.`,
   hintAway: "En algún sitio dejaste algo que escucha. Quizá sepa más.",

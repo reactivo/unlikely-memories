@@ -3,41 +3,42 @@
 // Also the session: undo, oops, saving and loading (js/saves.js), and which view the page shows: the list of games (no hash) or one
 // world (#<id>, js/route.js). Never touches the page (that's ui/).
 
-import en from "../content/en.js?v=0.58.3";
-import es from "../content/es.js?v=0.58.3";
-import { newState, FORMAT } from "./state.js?v=0.58.3";
-import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.58.3";
-import { parse, retype } from "./parser.js?v=0.58.3";
-import { inScope } from "./place.js?v=0.58.3";
-import { tell, describe, introOf, text, listName, placeName, joined } from "./narrator.js?v=0.58.3";
-import { parts, hhmm } from "./time.js?v=0.58.3";
-import * as saves from "./saves.js?v=0.58.3";
-import { suggestion, topicsLine, story } from "./view.js?v=0.58.3";
-import { walk, tripWords } from "./map.js?v=0.58.3";
-import { createClock } from "./clock.js?v=0.58.3";
-import { routeOf, hashOf } from "./route.js?v=0.58.3";
-import { listFor, thumbnailFor } from "../worlds/index.js?v=0.58.3";
-import { load, store } from "./prefs.js?v=0.58.3";
-import { examineSVG } from "../ui/sprite.js?v=0.58.3";
-import * as titlebar from "../ui/titlebar.js?v=0.58.3";
-import * as scene from "../ui/scene.js?v=0.58.3";
-import * as crop from "../ui/crop.js?v=0.58.3";
-import * as log from "../ui/log.js?v=0.58.3";
-import * as prompt from "../ui/prompt.js?v=0.58.3";
-import * as compass from "../ui/compass.js?v=0.58.3";
-import * as inventory from "../ui/inventory.js?v=0.58.3";
-import * as options from "../ui/options.js?v=0.58.3";
-import * as soundpanel from "../ui/soundpanel.js?v=0.58.3";
-import * as graphicspanel from "../ui/graphicspanel.js?v=0.58.3";
-import * as map from "../ui/map.js?v=0.58.3";
-import * as page from "../ui/page.js?v=0.58.3";
-import * as tools from "../ui/tools.js?v=0.58.3";
-import * as tabs from "../ui/tabs.js?v=0.58.3";
-import * as keys from "../ui/keys.js?v=0.58.3";
-import * as home from "../ui/home.js?v=0.58.3";
-import * as icons from "../ui/icons.js?v=0.58.3";
-import * as crt from "../ui/crt.js?v=0.58.3";
-import * as sound from "../ui/sound.js?v=0.58.3";
+import en from "../content/en.js?v=0.59.0";
+import es from "../content/es.js?v=0.59.0";
+import { newState, FORMAT } from "./state.js?v=0.59.0";
+import { withPractice } from "./practice.js?v=0.59.0";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.59.0";
+import { parse, retype } from "./parser.js?v=0.59.0";
+import { inScope } from "./place.js?v=0.59.0";
+import { tell, describe, introOf, text, listName, placeName, joined } from "./narrator.js?v=0.59.0";
+import { parts, hhmm } from "./time.js?v=0.59.0";
+import * as saves from "./saves.js?v=0.59.0";
+import { suggestion, topicsLine, story } from "./view.js?v=0.59.0";
+import { walk, tripWords } from "./map.js?v=0.59.0";
+import { createClock } from "./clock.js?v=0.59.0";
+import { routeOf, hashOf } from "./route.js?v=0.59.0";
+import { listFor, thumbnailFor } from "../worlds/index.js?v=0.59.0";
+import { load, store } from "./prefs.js?v=0.59.0";
+import { examineSVG } from "../ui/sprite.js?v=0.59.0";
+import * as titlebar from "../ui/titlebar.js?v=0.59.0";
+import * as scene from "../ui/scene.js?v=0.59.0";
+import * as crop from "../ui/crop.js?v=0.59.0";
+import * as log from "../ui/log.js?v=0.59.0";
+import * as prompt from "../ui/prompt.js?v=0.59.0";
+import * as compass from "../ui/compass.js?v=0.59.0";
+import * as inventory from "../ui/inventory.js?v=0.59.0";
+import * as options from "../ui/options.js?v=0.59.0";
+import * as soundpanel from "../ui/soundpanel.js?v=0.59.0";
+import * as graphicspanel from "../ui/graphicspanel.js?v=0.59.0";
+import * as map from "../ui/map.js?v=0.59.0";
+import * as page from "../ui/page.js?v=0.59.0";
+import * as tools from "../ui/tools.js?v=0.59.0";
+import * as tabs from "../ui/tabs.js?v=0.59.0";
+import * as keys from "../ui/keys.js?v=0.59.0";
+import * as home from "../ui/home.js?v=0.59.0";
+import * as icons from "../ui/icons.js?v=0.59.0";
+import * as crt from "../ui/crt.js?v=0.59.0";
+import * as sound from "../ui/sound.js?v=0.59.0";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -445,7 +446,7 @@ function forgetGame() {
 // Continue a saved game: its state, its clock, its story so far (shown at once), no undo history.
 function restore(r) {
   forgetGame();
-  state = r.state; lang = state.lang;
+  state = withPractice(r.state); lang = state.lang;   // (a game saved before the practice thing has none: js/practice.js)
   clock.reset(r.played ?? state.clock); showTime();   // play time as it was when saved
   ui.log.clear(); ui.prompt.clear();
   ui.prompt.hint(ui.log.markup(packOf(state).hint), 0, false);   // not shown; it comes back if you're idle
@@ -671,7 +672,7 @@ if (DEBUG_PANEL) {
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js?v=0.58.3"), import("./debug.js?v=0.58.3")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.59.0"), import("./debug.js?v=0.59.0")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on

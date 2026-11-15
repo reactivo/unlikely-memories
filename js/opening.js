@@ -12,8 +12,8 @@
 //
 //   opening: { room, hints, way, intro, lines: { hintFrame } }
 
-import { DIRECTIONS } from "./space.js?v=0.58.3";
-import { waysOf, wayAt, exitTo } from "./exits.js?v=0.58.3";
+import { DIRECTIONS } from "./space.js?v=0.59.0";
+import { waysOf, wayAt, exitTo } from "./exits.js?v=0.59.0";
 
 export const IDS = ["room", "hints", "way"];                       // the parts that name a room or a thing, by id
 export const PARTS = [...IDS, "intro"];                            // and the intro, a text

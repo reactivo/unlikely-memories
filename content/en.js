@@ -35,7 +35,7 @@ const a = (name, w) => {
 const listOf = (items, last) => (items.length > 1 ? items.slice(0, -1).join(", ") + last + items.at(-1) : items[0] ?? "");
 
 export default {
-  hint: "Type `Help` for ideas",   // beside the prompt at the start (no full stop: it isn't a sentence in the story)
+  hint: "`Help` for ideas",   // beside the prompt at the start (no full stop: it isn't a sentence in the story)
   or: " or ",
   and: " and ",
   // The end of the story (any ending): nothing is asked. First a short grey note, once (d = { ms: play time, rooms: rooms
@@ -140,8 +140,12 @@ export default {
   // A question for words (`ask`: a name, a password): the grey line after it, and the reply when no rule takes the answer up.
   typeAnswer: "Type your answer.",
   answerUnheard: "You answer nothing.",
+  // HELP's practice thing (js/practice.js): the object+ its text points at. Its name and nouns, what examining it says, its one action (the
+  // command as offered, and as typed) and that action's reply. A world's own thing with one of these nouns wins over it.
+  practice: { name: "Object", words: { nouns: ["object"] }, examine: "When you examine something, what you can do with it appears underneath. Click an action to do it.",
+              action: "Test action", test: "This is just a test." },
   // HELP: how the game works, and the commands that work anywhere. (Hints come from the thing that listens.)
-  help: "Type what you want to do in a few words, like \"open the door\" or \"take the lamp\". Click any object+ to examine it, or any command in capitals to do it at once.\n\nCommon actions: `Look`, `Examine`, `Take`, `Drop`, `Open`, `Inventory`, `Time`, `Status`, `Talk to`, `Wait`.\n\nDirections: `N`, `S`, `E`, `W`, `Up`, `Down`, `In`, `Out`. `Map` shows where you've been, and a click on a room there walks you to it.\n\nGame: `Undo`, `Save`, `Load`, `Quit` (back to the list of games).",
+  help: "Type what you want to do in a few words, like \"open the door\" or \"take the lamp\". Click any {object|practice_thing} to examine it, or any command in capitals to do it at once.\n\nCommon actions: `Look`, `Examine`, `Take`, `Drop`, `Open`, `Inventory`, `Time`, `Status`, `Talk to`, `Wait`.\n\nDirections: `N`, `S`, `E`, `W`, `Up`, `Down`. `Map` shows where you've been, and a click on a room there walks you to it.\n\n`In`, `Out` and `Enter` use a door or opening in the room.\n\nGame: `Undo`, `Save`, `Load`, `Quit` (back to the list of games).",
   // HINT: never a hint itself, only where to listen (n = the opening's listening thing, named).
   hintCarried: (n) => `Something you carry might know more. Try \`Listen to ${n}\`.`,
   hintHere: (n) => `Something here might know more. Try \`Listen to ${n}\`.`,

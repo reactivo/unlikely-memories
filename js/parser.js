@@ -14,12 +14,13 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.58.3";
-import { exitTo, wayAt, wayOf, waysOf, waysAsThings } from "./exits.js?v=0.58.3";
-import { inScope, person } from "./place.js?v=0.58.3";
-import { receives } from "./use.js?v=0.58.3";
-import { ACTIONS, isAction } from "./actions.js?v=0.58.3";
-import { distance } from "./fields.js?v=0.58.3";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.59.0";
+import { exitTo, wayAt, wayOf, waysOf, waysAsThings } from "./exits.js?v=0.59.0";
+import { inScope, person } from "./place.js?v=0.59.0";
+import { receives } from "./use.js?v=0.59.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.59.0";
+import { distance } from "./fields.js?v=0.59.0";
+import { PRACTICE, VERB } from "./practice.js?v=0.59.0";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
@@ -253,9 +254,11 @@ function withWorld(words, state) {
     if (o.topics) topics[id] = Object.fromEntries(Object.entries(o.topics).map(([k, v]) => [k, typeof v === "object" ? normWords(v) : v]));
     if (o.parts) parts[id] = o.parts.map(normWords);
   }
+  // HELP's practice thing (js/practice.js): a thing of the world with one of its nouns wins over it
+  if (names[PRACTICE] && Object.entries(names).some(([id, n]) => id !== PRACTICE && n.nouns.some(x => names[PRACTICE].nouns.includes(x)))) delete names[PRACTICE];
   for (const [id, r] of Object.entries(state.world.rooms)) if (r.scenery) scenery[id] = r.scenery.map(normWords);
   // A world's words for one of the pack's verbs are added to the pack's (lantern's "pay for" beside "order").
-  for (const [verb, v] of Object.entries(state.vocab || {})) verbs[verb] = norm([...(words.words.verbs[verb] || []), ...(v.words || [])]);
+  for (const [verb, v] of Object.entries(state.vocab || {})) verbs[verb] = norm([...(words.words.verbs[verb] || []), ...(v.words || []), ...(verb === VERB ? [words.practice.action] : [])]);
   const key = JSON.stringify([names, scenery, verbs, topics, roomNames, parts]);
   if (key === "[{},{},{},{},{},{}]") return words;
   const seen = worldWords.get(words);

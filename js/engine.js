@@ -2,24 +2,25 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.58.3";
-import standardVerbs from "./verbs.js?v=0.58.3";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.58.3";
-import { clean, isLine } from "./shapes.js?v=0.58.3";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.58.3";
-import { readPicture, editPicture } from "./picture.js?v=0.58.3";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.58.3";
-import * as opening from "./opening.js?v=0.58.3";
-import { translate as translateUse } from "./use.js?v=0.58.3";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.58.3";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.58.3";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.58.3";
-import { ACTIONS, isAction } from "./actions.js?v=0.58.3";
-import { makeSleeping } from "./sleeping.js?v=0.58.3";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.58.3";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.58.3";
-import { answerLine } from "./speech.js?v=0.58.3";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.58.3";
+import { random, between } from "./random.js?v=0.59.0";
+import standardVerbs from "./verbs.js?v=0.59.0";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.59.0";
+import { clean, isLine } from "./shapes.js?v=0.59.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.59.0";
+import { readPicture, editPicture } from "./picture.js?v=0.59.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.59.0";
+import * as opening from "./opening.js?v=0.59.0";
+import { PRACTICE } from "./practice.js?v=0.59.0";
+import { translate as translateUse } from "./use.js?v=0.59.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.59.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.59.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.59.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.59.0";
+import { makeSleeping } from "./sleeping.js?v=0.59.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.59.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.59.0";
+import { answerLine } from "./speech.js?v=0.59.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.59.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -540,7 +541,7 @@ function read(g, path, action) {
   if (id === "time") return prop === "part" ? partAt(worldTime(g)) : parts(worldTime(g), g.time?.weekday)[prop] ?? null;   // "time.hour", "time.day", "time.weekday", "time.part"
   const o = g.world.objects[id] || g.world.rooms[id];   // an object, or a room ("dining.visited")
   if (!o) return null;
-  if (prop === "place") return placeOf(g, id);
+  if (prop === "place") return id === PRACTICE ? g.player.at : placeOf(g, id);   // (HELP's practice thing has no room, and is always at hand: js/practice.js)
   if (prop === "chain" && g.world.objects[id]) return chainOf(g, id);   // "<id>.chain": itself, then what it is in, and what that is in…
   if (prop === "person" && g.world.objects[id]) return person(o);       // "<id>.person": someone you can talk to
   if (prop === "holder" && g.world.objects[id]) return holderOf(g, id); // "<id>.holder": the person who has it, if one does

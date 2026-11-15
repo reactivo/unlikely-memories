@@ -2,9 +2,10 @@
 // Plain data, no behaviour. Only the engine (js/engine.js) makes a new one; everything else only reads it.
 // Interface-only things (text reveal, focus, "restarting…") stay out.
 
-import { worldFor, DEFAULT } from "../worlds/index.js?v=0.58.3";
-import { applyChangeSet } from "./engine.js?v=0.58.3";
-import { newSeed } from "./random.js?v=0.58.3";
+import { worldFor, DEFAULT } from "../worlds/index.js?v=0.59.0";
+import { applyChangeSet } from "./engine.js?v=0.59.0";
+import { newSeed } from "./random.js?v=0.59.0";
+import { withPractice } from "./practice.js?v=0.59.0";
 
 // The shape of the state. Bump it when the state changes shape, so older saved games aren't loaded into code
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
@@ -27,7 +28,7 @@ export function newState({ lang, health = 5, seed = newSeed(), sequel = true, pr
   if (world) {
     const r = applyChangeSet(state, world, { protect, fields: "warn" });
     if (r.warnings?.length) console.warn(`The world${sequel === true ? ` "${id}"` : ""} has ${r.warnings.length} warning(s):\n  ` + r.warnings.join("\n  "));
-    if (!r.refused.length) return { ...r.next, worldId: sequel === true ? id : null };
+    if (!r.refused.length) return withPractice({ ...r.next, worldId: sequel === true ? id : null });
     console.warn(refusalReport(r.refused, sequel === true ? id : null), r.refused);
   }
   return nowhere(state);

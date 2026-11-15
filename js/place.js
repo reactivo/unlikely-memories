@@ -2,6 +2,8 @@
 // in a room): `chainOf`, `placeOf`, `shut`, `within`, `carried`; whether a thing is `noticed`; `person`, the one test for a person,
 // and `holderOf`; and `inScope`, whether a thing is within your reach. Pure: reads the state, never changes it.
 
+import { PRACTICE } from "./practice.js?v=0.59.0";
+
 // The one walk through what holds what (a mint in a tin in a bag in a room). Things inside things go no deeper than this.
 const DEPTH = 5;
 
@@ -47,6 +49,7 @@ export function holderOf(g, id) {
 // hut's oars can't be talked about until it's open). Things in something that isn't a container (mints in
 // a tin) are always in reach.
 export function inScope(state, id) {
+  if (id === PRACTICE) return true;                   // HELP's practice thing is always at hand (js/practice.js)
   const place = placeOf(state, id);
   return !shut(state, id) && (place === state.player.at || place === "player");
 }

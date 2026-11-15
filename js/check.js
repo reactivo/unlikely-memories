@@ -56,17 +56,19 @@
 // The lints of a world as written (everything above but the playthrough: js/checklint.js, `lintWorld`) run first; the playthrough here only
 // when they found no problem. The checker's cache key (tools/checked.mjs) hashes every file of js/, so both files are in it.
 
-import { parse } from "./parser.js?v=0.58.3";
-import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.58.3";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.58.3";
-import { solveCommand } from "./narrator.js?v=0.58.3";
-import { isExitObject, exitTo } from "./exits.js?v=0.58.3";
-import { moveTo, worldTime } from "./time.js?v=0.58.3";
-import { musicOf } from "./music.js?v=0.58.3";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.58.3";
-import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.58.3";
+import { parse } from "./parser.js?v=0.59.0";
+import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.59.0";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.59.0";
+import { solveCommand } from "./narrator.js?v=0.59.0";
+import { isExitObject, exitTo } from "./exits.js?v=0.59.0";
+import { moveTo, worldTime } from "./time.js?v=0.59.0";
+import { musicOf } from "./music.js?v=0.59.0";
+import { withoutPractice } from "./practice.js?v=0.59.0";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.59.0";
+import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.59.0";
 
 export function check(state, pack, bible, { before = null } = {}) {
+  state = withoutPractice(state);                       // (HELP's practice thing is the pack's: a world never declares it: js/practice.js)
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)
   for (const n of musicOf(state)?.notes ?? []) warnings.push(`music: ${n.text}`);   // what the music's reader did: never a problem
   if (state.music == null) warnings.push(NO_MUSIC);                                   // every world has music: warned, never a problem
@@ -110,7 +112,7 @@ export function check(state, pack, bible, { before = null } = {}) {
 
 // The start room's guarantees alone (js/checklint.js, checkOpening), its first puzzle played with this file's own run: what check()
 // lists first, as "the start room: …" (the tests call it on its own, without the whole playthrough).
-export const startRoomProblems = (state, pack) => checkOpening(state, pack, (s, puzzles) => new Run(s, pack, puzzles));
+export const startRoomProblems = (state, pack) => checkOpening(withoutPractice(state), pack, (s, puzzles) => new Run(s, pack, puzzles));
 
 const TIME_MARK = "@time ";
 export function replayCommand(state, command, pack, at = 0) {

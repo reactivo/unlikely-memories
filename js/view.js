@@ -1,16 +1,16 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.58.3";
-import { grammarOf } from "./words.js?v=0.58.3";
-import { parse } from "./parser.js?v=0.58.3";
-import { answers } from "./engine.js?v=0.58.3";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.58.3";
-import { ACTIONS } from "./actions.js?v=0.58.3";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.58.3";
-import { receives } from "./use.js?v=0.58.3";
-import { spellings, called } from "./names.js?v=0.58.3";
-import { wayOf, waysOf } from "./exits.js?v=0.58.3";
-import { LISTEN } from "./opening.js?v=0.58.3";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.59.0";
+import { grammarOf } from "./words.js?v=0.59.0";
+import { parse } from "./parser.js?v=0.59.0";
+import { answers } from "./engine.js?v=0.59.0";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.59.0";
+import { ACTIONS } from "./actions.js?v=0.59.0";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.59.0";
+import { receives } from "./use.js?v=0.59.0";
+import { spellings, called } from "./names.js?v=0.59.0";
+import { wayOf, waysOf } from "./exits.js?v=0.59.0";
+import { LISTEN } from "./opening.js?v=0.59.0";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
@@ -119,8 +119,9 @@ const inHands = (state, id) => state.player.carrying.includes(id);
 // `actions` are the world's own, the commands special to it; what every thing of its kind offers is basicActions.
 function sources(state, t, id) {
   const own = state.world.objects[id];
-  const item = own && own.name && { name: text(own.name, t), actions: own.heldActions || own.actions || [] };
-  const obj = own && own.name && { name: text(own.name, t), note: own.note && text(own.note, t), actions: own.actions || [] };
+  const said = (list) => list.map(x => text(x, t));              // (the practice thing's action is the pack's: "@practice.action")
+  const item = own && own.name && { name: text(own.name, t), actions: said(own.heldActions || own.actions || []) };
+  const obj = own && own.name && { name: text(own.name, t), note: own.note && text(own.note, t), actions: said(own.actions || []) };
   return { item, obj };
 }
 
