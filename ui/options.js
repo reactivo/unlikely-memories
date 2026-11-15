@@ -1,10 +1,11 @@
 // Options panel (≡): two blocks, SOUND (the sliders, mounted by ui/soundpanel.js) and GAME: Restart game and Quit (back to the
 // list of games). No title of its own, no language here: it is chosen on the list of games.
 // "Restart game" closes the panel and asks in the story, like every other yes/no question (js/main.js; after the end, no
-// question); "Quit" closes it and goes at once. Opening focuses the panel's first control (the Music slider); closing returns
-// the focus to the command line.
+// question); "Quit" closes it and goes at once. Opening focuses the panel itself (tabindex -1: no ring; Tab then goes to the
+// sound switch, Esc closes it; until 15 November 2026 the Music slider, which showed the keyboard ring on a phone); closing
+// returns the focus to the command line.
 
-import { hang } from "./popup.js?v=0.53.4";
+import { hang } from "./popup.js?v=0.53.5";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {
@@ -12,10 +13,10 @@ export function mount(panel, on) {
   const $ = (id) => panel.querySelector("#" + id);
   const restart = $("restart-game"), quit = $("quit-game");
 
-  // Opening: focus the first control. Closing: focus the command line.
+  // Opening: focus the panel. Closing: focus the command line.
   // While open, both settings buttons say so (aria-expanded: yellow, as an open tab; ui/tools.css).
   const mark = (open) => { for (const b of buttons) b.setAttribute("aria-expanded", String(open)); };
-  hang(panel, buttons, { opened: () => { mark(true); panel.querySelector("input").focus(); }, closed: () => { mark(false); on.focus(); } });
+  hang(panel, buttons, { opened: () => { mark(true); panel.focus(); }, closed: () => { mark(false); on.focus(); } });
   restart.addEventListener("click", () => { panel.hidePopover(); on.restart(); });
   quit.addEventListener("click", () => { panel.hidePopover(); on.quit(); });
 
