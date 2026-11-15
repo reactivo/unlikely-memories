@@ -1,10 +1,10 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.53.5";
-import music, { rooms as roomMusic } from "./music.js?v=0.53.5";
-import levels from "./levels.js?v=0.53.5";
-import sprites from "./sprites.js?v=0.53.5";
+import pictures, { endings } from "./pictures.js?v=0.53.6";
+import music, { rooms as roomMusic } from "./music.js?v=0.53.6";
+import levels from "./levels.js?v=0.53.6";
+import sprites from "./sprites.js?v=0.53.6";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

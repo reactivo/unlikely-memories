@@ -255,7 +255,9 @@
     & .figure {
       flex: none;
       width: var(--figure);
-      aspect-ratio: 1;
+      height: var(--figure);   /* square by its own two sides, not aspect-ratio: on phones (picture above the text, a column) iPhone
+                                  Safari made the square 16px taller, the svg's 100% height measured on the padded box, so the
+                                  sprite sat high in it (until 15 November 2026) */
       padding: var(--space-s);
       box-sizing: border-box;
       background: var(--figure-bg);

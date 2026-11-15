@@ -10,10 +10,10 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers) > vault (east), pantry (west)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.53.5";
-import music, { rooms as roomMusic } from "./music.js?v=0.53.5";
-import levels from "./levels.js?v=0.53.5";
-import sprites from "./sprites.js?v=0.53.5";
+import pictures, { endings, visions } from "./pictures.js?v=0.53.6";
+import music, { rooms as roomMusic } from "./music.js?v=0.53.6";
+import levels from "./levels.js?v=0.53.6";
+import sprites from "./sprites.js?v=0.53.6";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {

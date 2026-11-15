@@ -7,10 +7,10 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.53.5";
-import music, { rooms as roomMusic } from "./music.js?v=0.53.5";
-import levels from "./levels.js?v=0.53.5";
-import sprites from "./sprites.js?v=0.53.5";
+import pictures, { endings } from "./pictures.js?v=0.53.6";
+import music, { rooms as roomMusic } from "./music.js?v=0.53.6";
+import levels from "./levels.js?v=0.53.6";
+import sprites from "./sprites.js?v=0.53.6";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.

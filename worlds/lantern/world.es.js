@@ -2,10 +2,10 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.53.5";
-import music, { rooms as roomMusic } from "./music.js?v=0.53.5";
-import levels from "./levels.js?v=0.53.5";
-import sprites from "./sprites.js?v=0.53.5";
+import pictures, { endings, visions } from "./pictures.js?v=0.53.6";
+import music, { rooms as roomMusic } from "./music.js?v=0.53.6";
+import levels from "./levels.js?v=0.53.6";
+import sprites from "./sprites.js?v=0.53.6";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {

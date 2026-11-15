@@ -6,22 +6,22 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.53.5";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.53.5";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.53.5";
-import { isAction } from "./actions.js?v=0.53.5";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.53.5";
-import { isLine } from "./shapes.js?v=0.53.5";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.53.5";
-import { nextCell } from "./space.js?v=0.53.5";
-import { moveTo, worldTime, parts } from "./time.js?v=0.53.5";
-import * as opening from "./opening.js?v=0.53.5";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.53.5";
-import art from "../content/art.js?v=0.53.5";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.53.5";
-import { paintPicture } from "./paint.js?v=0.53.5";
-import { filterProblem } from "./filters.js?v=0.53.5";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.53.5";
+import { parse, normalise } from "./parser.js?v=0.53.6";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.53.6";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.53.6";
+import { isAction } from "./actions.js?v=0.53.6";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.53.6";
+import { isLine } from "./shapes.js?v=0.53.6";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.53.6";
+import { nextCell } from "./space.js?v=0.53.6";
+import { moveTo, worldTime, parts } from "./time.js?v=0.53.6";
+import * as opening from "./opening.js?v=0.53.6";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.53.6";
+import art from "../content/art.js?v=0.53.6";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.53.6";
+import { paintPicture } from "./paint.js?v=0.53.6";
+import { filterProblem } from "./filters.js?v=0.53.6";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.53.6";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });

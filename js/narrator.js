@@ -3,12 +3,12 @@
 // without words of their own (a move, a set) say nothing: the rule that caused them says what happened.
 // Pure: never touches the page or the state.
 
-import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.53.5";
-import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.53.5";
-import { activeIds, conditionTone } from "./conditions.js?v=0.53.5";
-import { placeOf, noticed } from "./place.js?v=0.53.5";
-import { isMover } from "./movers.js?v=0.53.5";
-import { clean } from "./shapes.js?v=0.53.5";
+import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.53.6";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.53.6";
+import { activeIds, conditionTone } from "./conditions.js?v=0.53.6";
+import { placeOf, noticed } from "./place.js?v=0.53.6";
+import { isMover } from "./movers.js?v=0.53.6";
+import { clean } from "./shapes.js?v=0.53.6";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
