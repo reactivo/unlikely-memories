@@ -21,11 +21,11 @@
 // sections are open, the CRT look's values (crt: null until one is changed). Closing it with × forgets all of that, the CRT look's
 // values too (art.js's come back); /debug opens it fresh.
 
-import * as debug from "../js/debug.js?v=0.52.1";
-import { parts, hhmm } from "../js/time.js?v=0.52.1";
-import { text } from "../js/narrator.js?v=0.52.1";
-import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.52.1";
-import { touch } from "./media.js?v=0.52.1";
+import * as debug from "../js/debug.js?v=0.53.0";
+import { parts, partAt, hhmm } from "../js/time.js?v=0.53.0";
+import { text } from "../js/narrator.js?v=0.53.0";
+import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.53.0";
+import { touch } from "./media.js?v=0.53.0";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
 // font, logRem, logLine, letter: the Typography section's (null: the font's own value). (logRem: the story's size in rem; until
@@ -105,7 +105,7 @@ function sync(a, b) {
 
 // Build the panel (hidden) and add it to the page. Returns open(), update(), showsRules() and wholeMap().
 export function mount(dev) {
-  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.52.1", import.meta.url).href });
+  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.53.0", import.meta.url).href });
   document.head.append(css);
   const html = document.documentElement;
   let v = null;                                    // what it remembers while open (null: closed)
@@ -376,9 +376,11 @@ export function mount(dev) {
     const d = Math.max(1, Math.floor(+day.value || 1)), h = Math.max(0, Math.min(23, Math.floor(+hour.value || 0)));
     run(debug.time(d, h), "time day " + d + " " + String(h).padStart(2, "0") + ":00");
   }, undefined, "set-time");
-  parts$.time.append(row("Day", day), row("Hour", hour, setTime));
+  const part = el("span", "part", "", { "data-key": "part" });        // the part of the day now (content/time.js), read only
+  parts$.time.append(row("Day", day), row("Hour", hour, setTime), row("Part", part));
   function time(st) {
     const now = parts(worldNow(st));
+    part.textContent = partAt(worldNow(st));
     if (document.activeElement !== day) day.value = now.day;
     if (document.activeElement !== hour) hour.value = now.hour;
     for (const c of [day, hour, setTime]) c.disabled = !!st.ended;
@@ -501,6 +503,7 @@ export function mount(dev) {
     if (!st) return;
     const out = isOpen("inspect") && parts$.inspect.querySelector("dd.clock"), cells = isOpen("music") && MUSIC_FACTS.map(([, cls, text]) => [parts$.music.querySelector("dd." + cls), text]);
     if (out) out.textContent = clockText(st);
+    if (isOpen("time")) part.textContent = partAt(worldNow(st));
     if (cells && cells[0][0]) {                                          // (a world with no music has none of these)
       const info = dev.sound().info();
       for (const [cell, text] of cells) cell.textContent = text(info, st);

@@ -69,7 +69,7 @@ export default {
   // one of the death lines, `hurt.dead`) and where you can't (the opening, a question waiting, a conversation, a hold).
   sleep: {
     ask: "How long do you sleep?",
-    choices: { nap: "A short nap", few: "A few hours", morning: "Until morning" },
+    choices: { nap: "A short nap", few: "A few hours", morning: "Until dawn" },   // (`morning` is the answer's id, as saved)
     or: "Or say until when: \"sleep until 18:00\".",
     close: "You close your eyes.",
     dream: (s) => `In a dream, someone says: "${s}"`,
@@ -90,10 +90,14 @@ export default {
     const m = minute < 30 ? minute : 60 - minute, words = n[m] + (m % 5 ? (m === 1 ? " minute" : " minutes") : "");
     return words + (minute < 30 ? " past " + h(hour) : " to " + h(hour + 1));
   },
-  // TIME: d = { weekday (or null), time "16:42", day }. Days 1–3 in words, then digits.
+  // The parts of the day (content/time.js), each in the grammar of TIME's line: `name` the word, `is` after "It's" (no weekday), `on`
+  // after "Today is <weekday>,".
+  parts: { dawn: { name: "dawn", is: "dawn", on: "dawn" }, daytime: { name: "daytime", is: "daytime", on: "daytime" },
+           dusk: { name: "dusk", is: "dusk", on: "dusk" }, night: { name: "night", is: "night", on: "night" } },
+  // TIME: d = { part (an id), weekday (or null), time "16:42", hour, day }. Days 1–3 in words, then digits.
   timeNow(d) {
-    const day = d.day <= 3 ? `the ${["first", "second", "third"][d.day - 1]} day` : `day ${d.day}`;
-    return d.weekday ? `Today is ${d.weekday}, ${d.time}, ${day} of your adventure.` : `It's ${d.time}, on ${day} of your adventure.`;
+    const day = d.day <= 3 ? `the ${["first", "second", "third"][d.day - 1]} day` : `day ${d.day}`, part = this.parts[d.part];
+    return d.weekday ? `Today is ${d.weekday}, ${part.on}, ${d.time}, ${day} of your adventure.` : `It's ${part.is}, ${d.time}, on ${day} of your adventure.`;
   },
   // One phrase per health step (index 1 to 5), shared by STATUS and the echoes (INTERFACE.md §6c). None names a cause. [0] is the echo of a death (STATUS never shows it).
   health: ["You're dead", "You can barely stand", "You feel awful", "You feel unwell", "You feel a little off", "You're in good health"],
@@ -373,7 +377,7 @@ export default {
       wear: ["wear", "put on", "don", "dress in"],
       remove: ["take off", "remove", "doff", "undress"],
       inventory: ["inventory", "inv", "i"],
-      time: ["time", "date", "what time is it"],
+      time: ["time", "day", "date", "what time is it", "what day is it", "what day is today"],
       status: ["status", "me", "myself", "diagnose", "diagnosis", "how am i"],
       open: ["open", "unwrap", "uncover", "pry open", "prise open"],
       close: ["close", "shut", "cover", "slam"],

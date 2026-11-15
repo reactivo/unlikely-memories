@@ -107,7 +107,7 @@ export default {
   // condición que hace daño: luego una de las líneas de muerte, `hurt.dead`) y dónde no se puede.
   sleep: {
     ask: "¿Cuánto duermes?",
-    choices: { nap: "Una cabezada", few: "Unas horas", morning: "Hasta la mañana" },
+    choices: { nap: "Una cabezada", few: "Unas horas", morning: "Hasta el amanecer" },   // (`morning` es el id de la respuesta, como se grabó)
     or: "O di hasta cuándo: «duerme hasta las 18:00».",
     close: "Cierras los ojos.",
     dream: (s) => `En sueños, alguien te dice: «${s}»`,
@@ -128,9 +128,15 @@ export default {
     if (minute === 45) return h(hour + 1) + " menos cuarto";
     return minute < 30 ? h(hour) + " y " + min(minute) : h(hour + 1) + " menos " + min(60 - minute);
   },
+  // Las partes del día (content/time.js), cada una en la gramática de la línea de HORA: `name` la palabra, `is` tras "Es" (sin día de la
+  // semana), `on` tras "Hoy es <día>,".
+  // is: el principio de la línea de HORA sin día de la semana ("Está amaneciendo, las 06:05…"); on: tras el día de la semana.
+  parts: { dawn: { name: "amanecer", is: "Está amaneciendo", on: "al amanecer" }, daytime: { name: "de día", is: "Es de día", on: "de día" },
+           dusk: { name: "atardecer", is: "Está atardeciendo", on: "al atardecer" }, night: { name: "noche", is: "Es de noche", on: "de noche" } },
+  // HORA: d = { part (un id), weekday (o null), time "16:42", hour, day }. Los días 1 a 3 en palabras, luego cifras.
   timeNow(d) {
-    const day = d.day <= 3 ? `el ${["primer", "segundo", "tercer"][d.day - 1]} día` : `el día ${d.day}`;
-    return d.weekday ? `Hoy es ${d.weekday}, ${d.time}, ${day} de tu aventura.` : `Son las ${d.time}, ${day} de tu aventura.`;
+    const day = d.day <= 3 ? `el ${["primer", "segundo", "tercer"][d.day - 1]} día` : `el día ${d.day}`, part = this.parts[d.part], las = d.hour === 1 ? "la" : "las";
+    return d.weekday ? `Hoy es ${d.weekday}, ${part.on}, ${las} ${d.time}, ${day} de tu aventura.` : `${part.is}, ${las} ${d.time}, ${day} de tu aventura.`;
   },
   // Una frase por paso de salud (índice 1 a 5), común a STATUS y a los ecos (INTERFACE.md §6c). Ninguna nombra una causa.
   health: ["Has muerto", "Apenas te tienes en pie", "Te sientes fatal", "Te encuentras mal", "No estás del todo bien", "Te sientes muy bien"],
@@ -422,7 +428,7 @@ export default {
              "probarse", "probarme", "probarte", "pruebate", "pruebese", "me pruebo"],
       remove: ["quitarse", "quitate", "quitese", "me quito", "desvestirse", "descalzarse", "sacarse"],
       inventory: ["inventario", "inv", "i"],
-      time: ["hora", "fecha", "que hora es"],
+      time: ["hora", "dia", "fecha", "que hora es", "que dia es", "que dia es hoy"],
       status: ["estado", "yo", "diagnostico", "diagnosticar", "como estoy"],
       open: ["abrir", "abre", "abra", "abro", "destapar", "destapa", "desenvolver"],
       close: ["cerrar", "cierra", "cierre", "cierro", "tapar"],

@@ -9,13 +9,14 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.52.1";
-import { PARTS, LINES } from "./opening.js?v=0.52.1";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.52.1";
-import { DIRECTIONS } from "./space.js?v=0.52.1";
-import { isObject, isLine } from "./shapes.js?v=0.52.1";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.52.1";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.52.1";
+import { ANSWERED } from "./verbs.js?v=0.53.0";
+import { PARTS, LINES } from "./opening.js?v=0.53.0";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.53.0";
+import { DIRECTIONS } from "./space.js?v=0.53.0";
+import { isObject, isLine } from "./shapes.js?v=0.53.0";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.53.0";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.53.0";
+import { PART_IDS } from "./time.js?v=0.53.0";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
@@ -108,7 +109,7 @@ export const FIELDS = {
   // The engine's own values that rules read and set by path: "player.health", "time.hour".
   player: ["at", "in", "carrying", "health", "answers", "conditions"],   // answers: what was typed to each `ask`, by its key (player.answers.name); conditions: the ids of those you're in
   game: ["ended", "ending", "entrance", "turn", "clock"],
-  time: ["hour", "minute", "second", "day", "weekday"],
+  time: ["hour", "minute", "second", "day", "weekday", "part"],
   any: ["place", "chain", "person", "holder"]   // read on any thing: where it really is, what it is in, whether it is a person, who has it
 };
 
@@ -227,6 +228,13 @@ export function effectKind(e) {
 }
 
 // ---- Conditions -----------------------------------------------------------------------------------------------------
+// A value of `time.part` that is not a part of the day (content/time.js): the values it is compared with, a plain one, or the
+// operand of `=`, `!=` or a list of `in`; a "$" value (read at play time) is left alone.
+function notParts(want) {
+  const values = want !== null && typeof want === "object" && !Array.isArray(want)
+    ? Object.entries(want).filter(([op]) => ["=", "!=", "in"].includes(op)).flatMap(([, v]) => [v].flat()) : [want];
+  return values.filter(v => !(typeof v === "string" && (v.startsWith("$") || PART_IDS.includes(v))));
+}
 // What is wrong with a list of conditions, if anything (the checker says it for a rule's `if` and a `waitFor.if`; at
 // play time a wrong operator would throw). Returns the problems found, as sentences.
 const OPERATORS = ["=", "!=", "<", "<=", ">", ">=", "in", "has", "between", "holds"];
@@ -242,6 +250,8 @@ export function conditionProblems(conditions) {
         else want.forEach((x, j) => conditionProblems(Array.isArray(x) ? x : [x]).forEach(w => why.push(`any, item ${j + 1}: ${w}`)));
         continue;
       }
+      if (path === "time.part" && !Array.isArray(want) && notParts(want).length)
+        why.push(`"time.part": ${notParts(want).map(v => JSON.stringify(v)).join(", ")} is not a part of the day (${PART_IDS.join(", ")})`);
       if (Array.isArray(want)) why.push(`"${path}": a list isn't a value; use { in: [ … ] } for one of several`);
       else if (typeof want === "string" && /^\s*(!=|>=|<=|<|>)/.test(want)) {
         const m = /^\s*(!=|>=|<=|<|>)\s*(.*)$/s.exec(want);

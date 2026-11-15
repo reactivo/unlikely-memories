@@ -10,10 +10,10 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers) > vault (east), pantry (west)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.52.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.52.1";
-import levels from "./levels.js?v=0.52.1";
-import sprites from "./sprites.js?v=0.52.1";
+import pictures, { endings, visions } from "./pictures.js?v=0.53.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.53.0";
+import levels from "./levels.js?v=0.53.0";
+import sprites from "./sprites.js?v=0.53.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -815,7 +815,7 @@ const rules = [
     if: [{ "game.turn": { ">=": 0 } }, { "game.clock": { ">=": 0 } }, { "game.entrance": "tb-hub" }, { "game.ended": false }, { "time.day": { ">=": 1 } },
          { "time.minute": { ">=": 0 } }, { "time.second": { ">=": 0 } }, { "time.weekday": { "!=": "sun" } }, { "player.health": { ">": 0 } },
          { "player.carrying": { has: "slip" } }, { "player.at": "tb-hub" }, { "$in": null }, { "$obj.at": "tb-hub" }, { "badge.place": "tb-hub" }, { "oduya.person": true },
-         { "badge.holder": null }, { "$exits": { "!=": null } }, { "game.ending": null }, { "fuse.chain": { has: "fuse" } }],
+         { "badge.holder": null }, { "$exits": { "!=": null } }, { "game.ending": null }, { "fuse.chain": { has: "fuse" } }, { "time.part": { in: ["dawn", "daytime", "dusk", "night"] } }],
     do: [{ say: "The board reads back what the game knows: the turn, the clock, the day and the hour, and your health.", img: "coin" }] },
   { id: "board_plain", match: { verb: "read", obj: "board" }, do: [{ say: "$board.examine" }] },
   { id: "dusk_sky", when: "at", at: "19:00", do: [{ draw: "tb-yard", restyle: [{ id: "sky", fill: 8 }] }] },

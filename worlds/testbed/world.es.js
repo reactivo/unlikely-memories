@@ -6,10 +6,10 @@
 // El mapa: la apertura (una sala de admisión), luego un centro con un camino corto a la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.52.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.52.1";
-import levels from "./levels.js?v=0.52.1";
-import sprites from "./sprites.js?v=0.52.1";
+import pictures, { endings, visions } from "./pictures.js?v=0.53.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.53.0";
+import levels from "./levels.js?v=0.53.0";
+import sprites from "./sprites.js?v=0.53.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -810,7 +810,7 @@ const rules = [
     if: [{ "game.turn": { ">=": 0 } }, { "game.clock": { ">=": 0 } }, { "game.entrance": "tb-hub" }, { "game.ended": false }, { "time.day": { ">=": 1 } },
          { "time.minute": { ">=": 0 } }, { "time.second": { ">=": 0 } }, { "time.weekday": { "!=": "sun" } }, { "player.health": { ">": 0 } },
          { "player.carrying": { has: "slip" } }, { "player.at": "tb-hub" }, { "$in": null }, { "$obj.at": "tb-hub" }, { "badge.place": "tb-hub" }, { "oduya.person": true },
-         { "badge.holder": null }, { "$exits": { "!=": null } }, { "game.ending": null }, { "fuse.chain": { has: "fuse" } }],
+         { "badge.holder": null }, { "$exits": { "!=": null } }, { "game.ending": null }, { "fuse.chain": { has: "fuse" } }, { "time.part": { in: ["dawn", "daytime", "dusk", "night"] } }],
     do: [{ say: "El tablón lee de vuelta lo que sabe el juego: el turno, el reloj, el día y la hora, y tu salud.", img: "coin" }] },
   { id: "board_plain", match: { verb: "read", obj: "board" }, do: [{ say: "$board.examine" }] },
   { id: "dusk_sky", when: "at", at: "19:00", do: [{ draw: "tb-yard", restyle: [{ id: "sky", fill: 8 }] }] },

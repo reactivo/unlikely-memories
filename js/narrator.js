@@ -3,12 +3,12 @@
 // without words of their own (a move, a set) say nothing: the rule that caused them says what happened.
 // Pure: never touches the page or the state.
 
-import { worldTime, parts, hhmm } from "./time.js?v=0.52.1";
-import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.52.1";
-import { activeIds, conditionTone } from "./conditions.js?v=0.52.1";
-import { placeOf, noticed } from "./place.js?v=0.52.1";
-import { isMover } from "./movers.js?v=0.52.1";
-import { clean } from "./shapes.js?v=0.52.1";
+import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.53.0";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.53.0";
+import { activeIds, conditionTone } from "./conditions.js?v=0.53.0";
+import { placeOf, noticed } from "./place.js?v=0.53.0";
+import { isMover } from "./movers.js?v=0.53.0";
+import { clean } from "./shapes.js?v=0.53.0";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -219,10 +219,10 @@ export function inventory(state, pack) {
   return text("@invList", pack, joined(names, pack.and ?? pack.or));
 }
 
-// TIME: the world's weekday (if it has one), time and day of your adventure, worded by the pack.
+// TIME: the part of the day, the world's weekday (if it has one), time and day of your adventure, worded by the pack.
 function timeNow(state, pack, at = worldTime(state)) {
   const p = parts(at, state.time?.weekday);
-  return text("@timeNow", pack, { weekday: p.weekday ? pack.weekdays[p.weekday] : null, time: hhmm(p), day: p.day });
+  return text("@timeNow", pack, { part: partAt(at), weekday: p.weekday ? pack.weekdays[p.weekday] : null, time: hhmm(p), hour: p.hour, day: p.day });
 }
 
 // The phrase of a health echo: a hurt says the pack's own phrase for that step (echo.hurt), if it has one, else the state

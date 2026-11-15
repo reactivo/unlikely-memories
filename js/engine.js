@@ -2,24 +2,24 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.52.1";
-import standardVerbs from "./verbs.js?v=0.52.1";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.52.1";
-import { clean, isLine } from "./shapes.js?v=0.52.1";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.52.1";
-import { readPicture, editPicture } from "./picture.js?v=0.52.1";
-import { worldTime, parts, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.52.1";
-import * as opening from "./opening.js?v=0.52.1";
-import { translate as translateUse } from "./use.js?v=0.52.1";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.52.1";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.52.1";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.52.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.52.1";
-import { makeSleeping } from "./sleeping.js?v=0.52.1";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.52.1";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.52.1";
-import { answerLine } from "./speech.js?v=0.52.1";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.52.1";
+import { random, between } from "./random.js?v=0.53.0";
+import standardVerbs from "./verbs.js?v=0.53.0";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.53.0";
+import { clean, isLine } from "./shapes.js?v=0.53.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.53.0";
+import { readPicture, editPicture } from "./picture.js?v=0.53.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.53.0";
+import * as opening from "./opening.js?v=0.53.0";
+import { translate as translateUse } from "./use.js?v=0.53.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.53.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.53.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.53.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.53.0";
+import { makeSleeping } from "./sleeping.js?v=0.53.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.53.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.53.0";
+import { answerLine } from "./speech.js?v=0.53.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.53.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -546,7 +546,7 @@ function read(g, path, action) {
   if (id === "player" && rest[0] === "answers") return rest.length === 2 ? g.player.answers?.[rest[1]] ?? null : null;   // "player.answers.name": what was typed
   if (id === "player") return g.player[prop] ?? startOf(g, id, prop);
   if (id === "game") return g[prop] ?? startOf(g, id, prop);
-  if (id === "time") return parts(worldTime(g), g.time?.weekday)[prop] ?? null;   // "time.hour", "time.day", "time.weekday"
+  if (id === "time") return prop === "part" ? partAt(worldTime(g)) : parts(worldTime(g), g.time?.weekday)[prop] ?? null;   // "time.hour", "time.day", "time.weekday", "time.part"
   const o = g.world.objects[id] || g.world.rooms[id];   // an object, or a room ("dining.visited")
   if (!o) return null;
   if (prop === "place") return placeOf(g, id);

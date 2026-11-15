@@ -6,6 +6,8 @@
 //
 //   world time (ms since day 1, 00:00) = state.clock + state.time.shift
 
+import PARTS from "../content/time.js?v=0.53.0";
+
 export const MINUTE = 60000, HOUR = 60 * MINUTE, DAY = 24 * HOUR;
 export const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];   // ids; each language names them
 
@@ -18,6 +20,18 @@ export function parts(ms, firstWeekday = null) {
   return { day, hour: Math.floor(inDay / HOUR), minute: Math.floor(inDay / MINUTE) % 60, second: Math.floor(inDay / 1000) % 60,
            weekday: start < 0 ? null : WEEKDAYS[(start + day - 1) % 7] };
 }
+
+// The part of the day (content/time.js: dawn, daytime, dusk, night) a world time is in: the last part that has begun by then, the
+// last of the table before the first begins (night, past midnight). A part's id.
+export function partAt(ms) {
+  const inDay = ((ms % DAY) + DAY) % DAY;
+  let part = PARTS[PARTS.length - 1];
+  for (const p of PARTS) if (p.from * HOUR <= inDay) part = p;
+  return part.id;
+}
+export const PART_IDS = PARTS.map(p => p.id);
+// The hour (0 to 23) a part wakes you at ("Until dawn": a sleep, js/sleep.js), or null for a part with none.
+export const wakeHour = (id) => PARTS.find(p => p.id === id)?.wake ?? null;
 
 // A time of day as the game writes it in figures: "07:05".
 export const hhmm = ({ hour, minute }) => String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");

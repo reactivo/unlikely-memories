@@ -3,15 +3,12 @@
 // `effectsOf` (the picture's filters the music follows), `soundsOf` (a moment's list read into plain terms: the sounds), and the
 // lists of the sounds and materials a debug panel or a bench can try. The piece that plays them is ui/sound.js. Pure.
 
-import S from "../content/music.js?v=0.52.1";
-import { parts } from "../js/time.js?v=0.52.1";
-import { parseFilter } from "../js/filters.js?v=0.52.1";
+import S from "../content/music.js?v=0.53.0";
+import { partAt } from "../js/time.js?v=0.53.0";
+import { parseFilter } from "../js/filters.js?v=0.53.0";
 
-// Night by the world's clock (ms since day 1, 00:00): from `from` o'clock to `to` (through midnight when from > to).
-export function nightAt(ms) {
-  const h = parts(ms).hour, { from, to } = S.reactions.night;
-  return from > to ? h >= from || h < to : h >= from && h < to;
-}
+// Night by the world's clock (ms since day 1, 00:00): when the part of the day is "night" (content/time.js; dawn and dusk change nothing).
+export const nightAt = (ms) => partAt(ms) === "night";
 
 // How unwell the player is, from their health (S.reactions.unwell): 0 well, 1 unwell (at `at` and below), 2 worse (at `worse.at`).
 export function unwellAt(health) {

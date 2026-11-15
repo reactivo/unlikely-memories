@@ -2,7 +2,7 @@
 // js/time.js; a new day at midnight). The day itself is not shown here (until 14 November 2026 "Day 1 / 17:15:00"): STATUS and the
 // other commands that say it still do; the time's `datetime` keeps it, for screen readers and tools.
 
-import { placeName } from "../js/narrator.js?v=0.52.1";
+import { placeName } from "../js/narrator.js?v=0.53.0";
 
 // Set up the title bar on its element. Returns update() and showClock().
 export function mount(root) {

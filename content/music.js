@@ -44,10 +44,10 @@ export default {
     // Sleep: everything fades out under the eyelids over `out` and back over `back` as you wake; the whole theme `theme` seconds
     // after waking, then the usual schedule.
     sleep: { out: 3, back: 4, theme: 5 },
-    // Night, by the world's clock, from `from` o'clock to `to`: each line plays one pass in `every` (whole passes, each line in its
-    // turn, so a line keeps its shape), and the theme `octave` octaves lower (brought into range). It changes with each line's next
-    // pass and the theme's next turn, never at once.
-    night: { from: 20, to: 6, every: 2, octave: -1 },
+    // Night, by the world's clock, while the part of the day is "night" (content/time.js: 20:00 to 06:00; dawn and dusk change nothing):
+    // each line plays one pass in `every` (whole passes, each line in its turn, so a line keeps its shape), and the theme `octave`
+    // octaves lower (brought into range). It changes with each line's next pass and the theme's next turn, never at once.
+    night: { every: 2, octave: -1 },
     // Unwell (docs/music/PLAN.md stage 6), from the player's health: at `at` and below (level 1), each line plays one pass in `every`
     // as at night (with night too, still one in `every`), and every note of the lines and the theme sits `detune` cents flat, drifting
     // ± `drift[1]` cents at `drift[0]` Hz, so it sounds unwell rather than wrong; the detune comes and goes over `glide` seconds. At
