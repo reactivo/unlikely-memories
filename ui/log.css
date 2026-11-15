@@ -316,8 +316,11 @@
     padding: 0;
     margin: 0;
     border-radius: 0;
-    white-space: nowrap;   /* never split a command across two lines */
+    text-align: start;   /* (a button centres its text by default) */
     cursor: pointer;
+    /* A command is a button, so it never breaks across lines by itself: one that doesn't fit at the end of a line moves
+       whole to the next. Only one longer than a whole line wraps inside, between its words ("ABRIR PUERTA DE INCENDIOS
+       CON PALANCA" on a phone; until 15 November 2026 nowrap let it run off the screen). */
 
     &::before {
       content: var(--command-open);
