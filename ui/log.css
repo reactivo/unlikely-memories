@@ -110,6 +110,10 @@
       color: var(--hint);
     }
 
+    & .suggest {
+      white-space: pre-line;   /* a line break in a suggestion stays one: the topics line, one topic a line (js/view.js) */
+    }
+
     /* An echo (js/narrator.js gives it "echo text-echo echo-<kind>"): a short line at the story's size, close under the
        line it follows, in the colour of its kind. A kind with no colour of its own is dim (a thing gained or lost, a world's
        own); a condition's takes its tone's colour (below). A health echo and STATUS have the five health bars before the phrase (log.js, `.bars`; below), the echo of a

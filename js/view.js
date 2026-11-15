@@ -1,16 +1,16 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.59.3";
-import { grammarOf } from "./words.js?v=0.59.3";
-import { parse } from "./parser.js?v=0.59.3";
-import { answers } from "./engine.js?v=0.59.3";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.59.3";
-import { ACTIONS } from "./actions.js?v=0.59.3";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.59.3";
-import { receives } from "./use.js?v=0.59.3";
-import { spellings, called } from "./names.js?v=0.59.3";
-import { wayOf, waysOf } from "./exits.js?v=0.59.3";
-import { LISTEN } from "./opening.js?v=0.59.3";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.59.4";
+import { grammarOf } from "./words.js?v=0.59.4";
+import { parse } from "./parser.js?v=0.59.4";
+import { answers } from "./engine.js?v=0.59.4";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.59.4";
+import { ACTIONS } from "./actions.js?v=0.59.4";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.59.4";
+import { receives } from "./use.js?v=0.59.4";
+import { spellings, called } from "./names.js?v=0.59.4";
+import { wayOf, waysOf } from "./exits.js?v=0.59.4";
+import { LISTEN } from "./opening.js?v=0.59.4";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
@@ -109,7 +109,12 @@ export function topicsLine(state, t, id) {
     // (named in a sentence, with its article: "with the fitter", "con el doctor Mabbott"; the heading above is the name on its own)
     return text("@talkedOut", t, { name: listName(id, state, t), forNow: hidden }, undefined, undefined, grammarOf(state.world.objects[id].words));
   }
-  return name + ": " + joined(offered.map(x => "`" + text("@askAbout", t, x.label) + "`"), t.or) + ".";
+  // One topic a line, under the name (the list reads down: Diego, 15 November 2026, once long commands could wrap and
+  // the topics ran together into a block): "The Minister:\n`Ask about a`,\n`Ask about b` or\n`Ask about c`." (the log
+  // keeps the line breaks: ui/log.css, .suggest).
+  const items = offered.map(x => "`" + text("@askAbout", t, x.label) + "`");
+  const rows = items.map((x, i) => x + (i < items.length - 2 ? "," : i === items.length - 2 ? t.or.trimEnd() : "."));
+  return name + ":\n" + rows.join("\n");
 }
 
 // Is it in your hands (in the inventory's slots, not inside something you carry)?
