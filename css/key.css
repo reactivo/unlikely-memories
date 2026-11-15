@@ -84,37 +84,43 @@
           left 0 top var(--key-corner) / var(--key-line) var(--key-side-h) no-repeat;
     }
 
-    /* Hover: the line outside the key (only drawn while hovered). Its box is the key's, grown by the gap and the line; its
-       corners are a round pixel step a gap away from the key's own. That step is drawn pixel by pixel for the corner, gap and
-       line in tokens.css (--key-corner 2px, --key-hover-gap 2px, --key-hover-line 1px): if one of them changes, redraw it. */
-    &:hover::before {
-      --out: calc(var(--key-hover-gap) + var(--key-hover-line));
-      --run: calc(var(--key-corner) + var(--out));   /* where the straight lines start, from each corner of the box */
-      content: "";
-      position: absolute;
-      inset: calc(var(--key-top) - var(--out)) calc(-1 * var(--out)) calc(-1 * var(--out));
-      pointer-events: none;
-      background:
-        linear-gradient(var(--key-ring) 0 0) left var(--run) top 0 / calc(100% - 2 * var(--run)) var(--key-hover-line) no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left var(--run) bottom 0 / calc(100% - 2 * var(--run)) var(--key-hover-line) no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left 0 top var(--run) / var(--key-hover-line) calc(100% - 2 * var(--run)) no-repeat,
-        linear-gradient(var(--key-ring) 0 0) right 0 top var(--run) / var(--key-hover-line) calc(100% - 2 * var(--run)) no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left 3px top 1px / 2px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left 2px top 2px / 1px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left 1px top 3px / 1px 2px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) right 3px top 1px / 2px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) right 2px top 2px / 1px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) right 1px top 3px / 1px 2px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left 3px bottom 1px / 2px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left 2px bottom 2px / 1px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) left 1px bottom 3px / 1px 2px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) right 3px bottom 1px / 2px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) right 2px bottom 2px / 1px 1px no-repeat,
-        linear-gradient(var(--key-ring) 0 0) right 1px bottom 3px / 1px 2px no-repeat;
-    }
+    /* Only where something really hovers (a mouse or trackpad). On a touch screen there is no hover: iPhone Safari treats a
+       tap as a hover first, and when the hover makes something appear (this line, drawn by ::before) it keeps the tap as
+       a hover and waits for a second tap to click ("tap twice to move", 15 November 2026). Not a breakpoint (those stay
+       in layout.css): what the device can do. */
+    @media (hover: hover) {
+      /* Hover: the line outside the key (only drawn while hovered). Its box is the key's, grown by the gap and the line; its
+         corners are a round pixel step a gap away from the key's own. That step is drawn pixel by pixel for the corner, gap and
+         line in tokens.css (--key-corner 2px, --key-hover-gap 2px, --key-hover-line 1px): if one of them changes, redraw it. */
+      &:hover::before {
+        --out: calc(var(--key-hover-gap) + var(--key-hover-line));
+        --run: calc(var(--key-corner) + var(--out));   /* where the straight lines start, from each corner of the box */
+        content: "";
+        position: absolute;
+        inset: calc(var(--key-top) - var(--out)) calc(-1 * var(--out)) calc(-1 * var(--out));
+        pointer-events: none;
+        background:
+          linear-gradient(var(--key-ring) 0 0) left var(--run) top 0 / calc(100% - 2 * var(--run)) var(--key-hover-line) no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left var(--run) bottom 0 / calc(100% - 2 * var(--run)) var(--key-hover-line) no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left 0 top var(--run) / var(--key-hover-line) calc(100% - 2 * var(--run)) no-repeat,
+          linear-gradient(var(--key-ring) 0 0) right 0 top var(--run) / var(--key-hover-line) calc(100% - 2 * var(--run)) no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left 3px top 1px / 2px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left 2px top 2px / 1px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left 1px top 3px / 1px 2px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) right 3px top 1px / 2px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) right 2px top 2px / 1px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) right 1px top 3px / 1px 2px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left 3px bottom 1px / 2px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left 2px bottom 2px / 1px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) left 1px bottom 3px / 1px 2px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) right 3px bottom 1px / 2px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) right 2px bottom 2px / 1px 1px no-repeat,
+          linear-gradient(var(--key-ring) 0 0) right 1px bottom 3px / 1px 2px no-repeat;
+      }
 
-    &:hover {
-      --key-ring: var(--color-key-hover);
+      &:hover {
+        --key-ring: var(--color-key-hover);
+      }
     }
 
     /* Pressed, open or on: down, yellow, the bevel turned round, no hover line. */
@@ -146,8 +152,10 @@
       --key-ring: transparent;
     }
 
-    &:is([aria-disabled="true"], :disabled):hover::before {
-      content: none;
+    @media (hover: hover) {
+      &:is([aria-disabled="true"], :disabled):hover::before {
+        content: none;
+      }
     }
 
     &:focus-visible {

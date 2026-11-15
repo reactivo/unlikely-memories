@@ -5,7 +5,7 @@
 // sound switch, Esc closes it; until 15 November 2026 the Music slider, which showed the keyboard ring on a phone); closing
 // returns the focus to the command line.
 
-import { hang } from "./popup.js?v=0.59.0";
+import { hang } from "./popup.js?v=0.59.1";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {
