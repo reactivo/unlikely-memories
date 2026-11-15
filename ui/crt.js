@@ -9,6 +9,8 @@
 //                               little screen. The same shared context; each figure drawn once when it is on the page, again on a resize
 //                               (its own, or the picture's `box`) or a change of settings. add(figure), clear().
 //   settings(), configure(v)    the settings now in effect: content/art.js (effects.crt), or those the debug panel set instead.
+//   allow(on)                   the player's switch (Settings, GRAPHICS: CRT effect): off, the plain picture shows everywhere, whatever the
+//                               settings say (the debug panel's `on` included); on, the settings rule again.
 //
 // No WebGL, a shader that won't compile, or a lost context: the WebGL canvas goes and the plain canvas shows, as it always did.
 // At most two contexts in all: the scene's and the one shared by the thumbnails and the figures (never on the same page). Safe to import in Node (nothing touches the page until used).
@@ -20,8 +22,8 @@
 // (`mask`); and `flicker`, one random brightness for the frame. The vignette is not here: it is a static gradient over the visible box
 // (CSS: ui/scene.css, ui/home.css, from --crt-vignette), so on an upright phone it darkens the box's edges, not the hidden sides'.
 
-import art from "../content/art.js?v=0.55.2";
-import { calm } from "./media.js?v=0.55.2";
+import art from "../content/art.js?v=0.56.0";
+import { calm } from "./media.js?v=0.56.0";
 
 // What each setting may be: [min, max, step], for the debug panel's sliders and for keeping a value sane.
 export const RANGES = {
@@ -33,10 +35,14 @@ const MAX_RATIO = 3;                                   // the most device pixels
 
 // ---- The settings in effect: one place ----
 let current = { ...art.effects.crt };
+let allowed = true;                                    // the player's switch: off beats `current.on`
+const lit = () => allowed && current.on;
 const listeners = new Set();
 const emit = () => { for (const f of [...listeners]) f(); };
 export const defaults = () => ({ ...art.effects.crt });
 export const settings = () => ({ ...current });
+// The player's switch. Everything drawn is drawn again at once.
+export function allow(on) { if (allowed === !!on) return; allowed = !!on; emit(); }
 // Settings now: content/art.js's, with these over them (an object; null for none). Unknown names are ignored, numbers kept in range.
 // Everything drawn is drawn again at once.
 export function configure(values) {
@@ -160,7 +166,7 @@ export function screen(source, { w, h }) {
     if (!pass) { dead = true; canvas = null; return false; }
     pass.source(w, h);
     source.after(canvas);
-    if (typeof ResizeObserver === "function") new ResizeObserver(() => { if (image && current.on && pass) show(); }).observe(canvas);
+    if (typeof ResizeObserver === "function") new ResizeObserver(() => { if (image && lit() && pass) show(); }).observe(canvas);
     return true;
   }
   // The plain canvas alone: the look is off, or can't be had.
@@ -182,7 +188,7 @@ export function screen(source, { w, h }) {
   // This picture, now: the scene has just drawn `img`. The one place anything is drawn (apart from a resize and a change of settings).
   function draw(img) {
     image = img;
-    if (!current.on || !make()) return plain();
+    if (!lit() || !make()) return plain();
     pass.upload(img);
     flick = !calm() && current.flicker ? 1 + (Math.random() * 2 - 1) * current.flicker : 1;
     show();
@@ -209,7 +215,7 @@ export function thumbnails() {
   function paint(canvas) {
     const it = items.get(canvas);
     if (!it) return;
-    const { ctx, image } = it, pass = current.on ? sharedPass() : null, r = ratio();
+    const { ctx, image } = it, pass = lit() ? sharedPass() : null, r = ratio();
     const cw = canvas.clientWidth, ch = canvas.clientHeight;
     if (pass && cw && ch) {
       pass.source(image.width, image.height);
@@ -258,7 +264,7 @@ export function figures(box) {
   }) : null;
   let watched = null, scratch = null;                              // (the box being watched; the one canvas the sprite is drawn on before the pass)
   function paint(fig) {
-    const it = items.get(fig), pass = current.on ? sharedPass() : null, r = ratio();
+    const it = items.get(fig), pass = lit() ? sharedPass() : null, r = ratio();
     const cw = fig.clientWidth, ch = fig.clientHeight, row = (box()?.clientHeight || 0) / art.picture.height;
     if (!pass || !cw || !ch || !row) return plain(fig, it);
     const style = getComputedStyle(fig), pad = parseFloat(style.paddingLeft) || 0, inner = cw - 2 * pad;

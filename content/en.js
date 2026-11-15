@@ -287,6 +287,7 @@ export default {
   options: "Settings",
   sound: { title: "SOUND", music: "Music", tone: "Room", sounds: "Sounds" },   // the SOUND block of the options (ui/soundpanel.js)
   a11y: { story: "Story", command: "Type a command" },
+  graphics: { title: "GRAPHICS", crt: "CRT effect", reflections: "Reflections" },   // the GRAPHICS block of the options (ui/graphicspanel.js)
   panel: { game: "GAME", restart: "Restart game", quit: "Quit" },
   // The landing page (ui/home.js). The game's name is not translated. The buttons show in capitals (home.css): CONTINUE on a world with a saved game, NEW GAME always.
   home: { subtitle: "Artificial Interactive Fiction", newGame: "New game", resume: "Continue", version: "Version",

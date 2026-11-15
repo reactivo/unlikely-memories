@@ -3,39 +3,40 @@
 // Also the session: undo, oops, saving and loading (js/saves.js), and which view the page shows: the list of games (no hash) or one
 // world (#<id>, js/route.js). Never touches the page (that's ui/).
 
-import en from "../content/en.js?v=0.55.2";
-import es from "../content/es.js?v=0.55.2";
-import { newState, FORMAT } from "./state.js?v=0.55.2";
-import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.55.2";
-import { parse, retype } from "./parser.js?v=0.55.2";
-import { inScope } from "./place.js?v=0.55.2";
-import { tell, describe, text, listName, placeName, joined } from "./narrator.js?v=0.55.2";
-import { parts, hhmm } from "./time.js?v=0.55.2";
-import * as saves from "./saves.js?v=0.55.2";
-import { suggestion, topicsLine, story } from "./view.js?v=0.55.2";
-import { walk, tripWords } from "./map.js?v=0.55.2";
-import { createClock } from "./clock.js?v=0.55.2";
-import { routeOf, hashOf } from "./route.js?v=0.55.2";
-import { listFor, thumbnailFor } from "../worlds/index.js?v=0.55.2";
-import { load, store } from "./prefs.js?v=0.55.2";
-import { examineSVG } from "../ui/sprite.js?v=0.55.2";
-import * as titlebar from "../ui/titlebar.js?v=0.55.2";
-import * as scene from "../ui/scene.js?v=0.55.2";
-import * as crop from "../ui/crop.js?v=0.55.2";
-import * as log from "../ui/log.js?v=0.55.2";
-import * as prompt from "../ui/prompt.js?v=0.55.2";
-import * as compass from "../ui/compass.js?v=0.55.2";
-import * as inventory from "../ui/inventory.js?v=0.55.2";
-import * as options from "../ui/options.js?v=0.55.2";
-import * as soundpanel from "../ui/soundpanel.js?v=0.55.2";
-import * as map from "../ui/map.js?v=0.55.2";
-import * as page from "../ui/page.js?v=0.55.2";
-import * as tools from "../ui/tools.js?v=0.55.2";
-import * as tabs from "../ui/tabs.js?v=0.55.2";
-import * as keys from "../ui/keys.js?v=0.55.2";
-import * as home from "../ui/home.js?v=0.55.2";
-import * as crt from "../ui/crt.js?v=0.55.2";
-import * as sound from "../ui/sound.js?v=0.55.2";
+import en from "../content/en.js?v=0.56.0";
+import es from "../content/es.js?v=0.56.0";
+import { newState, FORMAT } from "./state.js?v=0.56.0";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.56.0";
+import { parse, retype } from "./parser.js?v=0.56.0";
+import { inScope } from "./place.js?v=0.56.0";
+import { tell, describe, text, listName, placeName, joined } from "./narrator.js?v=0.56.0";
+import { parts, hhmm } from "./time.js?v=0.56.0";
+import * as saves from "./saves.js?v=0.56.0";
+import { suggestion, topicsLine, story } from "./view.js?v=0.56.0";
+import { walk, tripWords } from "./map.js?v=0.56.0";
+import { createClock } from "./clock.js?v=0.56.0";
+import { routeOf, hashOf } from "./route.js?v=0.56.0";
+import { listFor, thumbnailFor } from "../worlds/index.js?v=0.56.0";
+import { load, store } from "./prefs.js?v=0.56.0";
+import { examineSVG } from "../ui/sprite.js?v=0.56.0";
+import * as titlebar from "../ui/titlebar.js?v=0.56.0";
+import * as scene from "../ui/scene.js?v=0.56.0";
+import * as crop from "../ui/crop.js?v=0.56.0";
+import * as log from "../ui/log.js?v=0.56.0";
+import * as prompt from "../ui/prompt.js?v=0.56.0";
+import * as compass from "../ui/compass.js?v=0.56.0";
+import * as inventory from "../ui/inventory.js?v=0.56.0";
+import * as options from "../ui/options.js?v=0.56.0";
+import * as soundpanel from "../ui/soundpanel.js?v=0.56.0";
+import * as graphicspanel from "../ui/graphicspanel.js?v=0.56.0";
+import * as map from "../ui/map.js?v=0.56.0";
+import * as page from "../ui/page.js?v=0.56.0";
+import * as tools from "../ui/tools.js?v=0.56.0";
+import * as tabs from "../ui/tabs.js?v=0.56.0";
+import * as keys from "../ui/keys.js?v=0.56.0";
+import * as home from "../ui/home.js?v=0.56.0";
+import * as crt from "../ui/crt.js?v=0.56.0";
+import * as sound from "../ui/sound.js?v=0.56.0";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -51,6 +52,8 @@ const LANGS = Object.keys(LANG_PACKS);
 const browserLang = (navigator.language || "en").slice(0, 2).toLowerCase();
 let lang = LANGS.includes(load("parser-lang")) ? load("parser-lang") : LANGS.includes(browserLang) ? browserLang : "en";
 let mix = soundpanel.readMix(load(soundpanel.KEY), load("parser-music"));   // the sound: the three sliders and the mute, as remembered (a first visit: the spec's)
+let graphics = graphicspanel.readGraphics(load(graphicspanel.KEY));   // the screen settings: CRT effect and Reflections, as remembered (a first visit: both on)
+crt.allow(graphics.crt);                                 // (the CRT look's own switch: ui/crt.js)
 let state = null;                                        // the current game: everything it knows (none while the list of games shows)
 let view = "home";                                       // which view the page shows: "home" (the list of games) or "game"
 let openId = null;                                       // the world in the game view
@@ -79,6 +82,7 @@ const on = {
   showObject: (id, label) => examineObject(id, label),   // an object in the story was clicked: examine it
   showItem: (id) => examineObject(id, listName(id, state, packOf(state)), true),   // an inventory item was clicked: the same
   soundMoved: (part, v) => setMix(soundpanel.moved(mix, part, v)),   // a slider of the sound block (options) moved
+  graphicsToggled: (which) => setGraphics(graphicspanel.toggled(graphics, which)),   // a switch of the graphics block (options): CRT effect or Reflections
   soundToggled: () => setMix(soundpanel.toggled(mix)),   // the SOUND switch (options) was toggled: mute all / unmute all
   musicStopped: () => {                                  // the system took the sound away (a call, the player's own music): the switch shows muted;
     if (mix.muted) return;                               // the sliders keep their places, and Unmute starts it again (the remembered mute
@@ -118,6 +122,7 @@ const ui = {
   options: options.mount($(".options"), on),
   map: map.mount($("#map-panel"), on),
   soundpanel: soundpanel.mount($(".options .sound"), on),
+  graphicspanel: graphicspanel.mount($(".options .graphics"), on),
   sound: sound.mount(on)                               // the music: no element, drawn from the state like the rest (ui/sound.js)
 };
 const landing = home.mount($(".home"), on);              // the list of games: not drawn from the game's state, so apart from ui
@@ -126,6 +131,8 @@ const landing = home.mount($(".home"), on);              // the list of games: n
 // Esc: restart the game (it asks first, in the story).
 ui.keys.add({ key: "Escape", when: () => view === "game" && !restarting, release: () => on.restart() });   // (not on the list of games)
 
+// A change in the graphics (a switch): remembered on this device and drawn at once (the CRT look and the reflection follow).
+function setGraphics(next) { graphics = next; store(graphicspanel.KEY, JSON.stringify(graphics)); crt.allow(graphics.crt); redraw("tap"); }
 // A change in the sound (the switch or a slider): remembered on this device and drawn at once (the audio starts inside the tap).
 function setMix(next) { mix = next; store(soundpanel.KEY, JSON.stringify(mix)); redraw("tap"); }
 
@@ -133,7 +140,7 @@ function setMix(next) { mix = next; store(soundpanel.KEY, JSON.stringify(mix)); 
 // whether anything can be heard) and updates what changed since last time. reason: "turn" (a command), "tick" (the world on its
 // own), "restore" (new game, undo, load: no animation), "tap" (the sound switch or a slider).
 function redraw(reason) {
-  const next = { state, pack: packOf(state), music: soundpanel.audible(mix), mix };
+  const next = { state, pack: packOf(state), music: soundpanel.audible(mix), mix, graphics };
   for (const piece of Object.values(ui)) piece.update(shown, next, reason);
   shown = next;
 }
@@ -271,7 +278,7 @@ function sleepThrough(applied, mark, was) {
   const run = ui.scene.sleep({
     kind: mark.sleep, wake: mark.wake !== false, vision: picture ? { id: mark.vision, world: state.worldId, picture: picture.picture } : null,
     dark: tellDark,
-    open: () => ui.scene.update(shown, { state, pack, music: soundpanel.audible(mix), mix }, "restore"),   // the picture woken to, under the lids
+    open: () => ui.scene.update(shown, { state, pack, music: soundpanel.audible(mix), mix, graphics }, "restore"),   // the picture woken to, under the lids
     done: () => {
       tellDark();
       asleep = null;
@@ -662,7 +669,7 @@ if (DEBUG_PANEL) {
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js?v=0.55.2"), import("./debug.js?v=0.55.2")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.56.0"), import("./debug.js?v=0.56.0")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on

@@ -8,15 +8,16 @@
 // is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
-import art from "../content/art.js?v=0.55.2";
-import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js?v=0.55.2";
-import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.55.2";
-import { mount as mountSleep } from "./sleep.js?v=0.55.2";
-import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.55.2";
-import { transition, ROOM, ENDING } from "./transitions.js?v=0.55.2";
-import { text } from "../js/narrator.js?v=0.55.2";                  // "@key" → the pack's text, dotted keys too, as the story says it
-import { reducedMotion, calm } from "./media.js?v=0.55.2";
-import { screen } from "./crt.js?v=0.55.2";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import art from "../content/art.js?v=0.56.0";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js?v=0.56.0";
+import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.56.0";
+import { mount as mountSleep } from "./sleep.js?v=0.56.0";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.56.0";
+import { transition, ROOM, ENDING } from "./transitions.js?v=0.56.0";
+import { text } from "../js/narrator.js?v=0.56.0";                  // "@key" → the pack's text, dotted keys too, as the story says it
+import { reducedMotion, calm } from "./media.js?v=0.56.0";
+import { screen } from "./crt.js?v=0.56.0";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import { reflection } from "./reflection.js?v=0.56.0";            // the light beside the picture, on wide windows (ui/reflection.js)
 
 const W = art.picture.width, H = art.picture.height;
 
@@ -26,6 +27,7 @@ export function mount(root) {
   canvas.width = W; canvas.height = H;                           // the picture's own pixels (the markup says so too)
   const ctx = canvas.getContext("2d");
   const image = ctx.createImageData(W, H);                      // the canvas is the picture at its own 320×136
+  const shine = reflection(root);                          // the reflection beside the picture: drawn from `image` as well, wide windows only (ui/reflection.js)
   const look = screen(canvas, { w: W, h: H });             // the CRT look: a WebGL canvas after this one, drawn from `image` (ui/crt.js)
   const painted = new Map();     // painted pictures, by world + room + version (painting is the slow part); only valid within one game: see forget()
   let frame = null;              // the picture now (palette numbers), without cycling
@@ -91,6 +93,7 @@ export function mount(root) {
     out = pic.px;
     putPixels(image, out, pic.rgb);
     ctx.putImageData(image, 0, 0);
+    shine.draw(image);                                           // the reflection beside it, from the same pixels
     look.draw(image);                                            // the CRT look, over the finished picture: once per frame drawn, never a loop of its own
   }
 
@@ -119,6 +122,7 @@ export function mount(root) {
     // undo, a loaded game) switches at once; the ending and a room each use their own named transition
     // of ui/transitions.js. With reduced motion every change is a cut.
     update(prev, next, reason) {
+      shine.enable(next.graphics?.reflections !== false);                   // the player's switch (Settings, GRAPHICS)
       const s = next.state, roomId = s.player.at, room = s.world.rooms[roomId];
       const end = s.ended && s.ending && s.pictures?.[s.ending] ? s.pictures[s.ending] : null;   // the ending's picture, once it's over
       const picture = end ? end.picture : room.picture, where = end ? "ending:" + s.ending : roomId;

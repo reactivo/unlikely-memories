@@ -1,0 +1,77 @@
+/* The switch (role=switch) of the options panel: the SOUND heading's (ui/soundpanel.js) and the GRAPHICS rows' (ui/graphicspanel.js), one
+   look and one animation. A track with a round knob that slides; on is the yellow accent. The knob is as big as the sound sliders' thumb
+   (ui/soundpanel.css, which uses --knob and --track too: both drawn in CSS, so they match in every browser). */
+@layer ui {
+  .options {
+    /* Colours of the switch, by meaning. */
+    --slider:     var(--color-text);         /* the knob while off; also the sliders' thumb and filled track (ui/soundpanel.css) */
+    --switch-on:  var(--color-highlight);    /* the track while on: the one bright accent */
+    --switch-off: var(--color-text-faint);   /* the track while off: dim, like a closed exit */
+    --knob-on:    var(--color-bg);           /* the knob while on: dark on the yellow track */
+
+    /* Its size. */
+    --knob:       16px;
+    --track:      4px;    /* the sliders' track height */
+    --switch-pad: 2px;
+    --switch-fade: 150ms;   /* the knob slides and the track fades over this time (no duration token fits: the others are 300ms and up) */
+
+    & .switch {
+      position: relative;
+      flex: none;
+      box-sizing: content-box;
+      width: calc(var(--knob) * 2);
+      height: var(--knob);
+      padding: var(--switch-pad);
+      margin: 0;
+      border: 0;
+      border-radius: calc(var(--knob) / 2 + var(--switch-pad));
+      background: var(--switch-off);
+      cursor: pointer;
+    }
+
+    & .switch[aria-checked="true"] {
+      background: var(--switch-on);
+    }
+
+    /* A touch target at least a tile tall without a taller heading line: the button's own box stays small, and its invisible
+       ::before reaches out to the tile minimum (44px) above and below, and sideways. */
+    & .switch::before {
+      content: "";
+      position: absolute;
+      inset-block: calc((100% - var(--tile-touch)) / 2);
+      inset-inline: calc((100% - var(--tile-touch)) / 2);
+    }
+
+    & .knob {
+      display: block;
+      width: var(--knob);
+      height: var(--knob);
+      border-radius: 50%;
+      background: var(--slider);
+      transform: translateX(0);
+    }
+
+    & .switch[aria-checked="true"] .knob {
+      background: var(--knob-on);
+      transform: translateX(var(--knob));
+    }
+
+    & .switch:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: var(--focus-offset);
+    }
+
+    /* Animated unless the player asked for less motion (the other pieces do the same). */
+    @media (prefers-reduced-motion: no-preference) {
+      & .switch {
+        transition: background-color var(--switch-fade) ease;
+      }
+
+      & .knob {
+        transition:
+          transform var(--switch-fade) ease,
+          background-color var(--switch-fade) ease;
+      }
+    }
+  }
+}

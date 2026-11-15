@@ -11,8 +11,8 @@
 //
 //   opening: { room, hints, intro, way, lines: { hintFrame, farewell } }
 
-import { DIRECTIONS } from "./space.js?v=0.55.2";
-import { waysOf, wayAt, exitTo } from "./exits.js?v=0.55.2";
+import { DIRECTIONS } from "./space.js?v=0.56.0";
+import { waysOf, wayAt, exitTo } from "./exits.js?v=0.56.0";
 
 export const PARTS = ["room", "hints", "intro", "way"];
 export const THINGS = ["hints", "intro", "way"];

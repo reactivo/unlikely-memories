@@ -1,4 +1,4 @@
-/* Options popover, opened from ≡ (ui/tools.css): a SOUND block (ui/soundpanel.css draws its sliders) and a GAME block, each with a
+/* Options popover, opened from ≡ (ui/tools.css): a SOUND block (ui/soundpanel.css draws its sliders), a GRAPHICS block (switches) and a GAME block, each with a
    small heading, no title for the whole. Placed under the button, right edges aligned (ui/popup.js).
    Framed with a line in the surface colour. It lives in the browser's top layer, outside .layout, so its text style
    is a class of its own: .text-ui (css/typography.css), put on it in index.html. */
@@ -6,7 +6,7 @@
   .options {
     /* Colours in the options panel, by meaning. */
     --frame:        var(--color-surface);     /* the border */
-    --heading:      var(--color-text-dim);    /* SOUND, GAME */
+    --heading:      var(--color-text-dim);    /* SOUND, GRAPHICS, GAME */
     --choice:       var(--color-text);        /* a button: the off-white text */
     --choice-hover: var(--color-highlight);   /* …under the pointer: yellow */
 
@@ -34,6 +34,25 @@
     & h2 {
       margin: 0 0 var(--space-s);
       color: var(--heading);
+    }
+
+    /* The graphics block: a row for each setting, its label at the left and its switch (ui/switch.css) at the right end. */
+    & .rows {
+      display: grid;
+      gap: var(--space-s);
+      min-width: 12rem;
+    }
+
+    & .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+    }
+
+    /* The rows only wide windows have (Reflections): hidden on phones (css/layout.css sets --row-wide-display in the strip layout). */
+    & .row.wide {
+      display: var(--row-wide-display, none);
     }
 
     /* "Restart game" (it asks in the story, like every yes/no question) and "Quit" (back to the list of games), each on its

@@ -1,23 +1,11 @@
-/* The sound block (ui/soundpanel.js), inside the options panel: the heading line with the on/off switch at its right end, and three
+/* The sound block (ui/soundpanel.js), inside the options panel: the heading line with the on/off switch (ui/switch.css) at its right end, and three
    sliders: native <input type="range">, a label above each, the browser's own track and thumb in the game's text colour. The frame and
    the heading's colour are the options popover's (ui/options.css). */
 @layer ui {
   .sound {
-    /* Colours of the sliders, by meaning. */
-    --slider:      var(--color-text);         /* the thumb and the filled part of the track; also the switch's knob, which looks like the thumb */
+    /* Colours of the sliders, by meaning (--slider, --knob and --track are the switch's: ui/switch.css). */
     --slider-drag: var(--color-highlight);    /* the thumb and the filled part while it is being dragged */
     --slider-rest: var(--color-text-faint);   /* the rest of the track: plain grey, no border */
-
-    /* Colours of the switch, by meaning. */
-    --switch-on:  var(--color-highlight);    /* the track while the sound plays: the one bright accent */
-    --switch-off: var(--color-text-faint);   /* the track while muted: dim, like a closed exit */
-    --knob-on:    var(--color-bg);           /* the knob while the sound plays: dark on the yellow track */
-
-    /* The switch's size: the knob is as big as the sliders' thumb (both drawn here, so they match in every browser). */
-    --knob:       16px;
-    --track:      4px;    /* the sliders' track height */
-    --switch-pad: 2px;
-    --switch-fade: 150ms;   /* the knob slides and the track fades over this time (no duration token fits: the others are 300ms and up) */
 
     /* SOUND ……… [switch]: the heading and the switch on one line, the switch at the right end. */
     & .heading {
@@ -30,65 +18,6 @@
 
     & .heading h2 {
       margin: 0;
-    }
-
-    & .switch {
-      position: relative;
-      flex: none;
-      box-sizing: content-box;
-      width: calc(var(--knob) * 2);
-      height: var(--knob);
-      padding: var(--switch-pad);
-      margin: 0;
-      border: 0;
-      border-radius: calc(var(--knob) / 2 + var(--switch-pad));
-      background: var(--switch-off);
-      cursor: pointer;
-    }
-
-    & .switch[aria-checked="true"] {
-      background: var(--switch-on);
-    }
-
-    /* A touch target at least a tile tall without a taller heading line: the button's own box stays small, and its invisible
-       ::before reaches out to the tile minimum (44px) above and below, and sideways. */
-    & .switch::before {
-      content: "";
-      position: absolute;
-      inset-block: calc((100% - var(--tile-touch)) / 2);
-      inset-inline: calc((100% - var(--tile-touch)) / 2);
-    }
-
-    & .knob {
-      display: block;
-      width: var(--knob);
-      height: var(--knob);
-      border-radius: 50%;
-      background: var(--slider);
-      transform: translateX(0);
-    }
-
-    & .switch[aria-checked="true"] .knob {
-      background: var(--knob-on);
-      transform: translateX(var(--knob));
-    }
-
-    & .switch:focus-visible {
-      outline: var(--focus-ring);
-      outline-offset: var(--focus-offset);
-    }
-
-    /* Animated unless the player asked for less motion (the other pieces do the same). */
-    @media (prefers-reduced-motion: no-preference) {
-      & .switch {
-        transition: background-color var(--switch-fade) ease;
-      }
-
-      & .knob {
-        transition:
-          transform var(--switch-fade) ease,
-          background-color var(--switch-fade) ease;
-      }
     }
 
     & .sliders {

@@ -8,34 +8,35 @@
 <!-- The icons load with the page: a mask-image file is only fetched when its element is first drawn, and on phones the
      directions panel is a closed popover until opened. `crossorigin` is needed (mask images are fetched in CORS mode;
      without it the preload isn't reused and the file is fetched twice). Add a line here for every file in img/icons/. -->
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-menu.svg?v=0.55.2" crossorigin>
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-north.svg?v=0.55.2" crossorigin>
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-south.svg?v=0.55.2" crossorigin>
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-east.svg?v=0.55.2" crossorigin>
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-west.svg?v=0.55.2" crossorigin>
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-map.svg?v=0.55.2" crossorigin>
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-up.svg?v=0.55.2" crossorigin>
-<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-down.svg?v=0.55.2" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-menu.svg?v=0.56.0" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-north.svg?v=0.56.0" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-south.svg?v=0.56.0" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-east.svg?v=0.56.0" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-west.svg?v=0.56.0" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-map.svg?v=0.56.0" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-up.svg?v=0.56.0" crossorigin>
+<link rel="preload" as="image" type="image/svg+xml" href="img/icons/icon-down.svg?v=0.56.0" crossorigin>
 <!-- Styles: tokens first (it declares the layer order), then base, typography, layout and utilities, then one file per
      interface piece. The text styles are the .text-* classes (css/typography.css). See ARCHITECTURE.md §7 "Styles". -->
-<link rel="stylesheet" href="css/tokens.css?v=0.55.2">
-<link rel="stylesheet" href="css/base.css?v=0.55.2">
-<link rel="stylesheet" href="css/typography.css?v=0.55.2">
-<link rel="stylesheet" href="css/layout.css?v=0.55.2">
-<link rel="stylesheet" href="css/utilities.css?v=0.55.2">
-<link rel="stylesheet" href="ui/titlebar.css?v=0.55.2">
-<link rel="stylesheet" href="ui/scene.css?v=0.55.2">
-<link rel="stylesheet" href="ui/log.css?v=0.55.2">
-<link rel="stylesheet" href="ui/prompt.css?v=0.55.2">
-<link rel="stylesheet" href="ui/compass.css?v=0.55.2">
-<link rel="stylesheet" href="ui/inventory.css?v=0.55.2">
-<link rel="stylesheet" href="ui/tools.css?v=0.55.2">
-<link rel="stylesheet" href="ui/tabs.css?v=0.55.2">
-<link rel="stylesheet" href="ui/options.css?v=0.55.2">
-<link rel="stylesheet" href="ui/soundpanel.css?v=0.55.2">
-<link rel="stylesheet" href="ui/map.css?v=0.55.2">
-<link rel="stylesheet" href="ui/home.css?v=0.55.2">
-<script type="module" src="js/main.js?v=0.55.2"></script>
+<link rel="stylesheet" href="css/tokens.css?v=0.56.0">
+<link rel="stylesheet" href="css/base.css?v=0.56.0">
+<link rel="stylesheet" href="css/typography.css?v=0.56.0">
+<link rel="stylesheet" href="css/layout.css?v=0.56.0">
+<link rel="stylesheet" href="css/utilities.css?v=0.56.0">
+<link rel="stylesheet" href="ui/titlebar.css?v=0.56.0">
+<link rel="stylesheet" href="ui/scene.css?v=0.56.0">
+<link rel="stylesheet" href="ui/log.css?v=0.56.0">
+<link rel="stylesheet" href="ui/prompt.css?v=0.56.0">
+<link rel="stylesheet" href="ui/compass.css?v=0.56.0">
+<link rel="stylesheet" href="ui/inventory.css?v=0.56.0">
+<link rel="stylesheet" href="ui/tools.css?v=0.56.0">
+<link rel="stylesheet" href="ui/tabs.css?v=0.56.0">
+<link rel="stylesheet" href="ui/options.css?v=0.56.0">
+<link rel="stylesheet" href="ui/switch.css?v=0.56.0">
+<link rel="stylesheet" href="ui/soundpanel.css?v=0.56.0">
+<link rel="stylesheet" href="ui/map.css?v=0.56.0">
+<link rel="stylesheet" href="ui/home.css?v=0.56.0">
+<script type="module" src="js/main.js?v=0.56.0"></script>
 </head>
 <body>
 
@@ -130,9 +131,9 @@
       </div>
       <section class="panel text-ui exits" id="exits-panel" popover aria-labelledby="tab-exits">
         <div class="compass text-button" role="group">
-          <button type="button" data-dir="d"><span class="icon" style="mask-image: url(img/icons/icon-down.svg?v=0.55.2)"></span></button><button type="button" data-dir="n"><span class="icon" style="mask-image: url(img/icons/icon-north.svg?v=0.55.2)"></span></button><button type="button" data-dir="u"><span class="icon" style="mask-image: url(img/icons/icon-up.svg?v=0.55.2)"></span></button>
-          <button type="button" data-dir="w"><span class="icon" style="mask-image: url(img/icons/icon-west.svg?v=0.55.2)"></span></button><button type="button" data-dir="s"><span class="icon" style="mask-image: url(img/icons/icon-south.svg?v=0.55.2)"></span></button><button type="button" data-dir="e"><span class="icon" style="mask-image: url(img/icons/icon-east.svg?v=0.55.2)"></span></button>
-          <button type="button" class="map open" popovertarget="map-panel" aria-haspopup="dialog"><span class="pin"><span class="icon" style="mask-image: url(img/icons/icon-map.svg?v=0.55.2)"></span></span><span class="label">See map</span></button>
+          <button type="button" data-dir="d"><span class="icon" style="mask-image: url(img/icons/icon-down.svg?v=0.56.0)"></span></button><button type="button" data-dir="n"><span class="icon" style="mask-image: url(img/icons/icon-north.svg?v=0.56.0)"></span></button><button type="button" data-dir="u"><span class="icon" style="mask-image: url(img/icons/icon-up.svg?v=0.56.0)"></span></button>
+          <button type="button" data-dir="w"><span class="icon" style="mask-image: url(img/icons/icon-west.svg?v=0.56.0)"></span></button><button type="button" data-dir="s"><span class="icon" style="mask-image: url(img/icons/icon-south.svg?v=0.56.0)"></span></button><button type="button" data-dir="e"><span class="icon" style="mask-image: url(img/icons/icon-east.svg?v=0.56.0)"></span></button>
+          <button type="button" class="map open" popovertarget="map-panel" aria-haspopup="dialog"><span class="pin"><span class="icon" style="mask-image: url(img/icons/icon-map.svg?v=0.56.0)"></span></span><span class="label">See map</span></button>
         </div>
       </section>
       <section class="panel text-ui inventory" id="inventory-panel" popover aria-labelledby="tab-inventory">
@@ -156,14 +157,14 @@
       <button type="button" class="tab" id="tab-inventory" popovertarget="inventory-panel" aria-expanded="false">INVENTORY</button>
       <!-- The phones' ≡ (the strip's is #options in .tools, shown only in the strip layout; this one only where the tabs are):
            the same tool tile (ui/tools.css), opening the same panel above itself. -->
-      <button type="button" class="tool" id="options-tab" data-hang="above" popovertarget="options-panel" aria-label="Settings" title="Settings"><span class="icon" style="mask-image: url(img/icons/icon-menu.svg?v=0.55.2)"></span></button>
+      <button type="button" class="tool" id="options-tab" data-hang="above" popovertarget="options-panel" aria-label="Settings" title="Settings"><span class="icon" style="mask-image: url(img/icons/icon-menu.svg?v=0.56.0)"></span></button>
     </nav>
   </div>
 </main>
 
 <!-- Options: a popover (HTML popover API) opened by the ≡ button. Non-modal: it closes with Esc, by clicking
      outside, or with the button again; it sits in the browser's top layer, above everything else. No title of its own: two
-     blocks, SOUND (the three sliders: ui/soundpanel.js) and GAME (Restart game, Quit: ui/options.js). SOUND's heading line holds the on/off switch (ui/soundpanel.js). -->
+     blocks, SOUND (the three sliders: ui/soundpanel.js), GRAPHICS (the CRT effect and Reflections switches: ui/graphicspanel.js) and GAME (Restart game, Quit: ui/options.js). SOUND's heading line holds the on/off switch (ui/soundpanel.js). -->
 <div id="options-panel" class="options text-ui" popover role="dialog" aria-label="Settings" tabindex="-1">
   <section class="sound" aria-labelledby="sound-title">
     <div class="heading">
@@ -174,6 +175,13 @@
       <label for="sound-music" id="label-music">Music</label><input type="range" id="sound-music" min="0" max="100">
       <label for="sound-tone" id="label-tone">Room</label><input type="range" id="sound-tone" min="0" max="100">
       <label for="sound-sounds" id="label-sounds">Sounds</label><input type="range" id="sound-sounds" min="0" max="100">
+    </div>
+  </section>
+  <section class="graphics" aria-labelledby="graphics-title">
+    <h2 id="graphics-title">GRAPHICS</h2>
+    <div class="rows">
+      <div class="row"><span id="label-crt">CRT effect</span><button type="button" class="switch" id="graphics-crt" role="switch" aria-checked="true" aria-labelledby="label-crt"><span class="knob"></span></button></div>
+      <div class="row wide"><span id="label-reflections">Reflections</span><button type="button" class="switch" id="graphics-reflections" role="switch" aria-checked="true" aria-labelledby="label-reflections"><span class="knob"></span></button></div>
     </div>
   </section>
   <section class="game" aria-labelledby="game-title">

@@ -332,6 +332,11 @@
       --buttons-margin-top: auto;
     }
 
+    /* Options panel (ui/options.css): the settings that only wide windows have (GRAPHICS' Reflections: ui/reflection.js) show a row. */
+    .options {
+      --row-wide-display: flex;
+    }
+
     /* Map popup (ui/map.css): lower, with less kept free around it; the location bar in one row. */
     .mapview {
       --map-h: 656px;
