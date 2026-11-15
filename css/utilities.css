@@ -14,15 +14,19 @@
     border: 0;
   }
 
-  /* An icon: an SVG file (img/icons/, named in index.html as the span's mask-image) used as a stencil, so it takes the text colour of
-     its button (open, faint, hover, blinking…); only the file's shape counts, not its colours. It fills its (flex)
-     button and shows the file at its own size, in the middle: replace the file and the icon changes, size and all. */
+  /* An icon's box: <span class="icon" data-icon="north"> (index.html), which ui/icons.js fills with an inline <svg> (img/icons/'s drawing,
+     filled with currentColor, so it takes the text colour of its button: open, faint, hover, blinking…). It fills its (flex)
+     button and shows the drawing at its own size, in the middle: redraw the file, run tools/icons.mjs and the icon changes, size and all. */
   .icon {
+    display: flex;
     flex: 1;
     align-self: stretch;
-    background: currentColor;
-    mask-position: center;
-    mask-size: auto;
-    mask-repeat: no-repeat;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    & > svg {
+      flex: none;
+    }
   }
 }

@@ -6,8 +6,9 @@
 // Closes with the ×, Esc or a click outside (the browser does the last two: it is a popover). Never changes the game itself:
 // it only asks the controller to travel. The game keeps running while it is open, so the map redraws as it changes.
 
-import { mapOf, levelName, roomWords } from "../js/map.js?v=0.58.1";
-import { wide } from "./media.js?v=0.58.1";
+import { mapOf, levelName, roomWords } from "../js/map.js?v=0.58.2";
+import { wide } from "./media.js?v=0.58.2";
+import { icon } from "./icons.js?v=0.58.2";
 
 const DRAG = 5;   // px a press may move and still count as a click on a room
 const KEY = 48;   // px an arrow key moves the map
@@ -114,11 +115,11 @@ export function mount(panel, on) {
       if (r.up || r.down) {                                       // a way up and/or down: its icons in the top right corner, up first
         const ways = document.createElement("i");
         ways.className = "ways";
-        for (const [has, file] of [[r.up, "icon-up"], [r.down, "icon-down"]]) {
+        for (const [has, name] of [[r.up, "up"], [r.down, "down"]]) {
           if (!has) continue;
-          const icon = document.createElement("i");
-          icon.style.maskImage = `url(img/icons/${file}.svg)`;
-          ways.append(icon);
+          const mark = document.createElement("i");
+          mark.append(icon(name));
+          ways.append(mark);
         }
         box.append(ways);
       }

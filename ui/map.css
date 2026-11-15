@@ -108,9 +108,8 @@
 
     /* A way up and/or down: the icons on one line in the room's top right corner, UP then DOWN; one alone sits in the same
        corner. Faint like the lines (yellow in your room); sizes from the text's (tokens.css, --map-mark-*), so they grow with
-       it. Above the name, which is one line in the middle: they never meet. Each is a stencil like .icon (css/utilities.css),
-       but scaled to its box: .icon shows the file at its own size and fills its button, and its layer (utilities) comes
-       after this one, so it can't be resized here. */
+       it. Above the name, which is one line in the middle: they never meet. Each is an inline icon (ui/icons.js) scaled to its box
+       (the drawing's own size at --map-mark-icon 14px). */
     & .ways {
       position: absolute;
       top: var(--map-mark-inset);
@@ -124,10 +123,12 @@
     & .ways > i {
       width: var(--map-mark-icon);
       height: var(--map-mark-icon);
-      background: currentColor;
-      mask-position: center;
-      mask-size: contain;
-      mask-repeat: no-repeat;
+
+      & > svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
     }
 
     & .room.current .ways {
