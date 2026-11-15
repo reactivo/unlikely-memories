@@ -10,7 +10,8 @@
 //     new room's text is seen; a room visited before, or a way that doesn't move you (a locked door), leaves it open;
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
-import { wide } from "./media.js?v=0.53.2";
+import { wide } from "./media.js?v=0.53.3";
+import { follow } from "./popup.js?v=0.53.3";
 
 // Set up the tabs on their element. Returns update().
 export function mount(root) {
@@ -25,7 +26,7 @@ export function mount(root) {
     });
     panel.addEventListener("toggle", (e) => {
       tab.setAttribute("aria-expanded", e.newState === "open");
-      if (e.newState === "open") follow(panel, tab);
+      if (e.newState === "open") follow(panel, () => place(panel, tab));
       else panel.removeAttribute("style");                           // back to the strip's layout if the window grows
     });
     // Something picked (a button that does something): close. Not a compass direction: arriving somewhere new closes it (update).
@@ -62,8 +63,3 @@ function place(panel, tab) {
   set("bottom", (document.documentElement.clientHeight - r.top) + "px");
 }
 
-// While the panel is open: placed again every frame, so it stays on its tab (stops by itself when the panel closes).
-function follow(panel, tab) {
-  const frame = () => { if (!panel.matches(":popover-open")) return; place(panel, tab); requestAnimationFrame(frame); };
-  requestAnimationFrame(frame);
-}

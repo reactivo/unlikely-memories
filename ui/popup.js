@@ -1,7 +1,9 @@
 // A popover that hangs from a tool button (≡ options: ui/options.js). The HTML popover API does the
 // rest (non-modal: Esc, a click outside or the button again close it). This only places it, right edges lined up with the button:
 // on the side the button names: data-hang="above" opens it above the button (both ≡ do: the phones' in the bottom row, the strip's
-// under the inventory); otherwise under it.
+// under the inventory); otherwise under it. While it is open it is placed again every frame (follow, below), so it stays at its
+// button whatever moves it (the page gliding to a new room, Safari's toolbar): until 15 November 2026 it was placed once, as it
+// opened, and on iPhone Safari it stayed behind when the bottom row moved.
 
 // Hang `panel` from `buttons` (one or several; the one shown, the one that opened it, places it); `opened()` and `closed()` are called as it opens (after it is placed) and as it closes.
 export function hang(panel, buttons, { opened, closed }) {
@@ -35,8 +37,14 @@ export function hang(panel, buttons, { opened, closed }) {
   }
   panel.addEventListener("beforetoggle", (e) => { if (e.newState === "open") place(); });
   panel.addEventListener("toggle", (e) => {
-    if (e.newState === "open") { keepOnScreen(); opened(); }
+    if (e.newState === "open") { keepOnScreen(); opened(); follow(panel, () => { place(); keepOnScreen(); }); }
     else closed();
   });
-  window.addEventListener("resize", () => { if (panel.matches(":popover-open")) place(); });
+}
+
+// While `panel` is open: `place()` again every frame, so it stays where its button is (stops by itself when the panel closes). The
+// phones' DIRECTIONS and INVENTORY panels use it too (ui/tabs.js): one way of keeping a panel at its button.
+export function follow(panel, place) {
+  const frame = () => { if (!panel.matches(":popover-open")) return; place(); requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
 }
