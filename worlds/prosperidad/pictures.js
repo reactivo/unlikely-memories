@@ -1,14 +1,15 @@
 // Pictures for "Emperor of Prosperidad" (world.en.js / world.es.js, shared), one per room and one per ending, written by hand in the
 // short notation (BRIEF.md §7): 320 x 136, EGA colours 0-15, shapes back to front, ids on what the story may change or a cycle animates.
 // Style: flat. Every picture's `shot` names its palette, its light, its subject and its dressing, and what moves.
-// Palettes: neon (the strip, the club floor, the corner, the plaza, the blind alley), lamplight (backstage, the bar, the pension, the
-// occupied house), institution (the depot, the launderette), moonlight (the patio, the roof, the cutting), ember (the works).
+// Palettes: neon (the strip, El Charlie, the corner, the plaza, the blind alley), lamplight (backstage, La Opera, the pension, the
+// occupied house), institution (the post office, the launderette), moonlight (the patio, the roof, the cutting), ember (the works).
+// The Minister is an overlay (his floorSprite) in the four rooms of his round: El Charlie, the avenida, La Opera and the post office.
 
 export default {
   // ---- THE BLIND ALLEY (the opening): eye level, one-point view to the steel fire door on the right third; neon pink -----------
   callejon: {
     version: 1,
-    shot: "Eye level, facing north, one-point view, vp on the right third (213,50). Palette neon, flat. One light: a pink neon tube on the left wall, half dead, and the glow of the city over the roofs. Subject: the steel {fire door} at the far end, on the right third. Left wing and near left: the pink {neon tube} on the grey brick wall, a {bin} against the wall, a stack of {crates} with a flat top where the {radio} stands. Right wing: more {crates} and a pipe down the wall. Floor: bands from magenta far to blue near, with {puddles} holding the sign's pink. Sky magenta over blue, the far roofs black. moves: the tube (faulty), the puddle glints (shimmer)",
+    shot: "Eye level, facing north, one-point view, vp on the right third (213,50). Palette neon, flat. One light: a pink neon tube on the left wall, half dead, and the glow of the city over the roofs. Subject: the steel {fire door} at the far end, on the right third, painted shut: a dark seam of old paint down its hinge side and a dent at shoulder height. Left wing and near left: the pink {neon tube} on the grey brick wall, a {bin} against the wall with an iron {crowbar} leaning on it, a stack of {crates} with a flat top where the {radio} stands. Right wing: more {crates} and a pipe down the wall. Floor: bands from magenta far to blue near, with {puddles} holding the sign's pink. Sky magenta over blue, the far roofs black. moves: the tube (faulty), the puddle glints (shimmer)",
     draw: `vp 213,50
 rect sky 0,0,320,30 1
 rect glow 0,30,320,34 5
@@ -58,6 +59,7 @@ rect door_panel 203,52,20,14 8
 rect door_panel2 203,70,20,12 8
 line door_bar 203,68 223,68 c15
 line door_dent 205,58 211,62 c0
+line door_seam 201,50 201,84 c0
 dots door_rivets 202,50 224,50 202,84 224,84 c8
 ellipse door_lamp 213,41,3,2 11
 rect door_sill 196,86,34,3 8
@@ -123,7 +125,7 @@ line crack_f2 240,134 262,130 c0`,
       { name: "the faulty tube", areas: ["tube_a", "tube_a2", "tube_b", "tube_b2", "tube_c", "tube_c2", "tube_d", "tube_d2"], colors: [13, 5], style: "flicker", ms: [800, 4000] },
       { name: "the puddle glints", areas: ["glint_1a", "glint_1b", "glint_1c", "glint_1d", "glint_2a", "glint_2b", "glint_3a", "glint_3b"], colors: [13, 15, 5], style: "pingpong", scatter: true, ms: 420 }
     ],
-    overlays: [{ object: "radio", at: [72, 84] }]
+    overlays: [{ object: "radio", at: [72, 84] }, { object: "palanca", at: [42, 108] }]
   },
 
   // ---- BACKSTAGE: eye level, frontal, a bare bulb; the guitar case on the left third, the club's glow through the curtain on the right ----
@@ -236,145 +238,165 @@ dots litter 60,130 150,132 220,130 280,128 c8`,
     ]
   },
 
-  // ---- THE SUBMARINO: wide view of the floor; the dancer on her podium (left third), the DJ in his booth (right third) ------------
-  pista: {
+  // ---- EL CHARLIE: wide view of the floor; the stage and its drummer (left third), Cuco at the sound desk, Pelayo at the bar (right third) ----
+  charlie: {
     version: 1,
-    shot: "Wide, eye level, facing north across the floor, no vanishing point. Palette neon, flat. One light: the coloured stage wash from the back wall, a flat magenta panel behind the dancer and a cyan panel behind the booth. Subject on the left third (x about 107): the {dancer} on her podium, bare-chested, pale skin (white with light grey) against the magenta panel, a short light-magenta skirt, black hair in one mass. Second thing, right third (x about 213): {Cuco} the DJ, a black silhouette with a mohawk against the cyan panel, bent over the {booth}. Between them the {crowd}, a mass of black silhouettes at different heights with a few raised arms. A {mirror ball} hangs in the middle with white glints. Left wing: a speaker stack and a lit sign; right wing: a neon submarine shape on the wall. Floor: magenta far to blue near with flat patches of coloured light. moves: the mirror ball glints (pingpong), the neon submarine (blink)",
+    shot: "Wide, eye level, facing north across the floor, no vanishing point. Palette neon, flat. One light: the stage wash from the back wall, a flat magenta panel behind the stage on the left, a cyan panel behind the sound desk and a magenta panel behind the bar. Subject on the left third (x about 107): the low {stage} with the drummer seated behind a kit patched with grey gaffer tape, a black silhouette with a mohawk against the magenta panel. Second thing on the middle third: {Cuco} at the sound desk, a thin black silhouette with a tall mohawk and headphones against the cyan panel, bent over a plank on two crates with a mixer. Right third (x about 213): {Pelayo} behind the bar, huge, a black silhouette with a collar of spikes and a pencil behind each ear, against the shelf of bottles; between desk and bar a small {back table} with a lit mirror and white lines on it and two black silhouettes bent over it. Between and in front the {crowd}, black silhouettes at different heights with mohawks and a few raised arms. Walls blue, plastered with {stickers} in light cyan, white and light magenta and a few white scrawls; right wing a light magenta neon safety pin sign. Floor: magenta far to blue near with flat patches of coloured light and dark beer spills. moves: the stage wash (flicker), the safety pin sign (blink)",
     draw: `rect wall 0,0,320,100 1
 line wall_p1 40,0 40,100 c0
-line wall_p2 80,0 80,100 c0
-line wall_p3 140,0 140,100 c0
-line wall_p4 180,0 180,100 c0
-line wall_p5 240,0 240,100 c0
-line wall_p6 280,0 280,100 c0
+line wall_p2 110,0 110,100 c0
+line wall_p3 180,0 180,100 c0
+line wall_p4 212,0 212,100 c0
+line wall_p5 300,0 300,100 c0
 rect ceil_band 0,0,320,8 0
 line ceil_truss 0,10 320,10 c8
-dots ceil_lights 20,12 60,12 100,12 140,12 180,12 220,12 260,12 300,12 c11
-rect panel_mag 78,30,60,66 5 e0
-rect panel_mag_hi 84,34,48,58 13
-rect panel_cy 184,34,64,62 3 e0
-rect panel_cy_hi 190,38,52,54 11
+dots ceil_lights 24,12 70,12 120,12 170,12 216,12 262,12 300,12 c11
+rect sticker_1 4,20,10,8 13
+rect sticker_2 18,32,8,10 11
+rect sticker_3 112,14,12,8 15
+rect sticker_4 178,20,10,10 13
+rect sticker_5 288,42,12,8 11
+rect sticker_6 304,26,10,10 15
+rect sticker_7 4,60,8,10 15
+line scrawl_1 6,46 30,42 c15
+line scrawl_2 8,50 24,54 c15
+line scrawl_3 304,64 316,56 c13
+rect sign_glow 246,8,62,26 5
+line sign_a 256,18 296,18 c13
+line sign_b 256,26 296,26 c13
+ellipse sign_ring 254,22,3,5 13
+line sign_c 296,18 299,22 c13
+line sign_d 299,22 296,26 c13
+rect panel_stage 16,22,92,70 5 e0
+rect panel_stage_hi 22,26,80,62 13
+poly drummer_torso 44,62 46,46 58,46 62,62 60,76 46,76 0
+ellipse drummer_head 52,38,5,6 0
+poly drummer_mohawk 49,33 52,22 55,33 0
+line drummer_arm_l 46,50 40,62 c0
+line drummer_arm_r 58,50 66,62 c0
+line kit_cym_stand_a 26,54 30,90 c8
+ellipse kit_cym_a 26,52,11,2 14 e0
+line kit_cym_stand_b 90,58 88,90 c8
+ellipse kit_cym_b 90,56,11,2 14 e0
+line kit_tom_stand_a 38,70 44,80 c8
+line kit_tom_stand_b 68,70 60,80 c8
+ellipse kit_tom_a 38,66,8,4 7 e0
+ellipse kit_tom_b 68,66,8,4 7 e0
+ellipse kit_kick 52,80,12,12 7 e0
+ellipse kit_kick_head 52,80,8,8 8
+ellipse kit_kick_dot 52,80,2,2 15
+line kit_tape_a 42,72 62,86 c15
+line kit_tape_b 40,84 64,76 c15
+rect kit_snare 78,82,14,6 7 e0
+line kit_snare_stand 85,88 85,92 c8
+rect stage_top 12,92,98,5 7 e0
+rect stage_front 12,97,98,14 8 e0
+line stage_pl1 40,97 40,111 c0
+line stage_pl2 70,97 70,111 c0
+line stage_pl3 96,97 96,111 c0
+rect stage_lit 12,97,5,14 15
+rect stage_tape 12,100,98,2 7
+rect amp_1 104,56,16,36 0 e8
+ellipse amp_cone1 112,66,5,5 8
+ellipse amp_cone2 112,82,5,5 8
+line amp_handle 106,58 118,58 c7
+rect panel_desk 124,38,50,54 3 e0
+rect panel_desk_hi 130,42,38,46 11
+poly cuco_body 138,84 140,60 152,56 162,60 164,84 0
+ellipse cuco_head 150,50,6,7 0
+poly cuco_mohawk 146,44 150,26 154,44 0
+poly cuco_mohawk2 152,44 158,30 160,44 0
+line cuco_arm_l 142,64 136,82 c0
+line cuco_arm_r 160,64 166,82 c0
+line cuco_phones 144,50 156,50 c0
+rect desk_crate_l 128,86,14,18 6 e0
+rect desk_crate_r 156,86,14,18 6 e0
+line desk_crate_l_pl 128,95 142,95 c0
+line desk_crate_r_pl 156,95 170,95 c0
+rect desk_top 124,82,50,5 6 e0
+rect desk_mixer 136,74,26,8 7 e0
+dots desk_knobs 140,77 146,77 152,77 158,77 c4
+rect desk_lamp 166,74,4,8 14
+poly lp_a_body 166,104 168,88 176,82 180,86 178,104 0
+ellipse lp_a_head 176,78,4,5 0
+poly lp_b_body 200,104 200,88 206,82 210,86 210,104 0
+ellipse lp_b_head 206,78,4,5 0
+poly table_top 176,88 202,88 204,91 174,91 6
+rect table_leg1 180,91,3,12 0
+rect table_leg2 196,91,3,12 0
+rect table_mirror 180,85,18,3 7 e0
+dots table_lines 183,86 188,86 193,86 c15
+rect panel_bar 224,28,92,62 5 e0
+rect panel_bar_hi 230,32,80,54 13
+rect shelf_1 232,50,76,3 6
+rect shelf_2 232,66,76,3 6
+rect bottle_1 236,42,3,8 2
+rect bottle_2 242,40,3,10 14
+rect bottle_3 248,42,3,8 6
+rect bottle_4 296,42,3,8 6
+rect bottle_5 300,40,3,10 2
+rect bottle_6 240,58,3,8 14
+rect bottle_7 296,58,3,8 2
+poly pel_body 246,92 248,66 256,56 284,56 292,66 294,92 0
+ellipse pel_head 270,48,8,9 0
+poly pel_arm_l 246,70 238,86 244,90 254,74 0
+poly pel_arm_r 292,70 300,84 296,90 288,76 0
+rect pel_glass 296,80,5,7 11
+dots pel_spikes 262,58 266,60 270,61 274,60 278,58 c7
+dots pel_pencils 261,46 279,46 c14
+rect bar_top 222,88,96,5 6 e0
+rect bar_front 222,93,96,18 8 e0
+line bar_pl1 250,93 250,111 c0
+line bar_pl2 280,93 280,111 c0
+rect bar_lit 222,93,4,18 15
+rect bar_tap 268,80,3,8 7
+dots bar_glasses 232,86 242,86 308,86 c11
 rect floor_far 0,100,320,10 5
 rect floor_mid 0,110,320,12 1
 rect floor_near 0,122,320,14 mix:1,0@0.5
 line floor_seam1 0,110 320,110 c0
 line floor_seam2 0,122 320,122 c0
-ellipse floor_patch_a 120,116,34,4 13
-ellipse floor_patch_b 230,118,36,4 11
-ellipse floor_patch_c 170,128,26,3 5
-rect podium_top 84,92,48,5 7 e0
-rect podium_body 86,97,44,13 8 e0
-line podium_ln1 86,102 130,102 c0
-line podium_ln2 86,107 130,107 c0
-rect podium_lit 86,97,5,13 15
-poly dancer_legs 100,92 106,64 114,64 120,92 112,92 110,76 108,92 15
-poly dancer_legs_sh 112,92 110,76 108,92 106,64 109,64 7
-poly dancer_skirt 98,66 124,66 128,76 94,76 13
-poly dancer_torso 102,46 118,46 119,52 115,60 114,66 106,66 105,60 101,52 15
-poly dancer_torso_sh 116,48 118,47 119,52 115,60 114,66 112,66 113,60 116,52 7
-rect dancer_neck 108,42,4,5 15
-rect dancer_neck_sh 108,45,4,2 7
-ellipse dancer_breast_sh_l 107,58,4,3 7
-ellipse dancer_breast_sh_r 113,58,4,3 7
-ellipse dancer_breast_l 107,57,4,3 15
-ellipse dancer_breast_r 113,57,4,3 15
-ellipse dancer_breast_side_sh 119,60,4,3 7
-ellipse dancer_breast_side 119,58,4,3 15
-line dancer_navel 110,63 110,64 c7
-ellipse dancer_head 110,36,6,8 15
-poly dancer_head_sh 113,32 116,36 114,42 111,44 115,38 7
-poly dancer_arm_up 118,46 128,34 131,36 122,52 15
-poly dancer_arm_up_sh 120,50 129,36 131,36 122,52 7
-poly dancer_arm_down 102,48 96,60 99,64 105,52 15
-poly dancer_arm_sh 98,56 96,60 99,64 100,60 7
-ellipse dancer_hair 109,32,8,6 0
-poly dancer_hair_fall 102,34 98,52 104,50 106,38 0
-rect dancer_shoe 104,90,12,3 4
-outline dancer e0
-rect booth_box 190,82,60,26 0 e8
-rect booth_top 186,78,68,6 8 e7
-ellipse deck_a 202,76,11,3 7
-ellipse deck_b 236,76,11,3 8
-ellipse deck_a_disc 202,76,8,2 0
-ellipse deck_b_disc 236,76,8,2 0
-line deck_a_arm 208,74 214,72 c15
-rect mixer 215,72,14,6 7 e0
-dots mixer_knobs 218,74 222,74 226,74 c4
-poly dj_body 208,76 212,52 232,52 238,76 0
-ellipse dj_head 222,46,6,7 0
-poly dj_mohawk 222,34 220,44 224,44 0
-line dj_arm 214,56 204,72 c0
-line dj_arm2 230,56 236,72 c0
-line dj_phones 216,46 228,46 c0
-rect booth_lamp 194,84,6,4 14
-dots booth_leds 244,86 244,90 244,94 c14
+ellipse floor_patch_a 120,116,30,4 13
+ellipse floor_patch_b 250,118,32,4 11
+ellipse spill_a 40,128,24,3 8
+ellipse spill_b 190,126,20,3 8
 poly crowd_a 0,100 4,92 12,90 20,94 28,92 36,90 42,96 48,100 0
-poly crowd_b 42,100 48,88 56,86 62,92 70,94 76,100 0
-poly crowd_c 130,102 136,92 144,88 152,92 160,90 170,94 176,102 0
-poly crowd_d 250,100 256,90 264,88 272,92 280,90 288,86 296,92 304,90 312,94 320,98 320,102 0
-poly crowd_e 0,104 6,98 16,96 24,100 34,98 44,104 0
-poly crowd_f 60,106 66,98 76,96 84,100 80,106 0
-poly crowd_g 140,108 148,98 160,96 172,100 182,98 192,106 0
-poly crowd_h 252,108 262,98 274,96 284,102 296,98 306,104 320,102 320,108 0
+poly crowd_b 54,106 58,100 66,98 74,102 82,100 90,104 96,108 0
+poly crowd_c 126,108 132,102 142,100 152,104 160,102 168,108 0
+poly crowd_d 214,106 220,100 230,98 240,102 252,100 262,104 270,108 0
+poly crowd_e 282,106 288,100 300,98 312,102 320,100 320,108 0
 poly crowd_near_l 0,118 6,108 18,106 30,110 42,108 52,118 52,136 0,136 0
 poly crowd_near_r 262,120 270,110 282,108 294,112 306,108 320,112 320,136 262,136 0
 ellipse head_1 8,90,5,6 0
 ellipse head_2 26,90,5,6 0
-ellipse head_3 52,86,5,6 0
-ellipse head_4 70,92,5,6 0
-ellipse head_5 144,86,5,6 0
-ellipse head_6 166,88,5,6 0
-ellipse head_7 264,86,5,6 0
-ellipse head_8 288,84,5,6 0
-ellipse head_9 308,88,5,6 0
-ellipse head_10 20,104,6,7 0
-ellipse head_11 286,106,6,7 0
-ellipse head_12 160,94,5,6 0
+ellipse head_3 74,98,5,6 0
+ellipse head_4 146,98,5,6 0
+ellipse head_5 232,96,5,6 0
+ellipse head_6 300,96,5,6 0
+ellipse head_7 20,104,6,7 0
+ellipse head_8 286,106,6,7 0
+poly mohawk_1 5,84 8,74 11,84 0
+poly mohawk_2 71,92 74,82 77,92 0
+poly mohawk_3 229,90 232,80 235,90 0
+poly mohawk_4 297,90 300,78 303,90 0
 line arm_1 30,94 36,78 c0
-line arm_2 64,94 60,80 c0
-line arm_3 150,92 156,76 c0
-line arm_4 274,92 270,78 c0
-line arm_5 300,92 306,80 c0
-rect speaker_1 6,36,30,40 0 e8
-ellipse speaker_cone1 21,48,10,10 8
-ellipse speaker_cone2 21,66,8,8 8
-ellipse speaker_rim1 21,48,10,10 none e7
-line speaker_handle 12,38 30,38 c7
-rect lit_sign 40,14,30,8 11 e0
-dots lit_sign_dots 46,18 54,18 62,18 c3
-line cable_a 90,10 98,2 c8
-rect ball_cord 159,10,2,8 8
-ellipse ball 160,26,10,10 7 e0
-poly ball_band1 152,20 168,20 170,26 150,26 8
-poly ball_band2 150,28 170,28 168,34 152,34 8
-line ball_ln1 160,16 160,36 c8
-line ball_ln2 150,26 170,26 c8
-dots ball_glints 154,22 158,20 164,24 156,30 162,32 166,28 c15
-dots spots_wall 54,50 62,64 150,56 168,70 268,52 276,66 296,60 c15
-dots spots_floor 196,126 210,124 30,126 c15
-rect sub_glow 270,12,46,28 5
-poly sub_body 280,24 306,24 312,30 306,36 280,36 274,30 11
-rect sub_tower 288,16,10,8 11
-line sub_peri 296,16 296,10 c11
-line sub_peri2 296,10 302,10 c11
-ellipse sub_port1 286,30,2,2 3
-ellipse sub_port2 294,30,2,2 3
-ellipse sub_port3 302,30,2,2 3
-rect frame_r 268,6,50,40 none e13
-line wire_a 0,40 6,36 c8
-line cable_floor 10,124 60,130 c8
-line cable_floor2 216,128 260,126 c8
-dots drinks 100,100 190,104 252,100 c11`,
+line arm_2 90,102 94,86 c0
+line arm_3 156,100 160,84 c0
+line arm_4 254,98 260,82 c0
+dots cans 24,126 140,130 224,128 300,126 c7
+line cable_a 10,124 60,130 c8
+line cable_b 130,106 170,108 c8`,
     cycles: [
-      { name: "the mirror ball", areas: ["ball_glints"], colors: [15, 7, 13], style: "pingpong", scatter: true, ms: 420 },
-      { name: "the neon submarine", areas: ["sub_body", "sub_tower", "sub_peri", "sub_peri2"], colors: [11, 3], style: "blink", ms: 1500 }
-    ]
+      { name: "the stage wash", areas: ["panel_stage_hi"], colors: [13, 5], style: "flicker", ms: [900, 2600] },
+      { name: "the safety pin sign", areas: ["sign_a", "sign_b", "sign_ring", "sign_c", "sign_d"], colors: [13, 1], style: "blink", ms: 1500 }
+    ],
+    overlays: [{ object: "ministro", at: [212, 58] }]
   },
 
-  // ---- THE AVENIDA: eye level down the strip to the Submarino's front; neon on both sides; the thumbnail ------------------------
+  // ---- THE AVENIDA: eye level down the strip to El Charlie's front; neon on both sides; the thumbnail ------------------------
   avenida: {
     version: 1,
-    shot: "Eye level, facing north, a strong one-point view, vp on the right third (200,62) to a small far end. Palette neon, flat. Sky blue with magenta low down, the far roofs black. Left facade: blue, grey {shutters} half up, a lit window (cyan) of the bar with black silhouettes, a pink neon blade sign on a bracket (a cocktail glass of tube in a black box); right facade: a white-lit depot window, shutters, and a cyan blade sign on a bracket with three chevrons of tube; two rows of lit windows on each side. Subject: the black front of the {Submarino} at the far end on the right third, a round lit porthole window and a queue of black silhouettes at its entrance. Wet road in bands, magenta far to blue near, with the signs repeated in it as soft streaks; a black car on the right, {people in the doorways} as black silhouettes. moves: the arrow sign (running chevrons), the faulty pink tube (flicker)",
+    shot: "Eye level, facing north, a strong one-point view, vp on the right third (200,62) to a small far end. Palette neon, flat. Sky blue with magenta low down, the far roofs black. Left facade: blue, grey {shutters} half up, a lit window (cyan) of the bar with black silhouettes, a pink neon blade sign on a bracket (a cocktail glass of tube in a black box); right facade: a white-lit depot window, shutters, and a cyan blade sign on a bracket with three chevrons of tube; two rows of lit windows on each side. Subject: the black front of {El Charlie} at the far end on the right third, a round lit porthole window and a queue of black silhouettes at its entrance. Wet road in bands, magenta far to blue near, with the signs repeated in it as soft streaks; a black car on the right, {people in the doorways} as black silhouettes. moves: the arrow sign (running chevrons), the faulty pink tube (flicker)",
     draw: `vp 200,62
 rect sky 0,0,320,28 1
 rect glow 0,28,320,36 5
@@ -498,7 +520,8 @@ line sign_line 31,68 45,68 c0`,
     cycles: [
       { name: "the arrow sign", areas: ["arrow_a", "arrow_b", "arrow_c"], colors: [11, 3], rest: 2, style: "rotate", sweep: true, ms: 300 },
       { name: "the faulty pink tube", areas: ["bar_tube_a", "bar_tube_b", "bar_tube_c", "bar_tube_d"], colors: [13, 5], style: "flicker", ms: [800, 4000] }
-    ]
+    ],
+    overlays: [{ object: "ministro", at: [94, 88] }]
   },
 
   // ---- THE CORNER: frontal, the one working street lamp; Marisol on the left third; the pension's sign on the right ---------------
@@ -622,7 +645,7 @@ line crack 140,134 170,128 c0`,
   // ---- THE ESTAFETA: frontal; the clerk behind her counter on the left third, the parcel on its shelf on the right third ------------
   estafeta: {
     version: 1,
-    shot: "Eye level, facing north, frontal across a counter, no vanishing point. Palette institution, flat. One light: the stuttering white {strip light} over the counter, lighting a flat white patch on the counter top. Subject on the left third (x about 107): {Doña Remedios}, stout, in a green cardigan (the picture's one green thing) with a brown hairnet over brown hair, a pale grey face, a stamp raised in one hand, behind the long counter. Right third (x about 213): the brown {parcel} tied with string, a red wax seal, on a shelf. Back wall: {pigeonholes} to the ceiling in dark grey, some with white letters sticking out; the {counter} grey with a purple inkpad; a {notice} on the right wall; floor tiles in bands. moves: the strip light (flicker)",
+    shot: "Eye level, facing north, frontal across a counter, no vanishing point. Palette institution, flat. One light: the stuttering white {strip light} over the counter, lighting a flat white patch on the counter top. Subject on the left third (x about 107): {Doña Remedios}, stout, in a green cardigan (the picture's one green thing) with a brown hairnet over brown hair, a pale grey face, a stamp raised in one hand, behind the long counter. Right third (x about 213): a swollen canvas {mail sack} tied at the neck, with a white band and a red stamp, on a shelf. Back wall: {pigeonholes} to the ceiling in dark grey, some with white letters sticking out; the {counter} grey with a purple inkpad; a {notice} on the right wall; floor tiles in bands. moves: the strip light (flicker)",
     draw: `rect wall 0,0,320,92 8
 rect wall_hi 0,0,320,6 0
 rect hole_1 8,12,26,14 0
@@ -674,14 +697,13 @@ rect letter_8 298,34,10,8 15
 rect shelf 186,56,64,4 6
 rect shelf_bracket1 190,60,3,8 0
 rect shelf_bracket2 242,60,3,8 0
-rect parcel 192,34,50,22 6 e0
-rect parcel_lid 192,34,50,5 0
-line parcel_string_h 192,45 242,45 c0
-line parcel_string_v 217,34 217,56 c0
-ellipse parcel_wax 217,45,3,3 4
-rect parcel_label 198,48,14,7 15
-line parcel_label_ln 200,51 210,51 c0
-line parcel_crease 222,40 236,52 c0
+poly sack_shelf 194,56 196,44 204,37 214,34 224,37 232,44 236,56 7
+poly sack_shelf_sh 224,37 232,44 236,56 220,56 8
+rect sack_shelf_tie 208,32,12,4 0
+rect sack_shelf_band 196,46,38,6 15
+rect sack_shelf_stamp 214,47,12,4 4
+line sack_shelf_c1 202,40 200,56 c8
+line sack_shelf_c2 212,37 210,46 c8
 rect light_fix 126,2,72,6 7 e0
 rect light_tube 130,4,64,2 15
 rect counter_top 0,90,320,8 7 e0
@@ -748,167 +770,136 @@ line cord 164,8 164,30 c7
 rect desk_lamp_g 296,66,6,16 7 e0`,
     cycles: [
       { name: "the strip light", areas: ["light_tube", "light_patch"], colors: [15, 7], style: "flicker", ms: [500, 1600] }
-    ]
+    ],
+    overlays: [{ object: "ministro", at: [156, 84] }]
   },
 
-  // ---- LOS GALGOS: frontal across the bar; the jukebox on the left third, the Apothecary on the end stool on the right third ------
-  bar: {
+  // ---- LA OPERA: frontal across the little stage; Doña Aurora singing on the left third, the round table and the gilt mirror on the right ----
+  opera: {
     version: 1,
-    shot: "Eye level, facing north, frontal, no vanishing point. Palette lamplight, flat. One light: a hanging lamp over the bar (a flat yellow patch on the zinc), the bottle shelf lit behind. Subject on the right third (x about 213): {the Apothecary} sitting on the end stool, a small neat woman in a grey coat with her hair in a net, a pale light grey face, a brown leather {bag} on her knee, open, small white {wraps} of folded paper showing in its mouth; on the zinc beside her three more white {wraps}, two brown pill bottles with white labels and a few white {pills}. Left third (x about 107): the glowing {jukebox}, yellow and red with a curved top. Between them the {regulars}, black backs in anoraks on stools against the lit shelf. Back wall brown with the bottle shelf (bottles in brown, green and yellow); left wing a blue night window with a pink glow; right wing a green neon {beer sign}; the {bar} zinc along the back. moves: the lamp (flicker), the beer sign (blink)",
-    draw: `rect wall 0,0,320,100 mix:6,0@0.5
-rect wall_lit 60,0,200,100 6
-line wall_p1 60,0 60,100 c0
-line wall_p2 120,0 120,100 c0
-line wall_p3 190,0 190,100 c0
-line wall_p4 260,0 260,100 c0
-rect shelf_1 64,32,190,3 0
-rect shelf_2 64,54,190,3 0
-rect shelf_back 64,12,190,70 mix:6,14@0.5
-rect shelf_1b 64,32,190,3 0
-rect shelf_2b 64,54,190,3 0
-rect bottle_1 70,18,6,14 2
-rect bottle_2 80,20,6,12 6
-rect bottle_3 90,16,6,16 14
-rect bottle_4 100,20,6,12 2
-rect bottle_5 110,18,6,14 4
-rect bottle_6 124,20,6,12 6
-rect bottle_7 134,16,6,16 2
-rect bottle_8 144,20,6,12 14
-rect bottle_9 154,18,6,14 6
-rect bottle_10 168,20,6,12 2
-rect bottle_11 178,16,6,16 6
-rect bottle_12 188,20,6,12 14
-rect bottle_13 198,18,6,14 2
-rect bottle_14 212,20,6,12 6
-rect bottle_15 222,16,6,16 4
-rect bottle_16 232,20,6,12 2
-rect bottle_17 242,18,6,14 14
-rect bottle_18 72,40,6,14 6
-rect bottle_19 82,42,6,12 2
-rect bottle_20 92,38,6,16 14
-rect bottle_21 106,42,6,12 6
-rect bottle_22 126,40,6,14 2
-rect bottle_23 150,42,6,12 4
-rect bottle_24 174,38,6,16 6
-rect bottle_25 200,42,6,12 2
-rect bottle_26 226,40,6,14 14
-rect glass_row 66,62,184,3 7
-rect mirror_back 64,64,190,14 8
-rect mirror_hi 70,66,40,4 7
-rect mirror_hi2 170,68,50,4 7
-line lamp_cord 150,0 150,22 c0
-poly lamp_shade 134,22 166,22 172,32 128,32 14 e0
-ellipse lamp_bulb 150,33,5,2 15
-rect bar_top 0,92,320,8 7 e0
-rect lamp_patch 118,96,64,3 14
-rect bar_front 0,100,320,22 6
-line bar_pl_1 50,100 50,122 c0
-line bar_pl_2 130,100 130,122 c0
-line bar_pl_3 210,100 210,122 c0
-line bar_pl_4 290,100 290,122 c0
-rect bar_rail 0,118,320,3 8
-rect bar_rail_hi 0,118,40,3 7
-rect bar_glass_1 100,86,5,6 7
-rect bar_glass_2 168,86,5,6 7
-rect bar_glass_3 246,86,5,6 7
-rect bar_tap 190,84,5,8 8
-rect jukebox_body 78,28,56,70 6 e0
-poly jukebox_arch 78,38 86,24 126,24 134,38 14 e0
-rect jukebox_glass 86,36,40,24 4
-rect jukebox_glass_hi 90,40,32,10 12
-ellipse jukebox_disc 106,48,8,8 0
-ellipse jukebox_disc_in 106,48,3,3 14
-rect jukebox_grille 86,64,40,22 0
-line jukebox_g1 90,64 90,86 c14
-line jukebox_g2 98,64 98,86 c14
-line jukebox_g3 106,64 106,86 c14
-line jukebox_g4 114,64 114,86 c14
-line jukebox_g5 122,64 122,86 c14
-rect jukebox_lit 78,28,4,70 14
-dots jukebox_bulbs 92,30 100,28 108,28 116,28 124,30 c15
-rect jukebox_foot 82,96,48,4 0
-poly reg_1 28,100 28,72 32,64 40,62 48,66 50,72 50,100 0
-ellipse reg_1h 39,56,6,7 0
-poly reg_2 148,100 148,76 152,68 160,66 168,70 170,76 170,100 0
-ellipse reg_2h 159,60,6,7 0
-poly reg_3 174,100 174,70 178,62 186,60 194,64 196,70 196,100 0
-ellipse reg_3h 185,54,6,7 0
-poly reg_4 54,100 54,80 58,74 64,72 70,76 72,80 72,100 0
-ellipse reg_4h 63,66,5,6 0
-rect stool_1 32,100,14,4 0
-rect stool_2 152,100,14,4 0
-rect stool_3 178,100,14,4 0
-rect stool_r 196,100,38,4 0
-line stool_leg1 36,104 36,126 c0
-line stool_leg2 160,104 160,126 c0
-line stool_leg3 186,104 186,126 c0
-line stool_leg4 208,104 208,126 c0
-line stool_leg5 226,104 226,126 c0
-poly a_coat 206,98 206,70 212,62 226,62 232,70 232,98 8
-poly a_coat_sh 224,98 232,70 232,98 0
-rect a_collar 213,60,12,4 7
-poly a_arm 208,68 200,84 206,90 212,76 8
-rect a_bag 198,82,18,12 6 e0
-rect a_bag_clasp 204,82,6,3 14
-line a_bag_strap 202,82 208,76 c0
-ellipse a_head 219,54,7,8 7
-ellipse a_head_sh 224,54,3,7 8
-ellipse a_net 219,48,8,5 8
-dots a_net_dots 214,47 219,45 224,47 c7
-dots a_eyes 216,54 222,54 c0
-line a_mouth 217,58 221,58 c4
-poly a_legs 210,98 212,86 216,86 216,98 8
-poly a_legs2 220,98 222,86 226,86 226,98 8
-rect a_shoes 208,98,22,3 0
-outline a e0
-rect bag_mouth 200,81,14,3 0
-rect wrap_1 200,77,6,5 15
-line wrap_1_fold 200,77 205,81 c7
-rect wrap_2 207,78,6,5 15
-line wrap_2_fold 207,82 212,78 c7
-rect wrap_3 238,87,6,5 15
-line wrap_3_fold 238,87 243,91 c7
-rect wrap_4 246,88,6,4 15
-line wrap_4_fold 246,91 251,88 c7
-rect wrap_5 242,83,6,5 15
-line wrap_5_fold 242,83 247,87 c7
-rect pillbottle_1 256,80,6,12 6 e0
-rect pillbottle_1_cap 257,77,4,3 15
-rect pillbottle_1_label 257,84,4,4 15
-rect pillbottle_2 265,83,6,9 6 e0
-rect pillbottle_2_cap 266,80,4,3 15
-rect pillbottle_2_label 266,86,4,3 15
-dots pills 226,95 230,96 234,95 252,95 c15
-rect window_frame 4,18,48,52 0
-rect window_pane 8,22,40,44 1
-rect window_glow 14,34,16,24 13
-poly window_sign 30,28 44,28 44,40 30,40 11
-line window_bar 28,22 28,66 c0
-line window_bar2 8,44 48,44 c0
-rect window_sill 2,70,52,4 8
-rect sign_glow 258,20,44,36 2
-rect sign_tube 262,24,34,28 0 e8
-line sign_a 270,30 270,46 c10
-line sign_b 270,30 280,30 c10
-line sign_c 280,30 280,46 c10
-line sign_d 270,46 280,46 c10
-line sign_e 286,32 290,32 c10
-rect floor_far 0,126,320,4 6
-rect floor_near 0,130,320,6 mix:6,0@0.5
-line floor_pl 80,126 70,136 c0
-line floor_pl2 190,126 196,136 c0
-line floor_pl3 270,126 290,136 c0
-ellipse spit 110,132,10,2 0
-dots butts 70,134 140,132 260,134 c8
-rect coat_peg 300,70,3,10 0
-poly coat_on_peg 296,76 312,76 314,106 294,106 8
-rect clock_face 8,86,20,20 7 e0
-line clock_h 18,96 18,90 c0
-line clock_m 18,96 22,98 c0`,
+    shot: "Eye level, facing north, frontal, no vanishing point. Palette lamplight, flat. One light: a hanging lamp of seven bulbs over the little stage (three lit yellow, four dead grey), a flat yellow patch on the stage boards. Subject on the left third (x about 107): {Doña Aurora} singing on the little {stage}, a woman of fifty-eight bare from the waist up, pale skin (white with light grey) with a shade under the breasts and at the side, a mass of red-dyed hair, a green feather {boa} round her neck and trailing down one arm, a long dark red skirt to the boards, one arm raised. Behind her red velvet {curtains} gone brown on each side and a brown velvet wall with a gold-framed {mirror} on the right whose glass is dark grey with white glints. Right third (x about 213): a round {table} with a white candle in a bottle, its flame yellow, in front of the mirror. Left wing: the short mahogany {bar} with a shelf of bottles behind it and Gaspar the barman a black silhouette behind it; in front of the stage the backs of three older men in good overcoats, black silhouettes, each with a small glass. Floor brown planks in bands. moves: the lamp (flicker), the candle flame (flicker)",
+    draw: `rect wall 0,0,320,100 6
+rect wall_hi 0,0,320,6 0
+line wall_p1 46,6 46,100 c0
+line wall_p2 176,6 176,100 c0
+line wall_p3 250,6 250,100 c0
+rect velvet_1 6,16,30,70 4
+rect velvet_2 228,16,20,70 4
+rect velvet_3 254,16,50,70 4
+line velvet_f1 14,16 14,86 c0
+line velvet_f2 24,16 24,86 c0
+line velvet_f3 234,16 234,86 c0
+line velvet_f4 242,16 242,86 c0
+line velvet_f5 264,16 264,86 c0
+line velvet_f6 280,16 280,86 c0
+line velvet_f7 296,16 296,86 c0
+poly curtain_l 50,6 74,6 70,92 50,92 4
+poly curtain_r 148,6 172,6 172,92 150,92 4
+line curtain_lf1 58,6 56,92 c0
+line curtain_lf2 66,6 64,92 c0
+line curtain_rf1 156,6 158,92 c0
+line curtain_rf2 164,6 164,92 c0
+rect stage_back 74,20,74,72 0 e8
+rect stage_top 50,92,120,5 6 e0
+rect stage_front 50,97,120,13 0 e6
+line stage_trim 50,97 170,97 c14
+line stage_pl1 80,97 80,110 c6
+line stage_pl2 110,97 110,110 c6
+line stage_pl3 140,97 140,110 c6
+ellipse stage_pool 110,92,40,3 14
+line lamp_chain 112,0 112,12 c8
+rect lamp_bar 82,12,60,3 14 e0
+ellipse bulb_1 84,19,3,4 14
+ellipse bulb_2 94,19,3,4 8
+ellipse bulb_3 104,19,3,4 14
+ellipse bulb_4 112,19,3,4 8
+ellipse bulb_5 120,19,3,4 14
+ellipse bulb_6 130,19,3,4 8
+ellipse bulb_7 140,19,3,4 8
+poly aurora_skirt 96,64 126,64 134,92 88,92 4
+line aurora_skirt_f1 104,66 98,92 c0
+line aurora_skirt_f2 112,66 112,92 c0
+line aurora_skirt_f3 120,66 126,92 c0
+poly aurora_torso 102,46 118,46 119,52 115,60 114,66 106,66 105,60 101,52 15
+poly aurora_torso_sh 116,48 118,47 119,52 115,60 114,66 112,66 113,60 116,52 7
+rect aurora_neck 108,42,4,5 15
+rect aurora_neck_sh 108,45,4,2 7
+ellipse aurora_breast_sh_l 107,58,4,3 7
+ellipse aurora_breast_sh_r 113,58,4,3 7
+ellipse aurora_breast_l 107,57,4,3 15
+ellipse aurora_breast_r 113,57,4,3 15
+ellipse aurora_breast_side_sh 119,60,4,3 7
+ellipse aurora_breast_side 119,58,4,3 15
+line aurora_navel 110,63 110,64 c7
+ellipse aurora_head 110,36,6,8 15
+poly aurora_head_sh 113,32 116,36 114,42 111,44 115,38 7
+poly aurora_arm_up 118,46 128,34 131,36 122,52 15
+poly aurora_arm_up_sh 120,50 129,36 131,36 122,52 7
+poly aurora_arm_down 102,48 96,60 99,64 105,52 15
+poly aurora_arm_sh 98,56 96,60 99,64 100,60 7
+ellipse aurora_hair 109,32,8,6 4
+poly aurora_hair_fall 102,34 98,52 104,50 106,38 4
+poly aurora_boa 100,44 120,44 122,50 116,52 108,52 98,50 2
+poly aurora_boa_tail 96,52 104,50 104,60 100,74 96,80 92,66 2
+dots aurora_boa_hi 100,47 106,46 112,46 118,48 94,62 98,72 98,78 c10
+outline aurora e0
+rect hall_shadow 86,10,2,2 0
+rect bar_shelf 4,50,40,3 6 e0
+rect bar_wall 2,30,44,22 0
+rect bar_bottle_1 8,40,3,10 2
+rect bar_bottle_2 16,38,3,12 14
+rect bar_bottle_3 24,40,3,10 6
+rect bar_bottle_4 32,38,3,12 2
+rect bar_bottle_5 38,40,3,10 14
+poly gaspar_body 10,86 12,66 22,60 32,66 34,86 0
+ellipse gaspar_head 22,54,6,7 0
+rect bar_top 0,84,46,4 6 e0
+rect bar_front 0,88,46,22 0 e6
+line bar_front_1 15,88 15,110 c6
+line bar_front_2 30,88 30,110 c6
+rect bar_lit 0,88,4,22 14
+dots bar_glasses 10,82 22,82 34,82 c11
+rect mirror_frame 182,26,42,50 14 e0
+rect mirror_glass 186,30,34,42 8
+line mirror_glint_1 190,36 198,50 c15
+line mirror_glint_2 204,36 210,48 c15
+line mirror_glint_3 212,56 216,64 c7
+rect mirror_cap 186,22,34,4 14 e0
+rect table_cloth 252,100,34,4 4 e0
+ellipse table_top 269,100,20,5 6 e0
+rect table_leg 266,104,6,22 0
+ellipse table_foot 269,127,10,3 0
+rect candle_bottle 266,88,6,12 2 e0
+rect candle 268,80,2,9 15
+ellipse candle_flame 269,77,2,3 14
+ellipse candle_pool 269,100,12,2 14
+rect floor_far 0,100,320,10 6
+rect floor_mid 0,110,320,12 mix:6,0@0.5
+rect floor_near 0,122,320,14 mix:6,0@0.5
+line floor_seam1 0,110 320,110 c0
+line floor_seam2 0,122 320,122 c0
+line floor_pl1 70,110 62,122 c0
+line floor_pl2 190,110 196,122 c0
+line floor_pl3 40,122 28,136 c0
+line floor_pl4 150,122 148,136 c0
+line floor_pl5 240,122 252,136 c0
+poly man_a_body 60,136 62,118 76,112 90,116 92,136 0
+ellipse man_a_head 76,108,6,7 0
+rect man_a_hair 72,100,8,3 7
+poly man_b_body 126,136 128,120 142,114 156,118 158,136 0
+ellipse man_b_head 142,110,6,7 0
+rect man_b_hair 138,102,8,3 7
+poly man_c_body 200,136 202,122 214,116 226,120 228,136 0
+ellipse man_c_head 214,112,6,7 0
+rect man_c_hair 210,104,8,3 7
+dots glasses 70,126 138,128 212,130 c11
+line rug_edge 30,128 100,130 c4
+line rug_edge2 170,126 250,128 c4`,
     cycles: [
-      { name: "the hanging lamp", areas: ["lamp_bulb", "lamp_patch", "lamp_shade"], colors: [14, 6], style: "flicker", ms: [700, 2200] },
-      { name: "the beer sign", areas: ["sign_a", "sign_b", "sign_c", "sign_d", "sign_e"], colors: [10, 2], style: "blink", ms: 1600 }
-    ]
+      { name: "the lamp", areas: ["bulb_1", "bulb_3", "bulb_5", "stage_pool"], colors: [14, 6], style: "flicker", ms: [800, 2400] },
+      { name: "the candle flame", areas: ["candle_flame", "candle_pool"], colors: [14, 12], style: "flicker", ms: [400, 1200] }
+    ],
+    overlays: [{ object: "ministro", at: [232, 60] }]
   },
 
   // ---- PENSIÓN ESPERANZA: eye level, a little off-centre; the staircase on the left, Don Nicanor behind his desk on the right third ----
@@ -1146,7 +1137,7 @@ rect skirting_x 0,134,320,2 0`,
   // ---- THE LAVANDERÍA: eye level, frontal; the row of washers across the back, the big dryer on the right third --------------------
   lavanderia: {
     version: 1,
-    shot: "Eye level, facing north, frontal, no vanishing point. Palette institution, flat. One light: cold white tubes on the ceiling, flat white patches on the machines' tops and the floor. Subject on the right third (x about 213): the big old {dryer} with a round glass {porthole} door and a slot, something grey tumbling in the glass, a green stop light on its top (the picture's one green thing). Left third (x about 107): the bolted {bench} of grey slats. Back wall: a row of white {washers} with round doors; a {sign} board on the wall; left wing a washer with its door open and a laundry basket; right wing a trolley with a folded white sheet. Floor tiles in grey bands. moves: the tumbling in the dryer's glass (flicker), the tube (flicker)",
+    shot: "Eye level, facing north, frontal, no vanishing point. Palette institution, flat. One light: cold white tubes on the ceiling, flat white patches on the machines' tops and the floor. Subject on the right third (x about 213): the big old {dryer} with a round glass {porthole} door and a coin slot, a long black chimney sweep's {brush} lying against the glass inside, a green stop light on its top (the picture's one green thing). Left third (x about 107): the bolted {bench} of grey slats. Back wall: a row of white {washers} with round doors; a {sign} board on the wall; left wing a washer with its door open and a laundry basket; right wing a trolley with a folded white sheet. Floor tiles in grey bands. moves: the tube (flicker)",
     draw: `rect wall 0,0,320,96 8
 rect wall_hi 0,0,320,6 0
 line tile_v1 0,0 0,96 c0
@@ -1207,9 +1198,9 @@ dots dryer_buttons 244,41 252,41 260,41 268,41 c15
 rect dryer_stop 270,36,6,6 2
 ellipse dryer_ring 246,72,22,22 8 e0
 ellipse dryer_glass 246,72,17,17 1
-ellipse dryer_tumble_a 240,70,6,5 15
-ellipse dryer_tumble_b 252,76,5,4 7
-ellipse dryer_tumble_c 246,66,4,3 3
+line cepillo_handle 238,86 256,62 c6
+line cepillo_handle2 239,86 257,62 c6
+poly cepillo_head 230,80 238,76 244,84 240,90 232,88 0
 line dryer_hi 232,64 236,60 c15
 rect dryer_lit 208,34,4,66 15
 rect dryer_feet 212,102,64,4 0
@@ -1254,15 +1245,15 @@ line poster_ln 18,42 38,42 c0
 rect soap_dispenser 60,40,14,16 7 e0
 rect soap_dispenser_c 62,46,10,6 4`,
     cycles: [
-      { name: "the tumbling in the dryer", areas: ["dryer_tumble_a", "dryer_tumble_b", "dryer_tumble_c"], colors: [15, 7, 3, 1], style: "flicker", ms: [500, 1600] },
       { name: "the tube", areas: ["tube_1", "tube_2", "tube_patch"], colors: [15, 7], style: "flicker", ms: [900, 2600] }
-    ]
+    ],
+    overlays: [{ object: "cepillo", at: [238, 88] }]
   },
 
   // ---- PLAZA DEL CARBÓN: wide, from the square's south edge; the dry fountain on the left third, the orange sodium lamp on the right ---
   plaza: {
     version: 1,
-    shot: "Wide landscape, facing north across the square, no vanishing point; horizon low at 96. Palette neon, flat. One light: the orange {sodium lamp} (light red globe, yellow core) on the right third, its flat orange pool on the cobbles. Subject on the left third (x about 107): the dry stone {fountain}, a basin on a plinth with a dead fish for a spout, filled with flowerpots, a child's black silhouette sitting on its rim. Around it the {tenements}, three layers: a far block of blue in the middle, two near blocks in shaded blue at the wings, windows flat green, red, blue and cyan; a black chimney far off on the skyline in the middle. Sky blue with magenta low down. Cobbles in bands, magenta far to blue near. moves: the sodium lamp (flicker), a green television window (flicker)",
+    shot: "Wide landscape, facing north across the square, no vanishing point; horizon low at 96. Palette neon, flat. One light: the orange {sodium lamp} (light red globe, yellow core) on the right third, its flat orange pool on the cobbles. Subject on the left third (x about 107): the dry stone {fountain}, a basin on a plinth with a dead fish for a spout, filled with flowerpots, a child's black silhouette sitting on its rim. Around it the {tenements}, three layers: a far block of blue in the middle, two near blocks in shaded blue at the wings, windows flat green, red, blue and cyan; a black chimney far off on the skyline in the middle. Sky blue with magenta low down. Cobbles in bands, magenta far to blue near. moves: the sodium lamp (flicker), a green television window (flicker), a rat crossing the cobbles now and then (travelling loop)",
     draw: `rect sky 0,0,320,26 1
 rect glow 0,26,320,38 5
 poly roofs_far 96,70 96,58 108,58 108,50 122,50 122,56 138,56 138,46 156,46 156,54 174,54 174,44 190,44 190,52 206,52 206,60 232,60 232,70 0
@@ -1384,6 +1375,14 @@ line wire_b 232,10 320,16 c8`,
     cycles: [
       { name: "the sodium lamp", areas: ["lamp_core", "lamp_globe", "pool_i", "pool_o"], colors: [14, 12], style: "flicker", ms: [700, 2200] },
       { name: "the television window", areas: ["win_l1", "win_r5", "win_l11", "win_r12"], colors: [2, 10], style: "flicker", ms: [600, 1800] }
+    ],
+    loops: [
+      { name: "the rat", style: "loop", ms: 120, path: [[-14, 111], [322, 111]], travel: 3500, pause: 25000, frames: [
+        ["............", "....000000..", ".00000000000", "0.....00...0", "............"],
+        ["....000000..", ".00000000000", "0....0...0.0", ".....0...0..", "............"],
+        ["............", "....000000..", ".00000000000", "0......00..0", "............"],
+        ["....000000..", ".00000000000", "0.....00.0.0", "......0..0..", "............"]
+      ] }
     ]
   },
 
@@ -1739,7 +1738,7 @@ rect pole_tip 74,68,5,3 8`,
   // ---- THE CUTTING: rails converging east to the works on the right third; a goods wagon on the left third ---------------------------
   terraplen: {
     version: 1,
-    shot: "Eye level on the ballast between the rails, facing east, wide, one vanishing point at the far end of the rails (x 228, y 80). Palette moonlight, flat. One light: a low yellow moon in the left sky, its light on the rails and the wagon roof only; one red signal lamp. Subject on the right third (x about 213): the black {works} hall at the end of the line with the {great chimney} rising out of it, a smoke cloud on top. Left third (x about 107): the goods {wagon} on its siding, slide painted over with slogans in white. Between them the two rusted {rails} running to the works over {sleepers} on grey ballast in bands; embankments on both sides in shaded blue and black; a red {signal lamp} on a post at the right foot. Night sky blue, light blue near the horizon, white stars, the moon wrapped in smoke. moves: the signal lamp (blink), the stars (pingpong)",
+    shot: "Eye level on the ballast between the rails, facing east, wide, one vanishing point at the far end of the rails (x 228, y 80). Palette moonlight, flat. One light: a low yellow moon in the left sky, its light on the rails and the wagon roof only; one red signal lamp. Subject on the right third (x about 213): the black {works} hall at the end of the line with the great chimney rising out of it, a smoke cloud on top. Left third (x about 107): the goods {wagon} on its siding, slide painted over with slogans in white. Between them the two rusted {rails} running to the works over {sleepers} on grey ballast in bands; embankments on both sides in shaded blue and black; a red {signal lamp} on a post at the right foot. Night sky blue, light blue near the horizon, white stars, the moon wrapped in smoke. moves: the signal lamp (blink), the stars (pingpong)",
     draw: `rect sky 0,0,320,48 1
 rect sky_low 0,48,320,32 9
 ellipse moon 50,20,11,11 14
@@ -1853,7 +1852,7 @@ rect sign_slogan_t 13,44,18,2 15`,
   // ---- THE WORKS: a cathedral of brick lit by one furnace; the great chimney in the middle of the floor on the right third ----------
   fabrica: {
     version: 1,
-    shot: "Eye level on the ash floor at the west door, facing east, one-point view, vp on the right third (213,60). Palette ember. One light: the furnace mouth at the far left, red-orange, lighting the ash and the foot of the presses. Subject on the right third (x about 213): the {great chimney} standing in the middle of the floor, a huge black column with soot-grey bands rising through a round hole in the roof into a cloud, scorched in the shape of a hand on the wall behind. Left third (x about 107): the {furnace} brick arch with its red eye, and the {presses}, two iron rollers as tall as a man, inked grey, with belts. The hall walls are dark brick (black and brown in bands), high; the roof beams black; {ash} on the floor in bands from red-lit near the furnace to black at the right; the sky through the roof hole dark grey with a grey cloud. moves: the furnace (flicker), the embers (flicker)",
+    shot: "Eye level on the ash floor at the west door, facing east, one-point view, vp on the right third (213,60). Palette ember. One light: the furnace mouth at the far left, red-orange, lighting the ash and the foot of the presses. Subject on the right third (x about 213): the great chimney standing in the middle of the floor, a huge black column with soot-grey bands rising through a round hole in the roof into a cloud, scorched in the shape of a hand on the wall behind. Left third (x about 107): the {furnace} brick arch with its red eye, and the {presses}, two iron rollers as tall as a man, inked grey, with belts. Between the presses and the chimney (x about 178): {Marga}, a girl of nineteen sitting at a makeshift drum kit of a floor tom and a bucket, a black ragged bob, a torn light grey T-shirt, bare arms lit light red, sticks in her hands. The hall walls are dark brick (black and brown in bands), high; the roof beams black; {ash} on the floor in bands from red-lit near the furnace to black at the right; the sky through the roof hole dark grey with a grey cloud. moves: the furnace (flicker), the embers (flicker)",
     draw: `vp 213,60
 rect wall_top 0,0,320,40 0
 rect wall_mid 0,40,320,36 mix:6,0@0.5
@@ -1954,10 +1953,25 @@ rect sheet_2 252,126,14,5 7
 rect sheet_2_text 254,128,10,1 8
 rect sheet_3 270,112,10,4 7
 line pipe_floor 150,100 150,106 c0
-rect cart_body 160,88,26,12 0
-rect cart_wheel1 162,98,6,6 8
-rect cart_wheel2 176,98,6,6 8
-rect cart_load 164,82,18,7 8
+rect kit_stool 170,86,18,14 6 e0
+poly marga_legs 170,76 186,76 190,92 186,92 182,84 176,92 170,92 8
+poly marga_torso 170,56 186,56 188,76 168,76 7
+poly marga_torso_sh 182,56 186,56 188,76 182,76 8
+poly marga_arm_l 170,58 162,72 166,76 173,62 12
+poly marga_arm_l_sh 166,70 162,72 166,76 168,72 4
+poly marga_arm_r 186,58 196,70 192,74 184,62 12
+poly marga_arm_r_sh 192,70 196,70 192,74 190,72 4
+line marga_stick_l 162,72 156,82 c14
+line marga_stick_r 196,70 199,80 c14
+ellipse marga_head 178,49,6,7 12
+ellipse marga_hair 178,43,8,5 0
+poly marga_hair_fall 170,44 168,58 173,54 174,46 0
+dots marga_eyes 175,49 181,49 c0
+rect kit_drum_a 154,82,16,14 7 e0
+ellipse kit_drum_a_head 162,82,8,2 15
+line kit_drum_a_tape 154,89 170,89 c14
+rect kit_bucket 184,84,14,14 6 e0
+rect kit_bucket_rim 183,83,16,2 14
 rect lamp_hook 300,32,2,14 0
 rect lamp_body 296,44,10,8 8`,
     cycles: [
@@ -2150,110 +2164,6 @@ rect shadow_bus 132,108,108,3 8`,
     cycles: [
       { name: "the bus windows", areas: ["bus_win1", "bus_win2", "bus_win3", "bus_win4"], colors: [14, 15, 14], style: "flicker", scatter: true, ms: [900, 3000] },
       { name: "the dawn", areas: ["sun"], colors: [14, 15], style: "pingpong", ms: 3000 }
-    ]
-  },
-
-  // COLOUR: the great chimney from the cutting at morning, soot blowing off its top, the city below turning yellow, red and green.
-  colour: {
-    version: 1,
-    shot: "Eye level on the embankment, facing east, no vanishing point, wide. Palette neon, the strip's colours at their boldest, flat but in morning light. One light: the morning sun low behind the {chimney}, white-yellow, on the roofs and the soot cloud. Subject on the right third (x about 213): the {great chimney}, black and slender, with grey {soot} blowing off its top in a long cloud to the right, the last black falling in pieces. Left third (x about 107): the {city} below in blocks that are yellow, red, green, light blue and light magenta, each with windows, a few {washing lines} of bright sheets between them and a green tree. Sky light blue to white at the horizon, a yellow sun disc, white clouds. The railway {rails} in the foreground running toward the chimney, in bands of grey and brown. moves: the soot (drifting right), the washing (flicker)",
-    draw: `rect sky 0,0,320,40 9
-rect sky_mid 0,40,320,20 11
-rect sky_low 0,60,320,16 15
-ellipse sun 232,64,20,20 14
-ellipse sun_core 232,64,12,12 15
-rect cloud_1 20,12,40,6 15
-rect cloud_1b 28,8,26,5 15
-rect cloud_2 90,24,34,5 15
-rect cloud_2b 98,20,20,5 15
-rect cloud_3 160,10,36,5 15
-rect cloud_3b 168,6,22,5 15
-rect hills 0,70,320,12 3
-poly hill_l 0,82 0,66 50,62 110,70 150,82 0
-poly hill_r 320,82 320,62 280,60 240,70 210,82 0
-rect city_a 4,70,30,40 14
-rect city_a_roof 4,66,30,4 6
-rect city_b 36,60,28,50 4
-rect city_b_roof 36,56,28,4 12
-rect city_c 66,74,26,36 10
-rect city_c_roof 66,70,26,4 2
-rect city_d 94,64,30,46 11
-rect city_d_roof 94,60,30,4 3
-rect city_e 126,72,28,38 13
-rect city_e_roof 126,68,28,4 5
-rect city_f 156,66,26,44 14
-rect city_f_roof 156,62,26,4 6
-rect win_a1 10,76,4,4 15
-rect win_a2 22,76,4,4 15
-rect win_a3 10,90,4,4 15
-rect win_a4 22,90,4,4 15
-rect win_b1 42,66,4,4 15
-rect win_b2 54,66,4,4 15
-rect win_b3 42,80,4,4 15
-rect win_b4 54,80,4,4 15
-rect win_b5 42,94,4,4 15
-rect win_c1 72,80,4,4 15
-rect win_c2 82,80,4,4 15
-rect win_c3 72,94,4,4 15
-rect win_d1 100,70,4,4 15
-rect win_d2 112,70,4,4 15
-rect win_d3 100,84,4,4 15
-rect win_d4 112,84,4,4 15
-rect win_d5 100,98,4,4 15
-rect win_e1 132,78,4,4 15
-rect win_e2 144,78,4,4 15
-rect win_e3 132,92,4,4 15
-rect win_f1 162,72,4,4 15
-rect win_f2 172,72,4,4 15
-rect win_f3 162,86,4,4 15
-rect tree_trunk 188,96,4,14 6
-ellipse tree_crown 190,90,12,12 10
-ellipse tree_crown2 186,86,8,8 2
-line wash_line1 4,66 34,58 c0
-line wash_line2 66,70 94,60 c0
-rect sheet_1 12,62,6,5 15
-rect sheet_2 22,60,6,5 12
-rect sheet_3 72,66,6,5 14
-rect sheet_4 82,63,6,5 11
-rect street 0,110,320,6 8
-rect street_line 0,112,320,1 15
-rect emb_far 0,116,320,6 8
-poly emb_main 0,122 320,122 320,136 0,136 6
-poly emb_dark 0,128 320,128 320,136 0,136 0
-poly rail_a 0,126 320,126 320,128 0,128 8
-poly rail_b 0,134 320,134 320,136 0,136 8
-rect sleeper1 24,122,8,14 0
-rect sleeper2 78,122,8,14 0
-rect sleeper3 132,122,8,14 0
-rect sleeper4 186,122,8,14 0
-rect sleeper5 240,122,8,14 0
-rect sleeper6 294,122,8,14 0
-rect works_base 196,86,52,24 0
-rect works_win1 202,92,6,4 14
-rect works_win2 214,92,6,4 14
-rect works_door 228,96,14,14 8
-rect works_roof 192,80,60,6 0
-rect chim_col 218,8,10,78 0
-rect chim_cap 215,6,16,4 8
-rect chim_band1 218,30,10,3 8
-rect chim_band2 218,52,10,3 8
-rect chim_lit 218,8,2,78 8
-rect soot_a 226,0,56,6 8
-rect soot_b 240,6,52,6 7
-rect soot_c 256,12,50,5 8
-rect soot_d 270,18,46,5 7
-rect soot_e 284,24,34,4 8
-rect soot_f 296,30,22,4 7
-rect soot_g 306,36,14,3 8
-dots soot_dots 266,40 282,46 298,52 308,44 314,56 c8
-dots soot_dots_b 274,52 290,58 304,64 c7
-dots soot_fall 280,64 292,72 304,80 312,70 c0
-rect grass_1 4,118,14,3 2
-rect grass_2 150,120,10,3 2
-rect puddle 100,128,40,4 11`,
-    cycles: [
-      { name: "the soot", areas: [[232, 0, 88, 42]], style: "scroll", dir: "right", ms: 700 },
-      { name: "the washing", areas: ["sheet_1", "sheet_2", "sheet_3", "sheet_4"], colors: [15, 12, 14, 11], style: "flicker", scatter: true, ms: [1500, 4000] }
     ]
   }
 };

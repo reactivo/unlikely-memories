@@ -4,13 +4,13 @@
 export default {
   // notes
   "v1:instrument:1ffd95d7": [-26.60, -27.19],   // club_organ (reed, octave 3)
-  "v1:instrument:1aadef9b": [-25.63, -25.68],   // club_organ (reed, octave 4)
+  "v1:instrument:2d99c60b": [-23.48, -24.48],   // sweeps_whistle (blown, octave 4)
   "v1:instrument:5c62e81b": [-21.93, -32.05],   // cheap_guitar (plucked, octave 2)
+  "v1:instrument:1d954577": [-23.81, -30.45],   // sweeps_whistle (blown, octave 3)
   "v1:instrument:755f8cc5": [-22.78, -46.59],   // cheap_guitar (plucked, octave 1)
+  "v1:instrument:1aadef9b": [-25.63, -25.68],   // club_organ (reed, octave 4)
   "v1:instrument:297ff6df": [-26.30, -27.20],   // cheap_guitar (plucked, octave 4)
   "v1:instrument:2df05791": [-26.06, -26.13],   // sweeps_whistle (blown, octave 5)
-  "v1:instrument:2d99c60b": [-23.48, -24.48],   // sweeps_whistle (blown, octave 4)
-  "v1:instrument:1d954577": [-23.81, -30.45],   // sweeps_whistle (blown, octave 3)
   "v1:instrument:598421f3": [-25.88, -30.21],   // cheap_guitar (plucked, octave 3)
   // rhythm
   "v1:instrument:aaa77b29": [-29.42, -51.45],   // bombo (knock, octave 2)

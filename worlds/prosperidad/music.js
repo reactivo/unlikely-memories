@@ -16,8 +16,9 @@
 //   rule on the whistle, in a limp of fives (three and two): it starts high and falls in stages, three times: the first
 //   at the top (with a run and a grace note), the second lower (with a grace note before "bri-" and a long note on the weak syllable),
 //   the third a beat short (a chord on "pa-" and an arpeggio, ending below the root, so it never comes home), over the guitar's
-//   fifth and a chord that leans on the second. The room parts: the Submarino with its crowd and an organ (the only room where the
-//   music is heard clean, since you are inside it), the Estafeta with a rubber stamp for its one rhythm and no tone, the
+//   fifth and a chord that leans on the second. The room parts: El Charlie with its crowd, a straight bass drum and an organ
+//   (heard clean, since you are inside it), La Opera with the same organ slowed to a hymn and the guitar picking an aria
+//   above it, the Estafeta with a rubber stamp for its one rhythm and no tone, the
 //   Lavandería with its drum brushing round and round over water, the roof with Tomás's three notes and the wind, and the works with
 //   only the furnace's fire.
 
@@ -52,12 +53,20 @@ export default {
 
 // ---- Each room's own part (its music) ---------------------------------------------------------------------------------
 export const rooms = {
-  pista: {
+  charlie: {
     tone: "crowd",
     colour: "clean",
     lines: [
       { play: "bombo", octave: 2, notes: "1:0.5 -:0.5 1:0.5 -:0.5 1:0.5 -:0.5 1:0.5 -:0.5 1:0.5 -:0.5 1:0.5 -:0.5 1:0.5 -:0.5 -:1" },
       { play: "club_organ", octave: 3, notes: "3:0.5 5:0.5 3:0.5 2:0.5 1:2 -:5 5:0.5 3:0.5 2:1 -:9" }
+    ]
+  },
+  opera: {
+    tone: "crowd",
+    colour: "clean",
+    lines: [
+      { play: "club_organ", octave: 3, notes: "5:1 3:1 5:1 3:1 2:2 -:6 3:1 2:1 1:2 -:12" },
+      { play: "cheap_guitar", octave: 4, notes: "-:9 1:1 3:1 5:1 -:5 3:1 2:1 1:2 -:10" }
     ]
   },
   estafeta: {
