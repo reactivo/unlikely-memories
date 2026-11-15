@@ -6,22 +6,22 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.53.7";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.53.7";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.53.7";
-import { isAction } from "./actions.js?v=0.53.7";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.53.7";
-import { isLine } from "./shapes.js?v=0.53.7";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.53.7";
-import { nextCell } from "./space.js?v=0.53.7";
-import { moveTo, worldTime, parts } from "./time.js?v=0.53.7";
-import * as opening from "./opening.js?v=0.53.7";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.53.7";
-import art from "../content/art.js?v=0.53.7";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.53.7";
-import { paintPicture } from "./paint.js?v=0.53.7";
-import { filterProblem } from "./filters.js?v=0.53.7";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.53.7";
+import { parse, normalise } from "./parser.js?v=0.54.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.54.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.54.0";
+import { isAction } from "./actions.js?v=0.54.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.54.0";
+import { isLine } from "./shapes.js?v=0.54.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.54.0";
+import { nextCell } from "./space.js?v=0.54.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.54.0";
+import * as opening from "./opening.js?v=0.54.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.54.0";
+import art from "../content/art.js?v=0.54.0";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.54.0";
+import { paintPicture } from "./paint.js?v=0.54.0";
+import { filterProblem } from "./filters.js?v=0.54.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.54.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -793,13 +793,14 @@ export function motionWarnings(picture) {
   return why;
 }
 
-// The warnings for the world's pictures, a room's and an ending's, with the names the problems use. Only for a world whose shots plan their
-// motion (some picture's shot has a "moves:" part: a world written under BRIEF.md §7's "Animation"): the repo's earlier worlds draw some motion
-// and plan none, and would each be warned of every picture.
+// The warnings for the world's pictures, a room's and an ending's, with the names the problems use. Only for a world written under the
+// current BRIEF.md §7: some picture's shot plans its motion (a "moves:" part), or the bible has a `palettes` line. The repo's earlier worlds draw
+// some motion and plan none, and would each be warned of every picture; a new world's stub pictures (one rectangle a room, no shot) are warned of
+// by the second test, so a checker that is otherwise green still says the pictures aren't drawn.
 function pictureWarnings(state, bible) {
   const all = [...Object.entries(state.world.rooms).map(([id, r]) => [`rooms/${id}`, r?.picture]), ...Object.entries(state.pictures || {}).map(([id, p]) => [`pictures/${id}`, p?.picture])]
     .filter(([, pic]) => pic && typeof pic === "object");
-  if (!all.some(([, pic]) => /moves:/i.test(typeof pic.shot === "string" ? pic.shot : ""))) return [];
+  if (!all.some(([, pic]) => /moves:/i.test(typeof pic.shot === "string" ? pic.shot : "")) && !biblePalettes(bible)) return [];
   return all.flatMap(([name, pic]) => [...motionWarnings(pic), ...shapeWarnings(pic, bible?.style ?? (bible ? "dithered" : null), name.startsWith("pictures/"))].map(why => `${name}: ${why}`));
 }
 
