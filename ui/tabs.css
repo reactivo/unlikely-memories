@@ -37,14 +37,6 @@
       box-shadow: none;   /* no hover line while pressed or open */
     }
 
-    & #tab-exits {
-      anchor-name: --tab-exits;
-    }
-
-    & #tab-inventory {
-      anchor-name: --tab-inventory;
-    }
-
     & .tab:focus-visible {
       outline: var(--focus-ring);
       outline-offset: var(--focus-offset);
@@ -65,22 +57,7 @@
     overflow: visible;
   }
 
-  /* An open panel hangs from the top edge of its tab (CSS anchor positioning): wherever the tab goes, when the page
-     scrolls or Safari's toolbar moves the bottom bar, the panel goes with it. Lined up with the tab, its padding around it.
-     (Older browsers without anchors: tabs.js measures the tab instead.) */
-  @supports (anchor-name: --a) {
-    #exits-panel {
-      position-anchor: --tab-exits;
-    }
-
-    #inventory-panel {
-      position-anchor: --tab-inventory;
-    }
-
-    .panel:popover-open {
-      bottom: anchor(top);
-      left: calc(anchor(left) - var(--space-m));
-      width: calc(anchor-size(width) + 2 * var(--space-m));
-    }
-  }
+  /* An open panel stands on its tab, as wide as it with its padding around: tabs.js places it (left, width, bottom), every frame
+     while it is open, so it goes wherever the tab goes. (CSS anchor positioning did this until 15 November 2026: iPhone Safari
+     let the panel lag behind the tab while the page moved, then jump.) */
 }

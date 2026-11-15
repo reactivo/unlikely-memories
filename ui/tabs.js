@@ -1,15 +1,16 @@
 // Tabs (phones only): DIRECTIONS and INVENTORY open their panels (popovers, index.html) just above themselves.
 // The browser opens and closes them (the tab again, Esc, a tap anywhere else); this adds the rest:
-//   - in browsers without CSS anchor positioning, places an opening panel over its tab (tabs.css anchors it everywhere else);
+//   - keeps an open panel standing on its tab: measured every frame while it is open, so it never lags behind the tab, whatever
+//     moves it (the page gliding to a new room, Safari's toolbar, the keyboard). CSS anchor positioning did this until 15
+//     November 2026, but iPhone Safari only worked the place out again now and then while the page moved under the bar that
+//     holds the tab, so the panel sat too high and then jumped down onto it;
 //   - marks the open tab (aria-expanded, which also turns it yellow);
 //   - closes the panel when you pick something in it (an item, SEE MAP), but not on a compass direction: an open panel
 //     closes instead when you arrive in a room you had not visited (by any means: a tap, a typed command, the map), so the
 //     new room's text is seen; a room visited before, or a way that doesn't move you (a locked door), leaves it open;
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
-import { wide } from "./media.js?v=0.53.1";
-
-const anchored = CSS.supports("anchor-name: --a");   // tabs.css hangs the panels from their tabs itself
+import { wide } from "./media.js?v=0.53.2";
 
 // Set up the tabs on their element. Returns update().
 export function mount(root) {
@@ -20,11 +21,12 @@ export function mount(root) {
 
     panel.addEventListener("beforetoggle", (e) => {
       if (wide.matches) { e.preventDefault?.(); return; }            // never a popover beside the strip
-      if (e.newState === "open" && !anchored) place(panel, tab);
+      if (e.newState === "open") place(panel, tab);
     });
     panel.addEventListener("toggle", (e) => {
       tab.setAttribute("aria-expanded", e.newState === "open");
-      if (e.newState === "closed") panel.removeAttribute("style");   // back to the strip's layout if the window grows
+      if (e.newState === "open") follow(panel, tab);
+      else panel.removeAttribute("style");                           // back to the strip's layout if the window grows
     });
     // Something picked (a button that does something): close. Not a compass direction: arriving somewhere new closes it (update).
     panel.addEventListener("click", (e) => {
@@ -32,12 +34,6 @@ export function mount(root) {
       if (b && !b.dataset.dir && b.getAttribute("aria-disabled") !== "true" && panel.matches(":popover-open")) panel.hidePopover();
     });
     wide.addEventListener("change", () => { if (panel.matches(":popover-open")) panel.hidePopover(); });
-    if (!anchored) {
-      const follow = () => { if (panel.matches(":popover-open")) place(panel, tab); };
-      window.addEventListener("resize", follow);
-      window.addEventListener("scroll", follow, { passive: true });
-      window.visualViewport?.addEventListener("resize", follow);
-    }
   }
 
   return {
@@ -56,10 +52,18 @@ export function mount(root) {
 // Have you just come into a room you had not visited before?
 const arrived = (was, now) => was.player.at !== now.player.at && !(was.seen?.visited ?? []).includes(now.player.at);
 
-// Without anchors: put the panel just above its tab, measured now (again on every scroll and resize): the panel's content as wide as the tab, its padding around it.
+// Put the panel just above its tab, measured now: the panel's content as wide as the tab, its padding around it. Writes only what
+// changed (most frames, nothing).
 function place(panel, tab) {
   const r = tab.getBoundingClientRect(), pad = parseFloat(getComputedStyle(panel).paddingLeft) || 0;
-  panel.style.left = (r.left - pad) + "px";
-  panel.style.width = (r.width + 2 * pad) + "px";
-  panel.style.bottom = (document.documentElement.clientHeight - r.top) + "px";
+  const set = (k, v) => { if (panel.style[k] !== v) panel.style[k] = v; };
+  set("left", (r.left - pad) + "px");
+  set("width", (r.width + 2 * pad) + "px");
+  set("bottom", (document.documentElement.clientHeight - r.top) + "px");
+}
+
+// While the panel is open: placed again every frame, so it stays on its tab (stops by itself when the panel closes).
+function follow(panel, tab) {
+  const frame = () => { if (!panel.matches(":popover-open")) return; place(panel, tab); requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
 }
