@@ -2,10 +2,10 @@
 // de aquí. Mismos ids, mismas salas, mismas reglas y mismos finales que world.en.js; cambian las palabras. Un solo conjunto de cambios,
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 
-import pictures, { endings } from "./pictures.js?v=0.55.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
-import levels from "./levels.js?v=0.55.0";
-import sprites from "./sprites.js?v=0.55.0";
+import pictures, { endings } from "./pictures.js?v=0.55.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.1";
+import levels from "./levels.js?v=0.55.1";
+import sprites from "./sprites.js?v=0.55.1";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {

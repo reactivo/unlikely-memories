@@ -2,10 +2,10 @@
 // change set, all or nothing; plain data. The Spanish version (world.es.js) is written on its own, not translated: same ids, rooms, rules
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 
-import pictures, { endings } from "./pictures.js?v=0.55.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
-import levels from "./levels.js?v=0.55.0";
-import sprites from "./sprites.js?v=0.55.0";
+import pictures, { endings } from "./pictures.js?v=0.55.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.1";
+import levels from "./levels.js?v=0.55.1";
+import sprites from "./sprites.js?v=0.55.1";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

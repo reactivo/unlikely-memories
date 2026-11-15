@@ -6,23 +6,23 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.55.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.55.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.55.0";
-import { isAction } from "./actions.js?v=0.55.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.55.0";
-import { solveCommand } from "./narrator.js?v=0.55.0";
-import { isLine } from "./shapes.js?v=0.55.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.55.0";
-import { nextCell } from "./space.js?v=0.55.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.55.0";
-import * as opening from "./opening.js?v=0.55.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.55.0";
-import art from "../content/art.js?v=0.55.0";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.55.0";
-import { paintPicture } from "./paint.js?v=0.55.0";
-import { filterProblem } from "./filters.js?v=0.55.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.55.0";
+import { parse, normalise } from "./parser.js?v=0.55.1";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.55.1";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.55.1";
+import { isAction } from "./actions.js?v=0.55.1";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.55.1";
+import { solveCommand } from "./narrator.js?v=0.55.1";
+import { isLine } from "./shapes.js?v=0.55.1";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.55.1";
+import { nextCell } from "./space.js?v=0.55.1";
+import { moveTo, worldTime, parts } from "./time.js?v=0.55.1";
+import * as opening from "./opening.js?v=0.55.1";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.55.1";
+import art from "../content/art.js?v=0.55.1";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.55.1";
+import { paintPicture } from "./paint.js?v=0.55.1";
+import { filterProblem } from "./filters.js?v=0.55.1";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.55.1";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -449,9 +449,9 @@ function sourceProblems(state, problems, warnings) {
   }
 }
 
-// Room texts within WRITING-DIRECTION.md §5.
+// Room texts within BRIEF.md §6, "How long".
 function roomLengthWarnings(state, warnings) {
-  // Room texts within WRITING-DIRECTION.md §5: a room's text aims at about 45 words (warned past 80), 2 paragraphs (3 at most), the start room's too.
+  // Room texts within BRIEF.md §6, "How long": a room's text aims at about 45 words (warned past 80), 2 paragraphs (3 at most), the start room's too.
   for (const [id, room] of Object.entries(state.world.rooms)) {
     if (!Array.isArray(room.describe) || room.describe.some(p => typeof p !== "string" || p.startsWith("@"))) continue;
     const words = unmarked(room.describe.join(" ")).split(/\s+/).filter(Boolean).length;
@@ -1269,7 +1269,7 @@ const shortText = (t) => { const x = String(t).replace(/\s+/g, " ").trim(); retu
 
 // ---- Commands written in the text -------------------------------------------------------------------------------------------
 // A command in backticks in a text the world writes (a description, a line said, a hint, an ending, a reply) becomes a clickable
-// command (WRITING-DIRECTION.md §9), so it must be one the game reads, in the world's language: understood by the parser, and
+// command (BRIEF.md §6, "Markup and typography"), so it must be one the game reads, in the world's language: understood by the parser, and
 // naming only what the world has. It is tried where the text is read (the room, or the thing's room); a thing that is only
 // shut away or elsewhere for now (the oars in the hut) doesn't count against it, so a command that is understood nowhere is
 // retried with everything in reach. A text from the language pack ("@help") is the pack's own and is left alone. Each problem
