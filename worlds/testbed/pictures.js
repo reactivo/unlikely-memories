@@ -32,7 +32,7 @@
 // Read down: no two neighbours share a viewpoint, a horizon or a lead colour.
 
 export default {
-  // ---- INTAKE (the opening): the turnstile on the right, a handset's hook beside it, a flat light ----------------------------------
+  // ---- INTAKE (the start room): the turnstile on the right, a handset's hook beside it, a flat light ----------------------------------
   "tb-start": {
     version: 1,
     draw: `
@@ -52,7 +52,7 @@ export default {
       poly bar3 272,98 306,104 306,109 272,103 8 e0
       line shadow 40,112 246,112 c8
     `,
-    overlays: [{ object: "handset", at: [226, 64] }]
+    overlays: [{ object: "handset", at: [226, 64] }, { object: "token", at: [236, 106] }]
   },
 
   // ---- THE HUB: four doors in a curved wall under the board, stairs up on the left, steps down on the right ------------------------

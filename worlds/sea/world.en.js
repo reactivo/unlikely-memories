@@ -5,10 +5,10 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.
@@ -21,8 +21,8 @@ export const bible = {
     "with their coat, a letter in their handwriting, a bathing hut with their number. Across the water, a dark " +
     "lighthouse burns only what you are willing to forget.",
   tone: "WRITING-DIRECTION.md: the everyday, slightly wrong; calm, concise, with echoes of what could have been.",
-  opening: "Corridor 7-B at the Ministry, a Monday morning: a suggestion box (hints), a " +
-    "memo you already carry (why you came). The small green door that breathes is the way on.",
+  opening: "Corridor 7-B at the Ministry, a Monday morning, level minus four, under the beach: a suggestion box (hints), a " +
+    "memo you already carry (why you came). The small green door that breathes is the way out: knock, and give it your name.",
   music: "a palm-court waltz in mixolydian, slowed to a quarter past five; a radio in the dunes and the carousel's music " +
     "box; the sea breathing on the sand",
   rules: [
@@ -73,17 +73,18 @@ const endingPictures = {
 
 // ---- Rooms ------------------------------------------------------------------------------------------------------
 // area + at: where it is (js/space.js). Coast: x grows east, y grows south (the sea is north). The lighthouse is an
-// area of its own, reached only by boat. exits: a room id; true = there's a way, but a rule answers; false = none.
+// area of its own, reached only by boat. The Ministry's corridor, the start room, is on the coast's map four floors down (level minus
+// four): its green door goes up to the beach, and the door standing in the sand goes down to it (passages: no cell joins them). exits: a room id; true = there's a way, but a rule answers; false = none.
 
 const rooms = {
-  // The opening (BRIEF.md §3): the Ministry corridor, never returned to. Area "ministry" is its own.
+  // The start room (BRIEF.md §3): the Ministry corridor, left through the green door once you knock on it. The beach is up.
   corridor: {
-    name: "CORRIDOR 7-B", area: "ministry", at: [0, 0, -4],
+    name: "CORRIDOR 7-B", area: "coast", at: [0, 0, -4],
     describe: [
       "Ministry of Adequate Happiness, level minus four. Grey walls, grey lino, grey light, as every morning for eleven years. A {loudspeaker} murmurs that you are content.",
       "Today a small {green door|green_door} breathes low in the wall, with water and a line of yellow light under it. The eye on the {poster} watches you; a {camera} turns to look somewhere else."
     ],
-    exits: { e: true },
+    exits: { u: { to: "beach", passage: true, if: false, closed: "The little door is shut. It breathes against your palm, warm, and waits. The plaque above it says to knock." } },
     scenery: [
       { words: ["wall", "walls", "ceiling", "lamp", "lamps", "light", "lino", "linoleum", "floor", "corridor", "hallway"], name: "the corridor", says: "Grey lino, grey walls, lamps that were switched on in 1987 and never asked." },
       { words: ["plaque"], name: "the plaque", says: "Engraved in old-fashioned letters: \"Knock only if you remember your name.\"" },
@@ -106,7 +107,7 @@ const rooms = {
     describe: [
       doorStands, seaDark, sand
     ],
-    exits: { n: "pier", w: "tideline", e: { to: "cave", in: true }, s: "dunes" },
+    exits: { n: "pier", w: "tideline", e: { to: "cave", in: true }, s: "dunes", d: { to: "corridor", passage: true } },
     ambience: { lines: ["A gull calls once and is not answered.", "A wave comes further up the sand than the others, touches the door, and goes back.", "The door breathes in. Somewhere very far off, a loudspeaker clears its throat."],
                 if: [{ "beach_door.driftwood": { "!=": true } }] },
     alt: "A beach at night under a full moon. A small green door stands upright in the sand, light leaking from its edges. A pier runs out to sea on the left; far off, a dark lighthouse on a rock. Black rocks and a cave mouth on the right.",
@@ -393,7 +394,7 @@ const rooms = {
 // "order" verb can name it anyway, ARCHITECTURE.md §3.)
 
 const objects = {
-  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
+  // The start room: the hints thing, the intro you carry, and the way out, which opens to a knock (BRIEF.md §3).
   suggestion_box: { at: "corridor", portable: true, material: "wood", name: "Suggestion box", note: "Someone is reading it aloud.",
     words: { nouns: ["box", "slot"], adj: ["suggestion", "wooden", "brass"] }, ...item("suggestion_box"),
     here: "Under the poster, a {suggestion box|suggestion_box} hangs by one screw.",
@@ -401,7 +402,7 @@ const objects = {
   memo: { at: "player", portable: true, material: "paper", name: "Ministry memo", note: "Folded in four.",
     words: { nouns: ["memo", "memorandum"], adj: ["ministry", "folded"] }, ...item("memo"),
     examine: "A Ministry memo, folded in four, the seal still green. \"To all staff: a door has been reported on level minus four. It is not there. Please do not use it.\"" },
-  green_door: { at: "corridor", name: "Green door", note: "Small, and breathing.", actions: ["Knock"],
+  green_door: { at: "corridor", door: "u", material: "wood", name: "Green door", note: "Small, and breathing.", actions: ["Knock"],
     words: { nouns: ["door", "keyhole", "wood"], adj: ["green", "small", "little", "breathing", "tiny"] },
     examine: "The wood is warm, like skin. It rises and falls slowly, in time with your own breathing. Above it, a brass plaque: \"Knock only if you remember your name.\"" },
   loudspeaker: { at: "corridor", name: "Loudspeaker", note: "It murmurs.", actions: ["Listen"],
@@ -414,7 +415,7 @@ const objects = {
     words: { nouns: ["camera"], adj: ["security"] },
     examine: "It has turned away. For the first time in eleven years, nobody is watching you." },
   // The beach
-  beach_door: { at: "beach", name: "Green door", note: "Standing in the sand, breathing.", actions: ["Enter door"],
+  beach_door: { at: "beach", door: "d", material: "wood", name: "Green door", note: "Standing in the sand, breathing.", actions: ["Enter door"],
     words: { nouns: ["door", "frame", "keyhole"], adj: ["green", "small", "breathing"] },
     examine: "The same door. From this side, too, it is breathing. Through the keyhole you can see grey lino and hear a loudspeaker." },
   lighthouse_far: { at: "beach", name: "Lighthouse", note: "Far off, dark.",
@@ -627,6 +628,18 @@ const objects = {
 
 // Named changes: effects written once and run from any rule with { change: "name" } (ARCHITECTURE.md §5).
 const changes = {
+  // The green door opens to your knock: the corridor, the door and the plaque say so, if you come back to look.
+  door_open: [
+    { set: "corridor.describe", to: [
+      "Ministry of Adequate Happiness, level minus four. Grey walls, grey lino, grey light, as every morning for eleven years. A {loudspeaker} murmurs that you are content.",
+      "The small {green door|green_door} stands open low in the wall, on warm sand and a smell of salt. The eye on the {poster} watches you; a {camera} turns to look somewhere else."] },
+    { set: "green_door.examine", to: "The wood is warm, like skin, and still breathing. It stands open on a beach at night. Where the plaque was, a drip of brass has set on the lino." },
+    { set: "green_door.note", to: "Open, and breathing." },
+    { set: "corridor.scenery", to: [
+      { words: ["wall", "walls", "ceiling", "lamp", "lamps", "light", "lino", "linoleum", "floor", "corridor", "hallway"], name: "the corridor", says: "Grey lino, grey walls, lamps that were switched on in 1987 and never asked." },
+      { words: ["plaque", "brass", "drip"], name: "the plaque", says: "It ran down the wall when the door took your name. A drip of brass has set on the lino, the shape of a full stop." },
+      { words: ["puddle", "water"], name: "the puddle", says: "Warm water, from nowhere. It smells of a place you have never been but somehow remember." }] }
+  ],
   // The green door turns to driftwood: the beach, the far view from the lantern room, and both sides' texts.
   driftwood: [
     { set: "beach_door.driftwood", to: true },
@@ -688,10 +701,15 @@ const oarsReady = { "oars.at": { in: ["player", "boat"] } };
 
 const rules = [
   // -- Going through the door, both ways -----------------------------------------------------------------------
+  // The start room's way out: knock, and the door asks your name, keeps it, and opens on the beach (a rule that `connect`s the
+  // exit); the town's time comes in with the salt air (the change `arrival`). Then it stays open, both ways.
+  { id: "green_door_knock", match: { verb: "knock", obj: "green_door" }, if: [{ "green_door.named": false }],
+    do: [{ set: "green_door.named", to: true }, { say: "You kneel and knock three times. The breathing stops. From very far away a voice asks: \"What is your name?\" You tell it, and it keeps the name. The brass plaque softens and drips onto the lino, and the door swings inward. It is very small, and then it isn't." },
+         { connect: "corridor", dir: "u", to: "beach", passage: true }, { change: "door_open" }, { change: "arrival" }] },
+  { id: "green_door_again", match: { verb: "knock", obj: "green_door" },
+    do: [{ say: "You knock. The door has your name already, and does not ask for it twice." }] },
   { id: "beach_door_knock", match: { verb: "knock", obj: "beach_door" },
     do: [{ say: "You knock. From the other side, after a while, three knocks come back." }] },
-  { id: "beach_through", match: { verb: ["enter", "go", "open", "push"], obj: "beach_door" }, if: [{ "beach_door.driftwood": { "!=": true } }],
-    do: [{ say: "You kneel at the door. It is a door only from the other side; from here it opens onto sand." }] },
 
   // -- Help, outside the corridor --------------------------------------------------------------------------------
   { id: "help_town", match: { verb: "help" },
@@ -826,6 +844,9 @@ const rules = [
 // js/check.js can play every ending through the real parser and engine. Clues name the objects, rules or puzzles
 // that point at it.
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the suggestion box's first hints are about it.
+  way_out:    { where: "corridor", needs: [], solve: ["knock on door", "{enter+} door"], reaches: "beach", clues: ["green_door", "green_door_knock"],
+                hints: ["The plaque over the little green door asks for a knock, if you remember your name. You do, for now.", "Knock on the green door, give it your name, and go through."] },
   vouch:      { where: "post_office", needs: ["shell"], solve: ["give shell to postmaster"], gives: ["parcel"],
                 clues: ["letter", "guests", "post_talk"],
                 hints: ["The postmaster gives nothing to anyone without a name, but he trusts the sea. Something the tide left on the sand might speak for you.", "Carry the pale shell from the tide line to the post office and let the postmaster hear it."] },
@@ -854,8 +875,6 @@ const puzzles = {
 const opening = {
   room: "corridor", hints: "suggestion_box", intro: "memo", way: "green_door",
   lines: {
-    notYet: "The breathing pauses. \"You'll want someone to talk to,\" says a voice from very far away. \"The suggestion box still listens.\"",
-    through: "You kneel and knock three times. The breathing stops. From very far away a voice asks: \"What is your name?\" You tell it, and it keeps the name. The brass plaque softens and drips onto the lino, and the door swings inward. It is very small, and then it isn't.",
     hintFrame: "You put your ear to the slot. Someone elsewhere in the Ministry reads out a suggestion:",
     farewell: "The memo creases along its folds, one by one, as if being filed, and is not in your hand."
   }
@@ -867,6 +886,7 @@ export default {
   opening,
   // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
   properties: {
+    "green_door.named": { type: "boolean", start: false },   // you have knocked and given the green door your name: it stands open
     "beach_door.driftwood": { type: "boolean", start: false },   // the green door has turned to driftwood
     "player.seated": { type: "boolean", start: false },   // you are sitting at the dining table
     "postmaster.gave": { type: "boolean", start: false },   // the postmaster has handed over the parcel
@@ -878,8 +898,8 @@ export default {
     "The lighthouse lamp burns only what the player is willing to forget: the photograph, or the shell."
   ],
   effects: [
-    { time: "day 1 08:55", weekday: "mon" },                 // the opening is a Monday morning at the Ministry
-    // What arriving does: the town's time, and its first line.
+    { time: "day 1 08:55", weekday: "mon" },                 // the game starts on a Monday morning at the Ministry
+    // What the door lets in when it opens (the knock's rule runs it): the town's time, and its first line.
     { add: "change", id: "arrival", effects: [
       { time: "day 1 17:15", weekday: "sun" },
       { say: "The air is salt. Somewhere a clock says [time], and it is Sunday, and nobody minds." }
@@ -902,9 +922,6 @@ export default {
     { add: "music", ...music, levels },   // the music (music.js, shared by both languages; its levels, levels.js, generated); each room's own as its `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    ...rules.map((rule) => ({ add: "rule", rule })),
-
-    // Where the opening's way on leads.
-    { set: "game.entrance", to: "beach" }
+    ...rules.map((rule) => ({ add: "rule", rule }))
   ]
 };

@@ -4,7 +4,7 @@
 // A few actions are handled here in full (look, take…); every other action (js/actions.js) answers with its
 // standard reply from the pack (replies.<action>, varied).
 
-import { ACTIONS, BUILT_IN } from "./actions.js?v=0.54.0";
+import { ACTIONS, BUILT_IN } from "./actions.js?v=0.55.0";
 
 const reachable = { "$obj.place": { in: ["$here", "player"] } };   // in the room or carried (or inside those)
 const reachable2 = { "$obj2.place": { in: ["$here", "player"] } };  // the same for the action's second object
@@ -88,10 +88,10 @@ const rules = [
 
   // Sleeping (the engine's own `sleep`: js/engine.js, ARCHITECTURE.md §5 "Sleep"). A room where you can't sleep says so in its own
   // line (`sleep`, a plain fact: "Not on the platform, with the trains."), whatever the command names, after a world's own rules;
-  // then a thing's own `sleep` line and a world's reply for the verb (`add word`), below; then the engine (std_sleep): refused in
-  // the opening, over a question, in a conversation or a hold (the stock "This is no time to sleep."); with no length yet, "How long
+  // then a thing's own `sleep` line and a world's reply for the verb (`add word`), below; then the engine (std_sleep): refused
+  // over a question, in a conversation or a hold (the stock "This is no time to sleep."); with no length yet, "How long
   // do you sleep?"; else the sleep.
-  { id: "std_sleep_refused", match: { verb: "sleep" }, if: [{ "$here.sleep": { "!=": null } }, { "$here.fixed": { "!=": true } }], do: [{ say: "$here.sleep" }] },
+  { id: "std_sleep_refused", match: { verb: "sleep" }, if: [{ "$here.sleep": { "!=": null } }], do: [{ say: "$here.sleep" }] },
 
   // A thing that comes from someone or something (`from`, decisions 40, 44, 45): ORDER it, BUY it, ASK FOR it or ASK its source FOR it
   // (or about it), where its source is, and it comes (the engine's `bring`: js/engine.js, wanted and bring): set in front of you, or
@@ -217,8 +217,7 @@ const rules = [
 
   // A verb a world gave a reply (`add word` with `reply`, decision 20): that line, when nothing else answers it (a world's own verb,
   // or one of the pack's: lantern's "There is porter at the Bell…" for ORDER). A reply, like the pack's: nothing is offered for it.
-  // Not in the opening: nothing a world adds reaches it.
-  { id: "std_reply_word", match: {}, if: [{ "$word.reply": { "!=": null } }, { "$here.fixed": { "!=": true } }], do: [{ say: "$word.reply" }] },
+  { id: "std_reply_word", match: {}, if: [{ "$word.reply": { "!=": null } }], do: [{ say: "$word.reply" }] },
   { id: "std_sleep", match: { verb: "sleep" }, do: [{ sleep: "$sleep" }] },
 
   // Every other action: its standard reply (and read, when there's nothing to read).
@@ -239,7 +238,7 @@ const rules = [
 // gives the player a clue): a lock's `says` (std_locked, std_locked_in, and OPEN through the engine's `unlock`), a shut way's own
 // line (std_go_closed: a door's `shut`, an exit's `closed` or `lacking`), and the line naming what a way wants you to hold
 // (std_go_lacking: the pack's `lacking`, but it names the world's thing). The engine's `bring` and `unlock` mark their own stock
-// refusals generic (js/engine.js); the opening's "not yet" is the world's line too (js/opening.js).
+// refusals generic (js/engine.js).
 const GENERIC = new Set(["std_in_already", "std_not_in", "std_locked_plain", "std_wait_nothing", "std_ask_unknown",
   "std_examine_plain", "std_take_not_in", "std_take_have", "std_take_fixed", "std_drop_not", "std_go_blocked", "std_go_here", "std_unknown",
   "std_put_not_carried", "std_put_inside", "std_put_closed", "std_use_alone", "std_unheard", "std_open_already", "std_close_already", "std_close_locked", "std_open_always", "std_close_always",

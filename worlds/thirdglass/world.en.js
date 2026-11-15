@@ -1,10 +1,10 @@
-// "The Third Glass": a world after the opening, in English, written the way the AI is asked to write a world
+// "The Third Glass": a world, in English, written the way the AI is asked to write a world
 // (BRIEF.md). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -25,7 +25,7 @@ export const bible = {
     "Tea is poured in three glasses: bitter as life, strong as love, gentle as death. A guest who finishes the third is no longer a guest.",
     "Nobody who walks east alone into the sand sea has been seen to come back; the tracks all point the same way."
   ],
-  opening: "A night desert of identical dunes: a shell that murmurs the sea that was here (the hints), a cord of knots in your pocket (the intro), a door standing in its frame with no wall (the way on).",
+  opening: "A night desert of identical dunes, the start room, south of the camel lines: a shell that murmurs the sea that was here (the hints), a cord of knots in your pocket (the intro), a door standing in its frame with no wall (the way out), opened from the other side when you knock.",
   music: "patient hushed mode; a one-string imzad and a tea glass struck three times; the brazier ticking, heard from " +
     "across the sand",
   start: { day: 1, time: "06:10" },
@@ -39,15 +39,13 @@ export const bible = {
   chaos: 0.15
 };
 
-// The opening's declaration: its room, the hints thing, the intro, the way on, and the four lines.
+// The opening's declaration (BRIEF.md §3): the start room, the hints thing, the intro, the way out, and the two lines.
 const opening = {
   room: "dunes",
   hints: "shell",
   intro: "tally",
   way: "door",
   lines: {
-    notYet: "The door stays shut. At its foot the shell goes on murmuring to the sand.",
-    through: "The door opens on woodsmoke and the smell of tea. You go through, and the night does not follow.",
     hintFrame: "The shell murmurs, and out of the murmur someone says:",
     farewell: "The cord goes slack in your fingers, and is a line drawn in the sand, and then only sand."
   }
@@ -84,9 +82,9 @@ const endingAlts = {
 };
 
 export default {
-  because: "The opening in a night desert, then a well camp, a dry river and a cave of painted walls; a lamp, a copy of a painted woman, a camel that stands, a skin of old rain, a well, a bell; and an elder's three glasses.",
+  because: "The start room in a night desert, then a well camp, a dry river and a cave of painted walls; a lamp, a copy of a painted woman, a camel that stands, a skin of old rain, a well, a bell; and an elder's three glasses.",
   facts: [
-    "The tally cord is the intro: it is out of play after the opening. The door is the way on; it leads to the camp.",
+    "The tally cord is the intro: it is out of play once read. The door is the way out; knocked on, it opens on the camel lines, where it is morning.",
     "Chain: lamp (tent) -> cloth (camel lines) + charcoal (camp fire) -> rub the painted woman in the gallery -> show the rubbing to Afternoon, who stands and lets go of the goatskin -> fill it in the cistern -> put it in the well, which gives up a bell -> give the bell to Afternoon and ride her: departed.",
     "Fadimata's tea comes three times: the third drunk ends the story (stayed). Walking east from the camp kills outright (lost). The viper under the flat stone hurts once (2). The tea and the handprint heal.",
     "A lit lamp is needed to go down from the cave mouth. The lamp lights anywhere, with no match."
@@ -100,17 +98,17 @@ export default {
   },
   opening,
   effects: [
-    { time: "day 1 03:30" },
+    { time: "day 1 06:10" },
 
     { add: "music", ...music, levels },   // the music (music.js; its levels, levels.js, generated); each room's own as its `music`
 
-    // ---- the opening: the sand sea, a door standing in its frame ------------------------------------------------
-    { add: "room", id: "dunes", name: "THE SAND SEA", area: "erg", at: [0, 0, 0],
+    // ---- the start room: the sand sea, south of the camel lines, a door standing in its frame; night here at any hour --
+    { add: "room", id: "dunes", name: "THE SAND SEA", area: "camp", at: [0, 2, 0],
       describe: [
         "Dunes in every direction, each the same as the last, under more stars than the sky has any use for. The sand is still warm from a day that ended long ago. Your tracks begin at your heels.",
         "A {door} stands in the sand to the north, hung in a frame with no wall. It is the only thing here that is not sand."
       ],
-      exits: { n: true },
+      exits: { n: { to: "lines", if: false, closed: "The door stays shut, the way a door does for a guest who has not knocked." } },
       scenery: [
         { words: ["dunes", "dune", "sand", "crest", "crests"], name: "the dunes", says: "Dune after dune, combed the same way by the same wind. You could walk to the nearest and find you had never left." },
         { words: ["stars", "star", "sky"], name: "the stars", says: "More than are needed. They hang low and close together, like people waiting to be told something." },
@@ -137,17 +135,20 @@ export default {
       words: { nouns: ["tally", "cord"], adj: ["knotted", "leather"] },
       examine: "A leather cord with a knot for every day of walking. You tied them so as not to forget where you were going, and the last one has come undone.",
       sprite: sprites.cord },
-    { add: "object", id: "door", at: "dunes", name: "Door", note: "Alone in its frame.",
+    { add: "object", id: "door", at: "dunes", door: "n", material: "wood", name: "Door", note: "Alone in its frame.",
       actions: ["Knock on door"],
       words: { nouns: ["door", "frame"], adj: ["grey", "wooden"] },
       examine: "A plain door of grey acacia, hung in a frame with no wall. The hinges are rusted. The handle is polished by hands that were not yours." },
 
-    // ---- the way on, and the arrival ----------------------------------------------------------------------------
-    { set: "game.entrance", to: "camp" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 06:10" },
-      { say: "It is morning here, and cool. Behind you, [way] closes, and its frame stands in the dust a moment with nothing in it, then does not." }
-    ] },
+    // ---- the way out: knocking opens the door from the other side (a rule that connects the exit); its puzzle first (BRIEF.md §3)
+    { add: "rule", rule: { id: "knock_door", match: { verb: "knock", obj: "door" }, if: [{ "player.at": "dunes" }], once: true,
+      again: "You knock again. Nobody comes. The door is open, and that is answer enough.",
+      do: [
+        { say: "You knock. After a while someone on the other side lifts the latch, politely, and is gone before the door has finished opening. Beyond it it is morning, and cool, and the air smells of woodsmoke and tea." },
+        { connect: "dunes", dir: "n", to: "lines" }
+      ] } },
+    { add: "puzzle", id: "knock", where: "dunes", needs: [], solve: ["knock on door", "north"], reaches: "lines", clues: ["door", "tally"],
+      hints: ["A door with no wall is still somebody's door, and a guest knocks.", "Knock on the door, then go north through it."] },
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
     // ---- the well camp --------------------------------------------------------------------------------------------
@@ -267,13 +268,14 @@ export default {
     { add: "room", id: "lines", name: "CAMEL LINES", area: "camp", at: [0, 1, 0],
       describe: [
         "The camels are kept south of the camp in a long row, kneeling, all facing the same way. They have knelt since the well went quiet, and chew as though nothing were the matter.",
-        "{Afternoon|afternoon}, the white lead camel, kneels at the end of the row beneath a full saddle. {Aghali|aghali} ties a load on the next one, undoes it, and ties it again. Washing hangs between two posts. The camp is north."
+        "{Afternoon|afternoon}, the white lead camel, kneels at the end of the row beneath a full saddle. {Aghali|aghali} ties a load on the next one, undoes it, and ties it again. Washing hangs between two posts. The camp is north; south, the door with no wall."
       ],
-      exits: { n: "camp" },
+      exits: { n: "camp", s: "dunes" },
       scenery: [
         { words: ["camels", "row", "herd", "others"], name: "the camels", says: "A dozen camels, kneeling in step, each with its eyes shut at the same angle. They are waiting, and they are good at it." },
         { words: ["washing", "line", "posts", "post"], name: "the washing", says: "Cotton and blue indigo, drying in air that has no moisture in it to offer. It dries anyway, out of tact." },
-        { words: ["saddle", "saddles", "loads", "load"], name: "the loads", says: "Salt and millet in sacks, lashed and tied, ready for a road that has not been agreed on." }
+        { words: ["saddle", "saddles", "loads", "load"], name: "the loads", says: "Salt and millet in sacks, lashed and tied, ready for a road that has not been agreed on." },
+        { words: ["door", "frame"], name: "the door", says: "A plain grey door on the sand, in a frame with no wall. Through it, at any hour, it is night.", leads: "s" }
       ],
       ambience: {
         lines: [
@@ -569,7 +571,7 @@ export default {
         { set: "afternoon.examine", to: "A tall white dromedary, standing as if she had always meant to. Her lip is long and her opinion of you is longer. She is looking east, at something she can smell." },
         { set: "lines.describe", to: [
           "The camels are kept south of the camp in a long row, all facing the same way. Since the well went quiet they have knelt. Today one of them is standing, and the rest look at her as at someone who has said something.",
-          "{Afternoon|afternoon}, the white lead camel, stands at the end of the row under her saddle, looking east. {Aghali|aghali} has stopped tying the load. Washing hangs between two posts. The camp is north."
+          "{Afternoon|afternoon}, the white lead camel, stands at the end of the row under her saddle, looking east. {Aghali|aghali} has stopped tying the load. Washing hangs between two posts. The camp is north; south, the door with no wall."
         ] },
         { draw: "lines", remove: afterStand.remove, add: afterStand.add }
       ] } },

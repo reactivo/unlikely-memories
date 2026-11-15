@@ -2,15 +2,15 @@
 // Plain data, no behaviour. Only the engine (js/engine.js) makes a new one; everything else only reads it.
 // Interface-only things (text reveal, focus, "restarting…") stay out.
 
-import { worldFor, DEFAULT } from "../worlds/index.js?v=0.54.0";
-import { applyChangeSet } from "./engine.js?v=0.54.0";
-import { newSeed } from "./random.js?v=0.54.0";
+import { worldFor, DEFAULT } from "../worlds/index.js?v=0.55.0";
+import { applyChangeSet } from "./engine.js?v=0.55.0";
+import { newSeed } from "./random.js?v=0.55.0";
 
 // The shape of the state. Bump it when the state changes shape, so older saved games aren't loaded into code
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
 // 11: `fired`, the `once` rules that have had their one time. 12: every key starts in blank(). 13: `pictures` (pictures that
 // aren't a room's) and `ending` (the one the story ended with).)
-export const FORMAT = 17;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh). 17: the engine audit (the worlds' rules became facts on their things; older saves hold the old rules, so they start afresh)
+export const FORMAT = 18;   // 14: tension 0–5 and health 5–0. 15: health only; tension and moods are gone (saves from before start afresh). 16: no restart object in the opening (older saves hold it, so they start afresh). 17: the engine audit (the worlds' rules became facts on their things; older saves hold the old rules, so they start afresh). 18: the start room (no `entrance`, no opening puzzles or way rules; older saves start afresh)
 
 // Health: a new game, and beginning again, start at full health, 5 (INTERFACE.md §6c). A hit takes what it takes (1 to 5,
 // the checker holds worlds to the scale: BRIEF.md §5), with no warning turn; at 0 the story ends.
@@ -18,7 +18,7 @@ export const FORMAT = 17;   // 14: tension 0–5 and health 5–0. 15: health on
 // written in this language, built from its change set, opening and all (ARCHITECTURE.md §3, "The opening"). health: where
 // it starts (tests; a game always starts at 5). sequel: a change set = that world instead (tests); false = no world. A
 // language with no world gets a placeholder room, so there is somewhere to be.
-// protect: false leaves the opening open to change (only for tests that use it as a scratch room).
+// protect: false leaves the opening's things and rules open to change (only for tests that use them as scratch).
 export function newState({ lang, health = 5, seed = newSeed(), sequel = true, protect = true, id = DEFAULT }) {
   const state = blank({ lang, health, seed });
   // A copy of the world's change set: the game's rooms and things never share a list or an object with the world's module, so changing
@@ -37,8 +37,7 @@ export function newState({ lang, health = 5, seed = newSeed(), sequel = true, pr
 function blank({ lang, health, seed }) {
   return {
     worldId: null,                 // which world of worlds/index.js this game plays (beginning again keeps it)
-    opening: null,                 // the world's opening, as it declared it (js/opening.js): room, hints, intro, way, lines
-    entrance: null,                // where the opening's way on leads: the world's first room (the world sets it)
+    opening: null,                 // the world's opening, as it declared it (js/opening.js): its start room, hints, intro, way out, lines
     format: FORMAT,                // the state's shape (see FORMAT)
     properties: {},                // the properties the world declared: "thing.name" → { type, min?, max?, start? } (js/fields.js)
     warnings: [],                  // what the world's file got wrong, found when it loaded (js/fields.js); it still plays
@@ -46,7 +45,7 @@ function blank({ lang, health, seed }) {
     turn: 0,                       // commands answered so far (kept, not shown)
     clock: 0,                      // play time (ms) at the last command; the controller's clock is the live one
     time: {                        // the world's clock = clock + shift (js/time.js): what the title bar shows
-      shift: 0,                    //   how far the story has moved it (the opening's hour, jumps forward and back)
+      shift: 0,                    //   how far the story has moved it (the start hour, jumps forward and back)
       weekday: null,               //   what day of the week day 1 is ("sun")
       seen: 0                      //   the world time scheduled rules have been run up to
     },
@@ -67,7 +66,7 @@ function blank({ lang, health, seed }) {
     timers: {},                    // when each active timed rule is next due (game ms, or turn number)
     vocab: {},                     // verbs this world added ("row"): verb → { words, object }
     changes: {},                   // named changes: name → effects, run by { change: name } from any rule
-    puzzles: {},                   // the puzzles as data (js/check.js, hints): the opening's, then the world's
+    puzzles: {},                   // the puzzles as data (js/check.js, hints): the world's, the way out of the start room first
     seen: {                        // what you've come across (for hints, and for the topics offered)
       held: [],                    //   what you've had in your hands
       visited: [],                 //   where you've been

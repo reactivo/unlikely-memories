@@ -6,11 +6,11 @@
 //
 // The shot list, written before drawing (viewpoint, facing and vanishing point; palette; light; gradients and their causes;
 // subject and columns; wings):
-//   car        eye level inside the car, facing north along the tunnel, one-point view, vp 213,66 (the arch on the
+//   car        eye level inside the car, facing east down the tunnel (it stands west of the quay), one-point view, vp 213,66 (the arch on the
 //              right third); palette cellar; light = the one roof lamp at x~112 (warm pool on floor and bench), the
 //              bright arch a small flat shape; one gradient = tunnel brick fading cold blue by distance; subject =
 //              bright arch with grille 180-224, second thing = lamp 100-124 and wet window 47-100; left wing: notice,
-//              strap, bench; right wing: bench, route map, grab pole.
+//              strap, bench; right wing: the red lever (it rolls the grille aside), bench, route map, grab pole.
 //              (redrawn 11 November 2026 under the cellar palette's new wording: the lamp's warm light near it, blue only
 //              in the half-light beyond)
 //   quay       wide landscape over the lake, facing north, vp 107,64 (the jetty); goldenhour; one low sun in the west (a flat

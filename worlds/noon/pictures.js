@@ -2,7 +2,7 @@
 // (BRIEF.md §7, the shared core and the flat style): 320 x 136, EGA colours 0-15, shapes back to front, ids on what the story may change or a
 // cycle animates. Phone crop: columns 47-272 carry the story; the wings (0-46, 273-319) carry the same place on. Every picture faces north.
 export default {
-  // ---- THE TENT (the opening): inside the canvas, facing north to the flap -----------------------------------------------------
+  // ---- THE TENT (the start room): inside the canvas, facing north to the flap -----------------------------------------------------
   bivouac: {
     version: 1,
     shot: "Eye level inside the tent, facing north, one-point, vp 213,62; lamplight; one light, the hurricane lantern on its ridge pole at x150 (a hard two-ellipse glow, flat lit patches on the back wall and the floor); canvas brown, the far corners dim; the {flap} on the right third x190-236 tied half back on a forest view in greens; subject the flap on x213, second the {chest} on x107 with the {parrot} overlay on it; left wing: a coat on a peg and the canvas creases; right wing: the {cot} under its {net}, and a pair of {boots}; moves: the lantern flame (flame), its light (lamplight)",

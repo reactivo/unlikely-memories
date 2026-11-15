@@ -5,29 +5,30 @@
 // visited rooms (by an exit from them, or by one of theirs that leads back to them); other areas on that level that a passage reaches are placed beside the room it leaves from, so the
 // passage reads as one step. Coordinates are the cells of the area you are in: x grows east, y south.
 
-import { exitTo } from "./exits.js?v=0.54.0";
-import { STEP } from "./space.js?v=0.54.0";
-import { text, describe } from "./narrator.js?v=0.54.0";
-import { step } from "./engine.js?v=0.54.0";
-import { parse } from "./parser.js?v=0.54.0";
-import { story } from "./view.js?v=0.54.0";
+import { exitTo } from "./exits.js?v=0.55.0";
+import { STEP } from "./space.js?v=0.55.0";
+import { text, describe } from "./narrator.js?v=0.55.0";
+import { step } from "./engine.js?v=0.55.0";
+import { parse } from "./parser.js?v=0.55.0";
+import { story } from "./view.js?v=0.55.0";
 
 const COMPASS = ["n", "s", "e", "w"];    // the only directions a map can draw: the others have no cell next door
 const BACK = { n: "s", s: "n", e: "w", w: "e" };
 
 // The layout of the map for the state: where each shown room sits, and which exits join neighbouring ones.
-//   { z, opening, placed: Map(id → { x, y }), edges: [{ from, dir, to }] }
-// An edge is one exit that leads to the room drawn in the cell next door in that direction (one way: routeTo walks them).
+//   { z, placed: Map(id → { x, y }), edges: [{ from, dir, to }] }
+// An edge is one exit that leads to the room drawn in the cell next door in that direction, or an in or out to a room drawn on the
+// map (one way: routeTo walks them; only the compass ones are lines).
 function layout(state) {
   const rooms = state.world.rooms, here = state.player.at, room = rooms[here];
-  const z = room?.at?.[2] ?? 0, openingRoom = state.opening?.room ?? null;
+  const z = room?.at?.[2] ?? 0;
   const placed = new Map();                                  // id → { x, y }
-  if (!room?.at || here === openingRoom) {                   // the opening is a map of its own: the room alone
-    placed.set(here, { x: room?.at?.[0] ?? 0, y: room?.at?.[1] ?? 0 });
-    return { z, opening: here === openingRoom, placed, edges: [] };
+  if (!room?.at) {                                           // a room with no place (none in a world: the placeholder's): the room alone
+    placed.set(here, { x: 0, y: 0 });
+    return { z, placed, edges: [] };
   }
   const visited = new Set(state.seen?.visited ?? []);
-  const shown = (id) => id === here || (visited.has(id) && id !== openingRoom);   // the opening never shows again
+  const shown = (id) => id === here || visited.has(id);
   const taken = new Map();                                   // "x,y" → id: the cells in use
   const key = (x, y) => x + "," + y;
 
@@ -81,8 +82,13 @@ function layout(state) {
         if (next && exitTo(rooms[next].exits?.[BACK[dir]]) === id) edges.push({ from: id, dir, to: next });
       }
     }
+    // In and out to a room drawn on this map (a start room got out of onto the street: Lantern's cab): walked, never drawn as a line.
+    for (const dir of ["in", "out"]) {
+      const to = exitTo(rooms[id].exits?.[dir]);
+      if (typeof to === "string" && placed.has(to)) edges.push({ from: id, dir, to });
+    }
   }
-  return { z, opening: false, placed, edges };
+  return { z, placed, edges };
 }
 
 // A room's name on the map: its own (in the pack's words if it is a key), else the pack's, else its id.
@@ -92,9 +98,8 @@ const roomName = (room, id, pack) => (room?.name ? text(room.name, pack) : pack?
 const hasWay = (room, dir) => !!exitTo(room?.exits?.[dir]);
 
 // The map of the room you are in:
-//   { level, opening, rooms: [{ id, name, x, y, current, up, down }], lines: [[a, b]], stubs: [{ room, dir }] }
-// level: the z of your room (the pack names it: levelName). opening: you are in the opening, a map of one room, no
-// lines, no stubs. up, down: the room has a way up or down (as the compass shows it: open or shut, or one a rule answers;
+//   { level, rooms: [{ id, name, x, y, current, up, down }], lines: [[a, b]], stubs: [{ room, dir }] }
+// level: the z of your room (the pack names it: levelName). up, down: the room has a way up or down (as the compass shows it: open or shut, or one a rule answers;
 // the map marks it in the room's corner). lines: a full line between two shown rooms joined by an exit and in neighbouring cells (each pair
 // once, sorted by id). stubs: a short line out of a room for each exit the compass would show (open or shut, or one a
 // rule answers) that leads to a room not shown, north, south, east and west only. pack is optional: without it the
@@ -105,21 +110,20 @@ export function mapOf(state, pack) {
                                                  up: hasWay(rooms[id], "u"), down: hasWay(rooms[id], "d") }))
     .sort((a, b) => a.y - b.y || a.x - b.x || (a.id < b.id ? -1 : 1));
   const lines = [], seen = new Set();
-  for (const { from, to } of L.edges) {
+  for (const { from, to, dir } of L.edges) {
+    if (!COMPASS.includes(dir)) continue;                    // (in and out make no line)
     const pair = from < to ? [from, to] : [to, from];
     if (!seen.has(pair.join("|"))) { seen.add(pair.join("|")); lines.push(pair); }
   }
   lines.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : 1));   // the same order every time
   const stubs = [];
-  if (!L.opening) {
-    for (const { id } of list) {
-      for (const dir of COMPASS) {
-        const to = exitTo(rooms[id].exits?.[dir]);
-        if ((to === true && !L.edges.some(e => e.from === id && e.dir === dir)) || (typeof to === "string" && !L.placed.has(to))) stubs.push({ room: id, dir });
-      }
+  for (const { id } of list) {
+    for (const dir of COMPASS) {
+      const to = exitTo(rooms[id].exits?.[dir]);
+      if ((to === true && !L.edges.some(e => e.from === id && e.dir === dir)) || (typeof to === "string" && !L.placed.has(to))) stubs.push({ room: id, dir });
     }
   }
-  return { level: L.z, opening: L.opening, rooms: list, lines, stubs };
+  return { level: L.z, rooms: list, lines, stubs };
 }
 
 // The shortest list of directions to a room on the map, over shown rooms and their lines: [] if it is the room you are

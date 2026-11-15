@@ -21,7 +21,7 @@
 // room does (close-up, from far above).
 
 export default {
-  // ---- THE CAB (the opening): through the open front of a hansom cab; nothing out there but fog --------------------
+  // ---- THE CAB (the start room): through the open front of a hansom cab; nothing out there but fog; the fare on the seat --
   cab: {
     version: 1,
     draw: `
@@ -52,7 +52,8 @@ export default {
     `,
     cycles: [{ name: "the far lamp", areas: ["lamp_glow", "lamp"], colors: [14, 6], style: "pingpong", ms: 2600 }],
     overlays: [
-      { object: "canary", at: [96, 6] }
+      { object: "canary", at: [96, 6] },
+      { object: "shilling", at: [200, 118] }
     ]
   },
 

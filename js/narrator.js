@@ -3,12 +3,12 @@
 // without words of their own (a move, a set) say nothing: the rule that caused them says what happened.
 // Pure: never touches the page or the state.
 
-import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.54.0";
-import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.54.0";
-import { activeIds, conditionTone } from "./conditions.js?v=0.54.0";
-import { placeOf, noticed } from "./place.js?v=0.54.0";
-import { isMover } from "./movers.js?v=0.54.0";
-import { clean } from "./shapes.js?v=0.54.0";
+import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.55.0";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.55.0";
+import { activeIds, conditionTone } from "./conditions.js?v=0.55.0";
+import { placeOf, noticed } from "./place.js?v=0.55.0";
+import { isMover } from "./movers.js?v=0.55.0";
+import { clean } from "./shapes.js?v=0.55.0";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -138,7 +138,7 @@ const styled = (style) => [style, "aside"].filter(Boolean).join(" ");
 // name): { g, pl, proper } from its `words` (js/words.js, grammarOf), or nothing.
 const whoOf = (o) => grammarOf(o?.words);
 
-// What a hint says (the opening's hint frame goes round it, pack.framed): the world's line, or the commands that solve
+// What a hint says (the hints thing's frame goes round it, pack.framed): the world's line, or the commands that solve
 // it ("`Wait for the train`, then `board train`"), or that there's nothing left to find.
 function hintText(e, pack) {
   if (e.none) return text("@hintNone", pack);
@@ -149,8 +149,8 @@ function hintText(e, pack) {
 // A command that solves a puzzle, in this game's language. It may start with a verb in braces, "{take} tin": the pack's
 // first word for that verb stands in its place ("coge tin"). "{enter+} door" puts the word the verb takes before its
 // object after it too, if the pack has one (`grammar.verbPreps`: Spanish "entrar en puerta"; English none: "enter door").
-// The two the engine words itself, `{take}` and `{enter+}` (the opening's own steps), are the pack's phrases for them
-// (`basic.take`, `basic.enterIn`), so they read as every command the engine words. Any other command is returned as it is.
+// Two of them, `{take}` and `{enter+}`, are the pack's phrases for them (`basic.take`, `basic.enterIn`), so they read as every
+// command the engine words. Any other command is returned as it is.
 const BASIC = { take: "take", "enter+": "enterIn" };
 export function solveCommand(command, pack) {
   return String(command).replace(/^\{(\w+)(\+?)\}(?:\s+(.+))?/, (whole, verb, plus, rest) => {
@@ -273,7 +273,7 @@ export function listName(id, state, pack) {
 }
 
 // The world's time in a text: [time] ("a quarter past five", worded by the pack), [day] (3), [weekday] ("Sunday");
-// and [way], the way you came in from the opening ("the revolving door": the pack's `the`, then the thing's name).
+// and [way], the start room's way out ("the revolving door": the pack's `the`, then the thing's name).
 // And any declared property, [thing.property] ([player.name], [bell.rung]): its number or string, nothing for a boolean
 // or one that holds nothing yet; a name that isn't declared stays as written (js/fields.js, "Words from the state").
 // And what the player typed to a question, [player.answers.<key>] ("Voss"), as typed; nothing before it is answered.
@@ -291,7 +291,7 @@ export function timed(t, state, pack, at = worldTime(state), vals = undefined) {
           .replace(ANSWER_WORD, (m, key) => vals && ("player.answers." + key) in vals ? vals["player.answers." + key] : answerText(state, key));
 }
 
-// The way you came in from the opening, named in a sentence ("the revolving door"; a proper name bare); nothing if there isn't one.
+// The start room's way out, named in a sentence ("the revolving door"; a proper name bare); nothing if there isn't one.
 function wayName(state, pack) {
   const id = state.opening?.way, o = id && state.world.objects[id];
   return o ? pack.the(listName(id, state, pack), o) : "";

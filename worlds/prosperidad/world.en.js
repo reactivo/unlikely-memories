@@ -1,11 +1,11 @@
-// "Emperor of Prosperidad": a world after the opening, in English, written the way the AI is asked to write a world (BRIEF.md). One
+// "Emperor of Prosperidad": a world, in English, written the way the AI is asked to write a world (BRIEF.md). One
 // change set, all or nothing; plain data. The Spanish version (world.es.js) is written on its own, not translated: same ids, rooms, rules
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -36,14 +36,14 @@ export const bible = {
     "\"The strip sells everything twice: once to the customer, once to whoever says he saw it.\" " +
     "\"Marisol works the corner with the patience of a bank and the manners of a duchess.\" " +
     "\"In Prosperidad the colour comes on after dark, and somebody always sends the bill.\"",
-  start: "Saturday, 01:10, on the Avenida (the opening, in the blind alley, at 01:00).",
+  start: "Saturday, 01:00, in the blind alley behind the Submarino; ten past one once through its fire door.",
   rules: [
     "Prosperidad is grey by day and only has colour after dark, and everything that shines has been paid for.",
     "The machines of the Lavandería give back what you are missing, clean and wrong.",
     "The mail-order book delivers to whoever it names; nobody has ever ordered from it, and nobody has ever refused a parcel.",
     "The chimneys keep the city's grey, and whoever sweeps one gets the soot."
   ],
-  opening: "A blind alley behind a club: a transistor radio on a crate (hints), a torn catalogue page you already carry (why you came). The fire door at the far end is the way on.",
+  opening: "A blind alley behind a club, the start room, south of its backstage: a transistor radio on a crate (hints), a torn catalogue page you already carry (why you came). The fire door at the far end is the way out: it gives to a shoulder in its dent, or a knock.",
   music: "a nervous dorian shuffle heard through a club wall; a bass drum that misses a beat, a cheap guitar on one chord and a chimney sweep's whistle; the radio between stations",
   characters: ["Cuco, the DJ of the Submarino", "Marisol, who works the corner", "Doña Remedios, of the all-night depot", "Tomás, the chimney sweep",
     "Don Nicanor, of the Pensión Esperanza", "the Apothecary, of Los Galgos"],
@@ -72,17 +72,17 @@ const endingPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "callejon": the opening, never returned to. Area "club": the back room and the floor. Area "calle" (x grows east, y south):
+// Area "club": the blind alley, the start room, south of the back room behind its fire door; the back room and the floor. Area "calle" (x grows east, y south):
 // the Avenida with the depot east and Los Galgos west, the corner south of it with the pension east and the launderette west, the
 // plaza below. Area "casa": the portal, the patio and the roof. Area "vias": the cutting and the works.
 const rooms = {
   callejon: {
-    name: "THE BLIND ALLEY", area: "callejon", at: [0, 0, 0],
+    name: "THE BLIND ALLEY", area: "club", at: [0, 1, 0],
     describe: [
       "Grey brick on both sides and a wall behind: the back of a club, with crates, a bin and puddles that hold the pink of a neon tube. The tube has been saying half a word since the spring.",
-      "The only way on is the {fire door|puerta} at the far end. It has no handle on this side, only a bar, and a dent where others have asked."
+      "The only way out is the {fire door|puerta} at the far end. It has no handle on this side, only a bar, and a dent where others have asked."
     ],
-    exits: { n: true },
+    exits: { n: { to: "trastienda", if: false, closed: "The fire door does not move for a hand. It has a dent at shoulder height where others have asked harder." } },
     scenery: [
       { words: ["bin", "dustbin", "rubbish", "lid"], name: "the bin", says: "Full. It has been full since before the club had a name, and it keeps its own counsel." },
       { words: ["crates", "crate", "bottles"], name: "the crates", says: "Beer crates, empty, stacked by someone with a better memory for the stack than for the beer." },
@@ -103,9 +103,9 @@ const rooms = {
     name: "BACKSTAGE", area: "club", at: [0, 0, 0],
     describe: [
       "Backstage at the Submarino: amplifier cases, a coat rail of sequinned jackets, a mirror ringed with bulbs, half of them dead. A {guitar case|funda} lies on its back on the floor, belonging to nobody who is looking.",
-      "The beat comes through the curtain to the east, the bass turned up and the treble turned away. The fire door has closed behind you and gone back to being wall."
+      "The beat comes through the curtain to the east, the bass turned up and the treble turned away. The {fire door|puerta_trasera} to the alley is south, propped open on its bar."
     ],
-    exits: { e: "pista" },
+    exits: { e: "pista", s: "callejon" },
     scenery: [
       { words: ["amps", "amp", "amplifier", "amplifiers", "cases", "speakers"], name: "the amplifier cases", says: "Black boxes with the club's name stencilled on, and under the name somebody's phone number, crossed out twice." },
       { words: ["rail", "jackets", "jacket", "sequins", "coats"], name: "the coat rail", says: "Sequinned jackets in sizes for people who no longer need them. They throw the bulbs back at you in small change." },
@@ -429,7 +429,7 @@ const rooms = {
 
 // ---- Objects -----------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
+  // The start room: the hints thing, the one you carry, and the way out, which gives to a shoulder or a knock (BRIEF.md §3).
   radio: { at: "callejon", portable: true, material: "metal", name: "Transistor radio", note: "Muttering between stations.",
     words: { nouns: ["radio", "transistor"], adj: ["transistor", "little", "old", "small"] }, ...item("radio"),
     here: "A {transistor radio|radio} stands on a crate, muttering between two stations.",
@@ -437,11 +437,14 @@ const objects = {
   pagina: { at: "player", portable: true, material: "paper", name: "Catalogue page", note: "Torn, with a circle.",
     words: { nouns: ["page", "catalogue"], adj: ["catalogue", "torn", "mail-order"] }, ...item("pagina"),
     examine: "A page torn from a mail-order catalogue, thick with dust. A crown, in gold paper, circled in red felt-tip: \"CROWN OF EMPEROR. One size. Delivered to whoever the city names. Pay on receipt.\"" },
-  puerta: { at: "callejon", material: "metal", name: "Fire door", note: "The only way on.", door: "n",
+  puerta: { at: "callejon", material: "metal", name: "Fire door", note: "The only way out.", door: "n",
     words: { nouns: ["door"], adj: ["fire", "steel", "metal", "grey"] },
     examine: "A steel fire door with a push bar and a dent shaped like a shoulder. It is painted the same grey as the wall, in case anyone was thinking of leaving by another way." },
 
   // Backstage
+  puerta_trasera: { at: "trastienda", material: "metal", name: "Fire door", note: "Out to the alley.", door: "s",
+    words: { nouns: ["door"], adj: ["fire", "steel", "metal", "grey"] },
+    examine: "The fire door from the inside: a push bar, propped open, and the alley's pink puddles beyond it." },
   funda: { at: "trastienda", container: true, open: false, material: "wood", name: "Guitar case", note: "Rattles when tipped.",
     words: { nouns: ["case"], adj: ["guitar", "black", "battered"] },
     examine: "A black guitar case with a broken clasp, held shut by a belt. When you tip it, something small and many rattles, and it is not a guitar." },
@@ -577,6 +580,9 @@ const objects = {
 
 // ---- The puzzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the radio's first hints are about it.
+  way_out: { where: "callejon", needs: [], solve: ["push door", "north"], reaches: "trastienda", clues: ["puerta", "shoulder_door"],
+    hints: ["The fire door has no handle on this side, only a bar, and a dent shaped like a shoulder where others have asked.", "Put your shoulder to the fire door: push it, and go north."] },
   take_tokens: { where: "trastienda", needs: [], solve: ["open case", "{take} tokens"], gives: ["fichas"], clues: ["funda", "cuco"],
     hints: ["Cuco's guitar case, backstage, rattles when it is tipped.", "Open the guitar case and take the tokens."] },
   feed_dryer: { where: "lavanderia", needs: ["fichas"], solve: ["put tokens in dryer", "{take} brush"], gives: ["cepillo"], clues: ["secadora", "boticaria", "tomas"],
@@ -597,6 +603,16 @@ const puzzles = {
 
 // ---- Rules -----------------------------------------------------------------------------------------------------------------
 const rules = [
+  // The start room's way out: the fire door gives to a shoulder in its dent, or to a knock (someone inside hits the bar); a rule that
+  // connects the exit, and the Avenida's hour comes through it (the change `arrival`). It stays open.
+  { id: "shoulder_door", match: { verb: "push", obj: "puerta" }, if: [{ "puerta.opened": false }],
+    do: [{ say: "You put your shoulder to the dent, the way others have, and lean. The fire door gives with the sound of a bin lid, and the bass comes out to meet you." },
+      { set: "puerta.opened", to: true }, { set: "puerta.note", to: "Open, on its bar." }, { connect: "callejon", dir: "n", to: "trastienda" }, { change: "arrival" }] },
+  { id: "knock_door", match: { verb: "knock", obj: "puerta" }, if: [{ "puerta.opened": false }],
+    do: [{ say: "You knock on the dent where others have asked. The bass stops for a beat; somebody on the other side hits the bar, and the fire door gives with the sound of a bin lid." },
+      { set: "puerta.opened", to: true }, { set: "puerta.note", to: "Open, on its bar." }, { connect: "callejon", dir: "n", to: "trastienda" }, { change: "arrival" }] },
+  { id: "door_open_already", match: { verb: ["push", "knock"], obj: "puerta" },
+    do: [{ say: "The fire door stands open on its bar. The bass is waiting." }] },
   // The dryer: tokens in, what you are missing out.
   { id: "put_tokens", match: { verb: ["put", "use"], obj: "fichas", obj2: "secadora" }, if: [{ "player.at": "lavanderia" }], once: true,
     again: "The dryer has had its tokens and tumbles on, thinking.",
@@ -657,8 +673,6 @@ const changes = {
 const opening = {
   room: "callejon", hints: "radio", intro: "pagina", way: "puerta",
   lines: {
-    notYet: "The fire door does not move. The radio on the crate is still muttering to itself, and it sounds like it has something to say. Take it first.",
-    through: "You put your shoulder to the bar. The fire door gives with the sound of a bin lid and lets you through, and by the time you turn round it is wall.",
     hintFrame: "You put the radio to your ear. Between two stations a voice says:",
     farewell: "The wind takes the page out of your hand and reads it to the alley, then lets it go."
   }
@@ -666,21 +680,22 @@ const opening = {
 
 // ---- The change set -----------------------------------------------------------------------------------------------------
 export default {
-  because: "After the opening: a grey city's strip, squats and club on a Saturday night in 1985, and a parcel with your name on it.",
+  because: "A blind alley behind a club, then a grey city's strip, squats and club on a Saturday night in 1985, and a parcel with your name on it.",
   opening,
   facts: [
-    "The player is Emperador, a punk of the strip in Prosperidad, 1985; the opening is the blind alley behind the Submarino; the first room is backstage.",
+    "The player is Emperador, a punk of the strip in Prosperidad, 1985; the start room is the blind alley behind the Submarino, south of backstage through the fire door.",
     "A parcel for Emperador waits at the Estafeta; Doña Remedios hands it over for a banknote that was earned, and a name said aloud.",
     "The Lavandería's dryer gives back what you are missing; Tomás the sweep is missing his brush.",
     "The player's own name, before Emperador, was Dani.",
     "The great chimney at the works holds the city's grey; sweeping it with the sweep's brush is an ending."
   ],
   properties: {
+    "puerta.opened": { type: "boolean", start: false },   // the fire door has given: it stands open on its bar
     "remedios.paid": { type: "boolean", start: false }
   },
   effects: [
-    { time: "day 1 01:00", weekday: "sat" },                 // the opening is played at one in the morning
-    { set: "game.entrance", to: "trastienda" },
+    { time: "day 1 01:00", weekday: "sat" },                 // the game starts at one in the morning, in the alley
+    // What the fire door lets in when it gives (its rules run it): the Avenida's hour, and its line.
     { add: "change", id: "arrival", effects: [
       { time: "day 1 01:10", weekday: "sat" },
       { say: "Ten past one, and the whole city is paying for its colours." }

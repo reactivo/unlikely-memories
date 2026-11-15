@@ -7,10 +7,10 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.
@@ -23,9 +23,9 @@ export const bible = {
     "habitación de hotel con su abrigo, una carta con su letra, una caseta de baño con su número. Al otro lado del agua, " +
     "un faro apagado solo quema lo que alguien acepta olvidar.",
   tone: "WRITING-DIRECTION.md: lo cotidiano, ligeramente torcido; sereno, conciso, con ecos de lo que pudo ser.",
-  opening: "Pasillo 7-B del Ministerio, una mañana de lunes: un buzón de " +
+  opening: "Pasillo 7-B del Ministerio, una mañana de lunes, planta menos cuatro, bajo la playa: un buzón de " +
     "sugerencias (las pistas), un memorando que ya llevas encima (por qué has venido). La puertecita verde que respira " +
-    "es el camino.",
+    "es la salida: llamas, y le das tu nombre.",
   music: "un vals de salón de té en mixolidio, que se ha quedado en las cinco y cuarto; una radio en las dunas y la caja " +
     "de música del tiovivo; el mar que respira sobre la arena",
   rules: [
@@ -76,17 +76,18 @@ const endingPictures = {
 
 // ---- Salas --------------------------------------------------------------------------------------------------------
 // area + at: dónde está (js/space.js). Costa: x crece hacia el este, y hacia el sur (el mar queda al norte). El faro es un
-// área aparte, a la que solo se llega en barca. exits: un id de sala; true = hay camino, pero lo contesta una regla; false = ninguno.
+// área aparte, a la que solo se llega en barca. El pasillo del Ministerio, la sala del comienzo, está en el mapa de la costa cuatro plantas más abajo
+// (la planta menos cuatro): su puerta verde sube a la playa, y la puerta plantada en la arena baja a él (pasos: ninguna casilla los une). exits: un id de sala; true = hay camino, pero lo contesta una regla; false = ninguno.
 
 const rooms = {
-  // La apertura (BRIEF.md §3): el pasillo del Ministerio, al que no se vuelve. El área "ministry" es suya.
+  // La sala del comienzo (BRIEF.md §3): el pasillo del Ministerio, del que se sale por la puerta verde cuando llamas. La playa queda arriba.
   corridor: {
-    name: "PASILLO 7-B", area: "ministry", at: [0, 0, -4],
+    name: "PASILLO 7-B", area: "coast", at: [0, 0, -4],
     describe: [
       "Ministerio de la Felicidad Suficiente, planta menos cuatro. Paredes grises, linóleo gris, luz gris, como cada mañana desde hace once años. Un {altavoz|loudspeaker} murmura que estás conforme.",
       "Hoy una {puerta verde|green_door} diminuta respira bajito en la pared, con un charco y una raya de luz amarilla por debajo. El ojo del {cartel|poster} te vigila; una {cámara|camera} gira para mirar a otra parte."
     ],
-    exits: { e: true },
+    exits: { u: { to: "beach", passage: true, if: false, closed: "La puertecita está cerrada. Respira contra tu mano, tibia, y espera. La placa de encima dice que llames." } },
     scenery: [
       { words: ["pasillo", "pared", "paredes", "techo", "lampara", "lamparas", "luz", "luces", "linoleo", "lino", "suelo"], name: "el pasillo", says: "Linóleo gris, paredes grises, lámparas encendidas en 1987 sin pedirles opinión." },
       { words: ["placa", "letrero", "letras"], name: "la placa", says: "Grabado en letras de otro tiempo: «Llama solo si recuerdas tu nombre»." },
@@ -109,7 +110,7 @@ const rooms = {
     describe: [
       doorStands, seaDark, sand
     ],
-    exits: { n: "pier", w: "tideline", e: { to: "cave", in: true }, s: "dunes" },
+    exits: { n: "pier", w: "tideline", e: { to: "cave", in: true }, s: "dunes", d: { to: "corridor", passage: true } },
     ambience: { lines: ["Una gaviota grita una vez y nadie le contesta.", "Una ola sube por la arena más que las otras, toca la puerta y se retira.", "La puerta inspira. En algún lugar muy lejano, un altavoz carraspea."],
                 if: [{ "beach_door.driftwood": { "!=": true } }] },
     alt: "Una playa de noche bajo la luna llena. Una pequeña puerta verde se alza en la arena, con luz que se escapa por sus bordes. A la izquierda, un muelle se adentra en el mar; a lo lejos, un faro apagado sobre una roca. A la derecha, rocas negras y la boca de una cueva.",
@@ -404,7 +405,7 @@ const objects = {
   memo: { at: "player", portable: true, material: "paper", name: "Memorando del Ministerio", note: "Doblado en cuatro.",
     words: { nouns: ["memorando", "memo"], adj: ["ministerio", "doblado"], g: "m" }, ...item("memo"),
     examine: "Un memorando del Ministerio, doblado en cuatro, con el membrete todavía verde. «Al personal: se ha informado de la existencia de una puerta en la planta menos cuatro. No está ahí. Se ruega no usarla»." },
-  green_door: { at: "corridor", name: "Puerta verde", note: "Pequeña, y respira.", actions: ["Llamar"],
+  green_door: { at: "corridor", door: "u", material: "wood", name: "Puerta verde", note: "Pequeña, y respira.", actions: ["Llamar"],
     words: { nouns: ["puerta", "puertecita", "cerradura", "madera"], adj: ["verde", "pequeña", "pequena", "chiquita", "respirando", "diminuta"], g: "f" },
     examine: "La madera está tibia, como la piel. Sube y baja despacio, al compás de tu propia respiración. Encima, una placa de latón: «Llama solo si recuerdas tu nombre»." },
   loudspeaker: { at: "corridor", name: "Altavoz", note: "Murmura.", actions: ["Escuchar"],
@@ -417,7 +418,7 @@ const objects = {
     words: { nouns: ["camara"], adj: ["seguridad", "vigilancia"], g: "f" },
     examine: "Ha girado la cara. Por primera vez en once años, nadie te vigila." },
   // La playa
-  beach_door: { at: "beach", name: "Puerta verde", note: "En pie en la arena, respirando.", actions: ["Entrar en puerta"],
+  beach_door: { at: "beach", door: "d", material: "wood", name: "Puerta verde", note: "En pie en la arena, respirando.", actions: ["Entrar en puerta"],
     words: { nouns: ["puerta", "marco", "cerradura", "madera"], adj: ["verde", "pequeña", "pequena", "respirando", "deriva", "flotante"], g: "f" },
     examine: "La misma puerta. Desde este lado también respira. Por el ojo de la cerradura se ve linóleo gris y se oye un altavoz." },
   lighthouse_far: { at: "beach", name: "Faro", note: "A lo lejos, apagado.",
@@ -630,6 +631,18 @@ const objects = {
 
 // Cambios con nombre: efectos escritos una vez y ejecutados desde cualquier regla con { change: "nombre" } (ARCHITECTURE.md §5).
 const changes = {
+  // La puerta verde se abre cuando llamas: el pasillo, la puerta y la placa lo dicen, si vuelves a mirar.
+  door_open: [
+    { set: "corridor.describe", to: [
+      "Ministerio de la Felicidad Suficiente, planta menos cuatro. Paredes grises, linóleo gris, luz gris, como cada mañana desde hace once años. Un {altavoz|loudspeaker} murmura que estás conforme.",
+      "La {puerta verde|green_door} diminuta está abierta en la parte baja de la pared, sobre arena tibia y un olor a sal. El ojo del {cartel|poster} te vigila; una {cámara|camera} gira para mirar a otra parte."] },
+    { set: "green_door.examine", to: "La madera está tibia, como la piel, y sigue respirando. Está abierta a una playa de noche. Donde estaba la placa, una gota de latón se ha cuajado sobre el linóleo." },
+    { set: "green_door.note", to: "Abierta, y respira." },
+    { set: "corridor.scenery", to: [
+      { words: ["pasillo", "pared", "paredes", "techo", "lampara", "lamparas", "luz", "luces", "linoleo", "lino", "suelo"], name: "el pasillo", says: "Linóleo gris, paredes grises, lámparas encendidas en 1987 sin pedirles opinión." },
+      { words: ["placa", "letrero", "letras", "laton", "gota"], name: "la placa", says: "Se escurrió por la pared cuando la puerta se quedó con tu nombre. Una gota de latón se ha cuajado sobre el linóleo, con la forma de un punto final." },
+      { words: ["charco", "agua"], name: "el charco", says: "Agua tibia, de ninguna parte. Huele a un lugar donde nunca has estado y que, sin embargo, recuerdas." }] }
+  ],
   // La puerta verde se vuelve madera de deriva: la playa, la vista lejana desde la linterna y los textos de los dos lados.
   driftwood: [
     { set: "beach_door.driftwood", to: true },
@@ -691,10 +704,15 @@ const oarsReady = { "oars.at": { in: ["player", "boat"] } };
 
 const rules = [
   // -- Atravesar la puerta, en los dos sentidos ----------------------------------------------------------------
+  // La salida de la sala del comienzo: llamas, y la puerta te pregunta el nombre, se queda con él y se abre a la playa (una regla que
+  // `connect`a la salida); la hora del pueblo entra con el aire salado (el cambio `arrival`). Luego sigue abierta, en los dos sentidos.
+  { id: "green_door_knock", match: { verb: "knock", obj: "green_door" }, if: [{ "green_door.named": false }],
+    do: [{ set: "green_door.named", to: true }, { say: "Te arrodillas y llamas tres veces. La respiración cesa. Desde muy lejos, una voz pregunta: «¿Cómo te llamas?». Se lo dices, y se queda con él. La placa de latón se ablanda y gotea sobre el linóleo, y la puerta se abre hacia dentro. Es muy pequeña, y luego ya no lo es." },
+         { connect: "corridor", dir: "u", to: "beach", passage: true }, { change: "door_open" }, { change: "arrival" }] },
+  { id: "green_door_again", match: { verb: "knock", obj: "green_door" },
+    do: [{ say: "Llamas. La puerta ya tiene tu nombre, y no te lo pide dos veces." }] },
   { id: "beach_door_knock", match: { verb: "knock", obj: "beach_door" },
     do: [{ say: "Llamas. Del otro lado, al cabo de un rato, responden tres golpes." }] },
-  { id: "beach_through", match: { verb: ["enter", "go", "open", "push"], obj: "beach_door" }, if: [{ "beach_door.driftwood": { "!=": true } }],
-    do: [{ say: "Te arrodillas ante la puerta. Solo es una puerta desde el otro lado; desde aquí se abre a la arena." }] },
 
   // -- Ayuda, fuera del pasillo ----------------------------------------------------------------------------------
   { id: "help_town", match: { verb: "help" },
@@ -829,6 +847,9 @@ const rules = [
 // js/check.js pueda jugar cada final con el intérprete y el motor de verdad. Las pistas nombran los objetos, reglas o puzles
 // que lo señalan.
 const puzzles = {
+  // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas del buzón son para ella.
+  way_out:    { where: "corridor", needs: [], solve: ["llama a la puerta", "{enter+} puerta"], reaches: "beach", clues: ["green_door", "green_door_knock"],
+                hints: ["La placa sobre la puertecita verde pide que llames, si recuerdas tu nombre. Por ahora lo recuerdas.", "Llama a la puerta verde, dale tu nombre y crúzala."] },
   vouch:      { where: "post_office", needs: ["shell"], solve: ["dar caracola a administrador"], gives: ["parcel"],
                 clues: ["letter", "guests", "post_talk"],
                 hints: ["El administrador no da nada a quien no tiene nombre, pero se fía del mar. Algo que la marea dejó en la arena podría responder por ti.", "Lleva la caracola pálida de la línea de la marea hasta Correos y deja que el administrador la escuche."] },
@@ -857,8 +878,6 @@ const puzzles = {
 const opening = {
   room: "corridor", hints: "suggestion_box", intro: "memo", way: "green_door",
   lines: {
-    notYet: "La respiración se detiene. «Te hará falta alguien con quien hablar», dice una voz desde muy lejos. «El buzón de sugerencias todavía escucha».",
-    through: "Te arrodillas y llamas tres veces. La respiración cesa. Desde muy lejos, una voz pregunta: «¿Cómo te llamas?». Se lo dices, y se queda con él. La placa de latón se ablanda y gotea sobre el linóleo, y la puerta se abre hacia dentro. Es muy pequeña, y luego ya no lo es.",
     hintFrame: "Pegas la oreja a la ranura. En otro punto del Ministerio, alguien lee en voz alta una sugerencia:",
     farewell: "El memorando se arruga por sus pliegues, uno a uno, como si lo archivaran, y ya no está en tu mano."
   }
@@ -870,6 +889,7 @@ export default {
   opening,
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, "Fields and properties"); las del motor no se declaran.
   properties: {
+    "green_door.named": { type: "boolean", start: false },   // has llamado y le has dado tu nombre a la puerta verde: está abierta
     "beach_door.driftwood": { type: "boolean", start: false },   // la puerta verde se ha vuelto madera de deriva
     "player.seated": { type: "boolean", start: false },   // estás sentado a la mesa del comedor
     "postmaster.gave": { type: "boolean", start: false },   // el administrador ha entregado el paquete
@@ -881,8 +901,8 @@ export default {
     "La lámpara del faro solo quema lo que el jugador acepta olvidar: la fotografía o la caracola."
   ],
   effects: [
-    { time: "day 1 08:55", weekday: "mon" },                 // la apertura es una mañana de lunes en el Ministerio
-    // Lo que hace llegar: la hora del pueblo y su primera línea.
+    { time: "day 1 08:55", weekday: "mon" },                 // el juego empieza una mañana de lunes en el Ministerio
+    // Lo que deja entrar la puerta al abrirse (lo ejecuta la regla de llamar): la hora del pueblo y su primera línea.
     { add: "change", id: "arrival", effects: [
       { time: "day 1 17:15", weekday: "sun" },
       { say: "El aire es salado. En algún sitio un reloj marca [time], y es domingo, y a nadie le importa." }
@@ -905,9 +925,6 @@ export default {
     { add: "music", ...music, levels },   // la música (music.js, la misma en los dos idiomas; sus niveles, levels.js, generados); la de cada sala, en su `music`
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    ...rules.map((rule) => ({ add: "rule", rule })),
-
-    // Adónde lleva el camino de la apertura.
-    { set: "game.entrance", to: "beach" }
+    ...rules.map((rule) => ({ add: "rule", rule }))
   ]
 };

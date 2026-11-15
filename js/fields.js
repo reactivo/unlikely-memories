@@ -9,14 +9,14 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.54.0";
-import { PARTS, LINES } from "./opening.js?v=0.54.0";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.54.0";
-import { DIRECTIONS } from "./space.js?v=0.54.0";
-import { isObject, isLine } from "./shapes.js?v=0.54.0";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.54.0";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.54.0";
-import { PART_IDS } from "./time.js?v=0.54.0";
+import { ANSWERED } from "./verbs.js?v=0.55.0";
+import { PARTS, LINES } from "./opening.js?v=0.55.0";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.55.0";
+import { DIRECTIONS } from "./space.js?v=0.55.0";
+import { isObject, isLine } from "./shapes.js?v=0.55.0";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.55.0";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.55.0";
+import { PART_IDS } from "./time.js?v=0.55.0";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
@@ -108,7 +108,7 @@ export const FIELDS = {
   },
   // The engine's own values that rules read and set by path: "player.health", "time.hour".
   player: ["at", "in", "carrying", "health", "answers", "conditions"],   // answers: what was typed to each `ask`, by its key (player.answers.name); conditions: the ids of those you're in
-  game: ["ended", "ending", "entrance", "turn", "clock"],
+  game: ["ended", "ending", "turn", "clock"],
   time: ["hour", "minute", "second", "day", "weekday", "part"],
   any: ["place", "chain", "person", "holder"]   // read on any thing: where it really is, what it is in, whether it is a person, who has it
 };

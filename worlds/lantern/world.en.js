@@ -1,11 +1,11 @@
-// "The Last Word on Lantern Row": a world after the opening, in English, written the way the AI is asked to write a
+// "The Last Word on Lantern Row": a world, in English, written the way the AI is asked to write a
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -18,9 +18,10 @@ export const bible = {
     "and it will want a name.",
   tone: "WRITING-DIRECTION.md. Fog-bound London of gas lamps, pie shops and inquests; police manners; a murder with no " +
     "mark on the body. Tender: the killing is a kindness said at the wrong moment.",
-  start: "Thursday, 22:30, on Lantern Row (the opening, in the cab, at 22:20).",
-  opening: "Inside a hansom cab stopped in the fog: a canary in a cage (hints), a " +
-    "summons you already carry (why you came). The fog outside the folding doors is the way on.",
+  start: "Thursday, 22:30, in the cab, stopped in the fog on Lantern Row.",
+  opening: "Inside a hansom cab stopped in the fog on Lantern Row, the start room: a canary in a cage (hints), a " +
+    "summons you already carry (why you came), a shilling on the seat for the fare. The fog in the folding doors is the way out, " +
+    "and stands aside, like a doorman, once it is paid.",
   music: "slow harmonic-minor parlour waltz; a gas jet's breath, a harp of street lamps and a constable's boots; an old " +
     "record playing on in the fog",
   rules: [
@@ -66,21 +67,22 @@ const visionPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "cab": the opening, never returned to. Area "row" (x grows east, y grows south): the court north of the Row,
-// the Bell west and the pie shop east of it; the last lamp south, with the substation west, the hut east and the river
-// steps south; the bridge east of the steps.
+// Area "row" (x grows east, y grows south): the court north of the Row, the Bell west and the pie shop east of it; the
+// last lamp south, with the substation west, the hut east and the river steps south; the bridge east of the steps. The cab,
+// the start room, stands at the Row's kerb: you get OUT onto the Row (once the fare is paid) and back IN from it, so it has a
+// cell of its own beside the court, joined to nothing by north, south, east or west.
 const rooms = {
   cab: {
-    name: "THE CAB", area: "cab", at: [0, 0, 0],
+    name: "THE CAB", area: "row", at: [0, -1, 0],
     describe: [
       "Inside a hansom cab, stopped. The horse has gone, and the cabman with it; the reins hang past the window like a sentence nobody finished. Through the glass there is only white.",
-      "In front of your knees the folding doors stand open on the {fog|cab_fog}, and it is the only way on."
+      "In front of your knees the folding doors stand open on the {fog|cab_fog}, the only way out; it waits in them like a doorman."
     ],
-    exits: { out: true },
+    exits: { out: { to: "row", if: false, closed: "You put a foot on the step, and the fog puts it back, politely, the way a doorman would. Nobody gets down from a cab without paying the fare." } },
     scenery: [
       { words: ["reins", "cabman", "horse", "shafts"], name: "the reins", says: "Leather reins, going up over the roof to where a cabman was. They are still warm where he held them." },
       { words: ["window", "glass", "pane"], name: "the window", says: "A small side window, misted. On the other side of it, white, and nothing in the white." },
-      { words: ["seat", "cushion", "plush", "cab", "hansom"], name: "the seat", says: "Red plush worn shiny by a great many people going somewhere in a hurry. Yours is the only warm place on it.", leads: "out" },
+      { words: ["seat", "cushion", "plush"], name: "the seat", says: "Red plush worn shiny by a great many people going somewhere in a hurry. Yours is the only warm place on it." },
       { words: ["hook", "roof", "ceiling"], name: "the hook", says: "A brass hook in the roof, for a lantern. Somebody has hung a bird on it instead." }
     ],
     mentions: ["doors"],
@@ -92,7 +94,8 @@ const rooms = {
     ], every: [25, 60] },
     alt: "From inside a dark hansom cab, red plush on either side, looking out through its open folding doors at thick white fog. Reins hang down across the opening; far off in the fog, the smudge of one lit lamp.",
     overlayAlt: {
-      canary: "A canary in a small brass cage hangs from a hook in the roof."
+      canary: "A canary in a small brass cage hangs from a hook in the roof.",
+      shilling: "A silver shilling lies on the red plush of the seat."
     }
   },
   row: {
@@ -104,7 +107,7 @@ const rooms = {
     exits: {
       n: { to: "court", if: { "time.hour": { between: [0, 6] } }, closed: "The court doors are shut. The card on them says the inquest sits at midnight." },
       w: { to: "bell", if: { "time.hour": { between: [11, 23] } }, closed: "The Bell is shut. Through the window the chairs stand on the tables with their legs in the air, like something that has given up." },
-      e: "pie_shop", s: "last_lamp"
+      e: "pie_shop", s: "last_lamp", in: "cab"
     },
     scenery: [
       { words: ["lamps", "lamp", "gas", "oranges", "muslin"], name: "the lamps", says: "Gas lamps on iron posts, one every few doors, each lit by hand. In the fog they give light to themselves and not much to anyone else." },
@@ -120,7 +123,7 @@ const rooms = {
       "Footsteps go by in the fog, quite close, and nobody comes with them.",
       "A word drifts past at head height, too faint to make out, like a moth that has lost its lamp.",
       "Constable Pye stops, writes something in his notebook, and walks on.",
-      "You look back for the cab. There is only [way], the same as everywhere else."
+      "You look back at the cab, waiting at the kerb. There is only [way] in its doors, the same as everywhere else."
     ], every: [40, 80] },
     // The court sits at midnight: worth waiting for here whenever it isn't sitting.
     waitFor: { time: "next 00:00", says: "You wait by the court doors. The fog comes and stands beside you, and waits too.", if: [{ "time.hour": { between: [6, 24] } }] },
@@ -284,7 +287,7 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
+  // The start room: the hints thing, the one you carry, the way out, and the fare that opens it (BRIEF.md §3).
   canary: { at: "cab", portable: true, material: "metal", name: "Canary", note: "Watching the fog for you.",
     words: { nouns: ["canary", "bird", "cage"], adj: ["yellow", "brass", "small", "little"] }, ...item("canary"),
     here: "From a hook in the roof hangs a {canary} in a small brass cage, watching the fog for you.",
@@ -292,11 +295,20 @@ const objects = {
   summons: { at: "player", portable: true, material: "paper", name: "Summons", note: "Folded, official.",
     words: { nouns: ["summons"], adj: ["folded", "official"] }, ...item("summons"),
     examine: "\"You are called as witness to the inquest into the death of Albert Fenn, lamplighter, of Lantern Row. The court sits at midnight.\" Under the seal, in another hand, smaller: \"The deceased will be present.\"" },
-  cab_fog: { at: "cab", leads: "out", name: "Fog", note: "The only way on.",
-    words: { nouns: ["fog", "doors", "door", "white"], adj: ["folding", "open", "thick"] },
+  cab_fog: { at: "cab", leads: "out", name: "Fog", note: "The only way out.",
+    words: { nouns: ["fog", "doors", "door", "white", "cab", "hansom"], adj: ["folding", "open", "thick", "hansom"] },
     examine: "The cab's folding doors stand open on a fog so thick it has a grain, like paper. Somewhere in it, very far off, a lamp is lit, or remembered." },
+  shilling: { at: "cab", portable: true, material: "metal", name: "Shilling", note: "The fare.",
+    words: { nouns: ["shilling", "coin", "fare", "money"], adj: ["silver"] }, ...item("shilling"),
+    here: "On the seat beside you lies a {shilling}, the fare, counted out and not yet paid.",
+    examine: "A silver shilling, the old Queen's head worn smooth by other people's fares. It was counted out for the cabman, who did not wait for it." },
 
   // Lantern Row
+  // The start room's cab, at the kerb: the way back into it (IN).
+  row_cab: { at: "row", leads: "in", name: "Cab", note: "At the kerb.",
+    words: { nouns: ["cab", "hansom"], adj: ["hansom"] },
+    here: "Behind you the {cab|row_cab} still stands at the kerb, no horse in the shafts, its doors open on the fog.",
+    examine: "The hansom you came in, with no horse in the shafts. Its folding doors stand open on red plush, and the fog goes in and out of it as if it were its own." },
   pye: { portrait: sprites.pye_portrait, at: "row", name: "Constable Pye", note: "On his beat.",
     words: { nouns: ["pye", "constable", "policeman", "officer", "bobby"], adj: ["constable", "police"], proper: true },
     examine: "A tall young constable in a cape, with a lamp of his own and a {notebook} he holds like a hymn book. His helmet has collected a little fog in its crown.",
@@ -387,7 +399,7 @@ const objects = {
     examine: "A pen of varnished wood with a rail worn pale by the hands of people who saw something. It is exactly your size." },
 
   // The ways out of the Bell, the pie shop, the court and the substation (their exits marked `out: true`): each its door (BRIEF.md §8,
-  // "Exits": every way in or out is a thing). The cab's is the fog, its way on (it leads out).
+  // "Exits": every way in or out is a thing). The cab's is the fog, its way out (west, and out).
   bell_door: { at: "bell", door: "e", material: "wood", name: "Door", note: "Out to the Row.",
     words: { nouns: ["door"], adj: ["bell", "pub"] },
     examine: "A heavy door with a brass handle worn thin. Every time it opens, the fog looks in." },
@@ -504,6 +516,11 @@ const objects = {
 
 // ---- Named changes ---------------------------------------------------------------------------------------------------
 const changes = {
+  fare_paid: [
+    { say: "You hold out the shilling. The fog takes it, the way a good doorman takes a tip, without seeming to, and stands aside. Somewhere above it a church clock strikes, and doesn't sound sure of the hour." },
+    { move: "shilling", to: null },
+    { connect: "cab", dir: "out", to: "row" }
+  ],
   key_taken: [
     { set: "fenn.examine", to: "A small man in a cap and a coat gone green at the seams, sitting very straight on the kerb with his hands on his knees. His neck looks bare without the string. He is dead, and still on duty." },
     { set: "fenn.mentions", to: ["coat", "cap"] }
@@ -533,6 +550,13 @@ const changes = {
 
 // ---- Rules -----------------------------------------------------------------------------------------------------------
 const rules = [
+  // The cab's way out: the fog in the doors stands aside once the fare is paid (a rule that connects the exit, BRIEF.md §3).
+  // ("Pay for" is the language's BUY: here it pays the fare too.)
+  { id: "pay_fare", match: { verb: ["give", "put", "throw", "show", "use", "pay"], obj: "shilling", obj2: [null, "cab_fog"] },
+    if: [{ "player.at": "cab" }, { "shilling.at": "player" }], do: [{ change: "fare_paid" }] },
+  { id: "pay_cab", match: { verb: "pay" }, if: [{ "player.at": "cab" }, { "shilling.at": { in: ["player", "cab"] } }], do: [{ change: "fare_paid" }] },
+  { id: "buy_way", match: { verb: "buy", obj: [null, "cab_fog", "shilling"] }, if: [{ "player.at": "cab" }, { "shilling.at": { in: ["player", "cab"] } }], do: [{ change: "fare_paid" }] },
+
   // The key round Mr Fenn's neck.
   { id: "take_key", match: { verb: "take", obj: "hut_key" }, if: [{ "hut_key.at": "fenn" }],
     do: [{ say: "Mr Fenn bows his head so you can lift the string over it. \"Mind the cap,\" he says." }, { change: "key_taken" }], then: "default" },
@@ -675,6 +699,8 @@ const rules = [
 
 // ---- Puzzles (for the checker and the hints; BRIEF.md §4). The endings in the order the hints should reach them. ----
 const puzzles = {
+  pay_fare: { where: "cab", needs: [], solve: ["{take} shilling", "give shilling to fog", "out"], reaches: "row", clues: ["cab_fog", "shilling"],
+    hints: ["The fog waits in the cab's doors like a doorman, and the fare lies on the seat.", "Take the shilling, give it to the fog, and get out."] },
   take_key: { where: "last_lamp", needs: [], solve: ["{take} key"], gives: ["hut_key"], clues: ["fenn", "hut_door"],
     hints: ["Mr Fenn keeps the key to his hut on a string round his neck.", "Take the key from Mr Fenn, at the last lamp."] },
   open_hut: { where: "last_lamp", needs: ["hut_key"], solve: ["unlock door with key", "east"], reaches: "hut", clues: ["hut_door", "fenn"],
@@ -694,12 +720,10 @@ const puzzles = {
     hints: ["Dr Mabbott wants a name, and Mr Voss expects it to be his.", "In the court, accuse Mr Voss, and say yes."] }
 };
 
-// ---- The opening, declared (BRIEF.md §3): the ids of its room and three things, and the lines it says ----------------
+// ---- The opening, declared (BRIEF.md §3): the start room, the hints thing, the intro and the way out, and the two lines -
 const opening = {
   room: "cab", hints: "canary", intro: "summons", way: "cab_fog",
   lines: {
-    notYet: "You put a foot on the step, and the fog puts it back, politely, the way a doorman would. Not yet: the canary is still on its hook, and nobody goes out into a fog like this without one.",
-    through: "You step down into the fog. It closes over the cab behind you like water over a dropped coin, and the cobbles come up to meet your feet.",
     hintFrame: "The canary puts its head on one side and sings, in a voice like a very small police constable:",
     farewell: "The fog leans in through the doors and reads the summons over your shoulder. When it has finished, it takes it, and you let it."
   }
@@ -707,27 +731,23 @@ const opening = {
 
 // ---- The change set -----------------------------------------------------------------------------------------------------
 export default {
-  because: "After the opening: a fog-bound street on the night of a lamplighter's inquest.",
+  because: "A fog-bound street on the night of a lamplighter's inquest, and the cab that brought you, stopped at its kerb.",
   opening,
   facts: [
-    "The player arrives on Lantern Row, London, in thick fog, on a Thursday at half past ten at night.",
+    "The player starts in a cab stopped on Lantern Row, London, in thick fog, on a Thursday at half past ten at night.",
     "Albert Fenn, lamplighter, died this evening under the one lamp he didn't light, and sits there still, dead, until relieved.",
     "The inquest sits at midnight in the coroner's court, north of the Row; the Bell shuts at eleven.",
     "Mrs Halloran's words, \"Leave it, Albert. Sit down a minute,\" hang in the fog at the last lamp."
   ],
   effects: [
-    { time: "day 1 22:20", weekday: "thu" },                 // the opening is played at twenty past ten
-    { set: "game.entrance", to: "row" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 22:30", weekday: "thu" },
-      { say: "Somewhere above the fog a church clock strikes half past ten, and doesn't sound sure of it." }
-    ] },
+    { time: "day 1 22:30", weekday: "thu" },                 // the game starts at half past ten
     // Verbs this world needs
     { add: "word", verb: "accuse", words: ["accuse", "blame", "name", "charge", "denounce"], absent: true, reply: "Names are for the inquest: the coroner's court, north of the Row, when it sits at midnight." },
     { add: "word", verb: "order", reply: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." },
     { add: "word", verb: "buy", reply: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." },
     { add: "word", verb: "breathe", words: ["breathe", "breathe in", "take a breath", "inhale"], reply: "You breathe in fog, and it breathes you back. Out on the bridge, past the river steps, the air is thinner." },
     { add: "word", verb: "swim", words: ["swim", "wade", "paddle", "dive"] },
+    { add: "word", verb: "pay", words: ["pay", "tip", "pay off"], object: "optional", reply: "Nobody here is waiting to be paid." },
     { add: "word", verb: "relieve", words: ["relieve", "take over from", "stand in for", "replace"], reply: "Mr Fenn keeps his post at the last lamp, at the bottom of the Row, south. Only whoever lights it can relieve him." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

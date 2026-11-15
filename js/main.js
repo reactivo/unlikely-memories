@@ -3,39 +3,39 @@
 // Also the session: undo, oops, saving and loading (js/saves.js), and which view the page shows: the list of games (no hash) or one
 // world (#<id>, js/route.js). Never touches the page (that's ui/).
 
-import en from "../content/en.js?v=0.54.0";
-import es from "../content/es.js?v=0.54.0";
-import { newState, FORMAT } from "./state.js?v=0.54.0";
-import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.54.0";
-import { parse, retype } from "./parser.js?v=0.54.0";
-import { inScope } from "./place.js?v=0.54.0";
-import { tell, describe, text, listName, placeName, joined } from "./narrator.js?v=0.54.0";
-import { parts, hhmm } from "./time.js?v=0.54.0";
-import * as saves from "./saves.js?v=0.54.0";
-import { suggestion, topicsLine, story } from "./view.js?v=0.54.0";
-import { walk, tripWords } from "./map.js?v=0.54.0";
-import { createClock } from "./clock.js?v=0.54.0";
-import { routeOf, hashOf } from "./route.js?v=0.54.0";
-import { listFor, thumbnailFor } from "../worlds/index.js?v=0.54.0";
-import { load, store } from "./prefs.js?v=0.54.0";
-import { examineSVG } from "../ui/sprite.js?v=0.54.0";
-import * as titlebar from "../ui/titlebar.js?v=0.54.0";
-import * as scene from "../ui/scene.js?v=0.54.0";
-import * as crop from "../ui/crop.js?v=0.54.0";
-import * as log from "../ui/log.js?v=0.54.0";
-import * as prompt from "../ui/prompt.js?v=0.54.0";
-import * as compass from "../ui/compass.js?v=0.54.0";
-import * as inventory from "../ui/inventory.js?v=0.54.0";
-import * as options from "../ui/options.js?v=0.54.0";
-import * as soundpanel from "../ui/soundpanel.js?v=0.54.0";
-import * as map from "../ui/map.js?v=0.54.0";
-import * as page from "../ui/page.js?v=0.54.0";
-import * as tools from "../ui/tools.js?v=0.54.0";
-import * as tabs from "../ui/tabs.js?v=0.54.0";
-import * as keys from "../ui/keys.js?v=0.54.0";
-import * as home from "../ui/home.js?v=0.54.0";
-import * as crt from "../ui/crt.js?v=0.54.0";
-import * as sound from "../ui/sound.js?v=0.54.0";
+import en from "../content/en.js?v=0.55.0";
+import es from "../content/es.js?v=0.55.0";
+import { newState, FORMAT } from "./state.js?v=0.55.0";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.55.0";
+import { parse, retype } from "./parser.js?v=0.55.0";
+import { inScope } from "./place.js?v=0.55.0";
+import { tell, describe, text, listName, placeName, joined } from "./narrator.js?v=0.55.0";
+import { parts, hhmm } from "./time.js?v=0.55.0";
+import * as saves from "./saves.js?v=0.55.0";
+import { suggestion, topicsLine, story } from "./view.js?v=0.55.0";
+import { walk, tripWords } from "./map.js?v=0.55.0";
+import { createClock } from "./clock.js?v=0.55.0";
+import { routeOf, hashOf } from "./route.js?v=0.55.0";
+import { listFor, thumbnailFor } from "../worlds/index.js?v=0.55.0";
+import { load, store } from "./prefs.js?v=0.55.0";
+import { examineSVG } from "../ui/sprite.js?v=0.55.0";
+import * as titlebar from "../ui/titlebar.js?v=0.55.0";
+import * as scene from "../ui/scene.js?v=0.55.0";
+import * as crop from "../ui/crop.js?v=0.55.0";
+import * as log from "../ui/log.js?v=0.55.0";
+import * as prompt from "../ui/prompt.js?v=0.55.0";
+import * as compass from "../ui/compass.js?v=0.55.0";
+import * as inventory from "../ui/inventory.js?v=0.55.0";
+import * as options from "../ui/options.js?v=0.55.0";
+import * as soundpanel from "../ui/soundpanel.js?v=0.55.0";
+import * as map from "../ui/map.js?v=0.55.0";
+import * as page from "../ui/page.js?v=0.55.0";
+import * as tools from "../ui/tools.js?v=0.55.0";
+import * as tabs from "../ui/tabs.js?v=0.55.0";
+import * as keys from "../ui/keys.js?v=0.55.0";
+import * as home from "../ui/home.js?v=0.55.0";
+import * as crt from "../ui/crt.js?v=0.55.0";
+import * as sound from "../ui/sound.js?v=0.55.0";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -516,7 +516,7 @@ function suggest(text) {
   ui.prompt.focus();
 }
 
-// Restart: a whole new game of the same world, from its opening (clock back to zero, story from the top). The ONE way a new game
+// Restart: a whole new game of the same world, from its start room (clock back to zero, story from the top). The ONE way a new game
 // starts, whatever asked for it. It never touches the world's kept game (SAVE / LOAD: saves.GAME): LOAD can always go back to it.
 // The automatic save is simply replaced by the new game's first one.
 //   ask:  the question comes first, in the story (the options' Restart game, Esc), unless the story is over: the end needs no question.
@@ -533,7 +533,7 @@ function restart({ ask = false, said = false, id } = {}) {
   } else if (ask) confirm("@askRestart", "restart");
   else begin(state.worldId ?? undefined);
 }
-// A new game: the clock from zero, a fresh state in the chosen language, the opening room described, saved at once.
+// A new game: the clock from zero, a fresh state in the chosen language, the start room described, saved at once.
 // id: which world (the one in the address; beginning again keeps it).
 function begin(id) {
   clock.reset();
@@ -543,7 +543,7 @@ function begin(id) {
   showTime();                                            // (its own time: the music starts at night if the world does)
   ui.log.clear(); ui.prompt.clear();
   show(describe(state, state.player.at, packOf(state)));
-  ui.log.seen();                                         // (the opening is shown from the top: what's followed next is only what comes after it)
+  ui.log.seen();                                         // (the start room is shown from the top: what's followed next is only what comes after it)
   ui.prompt.hint(ui.log.markup(packOf(state).hint), ui.log.busyFor());   // beside the prompt, once the room is told
   redraw("restore");
   schedule(); autosave(true);
@@ -594,7 +594,7 @@ function setHomeLang(l) {
   showHome();
 }
 
-// Show a world: its saved game continued if it has one, else a new game from its opening. fresh: a new game from its opening
+// Show a world: its saved game continued if it has one, else a new game from its start room. fresh: a new game from its start room
 // whatever is saved (NEW GAME on its card: restart(), which keeps the world's kept game).
 async function openWorld(id, fresh = false) {
   const mine = ++opening;
@@ -662,7 +662,7 @@ if (DEBUG_PANEL) {
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js?v=0.54.0"), import("./debug.js?v=0.54.0")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.55.0"), import("./debug.js?v=0.55.0")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on

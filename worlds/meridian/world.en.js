@@ -1,11 +1,11 @@
-// "Please Remain Present": a world after the opening, in English, written the way the AI is asked to write a world
+// "Please Remain Present": a world, in English, written the way the AI is asked to write a world
 // (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings as endingPictures } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -25,7 +25,7 @@ export const bible = {
     "The Authority never fails. It sends notices, and the notices are kind.",
     "The lifts are out of order; the stairs are the only way up that anyone admits to."
   ],
-  opening: "A fenced service yard behind the Meridian Block: an intercom on its cord (the hints), a summons in your pocket (the intro), the one service door in (the way on).",
+  opening: "A fenced service yard behind the Meridian Block, the start room: an intercom on its cord (the hints), a summons in your pocket (the intro), the one service door in (the way out), opened by the buzzer beside it, onto the sixth floor.",
   music: "slow waltz; a harmonium asking politely, one beat short; a stair clock that is not right; a radiator told to wait",
   start: { day: 1, time: "06:50", weekday: "mon" },
   characters: ["Mrs Hale, the Archivist, who keeps the paper and sorts cards nobody has asked for."],
@@ -33,15 +33,13 @@ export const bible = {
   chaos: 0.2
 };
 
-// The opening's declaration: its room, the hints thing, the intro, the way on, and the four lines.
+// The opening's declaration (BRIEF.md §3): the start room, the hints thing, the intro, the way out, and the two lines.
 const opening = {
   room: "yard",
   hints: "intercom",
   intro: "summons_notice",
   way: "door",
   lines: {
-    notYet: "The door stays shut. The intercom, on its cord by the frame, is still talking to nobody.",
-    through: "The door gives, then opens the rest of the way, as if it had remembered how. You go in, and the yard forgets you at once.",
     hintFrame: "The intercom crackles. Someone says:",
     farewell: "The summons goes soft in your fingers and runs off into the grain of the paper."
   }
@@ -64,9 +62,9 @@ const endingAlts = {
 };
 
 export default {
-  because: "The opening in a fenced service yard; then the Meridian Block: sixth-floor corridor, records, canteen, staff room, stairwell, lobby, cellar, registry; a slip to reprint, a crank for the gate, and the registry's slot, last booth or shredder.",
+  because: "The start room, a fenced service yard behind the block, whose one door opens on the sixth floor; then the Meridian Block: sixth-floor corridor, records, canteen, staff room, stairwell, lobby, cellar, registry; a slip to reprint, a crank for the gate, and the registry's slot, last booth or shredder.",
   facts: [
-    "The summons is the intro: it is out of play after the opening.",
+    "The summons is the intro: it is out of play once read.",
     "The slip comes from the Staff Room printer (once). The crank is in the Records drawer.",
     "The stair gate's lock takes the crank; it opens the stairs to the registry (up from the stairwell).",
     "The lift shaft kills outright (hurt 5, with the shaft picture). The cable hurts once (2); the biscuit and the urn's first cup heal 1 each.",
@@ -75,17 +73,18 @@ export default {
   properties: {},
   opening,
   effects: [
-    { time: "day 1 06:40" },
+    { time: "day 1 06:50", weekday: "mon" },
 
     { add: "music", ...music, levels },   // the music (music.js; its levels, levels.js, generated); each room's own as its `music`
 
-    // ---- the opening: a fenced yard, its way on the one door, in ----------------------------------------------
-    { add: "room", id: "yard", name: "SERVICE YARD", area: "yard", at: [0, 0, 0],
+    // ---- the start room: a fenced yard behind the block (the ground's level, a cell no exit joins to the lobby), its way out the one
+    // door, IN, opened by the buzzer, onto the sixth-floor corridor; the corridor's OUT is the same door back ------------------------
+    { add: "room", id: "yard", name: "SERVICE YARD", area: "block", at: [0, 0, -1],
       describe: [
         "A yard at the back of the Meridian Block, fenced in sheet metal taller than a person. Bins stand in the puddles, and a lift motor rusts under a tarpaulin, left out here when the lifts were given up.",
-        "The only {door} is in the back wall."
+        "The only {door} is in the back wall, with a brass {buzzer} beside its frame."
       ],
-      exits: { in: true },
+      exits: { in: { to: "corridor", if: false, closed: "The door stays shut. Beside its frame the brass buzzer waits, with a label under it." } },
       scenery: [
         { words: ["housing", "motor", "tarpaulin"], name: "the housing", says: "A lift motor under a tarpaulin, its brass plate turned to the wall and its cables cut short. The rain got under the tarpaulin long ago, and the motor has stopped minding." },
         { words: ["bins", "bin"], name: "the bins", says: "Full of paper that was once forms, and is now mostly weather." },
@@ -114,13 +113,19 @@ export default {
     { add: "object", id: "door", at: "yard", door: "in", material: "metal", name: "Door", note: "Shut, for now.",
       actions: ["Open door"], words: { nouns: ["door", "service door"], adj: ["steel"] },
       examine: "A steel service door, painted the colour of a lunch eaten years ago. Round its edge comes a seam of cooler air, and the sound of a corridor with nobody in it." },
+    { add: "object", id: "buzzer", at: "yard", material: "metal", name: "Buzzer", note: "Press once.", use: "push",
+      words: { nouns: ["buzzer", "button", "bell push", "label"], adj: ["brass", "service"] },
+      examine: "A brass button in the door frame, worn hollow by other people's thumbs. The label under it says, in the Authority's kindest type: \"Service. Press once, and remain present.\"" },
 
-    // ---- the way on, and the arrival --------------------------------------------------------------------------
-    { set: "game.entrance", to: "corridor" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 06:50", weekday: "mon" },
-      { say: "The corridor lights come on one at a time, as though each has been asked." }
-    ] },
+    // ---- the way out: the buzzer opens the door (a rule that connects the exit); its puzzle first (BRIEF.md §3) --
+    { add: "rule", rule: { id: "press_buzzer", match: { verb: ["push", "use"], obj: "buzzer" }, if: [{ "player.at": "yard" }], once: true,
+      again: "You press it again. Somewhere inside, the buzzer says the same thing more quietly, as if to someone who has already heard.",
+      do: [
+        { say: "You press the buzzer once. Somewhere deep in the building it answers, a little late, and the door gives, then opens the rest of the way, as if it had remembered how." },
+        { connect: "yard", dir: "in", to: "corridor" }
+      ] } },
+    { add: "puzzle", id: "buzz_in", where: "yard", needs: [], solve: ["push buzzer", "in"], reaches: "corridor", clues: ["door", "buzzer"],
+      hints: ["The door has a buzzer beside its frame, and the label under it asks to be pressed once.", "Press the buzzer, then go in through the door."] },
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
     // ---- the Meridian Block -----------------------------------------------------------------------------------
@@ -129,7 +134,7 @@ export default {
         "The sixth floor of the Meridian Block: grey doors, each with a nameplate and no light under it. The clock over the stairs reads [time], and has not been right in years.",
         "A {notice board|notice_board} is pinned with one notice in three colours. The {shaft} stands open on the south wall: a lift's doorway onto a warm dark. Ways lead west, east and north."
       ],
-      exits: { w: "records", e: "canteen", n: "stairwell" },
+      exits: { w: "records", e: "canteen", n: "stairwell", out: "yard" },
       scenery: [
         { words: ["nameplates", "nameplate"], name: "the nameplates", says: "Names, and beside some of them a date, and beside those, a second date that is later." },
         { words: ["clock"], name: "the clock", says: "It reads [time], and is very sure of it." }
@@ -144,6 +149,11 @@ export default {
       },
       alt: "A grey corridor, a lamp overhead, a notice board on the right wall and an open lift shaft on the left.",
       picture: pictures.corridor },
+    // The service door you came in by, from the corridor's side: the way back out to the yard (OUT).
+    { add: "object", id: "yard_door", at: "corridor", door: "out", material: "metal", name: "Service door", note: "Back to the yard.",
+      words: { nouns: ["service door", "door"], adj: ["steel", "service"] },
+      here: "Behind you the service {door|yard_door} you came in by stands ajar, and through it, six floors down and no distance at all, the yard.",
+      examine: "The lunch-coloured steel door you came in by. Through the gap, the yard's puddles and bins, at the foot of this floor as if the building had folded." },
     { add: "object", id: "notice_board", at: "corridor", name: "Notice board", note: "The same notice, in three colours.",
       opens: ["audit"], words: { nouns: ["notice board", "board", "notice"], adj: [] },
       examine: "The notice says, in red: \"The Registry is closed for audit.\" Under it, in black: \"Presence may be confirmed in person.\" Someone has crossed out \"in person\" in pencil and written \"if possible.\" At the foot, in the Authority's kindest type: \"Replacement summonses may be printed in the Staff Room.\"" },

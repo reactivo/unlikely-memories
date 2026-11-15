@@ -1,11 +1,11 @@
-// "Hartley's, After Hours": a world after the opening, in English, written the way the AI is asked to write a world
+// "Hartley's, After Hours": a world and its start room, in English, written the way the AI is asked to write a world
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
-// for the pictures). One change set, applied after the opening, all or nothing.
+// for the pictures). One change set, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -17,9 +17,9 @@ export const bible = {
     "floor, by appointment only, it sells afternoons: the ones people missed.",
   tone: "WRITING-DIRECTION.md. Department-store manners: mahogany, brass, floorwalkers, cash railways, a store that " +
     "has never quite managed to close.",
-  start: "Saturday, 17:10, on the ground floor.",
-  opening: "The arcade behind the store, at ten to five: a wireless (hints), a " +
-    "shopping list you already carry (why you came). The revolving door is the way in.",
+  start: "Saturday, 17:10, in the arcade behind the store, south of the ground floor.",
+  opening: "The arcade behind the store, at ten past five: a wireless (hints), a " +
+    "shopping list you already carry (why you came). The revolving door is the way in: push it, and it brings round a gap for you.",
   music: "an unhurried palm-court waltz; perfume bottles that sing, the cash railway's brass and canisters, a lift bell " +
     "for a floor nobody asked for; a store that plays on past closing",
   rules: [
@@ -50,16 +50,17 @@ const endingPictures = {
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
 // Area "store" (x grows east, y grows south, z is the floor: -1 the basement, 0 the ground floor, up to 3, the roof).
-// Area "fourth": the fourth floor, reached only by the lift.
+// Area "fourth": the fourth floor, reached only by the lift. The start room, the arcade, is south of the ground floor's hall:
+// its revolving door lets you in once you push it, and the hall's own revolving door turns you back out into it (south).
 const rooms = {
-  // The opening (BRIEF.md §3): the arcade behind the store, shut at both ends, never returned to. Area "arcade" is its own.
+  // The start room (BRIEF.md §3): the arcade behind the store, shut at both ends, left by the revolving door once you push it.
   pavement: {
-    name: "THE ARCADE", area: "arcade", at: [0, 0, 0],
+    name: "THE ARCADE", area: "store", at: [1, 2, 0],
     describe: [
-      "The arcade behind Hartley's, at ten to five on a Saturday: a tiled passage under a glass roof, shuttered behind you. Every window along it is lit, and the dresses in them have turned a little towards you. The air smells of wet umbrellas.",
+      "The arcade behind Hartley's, at ten past five on a Saturday: a tiled passage under a glass roof, shuttered behind you. Every window along it is lit, and the dresses in them have turned a little towards you. The air smells of wet umbrellas.",
       "The only way in is the {revolving door|street_door}, to the north."
     ],
-    exits: { n: true },
+    exits: { n: { to: "front_hall", in: true, if: false, closed: "The door turns past you without a gap in it, the way a door does for people who only stand and look. Its brass bar says PUSH." } },
     scenery: [
       { words: ["window", "windows", "glass", "display", "dresses", "dress"], name: "the windows", says: "Dresses on stands, in colours from before you were born, each turned a few degrees towards you. The ones at the back are turned a few degrees more." },
       { words: ["sill", "sills", "ledge"], name: "the sill", says: "A stone sill, wide enough to set a parcel down on, worn smooth by people who stopped to look at dresses and then didn't leave." },
@@ -77,7 +78,8 @@ const rooms = {
       "The ground floor of Hartley's, all mahogany and brass, as it has been since your grandmother was measured for her first coat. You are standing on the mosaic by the {directory} board, as if you had always been about to come in.",
       "The {revolving door|revolving_door} turns slowly on its own. {Mr Gage|gage}, the floorwalker, wears a carnation and watches everything. Perfumery is west, gloves east, the lifts north."
     ],
-    exits: { w: "perfumery", e: "gloves", n: "lift_lobby", s: true },
+    exits: { w: "perfumery", e: "gloves", n: "lift_lobby",
+      s: "pavement" },
     scenery: [{ words: ["mosaic", "mahogany", "brass", "counters", "ceiling", "chandelier"], name: "the hall", says: "A mosaic of a ship in full sail, worn through at the bow by a hundred years of people standing where you stand." }],
     mentions: ["carnation"],
     ambience: { lines: ["Somewhere a till rings, though nobody has bought anything.", "A cash canister goes overhead in its tube, hurrying, like a thought on its way to someone.", "The revolving door turns once, empty, and stops."], every: [45, 90] },
@@ -254,9 +256,9 @@ const objects = {
   shopping_list: { at: "player", portable: true, material: "paper", name: "Shopping list", note: "Mostly rubbed out.",
     words: { nouns: ["list"], adj: ["shopping", "pencil", "folded"] }, ...item("shopping_list"),
     examine: "In your own pencil: \"Something I should remember.\" Under it, rubbed out so often the paper has worn through, a second line." },
-  street_door: { at: "pavement", name: "Revolving door", note: "Turning, with nobody in it.",
-    words: { nouns: ["door"], adj: ["revolving", "brass", "front"] },
-    examine: "Brass and glass, turning slowly with nobody in it. Each pane shows a slightly later afternoon than the one before." },
+  street_door: { at: "pavement", door: "n", material: "glass", name: "Revolving door", note: "Turning, with nobody in it.", actions: ["Push"],
+    words: { nouns: ["door", "bar"], adj: ["revolving", "brass", "front"] },
+    examine: "Brass and glass, turning slowly with nobody in it. Each pane shows a slightly later afternoon than the one before. The brass bar across it says PUSH, in letters worn thin by hands." },
 
   // Ground floor
   directory: { at: "front_hall", name: "Directory", note: "Every floor, in gold.", opens: ["fourth", "roof"],
@@ -265,10 +267,10 @@ const objects = {
   indicator: { at: "lift_lobby", name: "Indicator", note: "B to 4.", opens: ["fourth"],
     words: { nouns: ["indicator", "arrow", "letters", "dial"], adj: ["floor", "brass"] },
     examine: "A brass half-moon with an arrow: B, G, 1, 2, and then, after a gap, 4. The arrow rests on 4, and has for years. Under the 4, engraved: LOST AFTERNOONS. BY APPOINTMENT." },
-  revolving_door: { at: "front_hall", name: "Revolving door", note: "Turning on its own.",
+  revolving_door: { at: "front_hall", door: "s", material: "glass", name: "Revolving door", note: "Turning on its own.",
     words: { nouns: ["door", "doors"], adj: ["revolving", "front", "turning"] },
     examine: "Four leaves of mahogany and bevelled panes, turning slowly. Through it, the arcade is the colour of tea.",
-    push: "You push. The door turns you all the way round and sets you down inside again, a little more politely than before. Hartley's doesn't let its customers go without something." },
+    push: "You push. The door turns a little faster, and keeps a pane open for you on the arcade, as a good shop does for a customer who may only be stepping out." },
   gage: { portrait: sprites.gage_portrait, at: "front_hall", name: "Mr Gage", note: "The floorwalker.",
     words: { nouns: ["gage", "floorwalker", "man", "carnation"], adj: ["mr", "mister"], proper: true },
     examine: "A tall man in a morning coat with a carnation that has been fresh for thirty years. He looks at you the way he looks at stock.",
@@ -443,9 +445,19 @@ const changes = {
 
 // ---- Rules -----------------------------------------------------------------------------------------------------------
 const rules = [
-  // The revolving door: it won't let you out.
-  { id: "front_door", match: { verb: ["go", "enter"], obj: [null, "revolving_door"] }, if: [at("front_hall"), { "$exit": { in: [true, null] } }],
-    do: [{ say: "You step into the revolving door. It turns you all the way round and sets you down inside again. Hartley's doesn't let its customers go without something." }] },
+  // The start room's way out: push the arcade's revolving door, and it brings round a gap for you (a rule that `connect`s the
+  // exit); the store's voice comes through it (the change `arrival`). The gap stays.
+  { id: "push_street_door", match: { verb: "push", obj: "street_door" }, if: [at("pavement"), { "street_door.gap": false }],
+    do: [{ set: "street_door.gap", to: true },
+         { say: "You put your hand on the brass bar and push. The door slows, considers you, and brings round a pane with a gap in it, just your size." },
+         { connect: "pavement", dir: "n", to: "front_hall", in: true }, { change: "arrival" }] },
+  { id: "push_street_door_again", match: { verb: "push", obj: "street_door" }, if: [at("pavement")],
+    do: [{ say: "The door goes on turning, and keeps its gap for you." }] },
+  // The hall's revolving door: it turns you out into the arcade, the start room, and lets you back in by the arcade's (BRIEF.md §3).
+  { id: "front_door", match: { verb: "go", dir: "s" }, if: [at("front_hall")], then: "default",
+    do: [{ say: "You step into the revolving door. It turns you once round, slowly, and lets you off in the arcade, the way a shop lets a customer step out for air: it knows you will be back." }] },
+  { id: "hall_in", match: { verb: "go", dir: "in" }, if: [at("front_hall")],
+    do: [{ say: "You are in already. Hartley's has been expecting you for some time." }] },
 
   // The tester: a memory, bottled, once.
   { id: "smell_tester", match: { verb: ["smell", "push"], obj: "tester" }, once: true,
@@ -517,6 +529,9 @@ const rules = [
 
 // ---- Puzzles (for the checker; BRIEF.md §4) ---------------------------------------------------------------------------
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the wireless's first hints are about it.
+  way_out: { where: "pavement", needs: [], solve: ["push door", "north"], reaches: "front_hall", clues: ["street_door", "push_street_door"],
+    hints: ["The revolving door turns past people who only stand and look. Its brass bar says what it wants.", "Push the revolving door, then go north through the gap."] },
   get_memory: { where: "perfumery", needs: [], solve: ["smell tester"], gives: ["memory"], clues: ["tester", "corre", "gage"],
     hints: ["Madame Corre bottles what you remember, if you smell her tester.", "Smell the tester in perfumery."] },
   pay_by_tube: { where: "haberdashery", needs: ["memory"], solve: ["put memory in canister", "pull handle"], gives: ["lift_ticket"], clues: ["thimble", "mannequins", "ruth", "pell"],
@@ -538,28 +553,28 @@ const puzzles = {
 const opening = {
   room: "pavement", hints: "wireless", intro: "shopping_list", way: "street_door",
   lines: {
-    notYet: "The door turns past you without a gap in it. Customers are asked not to come in with nothing to listen to, and there is a wireless on the sill.",
-    through: "The next pane comes round with a gap in it, and you step into the gap, and ride it round, and step out into the store. Behind you the arcade goes on being a Saturday.",
     hintFrame: "The wireless goes quiet between two departments, and a voice, quite kindly, says:",
     farewell: "You fold the list once, and it keeps folding, smaller, until you are holding nothing, carefully."
   }
 };
 
 export default {
-  because: "After the opening: a department store at closing time.",
+  because: "An arcade behind a department store, and the store at closing time.",
   opening,
+  // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
+  properties: {
+    "street_door.gap": { type: "boolean", start: false }   // you have pushed the arcade's revolving door: it keeps a gap for you
+  },
   facts: [
     "The player arrives in Hartley's department store on a Saturday, a little before it closes at six.",
     "At Hartley's the price of everything is a memory, paid by tube to the cash office.",
     "The fourth floor sells missed afternoons, by appointment."
   ],
   effects: [
-    { time: "day 1 16:50", weekday: "sat" },                  // the opening is played at ten to five
-    // Where the opening's way on leads, and what arriving does: the store's time and its first line.
-    { set: "game.entrance", to: "front_hall" },
+    { time: "day 1 17:10", weekday: "sat" },                  // the game starts at ten past five
+    // What comes through the door's gap when you push it (the door's rule runs it): the store's first line.
     { add: "change", id: "arrival", effects: [
-      { time: "day 1 17:10", weekday: "sat" },
-      { say: "A voice from the ceiling, kind and very tired, says that Hartley's will be closing at six." }
+      { say: "Through the gap, a voice from the ceiling, kind and very tired, says that Hartley's will be closing at six." }
     ] },
     // Verbs this world needs
     { add: "word", verb: "shake", words: ["shake", "shake hands with", "hold hands with"] },

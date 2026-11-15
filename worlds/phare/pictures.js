@@ -47,6 +47,7 @@ dots crate_l_nails 2,66 44,66 2,98 44,98 6,34 40,34 c14
 ellipse rope 62,112,12,5 6 e0
 line rope_in 54,112 70,112 c0
 line rope_tail 72,114 82,118 c0
+line rope_run 82,118 120,124 170,121 208,115 c0
 rect crate_r1 272,60,48,40 6 e0
 line crate_r1_planks 272,72 320,72 c0
 line crate_r1_planks2 272,86 320,86 c0

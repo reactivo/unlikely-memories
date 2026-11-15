@@ -3,17 +3,19 @@
 // features go in here, and their checks run here (BUILDING.md §2); tests/coverage.test.js fails, naming what is missing, when this
 // world doesn't use something the engine accepts. One change set, all or nothing; plain data, no shortcuts.
 //
-// The map: the opening (an intake room), then a hub with a short way to each mechanism's room. Every room id starts with `tb-`.
+// The map: the start room (the intake, south of the hub, left through its turnstile), then a hub with a short way to each mechanism's
+// room. Every room id starts with `tb-`.
 //   hub: clinic (north: health, hurts and heals, death) > lab (east: USE, own verbs, travel, filters, the ending `lit`)
-//        bar (east, an `in` way: conditions, things that come from someone, doses) > office (east: people, topics, questions, the ending `named`)
-//        bedroom (south: sleep, dreams, visions, time) · yard (west: things that move) > lane (west: a follower's rooms, the clerk)
+//        bar (east, an `in` way: conditions, things that come from someone, doses) > office (east: people, topics, questions, the ending `named`),
+//          bedroom (south of the bar: sleep, dreams, visions, time)
+//        intake (south: the start room) · yard (west: things that move) > lane (west: a follower's rooms, the clerk)
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers) > vault (east), pantry (west)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -24,8 +26,8 @@ export const bible = {
     "hurts, drinks and conditions, sleep and dreams, a cat that follows and a watchman on his round, doors, locks and " +
     "containers, people and questions, a lever, a roof. Nothing here is a story. Everything here works.",
   tone: "Plain and short. Each room says what it is for and shows the one thing. No jokes that get in the way of the test.",
-  start: "Monday, noon, at the hub (the opening, in the intake room, at noon too).",
-  opening: "An intake room with a turnstile: a handset (hints), a test slip you carry, and the turnstile to the hub.",
+  start: "Monday, noon, in the intake room south of the hub.",
+  opening: "An intake room south of the hub, left through its turnstile with the token from the dish: a handset (hints) and a test slip you carry.",
   music: "slow dorian; a signal wire and a bench bell; a test tone that never settles",
   rules: [
     "Each room is for one mechanism, and shows it once.",
@@ -56,28 +58,30 @@ const visionPictures = {
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------------
 const rooms = {
+  // The start room (BRIEF.md §3): left only through the turnstile, which takes the token lying in plain sight. The hub is north.
   "tb-start": {
-    name: "INTAKE", area: "start", at: [0, 0, 0],
+    name: "INTAKE", area: "hub", at: [0, 1, 0],
     describe: [
       "A small white room with a light in the ceiling and nothing on the walls. This is where testers are let in.",
-      "The only way on is the {turnstile|gate} in the north wall."
+      "The only way out is the {turnstile|gate} in the north wall, to the hub. It has a slot for a token."
     ],
-    exits: { n: true },
+    exits: { n: { to: "tb-hub", if: false, closed: "The turnstile will not turn. Its slot wants a token." } },
     scenery: [
       { words: ["wall", "walls", "floor", "ceiling"], name: "the walls", says: "White, clean, and the same on every side." },
-      { words: ["light", "lamp"], name: "the light", says: "A flat white light with no source and no shadow." }
+      { words: ["light", "lamp"], name: "the light", says: "A flat white light with no source and no shadow." },
+      { words: ["dish", "slot"], name: "the dish", says: "A tin dish on the floor, for tokens." }
     ],
     ambience: { lines: ["The light hums at one note.", "Somewhere behind the wall a switch is thrown, and thrown back."], every: [25, 60] },
     alt: "A small white room seen from the doorway: a flat light in the ceiling, bare walls, and a turnstile of steel bars at the far end.",
-    overlayAlt: { handset: "A grey handset hangs on a hook by the turnstile." }
+    overlayAlt: { handset: "A grey handset hangs on a hook by the turnstile.", token: "A brass token lies in a tin dish on the floor." }
   },
   "tb-hub": {
     name: "THE HUB", area: "hub", at: [0, 0, 0],
     describe: [
-      "A round room with a door in every wall. A {board} lists what is behind each: the clinic north, the {bar|bar_front} east, the bedroom south, the yard west.",
+      "A round room with a door in every wall. A {board} lists what is behind each: the clinic north, the {bar|bar_front} east, the intake south, the yard west.",
       "Iron stairs go up to the ways, and stone steps go down to the cellar."
     ],
-    exits: { n: "tb-clinic", e: { to: "tb-bar", in: true }, s: "tb-bedroom", w: "tb-yard", u: "tb-ways", d: "tb-cellar" },
+    exits: { n: "tb-clinic", e: { to: "tb-bar", in: true }, s: "tb-start", w: "tb-yard", u: "tb-ways", d: "tb-cellar" },
     scenery: [
       { words: ["stairs", "staircase"], name: "the stairs", says: "Iron stairs, going up to a landing and a door.", leads: "u" },
       { words: ["steps", "step"], name: "the steps", says: "Stone steps, worn in the middle, going down into the cold.", leads: "d" },
@@ -129,9 +133,9 @@ const rooms = {
     name: "THE BAR", area: "hub", at: [1, 0, 0],
     describe: [
       "A long low bar with one stool. {Dot|dot} keeps it. A {stove} glows in the corner, and an {ice|ice} trough sits by the door.",
-      "The hub is west, and the office east."
+      "The hub is west, the office east, and the bedroom south."
     ],
-    exits: { w: "tb-hub", e: "tb-office" },
+    exits: { w: "tb-hub", e: "tb-office", s: "tb-bedroom" },
     scenery: [
       { words: ["bar", "counter", "stool"], name: "the bar", says: "A long plank on two barrels. One stool, which nobody uses." },
       { words: ["door"], name: "the door", says: "The door to the hub.", leads: "w" }
@@ -145,9 +149,9 @@ const rooms = {
     name: "OFFICE", area: "hub", at: [2, 0, 0],
     describe: [
       "A small office with a high desk. {Mrs Oduya|oduya} sits behind it with a {ledger}, and does not look up.",
-      "A day of the week sits in a frame on the wall. The bar is west."
+      "A day of the week sits in a frame on the wall. The bar is west, and a door north says Archive."
     ],
-    exits: { w: "tb-bar" },
+    exits: { w: "tb-bar", n: true },
     scenery: [
       { words: ["desk", "desks"], name: "the desk", says: "A high desk, far too tidy." },
       { words: ["frame", "wall"], name: "the frame", says: "A frame with one word in it, and a thin line of dust along the top." }
@@ -158,14 +162,14 @@ const rooms = {
     overlayAlt: {}
   },
 
-  // The bedroom: sleep, dreams, visions, time.
+  // The bedroom, south of the bar: sleep, dreams, visions, time.
   "tb-bedroom": {
-    name: "BEDROOM", area: "hub", at: [0, 1, 0],
+    name: "BEDROOM", area: "hub", at: [1, 1, 0],
     describe: [
       "A dim room with a {bunk} against one wall and a {hammock} slung across the other. A {lamp} burns on a table, and a {clock} ticks over it.",
-      "The hub is north."
+      "The bar is north."
     ],
-    exits: { n: "tb-hub" },
+    exits: { n: "tb-bar" },
     scenery: [{ words: ["table"], name: "the table", says: "A small table with room for a lamp and not much else." }],
     ambience: { lines: ["The clock ticks, and ticks, and has an idea.", "The hammock sways, as if someone had just got out."], every: [30, 70] },
     waitFor: { time: "next 07:00", says: "You lie on the bunk, awake, until it is morning.", if: [hours(22, 7)] },
@@ -361,7 +365,7 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
+  // The start room: the hints thing, the intro you carry, the way out, and the token that opens it (BRIEF.md §3).
   handset: { at: "tb-start", portable: true, material: "stone", name: "Handset", note: "A voice, waiting.",
     words: { nouns: ["handset", "phone"], adj: ["grey"] }, ...item("handset"),
     here: "A {handset} hangs on a hook by the turnstile, crackling to itself.",
@@ -369,9 +373,13 @@ const objects = {
   slip: { at: "player", portable: true, material: "paper", name: "Slip", note: "Your test slip.",
     words: { nouns: ["slip", "sheet"], adj: ["test", "white"] }, ...item("slip"),
     examine: "A white slip: \"Tester. Try everything. Report what breaks.\"" },
-  gate: { at: "tb-start", name: "Turnstile", note: "To the hub.",
+  gate: { at: "tb-start", door: "n", material: "metal", name: "Turnstile", note: "To the hub.",
     words: { nouns: ["turnstile", "gate"], adj: ["steel"] },
-    examine: "A turnstile of three steel bars. It turns one way." },
+    examine: "A turnstile of three steel bars, with a slot for a token. It turns one way." },
+  token: { at: "tb-start", portable: true, material: "metal", name: "Token", note: "For the turnstile.",
+    words: { nouns: ["token"], adj: ["brass"] }, sprite: sprites.coin, floorSprite: sprites.coin_floor,
+    here: "A brass {token} lies in a tin dish by the turnstile.",
+    examine: "A brass token, stamped: One Tester." },
 
   // The hub
   bar_front: { at: "tb-hub", leads: "e", material: "wood", name: "Bar", note: "East, the way in.",
@@ -379,7 +387,7 @@ const objects = {
     examine: "The bar's door, east, with a glass painted over it. Behind it, a long low room and a stove." },
   board: { at: "tb-hub", name: "Board", note: "What is where.",
     words: { nouns: ["board"], adj: ["notice"] },
-    examine: "A board with six lines: Clinic, Bar, Bedroom, Yard, Ways, Cellar. A seventh line has been rubbed out.",
+    examine: "A board with six lines: Clinic, Bar, Intake, Yard, Ways, Cellar. A seventh line has been rubbed out.",
     read: "$board.examine" },
   badge: { at: "tb-hub", portable: true, droppable: false, material: "metal", name: "Badge", note: "Tester, first class.",
     words: { nouns: ["badge"], adj: ["brass", "tester"] }, ...item("badge"),
@@ -698,7 +706,12 @@ const changes = {
 // ---- Rules -----------------------------------------------------------------------------------------------------------------
 // The dial turns through the settings, one rule each (a filter on, the last one off), counting up with `add`.
 const rules = [
-  // The opening's own rules come from the declaration. Hurts and heals.
+  // The start room's way out: the token in the turnstile's slot opens it (a rule that `connect`s the exit). The hints thing's and
+  // the intro's own rules come from the declaration.
+  { id: "turnstile_token", match: { verb: ["put", "use"], obj: "token", obj2: "gate" }, if: [{ "token.at": "player" }],
+    do: [{ say: "The turnstile swallows the token and clicks. Its bars are free to turn." }, { move: "token", to: null },
+         { connect: "tb-start", dir: "n", to: "tb-hub" }] },
+  // Hurts and heals.
   { id: "touch_spike", match: { verb: "touch", obj: "spike" }, do: [{ hurt: 1, says: "The spikes go in a little way, and come out again." }] },
   { id: "smell_vent", match: { verb: "smell", obj: "vent" }, once: true, again: "The air from the vent is cool, and nothing else.",
     do: [{ heal: 1, says: "You breathe in cool, clean air, and your head clears." }] },
@@ -805,6 +818,9 @@ const rules = [
     do: [{ say: "You say nothing. Mrs Oduya waits, and writes down the nothing." }] },
   { id: "verdict_other", match: { verb: "answer", question: "verdict" },
     do: [{ say: "\"[player.answers.verdict],\" says Mrs Oduya, and tries it in the margin. \"No. That is not who owes.\"" }] },
+  // A way a rule answers (an exit `true`): the archive, north of the office, is never gone into.
+  { id: "office_archive", match: { verb: "go", dir: "n" }, if: [{ "player.at": "tb-office" }],
+    do: [{ say: "Mrs Oduya looks up for the first time. \"Not the archive,\" she says, and you stay where you are." }] },
   { id: "think_ledger", match: { verb: "think", obj: "ledger" }, do: [{ say: "You think about the ledger, and a debt comes to mind.", style: "sys" }, { know: "debt" }] },
   { id: "think_absent", match: { verb: "think", absent: "wire" }, do: [{ say: "You think about the wire, but it is not here to be thought about." }] },
   { id: "ask_default", match: { verb: "ask", obj: "dot" }, if: [{ "$topic": null }], do: [{ say: "Dot waits to be asked about something." }] },
@@ -812,7 +828,7 @@ const rules = [
   { id: "tear_scrap", match: { verb: "attack", obj: "scrap" }, do: [{ say: "You tear the scrap, and the half word is gone." }, { remove: "object", id: "scrap" }] },
   // The hub: the board reads the state back to you, and a scheduled rule or two.
   { id: "board_status", match: { verb: "read", obj: "board" },
-    if: [{ "game.turn": { ">=": 0 } }, { "game.clock": { ">=": 0 } }, { "game.entrance": "tb-hub" }, { "game.ended": false }, { "time.day": { ">=": 1 } },
+    if: [{ "game.turn": { ">=": 0 } }, { "game.clock": { ">=": 0 } }, { "game.ended": false }, { "time.day": { ">=": 1 } },
          { "time.minute": { ">=": 0 } }, { "time.second": { ">=": 0 } }, { "time.weekday": { "!=": "sun" } }, { "player.health": { ">": 0 } },
          { "player.carrying": { has: "slip" } }, { "player.at": "tb-hub" }, { "$in": null }, { "$obj.at": "tb-hub" }, { "badge.place": "tb-hub" }, { "oduya.person": true },
          { "badge.holder": null }, { "$exits": { "!=": null } }, { "game.ending": null }, { "fuse.chain": { has: "fuse" } }, { "time.part": { in: ["dawn", "daytime", "dusk", "night"] } }],
@@ -826,6 +842,9 @@ const rules = [
 ];
 // ---- Puzzles ---------------------------------------------------------------------------------------------------------------
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the handset's first hints are about it.
+  way_out: { where: "tb-start", needs: [], solve: ["{take} token", "put token in turnstile", "north"], reaches: "tb-hub", clues: ["gate", "token"],
+    hints: ["The turnstile has a slot, and there is a token in the dish.", "Take the token, put it in the turnstile, and go north."] },
   take_coin: { where: "tb-bar", needs: [], solve: ["{take} coin"], gives: ["coin"], clues: ["dot", "coin"],
     hints: ["A coin lies by the glass on the counter.", "Take the coin from the bar."] },
   buy_key: { where: "tb-bar", needs: ["take_coin"], solve: ["buy chest key"], gives: ["chest_key"], clues: ["dot", "chest_key"],
@@ -849,12 +868,10 @@ const puzzles = {
     hints: ["The roof has an edge, and the edge has a drop.", "Climb up to the roof, and jump."] }
 };
 
-// ---- The opening, declared (BRIEF.md §3) -----------------------------------------------------------------------------------
+// ---- The opening, declared: the start room (BRIEF.md §3) ---------------------------------------------------------------------
 const opening = {
   room: "tb-start", hints: "handset", intro: "slip", way: "gate",
   lines: {
-    notYet: "The turnstile will not turn. The handset is still on its hook, and it wants to be carried first.",
-    through: "You push the turnstile. It turns once, and is a wall again by the time you look back.",
     hintFrame: "The handset crackles. A flat voice says:",
     farewell: "The slip is read, and goes grey, and is gone."
   }
@@ -862,10 +879,10 @@ const opening = {
 
 // ---- The change set --------------------------------------------------------------------------------------------------------
 export default {
-  because: "After the opening: the test floor, a hub with a way to each mechanism of the engine.",
+  because: "The test floor: an intake room, and a hub with a way to each mechanism of the engine.",
   opening,
   facts: [
-    "The player arrives at the hub of the test floor, on a Monday, at noon.",
+    "The player starts in the intake, south of the hub of the test floor, on a Monday, at noon.",
     "Each room is for one mechanism; a cat, a watchman, a bird and a night clerk move on their own.",
     "Three endings: lit (the lab), named (the office), fell (the roof), and died when health runs out."
   ],
@@ -880,12 +897,7 @@ export default {
     "player.rank": { type: "string", start: "tester" }
   },
   effects: [
-    { time: "day 1 12:00", weekday: "mon" },                  // the opening is played at noon
-    { set: "game.entrance", to: "tb-hub" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 12:00", weekday: "mon" },
-      { say: "The hub is lit, and every door is shut but one." }
-    ] },
+    { time: "day 1 12:00", weekday: "mon" },                  // the game starts at noon
     // Verbs this world adds
     { add: "word", verb: "tune", words: ["tune", "tune in", "adjust"], object: "required", reply: "That does not tune." },
     { add: "word", verb: "whistle", words: ["whistle", "pipe"], object: "none", reply: "You whistle. Nothing answers." },

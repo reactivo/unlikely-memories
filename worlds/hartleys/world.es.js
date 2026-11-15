@@ -1,12 +1,12 @@
-// «Hartley's, después del cierre»: el mundo después de la apertura, en español. Escrito, no traducido: la misma trama, las mismas
+// «Hartley's, después del cierre»: el mundo y su sala del comienzo, en español. Escrito, no traducido: la misma trama, las mismas
 // salas, cosas, personajes, reglas y finales que world.en.js, con la voz de un autor español (WRITING-DIRECTION.md §8).
-// Un solo conjunto de cambios, aplicado tras la apertura, todo o nada. Los ids, las coordenadas, las cifras, los dibujos y los
+// Un solo conjunto de cambios, todo o nada. Los ids, las coordenadas, las cifras, los dibujos y los
 // sprites son los de la versión inglesa; solo cambia lo que lleva lenguaje.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
 export const bible = {
@@ -18,9 +18,9 @@ export const bible = {
     "solo con cita previa, vende tardes: las que la gente dejó pasar.",
   tone: "WRITING-DIRECTION.md. Modales de grandes almacenes: caoba, latón, jefes de planta, el correo neumático de la caja, " +
     "un comercio que nunca ha logrado cerrar del todo.",
-  start: "Sábado, 17:10, en la planta baja.",
-  opening: "El pasaje de atrás de los almacenes, a las cinco menos diez: una " +
-    "radio (pistas), una lista de la compra que ya llevas (por qué viniste). La puerta giratoria es la entrada.",
+  start: "Sábado, 17:10, en el pasaje de atrás de los almacenes, al sur de la planta baja.",
+  opening: "El pasaje de atrás de los almacenes, a las cinco y diez: una " +
+    "radio (pistas), una lista de la compra que ya llevas (por qué viniste). La puerta giratoria es la entrada: la empujas, y te trae un hueco.",
   music: "un vals de salón de té sin prisas; frascos de perfume que cantan, el latón y los cartuchos del correo " +
     "neumático, el timbre del ascensor en una planta que nadie ha pedido; unos almacenes que siguen sonando después del " +
     "cierre",
@@ -52,16 +52,17 @@ const endingPictures = {
 
 // ---- Salas -----------------------------------------------------------------------------------------------------------------
 // Área "store" (x crece al este, y al sur, z es la planta: -1 el sótano, 0 la planta baja, hasta 3, la azotea).
-// Área "fourth": la cuarta planta, a la que solo se llega en ascensor.
+// Área "fourth": la cuarta planta, a la que solo se llega en ascensor. La sala del comienzo, el pasaje, queda al sur del vestíbulo
+// de la planta baja: su puerta giratoria te deja entrar cuando la empujas, y la del vestíbulo te devuelve a él (al sur).
 const rooms = {
-  // La apertura (BRIEF.md §3): el pasaje de atrás de los almacenes, cerrado por los dos extremos, adonde no se vuelve. El área "arcade" es solo suya.
+  // La sala del comienzo (BRIEF.md §3): el pasaje de atrás de los almacenes, cerrado por los dos extremos; se sale por la puerta giratoria cuando la empujas.
   pavement: {
-    name: "EL PASAJE", area: "arcade", at: [0, 0, 0],
+    name: "EL PASAJE", area: "store", at: [1, 2, 0],
     describe: [
-      "El pasaje de atrás de Hartley's, a las cinco menos diez de un sábado: un corredor de baldosas bajo un techo de cristal, con la persiana echada a tu espalda. Todos los escaparates están encendidos, y los vestidos se han vuelto un poco hacia ti. Huele a paraguas mojados.",
+      "El pasaje de atrás de Hartley's, a las cinco y diez de un sábado: un corredor de baldosas bajo un techo de cristal, con la persiana echada a tu espalda. Todos los escaparates están encendidos, y los vestidos se han vuelto un poco hacia ti. Huele a paraguas mojados.",
       "La única entrada es la {puerta giratoria|street_door}, al norte."
     ],
-    exits: { n: true },
+    exits: { n: { to: "front_hall", in: true, if: false, closed: "La puerta pasa de largo sin dejarte ningún hueco, como pasan las puertas ante quien solo se queda mirando. Su barra de latón dice EMPUJE." } },
     scenery: [
       { words: ["escaparate", "escaparates", "cristal", "cristales", "vitrina", "vitrinas", "vestidos", "vestido"], name: "los escaparates", says: "Vestidos sobre sus bustos, de colores de antes de que nacieras, cada uno vuelto unos grados hacia ti. Los del fondo, unos grados más." },
       { words: ["repisa", "repisas", "borde", "saliente", "alféizar", "alfeizar"], name: "la repisa", says: "Una repisa de piedra, lo bastante ancha para dejar un paquete, pulida por gente que se paró a mirar vestidos y ya no se marchó." },
@@ -79,7 +80,8 @@ const rooms = {
       "La planta baja de Hartley's, toda caoba y latón, como lo es desde que a tu abuela le tomaron medidas para su primer abrigo. Estás de pie sobre el mosaico, junto al {directorio|directory}, como si siempre hubieras estado a punto de entrar.",
       "La {puerta giratoria|revolving_door} gira despacio, sola. El {señor Gage|gage}, jefe de planta, lleva un clavel y lo vigila todo. Perfumería queda al oeste, guantería al este, los ascensores al norte."
     ],
-    exits: { w: "perfumery", e: "gloves", n: "lift_lobby", s: true },
+    exits: { w: "perfumery", e: "gloves", n: "lift_lobby",
+      s: "pavement" },
     scenery: [{ words: ["mosaico", "caoba", "latón", "laton", "mostradores", "mostrador", "techo", "araña", "arana", "vestíbulo", "vestibulo"], name: "el vestíbulo", says: "Un mosaico de un barco a toda vela, gastado en la proa por cien años de gente que se ha puesto donde tú te pones." }],
     mentions: ["clavel"],
     ambience: { lines: ["En algún lugar suena una caja registradora, aunque nadie ha comprado nada.", "Una cápsula pasa por encima de ti, por su tubo, con prisa, como un pensamiento camino de alguien.", "La puerta giratoria da una vuelta vacía y se detiene."], every: [45, 90] },
@@ -254,9 +256,9 @@ const objects = {
   shopping_list: { at: "player", portable: true, material: "paper", name: "Lista de la compra", note: "Casi borrada.",
     words: { nouns: ["lista", "papelito", "apunte"], adj: ["compra", "lapiz", "doblada"], g: "f" }, ...item("shopping_list"),
     examine: "Con tu propio lápiz: «Algo que debería recordar». Debajo, borrada tantas veces que el papel se ha gastado hasta romperse, una segunda línea." },
-  street_door: { at: "pavement", name: "Puerta giratoria", note: "Girando, sin nadie dentro.",
-    words: { nouns: ["puerta"], adj: ["giratoria", "latón", "laton", "principal", "delantera"], g: "f" },
-    examine: "Latón y cristal, girando despacio sin nadie dentro. Cada vidrio muestra una tarde un poco posterior a la del anterior." },
+  street_door: { at: "pavement", door: "n", material: "glass", name: "Puerta giratoria", note: "Girando, sin nadie dentro.", actions: ["Empujar"],
+    words: { nouns: ["puerta", "barra"], adj: ["giratoria", "latón", "laton", "principal", "delantera"], g: "f" },
+    examine: "Latón y cristal, girando despacio sin nadie dentro. Cada vidrio muestra una tarde un poco posterior a la del anterior. La barra de latón que la cruza dice EMPUJE, con las letras gastadas de tantas manos." },
 
   // Planta baja
   directory: { at: "front_hall", name: "Directorio", note: "Todas las plantas, en oro.", opens: ["fourth", "roof"],
@@ -265,10 +267,10 @@ const objects = {
   indicator: { at: "lift_lobby", name: "Indicador", note: "De la S al 4.", opens: ["fourth"],
     words: { nouns: ["indicador", "flecha", "letras", "esfera", "números", "numeros"], adj: ["planta", "latón", "laton"], g: "m" },
     examine: "Una media luna de latón con una flecha: S, PB, 1, 2 y luego, tras un hueco, 4. La flecha descansa en el 4 y lleva años así. Bajo el 4, grabado: TARDES PERDIDAS. CON CITA PREVIA." },
-  revolving_door: { at: "front_hall", name: "Puerta giratoria", note: "Girando sola.",
+  revolving_door: { at: "front_hall", door: "s", material: "glass", name: "Puerta giratoria", note: "Girando sola.",
     words: { nouns: ["puerta", "puertas"], adj: ["giratoria", "principal", "delantera", "entrada"], g: "f" },
     examine: "Cuatro hojas de caoba y cristales biselados, girando despacio. A través de ellas, el pasaje tiene el color del té.",
-    push: "Empujas. La puerta te da la vuelta entera y te deja otra vez dentro, algo más cortésmente que antes. Hartley's no deja marchar a nadie sin quedarse con algo." },
+    push: "Empujas. La puerta gira un poco más deprisa y te guarda un hueco abierto hacia el pasaje, como hace una buena tienda con el cliente que quizá solo sale un momento." },
   gage: { portrait: sprites.gage_portrait, at: "front_hall", name: "Señor Gage", note: "El jefe de planta.",
     words: { nouns: ["gage", "encargado", "jefe", "hombre", "clavel"], adj: ["señor", "senor", "planta"], g: "m" },
     examine: "Un hombre alto, de chaqué, con un clavel que lleva treinta años fresco. Te mira como mira la mercancía.",
@@ -443,9 +445,19 @@ const changes = {
 
 // ---- Reglas ------------------------------------------------------------------------------------------------------------------
 const rules = [
-  // La puerta giratoria: no te deja salir.
-  { id: "front_door", match: { verb: ["go", "enter"], obj: [null, "revolving_door"] }, if: [at("front_hall"), { "$exit": { in: [true, null] } }],
-    do: [{ say: "Entras en la puerta giratoria. Te da la vuelta entera y te deja otra vez dentro. Hartley's no deja marchar a nadie sin quedarse con algo." }] },
+  // La salida de la sala del comienzo: empujas la puerta giratoria del pasaje, y te trae un hueco (una regla que `connect`a la
+  // salida); por él llega la voz de la tienda (el cambio `arrival`). El hueco se queda.
+  { id: "push_street_door", match: { verb: "push", obj: "street_door" }, if: [at("pavement"), { "street_door.gap": false }],
+    do: [{ set: "street_door.gap", to: true },
+         { say: "Apoyas la mano en la barra de latón y empujas. La puerta afloja, se lo piensa, y te trae una hoja con un hueco, justo de tu tamaño." },
+         { connect: "pavement", dir: "n", to: "front_hall", in: true }, { change: "arrival" }] },
+  { id: "push_street_door_again", match: { verb: "push", obj: "street_door" }, if: [at("pavement")],
+    do: [{ say: "La puerta sigue girando, y te guarda el hueco." }] },
+  // La puerta giratoria del vestíbulo: te saca al pasaje, la sala del comienzo, y vuelves a entrar por la del pasaje (BRIEF.md §3).
+  { id: "front_door", match: { verb: "go", dir: "s" }, if: [at("front_hall")], then: "default",
+    do: [{ say: "Entras en la puerta giratoria. Te da una vuelta, despacio, y te deja en el pasaje, como deja una tienda salir a tomar el aire a un cliente: sabe que volverá." }] },
+  { id: "hall_in", match: { verb: "go", dir: "in" }, if: [at("front_hall")],
+    do: [{ say: "Ya estás dentro. Hartley's te esperaba desde hace tiempo." }] },
 
   // La muestra: un recuerdo, embotellado, una sola vez.
   { id: "smell_tester", match: { verb: ["smell", "push"], obj: "tester" }, once: true,
@@ -517,6 +529,9 @@ const rules = [
 
 // ---- Puzles (para el verificador; BRIEF.md §4) -------------------------------------------------------------------------------------
 const puzzles = {
+  // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la radio son para ella.
+  way_out: { where: "pavement", needs: [], solve: ["empuja la puerta", "norte"], reaches: "front_hall", clues: ["street_door", "push_street_door"],
+    hints: ["La puerta giratoria pasa de largo ante quien solo se queda mirando. Su barra de latón dice lo que quiere.", "Empuja la puerta giratoria y entra por el hueco, al norte."] },
   get_memory: { where: "perfumery", needs: [], solve: ["oler la muestra"], gives: ["memory"], clues: ["tester", "corre", "gage"],
     hints: ["Madame Corre embotella lo que recuerdas, si hueles su muestra.", "Huele la muestra en perfumería."] },
   pay_by_tube: { where: "haberdashery", needs: ["memory"], solve: ["meter el recuerdo en la cápsula", "tirar del tirador"], gives: ["lift_ticket"], clues: ["thimble", "mannequins", "ruth", "pell"],
@@ -538,28 +553,28 @@ const puzzles = {
 const opening = {
   room: "pavement", hints: "wireless", intro: "shopping_list", way: "street_door",
   lines: {
-    notYet: "La puerta pasa de largo sin dejar ningún hueco. Se ruega a los clientes que no entren sin nada que escuchar, y en la repisa hay una radio.",
-    through: "La hoja siguiente llega con un hueco, y te metes en el hueco, y das la vuelta con ella, y sales a la tienda. A tu espalda el pasaje sigue siendo un sábado.",
     hintFrame: "La radio se queda callada entre dos secciones, y una voz, con bastante amabilidad, dice:",
     farewell: "Doblas la lista una vez, y sigue doblándose, cada vez más pequeña, hasta que no sostienes nada, con mucho cuidado."
   }
 };
 
 export default {
-  because: "Después de la apertura: unos grandes almacenes a la hora de cierre.",
+  because: "Un pasaje detrás de unos grandes almacenes, y los almacenes a la hora de cierre.",
   opening,
+  // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, «Fields and properties»); las del motor no se declaran.
+  properties: {
+    "street_door.gap": { type: "boolean", start: false }   // has empujado la puerta giratoria del pasaje: te guarda un hueco
+  },
   facts: [
     "El jugador llega a los grandes almacenes Hartley's un sábado, poco antes de la hora de cierre, a las seis.",
     "En Hartley's el precio de todo es un recuerdo, que se paga por tubo en la caja.",
     "La cuarta planta vende tardes perdidas, con cita previa."
   ],
   effects: [
-    { time: "day 1 16:50", weekday: "sat" },                  // la apertura se juega a las cinco menos diez
-    // Adonde lleva el camino de la apertura, y lo que hace llegar: la hora de la tienda y su primera línea.
-    { set: "game.entrance", to: "front_hall" },
+    { time: "day 1 17:10", weekday: "sat" },                  // el juego empieza a las cinco y diez
+    // Lo que llega por el hueco de la puerta cuando la empujas (lo ejecuta la regla de la puerta): la primera línea de la tienda.
     { add: "change", id: "arrival", effects: [
-      { time: "day 1 17:10", weekday: "sat" },
-      { say: "Una voz desde el techo, amable y muy cansada, dice que Hartley's cerrará a las seis." }
+      { say: "Por el hueco, una voz desde el techo, amable y muy cansada, dice que Hartley's cerrará a las seis." }
     ] },
     // Verbos que necesita este mundo
     { add: "word", verb: "shake", words: ["estrechar la mano a", "estrecha la mano a", "estrechar la mano de", "estrecha la mano de", "estrechar la mano", "estrecha la mano", "dar la mano a", "da la mano a", "dale la mano a", "darle la mano a", "dar la mano", "da la mano", "darse la mano con", "estrechale la mano a", "estrechale la mano", "estrechar", "estrecha"] },

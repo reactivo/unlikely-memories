@@ -1,10 +1,10 @@
 // "The Lake Lights It Again": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -17,9 +17,9 @@ export const bible = {
     "a little late, and tonight it has one lamp more than the village does.",
   tone: "The everyday, slightly wrong (BRIEF §6): a small lake village that keeps a missing man's habits as if he were late, not gone. " +
     "Plain, tender and dry. Water, wood, lamp oil and slate. Nobody is amazed that the lake keeps lights.",
-  start: "Sunday, 17:10, on the quay (the opening, in the funicular car, at 16:40).",
+  start: "Sunday, 17:10, in the funicular car, at the foot of its tunnel, west of the quay.",
   opening: "A funicular car stopped in its tunnel: a green bottle with a voice in it (hints), a ferry ticket you already carry (why you came). " +
-    "The iron grille at the lower end, on a bright arch, is the way on.",
+    "The iron grille at the lower end, on a bright arch, is the way out, onto the quay; the red lever by the door rolls it aside.",
   music: "wistful dorian; a bottle played like a flute, a chapel bell, oarlocks knocking in the dark; the village heard across water",
   rules: [
     "Whatever the village lights, the lake lights again, a little late.",
@@ -49,17 +49,18 @@ const endingPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "car": the opening, never returned to; it faces north, down the tunnel. Area "shore": the quay (the lake lies north of it),
-// the boathouse (and its loft above) east of it, the jetty running north into the lake. Area "village" (the hill rises south of
-// the quay): the lane, the Heron east of it, the churchyard south, up the hill. Every picture faces north.
+// Area "shore": the funicular car, the start room (BRIEF.md §3), west of the quay at the foot of its tunnel, facing east down it and
+// left through its grille once the red lever has rolled it aside; the quay (the lake lies north of it), the boathouse (and its loft
+// above) east of it, the jetty running north into the lake. Area "village" (the hill rises south of the quay): the lane, the Heron
+// east of it, the churchyard south, up the hill. Every picture faces north but the car's, which faces east, down its tunnel.
 const rooms = {
   car: {
-    name: "THE FUNICULAR", area: "car", at: [0, 0, 0],
+    name: "THE FUNICULAR", area: "shore", at: [-1, 0, 0],
     describe: [
       "A funicular car, stopped halfway down the hill in the dark of its tunnel. A lamp burns in the roof, and the brickwork drips onto the cable as it has since before there was a cable.",
-      "Slatted benches line the walls, and a wet window looks onto brick. Ahead, the tunnel opens on a bright arch, closed by an iron {grille}, and nothing else is open."
+      "Slatted benches line the walls, and a wet window looks onto brick. Ahead, the tunnel opens on a bright arch, half closed by an iron {grille}, and nothing else is open. A red {lever} stands by the door."
     ],
-    exits: { n: true },
+    exits: { e: { to: "quay", if: false, closed: "The grille stands half across the arch, and the gap is the width of a bottle and no wider. By the door, the red lever waits to be asked." } },
     scenery: [
       { words: ["bench", "benches", "slats", "seat", "seats"], name: "the benches", says: "Slatted wood, worn pale by people who sat very still. The last place on the bench is warm." },
       { words: ["window", "pane", "sash"], name: "the window", says: "Wet on the outside only. Beyond it, the brick goes by, though the car does not move." },
@@ -74,22 +75,22 @@ const rooms = {
       "The bulb gutters and recovers, and the benches seem to have moved up one place.",
       "Far below, a bell tolls three times and then, correcting itself, once."
     ], every: [25, 60] },
-    alt: "Looking north down a brick funicular tunnel from inside the car: benches on either side, a lit lamp in the roof, a wet window, an iron grille half across a bright arch at the far end.",
+    alt: "Looking down a brick funicular tunnel from inside the car: benches on either side, a lit lamp in the roof, a wet window, a red lever by the door, an iron grille half across a bright arch at the far end.",
     overlayAlt: { bottle: "A green bottle stands on the bench, a small light moving in it." }
   },
   quay: {
     name: "THE QUAY", area: "shore", at: [0, 0, 0],
     describe: [
       "The quay at the foot of the village, where the hill runs out of rope and into water. The lake lies flat to the north, against the stones, and takes its colour from whatever is above it.",
-      "East stands the tarred {boathouse door|boathouse_door}, chained and padlocked. Nets hang on a rack to the west, and floats are stacked under the wall. A jetty runs north into the lake. Steps climb south to the village."
+      "East stands the tarred {boathouse door|boathouse_door}, chained and padlocked. Nets hang on a rack to the west, by the funicular, and floats are stacked under the wall. A jetty runs north into the lake. Steps climb south to the village."
     ],
-    exits: { e: { to: "boathouse", in: true }, n: "jetty", s: "lane" },
+    exits: { e: { to: "boathouse", in: true }, n: "jetty", s: "lane", w: "car" },
     scenery: [
       { words: ["lake", "water", "waves", "stones"], name: "the lake", says: "Flat, wide and in no hurry. It keeps a little of everything it has been shown." },
       { words: ["nets", "net", "rack"], name: "the nets", says: "Brown nets hung to dry on a rack of poles. They have been dry for a long time and nobody has taken them in." },
       { words: ["floats", "float", "buoys"], name: "the floats", says: "Cork floats, stacked like loaves, each with a name painted on it that has been painted over." },
       { words: ["steps", "stair", "stairs", "village"], name: "the steps", says: "Stone steps, worn into shallow bowls, going up beside the rails. Every bowl holds a little water, whatever the weather.", leads: "s" },
-      { words: ["rails", "rail", "funicular", "station"], name: "the funicular", says: "Two rails go up the hill into a tunnel mouth. The lower station is a bench and a bell, and the bell has no rope." },
+      { words: ["rails", "rail", "funicular", "station"], name: "the funicular", says: "Two rails go up the hill into a tunnel mouth. The lower station is a bench and a bell, and the bell has no rope.", leads: "w" },
       { words: ["jetty", "planks"], name: "the jetty", says: "Grey planks on grey piles, going out to a post.", leads: "n" }
     ],
     ambience: { lines: [
@@ -248,7 +249,7 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening's three things: the bottle (hints), the ticket (intro) and the grille (the way on).
+  // The start room's things: the bottle (hints), the ticket (intro), the grille (the way out) and the lever that rolls it aside.
   bottle: { at: "car", portable: true, material: "glass", name: "Green bottle", note: "A voice, corked.",
     here: "A {green bottle|bottle} stands on the bench by the window, corked, with a small light moving in it.",
     words: { nouns: ["bottle"], adj: ["green"] },
@@ -256,9 +257,12 @@ const objects = {
   ticket: { at: "player", portable: true, material: "paper", name: "Ferry ticket", note: "One crossing, not yet used.",
     words: { nouns: ["ticket"], adj: ["ferry"] },
     examine: "A ferry ticket, one crossing, stamped with a sunset and no date. On the back, in your handwriting: \"Row home before the lamps go out.\"", ...item("ticket") },
-  grille: { at: "car", name: "Grille", note: "Slid half open.",
-    words: { nouns: ["grille", "bars"], adj: ["iron"] }, leads: "n",
+  grille: { at: "car", name: "Grille", note: "Slid half open.", material: "metal",
+    words: { nouns: ["grille", "bars"], adj: ["iron"] }, leads: "e",
     examine: "An iron grille on a runner, slid half across the bright arch below. The gap is the width of a bottle." },
+  lever: { at: "car", name: "Lever", note: "Red, by the door.", material: "metal", use: "pull",
+    words: { nouns: ["lever", "handle"], adj: ["red"] },
+    examine: "A red lever on an iron quadrant, the paint worn to the metal where hands go. A rod runs from its foot under the floor, down towards the arch." },
 
   // The chain: the key, the door, the oars, the lantern, the oil, the matches, the boat.
   boat_key: { at: "churchyard", portable: true, material: "metal", name: "Boat key", note: "Hung where the lake can't reach.",
@@ -347,6 +351,9 @@ const objects = {
 
 // ---- Puzzles ---------------------------------------------------------------------------------------------------------------
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the bottle's first hints are about it.
+  way_out: { where: "car", needs: [], solve: ["pull lever", "go east"], reaches: "quay", clues: ["grille", "lever"],
+    hints: ["The grille is worked from inside the car, and something red by the door works it.", "Pull the red lever, and go out through the grille."] },
   get_key: { where: "churchyard", needs: [], solve: ["take key"], gives: ["boat_key"], clues: ["pell", "boathouse_door", "boat_key"],
     hints: ["Mrs Pell says what the village keeps dry: up the hill, under a little roof.", "Take the key from its nail at the lychgate, in the churchyard."] },
   open_boathouse: { where: "quay", needs: ["boat_key"], solve: ["unlock door with key", "go east"], reaches: "boathouse", clues: ["boathouse_door", "pell", "boat_key"],
@@ -388,6 +395,19 @@ const changes = {
 const NIGHT = { "time.hour": { between: [19, 6] } };
 const DAY = { "time.hour": { between: [6, 19] } };
 const rules = [
+  // The start room's way out: the red lever rolls the grille aside (a rule that `connect`s the exit), and the picture follows.
+  { id: "pull_lever", match: { verb: ["pull", "push", "use"], obj: "lever" }, if: [{ "lever.pulled": false }],
+    do: [{ say: "You pull the lever. It comes over stiffly, the way a thing does that has been waiting to be asked, and somewhere under the floor a rod turns. Down at the arch the grille rolls aside on its runner, all the way, and the evening comes up the tunnel smelling of the lake." },
+      { set: "lever.pulled", to: true }, { connect: "car", dir: "e", to: "quay" },
+      { set: "grille.note", to: "Rolled aside." },
+      { set: "car.describe", to: [
+        "A funicular car, stopped halfway down the hill in the dark of its tunnel. A lamp burns in the roof, and the brickwork drips onto the cable as it has since before there was a cable.",
+        "Slatted benches line the walls, and a wet window looks onto brick. Ahead, the tunnel opens on a bright arch, its iron {grille} rolled aside, and the quay beyond. The red {lever} by the door is pulled over."] },
+      { set: "grille.examine", to: "An iron grille on a runner, rolled aside off the bright arch below. The way down to the quay is open." },
+      { draw: "car", remove: ["grille_4", "grille_5", "grille_6", "grille_7", "grille_h1", "grille_h2"] },
+      { set: "car.alt", to: "Looking down a brick funicular tunnel from inside the car: benches on either side, a lit lamp in the roof, a wet window, a red lever by the door, a bright arch at the far end with its iron grille rolled aside." }] },
+  { id: "pull_lever_again", match: { verb: ["pull", "push", "use"], obj: "lever" },
+    do: [{ say: "The lever is over as far as it goes. The grille stays rolled aside, out of everybody's way." }] },
   // Filling and lighting the lantern.
   { id: "fill_a", match: { verb: "fill", obj: "lantern", obj2: "oil" }, if: [{ "lantern.fueled": false }], do: [{ change: "fuel" }] },
   { id: "fill_b", match: { verb: ["put", "use"], obj: "oil", obj2: "lantern" }, if: [{ "lantern.fueled": false }], do: [{ change: "fuel" }] },
@@ -515,28 +535,21 @@ const rules = [
 export default {
   because: "A lake village at the end of the day: a funicular car, a quay, a boathouse and its loft, a jetty, a lane, an inn and a churchyard; a boatman who is late.",
   facts: [
-    "The opening is the stopped funicular car (area car); the first room of the world is the quay.",
+    "The start room is the stopped funicular car, west of the quay; its red lever rolls the grille aside, onto the quay.",
     "Teodor the boatman rowed out at dusk to light the island's lamp and has not come back; the village keeps his hours.",
     "The chain: key (churchyard) -> boathouse -> oars (loft), lantern (boathouse), oil and matches (inn) -> lit lantern; endings at the jetty and by rowing out at night.",
     "Night means 19:00 to 06:00; the island's lamp can be rowed to from 21:00."
   ],
-  properties: { "lantern.fueled": { type: "boolean", start: false } },
+  properties: { "lantern.fueled": { type: "boolean", start: false }, "lever.pulled": { type: "boolean", start: false } },
   opening: {
     room: "car", hints: "bottle", intro: "ticket", way: "grille",
     lines: {
-      notYet: "The grille will not slide. On the bench, the bottle is still talking, in a small green voice, to nobody.",
-      through: "You hold up the bottle, and the grille slides aside the width of a bottle and no more, and closes behind you as if it had only ever meant to.",
       hintFrame: "The cork twitches, and from the bottle someone says:",
       farewell: "The ticket goes soft in your fingers and is a small piece of lake, which runs off your sleeve."
     }
   },
   effects: [
-    { time: "day 1 16:40", weekday: "sun" },                 // the opening is played at twenty to five
-    { set: "game.entrance", to: "quay" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 17:10", weekday: "sun" },
-      { say: "Up the hill, a bell counts to five, and loses its place at the third." }
-    ] },
+    { time: "day 1 17:10", weekday: "sun" },                 // the game starts at ten past five
     // Verbs this world needs
     { add: "word", verb: "fill", words: ["fill", "pour"], reply: "There is nothing here that wants filling." },
     { add: "word", verb: "hang", words: ["hang", "hook"], reply: "There is nothing here that wants hanging." },

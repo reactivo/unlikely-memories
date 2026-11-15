@@ -1,7 +1,7 @@
-// A popover that hangs from a tool button (≡ options: ui/options.js). The HTML popover API does the
+// A popover that hangs from a tool button (the settings: ui/options.js). The HTML popover API does the
 // rest (non-modal: Esc, a click outside or the button again close it). This only places it, right edges lined up with the button:
-// on the side the button names: data-hang="above" opens it above the button (both ≡ do: the phones' in the bottom row, the strip's
-// under the inventory); otherwise under it. While it is open it is placed again every frame (follow, below), so it stays at its
+// on the side the button names: data-hang="above" opens it above the button (both settings buttons do: the phones' ≡ in the bottom row,
+// the strip's SETTINGS under the inventory); otherwise under it. While it is open it is placed again every frame (follow, below), so it stays at its
 // button whatever moves it (the page gliding to a new room, Safari's toolbar): until 15 November 2026 it was placed once, as it
 // opened, and on iPhone Safari it stayed behind when the bottom row moved.
 

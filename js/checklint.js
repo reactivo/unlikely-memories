@@ -2,26 +2,27 @@
 // the checker lists, each function one lint or one family of them, run by `lintWorld` in the order the list has always had: the ids,
 // the puzzles' own facts, the sprites, the exits and what they lead to, what a text mentions and marks, topics, conditions, harm, food,
 // the pictures, the commands, clock times, regional words and the words from the state written in the texts, the exits and waits that
-// can never open or fire, and the opening's contract (checkOpening). Pure: reads the state and the pack, never changes either.
+// can never open or fire, and the start room's guarantees (checkOpening). Pure: reads the state and the pack, never changes either.
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.54.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.54.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.54.0";
-import { isAction } from "./actions.js?v=0.54.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.54.0";
-import { isLine } from "./shapes.js?v=0.54.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.54.0";
-import { nextCell } from "./space.js?v=0.54.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.54.0";
-import * as opening from "./opening.js?v=0.54.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.54.0";
-import art from "../content/art.js?v=0.54.0";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.54.0";
-import { paintPicture } from "./paint.js?v=0.54.0";
-import { filterProblem } from "./filters.js?v=0.54.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.54.0";
+import { parse, normalise } from "./parser.js?v=0.55.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.55.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.55.0";
+import { isAction } from "./actions.js?v=0.55.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.55.0";
+import { solveCommand } from "./narrator.js?v=0.55.0";
+import { isLine } from "./shapes.js?v=0.55.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.55.0";
+import { nextCell } from "./space.js?v=0.55.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.55.0";
+import * as opening from "./opening.js?v=0.55.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.55.0";
+import art from "../content/art.js?v=0.55.0";
+import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.55.0";
+import { paintPicture } from "./paint.js?v=0.55.0";
+import { filterProblem } from "./filters.js?v=0.55.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.55.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -131,8 +132,7 @@ function exitShapeProblems(state, problems) {
 // Every exit leads where it says; rooms by name; things that lead somewhere.
 function exitsLeadProblems(state, pack, arrived, badExits, problems, warnings) {
   // Every exit leads where it says: from each room, "go" each way that names a room arrives there (a rule that
-  // swallows directions, like "go" with no object, would trap the player). Walked at the world's own time: after
-  // its arrival (the opening may be at another hour).
+  // swallows directions, like "go" with no object, would trap the player).
   for (const [id, room] of Object.entries(arrived.world.rooms)) {
     for (const [dir, raw] of Object.entries(room.exits || {})) {
       const to = exitTo(raw);
@@ -224,7 +224,6 @@ function offeredWarnings(state, pack, warnings) {
       if (state.world.rooms[room]) s.player.at = room;
       else if (!held) s.world.objects[id].at = s.player.at;   // (nowhere yet: put where you are, to read what it offers)
       if (held) s.world.objects[id].at = "player";
-      if (s.opening && id === s.opening.way) s.world.objects[s.opening.hints].at = "player";   // the way on is held back until you carry the hints thing: offered, and tried, then
       const r = parse(command, s, pack), a = r.actions?.length === 1 ? r.actions[0] : null, mark = a && OFFERED[a.verb];
       if (mark && a.obj && s.world.objects[a.obj]?.[mark] != null) {
         warnings.push(`${id}: offers "${command}", which the game offers by itself (${a.verb} ${a.obj}: ${mark === "from" ? "it comes from its source" : "it is consumable"}): leave it out`);
@@ -452,7 +451,7 @@ function sourceProblems(state, problems, warnings) {
 
 // Room texts within WRITING-DIRECTION.md §5.
 function roomLengthWarnings(state, warnings) {
-  // Room texts within WRITING-DIRECTION.md §5: a room's text aims at about 45 words (warned past 80), 2 paragraphs (3 at most), the opening's too.
+  // Room texts within WRITING-DIRECTION.md §5: a room's text aims at about 45 words (warned past 80), 2 paragraphs (3 at most), the start room's too.
   for (const [id, room] of Object.entries(state.world.rooms)) {
     if (!Array.isArray(room.describe) || room.describe.some(p => typeof p !== "string" || p.startsWith("@"))) continue;
     const words = unmarked(room.describe.join(" ")).split(/\s+/).filter(Boolean).length;
@@ -469,8 +468,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   portraitChecks(state, problems, warnings);
   problems.push(...cellProblems(state));
   const badExits = exitShapeProblems(state, problems);
-  // The game as it is after its arrival (the opening may be at another hour): where the exits are walked and the texts read.
-  const arrived = applyChangeSet(state, { effects: [{ change: "arrival", optional: true }] }).next;
+  const arrived = state;                                            // (the game as it starts: where the exits are walked and the texts read)
   exitsLeadProblems(state, pack, arrived, badExits, problems, warnings);
   pairProblems(arrived, problems);
   inOutProblems(state, problems);
@@ -909,13 +907,13 @@ function limited(r, state) {
 }
 
 // ---- Things that move ---------------------------------------------------------------------------------------------------
-// A person or a thing that moves (`places`, `rounds` or both, js/movers.js): the right shape, naming rooms the world has (never the
-// opening's), its conditions well formed; a `here` line (said when you find it) and a sprite (drawn in the pictures), and not one you can
+// A person or a thing that moves (`places`, `rounds` or both, js/movers.js): the right shape, naming rooms the world has, its
+// conditions well formed; a `here` line (said when you find it) and a sprite (drawn in the pictures), and not one you can
 // take; and in the picture of every room it can be in (its places' rooms, a follower's `within`, its round's rooms), an overlay for it
 // (its `overlayAlt` is checked with every overlay's, pictureProblems). A follower with no `within` can be in any room you can: a room
 // whose picture has no overlay for it is a warning, since it is there, and named, but not drawn.
 function moverChecks(state, problems, warnings) {
-  const rooms = state.world.rooms, opening = state.opening?.room;
+  const rooms = state.world.rooms;
   const overlay = (r, id) => (rooms[r]?.picture?.overlays || []).some(x => x?.object === id);
   const add = (r, id) => `add { "object": "${id}", "at": [x, y] } to its overlays, and overlayAlt.${id} to the room`;
   for (const id of moverIds(state)) {
@@ -927,11 +925,10 @@ function moverChecks(state, problems, warnings) {
     if (o.portable === true) problems.push(`${id}: moves, so it can't be one you take (portable: true): the game moves it, and would take it out of your hands`);
     for (const r of roomsOf(o)) {
       if (r === FOLLOWS || !rooms[r]) continue;
-      if (r === opening) problems.push(`${id}: can be in ${r}, the opening: nothing moves in or out of the opening`);
-      else if (rooms[r].picture && !overlay(r, id)) problems.push(`${id}: can be in ${r}, but its picture has no overlay for ${id}: ${add(r, id)}`);
+      if (rooms[r].picture && !overlay(r, id)) problems.push(`${id}: can be in ${r}, but its picture has no overlay for ${id}: ${add(r, id)}`);
     }
     if (followsAnywhere(o)) for (const r of Object.keys(rooms))
-      if (r !== opening && rooms[r].area !== rooms[opening]?.area && rooms[r].picture && !overlay(r, id))
+      if (rooms[r].picture && !overlay(r, id))
         warnings.push(`${id}: follows you, but ${r}'s picture has no overlay for it: there it is with you, and named, but not drawn (${add(r, id)})`);
   }
 }
@@ -1629,47 +1626,76 @@ function conditionChecks(state, arrived, problems, warnings) {
   }
 }
 
-// The opening's contract (BRIEF.md §3): what the engine needs to build it (js/opening.js), a closed place, and words of its own.
-// Its mechanics (the way held back until you carry the hints thing, then leading on and closing; the hints thing's framed hint;
-// the intro read and gone; neither dropped) are the engine's, built the same for every world from the declaration: tests/openings.test.js
-// pins them in every world and language, so they are not played here. Returns the problems found.
-export function checkOpening(state, pack) {
+// The start room's guarantees (BRIEF.md §3; docs/start-room/PLAN.md): what the engine needs to build it (js/opening.js), then
+//   1. one way out: the exit the `way` thing is, and no other (no other exit, nor a `true` one, nor a thing or scenery that leads
+//      elsewhere, nor a rule that `connect`s one);
+//   2. that exit closed at the start (locked by the way's lock, shut by its `if`, `false`, or wanting a thing held);
+//   3–4. the world's first puzzle is the way out, with its hints, and opens it from the start room alone: played from the start with
+//      the checker's own run (`play`: the state and the puzzles → a Run of js/check.js), only that puzzle, it reaches the room the
+//      exit leads to, through that exit;
+//   5. nothing it needs can be lost or wasted there: eaten, drunk, thrown, given to someone or put away in something in the start
+//      room, or spoilt by any rule of the world whose match names it, and the way can still be opened (the same play, after each);
+//   6. the hints thing in the room with a `here` line, and the three things with words of their own (below);
+//   7. once out, you can go back in: from the room the way out leads to, with the way open, an exit takes you back into the start room
+//      (any way: north, up, in…; the same play, then that step: goesBack).
+// The hints thing's and the intro's mechanics (the framed hint; the intro read and gone; neither dropped) are the engine's, built the
+// same for every world from the declaration: tests/openings.test.js pins them in every world and language, so they are not played here.
+// Returns the problems found.
+export function checkOpening(state, pack, play) {
   const d = state.opening, why = opening.problems(state, d);
   if (why.length) return why;
   const problems = [], { hints: H, intro: I, way: W, room: roomId } = d;
   const objects = state.world.objects, rooms = state.world.rooms, room = rooms[roomId];
+  const dir = opening.direction(state, d);
 
-  // Its room: in an area of its own, never returned to, and nothing else to take.
-  for (const [id, r] of Object.entries(rooms)) {
-    if (id !== roomId && r.area === room.area) problems.push(`room "${id}" is in the opening's area "${room.area}": the opening has an area of its own`);
-    for (const [dir, to] of Object.entries(r.exits || {}))
-      if (exitTo(to) === roomId) problems.push(`${id} has an exit ${dir} back to the opening room: it is never returned to`);
-  }
-  // ...and no rule makes a way into or out of it later (`connect`, from either side).
+  // 1. One way out.
+  for (const [x, to] of Object.entries(room.exits || {}))
+    if (x !== dir && to !== false && to != null) problems.push(`the start room has an exit ${x}${typeof exitTo(to) === "string" ? " to " + exitTo(to) : ""}: its only way out is the way out "${W}", ${dir} (BRIEF.md §3)`);
+  for (const [oid, o] of Object.entries(objects))
+    if (oid !== W && o.at === roomId) for (const x of waysOf(o)) problems.push(`"${oid}" in the start room leads ${x}: its only way out is the way out "${W}" (BRIEF.md §3)`);
+  for (const x of room.scenery || [])
+    for (const w of waysOf(x)) problems.push(`the start room's scenery "${x.name ?? x.words?.[0]}" leads ${w}: its only way out is the way out "${W}" (BRIEF.md §3)`);
   const seenConnect = new Set();
   for (const { effect: e, where } of effectsOf(state)) {
-    if (typeof e.connect !== "string" || (e.connect !== roomId && e.to !== roomId)) continue;
-    const line = `${where}: connects ${e.connect} ${e.dir ?? "?"} to ${e.to}, a way into or out of the opening room: it is never returned to, and its only way out is the way on (BRIEF.md §3)`;
+    if (e.connect !== roomId || e.dir === dir) continue;
+    const line = `${where}: connects the start room ${e.dir ?? "?"} to ${e.to}: its only way out is the way out "${W}", ${dir} (BRIEF.md §3)`;
     if (!seenConnect.has(line)) { seenConnect.add(line); problems.push(line); }
   }
-  // A closed place (BRIEF.md §3): the way on is the only way out. No exit to an open area (a room), and no second way on: every
-  // other exit is `false` or absent. Nor a thing that leads somewhere else (stairs, a path: `leads`), here or as scenery.
-  const onDir = opening.direction(state, d);
-  for (const [dir, to] of Object.entries(room.exits || {})) {
-    if (dir === onDir || to === false || to === undefined || to === null) continue;
-    if (typeof exitTo(to) === "string") problems.push(`the opening room has an exit ${dir} to ${exitTo(to)}, an open area: the opening is a closed place, and its only way on is the way on (BRIEF.md §3)`);
-    else problems.push(`the opening room has a second way on, ${dir}: a closed place has one way on, the one that closes behind you (BRIEF.md §3)`);
+  // 2. Closed at the start.
+  if (exitNow(state, roomId, dir).go) problems.push(`the way out ${dir} is open from the start: close it (a lock with its key in the room, \`{ to, if, closed }\`, or \`false\` until a rule \`connect\`s it) and open it by an action (BRIEF.md §3)`);
+  // 3–4. The first puzzle is the way out, and opens it from the start room alone.
+  const [first, p] = Object.entries(state.puzzles || {})[0] ?? [];
+  if (!p || p.ending) problems.push(`the first puzzle must be the way out of the start room (\`where: "${roomId}"\`, \`reaches\` the room beyond, its solve and its hints)`);
+  else {
+    const named = `the first puzzle "${first}"`;
+    if (p.where !== roomId) problems.push(`${named} must be the way out: its \`where\` is the start room "${roomId}"`);
+    if (typeof p.reaches !== "string" || !rooms[p.reaches] || p.reaches === roomId) problems.push(`${named} must be the way out: it \`reaches\` the room the way out leads to`);
+    if (!(p.hints || []).length) problems.push(`${named} must be the way out: it needs its hints, as any puzzle`);
+    if (!problems.length) {
+      const opens = (s, through) => {
+        const run = play(s, { [first]: p });
+        run.solve(first);
+        if (run.problem) return run.problem;
+        if (exitTo(run.state.world.rooms[roomId].exits?.[dir]) !== p.reaches || !run.state.seen.visited.includes(p.reaches))
+          return `it reaches ${p.reaches}, but not through the way out "${W}" (${dir})`;
+        through?.(run.state, run.clock);
+        return null;
+      };
+      let out = null, clock = 0;   // (the state once the first puzzle has opened the way and you are through, and its clock: 7 starts there)
+      const fails = opens(state, (s, c) => { out = s; clock = c; });
+      if (fails) problems.push(`${named} doesn't open the way out from the start room alone (only what is in it, and the intro): ${fails}`);
+      else {
+        // 5. Nothing it needs can be lost or wasted there.
+        for (const why of wasted(state, p, roomId, dir, pack, opens)) problems.push(`${named}: ${why}`);
+        // 7. Once out, you can go back in.
+        if (!goesBack(out, clock, p.reaches, roomId)) problems.push(`once out, you can't go back into the start room: ${p.reaches}, where the way out "${W}" leads, needs an exit back into "${roomId}" (any way: north, up, in…), open once the way out is (BRIEF.md §3)`);
+      }
+    }
   }
-  for (const [oid, o] of Object.entries(objects))
-    for (const dir of waysOf(o)) if (dir !== onDir && o.at === roomId && oid !== W) problems.push(`"${oid}" in the opening room leads ${dir}: a second way out of a closed place (BRIEF.md §3)`);
-  for (const x of room.scenery || [])
-    for (const dir of waysOf(x)) if (dir !== onDir) problems.push(`the opening room's scenery "${x.name ?? x.words?.[0]}" leads ${dir}: a second way out of a closed place (BRIEF.md §3)`);
-  for (const [id, o] of Object.entries(objects))
-    if ((o.at === roomId || o.at === "player") && o.portable && ![H, I].includes(id))
-      problems.push(`"${id}" can be taken in the opening: only the hints thing can be (the intro is carried)`);
-  if (!state.puzzles.opening_way) problems.push("the opening's own steps aren't among the puzzles");
+  // 6. The hints thing is found where it lies.
+  if (typeof objects[H].here !== "string" || !objects[H].here.trim()) problems.push(`the hints thing "${H}" needs a \`here\` line: where it is in the start room, marked`);
 
-  // Every thing in the opening has its own nouns (BRIEF.md §3): a word that names two things there is a clash, and so is a word of
+  // Every thing in the start room has its own nouns (BRIEF.md §3): a word that names two things there is a clash, and so is a word of
   // the three things that names anything else in the world (the way's: anything else in its own room). Things are the objects in
   // the room or carried, their parts, and the room's scenery; each is told apart in the message by id and kind, so one can be renamed.
   const fold = (list) => (list || []).map(x => normalise(String(x), pack.words.grammar));
@@ -1687,17 +1713,96 @@ export function checkOpening(state, pack) {
     const key = [w, x, y].sort().join("|");
     if (!clash.has(key)) { clash.add(key); problems.push(`"${w}" names two things${text}: ${x} and ${y}; rename one of them, so each thing has its own word${why}`); }
   };
-  const CLAIMS = { hints: "the hints thing's words are claimed against every other thing and scenery in the world, not only those in the opening room",
-    intro: "the intro's words are claimed against every other thing and scenery in the world, not only those in the opening room",
-    way: "the way on's words are claimed against everything else in its own room" };
+  const CLAIMS = { hints: "the hints thing's words are claimed against every other thing and scenery in the world, not only those in the start room",
+    intro: "the intro's words are claimed against every other thing and scenery in the world, not only those in the start room",
+    way: "the way out's words are claimed against everything else in its own room" };
   for (const [k, id] of MAIN)                                          // a word of one of the three: nothing else answers to it
     for (const w of fold(objects[id].words.nouns)) for (const x of things(k === "way"))
       if (!(x.id === id) && x.words.includes(w)) report(w, name(id), x.label, "", ` (${CLAIMS[k]})`);
   const inside = things(true).filter(x => !MAIN.some(([, id]) => x.id === id));   // the others: their parts, the room's scenery, the rest
   for (let a = 0; a < inside.length; a++) for (let b = a + 1; b < inside.length; b++)
-    for (const w of inside[a].words) if (inside[b].words.includes(w)) report(w, inside[a].label, inside[b].label, " in the opening");
+    for (const w of inside[a].words) if (inside[b].words.includes(w)) report(w, inside[a].label, inside[b].label, " in the start room");
 
   return problems;
+}
+
+// Guarantee 7 (Diego, 15 November 2026): from where the way out leads, with the way open (the state the first puzzle's play left, you
+// there; `clock`, the play's real time), some exit of that room takes you back into the start room when you go that way. True if one does.
+function goesBack(s, clock, there, roomId) {
+  for (const [d, x] of Object.entries(s.world.rooms[there]?.exits || {})) {
+    if (exitTo(x) !== roomId) continue;
+    const r = step(s, { verb: "go", dir: d, at: clock + 1000 });
+    if (!r.refused.length && r.next.player.at === roomId) return true;
+  }
+  return false;
+}
+
+// What a player could do in the start room that loses a thing the way out needs (B in docs/start-room/PLAN.md: nothing can be lost or
+// wasted there): each thing the first puzzle needs or names, taken first, then eaten, drunk, thrown, given to each person and put in
+// each thing there. One the engine accepts that takes the thing away, while the way is still closed, is played on from: if the way
+// can't be opened after it (`opens` says why: a thing put down there is taken up again), it is a problem, naming the command.
+// Then every rule of the world whose `match` names such a thing (portable or not: a lever broken, a rope cut), tried in the start room as
+// its match words it, with the thing where it lies and, if it can be taken, in hand: if the way is still shut after it and can't be
+// opened then, it is a problem, naming the command and the rule (Diego, 15 November 2026: I).
+function wasted(state, p, roomId, dir, pack, opens) {
+  const objects = state.world.objects, out = [], things = new Set((p.needs || []).filter(id => objects[id]));
+  for (const c of p.solve || []) for (const a of parse(solveCommand(c, pack), state, pack).actions || []) for (const x of [a.obj, a.obj2]) if (objects[x]) things.add(x);
+  const others = Object.keys(objects).filter(id => placeOf(state, id) === roomId);
+  const said = (a) => `${a.verb}${a.obj ? " " + a.obj : ""}${a.obj2 ? (a.verb === "give" ? " to " : a.verb === "put" ? " in " : " with ") + a.obj2 : ""}`;
+  const seen = new Set();
+  for (const t of things) {
+    if (state.opening?.hints === t || state.opening?.intro === t) continue;
+    const starts = [state];
+    if (objects[t].portable && placeOf(state, t) !== "player") {
+      const r = step(state, { verb: "take", obj: t, at: 500 });
+      if (!r.refused.length && placeOf(r.next, t) === "player") starts.push(r.next);
+    }
+    for (const rule of state.rules || []) {
+      const m = rule.match;
+      if (!m || rule.fixed || ![m.obj, m.obj2].some(v => [v].flat().includes(t))) continue;
+      for (const a of matchActions(m, t)) for (const s of starts) {
+        const key = rule.id + "|" + JSON.stringify(a) + "|" + (s === state ? 0 : 1);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const r = step(s, { ...a, at: 1000 });
+        if (r.refused.length || exitNow(r.next, roomId, dir).go) continue;          // (refused, or it opened the way)
+        const fails = opens(r.next);
+        if (fails) out.push(`${said(a)} in the start room (rule ${rule.id}${s === state ? "" : ", holding it"}) and then the way out can't be opened (${fails}): nothing it needs can be lost or spoilt there (BRIEF.md §3)`);
+      }
+    }
+  }
+  for (const t of things) {
+    if (!objects[t].portable || state.opening?.hints === t || state.opening?.intro === t) continue;
+    let s = state;
+    if (placeOf(s, t) !== "player") {
+      const r = step(s, { verb: "take", obj: t, at: 500 });
+      if (r.refused.length || placeOf(r.next, t) !== "player") continue;
+      s = r.next;
+    }
+    const tries = [{ verb: "eat", obj: t }, { verb: "drink", obj: t }, { verb: "throw", obj: t },
+      ...others.filter(o => o !== t && person(objects[o])).map(o => ({ verb: "give", obj: t, obj2: o })),
+      ...others.filter(o => o !== t && !person(objects[o])).map(o => ({ verb: "put", obj: t, obj2: o }))];
+    for (const a of tries) {
+      const r = step(s, { ...a, at: 1000 });
+      if (r.refused.length || placeOf(r.next, t) === "player" || exitNow(r.next, roomId, dir).go) continue;   // (still in hand, or the way is open)
+      const fails = opens(r.next);
+      if (fails) out.push(`${a.verb} ${t}${a.obj2 ? (a.verb === "give" ? " to " : " in ") + a.obj2 : ""} in the start room loses "${t}", and then the way out can't be opened (${fails}): nothing it needs can be lost there (BRIEF.md §3)`);
+    }
+  }
+  return out;
+}
+
+// The actions a rule's `match` words, naming the thing `t` (each verb; obj and obj2 as `t` where they name it, else each one they name;
+// the other keys as their first value): what a player could type that the rule answers.
+function matchActions(m, t) {
+  const pick = (v) => v === undefined ? [undefined] : Array.isArray(v) ? (v.includes(t) ? [t] : v) : [v];
+  const one = (v) => (Array.isArray(v) ? v[0] : v);
+  const base = {};
+  for (const k of ["dir", "prep", "topic", "text", "value"]) if (m[k] !== undefined) base[k] = one(m[k]);
+  const found = [];
+  for (const verb of [m.verb ?? "use"].flat()) for (const obj of pick(m.obj)) for (const obj2 of pick(m.obj2))
+    found.push({ verb, ...(obj !== undefined && { obj }), ...(obj2 !== undefined && { obj2 }), ...base });
+  return found;
 }
 
 // A puzzle's `time` is kept in an ending's commands as "@time <when>", so that a replay moves the clock where the checker did.

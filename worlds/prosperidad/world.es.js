@@ -1,11 +1,11 @@
-// «El emperador de Prosperidad»: el mundo después de la apertura, en español. No es una traducción: está escrito como lo escribiría un autor
+// «El emperador de Prosperidad»: el mundo, en español. No es una traducción: está escrito como lo escribiría un autor
 // de aquí. Mismos ids, mismas salas, mismas reglas y mismos finales que world.en.js; cambian las palabras. Un solo conjunto de cambios,
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -37,14 +37,14 @@ export const bible = {
     "«La avenida vende todo dos veces: una al cliente y otra al que dice que lo vio». " +
     "«Marisol trabaja la esquina con la paciencia de un banco y los modales de una duquesa». " +
     "«En Prosperidad el color se enciende de noche, y siempre hay alguien que pasa la factura».",
-  start: "Sábado, 01:10, en la avenida (la apertura, en el callejón, a la una).",
+  start: "Sábado, 01:00, en el callejón sin salida de detrás del Submarino; la una y diez al cruzar su puerta de incendios.",
   rules: [
     "Prosperidad es gris de día y solo tiene color de noche, y todo lo que brilla se ha pagado.",
     "Las máquinas de la lavandería devuelven lo que te falta, limpio y equivocado.",
     "El catálogo entrega a quien nombra; nadie le ha pedido nunca nada, y nadie ha rechazado nunca un paquete.",
     "Las chimeneas guardan el gris de la ciudad, y quien deshollina una se queda con el hollín."
   ],
-  opening: "Un callejón sin salida detrás de un club: una radio de transistores sobre un cajón (pistas), una página de catálogo arrancada que ya llevas (por qué has venido). La puerta de incendios del fondo es el camino.",
+  opening: "Un callejón sin salida detrás de un club, la sala del comienzo, al sur de su trastienda: una radio de transistores sobre un cajón (pistas), una página de catálogo arrancada que ya llevas (por qué has venido). La puerta de incendios del fondo es la salida: cede con un hombro en su abolladura, o a una llamada.",
   music: "un chacachá dórico nervioso, oído a través de la pared de un club; un bombo que se salta un golpe, una guitarra barata sobre un solo acorde y el silbido de un deshollinador; la radio entre dos emisoras",
   characters: ["Cuco, el pinchadiscos del Submarino", "Marisol, que trabaja la esquina", "Doña Remedios, de la estafeta", "Tomás, el deshollinador",
     "Don Nicanor, de la Pensión Esperanza", "la boticaria, de Los Galgos"],
@@ -73,17 +73,17 @@ const endingPictures = {
 };
 
 // ---- Salas -----------------------------------------------------------------------------------------------------------
-// Área "callejon": la apertura, a la que no se vuelve. Área "club": la trastienda y la pista. Área "calle" (x crece al este, y al sur):
+// Área "club": el callejón sin salida, la sala del comienzo, al sur de la trastienda tras su puerta de incendios; la trastienda y la pista. Área "calle" (x crece al este, y al sur):
 // la avenida con la estafeta al este y Los Galgos al oeste, la esquina al sur con la pensión al este y la lavandería al oeste, y la plaza más abajo.
 // Área "casa": el portal, el patio y la azotea. Área "vias": el terraplén y la fábrica.
 const rooms = {
   callejon: {
-    name: "CALLEJÓN SIN SALIDA", area: "callejon", at: [0, 0, 0],
+    name: "CALLEJÓN SIN SALIDA", area: "club", at: [0, 1, 0],
     describe: [
       "Ladrillo gris a los lados y una pared al fondo: la parte de atrás de un club, con cajones, un contenedor y charcos que guardan el rosa de un tubo de neón. El tubo lleva desde la primavera diciendo media palabra.",
-      "El único camino es la {puerta de incendios|puerta}, al final. No tiene pomo por este lado, solo una barra y una abolladura donde otros han llamado."
+      "La única salida es la {puerta de incendios|puerta}, al final. No tiene pomo por este lado, solo una barra y una abolladura donde otros han llamado."
     ],
-    exits: { n: true },
+    exits: { n: { to: "trastienda", if: false, closed: "La puerta de incendios no se mueve con la mano. Tiene una abolladura a la altura del hombro donde otros han llamado más fuerte." } },
     scenery: [
       { words: ["contenedor", "basura", "basuras", "tapa"], name: "el contenedor", says: "Lleno. Lleva lleno desde antes de que el club tuviera nombre, y se guarda sus opiniones." },
       { words: ["cajones", "cajon", "cajón", "botellas", "cajas"], name: "los cajones", says: "Cajones de cerveza, vacíos, apilados por alguien con mejor memoria para la pila que para la cerveza." },
@@ -104,9 +104,9 @@ const rooms = {
     name: "TRASTIENDA", area: "club", at: [0, 0, 0],
     describe: [
       "La trastienda del Submarino: cajas de amplificadores, un perchero de chaquetas de lentejuelas y un espejo rodeado de bombillas, la mitad fundidas. Una {funda de guitarra|funda} yace boca arriba en el suelo, de nadie que mire.",
-      "El ritmo llega por la cortina del este, con los graves subidos y los agudos mirando para otro lado. La puerta de incendios se ha cerrado a tu espalda y ha vuelto a ser pared."
+      "El ritmo llega por la cortina del este, con los graves subidos y los agudos mirando para otro lado. La {puerta de incendios|puerta_trasera} del callejón queda al sur, abierta sobre su barra."
     ],
-    exits: { e: "pista" },
+    exits: { e: "pista", s: "callejon" },
     scenery: [
       { words: ["amplificadores", "amplificador", "amplis", "cajas", "altavoces"], name: "las cajas de los amplificadores", says: "Cajas negras con el nombre del club en plantilla y, debajo, el teléfono de alguien tachado dos veces." },
       { words: ["perchero", "chaquetas", "chaqueta", "lentejuelas", "abrigos"], name: "el perchero", says: "Chaquetas de lentejuelas en tallas de gente que ya no las necesita. Devuelven las bombillas en calderilla." },
@@ -430,7 +430,7 @@ const rooms = {
 
 // ---- Objetos -----------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: lo que se coge, lo que ya llevas y el camino (BRIEF.md §3).
+  // La sala del comienzo: las pistas, lo que ya llevas y la salida, que cede a un hombro o a una llamada (BRIEF.md §3).
   radio: { at: "callejon", portable: true, material: "metal", name: "Radio", note: "Murmurando entre emisoras.",
     words: { nouns: ["radio", "transistor", "transistores"], adj: ["transistor", "pequeña", "vieja"], g: "f" }, ...item("radio"),
     here: "Una {radio} de transistores sobre un cajón murmura entre dos emisoras.",
@@ -438,11 +438,14 @@ const objects = {
   pagina: { at: "player", portable: true, material: "paper", name: "Página de catálogo", note: "Arrancada, con un círculo.",
     words: { nouns: ["pagina", "página", "catalogo", "catálogo"], adj: ["arrancada", "rota", "vieja"], g: "f" }, ...item("pagina"),
     examine: "Una página arrancada de un catálogo de venta por correo, con polvo encima. Una corona de papel dorado rodeada en rotulador rojo: «CORONA DE EMPERADOR. Talla única. Se entrega a quien nombre la ciudad. Pago contra entrega»." },
-  puerta: { at: "callejon", material: "metal", name: "Puerta de incendios", note: "El único camino.", door: "n",
+  puerta: { at: "callejon", material: "metal", name: "Puerta de incendios", note: "La única salida.", door: "n",
     words: { nouns: ["puerta"], adj: ["incendios", "acero", "metálica", "metalica", "gris"], g: "f" },
     examine: "Una puerta de incendios de acero con barra y una abolladura con forma de hombro. Está pintada del mismo gris que la pared, por si a alguien se le ocurría largarse por otro lado." },
 
   // Trastienda
+  puerta_trasera: { at: "trastienda", material: "metal", name: "Puerta de incendios", note: "Al callejón.", door: "s",
+    words: { nouns: ["puerta"], adj: ["incendios", "acero", "metálica", "metalica", "gris"], g: "f" },
+    examine: "La puerta de incendios por dentro: una barra, abierta y calzada, y al otro lado los charcos rosas del callejón." },
   funda: { at: "trastienda", container: true, open: false, material: "wood", name: "Funda de guitarra", note: "Suena al inclinarla.",
     words: { nouns: ["funda"], adj: ["guitarra", "negra", "vieja"], g: "f" },
     examine: "Una funda de guitarra negra con el cierre roto, sujeta con un cinturón. Al inclinarla suena algo pequeño y abundante, y no es una guitarra." },
@@ -578,6 +581,9 @@ const objects = {
 
 // ---- Los puzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
+  // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la radio son para ella.
+  way_out: { where: "callejon", needs: [], solve: ["empuja la puerta", "norte"], reaches: "trastienda", clues: ["puerta", "shoulder_door"],
+    hints: ["La puerta de incendios no tiene pomo por este lado, solo una barra, y una abolladura con forma de hombro donde otros han llamado.", "Apoya el hombro en la puerta de incendios: empújala, y ve al norte."] },
   take_tokens: { where: "trastienda", needs: [], solve: ["abrir funda", "{take} fichas"], gives: ["fichas"], clues: ["funda", "cuco"],
     hints: ["La funda de guitarra de la trastienda suena cuando se inclina.", "Abre la funda de guitarra y coge las fichas."] },
   feed_dryer: { where: "lavanderia", needs: ["fichas"], solve: ["meter fichas en secadora", "{take} cepillo"], gives: ["cepillo"], clues: ["secadora", "boticaria", "tomas"],
@@ -598,6 +604,16 @@ const puzzles = {
 
 // ---- Reglas -----------------------------------------------------------------------------------------------------------------
 const rules = [
+  // La salida de la sala del comienzo: la puerta de incendios cede a un hombro en su abolladura, o a una llamada (alguien dentro le da a
+  // la barra); una regla que conecta la salida, y la hora de la avenida entra por ella (el cambio `arrival`). Se queda abierta.
+  { id: "shoulder_door", match: { verb: "push", obj: "puerta" }, if: [{ "puerta.opened": false }],
+    do: [{ say: "Apoyas el hombro en la abolladura, como otros antes, y empujas. La puerta de incendios cede con ruido de tapa de contenedor, y el bajo sale a recibirte." },
+      { set: "puerta.opened", to: true }, { set: "puerta.note", to: "Abierta, sobre su barra." }, { connect: "callejon", dir: "n", to: "trastienda" }, { change: "arrival" }] },
+  { id: "knock_door", match: { verb: "knock", obj: "puerta" }, if: [{ "puerta.opened": false }],
+    do: [{ say: "Llamas en la abolladura donde otros han llamado. El bajo se calla un compás; alguien al otro lado le da a la barra, y la puerta de incendios cede con ruido de tapa de contenedor." },
+      { set: "puerta.opened", to: true }, { set: "puerta.note", to: "Abierta, sobre su barra." }, { connect: "callejon", dir: "n", to: "trastienda" }, { change: "arrival" }] },
+  { id: "door_open_already", match: { verb: ["push", "knock"], obj: "puerta" },
+    do: [{ say: "La puerta de incendios está abierta sobre su barra. El bajo espera." }] },
   // La secadora: fichas dentro, lo que te falta fuera.
   { id: "put_tokens", match: { verb: ["put", "use"], obj: "fichas", obj2: "secadora" }, if: [{ "player.at": "lavanderia" }], once: true,
     again: "La secadora ya ha recibido sus fichas y sigue dando vueltas, pensativa.",
@@ -654,12 +670,10 @@ const changes = {
   ]
 };
 
-// ---- La apertura, declarada (BRIEF.md §3) ----------------------------------------------------------------------------------------
+// ---- La sala del comienzo, declarada (BRIEF.md §3) ----------------------------------------------------------------------------------------
 const opening = {
   room: "callejon", hints: "radio", intro: "pagina", way: "puerta",
   lines: {
-    notYet: "La puerta de incendios no se mueve. La radio del cajón sigue murmurando para sí, y suena como si tuviera algo que decir. Coge primero la radio.",
-    through: "Apoyas el hombro en la barra. La puerta de incendios cede con ruido de tapa de contenedor y te deja pasar, y cuando te vuelves ya es pared.",
     hintFrame: "Te pegas la radio a la oreja. Entre dos emisoras, una voz dice:",
     farewell: "El viento te saca la página de la mano, se la lee al callejón y la suelta."
   }
@@ -667,21 +681,22 @@ const opening = {
 
 // ---- El conjunto de cambios -----------------------------------------------------------------------------------------------------
 export default {
-  because: "Después de la apertura: la avenida, las casas ocupadas y el club de una ciudad gris una noche de sábado de 1985, y un paquete con tu nombre.",
+  because: "Un callejón sin salida detrás de un club, y luego la avenida, las casas ocupadas y el club de una ciudad gris una noche de sábado de 1985, y un paquete con tu nombre.",
   opening,
   facts: [
-    "El jugador es Emperador, un punk de la calle en Prosperidad, 1985; la apertura es el callejón sin salida detrás del Submarino; la primera sala es la trastienda.",
+    "El jugador es Emperador, un punk de la calle en Prosperidad, 1985; la sala del comienzo es el callejón sin salida detrás del Submarino, al sur de la trastienda tras la puerta de incendios.",
     "Un paquete para Emperador espera en la estafeta; doña Remedios lo entrega a cambio de un billete ganado y un nombre dicho en voz alta.",
     "La secadora de la Lavandería devuelve lo que te falta; a Tomás el deshollinador le falta el cepillo.",
     "El nombre del jugador, antes de Emperador, era Dani.",
     "La gran chimenea de la fábrica guarda el gris de la ciudad; deshollinarla con el cepillo es un final."
   ],
   properties: {
+    "puerta.opened": { type: "boolean", start: false },   // la puerta de incendios ha cedido: está abierta sobre su barra
     "remedios.paid": { type: "boolean", start: false }
   },
   effects: [
-    { time: "day 1 01:00", weekday: "sat" },                 // la apertura se juega a la una de la madrugada
-    { set: "game.entrance", to: "trastienda" },
+    { time: "day 1 01:00", weekday: "sat" },                 // el juego empieza a la una de la madrugada, en el callejón
+    // Lo que deja entrar la puerta de incendios al ceder (lo ejecutan sus reglas): la hora de la avenida y su línea.
     { add: "change", id: "arrival", effects: [
       { time: "day 1 01:10", weekday: "sat" },
       { say: "La una y diez, y toda la ciudad pagando sus colores." }

@@ -2,24 +2,24 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.54.0";
-import standardVerbs from "./verbs.js?v=0.54.0";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.54.0";
-import { clean, isLine } from "./shapes.js?v=0.54.0";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.54.0";
-import { readPicture, editPicture } from "./picture.js?v=0.54.0";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.54.0";
-import * as opening from "./opening.js?v=0.54.0";
-import { translate as translateUse } from "./use.js?v=0.54.0";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.54.0";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.54.0";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.54.0";
-import { ACTIONS, isAction } from "./actions.js?v=0.54.0";
-import { makeSleeping } from "./sleeping.js?v=0.54.0";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.54.0";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.54.0";
-import { answerLine } from "./speech.js?v=0.54.0";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.54.0";
+import { random, between } from "./random.js?v=0.55.0";
+import standardVerbs from "./verbs.js?v=0.55.0";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.55.0";
+import { clean, isLine } from "./shapes.js?v=0.55.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.55.0";
+import { readPicture, editPicture } from "./picture.js?v=0.55.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.55.0";
+import * as opening from "./opening.js?v=0.55.0";
+import { translate as translateUse } from "./use.js?v=0.55.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.55.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.55.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.55.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.55.0";
+import { makeSleeping } from "./sleeping.js?v=0.55.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.55.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.55.0";
+import { answerLine } from "./speech.js?v=0.55.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.55.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -77,7 +77,7 @@ export function step(state, input) {
       }
     }
     if (action.obj) g.lastObj = action.obj;                      // what "it" means next time
-    if (!isFixed(g, g.player.at)) sleeping.conditionHold(g, action, out);        // a condition's hold on your tongue or your feet (not in the opening)
+    sleeping.conditionHold(g, action, out);                    // a condition's hold on your tongue or your feet
     // Talking to someone: they're who "ask about…" goes to next; a question asked is remembered for this visit (it's
     // no longer offered after they answer, until you come back to the room).
     if (["talk", "ask", "say"].includes(action.verb) && g.world.objects[action.obj]?.topics) g.talkingTo = action.obj;
@@ -299,16 +299,15 @@ export function applyChangeSet(state, set, { protect = true, fields = null } = {
 // that isn't declared (a set may declare a new one itself, in its `properties`).
 export const applyProposal = (state, set) => applyChangeSet(state, set, { fields: "refuse" });
 
-// Build a world's opening from its declaration: the player starts in its room carrying the intro, the hints thing
-// and the way on get their mechanics (rules and puzzles, js/opening.js) and the room and everything in it become
-// `fixed`: no later effect from a world may change, move, draw, connect, remove or add to them.
+// Build a world's opening from its declaration (js/opening.js): the player starts in the start room carrying the intro, and the hints
+// thing and the intro get their rules (tried before the world's). The room is an ordinary room, and the way out is the world's own:
+// the world's rules act in it from the first turn. Only the hints thing and the intro are `fixed`: no later effect from a world may
+// move, change or remove them, so the hints are always there.
 function buildOpening(g, d, out, protect) {
   const refuse = (reason) => out.refused.push({ effect: { opening: d?.room ?? null }, reason });
   if (g.opening) return refuse("the world already has an opening");
   const why = opening.problems(g, d);
   if (why.length) return why.forEach(refuse);
-  const steps = opening.puzzles(g, d);
-  if (Object.keys(steps).some(id => idKind(g, id))) return refuse("an opening puzzle's id is taken");
   g.opening = structuredClone(d);
   g.player.at = d.room;
   g.player.in = null;
@@ -316,14 +315,7 @@ function buildOpening(g, d, out, protect) {
   for (const [id, o] of Object.entries(g.world.objects))          // what you carry from the start (the intro)
     if (o.at === "player" && !g.player.carrying.includes(id)) { g.player.carrying.push(id); g.seen.held.push(id); }
   g.rules.unshift(...opening.rules(g, d).map(r => ({ ...r, fixed: protect })));
-  g.puzzles = { ...steps, ...g.puzzles };                         // the opening's own steps come first
-  const ambience = g.rules.find(r => r.id === "ambience_" + d.room);   // the room's small life is the opening's own
-  if (ambience) ambience.fixed = protect;
-  if (!protect) return out.applied.push({ opening: d.room });
-  const inRoom = (id) => placeOf(g, id) === d.room;
-  g.world.rooms[d.room].fixed = true;
-  for (const id of Object.keys(g.world.objects))
-    if (opening.THINGS.some(k => d[k] === id) || inRoom(id)) g.world.objects[id].fixed = true;
+  if (protect) for (const id of [d.hints, d.intro]) g.world.objects[id].fixed = true;
   out.applied.push({ opening: d.room });
 }
 
@@ -359,7 +351,6 @@ export function nextDue(state) {
 // a yes/no question (`confirm`) does what the question said yes or no does, before anything else. After the end the
 // game is locked: "begin again" (the parser reads it only then) begins again, and anything else is told, in grey, that
 // the story is over (LOAD and UNDO are the controller's, and their questions are answered above).
-// In the opening (a `fixed` room) only its own rules apply: nothing a world adds reaches it.
 function runAction(g, action, out, question) {
   if (question?.yesNo && answering(question, action)) {
     out.answer = { rule: "confirm", generic: false };
@@ -393,7 +384,7 @@ const answersAgain = (g, r, action) => r.again != null && spent(g, r) && matches
 
 // Would these actions, done now, be accepted, and would something answer them: a game rule or the thing itself,
 // not a verb's generic reply (verbs.js)? For offering commands ("Did you mean…?", suggestion lines). A refusal in the
-// world's own words (a lock's `says`, a shut way's line, the opening's "not yet", what a thing costs) is meaningful: trying
+// world's own words (a lock's `says`, a shut way's line, what a thing costs) is meaningful: trying
 // it tells the player something. The state is untouched. { works, meaningful, rules }: rules, the id of the rule that answered each action (null for none).
 export function answers(state, actions) {
   let s = state, meaningful = !state.ended;
@@ -408,13 +399,13 @@ export function answers(state, actions) {
   return { works: true, meaningful, rules };
 }
 
-// The game's rules that can act now: all of them, or only the opening's own while you're in it.
-const activeRules = (g) => (g.world.rooms[g.player.at]?.fixed ? g.rules.filter(r => r.fixed) : g.rules);
+// The game's rules that can act now: all of them (the opening's own first: js/opening.js).
+const activeRules = (g) => g.rules;
 const STANDARD = new Set(standardVerbs);
-// Is this room or object part of the opening (never changed by a world)?
-const isFixed = (g, id) => !!(g.world.rooms[id]?.fixed || g.world.objects[id]?.fixed);
+// Is this thing one of the opening's own, the hints thing or the intro (never changed by a world)?
+const isFixed = (g, id) => !!g.world.objects[id]?.fixed;
 // What the engine hands to the movers' runtime (js/movers.js), which never imports the engine back.
-const host = { apply: (...a) => apply(...a), holds: (...a) => holds(...a), isFixed };
+const host = { apply: (...a) => apply(...a), holds: (...a) => holds(...a) };
 
 // Run a rule's effects; "then": "default" also runs the standard verb afterwards. The opening's rules and the
 // standard verbs may change the opening's things; a world's rules may not (out.trusted).
@@ -594,9 +585,8 @@ function seeHere(g) {
 // happened. A thing that's needed: it has been in your hands.
 function solved(g, p) {
   if (p.ending) return !!g.ended;
-  const to = p.reaches === "entrance" ? g.entrance : p.reaches;
-  if (!(p.gives || []).length && !to) return false;
-  return (p.gives || []).every(id => g.seen.held.includes(id)) && (!to || g.seen.visited.includes(to));
+  if (!(p.gives || []).length && !p.reaches) return false;
+  return (p.gives || []).every(id => g.seen.held.includes(id)) && (!p.reaches || g.seen.visited.includes(p.reaches));
 }
 const met = (g, need) => (g.puzzles[need] ? solved(g, g.puzzles[need]) : g.seen.held.includes(need));
 
@@ -721,9 +711,9 @@ function rollBetween(g, min, max) { const [v, next] = between(g.rng, min, max); 
 
 // The conditions you are in (js/conditions.js), after everything else in a step: each one's health tick, when it is due
 // (the engine's own hurt or heal, so its echo, the bars, a death and UNDO work as for any other), then its end, when its
-// time is up (`lasts`) or its `until` holds. Nothing runs after the end of the story, nor in the opening.
+// time is up (`lasts`) or its `until` holds. Nothing runs after the end of the story.
 function runConditions(g, at, out) {
-  if (g.ended || !g.player.conditions || isFixed(g, g.player.at)) return;
+  if (g.ended || !g.player.conditions) return;
   for (const id of activeIds(g)) {
     const d = g.conditions?.[id], c = g.player.conditions?.[id];
     if (!d || !c) continue;
@@ -780,7 +770,7 @@ function describedLater(out, room) {
 function apply(g, e, action, out, key) {
   const { refuse, done } = outcome(e, out);
   const touched = out.trusted ? null : fixedTarget(g, e, action);
-  if (touched) return refuse(`${touched} is part of the opening: a world can't change it`);
+  if (touched) return refuse(`${touched} is the opening's own (its hints thing, its intro, its rules): a world can't change it`);
 
   // `add` and `remove` first: what they add carries its own fields, which can share names with effects (a room's
   // `describe`, an object's `move`), so those mustn't be read as effects.
@@ -1239,15 +1229,12 @@ function echo(done, g, kind, level) {
   done({ echo: kind === "hurt" ? "@health." + level : `@echo.${kind}.${level}`, kind, level, at: worldTime(g) });
 }
 
-// What part of the opening an effect would change, if any (for effects from a world: they may not). Which id each kind of effect touches:
+// What part of the opening an effect would change, if any (for effects from a world: they may not): its hints thing, its intro, its
+// rules (the start room itself is an ordinary room, the world's to change). Which id each kind of effect touches:
 // the first of these a (not added or removed) effect has, in this order.
 const TOUCHES = {
   move: (g, e, action) => [fill(g, e.move, action), fill(g, e.to, action)],
   set: (g, e, action) => { const id = e.set.split(".")[0]; return [id === "$obj" ? action.obj : id === "$obj2" ? action.obj2 : id]; },
-  travel: (g, e, action) => [fill(g, e.travel, action)],
-  connect: (g, e) => [e.connect || e.disconnect],
-  disconnect: (g, e) => [e.connect || e.disconnect],
-  draw: (g, e, action) => [fill(g, e.draw, action)],
   unlock: (g, e, action) => [fill(g, e.unlock, action)]
 };
 function fixedTarget(g, e, action) {
@@ -1376,4 +1363,4 @@ function pickVariant(g, list, key) {
 }
 
 // The sleep at run time and a condition's hold on you (js/sleeping.js), handed the engine's own functions it needs.
-const sleeping = makeSleeping({ apply, roll, rollBetween, isFixed, activeRules, fits, exitNow, solved, met, endCondition, saysOf });
+const sleeping = makeSleeping({ apply, roll, rollBetween, activeRules, fits, exitNow, solved, met, endCondition, saysOf });

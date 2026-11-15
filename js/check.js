@@ -3,9 +3,10 @@
 // them: walking between rooms, picking up what's needed, solving each puzzle with its own commands. Pure: never
 // touches the page; used by the tests now, and later to check a world the AI builds before it's played.
 //
-// Also: the world's opening keeps the contract of BRIEF.md §3 (checkOpening in js/checklint.js): its room in an area of its own, a closed place,
-// one thing to take (the hints thing) and one carried (the intro), no word of the three things used by anything else. Its mechanics
-// are the engine's, pinned in tests/openings.test.js, not played here.
+// Also: the world's start room keeps the guarantees of BRIEF.md §3 (checkOpening in js/checklint.js): one way out, the way thing's exit,
+// closed at the start; the world's first puzzle opens it from the start room alone, with its hints; nothing it needs can be lost there;
+// the hints thing and the intro in place, with words of their own; once out, a way back in. The hints thing's and the intro's mechanics are the engine's, pinned
+// in tests/openings.test.js, not played here.
 //
 // Also: the ending's picture (BRIEF.md §7): every `end` effect (and every vision's `dream.picture`) names a picture the world has, a world that can hurt the player
 // has a `died` picture (the one the story ends with when health runs out), and each picture in `state.pictures` is well formed
@@ -55,31 +56,24 @@
 // The lints of a world as written (everything above but the playthrough: js/checklint.js, `lintWorld`) run first; the playthrough here only
 // when they found no problem. The checker's cache key (tools/checked.mjs) hashes every file of js/, so both files are in it.
 
-import { parse } from "./parser.js?v=0.54.0";
-import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.54.0";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.54.0";
-import { solveCommand } from "./narrator.js?v=0.54.0";
-import { isExitObject, exitTo } from "./exits.js?v=0.54.0";
-import { moveTo, worldTime } from "./time.js?v=0.54.0";
-import * as opening from "./opening.js?v=0.54.0";
-import { musicOf } from "./music.js?v=0.54.0";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.54.0";
-import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.54.0";
+import { parse } from "./parser.js?v=0.55.0";
+import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.55.0";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.55.0";
+import { solveCommand } from "./narrator.js?v=0.55.0";
+import { isExitObject, exitTo } from "./exits.js?v=0.55.0";
+import { moveTo, worldTime } from "./time.js?v=0.55.0";
+import { musicOf } from "./music.js?v=0.55.0";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.55.0";
+import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.55.0";
 
 export function check(state, pack, bible, { before = null } = {}) {
   const problems = [], warnings = [...(state.warnings || [])], endings = {};   // (the world's own, found when it loaded: js/fields.js)
   for (const n of musicOf(state)?.notes ?? []) warnings.push(`music: ${n.text}`);   // what the music's reader did: never a problem
   if (state.music == null) warnings.push(NO_MUSIC);                                   // every world has music: warned, never a problem
-  // The opening's way on `reaches: "entrance"`: wherever the world says it leads.
-  // (With no world yet, there's nowhere for it to lead: the opening's puzzles are left out.)
-  const puzzles = Object.fromEntries(Object.entries(state.puzzles || {})
-    .filter(([, p]) => p.reaches !== "entrance" || state.entrance)
-    .map(([id, p]) => [id, p.reaches === "entrance" ? { ...p, reaches: state.entrance } : p]));
-  if (state.entrance && !state.world.rooms[state.entrance])
-    problems.push(`the opening's way on leads to "${state.entrance}", which isn't a room`);
+  const puzzles = state.puzzles || {};
   if (!Object.keys(puzzles).length) return { ok: false, problems: ["the world describes no puzzles"], warnings, endings };
   if (!state.opening) problems.push("the world has no opening");
-  else for (const why of checkOpening(state, pack)) problems.push("the opening: " + why);
+  else for (const why of startRoomProblems(state, pack)) problems.push("the start room: " + why);
 
   lintWorld(state, pack, bible, puzzles, problems, warnings);
   if (problems.length) return { ok: false, problems, warnings, endings };
@@ -113,6 +107,10 @@ export function check(state, pack, bible, { before = null } = {}) {
       warnings.push(`${where}: ends the story with "${e.picture}", but no puzzle with ending: true reaches it, so that ending is never played: give it a puzzle (ending: true, its solve and hints)`);
   return { ok: !problems.length, problems, warnings, endings };
 }
+
+// The start room's guarantees alone (js/checklint.js, checkOpening), its first puzzle played with this file's own run: what check()
+// lists first, as "the start room: …" (the tests call it on its own, without the whole playthrough).
+export const startRoomProblems = (state, pack) => checkOpening(state, pack, (s, puzzles) => new Run(s, pack, puzzles));
 
 const TIME_MARK = "@time ";
 export function replayCommand(state, command, pack, at = 0) {

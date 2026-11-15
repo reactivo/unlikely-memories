@@ -1,24 +1,24 @@
-// "The Train to Tuesday": a world after the opening, in English, written the way the AI is asked to write a world
+// "The Train to Tuesday": a world and its start room, in English, written the way the AI is asked to write a world
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
-// for the pictures). One change set, applied after the opening, all or nothing.
+// for the pictures). One change set, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
   title: "The Train to Tuesday",
   blurb: "A hill town that abolished Mondays. Every night at twenty to midnight a train leaves for Tuesday, and nobody comes back.",
   thumbnail: { picture: "halt", x: 95 },   // the card on the landing page: this room's picture, cropped 225 pixels wide from column x (0–95)
-  synopsis: "You arrive, from wherever the opening was, on a Sunday evening, in a hill town " +
+  synopsis: "You arrive, by a branch-line carriage from a halt called Monday, on a Sunday evening, in a hill town " +
     "that abolished Mondays years ago. Every night at twenty to midnight a train leaves for Tuesday, and nobody comes " +
     "back. Upstairs at the town hall, someone has kept the last Monday, in case.",
   tone: "WRITING-DIRECTION.md. Railway-town melancholy: timetables, lost things, a decree framed in the station.",
-  start: "Sunday, 19:30, in the station's lost property office.",
-  opening: "A halt on a branch line, Sunday evening: a cocoa tin on a string (hints), a " +
-    "diary leaf you already carry (why you came). The one carriage's open door is the way on.",
+  start: "Sunday, 19:30, at Monday Halt, west of the station's lost property office.",
+  opening: "A halt on a branch line, Sunday evening, west of the lost property office: a cocoa tin on a string (hints), a " +
+    "diary leaf you already carry (why you came). The one carriage is the way out: it takes you once you have sat on the bench.",
   music: "slow lydian; a ledger cello and a plucked birdcage wire; an honest station clock that skips one tick in seven",
   rules: [
     "Monday was abolished by decree. The town goes from Sunday night to Tuesday by train.",
@@ -64,18 +64,19 @@ const endingPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "town" (x grows east, y grows south, z is the floor); area "train" is reached only when the train is in.
+// Area "town" (x grows east, y grows south, z is the floor); area "train" is reached only when the train is in. The start room,
+// Monday Halt, is west of the lost property office: its carriage brings you there, and a back door takes you back.
 const rooms = {
-  // The opening (BRIEF.md §3): a halt on the branch line, never returned to. Area "branch" is its own.
+  // The start room (BRIEF.md §3): a halt on the branch line, left by its one carriage once you have sat on the bench to wait.
   halt: {
-    name: "MONDAY HALT", area: "branch", at: [0, 0, 0],
+    name: "MONDAY HALT", area: "town", at: [-1, 0, 0],
     describe: [
-      "A halt on the branch line, on a Sunday evening: a bench, a lamp, and a name board that says \"Monday\", though the line goes nowhere after it. The timetable lists one train a week, and it left yesterday.",
+      "A halt on the branch line, on a Sunday evening: a {bench|halt_bench}, a lamp, and a name board that says \"Monday\", though the line goes nowhere after it. The timetable lists one train a week, and it left yesterday.",
       "A single carriage waits at the end of the platform, its {carriage door|carriage_door} open and its light on, to the east."
     ],
-    exits: { e: true },
+    exits: { e: { to: "lost_property", if: false, closed: "You put a foot on the step, and the carriage moves away from it, politely, an inch. A card in its window says: PLEASE BE SEATED UNTIL CALLED." } },
     scenery: [
-      { words: ["bench", "seat", "lamp", "platform", "halt", "board", "name", "sign"], name: "the halt", says: "A bench, a lamp, a name board. Somebody has painted the bench since the line closed, and not very long ago." },
+      { words: ["lamp", "platform", "halt", "board", "name", "sign"], name: "the halt", says: "A bench, a lamp, a name board. Somebody has painted the bench since the line closed, and not very long ago." },
       { words: ["timetable", "train", "line", "track", "tracks", "rails"], name: "the timetable", says: "One train, weekly, to a place whose name has been scratched off the board and written back in pencil: Tuesday." }
     ],
     mentions: ["name board"],
@@ -89,9 +90,9 @@ const rooms = {
     name: "LOST PROPERTY", area: "town", at: [0, 0, 0],
     describe: [
       "A long room of shelves: umbrellas, gloves, a birdcage, a wedding dress in a box, every label in the same patient hand. You are standing among them, as if someone had handed you in.",
-      "Behind the counter, {Mr Ambrose|ambrose} keeps the {ledger}. A damp {crate|sea_crate} says SEA, ONE, UNCLAIMED. The station hall is east."
+      "Behind the counter, {Mr Ambrose|ambrose} keeps the {ledger}. A damp {crate|sea_crate} says SEA, ONE, UNCLAIMED. The station hall is east; a back door, west, gives onto the branch platform."
     ],
-    exits: { e: "station_hall" },
+    exits: { e: "station_hall", w: "halt" },
     scenery: [{ words: ["shelves", "shelf", "umbrellas", "gloves", "birdcage", "dress", "wedding", "box", "labels", "label"], name: "the shelves", says: "Things people stopped looking for. Each has a label, and each label a date. None of the dates is a Monday after the decree." },
               { words: ["counter"], name: "the counter", says: "A long counter, scarred where a century of claimants have leaned." }],
     sleep: "Not among the lost things. Mr Ambrose would only label you.",
@@ -319,7 +320,7 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening: the thing to take, the one you carry, and the way on (BRIEF.md §3).
+  // The start room: the hints thing, the intro you carry, the way out, and the bench you wait on for it (BRIEF.md §3).
   tin: { at: "halt", portable: true, material: "metal", name: "Cocoa tin", note: "Someone at the other end.",
     words: { nouns: ["tin", "string", "cocoa"], adj: ["cocoa", "cold", "long"] }, ...item("tin"),
     here: "On the bench a cocoa {tin} sends its string off the end of the platform.",
@@ -327,7 +328,10 @@ const objects = {
   diary_leaf: { at: "player", portable: true, material: "paper", name: "Diary leaf", note: "Ruled for a week.",
     words: { nouns: ["leaf", "diary"], adj: ["folded", "yellow", "ruled", "diary"] }, ...item("diary_leaf"),
     examine: "A diary leaf, ruled for a week. Sunday and Tuesday are filled in, in your hand; where Monday should be is a clean, careful gap, rubbed through to the next page." },
-  carriage_door: { at: "halt", name: "Carriage door", note: "Open, and waiting.", actions: ["Enter carriage"],
+  halt_bench: { at: "halt", material: "wood", name: "Bench", note: "Painted, not long ago.", actions: ["Sit on bench"],
+    words: { nouns: ["bench", "seat"], adj: ["painted", "platform"] },
+    examine: "A platform bench, painted since the line closed, and not very long ago. It faces the carriage, the way a waiting-room chair faces a door." },
+  carriage_door: { at: "halt", door: "e", material: "wood", name: "Carriage door", note: "Open, and waiting.", actions: ["Enter carriage"],
     words: { nouns: ["door", "carriage"], adj: ["carriage", "open", "single"] },
     examine: "A green carriage, one only, with its door open and a step down to the gravel. The light inside is the yellow of a room where someone has just stood up." },
 
@@ -638,6 +642,12 @@ const changes = {
 const pastTheGuard = [{ say: "The guard looks at your ticket, punches it again for luck, and stands aside." }, { travel: "compartment" }];
 
 const rules = [
+  // The start room's way out: sit on the bench, as the card asks, and the carriage takes you (a rule that `connect`s the exit);
+  // a town clock strikes the half hour as you wait (the change `arrival`). Then the carriage stays, and the way is open both ways.
+  { id: "halt_seated", match: { verb: "sit", obj: [null, "halt_bench"] }, if: [at("halt")], once: true,
+    again: "You sit a while longer. The carriage waits with its door open, in no hurry either.",
+    do: [{ say: "You sit on the bench, as the card asks. The lamp hums. After a while a voice inside the carriage reads out, as if from a label: \"One passenger, unclaimed.\" The carriage settles back the inch it had taken, and waits for you." },
+         { connect: "halt", dir: "e", to: "lost_property" }, { change: "arrival" }] },
   // Lost property: the umbrella, when you ask for it.
   { id: "claim_umbrella", match: { verb: "ask", obj: "ambrose", topic: "umbrella" }, if: [{ "umbrella.at": "lost_property" }],
     do: [{ say: "\"Grey umbrella,\" he reads. He looks at your hands, then at the tag, then takes it down from the shelf. \"Your writing,\" he says. \"They usually know.\"" },
@@ -739,6 +749,9 @@ const rules = [
 
 // ---- Puzzles (for the checker; BRIEF.md §4) ---------------------------------------------------------------------------
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the tin's first hints are about it.
+  way_out: { where: "halt", needs: [], solve: ["sit on bench", "east"], reaches: "lost_property", clues: ["carriage_door", "halt_bench"],
+    hints: ["The carriage won't take a passenger who is still standing about. Someone has painted the bench.", "Sit on the bench until the carriage is ready for you, then get on: east."] },
   get_coin: { where: "square", needs: [], solve: ["wait until the lamps are lit", "take coin"], gives: ["coin"], clues: ["oduya", "booking_clerk", "ines", "fountain"] , hints: ["The old coins are in the fountain, but the water only shows them once its lamp is lit, at eight.", "Wait by the fountain until the lamps are lit, then take a coin."] },
   get_ticket: { where: "station_hall", needs: ["coin"], solve: ["wait for the window to open", "buy ticket"], gives: ["ticket"], clues: ["window", "timetable"] , hints: ["The ticket window opens at nine in the evening, and it wants an old coin.", "Wait in the station hall for the window to open, then buy a ticket."] },
   board_train: { where: "platform", needs: ["get_ticket"], solve: ["wait for the train", "board train"], reaches: "compartment", clues: ["board", "signalman", "timetable"] , hints: ["The Tuesday train comes in at half past eleven. The guard wants a ticket.", "Wait on the platform for the train, then board it."] },
@@ -755,15 +768,13 @@ const puzzles = {
 const opening = {
   room: "halt", hints: "tin", intro: "diary_leaf", way: "carriage_door",
   lines: {
-    notYet: "The carriage shifts away from your foot, politely, an inch. Passengers are asked to bring something to listen to, and there is a tin on the bench.",
-    through: "You step up, and the door closes behind you with a small sound, like a ticket being punched, and the lamp on the platform goes out. When it opens again you are standing among shelves.",
     hintFrame: "You put the tin to your ear. Down the string, someone with a stationmaster's patience says:",
     farewell: "You hold the leaf up to the lamp. The week comes apart along its ruled lines, and is gone, Sunday first."
   }
 };
 
 export default {
-  because: "After the opening: a town without Mondays.",
+  because: "A halt on the branch line, and a town without Mondays.",
   opening,
   // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
   properties: {
@@ -775,11 +786,9 @@ export default {
     "The last Monday is kept by the archivist at the town hall, for whoever lost one."
   ],
   effects: [
-    { time: "day 1 19:00", weekday: "sun" },                  // the opening is played at seven
-    // Where the opening's way on leads, and what arriving does: the town's time and its first line.
-    { set: "game.entrance", to: "lost_property" },
+    { time: "day 1 19:30", weekday: "sun" },                  // the game starts at half past seven
+    // What the town says as the carriage takes you (the bench's rule runs it): its first line.
     { add: "change", id: "arrival", effects: [
-      { time: "day 1 19:30", weekday: "sun" },
       { say: "Somewhere a clock strikes half past seven, in the evening, on a Sunday." }
     ] },
     // Verbs this world needs

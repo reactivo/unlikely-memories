@@ -1,26 +1,26 @@
 // «El tren del martes»: el mundo de "The Train to Tuesday" escrito en español (no traducido): el mismo argumento, las mismas
 // salas, objetos, personajes, reglas, enigmas y finales, con las mismas ids, pero cada línea pensada en español. Un solo
-// conjunto de cambios, aplicado tras la apertura, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
+// conjunto de cambios, con su sala del comienzo, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- La biblia del juego -------------------------------------------------------------------------------------------
 export const bible = {
   title: "El tren del martes",
   blurb: "Un pueblo de colinas que abolió los lunes. Cada noche, a las doce menos veinte, sale un tren hacia el martes, y nadie vuelve.",
   thumbnail: { picture: "halt", x: 95 },   // la tarjeta de la página de inicio: la imagen de esta sala, recortada a 225 píxeles desde la columna x (0–95)
-  synopsis: "Llegas, vengas de donde vengas, un domingo por la tarde, a un pueblo de colinas que abolió los lunes " +
+  synopsis: "Llegas, en el vagón de un apeadero que se llama Lunes, un domingo por la tarde, a un pueblo de colinas que abolió los lunes " +
     "hace años. Cada noche, a las doce menos veinte, sale un tren hacia el martes, y nadie vuelve. Arriba, en el " +
     "ayuntamiento, alguien ha guardado el último lunes, por si acaso.",
   tone: "WRITING-DIRECTION.md. Melancolía de pueblo ferroviario: horarios, cosas perdidas, un decreto enmarcado en la estación.",
-  start: "Domingo, 19:30, en la oficina de objetos perdidos de la estación.",
-  opening: "Un apeadero de vía secundaria, un domingo por la tarde: una lata de " +
-    "cacao con un cordel (las pistas), una página de agenda que ya llevas encima (por qué has venido). La puerta abierta del " +
-    "único vagón es el camino.",
+  start: "Domingo, 19:30, en el apeadero Lunes, al oeste de la oficina de objetos perdidos de la estación.",
+  opening: "Un apeadero de vía secundaria, un domingo por la tarde, al oeste de objetos perdidos: una lata de " +
+    "cacao con un cordel (las pistas), una página de agenda que ya llevas encima (por qué has venido). El único vagón es " +
+    "la salida: te lleva cuando te has sentado en el banco.",
   music: "lidio, despacio; el violonchelo del libro de registro y un alambre de jaula pulsado; el reloj honrado de la " +
     "estación, que se salta un tic de cada siete",
   rules: [
@@ -68,17 +68,18 @@ const endingPictures = {
 
 // ---- Salas ---------------------------------------------------------------------------------------------------------------
 // Zona "town" (x crece al este, y crece al sur, z es la planta); a la zona "train" solo se llega cuando el tren está en el andén.
+// La sala del comienzo, el apeadero Lunes, queda al oeste de objetos perdidos: su vagón te lleva allí, y una puerta trasera te devuelve.
 const rooms = {
-  // La apertura (BRIEF.md §3): un apeadero de la línea secundaria, al que no se vuelve. La zona "branch" es solo suya.
+  // La sala del comienzo (BRIEF.md §3): un apeadero de la línea secundaria; se sale en su único vagón, cuando te has sentado a esperar.
   halt: {
-    name: "APEADERO LUNES", area: "branch", at: [0, 0, 0],
+    name: "APEADERO LUNES", area: "town", at: [-1, 0, 0],
     describe: [
-      "Un apeadero de vía secundaria, un domingo por la tarde: un banco, una farola y un cartel con el nombre, «Lunes», aunque la línea no va a ninguna parte después de él. El horario anuncia un tren a la semana, y salió ayer.",
+      "Un apeadero de vía secundaria, un domingo por la tarde: un {banco|halt_bench}, una farola y un cartel con el nombre, «Lunes», aunque la línea no va a ninguna parte después de él. El horario anuncia un tren a la semana, y salió ayer.",
       "Un único vagón espera al final del andén, al este, con la {puerta del vagón|carriage_door} abierta y la luz encendida."
     ],
-    exits: { e: true },
+    exits: { e: { to: "lost_property", if: false, closed: "Pones un pie en el escalón, y el vagón se aparta de él, con cortesía, un palmo. En su ventanilla, un cartelito: SE RUEGA ESPERAR SENTADO HASTA QUE SE LE LLAME." } },
     scenery: [
-      { words: ["banco", "asiento", "farola", "andén", "anden", "apeadero", "cartel", "letrero", "nombre", "plataforma"], name: "el apeadero", says: "Un banco, una farola, un cartel con el nombre. Alguien ha pintado el banco desde que cerraron la línea, y no hace mucho." },
+      { words: ["farola", "andén", "anden", "apeadero", "cartel", "letrero", "nombre", "plataforma"], name: "el apeadero", says: "Un banco, una farola, un cartel con el nombre. Alguien ha pintado el banco desde que cerraron la línea, y no hace mucho." },
       { words: ["horario", "tren", "línea", "linea", "vía", "via", "vías", "vias", "raíles", "railes", "carriles"], name: "el horario", says: "Un tren a la semana, hacia un lugar cuyo nombre han raspado del cartel y vuelto a escribir a lápiz: Martes." }
     ],
     ambience: { lines: ["La farola sobre el banco zumba una nota y la sostiene.", "Un hilo del telégrafo hace tic, una sola vez, como un reloj que se lo está pensando.", "Muy lejos, línea abajo, algo que no es un tren hace sonar su silbato y se arrepiente.", "El cartel con el nombre gira un poco con el viento, y vuelve a su sitio."], every: [30, 70] },
@@ -91,9 +92,9 @@ const rooms = {
     name: "OBJETOS PERDIDOS", area: "town", at: [0, 0, 0],
     describe: [
       "Una sala larga de estanterías: paraguas, guantes, una jaula, un vestido de novia en su caja, todas las etiquetas con la misma letra paciente. Estás en medio de todo ello, como si alguien te hubiera olvidado aquí.",
-      "Tras el mostrador, el {señor Ambrose|ambrose} lleva el {libro de registro|ledger}. Un {cajón|sea_crate} húmedo dice MAR, UNO, SIN RECLAMAR. El vestíbulo de la estación queda al este."
+      "Tras el mostrador, el {señor Ambrose|ambrose} lleva el {libro de registro|ledger}. Un {cajón|sea_crate} húmedo dice MAR, UNO, SIN RECLAMAR. El vestíbulo de la estación queda al este; una puerta trasera, al oeste, da al andén de la vía secundaria."
     ],
-    exits: { e: "station_hall" },
+    exits: { e: "station_hall", w: "halt" },
     scenery: [{ words: ["estanterías", "estanterias", "estantería", "estanteria", "estantes", "paraguas", "guantes", "jaula", "vestido", "novia", "caja", "etiquetas", "fechas"], name: "las estanterías", says: "Cosas que la gente dejó de buscar. Cada una tiene una etiqueta, y cada etiqueta una fecha. Ninguna fecha es un lunes posterior al decreto." },
               { words: ["mostrador"], name: "el mostrador", says: "Un mostrador largo, gastado donde se ha apoyado un siglo de reclamantes." }],
     sleep: "Entre los objetos perdidos no. El señor Ambrose te pondría una etiqueta.",
@@ -320,7 +321,7 @@ const rooms = {
 
 // ---- Objetos ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: la cosa que se coge, la que llevas, y el camino (BRIEF.md §3).
+  // La sala del comienzo: la cosa de las pistas, la que llevas, la salida y el banco en que la esperas (BRIEF.md §3).
   tin: { at: "halt", portable: true, material: "metal", name: "Lata de cacao", note: "Alguien al otro lado.",
     words: { nouns: ["lata", "cordel", "cuerda", "cacao", "bote"], adj: ["cacao", "fría", "fria", "larga"], g: "f" }, ...item("tin"),
     here: "Sobre el banco, una {lata|tin} de cacao tiende su cordel más allá del borde del andén.",
@@ -328,7 +329,10 @@ const objects = {
   diary_leaf: { at: "player", portable: true, material: "paper", name: "Página de agenda", note: "Rayada para una semana.",
     words: { nouns: ["página", "pagina", "agenda", "diario"], adj: ["hoja", "doblada", "amarilla", "rayada"], g: "f" }, ...item("diary_leaf"),
     examine: "Una página de agenda, rayada para una semana. El domingo y el martes están escritos, de tu puño y letra; donde debería estar el lunes hay un hueco limpio y cuidadoso, frotado hasta gastar el papel." },
-  carriage_door: { at: "halt", name: "Puerta del vagón", note: "Abierta, esperando.",
+  halt_bench: { at: "halt", material: "wood", name: "Banco", note: "Pintado, no hace mucho.", actions: ["Sentarse en banco"],
+    words: { nouns: ["banco", "asiento"], adj: ["pintado", "anden"], g: "m" },
+    examine: "Un banco de andén, pintado desde que cerraron la línea, y no hace mucho. Mira al vagón, como una silla de sala de espera mira a una puerta." },
+  carriage_door: { at: "halt", door: "e", material: "wood", name: "Puerta del vagón", note: "Abierta, esperando.",
     words: { nouns: ["vagón", "vagon", "puerta", "coche"], adj: ["abierta", "única", "unica", "verde"], g: "f" },
     examine: "Un vagón verde, uno solo, con la puerta abierta y un escalón hasta la grava. La luz de dentro es la amarilla de una habitación de la que alguien acaba de levantarse." },
 
@@ -642,6 +646,12 @@ const pastTheGuard = [{ say: "El revisor mira tu billete, lo pica otra vez, por 
 const BOARD = ["enter", "board", "take", "climb"];
 
 const rules = [
+  // La salida de la sala del comienzo: te sientas en el banco, como pide el cartelito, y el vagón te lleva (una regla que `connect`a
+  // la salida); mientras esperas, un reloj del pueblo da la media (el cambio `arrival`). Luego el vagón se queda, y se pasa en los dos sentidos.
+  { id: "halt_seated", match: { verb: "sit", obj: [null, "halt_bench"] }, if: [at("halt")], once: true,
+    again: "Te quedas un rato más en el banco. El vagón espera con la puerta abierta; tampoco tiene prisa.",
+    do: [{ say: "Te sientas en el banco, como pide el cartelito. La farola zumba. Al cabo de un rato, una voz dentro del vagón lee en voz alta, como de una etiqueta: «Un pasajero, sin reclamar». El vagón recupera el palmo que se había apartado, y te espera." },
+         { connect: "halt", dir: "e", to: "lost_property" }, { change: "arrival" }] },
   // Objetos perdidos: el paraguas, cuando lo pides.
   { id: "claim_umbrella", match: { verb: "ask", obj: "ambrose", topic: "umbrella" }, if: [{ "umbrella.at": "lost_property" }],
     do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo»." },
@@ -751,6 +761,9 @@ const rules = [
 // ---- Enigmas (para el verificador; BRIEF.md §4) -----------------------------------------------------------------------------
 // Las órdenes son las que un jugador escribiría en español.
 const puzzles = {
+  // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la lata son para ella.
+  way_out: { where: "halt", needs: [], solve: ["siéntate en el banco", "este"], reaches: "lost_property", clues: ["carriage_door", "halt_bench"],
+    hints: ["El vagón no se lleva a un pasajero que anda de pie de acá para allá. Alguien ha pintado el banco.", "Siéntate en el banco hasta que el vagón esté listo para ti, y sube: al este."] },
   get_coin: { where: "square", needs: [], solve: ["esperar hasta que se enciendan las farolas", "coger moneda"], gives: ["coin"], clues: ["oduya", "booking_clerk", "ines", "fountain"], hints: ["Las monedas antiguas están en la fuente, pero el agua solo las enseña cuando se enciende su lámpara, a las ocho.", "Espera junto a la fuente hasta que se enciendan las farolas, y coge una moneda."] },
   get_ticket: { where: "station_hall", needs: ["coin"], solve: ["esperar a que abra la ventanilla", "comprar billete"], gives: ["ticket"], clues: ["window", "timetable"], hints: ["La ventanilla de billetes abre a las nueve de la noche, y quiere una moneda antigua.", "Espera en el vestíbulo a que abra la ventanilla y compra un billete."] },
   board_train: { where: "platform", needs: ["get_ticket"], solve: ["esperar al tren", "subir al tren"], reaches: "compartment", clues: ["board", "signalman", "timetable"], hints: ["El tren del martes llega a las once y media. El revisor quiere un billete.", "Espera en el andén al tren y sube a él."] },
@@ -767,15 +780,13 @@ const puzzles = {
 const opening = {
   room: "halt", hints: "tin", intro: "diary_leaf", way: "carriage_door",
   lines: {
-    notYet: "El vagón se aparta de tu pie, con cortesía, un palmo. Se ruega a los pasajeros que traigan algo que escuchar, y en el banco hay una lata.",
-    through: "Subes, y la puerta se cierra tras de ti con un ruidito, como un billete al picarse, y la farola del andén se apaga. Cuando vuelve a abrirse estás entre estanterías.",
     hintFrame: "Te acercas la lata al oído. Por el cordel, alguien con la paciencia de un jefe de estación dice:",
     farewell: "Alzas la página hacia la farola. La semana se deshace por sus líneas, y desaparece, el domingo primero."
   }
 };
 
 export default {
-  because: "Tras la apertura: un pueblo sin lunes.",
+  because: "Un apeadero de la vía secundaria, y un pueblo sin lunes.",
   opening,
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, «Fields and properties»); las del motor no se declaran.
   properties: {
@@ -787,11 +798,9 @@ export default {
     "El último lunes lo guarda la archivera del ayuntamiento, para quien perdió uno."
   ],
   effects: [
-    { time: "day 1 19:00", weekday: "sun" },                  // la apertura se juega a las siete
-    // Adónde lleva el camino de la apertura, y qué hace llegar: la hora del pueblo y su primera línea.
-    { set: "game.entrance", to: "lost_property" },
+    { time: "day 1 19:30", weekday: "sun" },                  // el juego empieza a las siete y media
+    // Lo que dice el pueblo cuando el vagón te lleva (lo ejecuta la regla del banco): su primera línea.
     { add: "change", id: "arrival", effects: [
-      { time: "day 1 19:30", weekday: "sun" },
       { say: "En algún sitio un reloj da las siete y media, de la tarde, un domingo." }
     ] },
     // Verbos que este mundo necesita

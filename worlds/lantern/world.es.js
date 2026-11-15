@@ -1,11 +1,11 @@
-// «La última palabra en Lantern Row»: el mundo después de la apertura, en español. No es una traducción: está escrito
+// «La última palabra en Lantern Row»: el mundo, en español. No es una traducción: está escrito
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -18,10 +18,10 @@ export const bible = {
     "reúne a medianoche, y querrá un nombre.",
   tone: "WRITING-DIRECTION.md. Londres en la niebla, de faroles de gas, tiendas de pasteles e investigaciones; modales " +
     "de policía; una muerte sin una sola marca en el cuerpo. Tierno: el crimen es una bondad dicha a destiempo.",
-  start: "Jueves, 22:30, en Lantern Row (la apertura, en el coche, a las 22:20).",
-  opening: "Dentro de un coche de punto detenido en la niebla: un canario en " +
-    "una jaula (pistas), una citación que ya llevas (por qué has venido). La niebla al otro lado de las portezuelas " +
-    "plegables es el camino.",
+  start: "Jueves, 22:30, en el coche, detenido en la niebla en Lantern Row.",
+  opening: "Dentro de un coche de punto detenido en la niebla en Lantern Row, la sala de inicio: un canario en " +
+    "una jaula (pistas), una citación que ya llevas (por qué has venido), un chelín en el asiento para la carrera. La niebla " +
+    "en las portezuelas plegables es la salida, y se aparta, como un portero, en cuanto se le paga.",
   music: "vals de salón lento en menor armónica; el aliento de una llama de gas, un arpa de faroles y las botas de un " +
     "agente; un disco viejo que sigue sonando en la niebla",
   rules: [
@@ -76,21 +76,22 @@ const visionPictures = {
 };
 
 // ---- Salas -------------------------------------------------------------------------------------------------------------
-// Zona "cab": la apertura, a la que no se vuelve. Zona "row" (la x crece al este, la y al sur): el tribunal al norte de la
-// calle, The Bell al oeste y la tienda de pasteles al este; el último farol al sur, con la subestación al oeste, la
-// caseta al este y la escalera del río al sur; el puente al este de la escalera.
+// Zona "row" (la x crece al este, la y al sur): el tribunal al norte de la calle, The Bell al oeste y la tienda de pasteles al
+// este; el último farol al sur, con la subestación al oeste, la caseta al este y la escalera del río al sur; el puente al este
+// de la escalera. El coche, la sala de inicio, está junto al bordillo de la calle: se SALE de él a la calle (pagada la carrera) y
+// se ENTRA desde ella, así que tiene una casilla propia junto al tribunal, sin unirse a nada por norte, sur, este u oeste.
 const rooms = {
   cab: {
-    name: "EL COCHE DE PUNTO", area: "cab", at: [0, 0, 0],
+    name: "EL COCHE DE PUNTO", area: "row", at: [0, -1, 0],
     describe: [
       "Dentro de un coche de punto, detenido. El caballo se ha ido, y con él el cochero; las riendas cuelgan junto a la ventanilla como una frase que nadie terminó. Al otro lado del cristal solo hay blanco.",
-      "Frente a tus rodillas, las portezuelas plegables están abiertas a la {niebla|cab_fog}, y es el único camino."
+      "Frente a tus rodillas, las portezuelas plegables están abiertas a la {niebla|cab_fog}, que es la única salida y se planta en ellas como un portero."
     ],
-    exits: { out: true },
+    exits: { out: { to: "row", if: false, closed: "Pones un pie en el estribo, y la niebla te lo devuelve, con educación, como lo haría un portero. De un coche de punto no se baja nadie sin pagar la carrera." } },
     scenery: [
       { words: ["riendas", "rienda", "cochero", "caballo", "varas", "limoneras"], name: "las riendas", says: "Riendas de cuero, que suben por encima del techo hasta donde estaba el cochero. Siguen tibias allí donde las sujetó." },
       { words: ["ventanilla", "ventana", "cristal", "vidrio"], name: "la ventanilla", says: "Una pequeña ventanilla lateral, empañada. Al otro lado, blanco, y nada en el blanco." },
-      { words: ["asiento", "cojin", "felpa", "banqueta", "coche", "punto"], name: "el asiento", says: "Felpa roja, gastada hasta brillar por muchísima gente que iba a algún sitio con prisa. El tuyo es el único lugar tibio.", leads: "out" },
+      { words: ["asiento", "cojin", "felpa", "banqueta"], name: "el asiento", says: "Felpa roja, gastada hasta brillar por muchísima gente que iba a algún sitio con prisa. El tuyo es el único lugar tibio." },
       { words: ["gancho", "techo", "tejado"], name: "el gancho", says: "Un gancho de latón en el techo, para un farol. Alguien ha colgado en él un pájaro." }
     ],
     mentions: ["portezuelas"],
@@ -103,6 +104,7 @@ const rooms = {
     alt: "Desde el interior de un coche de punto oscuro, con felpa roja a ambos lados, mirando por sus portezuelas abiertas a una espesa niebla blanca. Las riendas cuelgan a través de la abertura; a lo lejos, entre la niebla, la mancha de un farol encendido.",
     overlayAlt: {
       canary: "Un canario en una pequeña jaula de latón cuelga de un gancho del techo.",
+      shilling: "Un chelín de plata descansa sobre la felpa roja del asiento."
     }
   },
   row: {
@@ -114,7 +116,7 @@ const rooms = {
     exits: {
       n: { to: "court", if: { "time.hour": { between: [0, 6] } }, closed: "Las puertas del tribunal están cerradas. La cartulina que las cubre dice que la investigación es a medianoche." },
       w: { to: "bell", if: { "time.hour": { between: [11, 23] } }, closed: "The Bell está cerrado. A través de la ventana, las sillas están sobre las mesas con las patas al aire, como algo que se ha dado por vencido." },
-      e: "pie_shop", s: "last_lamp"
+      e: "pie_shop", s: "last_lamp", in: "cab"
     },
     scenery: [
       { words: ["faroles", "farol", "farolas", "farola", "gas", "naranjas", "naranja"], name: "los faroles", says: "Faroles de gas sobre postes de hierro, uno cada pocas puertas, cada uno encendido a mano. En la niebla se dan luz a sí mismos y no mucha a nadie más." },
@@ -130,7 +132,7 @@ const rooms = {
       "Pasan pasos entre la niebla, muy cerca, y nadie los acompaña.",
       "Una palabra pasa flotando a la altura de la cabeza, demasiado débil para entenderla, como una polilla que ha perdido su farol.",
       "El agente Pye se detiene, anota algo en su libreta y sigue andando.",
-      "Buscas con la mirada el coche. Solo ves [way], igual que en todas partes."
+      "Miras atrás, al coche, que espera junto al bordillo. Solo ves [way], igual que en todas partes."
     ], every: [40, 80] },
     // El tribunal se reúne a medianoche: vale la pena esperarla aquí siempre que no esté reunido.
     waitFor: { time: "next 00:00", says: "Esperas junto a las puertas del tribunal. La niebla viene y se pone a tu lado, y también espera.", if: [{ "time.hour": { between: [6, 24] } }] },
@@ -295,7 +297,7 @@ const rooms = {
 
 // ---- Objetos -----------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: la cosa que coger, la que ya llevas y el camino (BRIEF.md §3).
+  // La sala de inicio: la cosa de las pistas, la que ya llevas, la salida y la carrera que la abre (BRIEF.md §3).
   canary: { at: "cab", portable: true, material: "metal", name: "Canario", note: "Vigilando la niebla por ti.",
     words: { nouns: ["canario", "pajaro", "ave", "jaula", "pajarito"], adj: ["amarillo", "laton", "pequeno", "pequeño", "dorado"], g: "m" }, ...item("canary"),
     here: "De un gancho del techo cuelga un {canario|canary} en una pequeña jaula de latón, vigilando la niebla por ti.",
@@ -303,11 +305,20 @@ const objects = {
   summons: { at: "player", portable: true, material: "paper", name: "Citación", note: "Doblada, oficial.",
     words: { nouns: ["citacion", "citatorio", "papel", "documento", "carta"], adj: ["doblada", "oficial", "judicial"], g: "f" }, ...item("summons"),
     examine: "«Se cita como testigo en la investigación de la muerte de Albert Fenn, farolero, de Lantern Row. El tribunal se reúne a medianoche». Bajo el sello, con otra letra, más pequeña: «El difunto estará presente»." },
-  cab_fog: { at: "cab", leads: "out", name: "Niebla", note: "El único camino.",
-    words: { nouns: ["niebla", "portezuelas", "portezuela", "puertas", "puerta", "blanco", "bruma"], adj: ["plegables", "abiertas", "espesa", "blanca"], g: "f" },
+  cab_fog: { at: "cab", leads: "out", name: "Niebla", note: "La única salida.",
+    words: { nouns: ["niebla", "portezuelas", "portezuela", "puertas", "puerta", "blanco", "bruma", "coche", "coche de punto"], adj: ["plegables", "abiertas", "espesa", "blanca", "punto"], g: "f" },
     examine: "Las portezuelas plegables del coche están abiertas a una niebla tan espesa que tiene veta, como el papel. En algún punto de ella, muy lejos, hay un farol encendido, o recordado." },
+  shilling: { at: "cab", portable: true, material: "metal", name: "Chelín", note: "La carrera.",
+    words: { nouns: ["chelin", "moneda", "carrera", "dinero"], adj: ["plata", "de"], g: "m" }, ...item("shilling"),
+    here: "En el asiento, a tu lado, hay un {chelín|shilling}: la carrera, contada y sin pagar.",
+    examine: "Un chelín de plata, con la cabeza de la vieja reina gastada por las carreras de otros. Estaba contado para el cochero, que no esperó a cobrarlo." },
 
   // Lantern Row
+  // El coche de la sala de inicio, junto al bordillo: la vuelta a él (ENTRAR).
+  row_cab: { at: "row", leads: "in", name: "Coche", note: "Junto al bordillo.",
+    words: { nouns: ["coche", "coche de punto"], adj: ["punto"], g: "m" },
+    here: "A tu espalda el {coche|row_cab} sigue junto al bordillo, sin caballo entre las varas, con las portezuelas abiertas a la niebla.",
+    examine: "El coche de punto en el que llegaste, sin caballo entre las varas. Sus portezuelas plegables están abiertas sobre la felpa roja, y la niebla entra y sale de él como si fuera suyo." },
   pye: { portrait: sprites.pye_portrait, at: "row", name: "Agente Pye", note: "Haciendo su ronda.",
     words: { nouns: ["pye", "agente", "policia", "guardia", "bobby"], adj: ["agente", "policia"], g: "m" },
     examine: "Un agente joven y alto, con capa, con un farol propio y una {libreta|notebook} que sostiene como un devocionario. En la copa del casco se le ha juntado un poco de niebla.",
@@ -398,7 +409,7 @@ const objects = {
     examine: "Un recinto de madera barnizada, con una barandilla gastada hasta quedar clara por las manos de quienes vieron algo. Es exactamente de tu medida." },
 
   // Las salidas de The Bell, la tienda de pasteles, el tribunal y la subestación (marcadas `out: true`): cada una su puerta (BRIEF.md
-  // §8, "Exits": cada entrada o salida es una cosa). La del coche es la niebla, su camino (lleva fuera).
+  // §8, "Exits": cada entrada o salida es una cosa). La del coche es la niebla, su salida (al oeste, y fuera).
   bell_door: { at: "bell", door: "e", material: "wood", name: "Puerta", note: "Sale a la calle.",
     words: { nouns: ["puerta"], adj: ["taberna"], g: "f" },
     examine: "Una puerta pesada con un tirador de latón gastado. Cada vez que se abre, la niebla se asoma." },
@@ -515,6 +526,11 @@ const objects = {
 
 // ---- Cambios con nombre ---------------------------------------------------------------------------------------------------
 const changes = {
+  fare_paid: [
+    { say: "Tiendes el chelín. La niebla lo coge como un buen portero coge una propina, sin que se note, y se aparta. En algún lugar por encima de ella da la hora un reloj de iglesia, y no suena muy seguro." },
+    { move: "shilling", to: null },
+    { connect: "cab", dir: "out", to: "row" }
+  ],
   key_taken: [
     { set: "fenn.examine", to: "Un hombre menudo con gorra y un abrigo verdoso en las costuras, sentado muy recto en el bordillo con las manos en las rodillas. Sin el cordel, el cuello se le ve desnudo. Está muerto, y sigue de servicio." },
     { set: "fenn.mentions", to: ["abrigo", "gorra"] }
@@ -544,6 +560,13 @@ const changes = {
 
 // ---- Reglas ---------------------------------------------------------------------------------------------------------------
 const rules = [
+  // La salida del coche: la niebla de las portezuelas se aparta en cuanto se paga la carrera (una regla que conecta la salida, BRIEF.md §3).
+  // («Pagar» a secas es el «comprar» del idioma: también paga la carrera aquí.)
+  { id: "pay_fare", match: { verb: ["give", "put", "throw", "show", "use", "pay"], obj: "shilling", obj2: [null, "cab_fog"] },
+    if: [{ "player.at": "cab" }, { "shilling.at": "player" }], do: [{ change: "fare_paid" }] },
+  { id: "pay_cab", match: { verb: "pay" }, if: [{ "player.at": "cab" }, { "shilling.at": { in: ["player", "cab"] } }], do: [{ change: "fare_paid" }] },
+  { id: "buy_way", match: { verb: "buy", obj: [null, "cab_fog", "shilling"] }, if: [{ "player.at": "cab" }, { "shilling.at": { in: ["player", "cab"] } }], do: [{ change: "fare_paid" }] },
+
   // La llave que cuelga del cuello del señor Fenn.
   { id: "take_key", match: { verb: "take", obj: "hut_key" }, if: [{ "hut_key.at": "fenn" }],
     do: [{ say: "El señor Fenn inclina la cabeza para que puedas pasarle el cordel por encima. «Cuidado con la gorra», dice." }, { change: "key_taken" }], then: "default" },
@@ -686,6 +709,8 @@ const rules = [
 
 // ---- Rompecabezas (para el verificador y las pistas; BRIEF.md §4). Los finales, en el orden en que las pistas deben alcanzarlos. ----
 const puzzles = {
+  pay_fare: { where: "cab", needs: [], solve: ["{take} chelín", "da el chelín a la niebla", "sal"], reaches: "row", clues: ["cab_fog", "shilling"],
+    hints: ["La niebla se planta en las portezuelas del coche como un portero, y la carrera está en el asiento.", "Coge el chelín, dáselo a la niebla y sal."] },
   take_key: { where: "last_lamp", needs: [], solve: ["{take} llave"], gives: ["hut_key"], clues: ["fenn", "hut_door"],
     hints: ["El señor Fenn guarda la llave de su caseta en un cordel, al cuello.", "Coge la llave del señor Fenn, junto al último farol."] },
   open_hut: { where: "last_lamp", needs: ["hut_key"], solve: ["abre la puerta con la llave", "este"], reaches: "hut", clues: ["hut_door", "fenn"],
@@ -705,12 +730,10 @@ const puzzles = {
     hints: ["El doctor Mabbott quiere un nombre, y el señor Voss espera que sea el suyo.", "En el tribunal, acusa al señor Voss, y di que sí."] }
 };
 
-// ---- La apertura, declarada (BRIEF.md §3): los ids de su sala y sus tres cosas, y las líneas que dice ------------------
+// ---- La apertura, declarada (BRIEF.md §3): la sala de inicio, la cosa de las pistas, la que llevas y la salida, y las dos líneas
 const opening = {
   room: "cab", hints: "canary", intro: "summons", way: "cab_fog",
   lines: {
-    notYet: "Pones un pie en el estribo, y la niebla te lo devuelve, con educación, como lo haría un portero. Todavía no: el canario sigue en su gancho, y a una niebla así no se sale sin canario.",
-    through: "Bajas a la niebla. Se cierra sobre el coche a tus espaldas como el agua sobre una moneda que cae, y los adoquines suben a encontrar tus pies.",
     hintFrame: "El canario ladea la cabeza y canta, con una voz de agente de policía muy pequeño:",
     farewell: "La niebla se asoma por las portezuelas y lee la citación por encima de tu hombro. Cuando termina, se la lleva, y la dejas."
   }
@@ -718,27 +741,23 @@ const opening = {
 
 // ---- El conjunto de cambios ------------------------------------------------------------------------------------------------
 export default {
-  because: "Después de la apertura: una calle envuelta en niebla, la noche de la investigación de un farolero.",
+  because: "Una calle envuelta en niebla, la noche de la investigación de un farolero, y el coche que te trajo, detenido junto a su bordillo.",
   opening,
   facts: [
-    "El jugador llega a Lantern Row, en Londres, en una niebla espesa, un jueves a las diez y media de la noche.",
+    "El jugador empieza en un coche detenido en Lantern Row, en Londres, en una niebla espesa, un jueves a las diez y media de la noche.",
     "Albert Fenn, farolero, murió esta noche bajo el único farol que no encendió, y sigue allí sentado, muerto, hasta que lo releven.",
     "La investigación se celebra a medianoche en el tribunal del forense, al norte de la calle; The Bell cierra a las once.",
     "Las palabras de la señora Halloran, «Déjalo, Albert. Siéntate un momento», cuelgan en la niebla del último farol."
   ],
   effects: [
-    { time: "day 1 22:20", weekday: "thu" },                 // la apertura se juega a las diez y veinte
-    { set: "game.entrance", to: "row" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 22:30", weekday: "thu" },
-      { say: "En algún lugar por encima de la niebla un reloj de iglesia da las diez y media, y no suena muy seguro." }
-    ] },
+    { time: "day 1 22:30", weekday: "thu" },                 // el juego empieza a las diez y media
     // Verbos que este mundo necesita
     { add: "word", verb: "accuse", words: ["acusar", "acusa", "acuse", "acuso", "culpar", "culpa", "inculpar", "inculpa", "denunciar", "denuncia", "nombrar", "nombra"], absent: true, reply: "Los nombres son para la investigación: el tribunal del forense, al norte de la calle, cuando se reúne a medianoche." },
     { add: "word", verb: "order", reply: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." },
     { add: "word", verb: "buy", reply: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." },
     { add: "word", verb: "breathe", words: ["respirar", "respira", "respire", "respiro", "inspirar", "inspira", "aspirar", "aspira", "tomar aire", "toma aire", "coger aire", "coge aire"], reply: "Respiras niebla, y ella te respira a ti. Fuera, en el puente, pasada la escalera del río, el aire es más fino." },
     { add: "word", verb: "swim", words: ["nadar", "nade", "nado", "bucear", "bucea", "chapotear", "chapotea", "vadear", "vadea", "zambullirse", "zambullete"] },
+    { add: "word", verb: "pay", words: ["págale", "pagale", "pagarle", "dar propina", "da propina", "dale propina", "dale una propina", "da una propina"], object: "optional", reply: "Aquí nadie espera que le paguen." },
     { add: "word", verb: "relieve", words: ["relevar", "releva", "releve", "relevo", "sustituir", "sustituye", "reemplazar", "reemplaza", "tomar el relevo", "toma el relevo"], reply: "El señor Fenn guarda su puesto en el último farol, al final de la calle, al sur. Solo quien lo encienda puede relevarlo." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

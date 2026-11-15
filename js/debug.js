@@ -3,12 +3,12 @@
 // the page (ui/debug.js draws the panel) and never changes a state itself: the engine does. Nothing in the game imports this
 // file but the panel's block at the end of js/main.js; delete both and the panel is gone.
 
-import { step, applyChangeSet } from "./engine.js?v=0.54.0";
-import { parse } from "./parser.js?v=0.54.0";
-import { text, listName } from "./narrator.js?v=0.54.0";
-import { ORDER, PARAMS, MOMENTS } from "./filters.js?v=0.54.0";
-import { levelName } from "./map.js?v=0.54.0";
-import { musicOf, sceneOf } from "./music.js?v=0.54.0";
+import { step, applyChangeSet } from "./engine.js?v=0.55.0";
+import { parse } from "./parser.js?v=0.55.0";
+import { text, listName } from "./narrator.js?v=0.55.0";
+import { ORDER, PARAMS, MOMENTS } from "./filters.js?v=0.55.0";
+import { levelName } from "./map.js?v=0.55.0";
+import { musicOf, sceneOf } from "./music.js?v=0.55.0";
 
 // What you type at the prompt to open the panel. Read before the parser: never a turn, never echoed, never kept.
 export const COMMAND = "/debug";
@@ -18,7 +18,7 @@ export const isDebugCommand = (raw) => typeof raw === "string" && raw.trim().toL
 
 const RULE = "debug_panel";   // the rule a moment runs (and removes), and the verb that calls it
 
-// One moment of the game made of these effects, as if a rule of the opening's own had run them: the engine applies them and
+// One moment of the game made of these effects, as if a rule of the game's own (`fixed`: trusted, like the opening's) had run them: the engine applies them and
 // does everything a moment does after them (the echoes of what you gained and lost, conditions and timed rules, the end when
 // health reaches 0, the hurt and heal reactions), so the state is as valid as after any command and saves as usual.
 // It is a turn like any other (the turn count goes up, and a question waiting is dropped). How: the rule is added through a
@@ -128,23 +128,19 @@ export const stop = (state, id) => (state.conditions?.[id] ? [{ stop: id }] : []
 export const travel = (room) => [{ travel: room }];
 
 // Every room of the world, grouped by area and level (lowest level first, then by area), each with its name in the pack's words,
-// whether you are there and whether you have been. The opening is a group of its own, first.
+// whether you are there and whether you have been.
 export function rooms(state, pack) {
-  const groups = new Map(), opening = state.opening?.room ?? null;
+  const groups = new Map();
   for (const [id, r] of Object.entries(state.world.rooms)) {
-    const z = r.at?.[2] ?? 0, area = r.area ?? "", key = (id === opening ? "0" : "1") + "|" + z + "|" + area;
-    if (!groups.has(key)) groups.set(key, { area, z, opening: id === opening, label: (id === opening ? "opening · " : "") + area + " · " + levelName(z, pack), rooms: [] });
+    const z = r.at?.[2] ?? 0, area = r.area ?? "", key = z + "|" + area;
+    if (!groups.has(key)) groups.set(key, { area, z, label: area + " · " + levelName(z, pack), rooms: [] });
     groups.get(key).rooms.push({ id, name: r.name ? text(r.name, pack) : id, here: id === state.player.at, visited: (state.seen?.visited || []).includes(id) });
   }
-  const order = (g) => [g.opening ? 0 : 1, g.z, g.area];
-  return [...groups.values()].sort((a, b) => {
-    const [x, y] = [order(a), order(b)];
-    return x[0] - y[0] || x[1] - y[1] || (x[2] < y[2] ? -1 : x[2] > y[2] ? 1 : 0);
-  });
+  return [...groups.values()].sort((a, b) => a.z - b.z || (a.area < b.area ? -1 : a.area > b.area ? 1 : 0));
 }
 
-// The rooms not visited yet (the opening left out: the map never shows it again).
-export const unvisited = (state) => Object.keys(state.world.rooms).filter(id => id !== state.opening?.room && !(state.seen?.visited || []).includes(id));
+// The rooms not visited yet.
+export const unvisited = (state) => Object.keys(state.world.rooms).filter(id => !(state.seen?.visited || []).includes(id));
 // Mark every room visited, so the map shows them all: a trip through each one not visited yet and back to where you are (the
 // engine's travel is the one effect that marks a room visited). Nothing when there is none.
 export function visitAll(state) {

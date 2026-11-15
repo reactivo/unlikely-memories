@@ -1,16 +1,16 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.54.0";
-import { grammarOf } from "./words.js?v=0.54.0";
-import { parse } from "./parser.js?v=0.54.0";
-import { answers } from "./engine.js?v=0.54.0";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.54.0";
-import { ACTIONS } from "./actions.js?v=0.54.0";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.54.0";
-import { receives } from "./use.js?v=0.54.0";
-import { spellings, called } from "./names.js?v=0.54.0";
-import { wayOf, waysOf } from "./exits.js?v=0.54.0";
-import { LISTEN, READ, GO_THROUGH } from "./opening.js?v=0.54.0";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.55.0";
+import { grammarOf } from "./words.js?v=0.55.0";
+import { parse } from "./parser.js?v=0.55.0";
+import { answers } from "./engine.js?v=0.55.0";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.55.0";
+import { ACTIONS } from "./actions.js?v=0.55.0";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.55.0";
+import { receives } from "./use.js?v=0.55.0";
+import { spellings, called } from "./names.js?v=0.55.0";
+import { wayOf, waysOf } from "./exits.js?v=0.55.0";
+import { LISTEN, READ } from "./opening.js?v=0.55.0";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
@@ -202,7 +202,7 @@ function unlockActions(state, t, id, memo) {
 // What a thing offers by what it is (ARCHITECTURE.md §3, "What the engine offers"; docs/engine-audit/PLAN.md, stage 3), from its properties
 // and where you are, worded by the pack (`basic`) and the thing's name. Never Examine (a click examines already) and never Drop. Every
 // command passes `offering`: read, and answered by a rule or the thing, never a stock reply or what is so already; a refusal in the
-// world's own words is offered (a lock's `says`, a shut way's line, the opening's "not yet", what a thing costs: js/verbs.js, GENERIC).
+// world's own words is offered (a lock's `says`, a shut way's line, what a thing costs: js/verbs.js, GENERIC).
 // So the list below says what is tried, and `offering` decides. [] for a thing out of reach.
 //   portable, in reach, no one holds it, not what you are on ......... Take
 //   a person (`topics` or `talk`) ..................................... Talk to
@@ -215,7 +215,7 @@ function unlockActions(state, t, id, memo) {
 //   a line for a verb (listen, push, smell, read…) .................... that verb, but not take, drop, put, give, throw, attack
 //   `use: "pull"` ..................................................... that verb
 //   a source (a thing's `from` names it) .............................. Order X / Buy X (what costs something), while it can come
-//   the opening: the hints thing .. Listen to; the intro .. Read; the way on .. Enter (until the hints thing is carried, "not yet")
+//   the opening: the hints thing .. Listen to; the intro .. Read (its way out is a `door` or `leads`, above)
 // `held`: the inventory's side (the thing is in your hands), which has no Take and no sitting on it.
 export function basicActions(state, t, id, held = inHands(state, id), memo = new Map()) {
   const o = state.world.objects[id], b = t.basic;
@@ -252,7 +252,6 @@ export function basicActions(state, t, id, held = inHands(state, id), memo = new
   }
   if (op && id === op.hints) add(b.listen, is(...LISTEN));
   if (op && id === op.intro && carried(state, id)) add(b.read, is(...READ));
-  if (op && id === op.way && !way) add(b.enterIn, is(...GO_THROUGH));
   return out.filter(offering(state, t, id, memo));
 }
 

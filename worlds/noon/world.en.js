@@ -1,10 +1,10 @@
 // "The River Turns at Noon": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -21,9 +21,9 @@ export const bible = {
     "never explains the river. Short plain sentences, then a longer wry one. The people of the valley are not impressed, and are " +
     "right. Sample lines: \"The rain stops as you step out, politely, as if it had been waiting for you to be ready.\" / " +
     "\"The jaguar is thin, and has noticed that you are not.\" / \"Noon has been quiet in the valley since the bell lost its tongue. Everyone has managed.\"",
-  start: "Tuesday, 06:10, on the landing (the opening, in the tent, at 05:40).",
+  start: "Tuesday, 06:10, in the tent on the landing.",
   opening: "A canvas tent on a mud bank, in the rain: a parrot in a cage that reads your journal aloud (hints), the Society's letter " +
-    "you already carry (why you came). The tent flap, tied half back on the wet green, is the way on.",
+    "you already carry (why you came). The tent flap, tied half back on the wet green, is the way out, onto the landing, once your boots are on.",
   music: "slow in-mode river music, far away and under water; a cane flute, a log drum and a plucked tally cord; a bell that never sounds",
   rules: [
     "The river runs up the valley for the hour after noon, and carries whatever floats on it.",
@@ -53,29 +53,29 @@ const endingPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "camp": the opening, never returned to; it faces north, out of the flap. Area "bank": the landing, the trail north of it, the
+// Area "bank": the tent, the start room (BRIEF.md §3), south of the landing, facing north out of the flap, left once your boots are on;
+// the landing, the trail north of it, the
 // fig further north, the gorge east of the trail. Area "village": west of the landing. Area "temple", across the gorge, reached by
 // the river at noon: the steps, the court north of them, the bell chamber north of that. Every picture faces north.
 const rooms = {
   bivouac: {
-    name: "THE TENT", area: "camp", at: [0, 0, 0],
+    name: "THE TENT", area: "bank", at: [0, 1, 0],
     describe: [
       "A canvas tent on a mud bank, shut up against the morning. Rain taps the roof like a clerk with a pencil, and everything that can go green has.",
-      "The cot is made, the boots stand by it, and a lantern hangs from the ridge pole. The only way out is the {flap}, tied half back on grey light and wet leaves."
+      "The cot is made, your {boots} stand by it, and a lantern hangs from the ridge pole. The only way out is the {flap}, tied half back on grey light and wet leaves."
     ],
-    exits: { n: true },
+    exits: { n: { to: "landing", if: { "boots.worn": true }, closed: "You start for the flap in your stockings. The mud outside has views on stockings, and your boots are standing by the cot." } },
     scenery: [
       { words: ["cot", "bed", "blanket", "net"], name: "the cot", says: "Made with a precision the rest of the camp gave up some weeks ago." },
-      { words: ["boots", "boot"], name: "the boots", says: "Two boots side by side, each holding last night's rain." },
       { words: ["lantern", "lamp", "pole", "ridge"], name: "the lantern", says: "A hurricane lantern with a short flame, burning for want of anyone to put it out." },
-      { words: ["canvas", "roof", "walls", "wall", "rain"], name: "the canvas", says: "The rain keeps a steady, official time on it." },
+      { words: ["canvas", "roof", "walls", "wall", "rain"], name: "the canvas", says: "Wet through. When it rains, the rain keeps a steady, official time on it." },
       { words: ["chest", "trunk"], name: "the chest", says: "The expedition chest, stencilled with the Society's initials and a good deal of mud." }
     ],
     ambience: { lines: [
       "A drop finds the one thin place in the canvas and lands on your boot, as it did all night.",
       "Something in the roof sighs, wetly, and goes back to sleep.",
       "The rain pauses for a count of ten, to see whether you are listening, and then goes on."
-    ], every: [30, 60], chance: 0.7 },
+    ], every: [30, 60], chance: 0.7, if: [{ "boots.worn": false }] },
     alt: "The inside of a canvas tent in the rain: a made cot, a lantern, a chest, and the flap open on wet green leaves.",
     overlayAlt: { parrot: "A grey parrot in a wicker cage on the chest." },
     picture: pictures.bivouac,
@@ -86,9 +86,9 @@ const rooms = {
     name: "THE LANDING", area: "bank", at: [0, 0, 0],
     describe: [
       "A bank of grey mud where the river bends, where the expedition tied up and stopped expecting anything. The {canoe} lies half out of the water beside the Society's {crate}, which has been rained on in three languages.",
-      "The river runs down to the sea, brown and in no hurry. A trail climbs into the green to the north, and smoke rises from the village to the west."
+      "The river runs down to the sea, brown and in no hurry. A trail climbs into the green to the north, and smoke rises from the village to the west. Your {tent} is south."
     ],
-    exits: { n: "trail", w: "village" },
+    exits: { n: "trail", w: "village", s: { to: "bivouac", in: true } },
     scenery: [
       { words: ["river", "water", "current", "weed"], name: "the river", says: "Brown water the width of a street. A line of weed on the bank shows that it runs both ways, which is the sort of thing you write down and then cross out." },
       { words: ["mud", "bank", "bend"], name: "the mud", says: "Grey, soft and honest. It keeps every footprint, and the footprints say who has been here: you, and a great many fish." },
@@ -262,7 +262,7 @@ const rooms = {
 
 // ---- Objects ---------------------------------------------------------------------------------------------------------
 const objects = {
-  // The opening
+  // The start room: the parrot (hints), the letter (intro), the flap (the way out) and the boots that let you through it.
   parrot: { at: "bivouac", portable: true, material: "wood", name: "Parrot", note: "Reads your journal aloud.",
     here: "A {parrot} sits in its cage on the chest, reading your journal aloud to nobody and getting the dates wrong.",
     words: { nouns: ["parrot", "bird", "cage"], adj: [] },
@@ -272,11 +272,18 @@ const objects = {
     words: { nouns: ["letter", "orders"], adj: [] },
     examine: "The Society's letter, Latin at the top and plain at the bottom: \"Find what the river keeps. Return with it, or with a reason.\" It is signed by a secretary, in ink that has never been wet.",
     ...item("letter") },
-  flap: { at: "bivouac", name: "Tent flap", note: "Tied half back.",
+  flap: { at: "bivouac", name: "Tent flap", note: "Tied half back.", leads: "n",
     words: { nouns: ["flap"], adj: ["tent"] },
     examine: "The tent flap, tied half back with a bootlace. Beyond it the bank is grey mud and the forest is a green wall that has not yet been introduced." },
+  boots: { at: "bivouac", name: "Boots", note: "Each holding last night's rain.", material: "soft", use: "wear",
+    words: { nouns: ["boots", "boot"], adj: [], pl: true },
+    take: "Boots are for feet. The Society's manual is firm on the point, and so is the mud.",
+    examine: "Two boots side by side, each holding last night's rain. One has given its lace to the tent flap, and has managed without." },
 
   // The landing
+  tent: { at: "landing", leads: "s", material: "soft", name: "Tent", note: "Yours, south.",
+    words: { nouns: ["tent", "canvas"], adj: [] },
+    examine: "Your tent, pitched on the one dry hump of the bank, its flap tied half back. It has the air of a tent that has been rained on by experts." },
   canoe: { at: "landing", enterable: "in", name: "Canoe", note: "Black with use.",
     words: { nouns: ["canoe", "boat", "dugout"], adj: [] },
     enter: "You step into the canoe. It settles, and points both ways at once.",
@@ -394,6 +401,9 @@ const objects = {
 
 // ---- Puzzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the parrot's first hints are about it.
+  boots_on: { where: "bivouac", needs: [], solve: ["wear boots", "go north"], reaches: "landing", clues: ["flap", "boots"],
+    hints: ["The mud outside has views on stockings, and your boots are by the cot.", "Put on your boots, and go out through the flap."] },
   get_paddle: { where: "village", needs: ["hooks"], solve: ["ask kito for paddle"], gives: ["paddle"], clues: ["hooks", "kito", "crate"],
     hints: ["The man at the next house makes paddles, and wants something from the Society's crate.", "Open the crate on the landing, take the hooks, and ask Kito for a paddle."] },
   get_shell: { where: "village", needs: ["salt"], solve: ["ask ennu for shell"], gives: ["shell"], clues: ["salt", "ennu", "crate"],
@@ -434,6 +444,19 @@ const changes = {
 };
 
 const rules = [
+  // The start room's way out: the boots on, the flap lets you through (the exit's `if`); the rain, which was waiting, stops.
+  { id: "wear_boots", match: { verb: "wear", obj: "boots" }, if: [{ "boots.worn": false }],
+    do: [{ say: "You tip last night's rain out of each boot, as the Society's manual advises, and put them on. They are wet inside, and fit. On the canvas the rain stops, politely, as if it had been waiting for you to be ready." },
+      { set: "boots.worn", to: true },
+      { set: "boots.note", to: "On your feet." },
+      { set: "boots.examine", to: "Your boots, on your feet, wet inside and fitting. One is short of a lace, and manages." },
+      { set: "boots.take", to: "They are on your feet, which is where the manual wants them." },
+      { set: "bivouac.describe", to: [
+        "A canvas tent on a mud bank, open to the morning. The rain has stopped, and everything that can go green has.",
+        "The cot is made, and a lantern hangs from the ridge pole. The only way out is the {flap}, tied half back on grey light and wet leaves."] },
+      { set: "bivouac.alt", to: "The inside of a canvas tent: a made cot, a lantern, a chest, and the flap open on wet green leaves." },
+      { draw: "bivouac", remove: ["boot_a", "boot_l", "boot_r", "boot_hi_l", "boot_hi_r"] }] },
+  { id: "wear_boots_again", match: { verb: "wear", obj: "boots" }, do: [{ say: "They are on your feet already, and staying there." }] },
   // The river turns, daily
   { id: "noon_landing", when: "at", at: "12:00", if: [{ "player.at": "landing" }],
     do: [{ say: "The river stops, as a man does who has remembered something, and begins to run up the valley, taking its leaves with it." }] },
@@ -513,25 +536,19 @@ export default {
     "Three endings: the bell rung (rung), taken (carried), the bridge (fell)."
   ],
   properties: {
+    "boots.worn": { type: "boolean", start: false },
     "fig.fed": { type: "boolean", start: false },
     "bell.tongued": { type: "boolean", start: false }
   },
   opening: {
     room: "bivouac", hints: "parrot", intro: "letter", way: "flap",
     lines: {
-      notYet: "You start for the flap. On the chest, the parrot shrieks the word \"Journal\" until you stop; it is plainly coming with you.",
-      through: "You carry the cage through the flap, and the flap ties itself shut behind you with a knot you did not teach it.",
       hintFrame: "The parrot, who has read your journal, says:",
       farewell: "The letter drinks the damp until the ink lets go of it, and then it is only a leaf, which you let fall."
     }
   },
   effects: [
-    { time: "day 1 05:40", weekday: "tue" },                 // the opening is played at twenty to six
-    { set: "game.entrance", to: "landing" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 06:10", weekday: "tue" },
-      { say: "The rain stops as you step out, politely, as if it had been waiting for you to be ready." }
-    ] },
+    { time: "day 1 06:10", weekday: "tue" },                 // the game starts at ten past six
     // Verbs this world needs
     { add: "word", verb: "paddle", words: ["paddle", "row", "punt"], reply: "There is nothing here to paddle." },
     { add: "word", verb: "fit", words: ["fit", "attach", "hang", "tie"], reply: "There is nothing here that wants fitting." },

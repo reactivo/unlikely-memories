@@ -1,10 +1,10 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -38,7 +38,7 @@ export const bible = {
     "The painted lighthouse lights its lamp only when the real lens is lit.",
     "The street doors are chained after the last visitor, and the way out is never the way in."
   ],
-  opening: "A packing van backed against the Galerie's loading dock: a speaking horn on a nail (hints), a calling card you carry (why you are here), and the hatch in the floor, which opens down into the cellar.",
+  opening: "A packing van backed against the Galerie's loading dock: a speaking horn on a nail (hints), a calling card you carry (why you are here), and the hatch in the floor, which opens down into the cellar, nailed down for the drive; a rope on its ring lifts it.",
   music: "wry dorian; a plucked bell-wire, a reed speaking horn and the glass chime of a lens; a watch-clock ticking in a big quiet house",
   characters: ["Gaspard, the watchman", "Madame Lenoir, the voice in the horn"],
   endings: ["The bell: take the picture before the lens is lit.", "Carried: the canvas over the roofs and down a drainpipe.", "The keeper: turn the lit lens over Paris."],
@@ -55,15 +55,18 @@ const endingPictures = {
 };
 
 // ---- Rooms ------------------------------------------------------------------------------------------------------------
-// Area "van": the opening. Area "galerie": the cellar below (z -1), the ground floor, the landing and lens room (z 1), the roof (z 2).
+// Area "galerie": the van, the start room (BRIEF.md §3), at the loading dock on the street's level (z 0, a cell of its own: no exit
+// joins it to the ground floor), its hatch a way down into the cellar (a passage: the cellar is not the cell below), left once the
+// rope has lifted it, and climbed back into from the cellar (OUT, by the hatch overhead); the cellar (z -1), the ground floor, the
+// landing and lens room (z 1), the roof (z 2).
 const rooms = {
   cart: {
-    name: "THE PACKING VAN", area: "van", at: [0, 0, 0],
+    name: "THE PACKING VAN", area: "galerie", at: [0, 1, 0],
     describe: [
       "A packing van, backed against the Galerie Aubry's loading dock, the tarpaulin laced down on every side. Straw underfoot, crates stacked to the roof, a lantern turned low.",
-      "The only way on is the {hatch} in the floor, down into the cellar."
+      "The only way on is the {hatch} in the floor, down into the cellar, nailed down for the drive. A {rope} runs from its ring to a coil in the straw."
     ],
-    exits: { d: true },
+    exits: { d: { to: "cellar", passage: true, if: false, closed: "Nailed down for the drive: four nails. A hatch that rattles on the cobbles is a hatch a gendarme looks at. The rope on its ring is for lifting it." } },
     scenery: [
       { words: ["straw"], name: "the straw", says: "Packing straw, and not clean: someone has slept in it." },
       { words: ["tarpaulin", "tarp"], name: "the tarpaulin", says: "Laced to the rail every hand's width. Nothing gets in or out that way." },
@@ -71,7 +74,7 @@ const rooms = {
       { words: ["lantern"], name: "the lantern", says: "Turned down to a bead. Madame Lenoir does not like light on a job." }
     ],
     ambience: { lines: ["Over your head a gas jet sputters, and settles.", "Boots cross the dock above you, and stop, and go on.", "The tarpaulin breathes in and out with the draught.", "A wheel passes in the street and does not stop."], every: [30, 70], chance: 0.8 },
-    alt: "The inside of a covered van: crates stacked to the roof, straw on the floor, a low lantern, and a square hatch in the floor.",
+    alt: "The inside of a covered van: crates stacked to the roof, straw on the floor, a low lantern, and a square hatch in the floor, a rope running to it from a coil.",
     overlayAlt: { horn: "A brass speaking horn hanging on a nail." },
     mentions: []
   },
@@ -79,9 +82,9 @@ const rooms = {
     name: "CRATE CELLAR", area: "galerie", at: [0, 0, -1],
     describe: [
       "Brick vaults, blackened by gas and damp, and packing cases stencilled for Calais and Marseille. A watchman's {tally} is chalked by the stairs.",
-      "Stairs climb to the vestibule. West is the packing room, east the boiler room."
+      "Stairs climb to the vestibule. West is the packing room, east the boiler room. Overhead, the van's {hatch} stands open on the dock, its rope hanging down."
     ],
-    exits: { u: "vestibule", w: "packing_room", e: "boiler" },
+    exits: { u: "vestibule", w: "packing_room", e: "boiler", out: "cart" },
     scenery: [
       { words: ["cases", "case", "crates"], name: "the cases", says: "Stencilled, nailed, and not yours." },
       { words: ["stairs", "stair"], name: "the stairs", leads: "u" },
@@ -264,9 +267,20 @@ const objects = {
     examine: "Aubry & Fils, Quai Voltaire. Come after the last visitor. On the back, in a quick hand: Bring patience. The picture likes the dark."
   },
   hatch: {
-    at: "cart", name: "Hatch", note: "Down into the cellar.",
-    words: { nouns: ["hatch", "trapdoor"], adj: [] },
-    examine: "A square of planks with an iron ring, set in the van's floor. Under it is the cellar of the Galerie Aubry."
+    at: "cart", name: "Hatch", note: "Nailed down.", leads: "d",
+    words: { nouns: ["hatch", "trapdoor", "ring", "nails"], adj: ["iron"] },
+    examine: "A square of planks with an iron ring, set in the van's floor and nailed down at the corners. Under it is the cellar of the Galerie Aubry."
+  },
+  rope: {
+    at: "cart", name: "Rope", note: "Knotted to the hatch's ring.", material: "soft", use: "pull",
+    words: { nouns: ["rope", "coil"], adj: ["hemp"] },
+    examine: "Good hemp, one end knotted to the hatch's ring with a hitch that knows its business, the rest coiled in the straw."
+  },
+  // The van's hatch from below: the way back up into the start room (OUT, climbing the rope).
+  van_hatch: {
+    at: "cellar", name: "Hatch", note: "Up into the van.", leads: "out",
+    words: { nouns: ["hatch", "trapdoor", "rope"], adj: ["van's", "open"] },
+    examine: "The van's hatch, open in the vault where the dock is let into it, a square of lantern-light with the rope hanging down through it. Enough to climb by, if the van is where you left something."
   },
   tally: {
     at: "cellar", name: "Tally", note: "Chalk strokes.",
@@ -366,6 +380,22 @@ const objects = {
 
 // ---- Rules ------------------------------------------------------------------------------------------------------------
 const rules = [
+  // The start room's way out: the rope lifts the nailed hatch (a rule that `connect`s the exit), and the picture follows.
+  { id: "pull_rope", match: { verb: ["pull", "use"], obj: "rope" }, if: [{ "rope.pulled": false }],
+    do: [{ say: "You take up the slack and lean back on the rope. The nails come up one at a time, each with a small complaint, and the hatch lifts on the dark and the smell of the cellar. Below, the Galerie Aubry ticks and settles, like a clock that has been told a secret." },
+      { set: "rope.pulled", to: true }, { connect: "cart", dir: "d", to: "cellar", passage: true },
+      { set: "hatch.note", to: "Lifted." },
+      { set: "hatch.examine", to: "The hatch stands up on its hinges, its nails bent. Under it is the cellar of the Galerie Aubry." },
+      { set: "cart.describe", to: [
+        "A packing van, backed against the Galerie Aubry's loading dock, the tarpaulin laced down on every side. Straw underfoot, crates stacked to the roof, a lantern turned low.",
+        "The only way on is the {hatch} in the floor, lifted, down into the cellar. The {rope} runs from its ring to a coil in the straw."] },
+      { draw: "cart", restyle: [{ id: "hatch", fill: "mix:0,6@0.3" }, { id: "hatch_plank1", color: 0 }, { id: "hatch_plank2", color: 0 }, { id: "hatch_nails", color: 0 }, { id: "hatch_ring", fill: 0 }] },
+      { set: "cart.alt", to: "The inside of a covered van: crates stacked to the roof, straw on the floor, a low lantern, and a square hatch open in the floor, a rope running to it from a coil." }] },
+  { id: "pull_rope_again", match: { verb: ["pull", "use"], obj: "rope" }, do: [{ say: "The hatch is up. The rope has done its work, and knows it." }] },
+  // From the cellar, the rope is climbed back up into the van (OUT, by the hatch overhead).
+  { id: "climb_van_hatch", match: { verb: "climb", obj: "van_hatch" }, do: [{ travel: "cart" }] },
+  { id: "pull_hatch", match: { verb: "pull", obj: "hatch" }, if: [{ "rope.pulled": false }],
+    do: [{ say: "Four nails hold it, and fingers will not do. Your weight on the rope will." }] },
   { id: "give_flask", match: { verb: "give", obj: "flask", obj2: "gaspard" }, if: [{ "gaspard.asleep": false }],
     do: [
       { set: "gaspard.asleep", to: true },
@@ -455,6 +485,9 @@ const changes = {
 
 // ---- Puzzles ----------------------------------------------------------------------------------------------------------
 const puzzles = {
+  // The way out of the start room comes first (BRIEF.md §3): the horn's first hints are about it.
+  lift_hatch: { where: "cart", needs: [], solve: ["pull rope", "go down"], reaches: "cellar", clues: ["hatch", "rope"],
+    hints: ["The hatch is nailed down for the drive, and its ring has a rope on it.", "Pull the rope, and go down through the hatch."] },
   get_flask: { where: "cloakroom", needs: [], solve: ["take flask"], gives: ["flask"], clues: ["flask", "gaspard"],
     hints: ["Gaspard's brandy has to be somewhere he thinks nobody looks.", "Take the flask from the cloakroom, east of the vestibule."] },
   get_oil: { where: "boiler", needs: [], solve: ["take oil can"], gives: ["oilcan"], clues: ["oilcan", "lamp"],
@@ -477,8 +510,6 @@ const puzzles = {
 const opening = {
   room: "cart", hints: "horn", intro: "card", way: "hatch",
   lines: {
-    notYet: "The hatch stays down. Madame Lenoir's horn is still murmuring on its nail, and you do not go anywhere without hearing her out.",
-    through: "You lift the hatch and drop through into the smell of the cellar. It settles shut over you without a sound.",
     hintFrame: "The horn crackles, and Madame Lenoir says:",
     farewell: "The card goes into the lantern flame and is smoke before you can read it twice."
   }
@@ -486,10 +517,10 @@ const opening = {
 
 // ---- The change set ---------------------------------------------------------------------------------------------------
 export default {
-  because: "After the opening: the Galerie Aubry by night, one painting and one cold lens.",
+  because: "The Galerie Aubry by night, from a packing van at its loading dock: one painting and one cold lens.",
   opening,
   facts: [
-    "The player arrives in the Galerie Aubry's cellar, Quai Voltaire, Paris, at half past eleven at night.",
+    "The player starts in a packing van backed against the Galerie Aubry's loading dock, Quai Voltaire, Paris, at half past eleven at night; the hatch in its floor opens down into the cellar.",
     "Every picture is wired to a bell; lifting a frame rings them all.",
     "The painted lighthouse in Le Dernier Feu lights its lamp only when the real lens in the same room is lit.",
     "Gaspard the watchman keeps the lens room key on his belt and drinks nothing on duty."
@@ -497,15 +528,11 @@ export default {
   properties: {
     "lamp.filled": { type: "boolean", start: false },
     "lamp.lit": { type: "boolean", start: false },
-    "gaspard.asleep": { type: "boolean", start: false }
+    "gaspard.asleep": { type: "boolean", start: false },
+    "rope.pulled": { type: "boolean", start: false }
   },
   effects: [
-    { time: "day 1 23:20", weekday: "fri" },
-    { set: "game.entrance", to: "cellar" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 23:30", weekday: "fri" },
-      { say: "Above you the Galerie Aubry ticks and settles, like a clock that has been told a secret." }
-    ] },
+    { time: "day 1 23:30", weekday: "fri" },
     { add: "word", verb: "fill", words: ["fill", "pour", "top up", "refill"], reply: "There is nothing here to fill." },
     { add: "word", verb: "unhook", words: ["unhook"], reply: "Nothing here comes off a hook." },
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

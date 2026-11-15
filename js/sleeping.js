@@ -1,21 +1,21 @@
 // Sleeping: the engine's own SLEEP at run time, and a condition's hold on you as you act (ARCHITECTURE.md §5, "Sleep"; the arithmetic is
 // js/sleep.js, the conditions' fields js/conditions.js). Moved out of js/engine.js, which hands over the few of its own functions this needs
-// (`host`: apply one effect, the state's dice, the opening's test, the rules in play and whether one fits, the puzzles' `solved` and `met`,
+// (`host`: apply one effect, the state's dice, the rules in play and whether one fits, the puzzles' `solved` and `met`,
 // how a condition ends, the line of a health tick), so this file never imports the engine back. `makeSleeping(host)` returns { sleep,
 // conditionHold }: what the engine calls. Everything inside is as it was in the engine.
 
-import { worldTime, moveTo, parts, hhmm } from "./time.js?v=0.54.0";
-import { lengthOf, kindOf, healOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js?v=0.54.0";
-import { activeIds, conditionClass } from "./conditions.js?v=0.54.0";
-import { RANGES } from "./fields.js?v=0.54.0";
-import { clean, isLine } from "./shapes.js?v=0.54.0";
-import { placeOf, person } from "./place.js?v=0.54.0";
-import { isAction } from "./actions.js?v=0.54.0";
-import { spoken, slurring, slur } from "./speech.js?v=0.54.0";
-import { movementNow, stray } from "./movement.js?v=0.54.0";
+import { worldTime, moveTo, parts, hhmm } from "./time.js?v=0.55.0";
+import { lengthOf, kindOf, healOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js?v=0.55.0";
+import { activeIds, conditionClass } from "./conditions.js?v=0.55.0";
+import { RANGES } from "./fields.js?v=0.55.0";
+import { clean, isLine } from "./shapes.js?v=0.55.0";
+import { placeOf, person } from "./place.js?v=0.55.0";
+import { isAction } from "./actions.js?v=0.55.0";
+import { spoken, slurring, slur } from "./speech.js?v=0.55.0";
+import { movementNow, stray } from "./movement.js?v=0.55.0";
 
 export function makeSleeping(host) {
-  const { apply, roll, rollBetween, isFixed, activeRules, fits, exitNow, solved, met, endCondition, saysOf } = host;
+  const { apply, roll, rollBetween, activeRules, fits, exitNow, solved, met, endCondition, saysOf } = host;
 
   // The engine's own SLEEP (ARCHITECTURE.md §5, "Sleep"; the arithmetic: js/sleep.js). A world writes nothing for it: a room may
   // refuse it with a line of its own (`sleep`, the standard std_sleep_refused), a room or a thing you sleep in may give a vision
@@ -45,11 +45,10 @@ export function makeSleeping(host) {
     fallAsleep(g, ms, action, out, key);
   }
 
-  // Where the player can't sleep now (the stock refusal): in the opening; over a question waiting (other than SLEEP's own); in a
+  // Where the player can't sleep now (the stock refusal): over a question waiting (other than SLEEP's own); in a
   // conversation (the person you are talking to is here with you); or while something holds you (a world's rule answers every way
   // out of here: seated at a dinner you can't politely leave). A room's own refusal, its `sleep` line, is the standard rule's, before.
   function sleepRefused(g, out) {
-    if (isFixed(g, g.player.at)) return true;
     if (out.waiting && out.waiting.ask !== "sleep") return true;
     const who = g.talkingTo;
     if (who && g.world.objects[who] && person(g.world.objects[who]) && placeOf(g, who) === g.player.at) return true;
@@ -179,11 +178,11 @@ export function makeSleeping(host) {
   }
   // The other ways you could take by mistake, leaving a room the way you meant: only when that way is open and plain (it leads
   // to a room, and no rule of the world answers it), and only ways just as plain that lead to another room you have already
-  // been to (never shut or locked, never somewhere you couldn't have seen, never the opening).
+  // been to (never shut or locked, never somewhere you couldn't have seen).
   function strayWays(g, action) {
     const here = g.player.at, room = g.world.rooms[here];
     const to = (dir) => exitNow(g, here, dir, { ...action, dir }).go;
-    const plain = (dir) => typeof to(dir) === "string" && !!g.world.rooms[to(dir)] && !g.world.rooms[to(dir)].fixed
+    const plain = (dir) => typeof to(dir) === "string" && !!g.world.rooms[to(dir)]
       && !activeRules(g).some(r => isAction(r) && fits(g, r, { ...action, dir }));
     if (!plain(action.dir)) return [];
     return Object.keys(room?.exits || {}).filter(d => d !== action.dir && plain(d) && to(d) !== to(action.dir) && g.seen.visited.includes(to(d)));

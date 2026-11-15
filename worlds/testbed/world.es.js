@@ -3,13 +3,14 @@
 // ejemplo de cada cosa que el motor acepta. No es una traducción: mismos ids, mismas salas, mismas reglas y mismos finales que
 // world.en.js; cambian las palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 //
-// El mapa: la apertura (una sala de admisión), luego un centro con un camino corto a la sala de cada mecanismo. Todos los ids
+// El mapa: la sala de inicio (la admisión, al sur del centro, que se deja por su torniquete), luego un centro con un camino corto a
+// la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.54.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.54.0";
-import levels from "./levels.js?v=0.54.0";
-import sprites from "./sprites.js?v=0.54.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.55.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.55.0";
+import levels from "./levels.js?v=0.55.0";
+import sprites from "./sprites.js?v=0.55.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -20,8 +21,8 @@ export const bible = {
     "Salud y daños, bebidas y estados, sueño y sueños, un gato que te sigue y un vigilante en su ronda, puertas, cerraduras y " +
     "recipientes, gente y preguntas, una palanca, una azotea. Aquí no hay historia. Todo lo que hay funciona.",
   tone: "Llano y corto. Cada sala dice para qué sirve y enseña una sola cosa. Ninguna broma que estorbe a la prueba.",
-  start: "Lunes, mediodía, en el centro (la apertura, en la sala de admisión, también a mediodía).",
-  opening: "Una sala de admisión con un torniquete: un auricular (pistas), una papeleta que ya llevas, y el torniquete hacia el centro.",
+  start: "Lunes, mediodía, en la sala de admisión, al sur del centro.",
+  opening: "Una sala de admisión al sur del centro, que se deja por su torniquete con la ficha del platillo: un auricular (pistas) y una papeleta que ya llevas.",
   music: "dórico lento; un hilo de señal y una campana de banco; un tono de prueba que nunca se asienta",
   rules: [
     "Cada sala sirve para un mecanismo, y lo enseña una vez.",
@@ -52,28 +53,30 @@ const visionPictures = {
 
 // ---- Salas ---------------------------------------------------------------------------------------------------------------
 const rooms = {
+  // La sala de inicio (BRIEF.md §3): solo se deja por el torniquete, que se traga la ficha que está a la vista. El centro está al norte.
   "tb-start": {
-    name: "ADMISIÓN", area: "start", at: [0, 0, 0],
+    name: "ADMISIÓN", area: "hub", at: [0, 1, 0],
     describe: [
-      "Una sala blanca y pequeña, con una luz en el techo y nada en las paredes. Aquí dejan entrar a quien viene a probar.",
-      "La única salida es el {torniquete|gate} de la pared norte."
+      "Una sala blanca y pequeña, con una luz en el techo y nada en las paredes. Aquí dejan pasar a quien viene a probar.",
+      "La única salida es el {torniquete|gate} de la pared norte, hacia el centro. Tiene una ranura para una ficha."
     ],
-    exits: { n: true },
+    exits: { n: { to: "tb-hub", if: false, closed: "El torniquete no gira. Su ranura pide una ficha." } },
     scenery: [
       { words: ["pared", "paredes", "suelo", "techo"], name: "las paredes", says: "Blancas, limpias, y iguales por todas partes." },
-      { words: ["luz", "lampara", "bombilla"], name: "la luz", says: "Una luz blanca y plana, sin foco y sin sombra." }
+      { words: ["luz", "lampara", "bombilla"], name: "la luz", says: "Una luz blanca y plana, sin foco y sin sombra." },
+      { words: ["platillo", "ranura"], name: "el platillo", says: "Un platillo de hojalata en el suelo, para las fichas." }
     ],
     ambience: { lines: ["La luz zumba en una sola nota.", "Detrás de la pared alguien acciona un interruptor, y lo devuelve."], every: [25, 60] },
     alt: "Una sala blanca y pequeña vista desde la puerta: una luz plana en el techo, las paredes desnudas y, al fondo, un torniquete de barras de acero.",
-    overlayAlt: { handset: "Un auricular gris cuelga de un gancho junto al torniquete." }
+    overlayAlt: { handset: "Un auricular gris cuelga de un gancho junto al torniquete.", token: "Una ficha de latón está en un platillo de hojalata, en el suelo." }
   },
   "tb-hub": {
     name: "EL CENTRO", area: "hub", at: [0, 0, 0],
     describe: [
-      "Una sala redonda con una puerta en cada pared. Un {tablón|board} anuncia lo que hay detrás de cada una: la clínica al norte, el {bar|bar_front} al este, el dormitorio al sur, el patio al oeste.",
+      "Una sala redonda con una puerta en cada pared. Un {tablón|board} anuncia lo que hay detrás de cada una: la clínica al norte, el {bar|bar_front} al este, la admisión al sur, el patio al oeste.",
       "Unas escaleras de hierro suben a los accesos, y unos escalones de piedra bajan al sótano."
     ],
-    exits: { n: "tb-clinic", e: { to: "tb-bar", in: true }, s: "tb-bedroom", w: "tb-yard", u: "tb-ways", d: "tb-cellar" },
+    exits: { n: "tb-clinic", e: { to: "tb-bar", in: true }, s: "tb-start", w: "tb-yard", u: "tb-ways", d: "tb-cellar" },
     scenery: [
       { words: ["escaleras", "escalera"], name: "las escaleras", says: "Escaleras de hierro que suben a un descansillo y una puerta.", leads: "u" },
       { words: ["escalones", "escalon", "peldanos"], name: "los escalones", says: "Escalones de piedra, gastados en el centro, que bajan al frío.", leads: "d" },
@@ -125,9 +128,9 @@ const rooms = {
     name: "EL BAR", area: "hub", at: [1, 0, 0],
     describe: [
       "Un bar largo y bajo con un solo taburete. {Dot|dot} lo lleva. Una {estufa|stove} brilla en un rincón, y un {cubo de hielo|ice} está junto a la puerta.",
-      "El centro está al oeste, y el despacho al este."
+      "El centro está al oeste, el despacho al este, y el dormitorio al sur."
     ],
-    exits: { w: "tb-hub", e: "tb-office" },
+    exits: { w: "tb-hub", e: "tb-office", s: "tb-bedroom" },
     scenery: [
       { words: ["barra", "mostrador", "taburete"], name: "la barra", says: "Un tablón largo sobre dos barriles. Un taburete, que no usa nadie." },
       { words: ["puerta"], name: "la puerta", says: "La puerta al centro.", leads: "w" }
@@ -141,9 +144,9 @@ const rooms = {
     name: "DESPACHO", area: "hub", at: [2, 0, 0],
     describe: [
       "Un despacho pequeño con un escritorio alto. {La señora Oduya|oduya} se sienta detrás con un {libro mayor|ledger} y no levanta la vista.",
-      "Un día de la semana está en un marco de la pared. El bar está al oeste."
+      "Un día de la semana está en un marco de la pared. El bar está al oeste, y una puerta al norte dice Archivo."
     ],
-    exits: { w: "tb-bar" },
+    exits: { w: "tb-bar", n: true },
     scenery: [
       { words: ["escritorio", "mesa"], name: "el escritorio", says: "Un escritorio alto, demasiado ordenado." },
       { words: ["marco", "pared"], name: "el marco", says: "Un marco con una sola palabra y una fina línea de polvo en lo alto." }
@@ -154,14 +157,14 @@ const rooms = {
     overlayAlt: {}
   },
 
-  // El dormitorio: sueño, sueños, visiones, tiempo.
+  // El dormitorio, al sur del bar: sueño, sueños, visiones, tiempo.
   "tb-bedroom": {
-    name: "DORMITORIO", area: "hub", at: [0, 1, 0],
+    name: "DORMITORIO", area: "hub", at: [1, 1, 0],
     describe: [
       "Una sala en penumbra con una {litera|bunk} contra una pared y una {hamaca|hammock} tendida contra la otra. Una {lámpara|lamp} arde sobre una mesa, y un {reloj|clock} hace tictac encima.",
-      "El centro está al norte."
+      "El bar está al norte."
     ],
-    exits: { n: "tb-hub" },
+    exits: { n: "tb-bar" },
     scenery: [{ words: ["mesa"], name: "la mesa", says: "Una mesa pequeña con sitio para una lámpara y poco más." }],
     ambience: { lines: ["El reloj hace tictac, y tictac, y se le ocurre algo.", "La hamaca se mece, como si alguien acabara de bajarse."], every: [30, 70] },
     waitFor: { time: "next 07:00", says: "Te tumbas en la litera, despierto, hasta que se hace de día.", if: [hours(22, 7)] },
@@ -357,7 +360,7 @@ const rooms = {
 
 // ---- Objetos ---------------------------------------------------------------------------------------------------------------
 const objects = {
-  // La apertura: lo que se coge, lo que ya llevas y el camino (BRIEF.md §3).
+  // La sala de inicio: la cosa de las pistas, la introducción que llevas, la salida, y la ficha que la abre (BRIEF.md §3).
   handset: { at: "tb-start", portable: true, material: "stone", name: "Auricular", note: "Una voz, esperando.",
     words: { nouns: ["auricular", "telefono"], adj: ["gris"], g: "m" }, ...item("handset"),
     here: "Un {auricular|handset} cuelga de un gancho junto al torniquete, crepitando para sí.",
@@ -365,9 +368,13 @@ const objects = {
   slip: { at: "player", portable: true, material: "paper", name: "Papeleta", note: "Tu papeleta de prueba.",
     words: { nouns: ["papeleta", "hoja"], adj: ["prueba", "blanca"], g: "f" }, ...item("slip"),
     examine: "Una papeleta blanca: «Probador. Prueba todo. Informa de lo que se rompa»." },
-  gate: { at: "tb-start", name: "Torniquete", note: "Hacia el centro.",
+  gate: { at: "tb-start", door: "n", material: "metal", name: "Torniquete", note: "Hacia el centro.",
     words: { nouns: ["torniquete", "puerta"], adj: ["acero"], g: "m" },
-    examine: "Un torniquete de tres barras de acero. Gira en un solo sentido." },
+    examine: "Un torniquete de tres barras de acero, con una ranura para una ficha. Gira en un solo sentido." },
+  token: { at: "tb-start", portable: true, material: "metal", name: "Ficha", note: "Para el torniquete.",
+    words: { nouns: ["ficha"], adj: ["laton"], g: "f" }, sprite: sprites.coin, floorSprite: sprites.coin_floor,
+    here: "Una {ficha|token} de latón está en un platillo de hojalata, junto al torniquete.",
+    examine: "Una ficha de latón, con un sello: Un Probador." },
 
   // El centro
   bar_front: { at: "tb-hub", leads: "e", material: "wood", name: "Bar", note: "Al este, la entrada.",
@@ -375,7 +382,7 @@ const objects = {
     examine: "La puerta del bar, al este, con una copa pintada encima. Detrás, una sala larga y baja y una estufa." },
   board: { at: "tb-hub", name: "Tablón", note: "Qué hay dónde.",
     words: { nouns: ["tablon", "tablero"], adj: ["anuncios"], g: "m" },
-    examine: "Un tablón con seis líneas: Clínica, Bar, Dormitorio, Patio, Accesos, Sótano. Una séptima línea está borrada.",
+    examine: "Un tablón con seis líneas: Clínica, Bar, Admisión, Patio, Accesos, Sótano. Una séptima línea está borrada.",
     read: "$board.examine" },
   badge: { at: "tb-hub", portable: true, droppable: false, material: "metal", name: "Chapa", note: "Probador, primera clase.",
     words: { nouns: ["chapa", "placa"], adj: ["laton", "probador"], g: "f" }, ...item("badge"),
@@ -693,6 +700,11 @@ const changes = {
 
 // ---- Reglas ----------------------------------------------------------------------------------------------------------------
 const rules = [
+  // La salida de la sala de inicio: la ficha en la ranura del torniquete la abre (una regla que `connect`a la salida). Las reglas de
+  // la cosa de las pistas y de la introducción salen de la declaración.
+  { id: "turnstile_token", match: { verb: ["put", "use"], obj: "token", obj2: "gate" }, if: [{ "token.at": "player" }],
+    do: [{ say: "El torniquete se traga la ficha y hace clic. Sus barras ya giran." }, { move: "token", to: null },
+         { connect: "tb-start", dir: "n", to: "tb-hub" }] },
   // Daños y curas.
   { id: "touch_spike", match: { verb: "touch", obj: "spike" }, do: [{ hurt: 1, says: "Las púas entran un poco, y salen otra vez." }] },
   { id: "smell_vent", match: { verb: "smell", obj: "vent" }, once: true, again: "El aire de la rejilla es fresco, y nada más.",
@@ -800,6 +812,9 @@ const rules = [
     do: [{ say: "No dices nada. La señora Oduya espera, y apunta la nada." }] },
   { id: "verdict_other", match: { verb: "answer", question: "verdict" },
     do: [{ say: "«[player.answers.verdict]», dice la señora Oduya, y lo prueba en el margen. «No. Ese no es quien debe»." }] },
+  // Un camino que responde una regla (una salida `true`): el archivo, al norte del despacho, nunca se pisa.
+  { id: "office_archive", match: { verb: "go", dir: "n" }, if: [{ "player.at": "tb-office" }],
+    do: [{ say: "La señora Oduya levanta la vista por primera vez. «El archivo no», dice, y te quedas donde estás." }] },
   { id: "think_ledger", match: { verb: "think", obj: "ledger" }, do: [{ say: "Piensas en el libro mayor, y te viene a la cabeza una deuda.", style: "sys" }, { know: "debt" }] },
   { id: "think_absent", match: { verb: "think", absent: "wire" }, do: [{ say: "Piensas en el alambre, pero no está aquí." }] },
   { id: "ask_default", match: { verb: "ask", obj: "dot" }, if: [{ "$topic": null }], do: [{ say: "Dot espera a que le preguntes por algo." }] },
@@ -807,7 +822,7 @@ const rules = [
   { id: "tear_scrap", match: { verb: "attack", obj: "scrap" }, do: [{ say: "Rompes el trozo, y la media palabra desaparece." }, { remove: "object", id: "scrap" }] },
   // El centro: el tablón lee de vuelta el estado, y una o dos reglas programadas.
   { id: "board_status", match: { verb: "read", obj: "board" },
-    if: [{ "game.turn": { ">=": 0 } }, { "game.clock": { ">=": 0 } }, { "game.entrance": "tb-hub" }, { "game.ended": false }, { "time.day": { ">=": 1 } },
+    if: [{ "game.turn": { ">=": 0 } }, { "game.clock": { ">=": 0 } }, { "game.ended": false }, { "time.day": { ">=": 1 } },
          { "time.minute": { ">=": 0 } }, { "time.second": { ">=": 0 } }, { "time.weekday": { "!=": "sun" } }, { "player.health": { ">": 0 } },
          { "player.carrying": { has: "slip" } }, { "player.at": "tb-hub" }, { "$in": null }, { "$obj.at": "tb-hub" }, { "badge.place": "tb-hub" }, { "oduya.person": true },
          { "badge.holder": null }, { "$exits": { "!=": null } }, { "game.ending": null }, { "fuse.chain": { has: "fuse" } }, { "time.part": { in: ["dawn", "daytime", "dusk", "night"] } }],
@@ -821,6 +836,9 @@ const rules = [
 ];
 // ---- Puzles ------------------------------------------------------------------------------------------------------------------
 const puzzles = {
+  // La salida de la sala de inicio va primero (BRIEF.md §3): las primeras pistas del auricular son sobre ella.
+  way_out: { where: "tb-start", needs: [], solve: ["{take} ficha", "mete la ficha en el torniquete", "norte"], reaches: "tb-hub", clues: ["gate", "token"],
+    hints: ["El torniquete tiene una ranura, y hay una ficha en el platillo.", "Coge la ficha, métela en el torniquete, y ve al norte."] },
   take_coin: { where: "tb-bar", needs: [], solve: ["{take} moneda"], gives: ["coin"], clues: ["dot", "coin"],
     hints: ["Hay una moneda junto al vaso, en la barra.", "Coge la moneda del bar."] },
   buy_key: { where: "tb-bar", needs: ["take_coin"], solve: ["pide llave pequeña"], gives: ["chest_key"], clues: ["dot", "chest_key"],
@@ -844,12 +862,10 @@ const puzzles = {
     hints: ["La azotea tiene un borde, y el borde tiene una caída.", "Sube a la azotea, y salta."] }
 };
 
-// ---- La apertura, declarada (BRIEF.md §3) ------------------------------------------------------------------------------------
+// ---- La apertura, declarada: la sala de inicio (BRIEF.md §3) -------------------------------------------------------------------
 const opening = {
   room: "tb-start", hints: "handset", intro: "slip", way: "gate",
   lines: {
-    notYet: "El torniquete no gira. El auricular sigue en su gancho, y quiere que lo lleves contigo primero.",
-    through: "Empujas el torniquete. Gira una vez, y vuelve a ser una pared cuando miras atrás.",
     hintFrame: "El auricular crepita. Una voz plana dice:",
     farewell: "La papeleta se lee, y se pone gris, y desaparece."
   }
@@ -857,10 +873,10 @@ const opening = {
 
 // ---- El conjunto de cambios ------------------------------------------------------------------------------------------------
 export default {
-  because: "Después de la apertura: el piso de pruebas, un centro con un camino a cada mecanismo del motor.",
+  because: "El piso de pruebas: una sala de admisión, y un centro con un camino a cada mecanismo del motor.",
   opening,
   facts: [
-    "El jugador llega al centro del piso de pruebas, un lunes, a mediodía.",
+    "El jugador empieza en la admisión, al sur del centro del piso de pruebas, un lunes, a mediodía.",
     "Cada sala sirve para un mecanismo; un gato, un vigilante, un pájaro y un oficinista de noche se mueven solos.",
     "Tres finales: luz (el laboratorio), nombrada (el despacho), caída (la azotea), y muerte cuando se acaba la salud."
   ],
@@ -875,12 +891,7 @@ export default {
     "player.rank": { type: "string", start: "Pruebas" }
   },
   effects: [
-    { time: "day 1 12:00", weekday: "mon" },                  // la apertura se juega a mediodía
-    { set: "game.entrance", to: "tb-hub" },
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 12:00", weekday: "mon" },
-      { say: "El centro está iluminado, y todas las puertas están cerradas menos una." }
-    ] },
+    { time: "day 1 12:00", weekday: "mon" },                  // el juego empieza a mediodía
     // Verbos que añade este mundo
     { add: "word", verb: "tune", words: ["sintonizar", "sintoniza", "sintonice", "sintonizo", "ajustar", "ajusta", "ajuste", "ajusto"], object: "required", reply: "Eso no se sintoniza." },
     { add: "word", verb: "whistle", words: ["silbar", "silba", "silbe", "silbo"], object: "none", reply: "Silbas. Nadie responde." },

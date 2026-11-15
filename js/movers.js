@@ -16,7 +16,7 @@
 // come back there, and it follows you again from there. One with `within` whose place starts to hold while it is in another room
 // waits there for you (one that is away joins you, in a room of `within`).
 // This file is the pure part (and, last, the runtime that applies it: `runMovers`, `placeMovers`, `placeChange`, which take the engine's
-// `apply`, `holds` and `isFixed` as arguments, never importing the engine): where each fact says the thing is now, the next step of a round and its gaps (from the thing's own
+// `apply` and `holds` as arguments, never importing the engine): where each fact says the thing is now, the next step of a round and its gaps (from the thing's own
 // generator, seeded from the game's: js/random.js), the way it comes from or goes to, its line, and what is wrong with a declaration.
 // The engine (js/engine.js) calls runMovers at one place in each moment, after everything else the world does: it moves the thing
 // when due unless it is held (a question waiting, a command about it this moment, a conversation with it, its room described this
@@ -24,10 +24,10 @@
 // made with the first, so a world with nothing that moves has no key).
 // A new way of moving is one more fact here: a name in KINDS (and its fields in js/fields.js), and a function that says where it is next.
 
-import { between } from "./random.js?v=0.54.0";
-import { exitTo } from "./exits.js?v=0.54.0";
-import { isObject, isLine as line, gap } from "./shapes.js?v=0.54.0";
-import { placeOf } from "./place.js?v=0.54.0";
+import { between } from "./random.js?v=0.55.0";
+import { exitTo } from "./exits.js?v=0.55.0";
+import { isObject, isLine as line, gap } from "./shapes.js?v=0.55.0";
+import { placeOf } from "./place.js?v=0.55.0";
 
 const KINDS = ["places", "rounds"];
 // The fields of a place and of a round (js/fields.js lists them for the checks).
@@ -59,14 +59,14 @@ export function placeHolding(state, o, holds) {
 }
 // The room a place puts it in now: its room; for "player", your room, or, with `within`, your room only when it is with you (in the
 // room you were in as the moment began, `from`, or in yours, or away) and yours is one of `within`, else the room it is in (it waits
-// there). null: away. A place in the opening is never one (it is the opening's own).
+// there). null: away.
 export function roomOfPlace(state, o, p, from = state.player.at) {
   const here = state.player.at;
   const room = p.at !== FOLLOWS ? p.at
     : !Array.isArray(p.within) ? here
     : p.within.includes(here) && (o.at == null || o.at === from || o.at === here) ? here
     : o.at ?? null;
-  return room != null && state.world.rooms[room] && !state.world.rooms[room].fixed ? room : null;
+  return room != null && state.world.rooms[room] ? room : null;
 }
 // Where a `places` mover is now: the room of the first place that holds; null when none holds (away).
 export function placeNow(state, o, holds, from) {
@@ -171,7 +171,7 @@ export const shapeProblems = (o) => declarationProblems(o, null);
 // It is held (it stays, and its due move happens at the first moment it isn't) while a question is waiting, in the moment of a command
 // about it (it is the command's thing, its second, one named that isn't here, or the source of one of those), in a conversation with it
 // (your last command talked, asked, said, gave or showed something to it, and it is here), and while its room was described this
-// moment (you have just come in, or looked: it stays a moment, rather than go as soon as it is seen). Nothing moves in the opening or
+// moment (you have just come in, or looked: it stays a moment, rather than go as soon as it is seen). Nothing moves
 // after the end. Its coming and going is told only when you are there to see it: its own `arrives` / `leaves` line, else the pack's,
 // with the way from the exits; a thing that comes where you are in a moment whose lines described the room is left out of that
 // description (`without`), so it comes in after it. Asleep, you see nothing: what moved is where it is when you wake, and the room
@@ -180,12 +180,11 @@ export const shapeProblems = (o) => declarationProblems(o, null);
 // game: the checker says what is wrong with it, and a change set in play that writes one is refused (js/fields.js).
 const safely = (holds) => (s, c) => { try { return holds(s, c); } catch { return false; } };
 const TALKING = new Set(["talk", "ask", "say", "shout", "sing", "give", "show"]);
-// `host` is what the engine hands over (this file never imports it): { apply: apply one effect, holds: do conditions hold, isFixed: is it
-// part of the opening }.
-export function runMovers(g, at, action, tick, out, startedIn, { apply, holds, isFixed }) {
+// `host` is what the engine hands over (this file never imports it): { apply: apply one effect, holds: do conditions hold }.
+export function runMovers(g, at, action, tick, out, startedIn, { apply, holds }) {
   const holdsSafe = safely(holds);
   const ids = moverIds(g);
-  if (!ids.length || g.ended || isFixed(g, g.player.at)) return;
+  if (!ids.length || g.ended) return;
   const slept = out.applied.find(e => "sleep" in e && e.wake === true)?.ms ?? 0;   // a sleep this moment: how long (js/sleeping.js, fallAsleep)
   const record = (id) => ((g.movers ??= {})[id] ??= {});          // (made with the first: a world with nothing that moves has no key)
   const described = (room) => room != null && out.applied.some(e => e.describe === room);
