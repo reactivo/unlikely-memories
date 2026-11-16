@@ -617,3 +617,145 @@ export const afterStand = {
     "dots stand_eye 287,48 c0"
   ]
 };
+
+// ---- THE COVER (its page, /thirdglass/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+export const cover = {
+  shot: "archetype: the dwarf (it turns on a place bigger than you: the camp's white camel, who will not stand, kneels huge over a small traveller). Title at the top (flat light blue band, rows 0-95, title black). Palette lowsun, a low sun behind the scene: the canvas leads in yellow 14, the sky runs light blue (away from the sun) to pale yellow at the horizon by a dithered fade (haze thickening towards the sun), the sand yellow darkening to brown towards us, the far dunes hazy blue, things against the sky black silhouettes, one red accent. Light: one low sun, a flat white disc half sunk behind the far dunes at column 128, row 268; shadows come at us from it, long, down and to the right. Dominant element: Afternoon, the white lead camel, KNEELING and huge, a black silhouette facing left, her head at columns 202-262 (row 170-203), her neck rising from the folded forelegs, one hump at column 378, her rump and body running out through the right wing; a yellow rim light down her neck's front, her forehead and the hump's slope, one bright point (her eye) turned down towards the traveller; an ear; her long dithered shadow fills the lower right. The traveller: a small black silhouette 66 pixels tall on the left third (column 170, feet at row 364), a hooded head with a red scarf-end fluttering from it, a long coat flaring to the ground, rim-lit yellow on its sun side; the near arm is held forward and holds a taut halter rope that runs up to the camel's muzzle (the camel does not come); the far arm is hidden behind the body; a thin long dithered shadow goes to the lower right. Backdrop and other elements: the dry well (two posts, a beam, a rope, a stone ring with a dark mouth) in the left wing at column 47, row 324, a few black tents on the far dune beside the sun (left wing); high clouds lit from below on both wings; a mid dune in blue shade with a lit crest; sand ripples and a few glints in the foreground. The question: will she stand (the rope pulled taut against a kneeling camel, a dry well behind). moves: the glint running down the camel's neck rim (glint along an edge), the sand glints in the sun (shimmer), the clouds' light (breathing), the red scarf (flag), a bird crossing high and behind the camel's neck (travelling loop, under the camel).",
+  title: 0,
+  titleAt: "top",
+  draw: `rect lead 0,0,480,400 14
+rect titleband 0,0,480,96 9
+rect sky 0,96,480,196 fade:9,14/0,96/0,284
+poly cloud1 4,132 36,125 70,123 96,128 74,134 40,135 12,136 14
+poly cloud2 94,154 130,148 170,146 214,151 186,157 140,158 14
+poly cloud3 336,141 372,136 404,135 432,140 404,146 366,146 14
+poly cloud4 410,120 440,114 479,113 479,120 446,123 420,124 14
+ellipse sun 128,268,30,30 15
+poly far 0,276 34,266 70,272 100,276 128,280 170,272 230,266 290,274 350,268 410,262 450,256 479,250 479,296 0,296 mix:1,9@0.35
+poly tent1 4,284 22,267 44,284 0
+poly tent2 34,286 56,262 80,286 0
+poly tent3 70,284 84,270 100,284 0
+poly mid 0,288 40,280 90,286 150,282 210,288 280,284 340,290 410,284 479,278 479,300 0,300 mix:1,0@0.4
+line midrim 0,288 40,280 90,286 150,282 c14
+poly ground 0,294 60,290 140,296 210,291 290,296 380,291 479,295 479,399 0,399 fade:14,6/0,290/0,399
+line rip1 80,336 110,334 140,337 c6
+line rip2 186,330 210,328 236,331 c6
+line rip3 30,372 70,370 110,373 c14
+line rip4 120,384 170,382 215,385 c14
+line rip5 300,318 330,316 360,319 c6
+line gl1 96,314 100,314 c14
+line gl2 104,316 108,316 c14
+line gl3 112,313 115,313 c14
+line gl4 99,319 104,319 c14
+line gl5 212,326 216,326 c14
+line gl6 220,328 224,328 c14
+line gl7 216,331 220,331 c14
+line gl8 66,356 70,356 c14
+line gl9 74,358 79,358 c14
+line gl10 70,362 74,362 c14
+poly wellshadow 32,342 64,342 102,368 84,368 52,350 mix:,0@0.7
+poly well_wall 30,334 33,324 61,324 64,334 62,342 32,342 mix:1,0@0.4
+ellipse well_mouth 47,324,14,3 0 e14
+rect well_postl 33,300,2,24 0
+rect well_postr 59,300,2,24 0
+rect well_beam 31,300,32,2 0
+line well_rope 47,302 47,322 c0
+poly camelshadow 262,336 294,350 314,363 338,377 359,391 372,399 479,399 479,339 mix:,0@0.7
+poly figshadow 154,363 186,364 238,388 244,396 232,396 200,380 158,368 mix:,0@0.7
+poly ropeshadow 190,364 192,364 258,395 255,396 mix:,0@0.7
+poly camel_body 202,192 210,199 226,203 237,214 246,244 254,276 262,304 256,320 262,331 302,336 370,337 438,336 470,338 492,330 498,300 496,270 480,258 440,270 410,256 378,232 352,246 324,268 298,258 286,232 280,206 272,184 262,172 240,170 220,178 0
+poly camel_ear 256,173 260,159 267,173 0
+line camel_rim 240,171 221,178 204,191 c14
+line camel_rim2 325,267 352,247 378,233 c14
+line n1 238,215 240,222 c14
+line n2 240,222 242,230 c14
+line n3 242,230 244,237 c14
+line n4 244,237 247,244 c14
+line n5 247,244 249,252 c14
+line n6 249,252 251,260 c14
+line n7 251,260 253,268 c14
+line n8 253,268 255,276 c14
+line n9 255,276 258,288 c14
+line n10 258,288 263,304 c14
+dots camel_eye 232,186 233,186 232,187 233,187 c15
+line rope 190,327 193,300 197,270 201,238 205,208 206,200 c0
+poly fig_head 167,303 169,298 173,297 176,300 176,305 173,308 169,308 0
+poly fig_robe 159,312 166,308 174,308 181,313 186,363 154,363 0
+poly fig_arm 178,314 183,316 192,325 192,331 187,331 179,322 0
+line fig_rim 159,312 154,363 c14
+line fig_rimhead 167,303 169,298 173,297 c14`,
+  cycles: [
+    {
+      "name": "the neck's rim light",
+      "areas": [
+        "n1",
+        "n2",
+        "n3",
+        "n4",
+        "n5",
+        "n6",
+        "n7",
+        "n8",
+        "n9",
+        "n10"
+      ],
+      "colors": [
+        15,
+        15,
+        14
+      ],
+      "rest": 33,
+      "style": "rotate",
+      "sweep": true,
+      "ms": 110
+    },
+    {
+      "name": "the sand glints",
+      "areas": [
+        "gl1",
+        "gl2",
+        "gl3",
+        "gl4",
+        "gl5",
+        "gl6",
+        "gl7",
+        "gl8",
+        "gl9",
+        "gl10"
+      ],
+      "colors": [
+        15,
+        14,
+        6
+      ],
+      "style": "pingpong",
+      "scatter": true,
+      "ms": 420
+    },
+    {
+      "name": "the clouds' light",
+      "areas": [
+        "cloud1",
+        "cloud2",
+        "cloud3",
+        "cloud4"
+      ],
+      "colors": [
+        14,
+        15
+      ],
+      "style": "pingpong",
+      "ms": 1800
+    }
+  ],
+  loops: [{"name":"the red scarf","at":[177,301],"style":"loop","ms":300,"frames":[["....444.","4..44444","44444444","4444...4",".44....."],
+    ["......44","44...444","44444444","444444..","..444..."],
+    [".44.....","4444...4","44444444","4..44444","....444."],
+    ["..444...","444444..","44444444","44...444","......44"]]},{"name":"the bird","path":[[-30,196],
+    [500,212]],"travel":16000,"pause":6000,"style":"loop","ms":340,"under":"camel","frames":[["0...0...................",".000....................","........................","........................","........................","..........000...........",".........0...0..........","........................","..................00000.","........................"],
+    ["........................","00000...................","........................","........................","........................",".........00000..........","........................","........................","..................00000.","........................"],
+    ["........................",".000....................","0...0...................","........................","........................",".........00000..........","........................","..................0...0.","...................000..","........................"],
+    ["........................","00000...................","........................","........................","........................",".........00000..........","........................","........................","..................00000.","........................"],
+    ["........................","00000...................","........................","........................",".........0...0..........","..........000...........","........................","........................","...................000..","..................0...0."],
+    ["........................","00000...................","........................","........................","........................",".........00000..........","........................","........................","..................00000.","........................"]]}]
+};

@@ -2,10 +2,10 @@
 // Plain data, no behaviour. Only the engine (js/engine.js) makes a new one; everything else only reads it.
 // Interface-only things (text reveal, focus, "restarting…") stay out.
 
-import { worldFor, DEFAULT } from "../worlds/index.js?v=0.60.2";
-import { applyChangeSet } from "./engine.js?v=0.60.2";
-import { newSeed } from "./random.js?v=0.60.2";
-import { withPractice } from "./practice.js?v=0.60.2";
+import { worldFor, DEFAULT } from "../worlds/index.js?v=0.61.0";
+import { applyChangeSet } from "./engine.js?v=0.61.0";
+import { newSeed } from "./random.js?v=0.61.0";
+import { withPractice } from "./practice.js?v=0.61.0";
 
 // The shape of the state. Bump it when the state changes shape, so older saved games aren't loaded into code
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
@@ -116,3 +116,7 @@ function nowhere(state) {
     world: { objects: {}, rooms: { nowhere: { name: "@noWorld.place", area: "nowhere", at: [0, 0, 0], exits: {},
       describe: ["@noWorld.text"], alt: "@noWorld.alt", picture: blankPicture } } } };
 }
+
+// The state a new game of a world starts from, only to be looked at: a world's own page (ui/splash.js) hands it to the music, which plays the
+// start room's theme from it. Never played, never saved (a game itself is made by js/main.js, begin).
+export const startOf = (lang, id) => newState({ lang, id });

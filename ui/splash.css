@@ -1,0 +1,84 @@
+/* A world's own page (ui/splash.js; INTERFACE.md §13a): the cover, the title and the keys, one poster centred in the window, shown instead of
+   the list or the game by css/layout.css (data-view="splash"; this file never sets display on .splash). The poster is as wide as what the cover
+   shows: on an upright phone its crop (columns 80-399, 320 × 400) as wide as the column (whole device pixels a pixel: ui/splash.js), on a wide window
+   the whole 480 × 400 as wide as keeps the whole poster (cover, title, keys) inside the window's height, at any scale (--splash-width, from --splash-rest
+   and --splash-cols: css/layout.css). The cover is the game's picture, stretched with hard edges, drawn at its own
+   480 × 400 (ui/splash.js; the canvas is wider than its box on a phone and the box trims it), a poster with the world's title drawn into its pixels by the engine (js/title.js: no HTML title; the heading is
+   visually hidden, for a screen reader). The keys are the game's keys (css/key.css), as on a card:
+   as tall as the tabs on a phone, and as SETTINGS in the strip on wide windows (layout.css sets --play-height and --play-text). */
+@layer ui {
+  .splash {
+    box-sizing: border-box;
+    min-height: 100dvh;
+    padding-block: max(var(--space-m), env(safe-area-inset-top, 0px)) max(var(--space-m), env(safe-area-inset-bottom, 0px));
+    color: var(--color-text);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    & .poster {
+      display: flex;
+      flex-direction: column;
+      width: var(--splash-width, 100%);
+      gap: var(--space-m);
+    }
+
+    /* The probe (ui/splash.js): as wide as the poster could be; the script rounds it to whole device pixels per cover pixel (js/cover.js) and sets
+       the poster's width, which is then this variable's value no more. It takes no room. */
+    & .fit {
+      width: var(--splash-width, 100%);
+      height: 0;
+      flex: none;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    & .cover {
+      position: relative;
+      overflow: hidden;                                   /* (a phone's crop: the canvas is wider than the box) */
+      aspect-ratio: var(--splash-cols) / 400;
+
+      /* The CRT look's dark edges (ui/crt.js sets data-crt and --crt-vignette), as on the room's picture (ui/scene.css). */
+      &[data-crt]::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse closest-side at 50% 50%, transparent 55%, rgb(0 0 0 / var(--crt-vignette, 0)) 100%);
+      }
+
+      & canvas {
+        position: absolute;
+        top: 0;
+        left: calc(var(--splash-skip) / var(--splash-cols) * -100%);   /* (% = the box's width: the crop's first column at its left edge) */
+        display: block;
+        width: calc(480 / var(--splash-cols) * 100%);                 /* all 480 columns; the CRT look's canvas has the same CSS, so it is cropped alike */
+        max-width: none;
+        height: 100%;
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;
+      }
+    }
+
+    & .keys {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-s);
+    }
+
+    & .buttons {
+      display: contents;   /* (CONTINUE and NEW GAME, made by ui/splash.js, are keys of .keys' column) */
+    }
+
+    /* The three keys, one above the other; the label trimmed to its capitals and centred (typography.css, .text-button button). */
+    & .play {
+      --key-pad-y: var(--space-s);
+      --key-pad-x: var(--space-s);
+      min-width: 0;
+      min-height: var(--play-height, var(--tile-touch));
+      font-size: var(--play-text, var(--text-m));
+      line-height: var(--line-xs);
+      white-space: nowrap;
+    }
+  }
+}

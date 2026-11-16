@@ -609,3 +609,171 @@ export const endings = {
     cycles: [{ name: "signal", areas: ["signal", "signal_glow"], colors: [12, 4], style: "blink", ms: 800 }]
   }
 };
+
+// ---- THE COVER (its page, /tuesday/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+export const cover = {
+  shot: "archetype: the dwarf (the question: a place or a thing bigger than you, which will you board?); title at the bottom (a flat brown (6) band, rows 305-399, the platform's own ground carried on, the title in yellow 14). Dominant: a huge steam engine seen head on from platform level, black against a brown haze: a black cab roof and two side tanks, a tall chimney, a round dark grey smokebox with ONE big yellow headlamp for an eye (flat disc, a dither halo round it, a hard cone of light fanning down to the platform and the rails), a red buffer beam, two buffers, the pilot, lit steam round its feet. The figure: a traveller about 60 pixels tall, standing alone on the platform on the left third (x about 160), back to us, facing the engine: black hat, blue coat to the thigh, black trousers, a yellow rim light on the side towards the engine; its left hand (on our left) hangs holding a black suitcase, its right hand is in its coat pocket; a long diagonal shadow runs from its feet down and left away from the lamp. Backdrop: hill-town roofs and a spire as black silhouettes on the brown horizon haze; the sky dark grey-black at the top thinning to brown (gradient 1: the smoke pall, thinning down to the horizon); a black canopy corner top left and a gantry top right; rails and sleepers running in perspective to the engine, lit yellow by the lamp (gradient 2: the headlamp's cone fading with distance). Other elements: a station clock on an iron pillar at the left of the crop, its face lit, hands at twenty to twelve; on the left wing a porter's trolley with a lost trunk and a case {trunk}; on the right wing a semaphore signal with a red arm and a red lamp. Palette gaslight: brown (6) leads, dark grey (8), black (0) and yellow (14), a red accent (4), one blue figure (1); the light is the engine's lamp (plus the clock's lit face). moves: the headlamp and its cone (flicker), the clock's lamp (flicker), the lit steam (pingpong); a thread of smoke rises from the chimney (loop); pigeons cross behind the engine now and then (loop).",
+  title: 14,
+  titleAt: "bottom",
+  draw: `
+# ---- the whole canvas, the haze, the far town --------------------------------------------------------------
+rect bg 0,0,480,400 6
+rect sky 0,0,480,124 fade:0,6/0,-31/0,124
+poly skyline_l 0,214 0,172 10,170 14,160 26,160 30,168 42,166 46,154 52,144 58,154 62,168 76,166 80,176 96,174 100,184 116,182 120,192 140,190 150,200 170,200 182,214 0
+poly skyline_r 400,214 404,200 418,198 422,188 436,186 440,196 456,194 460,184 474,182 480,184 480,214 0
+# ---- the dark corners: the canopy top left, the gantry top right ----------------------------------------------
+poly canopy 0,0 178,0 160,18 120,24 0,38 0
+line canopy_rim 0,38 120,24 160,18 c8
+poly gantry 410,0 480,0 480,26 440,18 410,10 0
+line gantry_rim 410,10 440,18 480,26 c8
+# ---- the platform, the track in perspective ----------------------------------------------------------------
+rect floor_far 0,214,480,44 mix:6,8@0.3
+vp 300,214
+poly bed 180,304@1 470,304@1 470,304@0.3 180,304@0.3 mix:8,0@0.55
+poly tie_1 190,304@0.97 450,304@0.97 450,304@0.92 190,304@0.92 6
+poly tie_2 190,304@0.86 450,304@0.86 450,304@0.81 190,304@0.81 6
+poly tie_3 190,304@0.77 450,304@0.77 450,304@0.73 190,304@0.73 6
+poly tie_4 190,304@0.69 450,304@0.69 450,304@0.66 190,304@0.66 6
+poly tie_5 190,304@0.62 450,304@0.62 450,304@0.59 190,304@0.59 6
+poly tie_6 190,304@0.56 450,304@0.56 450,304@0.53 190,304@0.53 6
+line rail_l 215,304@1 215,304@0.5 c14
+line rail_r 440,304@1 440,304@0.5 c14
+line seam_a 60,304@1 60,304@0.4 c8
+line seam_b 10,304@1 10,304@0.4 c8
+line seam_c 96,304@1 96,304@0.4 c8
+line joint_a 0,268 222,268 c8
+line joint_b 0,284 205,284 c8
+# ---- the engine: black tanks, cab and chimney, the grey smokebox, the red beam ---------------------------------
+poly loco_tank_l 190,236 190,132 214,120 214,236 0
+poly loco_tank_r 410,236 410,132 386,120 386,236 0
+poly loco_cab 214,236 214,76 230,58 370,58 386,76 386,236 0
+poly loco_chimney 288,40 312,40 308,48 306,54 306,90 294,90 294,54 292,48 0
+line loco_rim_l 190,132 214,120 c8
+line loco_rim_cab 230,58 370,58 c8
+line loco_rim_chimney 288,40 312,40 c8
+ellipse loco_smokebox 300,160,76,76 mix:8,0@0.5
+ellipse loco_door 300,160,58,58 8
+rect loco_beam 192,226,216,18 4 e0
+ellipse loco_buf_l 222,236,13,9 8 e0
+ellipse loco_buf_r 378,236,13,9 8 e0
+rect loco_hook 296,238,8,12 0
+poly loco_pilot 216,244 384,244 370,258 230,258 0
+# ---- lit steam at its feet ----------------------------------------------------------------------------------
+ellipse steam_a 214,252,34,12 mix:6,14@0.5
+ellipse steam_b 176,257,34,12 mix:6,14@0.55
+ellipse steam_c 154,244,26,15 mix:6,14@0.5
+ellipse steam_d 396,254,34,11 mix:6,14@0.5
+# ---- the lamp: halo, cone of light, disc ------------------------------------------------------------------------
+ellipse halo_c 300,160,66,66 mix:,14@0.1
+ellipse halo_b 300,160,46,46 mix:,14@0.2
+ellipse halo_a 300,160,30,30 mix:,14@0.35
+poly beam 292,160 308,160 478,304 118,304 fade:14,/300,160/300,350
+ellipse lamp_ring 300,160,21,21 6
+ellipse lamp 300,160,16,16 14
+# ---- the near platform: the track and its light thin out into plain brown, which the title band carries on ------------------
+rect ground_a 0,284,480,4 mix:,6@0.25
+rect ground_b 0,288,480,4 mix:,6@0.5
+rect ground_c 0,292,480,4 mix:,6@0.75
+rect ground 0,296,480,9 6
+# ---- the traveller's shadow, then the traveller ----------------------------------------------------------------
+poly shadow 152,290 168,290 142,298 105,298 mix:,0@0.7
+poly fig_leg_l 153,274 159,274 158,292 152,292 0
+poly fig_leg_r 161,274 167,274 168,292 162,292 0
+poly fig_coat 149,247 171,247 177,279 143,279 1
+poly fig_arm_l 146,249 151,249 149,271 144,271 1
+poly fig_arm_r 171,249 176,253 176,268 172,264 1
+rect fig_case 136,272,13,10 0
+rect fig_neck 158,244,4,3 8
+ellipse fig_head 160,241,4,4 8
+rect fig_hat 155,232,10,5 0
+rect fig_brim 152,236,16,2 0
+line fig_rim 171,247 177,279 c14
+outline fig e0
+# ---- the left wing: clock on its pillar, the porter's trolley ------------------------------------------------
+poly pillar 109,24 115,24 115,268 109,268 0
+line pillar_rim 109,24 109,268 c8
+poly pillar_base 103,268 121,268 123,274 101,274 0
+ellipse clock_rim 112,64,24,24 0
+ellipse clock 112,64,21,21 mix:14,6@0.3
+line clock_min 112,64 97,73 c0
+line clock_hour 112,64 110,53 c0
+dots clock_ticks 112,45 112,83 131,64 93,64 c0
+rect trolley_bed 6,286,60,5 0
+ellipse trolley_wheel_a 16,296,5,5 0
+ellipse trolley_wheel_b 56,296,5,5 0
+line trolley_handle 6,286 2,262 c0
+rect trolley_trunk 10,262,34,24 0
+rect trolley_case 36,250,22,12 0
+line trolley_strap 10,270 44,270 c8
+line trolley_rim_a 44,262 44,286 c14
+line trolley_rim_b 58,250 58,262 c14
+# ---- the right wing: the semaphore signal ----------------------------------------------------------------------
+poly sig_pole 438,90 444,90 444,266 438,266 0
+poly sig_base 432,266 450,266 454,274 428,274 0
+poly sig_arm 444,98 476,92 476,103 444,109 4 e0
+ellipse sig_lamp 441,85,3,3 4
+# ---- the title band, last: the platform's brown carried on, one flat colour ------------------------------------------
+rect band 0,305,480,95 6
+`,
+  cycles: [
+    {
+      "name": "the headlamp",
+      "areas": [
+        "lamp",
+        "halo_a",
+        "halo_b",
+        "halo_c",
+        "beam"
+      ],
+      "colors": [
+        14,
+        6
+      ],
+      "style": "flicker",
+      "ms": [
+        1500,
+        5000
+      ]
+    },
+    {
+      "name": "the clock's lamp",
+      "areas": [
+        "clock"
+      ],
+      "colors": [
+        14,
+        6
+      ],
+      "style": "flicker",
+      "ms": [
+        2500,
+        7000
+      ]
+    },
+    {
+      "name": "the lit steam",
+      "areas": [
+        "steam_a",
+        "steam_b",
+        "steam_c",
+        "steam_d"
+      ],
+      "colors": [
+        14,
+        6
+      ],
+      "style": "pingpong",
+      "ms": 1400
+    }
+  ],
+  loops: [{"name":"the engine's smoke","at":[292,12],"style":"loop","ms":380,"frames":[["......8..8......","........8.......",".......8........","......8.........",".....8..8.......","....8..8........","...8..8.........","..8..8..........","..8.8.8.........","...8.8.8........","......8.8.......",".......8.8......","........8.8.....",".......8.8......","......7.7.......",".....7.7........",".....7777.......",".....7777.......",".....777........",".....777........",".....777........","......777.......",".......777......",".......777......","........77......",".......77.......",".......77.......",".......77......."],
+    ["...8..8.........",".....8..8.......","....8..8........","...8..8.........","..8..8..........","....8...........","...8..8.........",".....8..8.......","......8.8.......",".......8.8......","........8.8.....",".......8.8......","......8.8.......",".....8.8........","......7.7.......",".....7.7........","...7777.........","...7777.........",".....777........",".......777......","........777.....",".........777....","........777.....",".......777......",".......77.......",".......77.......",".......77.......",".......77......."],
+    ["...8..8.........","..8..8..........","....8...........","...8..8.........",".....8..8.......",".......8........","......8..8......","........8.......","......8.8.......",".....8.8........","......8.8.......",".....8.8.8......","....8.8.........","...8.8..........","....7.7.........",".....7.7........",".....7777.......","......7777......","........777.....",".........777....","........777.....",".......777......",".......777......",".......777......",".......77.......",".......77.......",".......77.......",".......77......."],
+    ["...8..8.........",".....8..8.......",".......8........","......8..8......","........8.......",".......8........","......8.........",".....8..8.......","....8.8.8.......","...8.8.8........","....8.8.........","...8.8.8........","....8.8.........",".....8.8........","......7.7.......",".......7.7......",".......7777.....","......7777......","......777.......",".......777......",".......777......","......777.......","......777.......","......777.......",".......77.......",".......77.......",".......77.......",".......77......."]]},{"name":"the pigeons","under":"loco","path":[[-30,118],
+    [490,132]],"travel":20000,"pause":8000,"style":"loop","ms":340,"frames":[["........................","...0...0................","....000.................","........................","........................","........................","........................","...............00000....","........................","........................"],
+    ["........................","........................","...00000................","........................","........................","........................","........................","...............00000....","........................","........................"],
+    ["........................","........................","....000.................","...0...0................","........................","........................","........................","...............00000....","........................","........................"],
+    ["........................","........................","...00000................","........................","........................","........................","...............0...0....","................000.....","........................","........................"],
+    ["........................","........................","...00000................","........................","........................","........................","........................","...............00000....","........................","........................"],
+    ["........................","........................","...00000................","........................","........................","........................","........................","................000.....","...............0...0....","........................"]]}]
+};

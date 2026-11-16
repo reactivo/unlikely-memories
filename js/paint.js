@@ -2,7 +2,7 @@
 // Sierra's games drew their rooms from commands. Pure: no page, so the screen (ui/draw.js, which re-exports it), the tests and the checker (the
 // motion's limits need what each shape ends up showing) all use it.
 
-import art from "../content/art.js?v=0.60.2";
+import art from "../content/art.js?v=0.61.0";
 
 const DITHER = art.dither.matrix;                 // Bayer 4×4: the order in which pixels switch to the second colour
 
@@ -17,15 +17,40 @@ export function paint(draw, width = art.picture.width, height = art.picture.heig
   return paintPicture(draw, width, height).px;
 }
 
+// A pixel no shape painted, in a cover (docs/splash/PLAN.md): clear, so the page's own background shows through it. A room's picture starts
+// all black (palette 0) and never has one.
+export const CLEAR = 255;
+
 // The same, also saying which pixels each named shape (`id`) ended up showing, after everything painted over it:
-// { px, areas: { id: [pixel index, …] } }. Palette cycles use the areas.
-export function paintPicture(draw, width = art.picture.width, height = art.picture.height) {
-  const px = new Uint8Array(width * height), owner = new Int16Array(width * height).fill(-1);
-  draw.forEach((shape, i) => shape.outline ? paintOutline(px, width, height, draw, owner, shape)
-    : paintShape(px, width, height, shape, (k) => { owner[k] = i; }));
-  const areas = {};
-  owner.forEach((i, k) => { const id = i >= 0 && draw[i].id; if (id) (areas[id] ||= []).push(k); });
-  return { px, areas };
+// { px, areas: { id: [pixel index, …] } }. Palette cycles use the areas. `clear`: the number the grid starts with (default 0, black: a room;
+// a cover passes CLEAR, and a fill with an empty colour then leaves the pixel clear: a fade dissolves into nothing).
+export function paintPicture(draw, width = art.picture.width, height = art.picture.height, clear = 0) {
+  const p = painter(draw, width, height, clear);
+  p.to(draw.length);
+  return { px: p.px, areas: p.areas() };
+}
+
+// The same, one shape at a time (the cover draws itself so: ui/splash.js): { px, to(n), areas() }. px is the grid, changed in place; to(n)
+// paints the shapes up to the first n (shapes paint in order, so one more shape goes onto the grid as it is: no repainting from the start);
+// areas() says which pixels each named shape shows now.
+export function painter(draw, width = art.picture.width, height = art.picture.height, clear = 0) {
+  const px = new Uint8Array(width * height).fill(clear), owner = new Int16Array(width * height).fill(-1);
+  let done = 0;
+  return {
+    px,
+    to(n) {
+      for (const end = Math.min(n, draw.length); done < end; done++) {
+        const shape = draw[done];
+        if (shape.outline) paintOutline(px, width, height, draw, owner, shape);
+        else paintShape(px, width, height, shape, (k) => { owner[k] = done; });
+      }
+    },
+    areas() {
+      const areas = {};
+      owner.forEach((i, k) => { const id = i >= 0 && draw[i].id; if (id) (areas[id] ||= []).push(k); });
+      return areas;
+    }
+  };
 }
 
 // One outline round a whole element: the pixels now showing a shape of it (id = the name, or starting with name + "_") that touch,

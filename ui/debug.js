@@ -14,6 +14,7 @@
 //   dev.crt()               the CRT look (ui/crt.js): { settings(), defaults(), ranges, set(values | null) }; the settings now in effect,
 //                           content/art.js's, the range of each, and set() puts these over the defaults (null: the defaults) and
 //                           draws the picture and the thumbnails again at once
+//   dev.titleFont(id)       the font a cover's title is drawn in (js/title.js; null: art.js's cover.titleFont), on a world's own page: redrawn at once
 //   dev.languages()         the languages this world is written in
 //   dev.language(lang)      a new game of this world in that language
 //
@@ -21,17 +22,19 @@
 // sections are open, the CRT look's values (crt: null until one is changed). Closing it with × forgets all of that, the CRT look's
 // values too (art.js's come back); /debug opens it fresh.
 
-import * as debug from "../js/debug.js?v=0.60.2";
-import { parts, partAt, hhmm } from "../js/time.js?v=0.60.2";
-import { text } from "../js/narrator.js?v=0.60.2";
-import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.60.2";
-import { touch } from "./media.js?v=0.60.2";
+import * as debug from "../js/debug.js?v=0.61.0";
+import { parts, partAt, hhmm } from "../js/time.js?v=0.61.0";
+import { text } from "../js/narrator.js?v=0.61.0";
+import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.61.0";
+import { touch } from "./media.js?v=0.61.0";
+import { titleFonts } from "../js/title.js?v=0.61.0";
+import art from "../content/art.js?v=0.61.0";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
-// font, logRem, logLine, letter: the Typography section's (null: the font's own value). (logRem: the story's size in rem; until
+// font, logRem, logLine, letter: the Typography section's (null: the font's own value); titleFont: the cover title's font, also there (null: art.js's). (logRem: the story's size in rem; until
 // 5 Nov 2026 it was a size in px, under another name, which is now ignored.) crt: the CRT section's settings, all of them (null: art.js's).
 const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, nudge: true, motion: "system", rules: false, wholeMap: false,
-                   font: DEFAULT_FONT, logRem: null, logLine: null, letter: null, crt: null };
+                   font: DEFAULT_FONT, logRem: null, logLine: null, letter: null, titleFont: null, crt: null };
 const SECTIONS = ["picture", "crt", "music", "events", "travel", "inventory", "time", "inspect", "page", "typography", "settings"];
 
 // What this device remembers, or null (nothing, or storage blocked).
@@ -105,7 +108,7 @@ function sync(a, b) {
 
 // Build the panel (hidden) and add it to the page. Returns open(), update(), showsRules() and wholeMap().
 export function mount(dev) {
-  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.60.2", import.meta.url).href });
+  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.61.0", import.meta.url).href });
   document.head.append(css);
   const html = document.documentElement;
   let v = null;                                    // what it remembers while open (null: closed)
@@ -173,6 +176,7 @@ export function mount(dev) {
     setInline("--log-line", v?.logLine != null ? String(v.logLine) : null);
     setInline("--letter-spacing", v?.letter != null ? v.letter + "em" : null);
     useFont(font).then(() => { if ((v?.font ?? DEFAULT_FONT) === font) fields(); });
+    dev.titleFont(v?.titleFont ?? null);                       // (a world's own page: the cover's title, drawn again at once; elsewhere nothing)
   }
   // The CRT section's values, on the page: through dev.crt() (closed, v null: art.js's). Only when they changed.
   let crtShown = "null";
@@ -390,6 +394,10 @@ export function mount(dev) {
   const fontList = el("select", "", undefined, { "aria-label": "Font", "data-key": "font" });
   for (const f of FONTS) fontList.append(el("option", "", f.name, { value: f.id }));
   fontList.addEventListener("change", () => { if (!v) return; v.font = fontList.value; v.logRem = v.logLine = v.letter = null; keep(v); type(); });
+  // The cover title's font (a world's own page: js/title.js draws its title in it, live): the fonts of content/titlefonts/.
+  const titleList = el("select", "", undefined, { "aria-label": "Cover title font", "data-key": "title-font" });
+  for (const id of titleFonts()) titleList.append(el("option", "", id + (id === art.cover.titleFont ? " (default)" : ""), { value: id }));
+  titleList.addEventListener("change", () => { if (!v) return; v.titleFont = titleList.value === art.cover.titleFont ? null : titleList.value; keep(v); type(); });
   // A number field with − and + buttons: `get()` the value shown, `set(n)` a new one (null: the font's own), `step` and `places`;
   // `any`: zero and negative values too (letter spacing), otherwise only above zero.
   function stepper(label, step, places, get, set, any = false) {
@@ -423,7 +431,7 @@ export function mount(dev) {
   // The page's letter spacing (--letter-spacing, css/typography.css: every text, the story and the interface alike), in em.
   const letter = stepper("Letter spacing (em)", 0.01, 2, () => now().letter, (n) => { v.letter = n; }, true);
   const reset = button("Reset to the font's defaults", () => { if (!v) return; v.logRem = v.logLine = v.letter = null; keep(v); type(); }, undefined, "type-reset");
-  parts$.typography.append(probe, row("Font", fontList), size.row, line.row, letter.row, row("", reset),
+  parts$.typography.append(probe, row("Font", fontList), row("Cover title font", titleList), size.row, line.row, letter.row, row("", reset),
     el("p", "note", "Not saved with the game. × puts m5x7 back."));
   // The CRT section (the look of ui/crt.js, art.js's effects.crt): made once like Typography; fields() keeps it in line. Every change
   // keeps all the values with the panel (v.crt) and draws at once. Reset: art.js's. Copy: the values now, as JSON.
@@ -443,6 +451,7 @@ export function mount(dev) {
     crtOn.querySelector("input").checked = crt().settings().on;
     for (const [, s] of sliders) s.show();
     if (document.activeElement !== fontList) fontList.value = v?.font ?? DEFAULT_FONT;
+    if (document.activeElement !== titleList) titleList.value = v?.titleFont ?? art.cover.titleFont;
     size.show(); line.show(); letter.show();
   }
   function inspect(st) {

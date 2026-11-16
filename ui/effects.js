@@ -3,9 +3,9 @@
 // hash of the pixel and the moment, so the same moment always draws the same.
 // (How one picture changes into another, a room's or an ending's, is not here: it is all in ui/transitions.js.)
 
-import art from "../content/art.js?v=0.60.2";
-import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.60.2";
-import { colorsOf, areaPixels } from "../js/picture.js?v=0.60.2";
+import art from "../content/art.js?v=0.61.0";
+import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.61.0";
+import { colorsOf, areaPixels } from "../js/picture.js?v=0.61.0";
 
 // A tint's palette as [r, g, b] colours, parsed once for each palette (the scene asks every frame).
 const tints = new WeakMap();
@@ -142,7 +142,7 @@ export function motionInto(out, cycles, loops, steps, layer, still, w, h) {
   if (!still) cycles.forEach((cy, j) => { if (cy.c.style === "scroll") cycleInto(out, cy, steps[j], layer); });
   loops.forEach((lp, j) => {
     const s = steps[cycles.length + j];
-    if (s >= 0) drawLoop(out, lp.sprite, s % 8, w, h, lp.l.path ? loopPlace(s) : lp.sprite.at);
+    if (s >= 0) drawLoop(out, lp.sprite, s % 8, w, h, lp.l.path ? loopPlace(s) : lp.sprite.at, lp.hide);   // (hide: where `under` keeps it behind a shape)
   });
   if (!still) cycles.forEach((cy, j) => { if (cy.c.style !== "scroll") cycleInto(out, cy, steps[j], layer); });
 }

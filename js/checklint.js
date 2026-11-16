@@ -6,23 +6,23 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.60.2";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.60.2";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.60.2";
-import { isAction } from "./actions.js?v=0.60.2";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.60.2";
-import { solveCommand } from "./narrator.js?v=0.60.2";
-import { isLine } from "./shapes.js?v=0.60.2";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.60.2";
-import { nextCell } from "./space.js?v=0.60.2";
-import { moveTo, worldTime, parts } from "./time.js?v=0.60.2";
-import * as opening from "./opening.js?v=0.60.2";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.60.2";
-import art from "../content/art.js?v=0.60.2";
-import { isGroup, colorsOf, areaPixels } from "./picture.js?v=0.60.2";
-import { paintPicture } from "./paint.js?v=0.60.2";
-import { filterProblem } from "./filters.js?v=0.60.2";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.60.2";
+import { parse, normalise } from "./parser.js?v=0.61.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.61.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.61.0";
+import { isAction } from "./actions.js?v=0.61.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.61.0";
+import { solveCommand } from "./narrator.js?v=0.61.0";
+import { isLine } from "./shapes.js?v=0.61.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.61.0";
+import { nextCell } from "./space.js?v=0.61.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.61.0";
+import * as opening from "./opening.js?v=0.61.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.61.0";
+import art from "../content/art.js?v=0.61.0";
+import { isGroup, colorsOf, areaPixels, parseShapes } from "./picture.js?v=0.61.0";
+import { paintPicture, CLEAR } from "./paint.js?v=0.61.0";
+import { filterProblem } from "./filters.js?v=0.61.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.61.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -783,7 +783,8 @@ function scrollOverlaps(picture) {
 // What a picture's motion could be gentler about (art.effects.pace; BRIEF.md §7, "Animation"): never a problem. Steps quicker than the recipes'
 // (pingpong, rotate and blink without a sweep; a flicker's waits; a scroll's step; a sweep's), all the cycles together moving more than a sixth of
 // the picture's pixels (a flicker not counted), a picture with no cycle whose `shot` doesn't say "moves: nothing", and a shot with no "moves:" part.
-export function motionWarnings(picture) {
+// `size` is the picture's own width and height: a room's (art.picture, the default) or a cover's (art.cover: 480 x 400).
+export function motionWarnings(picture, size = art.picture) {
   const why = [], cycles = (picture.cycles || []).filter(c => c && typeof c === "object"), pace = art.effects.pace;
   for (const c of cycles) {
     const cn = `cycle "${c.name ?? "?"}"`, ms = c.ms;
@@ -795,7 +796,7 @@ export function motionWarnings(picture) {
   const moving = cycles.filter(c => c.style !== "flicker");
   if (moving.length && Array.isArray(picture.draw) && picture.draw.length) {
     try {
-      const { width: W, height: H } = art.picture, { px, areas } = paintPicture(picture.draw), moved = new Set();
+      const { width: W, height: H } = size, { px, areas } = paintPicture(picture.draw, W, H, size === art.cover ? CLEAR : 0), moved = new Set();
       for (const c of moving) {
         const colors = c.style === "scroll" ? null : colorsOf(c);
         for (const a of c.areas || []) for (const k of areaPixels(a, areas, W, H)) if (!colors || colors.includes(px[k])) moved.add(k);
@@ -807,6 +808,61 @@ export function motionWarnings(picture) {
   if (!cycles.length && !/moves:\s*nothing/i.test(shot)) why.push("has no cycle, and its shot doesn't say \"moves: nothing\": give it one that moves, or end its shot with \"moves: nothing\" if the place is still");
   else if (cycles.length && !/moves:/i.test(shot)) why.push("moves, but its shot has no \"moves:\" part: end the shot with what moves (\"moves: the fall (running water)\")");
   return why;
+}
+
+// A world's cover (`export const cover = { shot, title, titleAt, draw, cycles, loops }`: docs/splash/PLAN.md), checked: never a problem. Its motion by the
+// cover's own 480 x 400 (not a room's), a cover narrower than that warned of, and its title band: `title` a palette number and `titleAt` "top" or "bottom"; the band (art.cover.bands) one flat
+// colour across the full width, painted by the shapes with nothing crossing it (no shape but the first that paints all of it, no dither or edge), no cycle or loop touching it,
+// and a colour that isn't the title's own (the engine draws the title there, js/title.js).
+export function coverWarnings(cover) {
+  if (!cover || typeof cover !== "object") return [];
+  const draw = typeof cover.draw === "string" ? parseShapes(cover.draw).shapes : cover.draw, why = [];
+  const pic = { ...cover, draw };
+  why.push(...motionWarnings(pic, art.cover), ...loopProblems(cover.loops, art.cover, art.effects.loops.coverMax));   // (a cover may have up to coverMax loops)
+  // At least two cycles and one loop (Diego, 16 November 2026): a poster that is clearly alive.
+  const nc = (cover.cycles || []).length, nl = (cover.loops || []).length;
+  if (nc < 2 || nl < 1) why.push(`has ${nc} cycle${nc === 1 ? "" : "s"} and ${nl} loop${nl === 1 ? "" : "s"}: a cover has at least two cycles and one loop`);
+  const { width: W, height: H, bands } = art.cover, band = bands[cover.titleAt];
+  if (!band) why.push(`titleAt is ${JSON.stringify(cover.titleAt)}: it names the title's band, "top" (rows ${bands.top[0]}-${bands.top[1] - 1}) or "bottom" (rows ${bands.bottom[0]}-${bands.bottom[1] - 1})`);
+  if (!Number.isInteger(cover.title) || cover.title < 0 || cover.title > 15) why.push(`title is ${JSON.stringify(cover.title)}: it is the title's colour, a palette number 0-15`);
+  if (!band || !Array.isArray(draw) || !draw.length) return why;
+  let px, areas;
+  try { ({ px, areas } = paintPicture(draw, W, H, CLEAR)); } catch { return why; }
+  // Covers are 480 x 400 (an upright phone shows columns 80-399, a wide window all of them): the rightmost painted column says how wide this one was drawn.
+  let right = -1;
+  for (let k = 0; k < px.length; k++) if (px[k] !== CLEAR) right = Math.max(right, k % W);
+  if (right >= 0 && right + 1 < W) { why.push(`covers are ${W} x ${H}: this one paints only ${right + 1} columns (the first shape paints all of 0-${W - 1}, wings included)`); return why; }
+  const name = `its title band (${cover.titleAt}, rows ${band[0]}-${band[1] - 1})`, seen = new Map();
+  for (let k = band[0] * W; k < band[1] * W; k++) seen.set(px[k], (seen.get(px[k]) ?? 0) + 1);
+  if (seen.size > 1) {
+    const list = [...seen].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([c, n]) => (c === CLEAR ? "unpainted" : `colour ${c}`) + ` ${n}`).join(", ");
+    why.push(`${name} is not one flat colour (${seen.size} in it: ${list}): the image ends before it, and no shape, edge, dither, line or light crosses into it`);
+  } else if ([...seen.keys()][0] === CLEAR) why.push(`${name} is unpainted: the first shape paints the whole canvas`);
+  else if ([...seen.keys()][0] === cover.title) why.push(`${name} is colour ${cover.title}, the title's own: the title wouldn't show`);
+  const inBand = (k) => k >= band[0] * W && k < band[1] * W;
+  for (const c of cover.cycles || []) if (c && (c.areas || []).some(a => areaPixels(a, areas, W, H).some(inBand))) why.push(`cycle "${c.name ?? "?"}" touches ${name}: no cycle may`);
+  for (const l of cover.loops || []) if (l?.under && !Object.keys(areas).some(id => id === l.under || id.startsWith(l.under + "_"))) why.push(`loop "${l.name ?? "?"}": under "${l.under}" matches no shape that shows (an id, or the start of ids "<id>_…")`);
+  for (const l of cover.loops || []) {
+    const pts = l?.path ?? (l?.at ? [l.at] : []), h = l?.frames?.[0]?.length ?? 0;
+    if (pts.length && Math.max(...pts.map(p => p[1])) + h > band[0] && Math.min(...pts.map(p => p[1])) < band[1]) why.push(`loop "${l.name ?? "?"}" reaches into ${name}: no loop may`);
+  }
+  return why;
+}
+
+// A world's main palette, the one its cover is drawn in (docs/splash/PLAN.md): the palette named most often by its rooms' `shot` lines (shotPalette);
+// on a tie the start room's if it is one of them, else the first named; none named: the start room's, else the first of the bible's `palettes` line;
+// null when there is none. { name, counts } (counts: each palette's rooms, most first).
+export function mainPalette(state, bible) {
+  const counts = new Map(), first = [];
+  for (const room of Object.values(state.world.rooms)) {
+    const n = shotPalette(room?.picture?.shot);
+    if (n) { if (!counts.has(n)) first.push(n); counts.set(n, (counts.get(n) ?? 0) + 1); }
+  }
+  const sorted = first.map((n, i) => [n, counts.get(n), i]).sort((a, b) => b[1] - a[1] || a[2] - b[2]);
+  const start = shotPalette(state.world.rooms[state.player.at]?.picture?.shot);
+  const top = sorted.filter(s => s[1] === sorted[0]?.[1]).map(s => s[0]);
+  const name = !sorted.length ? start ?? biblePalettes(bible)?.[0] ?? null : top.includes(start) ? start : top[0];
+  return { name, counts: Object.fromEntries(sorted.map(s => [s[0], s[1]])) };
 }
 
 // The warnings for the world's pictures, a room's and an ending's, with the names the problems use. Only for a world written under the
@@ -870,11 +926,12 @@ export function shapeWarnings(picture, style, ending = false) {
 // What is wrong with a picture's `loops` (small animated sprites: ART-DIRECTION.md §6.3): at most art.effects.loops.max, each with a name,
 // an `at` inside the picture (a travelling loop, with `path`, `travel` and `pause`, has no `at`), 2 to 6 frames of equal size (rows of hex digits, "." clear, every row as long as the first, at most 32 × 32),
 // a positive `ms` and a style the engine knows.
-function loopProblems(loops) {
+function loopProblems(loops, size = art.picture, max = art.effects.loops.max) {
   if (loops === undefined) return [];
   if (!Array.isArray(loops)) return ["its loops are a list"];
-  const why = [], lim = art.effects.loops, { width: W, height: H } = art.picture;
-  if (loops.length > lim.max) why.push(`has more than ${lim.max} loop${lim.max === 1 ? "" : "s"}`);
+  const why = [], lim = art.effects.loops, { width: W, height: H } = size;
+  if (loops.length > max) why.push(`has more than ${max} loop${max === 1 ? "" : "s"}`);
+  for (const l of loops) if (l && "under" in l && !(typeof l.under === "string" && l.under.trim())) why.push(`loop "${l.name ?? "?"}": under names the shape (an id) it passes behind`);
   for (const l of loops) {
     const name = `loop "${l?.name ?? "?"}"`;
     if (!l || typeof l !== "object") { why.push(`${name}: is not a loop`); continue; }

@@ -561,3 +561,144 @@ export const endings = {
     `
   }
 };
+
+// ---- THE COVER (its page, /hartleys/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+export const cover = {
+  shot: "archetype: the tower (it turns on one person who watches everything: Mr Gage, the floorwalker, whose store never closes). Title at the top (flat brown band, rows 0-95, letters yellow 14); the image starts under a black cornice at row 96. Palette gaslight, leading brown (6): dark grey and brown over the walls, darkening to black at the edges, yellow (14) only for the lamps and the glow, one red (4, 12) for a window, a tag and a carnation. Camera at knee height on the shop floor, looking up, facing north into the hall. The dominant element is Mr Gage, a huge black silhouette (head, swept hair, nose in profile facing left, narrow shoulders, a morning coat with cut-away tails), standing on the right third (x about 300, feet at row 357, head at row 121): his left arm (screen left) hangs at his side, a plain mitt at mid-thigh; his right arm (screen right) is bent out with the hand in his trouser pocket, so the glow shows in the gap between arm and body. Behind him a tall arched window of lit glass {window} (flat yellow going to brown by dither lower down, gradient 1: the lamps' light thinning towards the floor) inside three nested halos of dots on the wall; a thin yellow rim light on his right edge from a gas lamp {gaslamp} on the right wing. Backdrop: the store front, a black cornice at the top, a dark grey brass cash-railway tube {tube} running across the whole poster behind his head, pilasters, the wall falling to black at both wings (gradient 2, cause: distance from the glow), a wood floor with a perspective of boards. Other elements: in the foreground left a mahogany counter {counter} with a small stoppered bottle {bottle} glowing yellow on it with a red price tag (the question: the price of everything is a memory, and what will you pay with; tiny against the huge man); left wing a lit shop window {shop} with two dress forms turned a few degrees; right wing a red-lit window with a form, and the gas lamp. Diagonals: the pool of window light running down-left across the floor and his long cast shadow running down-right. moves: the gas lamp (flicker), the left shop window (flicker), the bottle's glow (shimmer), a moth pair round the gas lamp (loop), a cash canister crossing the tube and passing behind Mr Gage's head (loop, under).",
+  title: 14,
+  titleAt: "top",
+  draw: `
+rect bg 0,0,480,400 6
+rect wall_c 120,96,300,250 mix:6,8@0.4
+rect wall_l 0,96,120,250 fade:6,0/120,0/-30,0
+rect wall_r 420,96,60,250 fade:6,0/420,0/495,0
+ellipse halo_3 300,236,120,138 mix:,14@0.1
+ellipse halo_2 300,236,92,128 mix:,14@0.2
+ellipse halo_1 300,236,64,118 mix:,14@0.35
+poly arch 240,346 240,194 244,162 254,134 266,114 282,104 296,110 312,124 322,142 326,166 326,346 fade:14,6/283,262/283,420
+line bar_1 262,124 262,346 c6
+line bar_2 282,106 282,346 c6
+line bar_3 304,118 304,346 c6
+line bar_4 244,190 324,190 c6
+line bar_5 240,262 326,262 c6
+rect cornice 0,96,480,5 0
+rect pilaster_l 116,101,10,245 mix:8,0@0.5
+rect pilaster_r 414,101,12,245 mix:8,0@0.5
+rect tube 0,126,480,6 8 e0
+line - 0,128 480,128 c6
+rect - 60,124,4,10 0
+rect - 190,124,4,10 0
+rect - 410,124,4,10 0
+rect - 462,124,4,10 0
+rect sign_l 30,150,76,16 6 e0
+line - 36,156 100,156 c14
+line - 44,161 92,161 c14
+rect shop_l 26,178,84,140 mix:14,6@0.3 e0
+ellipse form_l1_head 48,206,4,5 0
+poly form_l1 44,212 52,212 54,250 62,300 34,300 44,250 0
+ellipse form_l2_head 82,200,4,5 0
+poly form_l2 78,206 86,206 88,248 100,300 66,300 78,248 0
+rect sill_l 20,318,96,6 8 e0
+rect sign_r 434,222,40,10 6 e0
+line - 440,227 468,227 c14
+rect shop_r 436,240,36,66 4 e0
+ellipse form_r_head 454,258,3,4 0
+poly form_r 451,263 457,263 460,300 448,300 0
+rect sill_r 432,306,44,5 8 e0
+ellipse lamp_h2 446,194,22,24 mix:,14@0.12
+ellipse lamp_h1 446,194,13,15 mix:,14@0.25
+line - 470,196 452,194 c0
+ellipse lamp 446,194,6,7 14
+rect floor 0,346,480,54 mix:6,0@0.55
+line - 0,346 479,346 c0
+vp 300,346
+line - 0,399@1 0,399@0.3 c0
+line - 120,399@1 120,399@0.3 c0
+line - 400,399@1 400,399@0.3 c0
+line - 479,399@1 479,399@0.3 c0
+poly pool 240,346 326,346 250,399 20,399 mix:,14@0.35
+poly shadow 262,356 326,356 479,399 372,399 mix:,0@0.7
+poly counter_top 0,322 198,322 190,332 0,332 6
+poly counter_front 0,332 190,332 208,399 0,399 mix:6,0@0.8
+line - 0,322 198,322 c14
+ellipse bottle_glow 146,304,26,30 mix:,14@0.2
+ellipse bottle_glow2 146,304,16,20 mix:,14@0.3
+poly bottle_body 140,298 152,298 158,310 158,321 134,321 134,310 14
+poly bottle_in 135,313 157,313 158,321 134,321 6
+rect bottle_neck 142,286,8,12 14
+rect bottle_stopper 141,281,10,5 6
+line - 152,296 164,306 c8
+poly bottle_tag 160,304 170,306 168,316 158,314 4
+poly gage_leg_l 280,244 302,244 299,350 276,350 0
+poly gage_leg_r 300,244 322,244 326,350 302,350 0
+poly gage_shoe_l 266,349 299,349 299,357 258,357 0
+poly gage_shoe_r 302,349 326,349 326,357 296,357 0
+poly gage_arm_l 260,170 276,168 278,184 270,264 254,264 256,200 0
+ellipse gage_hand_l 261,274,6,9 0
+poly gage_arm_r 320,168 336,174 352,216 336,254 322,252 334,218 322,196 0
+poly gage_coat 272,170 300,161 328,170 332,214 338,262 342,300 320,282 304,256 276,244 274,214 0
+rect gage_neck 294,152,12,12 0
+ellipse gage_head 300,138,12,17 0
+poly gage_hair 289,132 292,121 302,117 314,121 318,134 312,144 308,132 0
+poly gage_nose 289,138 283,145 289,148 0
+line gage_rim_a 336,174 352,216 336,254 c14
+line gage_rim_b 332,214 338,262 342,300 c14
+dots gage_carnation 281,182 282,182 281,183 282,183 280,183 283,183 c12
+`,
+  cycles: [
+    {
+      "name": "the gas lamp",
+      "areas": [
+        "lamp",
+        "lamp_h1",
+        "lamp_h2"
+      ],
+      "colors": [
+        14,
+        6
+      ],
+      "style": "flicker",
+      "ms": [
+        700,
+        2200
+      ]
+    },
+    {
+      "name": "the shop window",
+      "areas": [
+        "shop_l"
+      ],
+      "colors": [
+        14,
+        6
+      ],
+      "style": "flicker",
+      "ms": [
+        900,
+        4000
+      ]
+    },
+    {
+      "name": "the memory's glow",
+      "areas": [
+        "bottle_glow",
+        "bottle_glow2"
+      ],
+      "colors": [
+        14,
+        6
+      ],
+      "style": "pingpong",
+      "scatter": true,
+      "ms": 1400
+    }
+  ],
+  loops: [{"name":"the moths","at":[436,186],"ms":170,"style":"loop","frames":[["........7.7.........",".........7..........","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................",".........7..........",".........7..........","...................."],
+    ["....................","....................","...............7....","...............7....","....................","....................","....................","....................","....................","....................","....................","....................","...7.7..............","....7...............","....................","...................."],
+    ["....................","....................","....................","....................","....................","....................","..7.................","..7.............7.7.","..................7.","....................","....................","....................","....................","....................","....................","...................."],
+    ["....................","......7.7...........",".......7............","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................",".............7......",".............7......","...................."],
+    ["....................",".............7......",".............7......","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................",".....7.7............","......7.............","...................."],
+    ["....................","....................","....................","....................","....................","....................","....................","..7.............7.7.","..7..............7..","....................","....................","....................","....................","....................","....................","...................."]]},{"name":"the cash canister","under":"gage","path":[[-12,127],
+    [480,127]],"travel":7000,"pause":6000,"ms":300,"style":"loop","frames":[["..66666666..",".6eeee66666.","666666666666",".6666666666.","..66666666.."],
+    ["..66666666..",".66666eeee6.","666666666666",".6666666666.","..66666666.."]]}]
+};

@@ -4,6 +4,17 @@
 export default {
   picture: { width: 320, height: 136, ratio: "40:17" },
   sprite: { width: 16, height: 16, transparent: true },
+  // A world's cover (docs/splash/PLAN.md; INTERFACE.md §13a): its own page's poster, 320 x 400, with the world's title drawn into its pixels by the
+  // engine (js/title.js) in a band of plain colour: `bands` are the rows [from, to) of the top band and the bottom one (a cover's `titleAt`); the title
+  // is set in capitals in `titleFont` (a name in content/titlefonts/, made by tools/titlefont.mjs from a pixel TTF; the debug panel's Typography
+  // section tries the others), one line when it fits at a scale of `titleScale.min` or more within `titleWidth` pixels, else two balanced lines, at the
+  // largest whole scale up to `titleScale.max` at which every line fits that width and the block fits its band.
+  cover: { width: 480, height: 400, crop: [80, 399], titleFont: "m3x6", bands: { top: [0, 96], bottom: [305, 400] }, titleWidth: 300, titleScale: { min: 4, max: 5 },
+    // The cover draws itself when the splash opens (js/cover.js, shownAt; ui/splash.js): its drawing list painted shape by shape, in its own order,
+    // the first (the background) at once, in `ms` in all whatever the number of shapes; `ease` > 1 makes the first shapes slower than the last
+    // (the shapes shown go as the time's fraction to the power `ease`). Then the title, then the cycles and loops. A tap or key skips it; reduced motion
+    // shows the finished poster at once. The cover's size on screen: the crop on an upright phone at whole device pixels per cover pixel (js/cover.js, fitWidth), the whole poster fitted to the window's height elsewhere.
+    drawIn: { ms: 2500, ease: 1.4 } },
   palette: {
     name: "EGA",
     colors: ["#000000", "#0000AA", "#00AA00", "#00AAAA", "#AA0000", "#AA00AA", "#AA5500", "#AAAAAA",
@@ -49,7 +60,7 @@ export default {
     // Loops (a picture's `loops`: small animated sprites drawn on the picture, as Sierra's views were): the styles they step by,
     // and the limits the checker holds them to. `size` is the most a frame is, in pixels each way.
     loopStyles: ["loop", "pingpong", "random"],
-    loops: { max: 1, size: 32, frames: [2, 6] },
+    loops: { max: 1, size: 32, frames: [2, 6], coverMax: 3 },   // (a room: `max`; a cover: `coverMax`; a loop may name `under: "<id>"`: it passes behind the shapes of that id, ui/draw.js underMask)
     // Picture filters (ui/effects.js, FILTERS; js/filters.js): drawn on the scene's own 320×136 pixels while the state has
     // them on (the `filter` effect; a condition's `filters`). Each one's tunables, all sizes in picture pixels. The order
     // here is the order they are drawn in when several are on, whatever order they came on in: first what changes the

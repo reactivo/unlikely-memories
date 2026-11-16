@@ -153,3 +153,171 @@ line tile3 80,60 60,136 c8
 line tile4 240,60 260,136 c8
 ellipse light 160,64,40,7 7` }
 };
+
+// ---- THE COVER (its page, /meridian/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+export const cover = {
+  shot: "archetype: the dwarf (the world turns on a place bigger than you: the grey tower where the machines fail and the Registry waits on a high floor); title at the top, in the plain dark grey band (rows 0-95), title colour white (15). Palette: institution (dark grey 8 leads; black, dark grey, light grey, white 15; one green thing, the Registry's window; a brass buzzer in brown 6 as the one small accent). Dithered. Viewpoint: from the yard floor looking up the block's back wall, vanishing point far above the picture (240,-400), so the floor lines and the corners run in strong diagonals; the tower takes the whole poster and goes up into a fog that becomes the plain band, with no edge at the band. Light: one caged lamp over the steel service door (centre right, 295,257); a lit cone on the wall (gradient 1: light grey dither fading to plain dark grey up and away from the lamp, drawn as two halves meeting under the lamp) and a pool on the yard ground (gradient 2: the same fade along the ground, the figure standing mid-pool); hard shadow: the figure's long dithered shadow runs away from the lamp to the left and towards us. Dominant: {the tower}: seven floors of black ribbon windows with dark mullions, a few windows lit pale, rising into the fog; the sky wedges at the top corners are pale fog fading to the band's grey. The figure (the player, left third, x 170, 56 px of coat and legs under a tilted-back brimmed hat, about 66 px with the hat): a black silhouette with one light rim along the coat's right edge; the head tilted back and the nose up, looking up the tower at the green window; the right arm bent at the chest holding the folded {summons} (white, the brightest thing on the figure); the left arm hangs at its side; the legs apart, shoes toward the right. The question: the one lit green window high up on the tower (the Registry on its floor): will you get up there? Not the answer, no way shown. Other elements: {the service door} with its {caged lamp} and the {buzzer} beside it, lit steel in a black frame; {puddles} on the yard with the lamp's glints in the right one. Wings: left, the dark wall going on with a {drainpipe}, a sheet-metal {fence} with panel seams and two {bins}; right, a {junction box} with a cable, the fence again, a {tarpaulin} over the lift motor, a small puddle. moves: the lamp (flicker, with its halo), the Registry's window (a failing green light, flicker), the puddle's glints (shimmer); loop: two moths round the lamp.",
+  title: 15,
+  titleAt: "top",
+  draw: `# the whole canvas in the lead colour: dark grey (also the title band, plain)
+rect bg 0,0,480,400 8
+# fog wedges at the top corners, pale below and plain at the band
+poly sky_l 0,100 62,100 0,252 fade:7,8/0,250/0,112
+poly sky_r 480,100 418,100 480,252 fade:7,8/480,250/480,112
+# the tower, in perspective from far above the picture
+vp 240,-400
+poly wall_l -30,330@1 295,330@1 295,330@0.6849 -30,330@0.6849 fade:7,8/295,330/160,150
+poly wall_r 295,330@1 510,330@1 510,330@0.6849 295,330@0.6849 fade:7,8/295,330/440,150
+poly plinth -30,330@1 510,330@1 510,330@0.985 -30,330@0.985 mix:0,8@0.5
+# seven floors of ribbon windows, black below, thinning into the fog above
+poly band1 -30,330@0.8959 510,330@0.8959 510,330@0.8630 -30,330@0.8630 0
+poly band2 -30,330@0.8428 510,330@0.8428 510,330@0.8148 -30,330@0.8148 0
+poly band3 -30,330@0.7978 510,330@0.7978 510,330@0.7748 -30,330@0.7748 mix:0,8@0.3
+poly band4 -30,330@0.7611 510,330@0.7611 510,330@0.7430 -30,330@0.7430 mix:0,8@0.3
+poly band5 -30,330@0.7321 510,330@0.7321 510,330@0.7172 -30,330@0.7172 mix:0,8@0.6
+poly band6 -30,330@0.7085 510,330@0.7085 510,330@0.6970 -30,330@0.6970 mix:0,8@0.6
+# the mullions, one dark line up each column
+line mull1 20,330@0.8959 20,330@0.6849 c8
+line mull2 70,330@0.8959 70,330@0.6849 c8
+line mull3 120,330@0.8959 120,330@0.6849 c8
+line mull4 170,330@0.8959 170,330@0.6849 c8
+line mull5 220,330@0.8959 220,330@0.6849 c8
+line mull6 270,330@0.8959 270,330@0.6849 c8
+line mull7 320,330@0.8959 320,330@0.6849 c8
+line mull8 370,330@0.8959 370,330@0.6849 c8
+line mull9 420,330@0.8959 420,330@0.6849 c8
+line mull10 470,330@0.8959 470,330@0.6849 c8
+# a few windows still lit
+poly lit1 124,330@0.8959 166,330@0.8959 166,330@0.8630 124,330@0.8630 7
+poly lit2 24,330@0.7978 66,330@0.7978 66,330@0.7748 24,330@0.7748 7
+poly lit3 424,330@0.8428 466,330@0.8428 466,330@0.8148 424,330@0.8148 7
+poly lit4 174,330@0.7611 216,330@0.7611 216,330@0.7430 174,330@0.7430 7
+poly lit5 374,330@0.7978 416,330@0.7978 416,330@0.7748 374,330@0.7748 7
+# the Registry's window, the one green light
+ellipse reg_halo 316,129,26,11 mix:,10@0.2
+poly reg_win 324,330@0.7321 366,330@0.7321 366,330@0.7172 324,330@0.7172 10
+# the drainpipe in the left wing, the junction box and its cable in the right
+line pipe_l 14,330@1 14,330@0.6849 c7
+line pipe_r 466,330@1 466,330@0.6849 c7
+rect box 410,262,16,12 0 e8
+line box_cable 418,274 418,300 c8
+# the service door, its frame black, the steel door light, the lamp over it
+rect door_frame 266,268,58,62 0
+rect door 271,273,48,57 7 e8
+line door_seam 295,273 295,330 c8
+rect buzzer 328,300,3,4 6
+rect buzzer_label 327,305,5,3 7
+ellipse lamp_halo2 295,258,20,11 mix:,15@0.1
+ellipse lamp_halo1 295,257,11,6 mix:,15@0.2
+line lamp_arm 295,267 295,259 c0
+ellipse lamp 295,257,5,3 15
+# the yard: the ground in two halves, lit round the door, darker away from it
+poly ground_l 0,330 300,330 300,399 0,399 fade:7,8/300,336/50,399
+poly ground_r 300,330 480,330 480,399 300,399 fade:7,8/300,336/480,399
+line kerb 0,330 480,330 c0
+# the side fences, with their seams and top edges
+rect fence_l 0,280,96,66 mix:8,0@0.4 e0
+rect fence_r 384,280,96,66 mix:8,0@0.4 e0
+line fence_l_top 0,281 96,281 c7
+line fence_r_top 384,281 480,281 c7
+line seam_l1 24,282 24,344 c8
+line seam_l2 48,282 48,344 c8
+line seam_l3 72,282 72,344 c8
+line seam_r1 408,282 408,344 c8
+line seam_r2 432,282 432,344 c8
+line seam_r3 456,282 456,344 c8
+# two bins on the left, the tarpaulin over the lift motor on the right
+rect bin_a 20,322,26,26 8 e0
+rect bin_b 52,326,22,22 8 e0
+poly tarp 404,348 414,330 436,320 466,328 480,348 mix:7,8@0.4 e0
+line tarp_strap 420,328 424,347 c0
+# puddles, with the lamp's glints in the one under it
+ellipse puddle_a 300,377,34,6 0
+ellipse puddle_b 410,362,18,4 0
+line g1 290,375 294,375 c15
+line g2 297,377 303,377 c7
+line g3 287,378 291,378 c7
+line g4 303,374 307,374 c15
+line g5 294,380 299,380 c7
+# the figure's long shadow, away from the lamp
+poly shadow 158,362 184,367 56,399 40,392 mix:,0@0.7
+ellipse shadow_head 46,394,6,4 mix:,0@0.7
+# the figure: a black silhouette, the summons held up in the right hand
+rect fig_shoel 160,364,11,3 0
+rect fig_shoer 172,364,11,3 0
+poly fig_legl 161,353 168,353 168,365 161,365 0
+poly fig_legr 172,353 179,353 180,365 173,365 0
+poly fig_coat 162,319 178,319 181,334 186,354 156,354 160,334 0
+poly fig_arml 159,320 164,320 163,345 158,345 0
+ellipse fig_handl 160,347,2,2 0
+poly paper 187,314 197,316 195,326 186,324 15
+line paper_fold 188,319 196,321 c7
+poly fig_armr_a 175,320 180,321 185,335 181,336 0
+poly fig_armr_b 181,335 185,336 192,325 188,323 0
+ellipse fig_handr 190,323,2,2 0
+rect fig_neck 168,314,5,6 0
+ellipse fig_head 172,309,4,5 0
+poly fig_nose 175,307 180,305 176,311 0
+ellipse fig_crown 171,303,5,3 0
+poly fig_brim 165,303 179,299 180,301 166,306 0
+line fig_rim 178,320 181,335 186,354 c7`,
+  cycles: [
+    {
+      "name": "the caged lamp",
+      "areas": [
+        "lamp",
+        "lamp_halo1",
+        "lamp_halo2"
+      ],
+      "colors": [
+        15,
+        7
+      ],
+      "style": "flicker",
+      "ms": [
+        900,
+        3000
+      ]
+    },
+    {
+      "name": "the Registry's window",
+      "areas": [
+        "reg_win",
+        "reg_halo"
+      ],
+      "colors": [
+        10,
+        2
+      ],
+      "style": "flicker",
+      "ms": [
+        1500,
+        5000
+      ]
+    },
+    {
+      "name": "the puddle's glints",
+      "areas": [
+        "g1",
+        "g2",
+        "g3",
+        "g4",
+        "g5"
+      ],
+      "colors": [
+        15,
+        7,
+        8
+      ],
+      "style": "pingpong",
+      "scatter": true,
+      "ms": 420
+    }
+  ],
+  loops: [{"name":"two moths round the lamp","at":[282,247],"style":"loop","ms":170,"frames":[["..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","....................0.0...",".....................0....",".....0....................",".....0....................","..........................","..........................","..........................","..........................","..........................","..........................",".........................."],
+    ["..........................","..........................","..........................","..........................","..................0.......","..................0.......","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................",".......0.0................","........0.................","..........................",".........................."],
+    ["..........................","..........................","..........................","..........0.0.............","...........0..............","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","...............0..........","...............0..........",".........................."],
+    ["..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","......0...................","......0...................","..........................","..........................","...................0.0....","....................0.....","..........................","..........................","..........................","..........................","..........................",".........................."],
+    ["..........................","..........................","..........................","..........................","..........................","..........................",".................0........",".................0........","..........................","..........................","..........................","..........................","..........................","..........................","........0.0...............",".........0................","..........................","..........................","..........................",".........................."],
+    ["..........................","..........................","..........................","..........................","..........................","........0.0...............",".........0................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................",".................0........",".................0........","..........................","..........................",".........................."]]}]
+};

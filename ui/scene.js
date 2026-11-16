@@ -8,16 +8,16 @@
 // is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
-import art from "../content/art.js?v=0.60.2";
-import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, RGB } from "./draw.js?v=0.60.2";
-import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.60.2";
-import { mount as mountSleep } from "./sleep.js?v=0.60.2";
-import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.60.2";
-import { transition, ROOM, ENDING } from "./transitions.js?v=0.60.2";
-import { text } from "../js/narrator.js?v=0.60.2";                  // "@key" → the pack's text, dotted keys too, as the story says it
-import { reducedMotion, calm } from "./media.js?v=0.60.2";
-import { screen } from "./crt.js?v=0.60.2";                      // the CRT look, drawn over the finished picture (ui/crt.js)
-import { reflection } from "./reflection.js?v=0.60.2";            // the light beside the picture, on wide windows (ui/reflection.js)
+import art from "../content/art.js?v=0.61.0";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.61.0";
+import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.61.0";
+import { mount as mountSleep } from "./sleep.js?v=0.61.0";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.61.0";
+import { transition, ROOM, ENDING } from "./transitions.js?v=0.61.0";
+import { text } from "../js/narrator.js?v=0.61.0";                  // "@key" → the pack's text, dotted keys too, as the story says it
+import { reducedMotion, calm } from "./media.js?v=0.61.0";
+import { screen } from "./crt.js?v=0.61.0";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import { reflection } from "./reflection.js?v=0.61.0";            // the light beside the picture, on wide windows (ui/reflection.js)
 
 const W = art.picture.width, H = art.picture.height;
 
@@ -65,7 +65,7 @@ export function mount(root) {
   function prepare(picture, areas) {
     const now = performance.now();
     cycles = (picture.cycles || []).map(c => prepareCycle(c, frame, areas, W, H, now));
-    loops = (picture.loops || []).map(l => ({ l, sprite: compileLoop(l), mem: { tick: 0, frame: 0 }, t0: now }));
+    loops = (picture.loops || []).map(l => ({ l, sprite: compileLoop(l), mem: { tick: 0, frame: 0 }, t0: now, hide: underMask(l, areas, W, H) }));
   }
 
   const stepsAt = (now) => stepsOf(cycles, loops, now, calm());

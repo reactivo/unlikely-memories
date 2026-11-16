@@ -1,16 +1,19 @@
 // Landing page: the list of games. One card per world (thumbnail, title, blurb, and buttons: NEW GAME, with CONTINUE beside it when
 // the world has a saved game), under the logo. Drawn from the list the controller hands it, not from the game's state.
 // Never decides which games exist or what a saved game is (js/main.js, worlds/index.js, js/saves.js); CONTINUE is the intent
-// on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)).
+// on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)). A world with a cover has a page of its own
+// (/<id>/, ui/splash.js: CONTINUE and NEW GAME are there), so its card has one button, LOAD GAME, on.open(id).
 
-import { VERSION } from "../js/version.js?v=0.60.2";
-import { THUMB, thumbnailPixels, putPixels, RGB } from "./draw.js?v=0.60.2";
-import { thumbnails } from "./crt.js?v=0.60.2";
+import { VERSION } from "../js/version.js?v=0.61.0";
+import { THUMB, thumbnailPixels, putPixels, RGB } from "./draw.js?v=0.61.0";
+import { thumbnails } from "./crt.js?v=0.61.0";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
+// A world with a cover (cover: true): one button, LOAD GAME, which goes to the world's page (open: true), saved game or not.
 // t: the language pack's home texts.
-export function buttonsFor(saved, t) {
+export function buttonsFor(saved, t, cover = false) {
+  if (cover) return [{ label: t.loadGame, open: true }];
   return saved ? [{ label: t.resume, fresh: false }, { label: t.newGame, fresh: true }] : [{ label: t.newGame, fresh: false }];
 }
 
@@ -46,7 +49,7 @@ export function mount(root, on) {
   switcher.querySelectorAll("button").forEach(b => b.addEventListener("click", () => on.homeLanguage(b.dataset.lang)));
 
   return {
-    // Draw the list: data = { lang, pack, worlds: [{ id, title, blurb, thumb: { draw, alt, x }, saved }] }, newest first.
+    // Draw the list: data = { lang, pack, worlds: [{ id, title, blurb, thumb: { draw, alt, x }, saved, cover }] }, newest first.
     update({ lang, pack, worlds }) {
       const t = pack.home;
       switcher.querySelectorAll("button").forEach(b => {                 // the switch: the current language is pressed
@@ -62,7 +65,7 @@ export function mount(root, on) {
       for (const w of worlds) {
         const card = el("li", "card"), tile = el("div", "tile"), body = el("div", "body");
         const buttons = el("div", "buttons text-button");
-        for (const b of buttonsFor(w.saved, t)) buttons.append(button(b.label, w.title, () => on.play(w.id, b.fresh)));
+        for (const b of buttonsFor(w.saved, t, w.cover)) buttons.append(button(b.label, w.title, () => (b.open ? on.open(w.id) : on.play(w.id, b.fresh))));
         if (w.thumb) {
           const canvas = paintThumb(w.thumb, w.id, lang);
           canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", w.thumb.alt || w.title); tile.append(canvas);

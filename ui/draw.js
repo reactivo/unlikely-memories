@@ -2,10 +2,10 @@
 // here); this file puts a grid on the canvas, and holds the overlays, the thumbnails, the scroll's plan and the loops' sprites. Pure: no page, so tests
 // can run it too. ui/scene.js turns the grid into colours on the canvas.
 
-import art from "../content/art.js?v=0.60.2";
-import { parseShapes } from "../js/picture.js?v=0.60.2";
-import { paint, paintPicture, threshold, lit } from "../js/paint.js?v=0.60.2";
-export { paint, paintPicture, threshold, lit };       // (painting is js/paint.js, pure; the screen's own drawing is here)
+import art from "../content/art.js?v=0.61.0";
+import { parseShapes } from "../js/picture.js?v=0.61.0";
+import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.61.0";
+export { paint, paintPicture, threshold, lit, CLEAR_PIXEL };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].
 // Where a game's picture is kept (ui/scene.js): the world's id, then the room (or "ending:<name>"). A room id is only unique inside its
@@ -25,11 +25,11 @@ const palettes = new WeakMap(), views = new WeakMap();
 export function putPixels(image, px, rgb) {
   const data = image.data, n = px.length;
   if (!LITTLE) {
-    for (let k = 0; k < n; k++) { const c = rgb[px[k]]; data[k * 4] = c[0]; data[k * 4 + 1] = c[1]; data[k * 4 + 2] = c[2]; data[k * 4 + 3] = 255; }
+    for (let k = 0; k < n; k++) { const c = rgb[px[k]]; if (c) { data[k * 4] = c[0]; data[k * 4 + 1] = c[1]; data[k * 4 + 2] = c[2]; data[k * 4 + 3] = 255; } else data.fill(0, k * 4, k * 4 + 4); }
     return;
   }
   let pal = palettes.get(rgb);
-  if (!pal) palettes.set(rgb, pal = Uint32Array.from(rgb, ([r, g, b]) => ((255 << 24) | (b << 16) | (g << 8) | r) >>> 0));
+  if (!pal) palettes.set(rgb, pal = Uint32Array.from({ length: 256 }, (_, i) => rgb[i] ? ((255 << 24) | (rgb[i][2] << 16) | (rgb[i][1] << 8) | rgb[i][0]) >>> 0 : 0));   // (a number with no colour, a cover's clear pixel: transparent)
   let view = views.get(data);
   if (!view) views.set(data, view = new Uint32Array(data.buffer, data.byteOffset, data.length >> 2));
   for (let k = 0; k < n; k++) view[k] = pal[px[k]];
@@ -142,15 +142,24 @@ export function compileLoop(loop) {
   return { at: loop.at ?? loop.path?.[0], w, h, frames: loop.frames.map(rows => Uint8Array.from(rows.join(""), ch => HEX_INDEX[ch] ?? CLEAR)) };
 }
 
+// A loop that passes BEHIND a figure (a loop's `under: "<id>"`): the pixels where a shape whose id is that name or starts with "<name>_" shows (the
+// same matching as `outline`, js/paint.js; `areas` is paintPicture's), where the loop is not drawn. null when the loop names none.
+export function underMask(l, areas, width, height) {
+  if (!l?.under) return null;
+  const mask = new Uint8Array(width * height);
+  for (const [id, ks] of Object.entries(areas || {})) if (id === l.under || id.startsWith(l.under + "_")) for (const k of ks) mask[k] = 1;
+  return mask;
+}
+
 // One frame of a compiled loop drawn into the picture's pixels, clipped to it, at its own `at` or, for a travelling loop, at `where`.
-export function drawLoop(out, lp, frame, width = art.picture.width, height = art.picture.height, where = lp.at) {
+export function drawLoop(out, lp, frame, width = art.picture.width, height = art.picture.height, where = lp.at, hide = null) {
   const px = lp.frames[frame];
   for (let j = 0; j < lp.h; j++) {
     const y = where[1] + j;
     if (y < 0 || y >= height) continue;
     for (let i = 0; i < lp.w; i++) {
       const c = px[j * lp.w + i], x = where[0] + i;
-      if (c !== CLEAR && x >= 0 && x < width) out[y * width + x] = c;
+      if (c !== CLEAR && x >= 0 && x < width && !(hide && hide[y * width + x])) out[y * width + x] = c;
     }
   }
 }

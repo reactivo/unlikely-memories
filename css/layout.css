@@ -13,6 +13,15 @@
     --row-gap:     var(--space-s);                                           /* between the rows */
     --page-bottom: max(var(--gutter), env(safe-area-inset-bottom, 0px));     /* below the tabs (phones: the gutter, or the home indicator if more) */
 
+    /* The world's page (ui/splash.css): what the poster needs besides its cover (the padding, three keys and the gaps), which the cover's width
+       gives back so that the whole poster fits the window's height. */
+    --splash-rest: 200px;
+    /* The cover is 480 x 400 (art.js cover): a wide window shows all 480 columns, an upright phone only the crop, columns 80-399 (320 of them: --splash-cols,
+       and --splash-skip the columns left of it; ui/splash.js asks the CSS which it is, as ui/crop.js does of the room's picture). */
+    --splash-cols: 480;
+    --splash-skip: 0;
+    --splash-width: min(100%, var(--column-max), max(360px, calc((100dvh - var(--splash-rest)) * var(--splash-cols) / 400)));   /* the poster's width: its cover as high as the window leaves, at any scale */
+
     /* The column: title bar, picture, story and prompt are all this wide. */
     --column-max: 960px;                       /* widest: the game's column and the landing page's */
     --column:     100%;                         /* phones: the whole width inside the side padding */
@@ -50,6 +59,16 @@
   @media (min-height: 560px) {
     :root {
       --column: min(100%, calc(40dvh * 320 / 136));
+    }
+  }
+
+  /* Upright phones: the world's page (ui/splash.css) shows the cover's crop (columns 80-399, the room picture's own test), as wide as the column,
+     whatever the window's height (the page scrolls if the poster is taller). */
+  @media (width < 760px) and (height >= 560px) {
+    :root {
+      --splash-cols: 320;
+      --splash-skip: 80;
+      --splash-width: min(100%, 480px);
     }
   }
 
@@ -125,7 +144,22 @@
     display: none;
   }
 
-  :root[data-view="game"] .home {
+  :root[data-view="game"] .home,
+  :root[data-view="splash"] .home {
+    display: none;
+  }
+
+  /* The third view, a world's own page (/<id>/: <html data-world>, set by tools/pages.mjs; ui/splash.js, INTERFACE.md §13a): shown only
+     as "splash", and there nothing shows before the controller has chosen the view (the list must never flash on that page). */
+  .splash {
+    display: none;
+  }
+
+  :root[data-view="splash"] .splash {
+    display: flex;
+  }
+
+  :root[data-world]:not([data-view]) .home {
     display: none;
   }
 
@@ -332,6 +366,12 @@
       --card-column-gap: var(--space-l);
       --buttons-margin-top: auto;
       --play-height: var(--tile-max);   /* its buttons as SETTINGS in the strip at full size */
+      --play-text: var(--text-s);
+    }
+
+    /* The world's page (ui/splash.css): its keys as the landing page's (SETTINGS' size). */
+    .splash {
+      --play-height: var(--tile-max);
       --play-text: var(--text-s);
     }
 

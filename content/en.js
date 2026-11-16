@@ -295,6 +295,7 @@ export default {
   panel: { game: "GAME", restart: "Restart game", quit: "Quit" },
   // The landing page (ui/home.js). The game's name is not translated. The buttons show in capitals (home.css): CONTINUE on a world with a saved game, NEW GAME always.
   home: { subtitle: "Artificial Interactive Fiction", newGame: "New game", resume: "Continue", version: "Version",
+          loadGame: "Load game", allGames: "All games",   // loadGame: the card of a world with a page of its own (a cover) goes to it; allGames: the page's way back to the list
           language: (l) => `Language: ${{ en: "English", es: "Spanish" }[l]}`,   // the switch's buttons, top right
           none: "There are no games in English yet." },
   labels: { directions: "DIRECTIONS", inv: "INVENTORY", map: "Map", seeMap: "See map" },   // seeMap: the button under the compass

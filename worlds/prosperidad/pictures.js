@@ -2167,3 +2167,185 @@ rect shadow_bus 132,108,108,3 8`,
     ]
   }
 };
+
+// ---- The cover: the splash page (docs/splash/PLAN.md; /prosperidad/) ---------------------------------------------------------------------
+// The first real cover (16 November 2026, the poster rules of round 9: docs/splash/PLAN.md, "Draft rules"): the tower, the Emperor (the street punk you
+// play, the title's own man) a huge figure against the neon; 480 x 400 (the phone crop, columns 80-399, is the round 9 poster; the wings carry the strip on; round 10, 16 November 2026), a full poster in the neon palette (blue leads), flat. The engine draws the
+// world's title in the top band (rows 0-95, one flat blue), in colour 15, in capitals (js/title.js). Three cycles and two loops, one of them a rat that
+// crosses behind the Emperor (`under: "em"`).
+export const cover = {
+  shot: "archetype: the tower (the story turns on one person whose presence rules the poster: the Emperor, the street punk you play, the title's own man). Title at the top: rows 0-95 plain blue across the whole 480 width, the facade starts below it in the same blue so the band stays flat. The Emperor is one huge flat black silhouette seen from below, about 284 pixels tall from the tip of his mohawk (row 112) to his boots (row 396), standing a little right of centre at x about 258, in profile turned to the left, looking away down the strip, a short leather jacket with the collar up, tight trousers, boots in a stride, the mohawk a tall fin swept back over the crown; a cigarette hangs from his lips with a small red ember, the one bright point; his near arm (the viewer's left) hangs at his side, bent a little out, the hand a closed fist at mid-thigh, so a gap of light shows between arm and jacket; his far arm is in his jacket pocket, the elbow pushing out on the right; no inner detail. Rim light: a thin light cyan edge on his left side only (the fin's front, the jacket's left edge, the near arm's outer edge, the near leg's left edge), thrown by a cyan tube sign at the left. Backdrop: the blue wall of El Charlie with black seams, a few worn patches and lit windows, and on it one huge round porthole sign, a light magenta disc in a magenta rim with a ring of white bulbs, a white hot spot behind his head so the head and fin read dark against the lightest thing, a few stains and drips on the disc; the wall meets the wet road at the horizon, at his knee (row 332); the road in three flat bands (light magenta far, magenta, blue near) with streaks of the sign's light and a magenta puddle under his boots. Element 3 and the question: a tiny man, a black silhouette in a trilby and a long coat, about 42 pixels tall, standing at the left in a lit light-cyan doorway at the foot of the wall, a leather case in one hand, the other in his pocket, his back half turned: the Minister, small; who is he, and what will he want of you. Wings (columns 0-79 and 400-479, the strip carrying on, all dim and nothing the poster needs): on the left, the next building along, a wall with a black seam, four windows in magenta and cyan (one light cyan), a worn stain, a roller shutter of black and blue rows at the street, a small dim magenta sign and a street lamp on a bent arm with its small light-cyan bulb and a pool of light on the road; on the right, another building with a black seam, windows in magenta and cyan, a stain, a shop with a magenta awning, a black door and a dim cyan shop window, and a lamp post that also carries a hanging cyan blade sign on a bracket, with its pool of light on the road; the road's three bands and streaks run on across both wings. Palette neon (the bible's first), flat: blue 1 leads (title band, wall, near road), light magenta 13 and magenta 5 for the porthole and its rim, black for the figures, small light cyan 11, white 15 and one red ember. light: the lit porthole behind him, the cyan tube beside, the two street lamps in the wings. moves: the cyan tube (faulty flicker), the small corner sign (blink), the blade sign in the right wing (blink), the bulbs round the porthole (twinkle), the smoke curling up from his cigarette (loop), a small black rat that runs left to right along the road behind his boots across the whole width now and then (travelling loop, hidden behind his legs)",
+  title: 15,
+  titleAt: "top",
+  draw: `
+rect sky 0,0,480,400 1
+
+# the wall of El Charlie and the buildings either side: seams and worn patches (in the dark, away from the glow)
+line course1 0,132 150,132 c0
+line course2 366,128 479,128 c0
+line course3 0,262 479,262 c0
+line course4 0,300 479,300 c0
+rect seamA 98,100,2,162 0
+rect seamB 372,100,2,162 0
+rect seamL 40,100,2,162 0
+rect seamC 402,100,2,162 0
+poly stain1 80,104 104,102 110,130 92,148 80,140 0
+poly stain1W 64,112 80,104 80,140 70,150 58,140 0
+poly stain2 356,246 399,240 399,262 370,262 0
+poly stain2W 399,240 420,244 424,262 399,262 0
+poly stain3 80,226 98,222 104,246 80,262 0
+poly stain3W 66,230 80,226 80,262 62,258 0
+poly stain4 404,206 430,204 434,232 410,244 404,238 0
+
+# lit windows, the poster's and the wings'
+rect win1 322,146,18,24 11
+rect win2 350,146,18,24 13
+rect win3 350,196,18,24 11
+rect win4 88,160,16,22 13
+rect win5 88,196,16,22 11
+line pipe 384,100 384,332 c0
+rect wL1 8,140,16,22 5
+rect wL2 46,140,16,22 3
+rect wL3 8,184,16,22 3
+rect wL4 46,184,16,22 5
+rect wL5 46,226,16,22 11
+line wLm1 8,151 23,151 c0
+line wLm2 46,195 61,195 c0
+line wLm3 54,226 54,247 c0
+rect wR1 414,136,16,22 5
+rect wR2 446,136,16,22 3
+rect wR3 414,182,16,22 3
+rect wR4 446,182,16,22 5
+line wRm1 414,147 429,147 c0
+line wRm2 454,136 454,157 c0
+line wRm3 446,193 461,193 c0
+
+# the wings' shopfronts: a roller shutter on the left, an awning, a door and a window on the right
+rect shutT 2,264,66,4 0
+rect shut 4,268,62,64 stripes:1,0
+rect sgLg 68,212,10,22 5
+rect sgL 70,216,6,14 13
+poly awn 408,262 479,262 479,284 408,284 5
+line awnE 408,284 479,284 c0
+rect doorR 424,288,26,44 0
+rect tranR 424,285,26,3 5
+rect shopW 456,290,20,28 3
+line shopWm 456,304 475,304 c0
+
+# the corner sign at the right
+rect signRg 364,274,30,14 5
+rect signR 369,278,20,6 13
+
+# the huge porthole sign: rim, disc, inner ring, hot spot, stains
+ellipse rim 258,204,105,105 5
+ellipse disc 258,204,98,98 13
+ellipse ring 258,204,86,86 5
+ellipse face 258,204,82,82 13
+ellipse spot 254,152,40,40 15
+poly patch1 188,262 220,254 232,278 208,292 186,282 5
+poly patch2 294,276 324,262 338,284 312,296 5
+line drip1 210,291 210,306 c5
+line drip2 314,295 314,310 c5
+line drip3 280,299 280,314 c5
+dots bulbs 359,204 354,235 340,263 317,286 289,300 258,305 227,300 199,286 176,263 162,235 157,204 162,173 176,145 199,122 227,108 258,103 289,108 317,122 340,145 354,173 c15
+
+# the cyan tube sign at the left of the poster, leaning
+poly tubeG 102,118 124,118 146,322 124,322 3
+line tubeA 113,122 136,318 c11
+line tubeB 114,122 137,318 c11
+
+# the Minister's lit doorway and the road, across the whole width
+rect door 132,296,38,36 11
+rect roadF 0,332,480,12 13
+rect roadM 0,344,480,18 5
+rect roadN 0,362,480,37 1
+line streak1 192,336 324,336 c15
+line streak2 160,340 350,340 c11
+line streak3 120,352 180,352 c13
+line streak4 320,354 380,354 c13
+line streak5 88,370 140,370 c5
+line streak6 334,376 396,376 c5
+line streak7 94,390 150,390 c13
+line streakW1 6,335 40,335 c11
+line streakW2 12,358 56,358 c13
+line streakW3 4,372 46,372 c5
+line streakW4 20,388 70,388 c13
+line streakW5 410,337 458,337 c11
+line streakW6 436,356 476,356 c13
+line streakW7 420,376 470,376 c5
+line streakW8 440,392 478,392 c13
+ellipse puddle 258,386,84,11 5
+ellipse puddleS 258,385,56,6 13
+
+# the street lamps of the wings: poles, arms, heads, small bulbs, pools of light on the road
+ellipse poolL 50,352,20,4 13
+ellipse poolR 428,352,20,4 13
+rect lampPL 29,176,3,156 0
+line lampAL 30,177 46,170 c0
+rect lampHL 42,168,12,5 0
+ellipse lampBL 48,175,4,3 11
+rect lampPR 437,172,3,160 0
+line lampAR 437,174 426,170 c0
+rect lampHR 420,168,12,5 0
+ellipse lampBR 426,175,4,3 11
+rect brk 437,206,30,3 0
+rect bladeG 458,209,16,46 3
+rect blade 462,213,8,38 11
+line bladeM 462,232 469,232 c3
+
+# the Minister, small: hat, face, coat, case, legs
+poly mn_crown 146,304 156,304 157,310 145,310 0
+poly mn_brim 140,310 162,309 162,312 140,313 0
+ellipse mn_face 150,317,4,4 0
+poly mn_coat 143,321 159,321 163,342 141,342 0
+poly mn_arm 142,323 146,323 141,338 138,338 0
+rect mn_case 132,338,10,7 0
+rect mn_legL 145,342,5,5 0
+rect mn_legR 153,342,5,5 0
+
+# the Emperor: mohawk, head, neck, collar, jacket, arms, legs, boots
+poly em_fin 237,134 239,120 245,113 253,112 261,115 268,126 270,142 263,132 251,127 243,129 0
+poly em_head 250,129 262,131 269,142 269,158 263,169 252,174 242,173 235,168 231,163 232,159 226,156 232,150 233,143 238,134 0
+poly em_neck 240,168 262,168 268,184 236,186 0
+poly em_collarL 230,192 238,170 248,182 244,194 0
+poly em_collarR 272,192 266,170 256,182 260,194 0
+poly em_jacket 238,184 216,188 208,206 210,240 216,266 212,276 294,278 290,264 298,228 302,200 294,189 270,184 0
+poly em_armN 216,188 234,192 222,250 210,296 194,294 200,246 0
+ellipse em_fist 201,304,8,9 0
+poly em_armF 296,194 304,200 318,240 308,264 294,266 292,230 0
+poly em_legL 222,274 258,274 250,334 246,386 216,386 220,334 0
+poly em_bootL 192,397 204,384 248,382 250,397 0
+poly em_legR 264,274 292,274 294,334 302,386 272,386 270,334 0
+poly em_bootR 270,386 304,382 306,396 270,397 0
+line em_cig 231,164 222,165 c0
+rect em_ember 218,163,5,4 4
+rect em_core 219,164,2,2 14
+
+# the rim light on his left edge
+line rim1 237,134 239,120 245,113 c11
+line rim2 216,188 208,206 210,240 c11
+line rim3 216,189 200,246 194,294 c11
+line rim4 222,276 220,334 216,386 c11
+`,
+  cycles: [
+  { name: "the cyan tube", areas: ["tubeA", "tubeB"], colors: [11, 3], style: "flicker", ms: [800, 4000] },
+  { name: "the corner sign", areas: ["signR", "signRg"], colors: [13, 5, 1], style: "blink", ms: 1200 },
+  { name: "the blade sign", areas: ["blade", "bladeG"], colors: [11, 3, 1], style: "blink", ms: 1700 },
+  { name: "the bulbs", areas: ["bulbs"], colors: [15, 13], style: "pingpong", scatter: true, ms: 600 }
+],
+  loops: [
+  { name: "the cigarette smoke", at: [208, 133], style: "loop", ms: 280, frames: [
+    ["......8.88......", ".......8...8....", ".........88.8...", "........8.8.....", ".......88.88....", "........8.8.....", ".....8.88.......", ".....8...8......", ".....8888.......", ".....8.8........", "......8888......", ".......8.8......", ".........8888...", ".........8.8....", "..........888...", "..........8.8...", "..........777...", ".........777....", "........777.....", ".......777......", "........77......", "........77......", ".........77.....", "..........77....", "...........77...", "............77..", "............7...", "............7...", "............7...", "............7..."],
+    [".......8.88.....", ".......8...8....", "........88.8....", "......8.8.......", ".....88.88......", "......8.8.......", "....8.88........", ".....8...8......", "......8888......", ".......8.8......", "........8888....", ".........8.8....", "..........8888..", ".........8.8....", ".........888....", ".........8.8....", "........777.....", ".......777......", ".......777......", ".......777......", ".........77.....", "..........77....", "...........77...", "............77..", "............77..", "............77..", "............7...", "...........7....", "...........7....", "...........7...."],
+    ["......8.88......", "......8...8.....", "......88.8......", "....8.8.........", "....88.88.......", "......8.8.......", ".....8.88.......", "......8...8.....", "........8888....", ".........8.8....", ".........8888...", ".........8.8....", ".........8888...", "........8.8.....", ".......888......", ".......8.8......", ".......777......", ".......777......", "........777.....", ".........777....", "...........77...", "............77..", "............77..", "............77..", "...........77...", "..........77....", "...........7....", "...........7....", "...........7....", "...........7...."],
+    ["....8.88........", "....8...8.......", ".....88.8.......", "....8.8.........", ".....88.88......", "........8.8.....", ".......8.88.....", "........8...8...", ".........8888...", ".........8.8....", "........8888....", ".......8.8......", ".......8888.....", "......8.8.......", "......888.......", ".......8.8......", "........777.....", ".........777....", "..........777...", "...........777..", "............77..", "............77..", "...........77...", "..........77....", "..........77....", ".........77.....", "..........7.....", "...........7....", "...........7....", "............7..."],
+    ["...8.88.........", "....8...8.......", "......88.8......", "......8.8.......", ".......88.88....", "..........8.8...", "........8.88....", "........8...8...", "........8888....", ".......8.8......", "......8888......", "......8.8.......", "......8888......", "......8.8.......", ".......888......", ".........8.8....", "..........777...", "...........777..", "...........777..", "...........777..", "...........77...", "..........77....", ".........77.....", ".........77.....", ".........77.....", ".........77.....", "...........7....", "...........7....", "............7...", "............7..."],
+    ["....8.88........", "......8...8.....", "........88.8....", "........8.8.....", "........88.88...", "..........8.8...", ".......8.88.....", "......8...8.....", "......8888......", ".....8.8........", ".....8888.......", "......8.8.......", ".......8888.....", "........8.8.....", ".........888....", "..........8.8...", "...........777..", "...........777..", "..........777...", ".........777....", ".........77.....", "........77......", "........77......", ".........77.....", "..........77....", "..........77....", "............7...", "............7...", "............7...", "............7..."]
+  ] },
+  { name: "the rat", style: "loop", ms: 120, path: [[-20, 389], [500, 389]], travel: 5300, pause: 25000, under: "em", frames: [
+    [".......ddddd....", "......000000dd..", "0000000000000f00", ".....0000000000.", "......00..00...."],
+    [".......ddddd....", "......000000dd..", ".....000000000f0", "00000000000000..", ".....0.0..0.0..."],
+    [".......ddddd....", "......000000dd..", "0000000000000f00", ".....0000000000.", "....0.0....0.0.."]
+  ] }
+]
+};

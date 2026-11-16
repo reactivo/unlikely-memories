@@ -1083,3 +1083,159 @@ line hi5 88,32 88,40 c3`,
     overlays: []
   }
 };
+
+// ---- THE COVER (its page, /phare/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+export const cover = {
+  shot: "archetype: the icon (it turns on one thing: the cold lighthouse lens, and the painted lighthouse that answers it). Title at the top: rows 0-95 are one flat brown (6), the lead colour, the title in white (15); the image starts under a black picture-rail at row 96. Palette lamplight (brown 6 leads; black, yellow 14, white 15 only on the highlights; one blue accent, 1 and 9, for the painted night sea). Eye level, facing north, frontal, no vanishing point. One light: a thief's lantern held low at the left (147,327); hard light from low left, so the lens's left side is lit yellow with white glints and its right side is a black check, and the shadows run away to the right and up to the left. Gradient 1: the wall, plain brown at the lantern running to a dense dark dither at the upper right, because the lantern's light thins with distance. Gradient 2: the floor, brown by the lantern running to dark at the far right, same cause. Dominant element, centred a little left of the crop's middle (columns 172-278, rows 124-296): the great beehive {lens}, four tiers of glass rings in a brass cage on a brass table, its {lamp} a black dark oval at its heart, the lens cold. Backdrop and question: on the right third, columns 290-398, the big gilt-framed {painting}, a brown-and-black striped lighthouse on black rocks, a blue night, its painted lamp a black window: both lamps dark, and the lantern between them is the question (will they light?). Small figure, rows 287-352, a thief in a flat cap and a long coat, a black silhouette with a yellow rim on its front edge, seen in profile facing right to the lens: the left arm hangs and is hidden in the coat, the right arm is bent forward and holds the {lantern} at the hip, one white flame the figure's only bright point; its long shadow climbs the left wall. Other elements: a bell-{wire} from the painting's corner to a brass bell in the right wing. Left wing: a second small wired frame with a ship and its bell, a {crate} on the floor, the thief's long shadow. Right wing: the iron {ladder} to the dome hatch, the bell on its wire. Title band flat, nothing crosses it. moves: the glints on the lens (shimmer), the lantern's glow (flicker), the painted waves (a slow shimmer in the painting); a loop: two moths round the lantern.",
+  title: 15,
+  titleAt: "top",
+  draw: `rect bg 0,0,480,400 6
+rect wall 0,102,480,234 fade:6,0/100,330/646,-21
+rect cornice 0,96,480,6 0
+rect floor 0,336,480,64 fade:6,0/130,350/620,390
+line baseboard 0,336 479,336 c0
+line board1 0,358 479,358 c0
+line board2 0,373 479,373 c0
+line board3 0,389 479,389 c0
+rect frame2_out 14,148,56,46 mix:6,14@0.5 e0
+rect frame2_lit 14,148,3,46 14
+rect paint2_canvas 20,154,44,34 0
+line paint2_horizon 20,176 64,176 c6
+poly paint2_hull 30,176 46,176 44,172 32,172 6
+line paint2_mast 38,160 38,172 c6
+poly paint2_sail 38,160 38,171 47,171 6
+line wire2 70,148 76,122 c0
+poly bell2 70,112 82,112 84,122 68,122 mix:6,14@0.5 e0
+rect crate 8,298,58,40 mix:6,0@0.5 e0
+line crate_lid 8,308 66,308 c0
+line crate_slat 8,322 66,322 c0
+dots crate_nails 11,301 63,301 11,335 63,335 c14
+line ladder_l 432,106 432,336 c6
+line ladder_r 452,106 452,336 c6
+line ladder_rungs 432,126 452,126 452,150 432,150 432,174 452,174 452,198 432,198 432,222 452,222 452,246 432,246 432,270 452,270 452,294 432,294 432,318 452,318 c6
+line wire 398,116 468,112 c6
+poly bell 462,112 474,112 477,124 459,124 mix:6,14@0.5 e0
+dots bell_clapper 468,127 c14
+poly shadow_thief 102,336 130,336 80,238 36,250 mix:,0@0.65
+ellipse shadow_thief_head 52,226,10,12 mix:,0@0.65
+poly shadow_lens 250,138 262,128 276,128 290,152 296,214 298,336 270,336 mix:,0@0.65
+rect frame_out 290,112,108,178 mix:6,14@0.5 e0
+line frame_lit 291,113 291,289 c14
+line frame_lit_top 291,113 397,113 c14
+rect paint_canvas 297,119,94,164 1
+rect paint_dark 297,119,94,12 mix:1,0@0.5
+rect paint_sea 297,240,94,43 mix:1,0@0.5
+line paint_wave1 304,248 322,248 c9
+line paint_wave2 356,257 380,257 c9
+poly paint_rocks 297,283 297,266 312,258 330,250 352,248 372,258 391,268 391,283 0
+line paint_foam 300,279 330,277 362,279 390,276 c9
+poly paint_tower 334,252 356,252 349,152 339,152 6
+line paint_tower_lit 334,252 339,152 c14
+rect paint_band1 338,176,12,9 0
+rect paint_band2 336,214,16,10 0
+rect paint_gallery 335,148,16,5 0
+rect paint_lamp 339,138,10,10 0
+poly paint_cap 338,138 344,128 350,138 0
+poly shadow_floor 168,352 288,352 440,342 420,338 196,338 mix:,0@0.6
+rect table_top 160,296,130,7 fade:14,6/160,0/290,0
+line table_lip 160,296 230,296 c15
+rect table_leg1 166,303,8,49 mix:6,14@0.5
+rect table_leg2 276,303,8,49 6
+poly lens_cap 207,142 213,130 237,130 243,142 fade:14,6/207,0/243,0
+ellipse lens_knob 225,124,4,3 14
+poly lens_t1 198,142 252,142 256,172 194,172 fade:14,6/198,0/252,0
+poly lens_t1_sh 238,142 252,142 256,172 236,172 mix:6,0@0.5
+poly lens_t2 194,172 256,172 262,206 188,206 fade:14,6/194,0/258,0
+poly lens_t2_sh 242,172 256,172 262,206 240,206 mix:6,0@0.5
+poly lens_t3 188,206 262,206 268,244 182,244 fade:14,6/188,0/264,0
+poly lens_t3_sh 244,206 262,206 268,244 244,244 mix:6,0@0.5
+poly lens_t4 182,244 268,244 274,284 176,284 fade:14,6/182,0/270,0
+poly lens_t4_sh 248,244 268,244 274,284 248,284 mix:6,0@0.5
+ellipse lens_lamp 225,222,9,22 0 e6
+rect lens_band1 193,171,64,3 fade:14,6/193,0/257,0
+rect lens_band2 187,205,76,3 fade:14,6/187,0/263,0
+rect lens_band3 181,243,88,3 fade:14,6/181,0/269,0
+rect lens_band4 175,283,100,3 fade:14,6/175,0/275,0
+rect lens_base 172,286,106,10 fade:14,6/172,0/278,0
+line lens_glint1 202,152 210,152 c15
+line lens_glint2 198,186 208,186 c15
+line lens_glint3 192,222 204,222 c15
+line lens_glint4 186,262 198,262 c15
+line lens_glint5 218,136 226,136 c15
+outline lens e0
+ellipse halo_b 147,327,34,30 mix:,14@0.12
+ellipse halo_a 147,327,18,16 mix:,14@0.22
+ellipse pool 147,352,40,9 mix:,14@0.2
+poly thief_legs 113,324 133,324 135,352 124,352 122,336 121,352 111,352 0
+rect thief_boots 109,350,29,3 0
+poly thief_coat 112,301 132,301 138,328 108,328 0
+rect thief_neck 120,298,5,4 0
+ellipse thief_head 123,294,5,5 0
+poly thief_cap 117,293 120,287 129,288 133,293 0
+rect thief_brim 124,292,10,2 0
+poly thief_arm 127,303 133,304 148,318 143,322 0
+line thief_rim 128,293 129,299 c14
+line thief_rim_b 135,318 138,328 c14
+line lantern_ring 147,317 147,321 c0
+rect lantern_frame 142,321,10,12 0 e14
+rect lantern_glass 144,323,6,8 14
+rect lantern_flame 146,325,2,4 15`,
+  cycles: [
+    {
+      "name": "the glints on the lens",
+      "areas": [
+        "lens_glint1",
+        "lens_glint2",
+        "lens_glint3",
+        "lens_glint4",
+        "lens_glint5"
+      ],
+      "colors": [
+        15,
+        14,
+        6
+      ],
+      "style": "pingpong",
+      "scatter": true,
+      "ms": 420
+    },
+    {
+      "name": "the lantern's glow",
+      "areas": [
+        "halo_a",
+        "halo_b",
+        "pool"
+      ],
+      "colors": [
+        14,
+        6
+      ],
+      "style": "flicker",
+      "ms": [
+        700,
+        2200
+      ]
+    },
+    {
+      "name": "the painted waves",
+      "areas": [
+        "paint_wave1",
+        "paint_wave2"
+      ],
+      "colors": [
+        9,
+        1,
+        0
+      ],
+      "style": "pingpong",
+      "scatter": true,
+      "ms": 600
+    }
+  ],
+  loops: [{"name":"two moths round the lantern","at":[134,317],"style":"loop","ms":170,"frames":[["..........................","..........................","..........................","..........................","..........................","..........................","......77..................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","....................7.....","..........................","..........................","..........................","..........................",".........................."],
+    ["..........................","..........................","..........................","...........7..............","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","...............77.........","..........................",".........................."],
+    ["..........................","..........................","..........................","..........................","..........................","...................77.....","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................",".......7..................","..........................","..........................","..........................",".........................."],
+    ["..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................",".....77...................","..........................",".....................7....","..........................","..........................","..........................","..........................","..........................","..........................","..........................",".........................."],
+    ["..........................","..........................","..........................","..........................","..........................","..........7...............","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","................77........","..........................","..........................","..........................",".........................."],
+    ["..........................","..........................","..........................","..........................","..........................","..........................","..................77......","..........................","..........................","..........................","..........................","..........................","..........................","..........................","........7.................","..........................","..........................","..........................","..........................",".........................."]]}]
+};

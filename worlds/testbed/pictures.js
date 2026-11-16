@@ -732,3 +732,47 @@ export const visions = {
     `
   }
 };
+
+// ---- The cover: the Testbed's splash page (docs/splash/PLAN.md; /testbed/) -------------------------------------------------------------------
+// A cover is 320 x 400 (coordinates 0-319, 0-399), a full poster written like a room's picture: the first shape paints the whole canvas. The engine draws
+// the world's title in its band (js/title.js): `titleAt` "top" is rows 0-95, "bottom" rows 305-399, one flat colour with nothing crossing it, and `title`
+// is the letters' colour (a palette number). A few shapes and one cycle, enough to show the page works: a tall grey tower on a low ground, a moon, one
+// lit window that flickers, a lamp that pulses, a small star that twinkles and a bat that crosses behind the tower (loops),
+// under a flat blue band for the title. A cover has at least two cycles and one loop.
+export const cover = {
+  shot: "Looking up from the plain, facing the tower, frontal; 480 x 400, the tower in the phone's crop (columns 80-399), the wings (0-79, 400-479) carrying the plain on: two far huts and a pylon, hills, more stars. Palette: night blue and grey, the window's yellow 14 the one light. The tower on the middle third, half the cover's height; a flat blue band above it, across the whole width, for the title. The question: why one window is lit. moves: the lit window (flickers), the lamp (pulses), a twinkling star and a bat crossing behind the tower (loops).",
+  title: 15,
+  titleAt: "top",
+  draw: `
+    rect sky 0,0,480,400 1
+    ellipse moon 330,150,16,16 15
+    rect tower 200,110,80,230 8 e7
+    rect tower_top 192,98,96,12 7
+    rect window 232,150,16,22 14
+    rect window_glow 228,146,24,30 mix:,14@0.25
+    rect door 228,300,24,40 0
+    rect lamp 245,306,6,6 6
+    rect ground 0,340,480,60 fade:8,/0,340/0,400
+    ellipse hill_l 100,380,70,30 0
+    ellipse hill_r 380,380,70,30 0
+    ellipse hill_wl 20,376,60,34 0
+    ellipse hill_wr 450,378,56,32 0
+    rect hut_l 10,300,34,40 0
+    poly roof_l 6,300 27,282 48,300 0
+    rect hut_l_win 22,314,8,8 6
+    rect hut_r 420,308,38,32 0
+    poly roof_r 416,308 439,290 462,308 0
+    rect pylon_r 466,230,4,110 0
+    rect pylon_r_arm 456,240,24,4 0
+    dots stars 110,130 150,164 190,124 104,200 140,270 370,210 20,180 52,230 410,160 450,130 c15
+  `,
+  cycles: [
+    { name: "the lit window", areas: ["window", "window_glow"], colors: [14, 6], style: "flicker", ms: [700, 2200] },
+    { name: "the lamp", areas: ["lamp"], colors: [6, 14], style: "pingpong", ms: 900 }
+  ],
+  loops: [
+    { name: "the star", at: [140, 190], style: "loop", ms: 500, frames: [[".f.", "fff", ".f."], ["...", ".f.", "..."]] },
+    // A bat that crosses the poster at the tower's height and passes BEHIND the tower: `under: "tower"` hides it where the tower's shapes (tower, tower_top) show.
+    { name: "the bat", style: "loop", ms: 150, path: [[-8, 250], [484, 250]], travel: 8000, pause: 2000, under: "tower", frames: [["f..f", ".ff."], [".ff.", "f..f"]] }
+  ]
+};
