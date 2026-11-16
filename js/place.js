@@ -2,7 +2,7 @@
 // in a room): `chainOf`, `placeOf`, `shut`, `within`, `carried`; whether a thing is `noticed`; `person`, the one test for a person,
 // and `holderOf`; and `inScope`, whether a thing is within your reach. Pure: reads the state, never changes it.
 
-import { PRACTICE } from "./practice.js?v=0.59.4";
+import { PRACTICE } from "./practice.js?v=0.60.0";
 
 // The one walk through what holds what (a mint in a tin in a bag in a room). Things inside things go no deeper than this.
 const DEPTH = 5;

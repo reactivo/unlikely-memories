@@ -24,9 +24,9 @@
 //   `Look`              a command → shown as <LOOK>; clicking runs it
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
-import { spriteSVG } from "./sprite.js?v=0.59.4";
-import { mount as mountFollow } from "./follow.js?v=0.59.4";
-import { figures } from "./crt.js?v=0.59.4";
+import { spriteSVG } from "./sprite.js?v=0.60.0";
+import { mount as mountFollow } from "./follow.js?v=0.60.0";
+import { figures } from "./crt.js?v=0.60.0";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
@@ -55,6 +55,9 @@ export function mount(root, on, crop) {
   // The fading pieces of the reveal still going (the text and pictures phraseReveal has set to fade in); finishReveal ends only these,
   // never every .ph the story ever wrote. Dropped once everything has appeared (the next reveal starts a new list).
   let fading = [];
+  let hints = [];   // the start room's objects (hint()): { o, at: when it has appeared (performance.now() time), shown: in view }
+  let stopHints = () => {};   // ends hint() (an object touched, the room left, a new game)
+  let lookHints = () => {};   // outlines the objects that have just come into view (hint())
   // Cut a paragraph into phrases and give each a delayed fade-in, so they appear one after another.
   function phraseReveal(container, figure) {
     // Group the paragraph's pieces into phrases (markers stay inside their phrase).
@@ -100,6 +103,7 @@ export function mount(root, on, crop) {
     for (const el of fading) el.style.animation = "none";
     fading = [];
     revealAt = 0;
+    if (hints.length) { for (const h of hints) h.at = 0; requestAnimationFrame(() => lookHints()); }   // (outlines at once)
   }
   document.addEventListener("keydown", finishReveal, true);
   document.addEventListener("pointerdown", finishReveal, true);
@@ -242,6 +246,39 @@ export function mount(root, on, crop) {
     clear() { looks.clear(); root.innerHTML = ""; follow.forget(); follow.toTop(); crop.room(); },
     // The page's measurements, for the debug panel: { first (2 s after the last new game, or null), now }.
     page: follow.page,
+    // The objects of the room being told, outlined for a moment (log.css, .hint) each time one comes into view once it has
+    // appeared: wholly between what the top covers and the faded lines above the bottom (a phone shows the room's end only
+    // once you scroll). Again whenever it leaves the view and comes back, until an object is touched or the room is left.
+    // At the start of a new game, so a first-time player sees the words can be clicked (Diego, 16 November 2026).
+    hint() {
+      stopHints();
+      const phrase = parseFloat(getComputedStyle(root).getPropertyValue("--duration-phrase")) || 0, now = performance.now();
+      hints = [...current().querySelectorAll(".object")].map(o => ({ o, at: now + (parseFloat(o.closest(".ph")?.style.animationDelay) || 0) + phrase, shown: false }));
+      const px = (name) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0;
+      const look = () => {
+        if (hints.some(({ o }) => !o.isConnected || o.getAttribute("aria-disabled") === "true")) return stopHints();   // (the room was left)
+        const t = performance.now(), top = px("--top-h"), bottom = innerHeight - px("--bottom-h") - px("--fade");
+        for (const h of hints) {
+          if (t < h.at) continue;                                   // (not appeared yet)
+          const r = h.o.getBoundingClientRect(), inView = r.top >= top && r.bottom <= bottom;
+          if (inView && !h.shown) {                                 // just came into view: its outline
+            const box = h.o.parentElement.classList.contains("keep") ? h.o.parentElement : h.o;   // (with its punctuation)
+            box.classList.remove("hint"); void box.offsetWidth; box.classList.add("hint");        // (from the start, if still on)
+            box.addEventListener("animationend", () => box.classList.remove("hint"), { once: true });
+          }
+          h.shown = inView;
+        }
+      };
+      lookHints = look;
+      const touched = (e) => { if (e.target.closest?.(".object")) stopHints(); };
+      const timers = hints.map(h => setTimeout(look, h.at - now + 20));   // (each as it appears)
+      addEventListener("scroll", look, { passive: true }); addEventListener("resize", look);
+      root.addEventListener("click", touched, true);
+      stopHints = () => {
+        timers.forEach(clearTimeout); removeEventListener("scroll", look); removeEventListener("resize", look);
+        root.removeEventListener("click", touched, true); hints = []; stopHints = lookHints = () => {};
+      };
+    },
     // What is in the story now counts as seen (a new story, shown from the top: the next follow shows only what comes after it).
     seen: follow.forget,
     // Bring the newest command and its answer into view (smoothly; instant = true: at once).

@@ -302,6 +302,18 @@
     }
   }
 
+  /* The object's hint (above): in, its dashes running round, out. */
+  @keyframes object-hint {
+    0%   { opacity: 0; background-position: 0 0, 0 100%, 0 0, 100% 0; }
+    15%  { opacity: 1; }
+    60%  { opacity: 1; }
+    100% { opacity: 0; background-position: 18px 0, -18px 100%, 0 -18px, 100% 18px; }   /* (three dashes round) */
+  }
+
+  @keyframes object-hint-still {
+    15%, 60% { opacity: 1; }
+  }
+
   @keyframes phrase-in {
     from {
       opacity: 0;
@@ -361,6 +373,42 @@
       outline-offset: var(--focus-offset);
     }
 
+    /* The first room's hint (Diego, 16 November 2026): at the start of a new game, each object is outlined for a moment
+       each time it comes into view, until one is touched (log.js hint()): a thin dashed line (1px, 3px dashes) comes in around the name and its +, its dashes
+       run round, and it fades. Only a hint that the words can be clicked. The box: about as far from the name as from the
+       words beside it (half the space), and within the line's own height, clear of the lines above and below. Punctuation
+       right after the name (.keep) goes inside it, rather than under the line. */
+    &.hint {
+      position: relative;
+    }
+  }
+
+  .keep.hint {
+    position: relative;
+  }
+
+  .object.hint,
+  .keep.hint {
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0 -0.16em 0 -0.2em;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, var(--object-mark) 50%, transparent 0) 0 0 / 6px 1px repeat-x,
+        linear-gradient(90deg, var(--object-mark) 50%, transparent 0) 0 100% / 6px 1px repeat-x,
+        linear-gradient(0deg, var(--object-mark) 50%, transparent 0) 0 0 / 1px 6px repeat-y,
+        linear-gradient(0deg, var(--object-mark) 50%, transparent 0) 100% 0 / 1px 6px repeat-y;
+      opacity: 0;
+      animation: object-hint 2.4s ease-out both;
+
+      @media (prefers-reduced-motion: reduce) {
+        animation-name: object-hint-still;   /* in and out, its dashes still */
+      }
+    }
+  }
+
+  .object {
     /* Spacing that follows the text's own size (em; values in typography.css). */
     &::after {
       position: relative;
