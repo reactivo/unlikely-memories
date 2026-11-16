@@ -10,8 +10,8 @@
 //     new room's text is seen; a room visited before, or a way that doesn't move you (a locked door), leaves it open;
 //   - closes it if the window grows wide enough for the strip, where the panels are ordinary sections.
 
-import { wide } from "./media.js?v=0.61.1";
-import { follow } from "./popup.js?v=0.61.1";
+import { wide } from "./media.js?v=0.61.2";
+import { follow } from "./popup.js?v=0.61.2";
 
 // Set up the tabs on their element. Returns update().
 export function mount(root) {

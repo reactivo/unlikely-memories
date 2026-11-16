@@ -329,7 +329,7 @@ export default {
   panel: { game: "JUEGO", restart: "Reiniciar partida", quit: "Salir" },
   // La página de inicio (ui/home.js). El nombre del juego no se traduce. Los botones salen en mayúsculas (home.css).
   home: { subtitle: "Ficción Artificial Interactiva", newGame: "Nueva partida", resume: "Continuar", version: "Versión",
-          loadGame: "Cargar partida", allGames: "Todos los juegos",   // loadGame: la tarjeta de un mundo con página propia (una portada) lleva a ella; allGames: el camino de vuelta a la lista
+          loadGame: "Jugar", allGames: "Todos los juegos",   // loadGame: la tarjeta de un mundo con página propia (una portada) lleva a ella; allGames: el camino de vuelta a la lista
           language: (l) => `Idioma: ${{ en: "inglés", es: "español" }[l]}`,   // los botones del selector, arriba a la derecha
           none: "Todavía no hay juegos en español." },
   labels: { directions: "DIRECCIONES", inv: "INVENTARIO", map: "Mapa", seeMap: "Ver mapa" },   // seeMap: el botón bajo la brújula
