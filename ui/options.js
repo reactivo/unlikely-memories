@@ -3,9 +3,9 @@
 // "Restart game" closes the panel and asks in the story, like every other yes/no question (js/main.js; after the end, no
 // question); "Quit" closes it and goes at once. Opening focuses the panel itself (tabindex -1: no ring; Tab then goes to the
 // sound switch, Esc closes it; until 15 November 2026 the Music slider, which showed the keyboard ring on a phone); closing
-// returns the focus to the command line.
+// returns the focus to the command line. A switch's whole line flips it; Restart game and Quit take their whole line.
 
-import { hang } from "./popup.js?v=0.60.1";
+import { hang } from "./popup.js?v=0.60.2";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {
@@ -18,6 +18,14 @@ export function mount(panel, on) {
   const mark = (open) => { for (const b of buttons) b.setAttribute("aria-expanded", String(open)); };
   panel.addEventListener("beforetoggle", (e) => mark(e.newState === "open"));   // at once, as the phones' tabs (ui/tabs.js): no flicker
   hang(panel, buttons, { opened: () => { mark(true); panel.focus({ preventScroll: true }); }, closed: () => { mark(false); on.focus(); } });
+  // A switch's whole line flips it, its words too (Sound on/off, CRT effect, Reflections: Diego, 16 November 2026); the switch itself
+  // keeps its own click, and the keyboard's focus stays on it.
+  for (const line of panel.querySelectorAll(".row")) {
+    const flip = line.querySelector(".switch");
+    if (!flip) continue;
+    line.classList.add("flips");
+    line.addEventListener("click", (e) => { if (!e.target.closest(".switch")) flip.click(); });
+  }
   restart.addEventListener("click", () => { panel.hidePopover(); on.restart(); });
   quit.addEventListener("click", () => { panel.hidePopover(); on.quit(); });
 

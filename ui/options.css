@@ -36,7 +36,7 @@
       color: var(--heading);
     }
 
-    /* The graphics block: a row for each setting, its label at the left and its switch (ui/switch.css) at the right end. */
+    /* SOUND's and GRAPHICS' rows: a row for each setting, its label at the left and its switch (ui/switch.css) at the right end. */
     & .rows {
       display: grid;
       gap: var(--space-s);
@@ -50,20 +50,34 @@
       gap: var(--space-m);
     }
 
+    /* A line with a switch (a row): all of it flips the switch (options.js), its words yellow under the pointer. */
+    & .flips {
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    @media (hover: hover) {
+      & .flips:hover > span {
+        color: var(--choice-hover);
+      }
+    }
+
     /* The rows only wide windows have (Reflections): hidden on phones (css/layout.css sets --row-wide-display in the strip layout). */
     & .row.wide {
       display: var(--row-wide-display, none);
     }
 
     /* "Restart game" (it asks in the story, like every yes/no question) and "Quit" (back to the list of games), each on its
-       own line. Buttons are plain text, yellow under the pointer. */
+       own line, the whole line wide. Buttons are plain text, yellow under the pointer. */
     & .actions {
       display: grid;
-      justify-items: start;
+      justify-items: stretch;   /* each button the whole line wide: all of it clickable (until 16 November 2026, its words only) */
       gap: var(--space-s);
     }
 
     & .action {
+      text-align: start;
       color: var(--choice);
       background: none;
       border: 0;
@@ -71,8 +85,10 @@
       cursor: pointer;
     }
 
-    & .action:hover {
-      color: var(--choice-hover);
+    @media (hover: hover) {
+      & .action:hover {
+        color: var(--choice-hover);
+      }
     }
 
     & .action:focus-visible {

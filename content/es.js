@@ -323,7 +323,7 @@ export default {
 
   // Interface
   options: "Ajustes",
-  sound: { title: "SONIDO", music: "Música", tone: "Ambiente", sounds: "Sonidos" },   // el bloque SONIDO de las opciones (ui/soundpanel.js)
+  sound: { title: "SONIDO", onoff: "Sonido sí/no", music: "Música", tone: "Ambiente", sounds: "Sonidos" },   // el bloque SONIDO de las opciones (ui/soundpanel.js)
   a11y: { story: "Historia", command: "Escribe una orden" },
   graphics: { title: "GRÁFICOS", crt: "Efecto CRT", reflections: "Reflejos" },   // el bloque GRÁFICOS de las opciones (ui/graphicspanel.js)
   panel: { game: "JUEGO", restart: "Reiniciar partida", quit: "Salir" },

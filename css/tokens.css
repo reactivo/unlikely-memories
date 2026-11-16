@@ -66,6 +66,7 @@
     --color-text-dim:      var(--palette-stone-400);  /* secondary text: labels, headings, hints, echoed commands, fades */
     --color-text-faint:    var(--palette-stone-700);  /* barely there: inactive things, notes, buttons at rest */
     --color-text-soft:     var(--palette-stone-300);  /* light grey: a card's blurb on the landing page */
+    --color-off:           var(--palette-stone-600);  /* something switched off that still works: the sound's sliders while muted */
     --color-mark:          var(--palette-stone-600);  /* small marks around or between things: brackets, the compass dot */
     --color-highlight:     var(--palette-yellow-300); /* the one bright accent: the command line, an open tab, hovers */
     --color-focus:         var(--palette-amber-300);  /* keyboard focus ring (the only place amber is used) */

@@ -7,26 +7,26 @@
 <title>Unlikely Memories</title>
 <!-- Styles: tokens first (it declares the layer order), then base, typography, layout, the keys (every tile button) and
      utilities, then one file per interface piece. The text styles are the .text-* classes (css/typography.css). See ARCHITECTURE.md §7 "Styles". -->
-<link rel="stylesheet" href="css/tokens.css?v=0.60.1">
-<link rel="stylesheet" href="css/base.css?v=0.60.1">
-<link rel="stylesheet" href="css/typography.css?v=0.60.1">
-<link rel="stylesheet" href="css/layout.css?v=0.60.1">
-<link rel="stylesheet" href="css/key.css?v=0.60.1">
-<link rel="stylesheet" href="css/utilities.css?v=0.60.1">
-<link rel="stylesheet" href="ui/titlebar.css?v=0.60.1">
-<link rel="stylesheet" href="ui/scene.css?v=0.60.1">
-<link rel="stylesheet" href="ui/log.css?v=0.60.1">
-<link rel="stylesheet" href="ui/prompt.css?v=0.60.1">
-<link rel="stylesheet" href="ui/compass.css?v=0.60.1">
-<link rel="stylesheet" href="ui/inventory.css?v=0.60.1">
-<link rel="stylesheet" href="ui/tools.css?v=0.60.1">
-<link rel="stylesheet" href="ui/tabs.css?v=0.60.1">
-<link rel="stylesheet" href="ui/options.css?v=0.60.1">
-<link rel="stylesheet" href="ui/switch.css?v=0.60.1">
-<link rel="stylesheet" href="ui/soundpanel.css?v=0.60.1">
-<link rel="stylesheet" href="ui/map.css?v=0.60.1">
-<link rel="stylesheet" href="ui/home.css?v=0.60.1">
-<script type="module" src="js/main.js?v=0.60.1"></script>
+<link rel="stylesheet" href="css/tokens.css?v=0.60.2">
+<link rel="stylesheet" href="css/base.css?v=0.60.2">
+<link rel="stylesheet" href="css/typography.css?v=0.60.2">
+<link rel="stylesheet" href="css/layout.css?v=0.60.2">
+<link rel="stylesheet" href="css/key.css?v=0.60.2">
+<link rel="stylesheet" href="css/utilities.css?v=0.60.2">
+<link rel="stylesheet" href="ui/titlebar.css?v=0.60.2">
+<link rel="stylesheet" href="ui/scene.css?v=0.60.2">
+<link rel="stylesheet" href="ui/log.css?v=0.60.2">
+<link rel="stylesheet" href="ui/prompt.css?v=0.60.2">
+<link rel="stylesheet" href="ui/compass.css?v=0.60.2">
+<link rel="stylesheet" href="ui/inventory.css?v=0.60.2">
+<link rel="stylesheet" href="ui/tools.css?v=0.60.2">
+<link rel="stylesheet" href="ui/tabs.css?v=0.60.2">
+<link rel="stylesheet" href="ui/options.css?v=0.60.2">
+<link rel="stylesheet" href="ui/switch.css?v=0.60.2">
+<link rel="stylesheet" href="ui/soundpanel.css?v=0.60.2">
+<link rel="stylesheet" href="ui/map.css?v=0.60.2">
+<link rel="stylesheet" href="ui/home.css?v=0.60.2">
+<script type="module" src="js/main.js?v=0.60.2"></script>
 </head>
 <body>
 
@@ -158,9 +158,9 @@
      blocks, SOUND (the three sliders: ui/soundpanel.js), GRAPHICS (the CRT effect and Reflections switches: ui/graphicspanel.js) and GAME (Restart game, Quit: ui/options.js). SOUND's heading line holds the on/off switch (ui/soundpanel.js). -->
 <div id="options-panel" class="options text-ui" popover role="dialog" aria-label="Settings" tabindex="-1">
   <section class="sound" aria-labelledby="sound-title">
-    <div class="heading">
-      <h2 id="sound-title">SOUND</h2>
-      <button type="button" class="switch" id="sound-switch" role="switch" aria-checked="true" aria-labelledby="sound-title"><span class="knob"></span></button>
+    <h2 id="sound-title">SOUND</h2>
+    <div class="rows">
+      <div class="row"><span id="label-sound">Sound on/off</span><button type="button" class="switch" id="sound-switch" role="switch" aria-checked="true" aria-labelledby="label-sound"><span class="knob"></span></button></div>
     </div>
     <div class="sliders">
       <label for="sound-music" id="label-music">Music</label><input type="range" id="sound-music" min="0" max="100">
