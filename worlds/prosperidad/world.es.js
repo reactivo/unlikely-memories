@@ -3,10 +3,10 @@
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 // Reescrito el 2026-11-15 (extrañeza 0): ahora la historia es la caza de un camello que hace su ronda por las salas de la avenida.
 
-import pictures, { endings } from "./pictures.js?v=0.60.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.60.0";
-import levels from "./levels.js?v=0.60.0";
-import sprites from "./sprites.js?v=0.60.0";
+import pictures, { endings } from "./pictures.js?v=0.60.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.60.1";
+import levels from "./levels.js?v=0.60.1";
+import sprites from "./sprites.js?v=0.60.1";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {

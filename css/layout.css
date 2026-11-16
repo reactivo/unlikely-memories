@@ -331,6 +331,8 @@
       --card-columns: minmax(0, 3fr) minmax(0, 4fr);
       --card-column-gap: var(--space-l);
       --buttons-margin-top: auto;
+      --play-height: var(--tile-max);   /* its buttons as SETTINGS in the strip at full size */
+      --play-text: var(--text-s);
     }
 
     /* Options panel (ui/options.css): the settings that only wide windows have (GRAPHICS' Reflections: ui/reflection.js) show a row. */

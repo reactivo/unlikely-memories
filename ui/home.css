@@ -219,12 +219,19 @@
       margin-top: var(--buttons-margin-top, var(--space-m));   /* phones: M above the buttons; wider windows: layout.css */
     }
 
-    /* CONTINUE and NEW GAME: keys (css/key.css: their look, hover and press). */
+    /* CONTINUE and NEW GAME: keys (css/key.css: their look, hover and press), the same as the game's (Diego, 16 November 2026):
+       on phones as the tabs (ui/tabs.css: the text at size M, as tall as the touch tile beside them), on wider windows as SETTINGS
+       in the strip at full size (ui/tools.css, layout.css: the text at size S, as tall as a tile). The label is trimmed to its
+       capitals and centred, as on every key (typography.css, .text-button button). */
     & .play {
-      --key-pad-y: var(--space-s);   /* around the capitals: the label's box is trimmed to them (typography.css) */
+      --key-pad-y: var(--space-s);
+      --key-pad-x: var(--space-s);
       flex: 1 1 0;
       min-width: 0;
-      --key-pad-x: var(--space-m);
+      min-height: var(--play-height, var(--tile-touch));
+      font-size: var(--play-text, var(--text-m));
+      line-height: var(--line-xs);
+      text-box: trim-both cap alphabetic;
       white-space: nowrap;
     }
   }
