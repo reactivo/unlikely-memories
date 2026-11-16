@@ -3,9 +3,9 @@
 // hash of the pixel and the moment, so the same moment always draws the same.
 // (How one picture changes into another, a room's or an ending's, is not here: it is all in ui/transitions.js.)
 
-import art from "../content/art.js?v=0.61.2";
-import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.61.2";
-import { colorsOf, areaPixels } from "../js/picture.js?v=0.61.2";
+import art from "../content/art.js?v=0.61.3";
+import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.61.3";
+import { colorsOf, areaPixels } from "../js/picture.js?v=0.61.3";
 
 // A tint's palette as [r, g, b] colours, parsed once for each palette (the scene asks every frame).
 const tints = new WeakMap();
@@ -113,7 +113,8 @@ export function stepsOf(cycles, loops, now, still) {
   const out = cycles.map(cy => {
     const c = cy.c;
     if (still || !CYCLES[c.style]) return 0;
-    return isScatter(c) ? scatterTick(c, now - cy.t0) : CYCLES[c.style](c, cy.mem, now - cy.t0, now);
+    const t = Math.max(0, now - cy.t0);   // (an animation frame's time can be a little before the picture was prepared: never negative)
+    return isScatter(c) ? scatterTick(c, t) : CYCLES[c.style](c, cy.mem, t, now);
   });
   for (const lp of loops) out.push(loopStepOf(lp, now, still));
   return out;
@@ -125,7 +126,7 @@ export const PLACE = 4096, SHIFT = 1024;
 export function loopStepOf(lp, now, still) {
   const l = lp.l;
   if (still) return l.path ? -1 : 0;
-  const t = now - lp.t0, frame = loopFrame(l.style, l.frames.length, Math.floor(t / l.ms), lp.mem);
+  const t = Math.max(0, now - lp.t0), frame = loopFrame(l.style, l.frames.length, Math.floor(t / l.ms), lp.mem);
   if (!l.path) return frame;
   const along = t % (l.travel + l.pause);
   if (along >= l.travel) return -1;

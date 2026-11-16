@@ -2,9 +2,9 @@
 // here); this file puts a grid on the canvas, and holds the overlays, the thumbnails, the scroll's plan and the loops' sprites. Pure: no page, so tests
 // can run it too. ui/scene.js turns the grid into colours on the canvas.
 
-import art from "../content/art.js?v=0.61.2";
-import { parseShapes } from "../js/picture.js?v=0.61.2";
-import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.61.2";
+import art from "../content/art.js?v=0.61.3";
+import { parseShapes } from "../js/picture.js?v=0.61.3";
+import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.61.3";
 export { paint, paintPicture, threshold, lit, CLEAR_PIXEL };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].
@@ -154,6 +154,7 @@ export function underMask(l, areas, width, height) {
 // One frame of a compiled loop drawn into the picture's pixels, clipped to it, at its own `at` or, for a travelling loop, at `where`.
 export function drawLoop(out, lp, frame, width = art.picture.width, height = art.picture.height, where = lp.at, hide = null) {
   const px = lp.frames[frame];
+  if (!px || !where) return;                       // (no such frame or place: draw nothing rather than stop the picture)
   for (let j = 0; j < lp.h; j++) {
     const y = where[1] + j;
     if (y < 0 || y >= height) continue;

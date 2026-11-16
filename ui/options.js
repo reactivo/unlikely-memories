@@ -5,7 +5,7 @@
 // sound switch, Esc closes it; until 15 November 2026 the Music slider, which showed the keyboard ring on a phone); closing
 // returns the focus to the command line. A switch's whole line flips it; Restart game and Quit take their whole line.
 
-import { hang } from "./popup.js?v=0.61.2";
+import { hang } from "./popup.js?v=0.61.3";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {

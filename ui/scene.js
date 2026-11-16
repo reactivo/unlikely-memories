@@ -8,16 +8,16 @@
 // is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
-import art from "../content/art.js?v=0.61.2";
-import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.61.2";
-import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.61.2";
-import { mount as mountSleep } from "./sleep.js?v=0.61.2";
-import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.61.2";
-import { transition, ROOM, ENDING } from "./transitions.js?v=0.61.2";
-import { text } from "../js/narrator.js?v=0.61.2";                  // "@key" → the pack's text, dotted keys too, as the story says it
-import { reducedMotion, calm } from "./media.js?v=0.61.2";
-import { screen } from "./crt.js?v=0.61.2";                      // the CRT look, drawn over the finished picture (ui/crt.js)
-import { reflection } from "./reflection.js?v=0.61.2";            // the light beside the picture, on wide windows (ui/reflection.js)
+import art from "../content/art.js?v=0.61.3";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.61.3";
+import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.61.3";
+import { mount as mountSleep } from "./sleep.js?v=0.61.3";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.61.3";
+import { transition, ROOM, ENDING } from "./transitions.js?v=0.61.3";
+import { text } from "../js/narrator.js?v=0.61.3";                  // "@key" → the pack's text, dotted keys too, as the story says it
+import { reducedMotion, calm } from "./media.js?v=0.61.3";
+import { screen } from "./crt.js?v=0.61.3";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import { reflection } from "./reflection.js?v=0.61.3";            // the light beside the picture, on wide windows (ui/reflection.js)
 
 const W = art.picture.width, H = art.picture.height;
 
@@ -99,12 +99,23 @@ export function mount(root) {
 
   // Keep animating while a transition runs or cycles are moving (not while the tab is hidden: the browser
   // pauses animation frames by itself).
+  // A frame that fails (a bad loop or cycle) is reported and the picture goes on: `loop` is cleared first, so the next change of
+  // picture always starts the animation again (an error here once left `loop` set, and every later room kept the old picture).
   function tick(now) {
-    if (sleeper.playing()) sleeper.advance(now);                 // (it may end the sleep, and draw the picture woken to)
-    const steps = stepsAt(now);
-    const moving = moment !== null || sleeper.playing() || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
-    if (change || steps.join() !== lastSteps || moving) render(now, steps);   // nothing moved: leave the canvas as it is
-    loop = (change || moving || ((cycles.length || loops.length) && !calm())) ? requestAnimationFrame(tick) : 0;
+    loop = 0;
+    let moving = false;
+    try {
+      if (sleeper.playing()) sleeper.advance(now);                 // (it may end the sleep, and draw the picture woken to)
+      const steps = stepsAt(now);
+      moving = moment !== null || sleeper.playing() || (filters.some(f => MOVING.has(parseFilter(f).name)) && !calm());
+      if (change || steps.join() !== lastSteps || moving) render(now, steps);   // nothing moved: leave the canvas as it is
+    } catch (err) {
+      console.error("picture frame:", err);
+      change = null; from = null; cycles = []; loops = []; lastSteps = "";    // drop the motion that failed; the picture itself stays
+      try { render(now); } catch (e) { /* nothing more to draw */ }
+      return;
+    }
+    if (change || moving || ((cycles.length || loops.length) && !calm())) loop = requestAnimationFrame(tick);
   }
   const animate = () => { if (!loop) loop = requestAnimationFrame(tick); };
   const motionChanged = () => { if (frame) { render(performance.now()); animate(); } };
