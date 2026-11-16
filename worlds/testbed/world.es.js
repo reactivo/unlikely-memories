@@ -7,10 +7,10 @@
 // la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.61.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.0";
-import levels from "./levels.js?v=0.61.0";
-import sprites from "./sprites.js?v=0.61.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.61.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.61.1";
+import levels from "./levels.js?v=0.61.1";
+import sprites from "./sprites.js?v=0.61.1";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
