@@ -6,23 +6,23 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.62.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.62.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.62.0";
-import { isAction } from "./actions.js?v=0.62.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.62.0";
-import { solveCommand } from "./narrator.js?v=0.62.0";
-import { isLine } from "./shapes.js?v=0.62.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.62.0";
-import { nextCell } from "./space.js?v=0.62.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.62.0";
-import * as opening from "./opening.js?v=0.62.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.62.0";
-import art from "../content/art.js?v=0.62.0";
-import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.62.0";
-import { paintPicture, CLEAR } from "./paint.js?v=0.62.0";
-import { filterProblem } from "./filters.js?v=0.62.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.62.0";
+import { parse, normalise } from "./parser.js?v=0.63.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.63.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.63.0";
+import { isAction } from "./actions.js?v=0.63.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.63.0";
+import { solveCommand } from "./narrator.js?v=0.63.0";
+import { isLine } from "./shapes.js?v=0.63.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.63.0";
+import { nextCell } from "./space.js?v=0.63.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.63.0";
+import * as opening from "./opening.js?v=0.63.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.63.0";
+import art from "../content/art.js?v=0.63.0";
+import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.63.0";
+import { paintPicture, CLEAR } from "./paint.js?v=0.63.0";
+import { filterProblem } from "./filters.js?v=0.63.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.63.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -530,7 +530,7 @@ const plannedWorld = (state) => [...Object.values(state.world.rooms).map(r => r?
 
 // Every thing that can be taken is marked ({name} or {label|id}) in some text the player meets (BRIEF.md §4, "Say only what the game knows"): its room's
 // text, its own `here`, the examine or open text of what holds it, the line of whoever gives it. A thing in a container is listed, marked, by the container's
-// own "Inside:" line when it is opened; one carried from the start is known already. A warning naming a portable thing no text marks.
+// own "Inside:" line when it is opened; one carried from the start is known already, and so is what is left of a price (`remains`). A warning naming a portable thing no text marks.
 function markedThingWarnings(state, pack) {
   if (!plannedWorld(state)) return [];   // (gated: the earlier worlds would get 5 + 3 + 1 + 1)
   const fold = (x) => normalise(String(x), pack.words.grammar), ids = new Set(), words = new Set();
@@ -538,9 +538,9 @@ function markedThingWarnings(state, pack) {
     if (fromPack) continue;
     for (const m of String(text).matchAll(/\{([^|}]+)(?:\|([^}]+))?\}/g)) { if (m[2]) ids.add(m[2].trim()); else words.add(fold(m[1])); }
   }
-  const out = [];
+  const out = [], left = new Set(Object.values(state.world.objects).map(x => x.remains).filter(x => typeof x === "string"));   // (what is left of a price, `remains`, comes into your hands: known already)
   for (const [id, o] of Object.entries(state.world.objects)) {
-    if (o.portable !== true || o.at === "player" || state.world.objects[o.at]?.container) continue;
+    if (o.portable !== true || o.at === "player" || left.has(id) || state.world.objects[o.at]?.container) continue;
     if (ids.has(id) || [...(o.words?.nouns || []), o.name].filter(Boolean).some(w => words.has(fold(w)))) continue;
     out.push(`${id}: can be taken, but no text the player meets marks it ({${o.words?.nouns?.[0] ?? id}}): mark it in its room's text, its \`here\` line or the line of whoever gives it, so it can be clicked and is plainly a thing`);
   }

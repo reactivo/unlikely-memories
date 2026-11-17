@@ -1,16 +1,16 @@
-// «El emperador de Prosperidad»: el mundo, en español. No es una traducción: está escrito como lo escribiría un autor
+// «El emperador de la costra»: el mundo, en español. No es una traducción: está escrito como lo escribiría un autor
 // de aquí. Mismos ids, mismas salas, mismas reglas y mismos finales que world.en.js; cambian las palabras. Un solo conjunto de cambios,
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 // Reescrito el 2026-11-15 (extrañeza 0): ahora la historia es la caza de un camello que hace su ronda por las salas de la avenida.
 
-import pictures, { endings } from "./pictures.js?v=0.62.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
-import levels from "./levels.js?v=0.62.0";
-import sprites from "./sprites.js?v=0.62.0";
+import pictures, { endings } from "./pictures.js?v=0.63.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.63.0";
+import levels from "./levels.js?v=0.63.0";
+import sprites from "./sprites.js?v=0.63.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
-  title: "El emperador de Prosperidad",
+  title: "El emperador de la costra",
   blurb: "Prosperidad, 1985. El Emperador busca al Ministro, un camello que hace su ronda de bares, no acepta dinero y pide un favor antes que nada. Va a ser larga.",
   thumbnail: { picture: "avenida", x: 40 },   // la tarjeta de la página de inicio: la imagen de esta sala, recortada 225 píxeles desde la columna x (0-95)
   style: "flat",
@@ -165,7 +165,7 @@ const rooms = {
     ], every: [30, 70] },
     sleep: "En la avenida, no. Alguien te vendería, y no verías el dinero.",
     alt: "La avenida de noche, mirando al norte por una calle mojada: persianas y rótulos de neón a ambos lados en rosa, cian y magenta, al fondo el frente negro de un club con una ventana redonda como un ojo de buey, y gente de pie en los portales.",
-    overlayAlt: { ministro: "El Ministro, de pie en medio de la acera con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano." }
+    overlayAlt: { ministro: "El Ministro, de pie en medio de la acera con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano.", monedas: "Tres monedas yacen en la acera, delante de la puerta del club." }
   },
   esquina: {
     name: "LA ESQUINA", area: "calle", at: [0, 1, 0],
@@ -330,7 +330,7 @@ const rooms = {
     ],
     exits: { n: "plaza", s: "patio" },
     scenery: [
-      { words: ["buzones", "buzon", "buzón", "correo", "cartas"], name: "los buzones", says: "Cuarenta buzones con nombres en rotulador, todos reventados de folletos, multas y catálogos que nadie abrirá. En uno pone «Ortega, 3.º», tachado." },
+      { words: ["buzones", "buzon", "buzón", "correo", "cartas"], name: "los buzones", says: "Cuarenta buzones con nombres en rotulador, todos reventados de folletos, multas y catálogos que nadie abrirá. En uno pone «Maza, 3.º», tachado." },
       { words: ["bicicleta", "bici", "radiador", "cadena"], name: "la bicicleta", says: "Encadenada a un radiador que dejó de calentar el edificio en 1979. La bicicleta tiene una rueda pinchada y un candado buenísimo, que es lo normal en esta ciudad." },
       { words: ["vela", "escalon", "escalón", "escalones", "turno", "turnos"], name: "la vela", says: "Un cabo en un platillo sobre el primer escalón. Un papel al lado apunta quién ha pagado la cera de esta noche, y la lista es más larga que la vela." },
       { words: ["pintadas", "lemas", "pared", "paredes", "carteles"], name: "las paredes", says: "Lemas sobre lemas y carteles sobre carteles, tantas capas que el edificio es sobre todo papel. Uno dice, en rojo: LO QUE SE VENDE NO ES TUYO." },
@@ -486,11 +486,32 @@ const objects = {
     talk: "«¿Qué? —dice Pelayo, que es como saluda—. ¿Cerveza o ruido?».",
     topics: {
       band: { open: true, label: "el grupo", words: ["grupo", "nacho", "cuerda", "cuerdas", "fabrica", "fábrica", "bajo", "bajista"], says: "«Nada Personal están esta noche en la fábrica, ensayando con un horno —dice Pelayo—. A Nacho se le rompió una cuerda del bajo el martes y se pone borde sin ella. Hay un juego de recambio en la funda de guitarra de la trastienda, por si alguien quisiera hacerse el héroe»." },
-      bar: { open: true, label: "la barra", words: ["barra", "cerveza", "copa", "precio", "fiado"], says: "«La cerveza son treinta pelas —dice Pelayo—. Tú no las tienes. No pidas fiado, que he visto tu cara en un cartel de se busca»." },
+      bar: { open: true, label: "la barra", words: ["barra", "cerveza", "copa", "precio", "fiado"], says: "«Una cerveza es una moneda —dice Pelayo—. Ni treinta pelas ni un favor: una moneda. Los chavales las pierden en la acera de ahí fuera, al entrar, y para eso están. Y no pidas fiado, que he visto tu cara en un cartel de se busca»." },
       dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "ronda", "cuando"], says: "«Puntual como el correo —dice Pelayo—. Hace El Charlie, una cerveza, baja por la avenida a La Ópera, vuelve por la avenida a la estafeta a por su carta, otra vez la avenida y vuelta conmigo. Cuatro minutos por puerta y ni un segundo más, porque quien se queda es quien llama la atención»." },
       default: "«No es cosa mía —dice Pelayo—. Lo mío es ese vaso»."
     },
     give: "«Yo cobro en efectivo o no cobro —dice Pelayo, y te lo devuelve»." },
+
+  // La cerveza de El Charlie: una cerveza es una moneda, y las tres monedas de la acera de la avenida se gastan una a una (`remains`: tres
+  // monedas, dos monedas, una moneda; el `requires` de la cerveza es la primera). La segunda cerveza te emborracha (las `doses` de la condición).
+  cerveza: { at: null, from: "pelayo", requires: "monedas", spends: true, times: 3, material: "glass", name: "Cerveza", note: "Fría, en un vaso.",
+    lacking: "«Una cerveza es una moneda —dice Pelayo, y espera—. Yo no fío».",
+    brought: ["Pelayo coge una moneda, tira una {cerveza} y la deja en la barra como quien pone la mesa a los muertos.", "Pelayo coge otra moneda y tira otra {cerveza}.", "Pelayo coge la última moneda, tira la última {cerveza} y te mira como quien cuenta la sala."],
+    already: "«Bébete esa primero», dice Pelayo.", again: "«Son tres —dice Pelayo—. Pasadas las tres cantan, luego lloran, y luego friego yo».",
+    consumable: true, starts: "drunk", drink: ["Fría y amarga, y lo primero de esta noche que ha sido tuyo.", "Más templada, y un poco más lejos del suelo.", "Baja como un reto."],
+    words: { nouns: ["cerveza", "vaso", "caña", "cana"], adj: ["fria", "fría"], g: "f" },
+    examine: "Un vaso de cerveza, fría, con una espuma que Pelayo ha cortado con el canto de un cuchillo." },
+  monedas: { at: "avenida", portable: true, material: "metal", name: "Tres monedas", note: "Una cerveza cada una.", remains: "monedas_2",
+    words: { nouns: ["monedas", "moneda", "dinero", "calderilla", "suelto"], adj: ["tres", "cobre"], g: "f", pl: true }, ...item("monedas"),
+    here: "Tres {monedas} yacen en la acera, delante de la puerta de El Charlie, donde hace cola la gente y los bolsillos van sueltos.",
+    lies: "Tres monedas yacen donde las dejaron.",
+    examine: "Tres monedas de cobre, tibias del bolsillo de alguien, gastadas de tanto andar. En El Charlie una moneda es una cerveza." },
+  monedas_2: { at: null, portable: true, material: "metal", name: "Dos monedas", note: "Una cerveza cada una.", remains: "moneda_1",
+    words: { nouns: ["monedas", "moneda", "dinero", "calderilla", "suelto"], adj: ["dos", "cobre"], g: "f", pl: true }, ...item("monedas_2"),
+    lies: "Dos monedas yacen donde las dejaron.", examine: "Dos monedas de cobre, gastadas. En El Charlie una moneda es una cerveza." },
+  moneda_1: { at: null, portable: true, material: "metal", name: "Moneda", note: "Una cerveza.",
+    words: { nouns: ["moneda", "dinero", "calderilla", "suelto"], adj: ["ultima", "última", "cobre"], g: "f" }, ...item("moneda_1"),
+    lies: "Una moneda yace donde la dejaron.", examine: "Una moneda de cobre, gastada. Una cerveza más en El Charlie." },
 
   // El Ministro: en su ronda (las salas, por orden, un paso cada cuatro movimientos tuyos)
   ministro: { portrait: sprites.ministro_portrait, at: "opera", name: "El Ministro", note: "En su ronda.",
@@ -537,7 +558,7 @@ const objects = {
     topics: {
       post: { open: true, label: "el correo", words: ["correo", "cartas", "saco", "sello", "trabajo", "furgoneta"], says: "«Clasifico lo que llega, sello lo que sale, devuelvo lo que no tiene a quién ir —dice doña Remedios—. Nueve de cada diez son devoluciones. La gente se muda más deprisa que sus direcciones»." },
       dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "carta", "correo"], says: "«Cada sábado una carta certificada, su pensión del Colegio de Farmacéuticos —dice doña Remedios—. El único dinero que acepta, y lo llama devolución. Firma con letra de receta. Un boticario expulsado, si quiere mi opinión, y nadie me la ha pedido»." },
-      matilde: { label: "Matilde", words: ["matilde", "portera", "peláez", "pelaez", "entierro"], says: "«Treinta años de cartas de Matilde a un chico del tercero del nueve, y treinta años de devueltas con el sello de desconocido —dice doña Remedios—. Javier Ortega, calle Hierro, nueve. No dejó de escribir. Yo no dejé de devolverlas. No me mires a mí: yo sello lo que viene sellado»." },
+      matilde: { label: "Matilde", words: ["matilde", "portera", "peláez", "pelaez", "entierro"], says: "«Treinta años de cartas de Matilde a un chico del tercero del nueve, y treinta años de devueltas con el sello de desconocido —dice doña Remedios—. Javier Maza, calle Hierro, nueve. No dejó de escribir. Yo no dejé de devolverlas. No me mires a mí: yo sello lo que viene sellado»." },
       default: "«Eso no lo puedo sellar —dice doña Remedios, y sella otra cosa»."
     },
     give: "«Yo cojo cartas y cojo sellos —dice doña Remedios—, y eso no es ninguna de las dos cosas»." },
@@ -549,7 +570,7 @@ const objects = {
     talk: "«Habitaciones por horas, por noches o por años —dice don Nicanor—. Lo de los años es para quien se ha rendido. No lo recomiendo».",
     topics: {
       rooms: { open: true, label: "una habitación", words: ["habitacion", "habitación", "habitaciones", "cama", "noche", "hora", "alquiler"], says: "«Ocho pesetas la hora, treinta la noche, y sin preguntas a ninguna de las dos tarifas. La única habitación que no alquilo es la siete. Esa está ocupada, por una señora que paga el día uno»." },
-      book: { open: true, opens: ["name"], label: "el Libro de Horas", words: ["libro", "registro", "horas", "nombres"], says: "«Todo nombre que se ha alojado aquí está en el Libro —dice don Nicanor—. También el tuyo. Javier Ortega, número siete, 1979, tercera noche. Un bebé con tos, en una habitación sin calefacción, y una madre en el turno de noche. La portera de la calle Hierro subió una cazuela de sopa por la escalera. Lo recuerdo porque dormías mejor que tu madre»." },
+      book: { open: true, opens: ["name"], label: "el Libro de Horas", words: ["libro", "registro", "horas", "nombres"], says: "«Todo nombre que se ha alojado aquí está en el Libro —dice don Nicanor—. También el tuyo. Javier Maza, número siete, 1979, tercera noche. Un bebé con tos, en una habitación sin calefacción, y una madre en el turno de noche. La portera de la calle Hierro subió una cazuela de sopa por la escalera. Lo recuerdo porque dormías mejor que tu madre»." },
       marisol: { label: "Marisol", words: ["marisol", "siete", "inquilina"], says: "«La siete es de Marisol —dice don Nicanor—. Paga el día uno y no ha dado un portazo en su vida. Si quiere ver cómo vive una señora, suba y mire. No le importa. Deja la puerta abierta»." },
       dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«Un caballero —dice don Nicanor—. Alquiló la habitación del rincón por noches durante veinte años, hasta la noche en que dejó de hacerlo. No pregunto qué lleva un caballero en el maletín, y un caballero no me lo dice»." },
       default: "«No sabría decirle —dice don Nicanor, y anota algo en el Libro»."
@@ -723,7 +744,7 @@ export default {
   because: "Un callejón sin salida detrás de un bar punk, luego la avenida de una ciudad gris, dos bares y una lavandería en un sábado por la noche de 1985, y un camello que hace su ronda y quiere una corbata negra.",
   opening,
   facts: [
-    "El jugador es el Emperador, un punk de la avenida en Prosperidad, 1985; antes de eso se llamaba Javier (Ortega, de la calle Hierro nueve, tercero); la sala del comienzo es el callejón de detrás de El Charlie, al sur de la trastienda, tras la puerta de incendios.",
+    "El jugador es el Emperador, un punk de la avenida en Prosperidad, 1985; antes de eso se llamaba Javier (Maza, de la calle Hierro nueve, tercero); la sala del comienzo es el callejón de detrás de El Charlie, al sur de la trastienda, tras la puerta de incendios.",
     "El Ministro, don Ildefonso Peláez, es un camello que hace su ronda: El Charlie, la avenida, La Ópera, la avenida, la estafeta, la avenida; no acepta dinero. Quiere una corbata negra para el entierro de su hermana Matilde.",
     "La cadena: la palanca, las cuerdas de bajo de la funda de guitarra, las fichas de Marga, el cepillo del deshollinador de la secadora de la Lavandería, el hollín de Tomás, la cinta de Marisol, la corbata negra de Cuco y la papelina del Ministro.",
     "Dos finales: el Emperador se queda la papelina y la corona; Javier coge el primer autobús al entierro."
@@ -744,6 +765,10 @@ export default {
       ] },
       { say: "La una y diez, y toda la ciudad está pagando sus colores." }
     ] },
+    // Borracho, tras un par de cervezas: la imagen se bambolea y se dobla, las palabras se arrastran, los pies toman otro camino; se pasa con el tiempo.
+    { add: "condition", id: "drunk", doses: 2, lasts: { seconds: [60, 90] }, starts: "Se te sube la cerveza", ends: "Se te pasa la borrachera", status: "La cerveza se te ha subido a la cabeza",
+      filters: ["sway", "ghost"], speech: { slur: true, answer: "«¿Cómo?», dicen, ante tu balbuceo." },
+      movement: { chance: 0.3, says: ["Los pies te llevan por otro camino del que querías.", "Sales por un lado, y la calle te da la vuelta."] } },
     // Verbos que necesita este mundo
     { add: "word", verb: "open", words: ["forzar", "apalancar", "hacer palanca", "palanquear"] },
     { add: "word", verb: "order", reply: "Aquí nadie quiere tus pesetas. Esta noche la avenida se paga con favores." },

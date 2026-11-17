@@ -1,16 +1,16 @@
-// "Emperor of Prosperidad": a world, in English, written the way the AI is asked to write a world (BRIEF.md). One
+// "Emperor of the Crust": a world, in English, written the way the AI is asked to write a world (BRIEF.md). One
 // change set, all or nothing; plain data. The Spanish version (world.es.js) is written on its own, not translated: same ids, rooms, rules
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 // Reworked 2026-11-15 (strangeness 0): the story is now the hunt for a dealer who walks a round of the strip's rooms.
 
-import pictures, { endings } from "./pictures.js?v=0.62.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
-import levels from "./levels.js?v=0.62.0";
-import sprites from "./sprites.js?v=0.62.0";
+import pictures, { endings } from "./pictures.js?v=0.63.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.63.0";
+import levels from "./levels.js?v=0.63.0";
+import sprites from "./sprites.js?v=0.63.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
-  title: "Emperor of Prosperidad",
+  title: "Emperor of the Crust",
   blurb: "Prosperidad, 1985. The Emperor needs the Minister, a dealer who walks a round of the bars, takes no money and wants a favour first. It is a long night.",
   thumbnail: { picture: "avenida", x: 40 },   // the card on the landing page: this room's picture, cropped 225 pixels wide from column x (0-95)
   style: "flat",
@@ -164,7 +164,7 @@ const rooms = {
     ], every: [30, 70] },
     sleep: "Not on the strip. Somebody would sell you, and you would not see the money.",
     alt: "The Avenida at night, looking north along a wet street: shutters and neon signs on both sides in pink, cyan and magenta, the black front of a club with a round porthole window at the far end, and people standing in the doorways.",
-    overlayAlt: { ministro: "The Minister stands in the middle of the pavement in his camel coat and grey hat, a leather case in one hand." }
+    overlayAlt: { ministro: "The Minister stands in the middle of the pavement in his camel coat and grey hat, a leather case in one hand.", monedas: "Three coins lie on the pavement in front of the club's door." }
   },
   esquina: {
     name: "THE CORNER", area: "calle", at: [0, 1, 0],
@@ -329,7 +329,7 @@ const rooms = {
     ],
     exits: { n: "plaza", s: "patio" },
     scenery: [
-      { words: ["letterboxes", "letterbox", "boxes", "mail", "post"], name: "the letterboxes", says: "Forty boxes with names in felt-tip, every one stuffed with leaflets, fines and catalogues nobody will open. One has \"Ortega, 3rd\" on it, crossed out." },
+      { words: ["letterboxes", "letterbox", "boxes", "mail", "post"], name: "the letterboxes", says: "Forty boxes with names in felt-tip, every one stuffed with leaflets, fines and catalogues nobody will open. One has \"Maza, 3rd\" on it, crossed out." },
       { words: ["bicycle", "bike", "radiator", "chain"], name: "the bicycle", says: "Chained to a radiator that stopped heating the building in 1979. The bicycle has a flat tyre and a very good lock, which is the usual way round in this city." },
       { words: ["candle", "stair", "stairs", "rota"], name: "the candle", says: "A stub in a saucer on the first stair. A paper beside it lists the names of those who have paid for tonight's wax, and the rota is longer than the candle." },
       { words: ["graffiti", "slogans", "wall", "walls", "posters"], name: "the walls", says: "Slogans on slogans, posters on posters, so many layers that the building is mostly paper. One says, in red, WHAT IS FOR SALE IS NOT YOURS." },
@@ -485,11 +485,32 @@ const objects = {
     talk: `"What?" says Pelayo, which is how he says hello. "Beer or noise?"`,
     topics: {
       band: { open: true, label: "the band", words: ["band", "nacho", "string", "strings", "works", "bass", "bassist"], says: `"Nada Personal are down at the works tonight, rehearsing with a furnace," says Pelayo. "Nacho snapped a bass string on Tuesday and sulks without one. There's a spare pack in the guitar case backstage, if somebody wanted to be a hero."` },
-      bar: { open: true, label: "the bar", words: ["bar", "beer", "drink", "price", "tab"], says: `"A beer's thirty pesetas," says Pelayo. "You haven't got thirty. Don't ask for credit, I've seen your face on a wanted list."` },
+      bar: { open: true, label: "the bar", words: ["bar", "beer", "drink", "price", "tab"], says: `"A beer's a coin," says Pelayo. "Not thirty pesetas, not a favour: a coin. The punks drop them on the pavement out front on their way in, and that is what they are for. Don't ask for credit; I've seen your face on a wanted list."` },
       dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro", "round", "when"], says: `"Regular as the post," says Pelayo. "He does El Charlie, a beer, then down the Avenida to La Ópera, back by the Avenida to the post for his letter, then the Avenida again, and round to me. He gives each door four minutes and not a second more, because a man who stays is a man who gets noticed."` },
       default: `"Not my business," says Pelayo. "My business is that glass."`
     },
     give: `"I take cash or I take nothing," says Pelayo, and hands it back.` },
+
+  // Beer at El Charlie: a beer is a coin, and the three coins on the Avenida's pavement are spent one at a time (`remains`: three coins,
+  // two coins, one coin; the beer's `requires` is the first of them). The second beer makes you drunk (the condition's `doses`).
+  cerveza: { at: null, from: "pelayo", requires: "monedas", spends: true, times: 3, material: "glass", name: "Beer", note: "Cold, in a glass.",
+    lacking: `"A beer's a coin," says Pelayo, and waits. "I don't do tabs."`,
+    brought: ["Pelayo takes a coin, pulls a {beer|cerveza} and sets it down like a man laying a table for the dead.", "Pelayo takes another coin, and pulls another {beer|cerveza}.", "Pelayo takes the last coin, pulls the last {beer|cerveza}, and looks at you like a man counting the house."],
+    already: `"Drink that one first," says Pelayo.`, again: `"That's three," says Pelayo. "Past three they sing, then they cry, and then I mop."`,
+    consumable: true, starts: "drunk", drink: ["Cold and bitter, and the first thing tonight that was yours.", "Warmer, and a little further from the floor.", "It goes down like a dare."],
+    words: { nouns: ["beer", "glass", "pint"], adj: ["cold"] },
+    examine: "A glass of beer, cold, with a head that Pelayo cut with the side of a knife." },
+  monedas: { at: "avenida", portable: true, material: "metal", name: "Three coins", note: "A beer each.", remains: "monedas_2",
+    words: { nouns: ["coins", "coin", "money", "change"], adj: ["three", "copper"], pl: true }, ...item("monedas"),
+    here: "Three {coins|monedas} lie on the pavement in front of El Charlie's door, where the queue stands and pockets are loose.",
+    lies: "Three coins lie where they were put down.",
+    examine: "Three copper coins, warm from somebody's pocket, worn smooth. A coin is a beer at El Charlie." },
+  monedas_2: { at: null, portable: true, material: "metal", name: "Two coins", note: "A beer each.", remains: "moneda_1",
+    words: { nouns: ["coins", "coin", "money", "change"], adj: ["two", "copper"], pl: true }, ...item("monedas_2"),
+    lies: "Two coins lie where they were put down.", examine: "Two copper coins, worn smooth. A coin is a beer at El Charlie." },
+  moneda_1: { at: null, portable: true, material: "metal", name: "Coin", note: "One beer.",
+    words: { nouns: ["coin", "money", "change"], adj: ["last", "copper"] }, ...item("moneda_1"),
+    lies: "A coin lies where it was put down.", examine: "A copper coin, worn smooth. One more beer at El Charlie." },
 
   // The Minister: on his round (the rounds: rooms listed in order, a step every four of your moves)
   ministro: { portrait: sprites.ministro_portrait, at: "opera", name: "The Minister", note: "On his round.",
@@ -536,7 +557,7 @@ const objects = {
     topics: {
       post: { open: true, label: "the post", words: ["post", "letters", "mail", "sack", "stamp", "work", "van"], says: `"I sort what comes, I stamp what goes, I return what has nobody to go to," says Doña Remedios. "Nine out of ten are returns. People move faster than their addresses."` },
       dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro", "letter", "post"], says: `"Every Saturday, a registered letter, his pension from the Pharmacists' College," says Doña Remedios. "The only money he takes, and he calls it a refund. He signs with a hand like a prescription. A struck-off chemist, if you want my opinion, and nobody has asked for it."` },
-      matilde: { label: "Matilde", words: ["matilde", "portera", "peláez", "pelaez", "funeral"], says: `"Thirty years of Matilde's letters to a boy on the third floor of number nine, and thirty years of 'Return to sender: not known'," says Doña Remedios. "Javier Ortega, Calle Hierro nine. She never stopped writing. I never stopped sending them back. Don't look at me: I stamp what's stamped."` },
+      matilde: { label: "Matilde", words: ["matilde", "portera", "peláez", "pelaez", "funeral"], says: `"Thirty years of Matilde's letters to a boy on the third floor of number nine, and thirty years of 'Return to sender: not known'," says Doña Remedios. "Javier Maza, Calle Hierro nine. She never stopped writing. I never stopped sending them back. Don't look at me: I stamp what's stamped."` },
       default: `"I cannot stamp that," says Doña Remedios, and stamps something else.`
     },
     give: `"I take letters and I take stamps," says Doña Remedios, "and that is not either."` },
@@ -548,7 +569,7 @@ const objects = {
     talk: `"Rooms by the hour, the night or the year," says Don Nicanor. "The year is for people who have given up. I do not recommend it."`,
     topics: {
       rooms: { open: true, label: "a room", words: ["room", "rooms", "bed", "night", "hour", "rent"], says: `"Eight pesetas an hour, thirty a night, and no questions at either rate. The only room I don't rent is seven. That one's taken, by a lady who pays on the first."` },
-      book: { open: true, opens: ["name"], label: "the Book of Hours", words: ["book", "ledger", "hours", "names", "register"], says: `"Every name that has ever stayed here is in the Book," says Don Nicanor. "Even yours. Javier Ortega, number seven, 1979, third night. A baby with a cough, in a room with no heating, and a mother on the late shift. The portera from the corner of Calle Hierro brought a pan of soup up the stairs. I remember because you were a better sleeper than your mother."` },
+      book: { open: true, opens: ["name"], label: "the Book of Hours", words: ["book", "ledger", "hours", "names", "register"], says: `"Every name that has ever stayed here is in the Book," says Don Nicanor. "Even yours. Javier Maza, number seven, 1979, third night. A baby with a cough, in a room with no heating, and a mother on the late shift. The portera from the corner of Calle Hierro brought a pan of soup up the stairs. I remember because you were a better sleeper than your mother."` },
       marisol: { label: "Marisol", words: ["marisol", "seven", "tenant"], says: `"Room seven is Marisol's," says Don Nicanor. "She pays on the first and she has never once slammed a door. If you want to see how a lady lives, go up and look. She does not mind. She leaves it open."` },
       dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro"], says: `"A gentleman," says Don Nicanor. "He rented the corner room by the night for forty years, until the night he did not. I do not ask what a gentleman carries in his case, and a gentleman does not tell me."` },
       default: `"I could not say," says Don Nicanor, and writes something in the Book.`
@@ -722,7 +743,7 @@ export default {
   because: "A blind alley behind a punk bar, then a grey city's strip, two bars and a launderette on a Saturday night in 1985, and a dealer who walks his round and wants a black tie.",
   opening,
   facts: [
-    "The player is the Emperor, a punk of the strip in Prosperidad, 1985; his name before that was Javier (Ortega, of Calle Hierro nine, third floor); the start room is the blind alley behind El Charlie, south of backstage through the fire door.",
+    "The player is the Emperor, a punk of the strip in Prosperidad, 1985; his name before that was Javier (Maza, of Calle Hierro nine, third floor); the start room is the blind alley behind El Charlie, south of backstage through the fire door.",
     "The Minister, Don Ildefonso Peláez, is a dealer who walks his round: El Charlie, the Avenida, La Ópera, the Avenida, the Estafeta, the Avenida; he takes no money. He wants a black tie for his sister Matilde's funeral.",
     "The chain: crowbar, bass strings from the guitar case, tokens from Marga, the sweep's brush from the Lavandería dryer, soot from Tomás, the tape from Marisol, the black tie from Cuco, and the Minister's paper wrap.",
     "Two endings: the Emperor takes the wrap and the crown; Javier takes the first bus to the funeral."
@@ -743,6 +764,10 @@ export default {
       ] },
       { say: "Ten past one, and the whole city is paying for its colours." }
     ] },
+    // Drunk, after a couple of beers: the picture sways and doubles, words slur, feet take wrong turns; it wears off with time.
+    { add: "condition", id: "drunk", doses: 2, lasts: { seconds: [60, 90] }, starts: "You're drunk", ends: "You're sober again", status: "You're drunk on beer",
+      filters: ["sway", "ghost"], speech: { slur: true, answer: `"Come again?" they say, to your slur.` },
+      movement: { chance: 0.3, says: ["Your feet take you another way than the one you meant.", "You set off one way, and the street turns you round."] } },
     // Verbs this world needs
     { add: "word", verb: "open", words: ["prise", "pry", "force", "jemmy", "lever"] },
     { add: "word", verb: "order", reply: "Nobody here wants your pesetas. Tonight the strip is paid in favours." },

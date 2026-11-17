@@ -12,10 +12,10 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers, bars) > vault (east), pantry (west), sump (south, behind locked iron bars)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.62.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
-import levels from "./levels.js?v=0.62.0";
-import sprites from "./sprites.js?v=0.62.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.63.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.63.0";
+import levels from "./levels.js?v=0.63.0";
+import sprites from "./sprites.js?v=0.63.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -143,7 +143,7 @@ const rooms = {
     ambience: { lines: ["The stove ticks as it cools and warms.", "A glass is set down, and picked up, and set down."], every: [25, 60], chance: 0.8 },
     sleep: "Not at the bar, with Dot looking at you.",
     alt: "A long low bar in warm light: a wooden counter across the middle with a barmaid behind it, a red-hot stove in the corner and a trough of white ice by the door on the right.",
-    overlayAlt: { coin: "A coin lies on the counter.", green: "A tall green glass stands on the counter." }
+    overlayAlt: { coin: "A coin lies on the counter.", chips: "Three red chips lie in a row on the counter.", green: "A tall green glass stands on the counter." }
   },
   "tb-office": {
     name: "OFFICE", area: "hub", at: [2, 0, 0],
@@ -526,6 +526,22 @@ const objects = {
     words: { nouns: ["coin"], adj: ["copper"] }, ...item("coin"),
     here: "A copper {coin} lies by the glass.", lies: "A copper coin lies where it was put down.",
     examine: "A copper coin, worn smooth on one side." },
+  // Several things that are one price (`remains`): three chips pay for three bags of peanuts, one at a time; the words say how many are left.
+  peanuts: { at: null, from: "dot", requires: "chips", spends: true, times: 3, material: "soft", name: "Peanuts", note: "A paper bag of them.",
+    lacking: "\"Peanuts are a chip,\" says Dot, and waits.", brought: ["Dot takes a chip, and shakes out a bag of {peanuts}.", "Dot takes another chip, and another bag of {peanuts}.", "Dot takes the last chip, and the last bag of {peanuts}."],
+    already: "\"Eat those first,\" says Dot.", again: "\"No more peanuts,\" says Dot. \"Three bags, three chips.\"",
+    consumable: true, heals: 1, eat: "Salt, and a little shell.", words: { nouns: ["peanuts", "bag"], adj: ["paper", "salted"], pl: true },
+    examine: "A small paper bag of salted peanuts." },
+  chips: { at: "tb-bar", portable: true, material: "stone", name: "Three chips", note: "Three, for three bags.", remains: "chips_2",
+    words: { nouns: ["chips", "chip", "counters"], adj: ["three", "red"], pl: true }, ...item("coin"),
+    here: "Three red {chips} lie in a row by the glass.", lies: "Three red chips lie where they were put down.",
+    examine: "Three red gaming chips, each marked with a P." },
+  chips_2: { at: null, portable: true, material: "stone", name: "Two chips", note: "Two left.", remains: "chip_1",
+    words: { nouns: ["chips", "chip", "counters"], adj: ["two", "red"], pl: true }, ...item("coin"),
+    lies: "Two red chips lie where they were put down.", examine: "Two red gaming chips, each marked with a P." },
+  chip_1: { at: null, portable: true, material: "stone", name: "Chip", note: "The last one.",
+    words: { nouns: ["chip", "counter"], adj: ["last", "red"] }, ...item("coin"),
+    lies: "A red chip lies where it was put down.", examine: "A red gaming chip, marked with a P." },
   green: { at: "tb-bar", portable: true, material: "glass", name: "Green draught", note: "A tall green glass.",
     consumable: true, starts: "poisoned", drink: "It tastes of pennies, and then of nothing at all.",
     words: { nouns: ["draught", "glass"], adj: ["green", "tall"] }, ...item("green"),

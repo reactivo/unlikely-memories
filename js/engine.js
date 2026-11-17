@@ -2,25 +2,25 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.62.0";
-import standardVerbs from "./verbs.js?v=0.62.0";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.62.0";
-import { clean, isLine } from "./shapes.js?v=0.62.0";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.62.0";
-import { readPicture, editPicture } from "./picture.js?v=0.62.0";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.62.0";
-import * as opening from "./opening.js?v=0.62.0";
-import { PRACTICE } from "./practice.js?v=0.62.0";
-import { translate as translateUse } from "./use.js?v=0.62.0";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.62.0";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.62.0";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.62.0";
-import { ACTIONS, isAction } from "./actions.js?v=0.62.0";
-import { makeSleeping } from "./sleeping.js?v=0.62.0";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.62.0";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.62.0";
-import { answerLine } from "./speech.js?v=0.62.0";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.62.0";
+import { random, between } from "./random.js?v=0.63.0";
+import standardVerbs from "./verbs.js?v=0.63.0";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.63.0";
+import { clean, isLine } from "./shapes.js?v=0.63.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.63.0";
+import { readPicture, editPicture } from "./picture.js?v=0.63.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.63.0";
+import * as opening from "./opening.js?v=0.63.0";
+import { PRACTICE } from "./practice.js?v=0.63.0";
+import { translate as translateUse } from "./use.js?v=0.63.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.63.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.63.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.63.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.63.0";
+import { makeSleeping } from "./sleeping.js?v=0.63.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.63.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.63.0";
+import { answerLine } from "./speech.js?v=0.63.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.63.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -491,7 +491,7 @@ export function exitNow(g, roomId, dir, action = {}) {
   const open = list !== null && holds(g, list, action);
   if (open && lock && to) return { go: false, seen: true, closed: lock.closed, by: lock.by };
   // a way you pass only holding a thing (decision 41): shut without it, with its `lacking` line (else the stock one, naming the thing)
-  if (open && to && typeof raw.requires === "string" && placeOf(g, raw.requires) !== "player")
+  if (open && to && typeof raw.requires === "string" && priceHeld(g, raw.requires) === null)
     return { go: false, seen: true, closed: raw.lacking ?? "@lacking", needs: raw.requires };
   return { go: open ? to : false, seen: !!to, closed: open ? null : (raw.closed ?? lock?.closed ?? null), by: open || raw.closed ? undefined : lock?.by };
 }
@@ -791,6 +791,23 @@ function apply(g, e, action, out, key) {
 // list has, the one an effect with two main keys is read in (`effectKind`): the one place the order lives. `apply` looks the handler up.
 // (A handler may call `apply` again for the effects it is made of: a `start` says its line, a `bring` moves a thing.)
 const outcome = (e, out) => ({ refuse: (reason) => out.refused.push({ effect: e, reason }), done: (x) => out.applied.push(x) });
+// What a price is held as: the thing a price `requires`, or the one it has become (a thing may have `remains`, the id of what is left of it
+// when it is spent: a pile of three coins, `remains` the pile of two, `remains` the one coin), whichever you hold; null if you hold none.
+// So a price that is several things is paid one at a time, and the words of each say how many are left.
+function priceHeld(g, id) {
+  for (let n = 0, at = id; typeof at === "string" && g.world.objects[at] && n < 20; n++, at = g.world.objects[at].remains)
+    if (placeOf(g, at) === "player") return at;
+  return null;
+}
+
+// What a price takes (a `from` thing's or a way's `spends`): the thing you hold for it goes out of play, and what is left of it (its
+// `remains`, not in play) comes into your hands in its place. The last has no `remains`: it is simply gone.
+function pay(g, id, action, out, key) {
+  const paid = priceHeld(g, id) ?? id, left = g.world.objects[paid]?.remains, next = typeof left === "string" && g.world.objects[left]?.at == null ? left : null;
+  apply(g, { move: paid, to: null }, action, out, key);
+  if (next) apply(g, { move: next, to: "player" }, action, out, key + ":remains");
+}
+
 const EFFECTS = {
   say(g, e, action, out, key) {  // a line for the narrator: "@key" (pack) or text
     const { refuse, done } = outcome(e, out);
@@ -955,7 +972,7 @@ const EFFECTS = {
     if (!g.seen.visited.includes(room)) g.seen.visited.push(room);
     if (out.viewed) for (const id of inView(g)) out.viewed.add(id);   // what is there as you arrive has not come into view: it was there
     done({ travel: room });
-    if (paid) apply(g, { move: paid, to: null }, action, out, key + ":paid");
+    if (paid) pay(g, paid, action, out, key + ":paid");
     if (!describedLater(out, room)) done({ describe: room });   // the new room is described, unless the same list does it itself
   },
   connect(g, e, action, out, key) {  // open or close an exit: { connect: room, dir, to, passage?, in?, out?, if?, closed? }
@@ -1114,11 +1131,11 @@ const EFFECTS = {
     if (count >= times || (Array.isArray(o.if) && !holds(g, o.if, action))) return no(o.again ?? "@noMore", o.again ? null : [id]);
     // what it costs (decision 41): only while you hold that thing (anywhere on you); `spends` takes it; without it, its `lacking` line
     const needs = typeof o.requires === "string" && g.world.objects[o.requires] ? o.requires : null;
-    if (needs && placeOf(g, needs) !== "player") return no(o.lacking ?? "@lacking", o.lacking ? null : [needs], false);
+    if (needs && priceHeld(g, needs) === null) return no(o.lacking ?? "@lacking", o.lacking ? null : [needs], false);
     const lines = o.brought, line = Array.isArray(lines) ? lines[Math.min(served, lines.length - 1)] : lines;   // a list: one each time, in order
     (g.served ??= {})[id] = { n: served + 1, ...(o.daily === true ? { day, today: count + 1 } : {}) };
     apply(g, line != null ? { say: line } : { say: "@brought", things: [id] }, action, out, key + ":brought");
-    if (needs && o.spends === true) apply(g, { move: needs, to: null }, action, out, key + ":spent");   // you paid
+    if (needs && o.spends === true) pay(g, needs, action, out, key + ":spent");   // you paid
     apply(g, { move: id, to: o.portable ? "player" : placeOf(g, o.from) }, action, out, key + ":move");   // in front of you; a thing you can carry, into your hands
   },
   consume(g, e, action, out, key) {  // eat or drink a consumable thing (the standard EAT and DRINK): its line, what it does, gone

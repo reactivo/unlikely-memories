@@ -7,10 +7,10 @@
 // la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.62.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
-import levels from "./levels.js?v=0.62.0";
-import sprites from "./sprites.js?v=0.62.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.63.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.63.0";
+import levels from "./levels.js?v=0.63.0";
+import sprites from "./sprites.js?v=0.63.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -138,7 +138,7 @@ const rooms = {
     ambience: { lines: ["La estufa cruje al enfriarse y al calentarse.", "Dejan un vaso, lo recogen y lo dejan otra vez."], every: [25, 60], chance: 0.8 },
     sleep: "En el bar no, con Dot mirándote.",
     alt: "Un bar largo y bajo con luz cálida: un mostrador de madera en medio con una camarera detrás, una estufa al rojo vivo en el rincón y un cubo de hielo blanco junto a la puerta, a la derecha.",
-    overlayAlt: { coin: "Una moneda yace sobre la barra.", green: "Un vaso alto y verde está sobre la barra." }
+    overlayAlt: { coin: "Una moneda yace sobre la barra.", chips: "Tres fichas rojas yacen en fila sobre la barra.", green: "Un vaso alto y verde está sobre la barra." }
   },
   "tb-office": {
     name: "DESPACHO", area: "hub", at: [2, 0, 0],
@@ -521,6 +521,22 @@ const objects = {
     words: { nouns: ["moneda"], adj: ["cobre"], g: "f" }, ...item("coin"),
     here: "Una {moneda|coin} de cobre yace junto al vaso.", lies: "Una moneda de cobre yace donde la dejaron.",
     examine: "Una moneda de cobre, gastada por un lado." },
+  // Varias cosas que son un solo precio (`remains`): tres fichas pagan tres bolsas de cacahuetes, una a una; las palabras dicen cuántas quedan.
+  peanuts: { at: null, from: "dot", requires: "chips", spends: true, times: 3, material: "soft", name: "Cacahuetes", note: "Una bolsa de papel.",
+    lacking: "«Los cacahuetes son una ficha», dice Dot, y espera.", brought: ["Dot coge una ficha y sacude una bolsa de {cacahuetes|peanuts}.", "Dot coge otra ficha, y otra bolsa de {cacahuetes|peanuts}.", "Dot coge la última ficha, y la última bolsa de {cacahuetes|peanuts}."],
+    already: "«Cómete esos primero», dice Dot.", again: "«Se acabaron los cacahuetes», dice Dot. «Tres bolsas, tres fichas».",
+    consumable: true, heals: 1, eat: "Sal, y un poco de cáscara.", words: { nouns: ["cacahuetes", "bolsa"], adj: ["papel", "salados"], g: "m", pl: true },
+    examine: "Una bolsa de papel con cacahuetes salados." },
+  chips: { at: "tb-bar", portable: true, material: "stone", name: "Tres fichas", note: "Tres, para tres bolsas.", remains: "chips_2",
+    words: { nouns: ["fichas", "ficha"], adj: ["tres", "rojas"], g: "f", pl: true }, ...item("coin"),
+    here: "Tres {fichas|chips} rojas yacen en fila junto al vaso.", lies: "Tres fichas rojas yacen donde las dejaron.",
+    examine: "Tres fichas de juego rojas, cada una marcada con una P." },
+  chips_2: { at: null, portable: true, material: "stone", name: "Dos fichas", note: "Quedan dos.", remains: "chip_1",
+    words: { nouns: ["fichas", "ficha"], adj: ["dos", "rojas"], g: "f", pl: true }, ...item("coin"),
+    lies: "Dos fichas rojas yacen donde las dejaron.", examine: "Dos fichas de juego rojas, cada una marcada con una P." },
+  chip_1: { at: null, portable: true, material: "stone", name: "Ficha", note: "La última.",
+    words: { nouns: ["ficha"], adj: ["ultima", "última", "roja"], g: "f" }, ...item("coin"),
+    lies: "Una ficha roja yace donde la dejaron.", examine: "Una ficha de juego roja, marcada con una P." },
   green: { at: "tb-bar", portable: true, material: "glass", name: "Brebaje verde", note: "Un vaso alto y verde.",
     consumable: true, starts: "poisoned", drink: "Sabe a monedas, y luego a nada en absoluto.",
     words: { nouns: ["brebaje", "vaso"], adj: ["verde", "alto"], g: "m" }, ...item("green"),

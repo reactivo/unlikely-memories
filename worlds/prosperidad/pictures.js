@@ -1,4 +1,4 @@
-// Pictures for "Emperor of Prosperidad" (world.en.js / world.es.js, shared), one per room and one per ending, written by hand in the
+// Pictures for "Emperor of the Crust" (world.en.js / world.es.js, shared), one per room and one per ending, written by hand in the
 // short notation (BRIEF.md §7): 320 x 136, EGA colours 0-15, shapes back to front, ids on what the story may change or a cycle animates.
 // Style: flat. Every picture's `shot` names its palette, its light, its subject and its dressing, and what moves.
 // Palettes: neon (the strip, El Charlie, the corner, the plaza, the blind alley), lamplight (backstage, La Opera, the pension, the
@@ -535,7 +535,7 @@ line sign_line 31,68 45,68 c0`,
       { name: "the arrow sign", areas: ["arrow_a", "arrow_b", "arrow_c"], colors: [11, 3], rest: 2, style: "rotate", sweep: true, ms: 300 },
       { name: "the faulty pink tube", areas: ["bar_tube_a", "bar_tube_b", "bar_tube_c", "bar_tube_d"], colors: [13, 5], style: "flicker", ms: [800, 4000] }
     ],
-    overlays: [{ object: "ministro", at: [94, 88] }]
+    overlays: [{ object: "ministro", at: [94, 88] }, { object: "monedas", at: [40, 106] }]
   },
 
   // ---- THE CORNER: frontal, the one working street lamp; Marisol on the left third; the pension's sign on the right ---------------

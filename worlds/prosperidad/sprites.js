@@ -1,4 +1,4 @@
-// Sprites for "Emperor of Prosperidad" (world.en.js / world.es.js, shared): 16 x 16, rows of palette numbers in hex (0-f), "." clear,
+// Sprites for "Emperor of the Crust" (world.en.js / world.es.js, shared): 16 x 16, rows of palette numbers in hex (0-f), "." clear,
 // outlined in black so they read on the dark inventory slot. The carried things, the Minister (a standing figure for the pictures), and the portraits of the people (BRIEF.md §7).
 export default {
   // A little transistor radio, aerial out, grille and a yellow dial.
@@ -97,6 +97,63 @@ export default {
     "................"
   ],
 
+  // Three copper coins seen from above, outlined in black.
+  monedas: [
+    "................",
+    "................",
+    "................",
+    "...0000..0000...",
+    "..0eeee00eeee0..",
+    "..0ee6e00ee6e0..",
+    "..0e66e00e66e0..",
+    "...0000..0000...",
+    "......0000......",
+    ".....0eeee0.....",
+    ".....0ee6e0.....",
+    ".....0e66e0.....",
+    "......0000......",
+    "................",
+    "................",
+    "................"
+  ],
+  // Two copper coins seen from above, outlined in black.
+  monedas_2: [
+    "................",
+    "................",
+    "................",
+    "................",
+    "....0000........",
+    "...0eeee0.......",
+    "...0ee6e0.......",
+    "...0e66e0.......",
+    "....0000.0000...",
+    "........0eeee0..",
+    "........0ee6e0..",
+    "........0e66e0..",
+    ".........0000...",
+    "................",
+    "................",
+    "................"
+  ],
+  // One copper coin seen from above, outlined in black.
+  moneda_1: [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "......0000......",
+    ".....0eeee0.....",
+    ".....0ee6e0.....",
+    ".....0e66e0.....",
+    "......0000......",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................"
+  ],
   // A crowbar: grey iron with a hooked end and a flat claw, outlined in black.
   palanca: [
     "................",

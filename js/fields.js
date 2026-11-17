@@ -9,14 +9,14 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.62.0";
-import { PARTS, LINES } from "./opening.js?v=0.62.0";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.62.0";
-import { DIRECTIONS } from "./space.js?v=0.62.0";
-import { isObject, isLine } from "./shapes.js?v=0.62.0";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.62.0";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.62.0";
-import { PART_IDS } from "./time.js?v=0.62.0";
+import { ANSWERED } from "./verbs.js?v=0.63.0";
+import { PARTS, LINES } from "./opening.js?v=0.63.0";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.63.0";
+import { DIRECTIONS } from "./space.js?v=0.63.0";
+import { isObject, isLine } from "./shapes.js?v=0.63.0";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.63.0";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.63.0";
+import { PART_IDS } from "./time.js?v=0.63.0";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
@@ -25,7 +25,7 @@ const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "s
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
   "here", "lies", "words", "sprite", "floorSprite", "portrait", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
-  "requires", "spends", "lacking", "dream", "places", "rounds", "arrives", "leaves", "material", ...ANSWERED];
+  "requires", "spends", "lacking", "remains", "dream", "places", "rounds", "arrives", "leaves", "material", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
 // The world's music (`add music`) and a room's own (its `music` field): MUSIC.md §4, read by js/music.js. The world's may also carry
 // `levels`, its parts' measured loudness, written by the step that makes the world, never by the AI (MUSIC.md §6c; not in BRIEF).
@@ -579,6 +579,8 @@ export function checkSet(state, set) {
       needing(piece, t, ["brought", "again", "already", "times", "daily", "if"], t.from !== undefined, (k) => `${k} is for a thing that comes from someone or something: it needs from`);
       if (t.if !== undefined) { wellFormed(piece, t.if, t, "if"); conditions(piece, t.if, t); }
       paying(piece, "", t, t);
+      if (t.remains !== undefined && !(typeof t.remains === "string" && t.remains.trim()))
+        note(piece, `remains is the id of the thing left when this one is spent (not in play, at: null), not ${JSON.stringify(t.remains)}`, t);
       if (t.requires !== undefined && t.from === undefined) note(piece, `requires is for a thing that comes from someone or something (it needs from), or for a way`, t);
       for (const p of Array.isArray(t.parts) ? t.parts : []) fields(piece, p, FIELDS.part, "part", null, t);
       // A thing that moves (js/movers.js): its facts' shape, each place's fields and conditions, its round's fields.

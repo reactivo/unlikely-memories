@@ -1,4 +1,4 @@
-// The music of "Emperor of Prosperidad", shared by world.en.js and world.es.js (music has no words), written the way the AI writes it
+// The music of "Emperor of the Crust", shared by world.en.js and world.es.js (music has no words), written the way the AI writes it
 // (BRIEF.md §7b): the world's part (the default export), which the world file adds as one `add music`; and `rooms`, each room's own part,
 // which becomes that room's `music` (only where the room is a different kind of place).
 // Composed by the world's model, Claude Sonnet 5.5, from BRIEF.md §7b.

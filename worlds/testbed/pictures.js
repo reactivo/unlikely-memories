@@ -186,7 +186,7 @@ export default {
       line door_gap 276,40 308,40 c0
     `,
     cycles: [{ name: "the stove", areas: ["stove_fire", "stove_glow"], colors: [12, 14], style: "flicker", ms: [400, 900] }],
-    overlays: [{ object: "coin", at: [188, 70] }, { object: "green", at: [160, 68] }]
+    overlays: [{ object: "coin", at: [188, 70] }, { object: "green", at: [160, 68] }, { object: "chips", at: [214, 70] }]
   },
 
   // ---- THE OFFICE: close up, the high desk across the frame, Mrs Oduya behind it with the open ledger ----------------------------------
