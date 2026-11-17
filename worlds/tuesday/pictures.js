@@ -39,7 +39,7 @@ export default {
       rect carriage 198,62,126,46 2 e0
       rect window_1 212,70,22,16 14 e0
       rect window_2 244,70,22,16 14 e0
-      rect carriage_door_open 202,66,18,42 14 e0
+      rect carriage_doorway 202,66,18,42 14 e0
       rect door_glow 204,68,14,38 fade:14,6/0,68/0,106
       rect step 200,108,20,3 8
       rect underframe 198,108,126,5 0
@@ -88,7 +88,10 @@ export default {
       rect - 238,62,4,16 15
       rect - 262,62,4,16 15
       rect sea_crate 296,92,22,16 6 e0
-      line - 296,100 318,100 c0
+      line sea_crate_plank 296,100 318,100 c0
+      rect sea_crate_open 296,96,22,12 6 e0
+      rect sea_crate_open_sea 298,96,18,5 mix:1,9@0.5
+      poly sea_crate_open_lid 290,90 304,84 306,88 292,94 6 e0
       ellipse damp 300,112,14,3 mix:1,9@0.5
     `
   },

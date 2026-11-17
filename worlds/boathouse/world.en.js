@@ -1,10 +1,10 @@
 // "The Lake Lights It Again": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -444,7 +444,7 @@ const rules = [
       restyle: [{ id: "sky", fill: "fade:0,1/0,0/0,66" }, { id: "lake", fill: "fade:1,0/0,64/0,102" }, { id: "far_shore", fill: 0 }, { id: "far_win", color: 14 }, { id: "island_lamp", fill: 0 },
         { id: "cloud_a", color: 1 }, { id: "cloud_b", color: 1 }, { id: "cloud_c", color: 1 }, { id: "ripple_a", color: 1 }, { id: "ripple_b", color: 1 }, { id: "ripple_c", color: 1 }, { id: "ripple_d", color: 1 },
         { id: "quay_ground", fill: 1 }, { id: "coping", fill: 0, edge: 1 }, { id: "stones", color: 6 }, { id: "jetty_hook", fill: 6 },
-        { id: "bh_wall", fill: 0, edge: 1 }, { id: "boathouse_door", edge: 1 }, { id: "bh_window", edge: 1 }, { id: "padlock", fill: 6 }, { id: "tree", edge: 1 },
+        { id: "bh_wall", fill: 0, edge: 1 }, { id: "boathouse_door", edge: 1 }, { id: "boathouse_door_open", edge: 1 }, { id: "boathouse_door_open_leaf", edge: 1 }, { id: "bh_window", edge: 1 }, { id: "boathouse_door_padlock", fill: 6 }, { id: "boathouse_door_open_padlock", fill: 6 }, { id: "tree", edge: 1 },
         { id: "nets", fill: 0 }, { id: "net_knots", color: 6 }, { id: "float_a", fill: 0, edge: 1 }, { id: "float_b", fill: 0, edge: 1 }, { id: "float_c", fill: 0, edge: 1 }, { id: "float_d", fill: 0, edge: 1 }] },
     { set: "quay.alt", to: "Looking north from a stone quay over a black lake under a dark sky: a rack of nets on the left, a jetty running out into the water ahead, a small island with a lamp-post, a tarred boathouse with a chained door on the right, a few far windows lit across the water." },
     { draw: "jetty", remove: ["sun", "glitter_a", "glitter_b", "glitter_c", "glitter_d", "glitter_e", "plank_lit", "sh_pile_l1", "sh_pile_l2", "gulls"],

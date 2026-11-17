@@ -2,10 +2,10 @@
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings, visions } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -523,8 +523,7 @@ const changes = {
     { set: "fenn.mentions", to: ["coat", "cap"] }
   ],
   hut_opened: [
-    { set: "hut_door.examine", to: "The door of Mr Fenn's hut, open on a smell of gas and paraffin. The key turned in it as if it knew you." },
-    { draw: "last_lamp", restyle: [{ id: "hut_door", fill: 0 }] }
+    { set: "hut_door.examine", to: "The door of Mr Fenn's hut, open on a smell of gas and paraffin. The key turned in it as if it knew you." }
   ],
   // The endings
   truth_ending: [

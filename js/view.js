@@ -1,16 +1,17 @@
 // Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.61.3";
-import { grammarOf } from "./words.js?v=0.61.3";
-import { parse } from "./parser.js?v=0.61.3";
-import { answers } from "./engine.js?v=0.61.3";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.61.3";
-import { ACTIONS } from "./actions.js?v=0.61.3";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.61.3";
-import { receives } from "./use.js?v=0.61.3";
-import { spellings, called } from "./names.js?v=0.61.3";
-import { wayOf, waysOf } from "./exits.js?v=0.61.3";
-import { LISTEN } from "./opening.js?v=0.61.3";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.62.0";
+import { grammarOf } from "./words.js?v=0.62.0";
+import { parse } from "./parser.js?v=0.62.0";
+import { answers } from "./engine.js?v=0.62.0";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.62.0";
+import { ACTIONS } from "./actions.js?v=0.62.0";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.62.0";
+import { receives } from "./use.js?v=0.62.0";
+import { spellings, called } from "./names.js?v=0.62.0";
+import { wayOf, waysOf } from "./exits.js?v=0.62.0";
+import { openness } from "./picture.js?v=0.62.0";
+import { LISTEN } from "./opening.js?v=0.62.0";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
@@ -241,7 +242,7 @@ export function basicActions(state, t, id, held = inHands(state, id), memo = new
   if (o.locked && !unlocks.length) add(b.open, is("open"));
   // (a door is gone through, whichever way it faces; stairs and the like are climbed or entered by the way they go: each of
   // their ways, for stairs both up and down. Open, or shut with a line of its own: locked, out of hours, wanting something)
-  if (way && here) for (const dir of waysOf(o)) add(o.door ? b.goThrough : dir === "u" ? b.climbUp : dir === "d" ? b.climbDown : b.enterIn, goes(dir));
+  if (way && here) for (const [phrase, dir] of wayPhrases(o, b)) add(phrase, goes(dir));
   for (const verb of ANSWERED) {
     const line = o[verb], spec = ACTIONS[verb];
     if (NOT_OFFERED.has(verb) || !(typeof line === "string" || (Array.isArray(line) && line.length))) continue;
@@ -257,6 +258,39 @@ export function basicActions(state, t, id, held = inHands(state, id), memo = new
   }
   if (op && id === op.hints) add(b.listen, is(...LISTEN));
   return out.filter(offering(state, t, id, memo));
+}
+
+// The pack's phrase for going through a thing that is a way, for each of its ways: a door is gone through, stairs and the like climbed or entered
+// by the way they go. [[phrase, dir], …]
+const wayPhrases = (o, b) => waysOf(o).map(dir => [o.door ? b.goThrough : dir === "u" ? b.climbUp : dir === "d" ? b.climbDown : b.enterIn, dir]);
+
+// The line offered when a way has just opened (a door, a gate, a hatch, bars, stairs: a thing with `door` or `leads`): the same dim suggestion line a
+// click on it gives, with only the commands that go through it ("Fire door: `Go through the fire door`."), never the compass direction. They are the
+// click's own (basicActions' way commands, a world's own wording of the same command in their place). Null when the way is not here, or nothing is offered for it.
+export function wayOffer(state, t, id) {
+  const o = state.world.objects[id], b = t.basic;
+  if (!o || !b || !waysOf(o).length || !inScope(state, id) || placeOf(state, id) !== state.player.at) return null;
+  const memo = new Map(), ok = offering(state, t, id, memo);
+  const engine = distinct(state, t, wayPhrases(o, b).map(([phrase, dir]) =>
+    wording(state, t, id, phrase, (a) => a.verb === "go" && a.dir === dir, memo)).filter(c => c && ok(c)), memo);
+  if (!engine.length) return null;
+  const key = (c) => sameAs(state, t, c, memo) ?? "~" + c, mine = new Set(engine.map(key)), { obj } = sources(state, t, id);
+  const actions = merged(state, t, engine, obj.actions.filter(ok), memo).filter(c => mine.has(key(c)));
+  return obj.name + ": " + joined(actions.map(x => "`" + x + "`"), t.or) + ".";
+}
+
+// The offer lines a moment earns: for each way (a thing with `door` or `leads`) the moment opened (unlocked with its key, set unlocked or open by a
+// rule), after what it said, the line that offers going through it (wayOffer). `was`: the game before the moment, so a way that was open already offers nothing again.
+export function offers(applied, state, t, was = null) {
+  if (state.ended) return [];
+  const ids = [];
+  for (const e of applied) {
+    const opened = typeof e.set === "string" && ((e.set.endsWith(".open") && e.to === true) || (e.set.endsWith(".locked") && e.to === false));
+    const id = typeof e.unlock === "string" ? e.unlock : opened ? e.set.split(".")[0] : null;
+    if (id && !ids.includes(id)) ids.push(id);
+  }
+  return ids.filter(id => { const o = state.world.objects[id]; return o && waysOf(o).length && openness(o) === true && !(was && openness(was.world.objects[id]) === true); })
+    .map(id => wayOffer(state, t, id)).filter(Boolean);
 }
 
 // The engine's commands for a thing and the world's own, as one list without repeats: the engine's first, and where the world words the

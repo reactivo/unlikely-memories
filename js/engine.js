@@ -2,25 +2,25 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.61.3";
-import standardVerbs from "./verbs.js?v=0.61.3";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.61.3";
-import { clean, isLine } from "./shapes.js?v=0.61.3";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.61.3";
-import { readPicture, editPicture } from "./picture.js?v=0.61.3";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.61.3";
-import * as opening from "./opening.js?v=0.61.3";
-import { PRACTICE } from "./practice.js?v=0.61.3";
-import { translate as translateUse } from "./use.js?v=0.61.3";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.61.3";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.61.3";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.61.3";
-import { ACTIONS, isAction } from "./actions.js?v=0.61.3";
-import { makeSleeping } from "./sleeping.js?v=0.61.3";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.61.3";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.61.3";
-import { answerLine } from "./speech.js?v=0.61.3";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.61.3";
+import { random, between } from "./random.js?v=0.62.0";
+import standardVerbs from "./verbs.js?v=0.62.0";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.62.0";
+import { clean, isLine } from "./shapes.js?v=0.62.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.62.0";
+import { readPicture, editPicture } from "./picture.js?v=0.62.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.62.0";
+import * as opening from "./opening.js?v=0.62.0";
+import { PRACTICE } from "./practice.js?v=0.62.0";
+import { translate as translateUse } from "./use.js?v=0.62.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.62.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.62.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.62.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.62.0";
+import { makeSleeping } from "./sleeping.js?v=0.62.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.62.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.62.0";
+import { answerLine } from "./speech.js?v=0.62.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.62.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -132,12 +132,16 @@ export function step(state, input) {
 // health echo: a rule's heal, something eaten, a heal at full health too) adds one to state.reactions.heal. One a moment,
 // however many hurts and heals it had, and a hurt wins. The screen plays each new one once (ui/effects.js, reactionOf); a
 // world writes nothing for it. Made with the first one, so a game that was never hurt nor healed has no key (as `shakes`).
+// A locked thing refusing (OPEN, UNLOCK, PUSH, PULL, ENTER, going a way it shuts: the `rattle` effect) adds one to state.reactions.locked,
+// the picture's light shake (content/art.js, effects.reactions.locked): no flash, and it never takes the place of a hurt or a heal.
 function felt(g, applied) {
   const kind = (k) => applied.some(e => "echo" in e && e.kind === k);
   const r = kind("hurt") ? "hurt" : kind("healed") ? "heal" : null;
-  if (!r) return;
+  const rattled = applied.some(e => "rattle" in e);   // a locked thing refused (`rattle`): a light shake of the picture, one a moment, counted apart (state.reactions.locked; the page doesn't flash)
+  if (!r && !rattled) return;
   g.reactions = { hurt: 0, heal: 0, ...g.reactions };
-  g.reactions[r]++;
+  if (r) g.reactions[r]++;
+  if (rattled) g.reactions.locked = (g.reactions.locked ?? 0) + 1;
 }
 
 // The same effects with the echoes moved after the story's lines, in this order: things lost, things gained, the
@@ -988,9 +992,17 @@ const EFFECTS = {
       apply(g, { say: lock.opens || "@unlocked" }, action, out, key + ":opens");
       if (lock.then) apply(g, { change: lock.then }, action, out, key + ":then");
     } else {                                         // (a refusal in the lock's own words is offered; the stock "locked" is generic)
+      apply(g, { rattle: id }, action, out, key + ":rattle");
       apply(g, { say: lock.says || "@locked" }, action, out, key + ":says");
       if (!lock.says) out.answer = { ...out.answer, generic: true };
     }
+  },
+  rattle(g, e, action, out) {  // a locked thing refused: the picture shakes lightly (the engine's own: the standard rules and `unlock`)
+    const { refuse, done } = outcome(e, out);
+    const id = fill(g, e.rattle, action);           // (null: no locked thing shut that way, as "$exit.by" says: nothing)
+    if (id === null || id === undefined) return;
+    if (!g.world.objects[id]) return refuse("no such object: " + id);
+    done({ rattle: id });
   },
   change(g, e, action, out, key) {  // run a named change: effects written once, used by any rule
     const { refuse, done } = outcome(e, out);

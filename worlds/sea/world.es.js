@@ -7,10 +7,10 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.
@@ -668,8 +668,7 @@ const changes = {
   open_hut: [
     { set: "hut.examine", to: "La caseta 7, con la puerta abierta. Dentro: olor a cuerda y a veranos, un clavo en la pared y, en el polvo, la huella de donde estuvieron los remos." },
     { set: "hut.note", to: "Abierta." },
-    { move: "oars", to: "huts" },
-    { draw: "huts", replace: ["rect hut_door 168,74,16,26 0 e1"], remove: ["padlock"], add: ["rect nail_photo 173,80,6,5 15 e8 after:hut_door"] }
+    { move: "oars", to: "huts" }
   ],
   // Cruzar al faro y volver.
   row_out: [{ move: "oars", to: "boat" }, { move: "boat", to: "lighthouse_base" },
@@ -744,7 +743,7 @@ const rules = [
   { id: "hut_photo", match: { verb: ["examine", "search", "look"], obj: "hut" }, if: [{ "hut.open": true }, { "photograph.at": "hut" }],
     do: [{ say: "$hut.examine" }, { say: "En un clavo, dentro, cuelga una {fotografía|photograph}." }] },
   { id: "photo_taken", match: { verb: "take", obj: "photograph" }, if: [{ "photograph.at": "hut" }],
-    do: [{ move: "photograph", to: "player" }, { draw: "huts", remove: ["nail_photo"] }, { say: "La descuelgas del clavo. Se suelta como si hubiera estado esperando." }] },
+    do: [{ move: "photograph", to: "player" }, { draw: "huts", remove: ["hut_open_photo"] }, { say: "La descuelgas del clavo. Se suelta como si hubiera estado esperando." }] },
 
   // -- La barca: los remos dentro, y luego remar ---------------------------------------------------------------------
   { id: "oars_in_boat", match: { verb: "put", obj: "oars", obj2: "boat" }, if: [holding("oars")],

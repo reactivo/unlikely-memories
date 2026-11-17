@@ -260,7 +260,11 @@ export default {
       rect hut 250,36,70,84 mix:2,0@0.4 e0
       poly hut_roof 244,38 320,24 320,36 250,44 0
       rect hut_door 266,62,26,56 2 e0
-      dots - 287,90 c14
+      dots hut_door_knob 287,90 c14
+      rect hut_door_open 266,62,26,56 0 e0
+      rect hut_door_open_glow 270,66,18,52 mix:0,6@0.35
+      ellipse hut_door_open_lamp 280,100,5,4 mix:,14@0.4
+      poly hut_door_open_leaf 266,62 272,65 272,115 266,118 2 e0
       rect hut_step 262,118,34,4 8
     `,
     cycles: [{ name: "the murmuring", areas: ["murmur1", "murmur2", "murmur3"], colors: [9, 1], style: "pingpong", ms: 3000 }]

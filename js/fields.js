@@ -9,14 +9,14 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.61.3";
-import { PARTS, LINES } from "./opening.js?v=0.61.3";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.61.3";
-import { DIRECTIONS } from "./space.js?v=0.61.3";
-import { isObject, isLine } from "./shapes.js?v=0.61.3";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.61.3";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.61.3";
-import { PART_IDS } from "./time.js?v=0.61.3";
+import { ANSWERED } from "./verbs.js?v=0.62.0";
+import { PARTS, LINES } from "./opening.js?v=0.62.0";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.62.0";
+import { DIRECTIONS } from "./space.js?v=0.62.0";
+import { isObject, isLine } from "./shapes.js?v=0.62.0";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.62.0";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.62.0";
+import { PART_IDS } from "./time.js?v=0.62.0";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
@@ -85,7 +85,7 @@ export const FIELDS = {
     travel: ["travel"],
     connect: ["connect", "dir", "to", "passage", ...CONNECT_FIELDS],   // and the exit's own: in, out (marks), if, closed
     disconnect: ["disconnect", "dir"],
-    inside: ["inside"], unlock: ["unlock"],
+    inside: ["inside"], unlock: ["unlock"], rattle: ["rattle"],   // rattle: a locked thing refusing (the engine's own: the picture shakes lightly)
     change: ["change", "optional"],
     draw: ["draw", "add", "remove", "replace", "restyle", "cycles", "overlays", "loops"],
     time: ["time", "weekday"],
@@ -113,10 +113,10 @@ export const FIELDS = {
   any: ["place", "chain", "person", "holder"]   // read on any thing: where it really is, what it is in, whether it is a person, who has it
 };
 
-// The engine's own effects: the standard verbs' (`unlock`, `inside`, `useAs`, `useHow`, `listenFor`), the opening's (`hint`) and the
+// The engine's own effects: the standard verbs' (`unlock`, `rattle`, `inside`, `useAs`, `useHow`, `listenFor`), the opening's (`hint`) and the
 // session's (`restart`, `session`). They are on the list above because the engine's own rules use them, which never pass
 // this check; a world or an AI change set that writes one is refused.
-export const ENGINE_ONLY = ["unlock", "inside", "hint", "listenFor", "useAs", "useHow", "restart", "session", "consume", "bring"];
+export const ENGINE_ONLY = ["unlock", "rattle", "inside", "hint", "listenFor", "useAs", "useHow", "restart", "session", "consume", "bring"];
 // The engine's own condition operator: `holds` (conditions kept as data hold: the standard WAIT reads a `waitFor.if` with
 // it). Only the engine's own rules use it; a world or an AI change set that writes it is refused, like an effect above.
 export const ENGINE_ONLY_OPERATORS = ["holds"];

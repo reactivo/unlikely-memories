@@ -322,8 +322,13 @@ export default {
       line - 122,76 198,76 c0
       line - 124,60 196,60 c0
       rect roof_door 136,6,48,34 2 e0
-      rect - 142,12,36,10 15 e0
-      dots - 178,26 c14
+      rect roof_door_sign 142,12,36,10 15 e0
+      dots roof_door_dot 178,26 c14
+      rect roof_door_open 136,6,48,34 0 e0
+      rect roof_door_open_sky 140,10,36,26 mix:1,0@0.55
+      dots roof_door_open_stars 146,15 158,13 168,19 150,27 164,30 c15
+      poly roof_door_open_leaf 176,6 184,6 184,40 176,34 2 e0
+      rect roof_door_open_step 136,36,48,4 mix:8,7@0.5
       rect arch_w 0,40,50,68 0
       rect arch_e 270,40,50,68 0
       line - 100,108 124,40 c6

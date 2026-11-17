@@ -8,16 +8,17 @@
 // is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
-import art from "../content/art.js?v=0.61.3";
-import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.61.3";
-import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.61.3";
-import { mount as mountSleep } from "./sleep.js?v=0.61.3";
-import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.61.3";
-import { transition, ROOM, ENDING } from "./transitions.js?v=0.61.3";
-import { text } from "../js/narrator.js?v=0.61.3";                  // "@key" → the pack's text, dotted keys too, as the story says it
-import { reducedMotion, calm } from "./media.js?v=0.61.3";
-import { screen } from "./crt.js?v=0.61.3";                      // the CRT look, drawn over the finished picture (ui/crt.js)
-import { reflection } from "./reflection.js?v=0.61.3";            // the light beside the picture, on wide windows (ui/reflection.js)
+import art from "../content/art.js?v=0.62.0";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.62.0";
+import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.62.0";
+import { mount as mountSleep } from "./sleep.js?v=0.62.0";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.62.0";
+import { shownDraw, openKey } from "../js/picture.js?v=0.62.0";       // a thing that opens is drawn shut and open: the picture shows the one that fits (js/picture.js)
+import { transition, ROOM, ENDING } from "./transitions.js?v=0.62.0";
+import { text } from "../js/narrator.js?v=0.62.0";                  // "@key" → the pack's text, dotted keys too, as the story says it
+import { reducedMotion, calm } from "./media.js?v=0.62.0";
+import { screen } from "./crt.js?v=0.62.0";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import { reflection } from "./reflection.js?v=0.62.0";            // the light beside the picture, on wide windows (ui/reflection.js)
 
 const W = art.picture.width, H = art.picture.height;
 
@@ -43,12 +44,14 @@ export function mount(root) {
   const since = new Map();       // when each filter on came on (its moving forms run from then)
   let moment = null;             // the moment now playing, once (a shake, a wave): { name, o: its tunables, at: when it began }
 
-  // Paint (or reuse) a room's picture.
-  function base(worldId, where, picture) {
-    const key = pictureKey(worldId, where, picture.version);
-    if (!painted.has(key)) painted.set(key, paintPicture(picture.draw, W, H));
+  // Paint (or reuse) a room's picture, as its things that open are now (`objects`: a drawing for each of their states, js/picture.js; none for
+  // an ending's picture). `key` is its own: the picture's, with the things drawn open.
+  function paintedAs(key, picture, objects) {
+    if (!painted.has(key)) painted.set(key, paintPicture(objects ? shownDraw(picture.draw, objects) : picture.draw, W, H));
     return painted.get(key);
   }
+  // (A vision's picture, for the sleep: ui/sleep.js; it has no things that open.)
+  function base(worldId, where, picture) { return paintedAs(pictureKey(worldId, where, picture.version), picture, null); }
 
   // Forget everything drawn of a game, to draw afresh. A picture is kept by its world's id, room id and version, so a room of
   // one world never shows another's (two worlds may share a room id: both "corridor", version 1); and within one game
@@ -142,7 +145,9 @@ export function mount(root) {
       canvas.setAttribute("aria-label", [end ? end.alt : room.alt, ...shown.map(o => overlayAlt(room, o))].filter(Boolean).map(t => text(t, next.pack)).join(" "));
       // The picture filters on (none on an ending's picture: it is a shot of its own), and a new moment to play (below).
       const on = end ? [] : inOrder((s.filters || []).filter(f => FILTERS[parseFilter(f).name]));
-      const key = pictureKey(s.worldId, where, picture.version) + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
+      // The picture as painted: its version, and which of its things that open are drawn open (a change of either is a new picture: it dissolves in).
+      const form = end ? "" : openKey(picture.draw, s.world.objects), paintKey = pictureKey(s.worldId, where, picture.version) + (form ? "+" + form : "");
+      const key = paintKey + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
       if (!prev || reason === "restore") forget();
       const played = playing(prev, next, reason, !!end);
       if (played) moment = played;
@@ -150,7 +155,7 @@ export function mount(root) {
       for (const f of [...since.keys()]) if (!on.includes(f)) since.delete(f);
       for (const f of on) if (!since.has(f)) since.set(f, performance.now());
       filters = on;
-      const { px, areas } = base(s.worldId, where, picture);
+      const { px, areas } = paintedAs(paintKey, picture, end ? null : s.world.objects);
       const old = frame;
       frame = compose(px, picture, s, roomId, W, H);
       layer.src = px;                                            // (a scroll's pattern comes from the painted picture; overlays stay over it)
@@ -161,7 +166,7 @@ export function mount(root) {
         // (A death's jolt plays on the room's picture first; the ending's picture comes in after it.)
         change = { ...t, start: performance.now() + (end && played ? played.o.ms : 0) };
       } else { change = null; from = null; }
-      if (drawnKey === null || !drawnKey.startsWith(pictureKey(s.worldId, where, picture.version) + "|")) prepare(picture, areas);
+      if (drawnKey === null || !drawnKey.startsWith(paintKey + "|")) prepare(picture, areas);
       drawnKey = key;
       render(performance.now());
       animate();
@@ -170,7 +175,8 @@ export function mount(root) {
 }
 
 // The moment a redraw starts, or null: the reaction to a hurt or a heal (ui/effects.js, reactionOf), with its own tunables
-// (content/art.js, effects.reactions), even as the story ends (a death's jolt); else a world's own shake or wave
+// (content/art.js, effects.reactions), even as the story ends (a death's jolt); else the light rattle of a locked thing's refusal
+// (state.reactions.locked, the same table); else a world's own shake or wave
 // (state.shakes, state.waves: js/filters.js), but not on an ending's picture. One at a time: a reaction wins, then the
 // first in COUNTS's order. None on a restore (undo, load: a moment already seen) nor with reduced motion.
 function playing(prev, next, reason, ending) {
@@ -181,6 +187,10 @@ function playing(prev, next, reason, ending) {
     return { name: filter, o: { ...art.effects.filters[filter], ...own }, at: performance.now() };
   }
   if (ending) return null;
+  if ((next.state.reactions?.locked ?? 0) > (prev?.state?.reactions?.locked ?? 0)) {   // a locked thing refused: the light rattle (no flash on the page)
+    const { filter, ...own } = art.effects.reactions.locked;
+    return { name: filter, o: { ...art.effects.filters[filter], ...own }, at: performance.now() };
+  }
   const name = Object.keys(COUNTS).find(m => (next.state[COUNTS[m]] ?? 0) > (prev?.state?.[COUNTS[m]] ?? 0));
   return name ? { name, o: art.effects.filters[name], at: performance.now() } : null;
 }

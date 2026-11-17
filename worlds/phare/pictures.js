@@ -681,19 +681,24 @@ dots win_stars 98,36 104,60 120,56 94,50 c9
 line win_bar1 82,48 132,48 c0
 line win_bar2 107,23 107,73 c0
 rect door_frame 184,24,58,88 14 e0
-rect door 189,30,48,82 6 e0
-rect door_p1 194,35,38,18 mix:6,0@0.5 e0
-rect door_p2 194,58,38,18 mix:6,0@0.5 e0
-rect door_p3 194,81,38,26 mix:6,0@0.5 e0
-rect plate 214,54,14,8 14 e0
-line plate_l1 216,57 226,57 c0
-line plate_l2 216,59 224,59 c0
-ellipse knob 192,76,2,2 14
-dots keyhole 195,70 c0
+rect lens_door 189,30,48,82 6 e0
+rect lens_door_p1 194,35,38,18 mix:6,0@0.5 e0
+rect lens_door_p2 194,58,38,18 mix:6,0@0.5 e0
+rect lens_door_p3 194,81,38,26 mix:6,0@0.5 e0
+rect lens_door_plate 214,54,14,8 14 e0
+line lens_door_plate_l1 216,57 226,57 c0
+line lens_door_plate_l2 216,59 224,59 c0
+ellipse lens_door_knob 192,76,2,2 14
+dots lens_door_keyhole 195,70 c0
 rect door_hinge1 187,38,3,5 0
 rect door_hinge2 187,100,3,5 0
-dots door_studs 192,34 200,34 208,34 216,34 224,34 232,34 c14
-line crack 222,86 226,96 224,104 c0
+dots lens_door_studs 192,34 200,34 208,34 216,34 224,34 232,34 c14
+line lens_door_crack 222,86 226,96 224,104 c0
+rect lens_door_open 189,30,48,82 0 e6
+rect lens_door_open_glow 193,34,40,74 mix:0,1@0.4
+rect lens_door_open_floor 189,104,48,8 mix:0,6@0.3
+poly lens_door_open_leaf 189,30 197,34 197,108 189,112 6 e0
+dots lens_door_open_studs 192,38 192,50 192,62 192,74 192,86 192,98 c14
 rect door_gap 189,110,48,2 0
 poly arch 184,24 213,14 242,24 14 e0
 rect mat 188,114,54,8 4 e0

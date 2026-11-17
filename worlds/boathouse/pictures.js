@@ -226,8 +226,13 @@ export default {
       line bh_roof_lit 164,54 186,38 212,32 c12
       line bh_lit 172,53 172,99 c12
       rect boathouse_door 184,66,22,34 0 e6
-      line door_chain 184,80 206,84 c6
-      rect padlock 192,82,3,3 14
+      line boathouse_door_chain 184,80 206,84 c6
+      rect boathouse_door_padlock 192,82,3,3 14
+      rect boathouse_door_open 184,66,22,34 0 e6
+      rect boathouse_door_open_water 187,90,16,8 mix:0,1@0.5
+      poly boathouse_door_open_leaf 206,66 214,69 214,99 206,100 0 e6
+      line boathouse_door_open_chain 207,76 210,90 c6
+      rect boathouse_door_open_padlock 209,90,3,3 14
       rect bh_window 224,58,10,8 0 e6
       line bh_plank_a 180,54 180,99 c0
       line bh_plank_b 212,54 212,99 c0
@@ -566,7 +571,7 @@ export default {
       ellipse fire_halo_b 100,88,38,26 mix:,14@0.2
       ellipse fire_halo_a 100,88,22,17 mix:,14@0.35
       ellipse fire_pool 100,119,40,7 fade:,14/100,112/100,126
-      rect fire_open 78,66,44,38 0
+      rect fire_mouth 78,66,44,38 0
       rect log_a 84,98,32,6 6 e0
       poly flames 88,100 92,84 98,90 102,76 108,88 114,82 118,100 14
       poly ember 94,100 100,92 106,96 112,100 4

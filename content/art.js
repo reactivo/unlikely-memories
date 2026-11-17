@@ -109,7 +109,7 @@ export default {
         }
       }
     },
-    // Reactions (INTERFACE.md §6c): what the picture does when you are hurt or healed, whatever did it (the engine counts them
+    // Reactions (INTERFACE.md §6c): what the picture does when you are hurt or healed, whatever did it (and a light rattle when something locked refuses you) (the engine counts them
     // in state.reactions; a world writes nothing). Each is one of the moments above, `filter`, with these tunables in place of
     // its own. The page background flashes with it (css/base.css; its colours and timings: css/tokens.css), and the picture's
     // part lasts longer than the flash, so it lingers after it. A death is a hurt: its jolt plays, then the ending's picture.
@@ -118,7 +118,10 @@ export default {
       // Hurt: a jolt that hits with the flash and slows as it dies away, past the flash's end.
       hurt: { filter: "shake", ms: 1000, shakes: 6, ease: 1.5 },
       // Healed: one calm ripple down the picture, long after the flash has gone.
-      heal: { filter: "wave", ms: 2100 }
+      heal: { filter: "wave", ms: 2100 },
+      // A locked thing refusing (OPEN, UNLOCK, PUSH, PULL, ENTER, going a way it shuts: the engine counts it in state.reactions.locked): a
+      // light, short rattle of the picture, no flash. Lighter and shorter than a hurt: a door that will not give, not a blow.
+      locked: { filter: "shake", amplitude: 2, ms: 350, shakes: 4, ease: 1 }
     },
     // The old-CRT look (ART-DIRECTION.md §6.2; ui/crt.js draws it): one GPU pass over the finished picture and over the landing page's
     // thumbnails, on top of every effect above. Never changes the game. The debug panel's CRT section tries these live (and can

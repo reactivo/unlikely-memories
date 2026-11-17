@@ -2,10 +2,10 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings, visions } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -533,8 +533,7 @@ const changes = {
     { set: "fenn.mentions", to: ["abrigo", "gorra"] }
   ],
   hut_opened: [
-    { set: "hut_door.examine", to: "La puerta de la caseta del señor Fenn, abierta sobre un olor a gas y a parafina. La llave giró en ella como si te conociera." },
-    { draw: "last_lamp", restyle: [{ id: "hut_door", fill: 0 }] }
+    { set: "hut_door.examine", to: "La puerta de la caseta del señor Fenn, abierta sobre un olor a gas y a parafina. La llave giró en ella como si te conociera." }
   ],
   // Los finales
   truth_ending: [

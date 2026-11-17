@@ -272,10 +272,12 @@ export default {
       poly - 105,62 128,48 151,62 8 e0
       rect - 108,62,40,38 stripes:7,8 e0
       rect - 120,74,16,26 8 e0
-      poly hut_roof 153,62 176,46 199,62 4 e0
-      rect hut 156,62,40,38 stripes:15,9 e0
+      poly roof_7 153,62 176,46 199,62 4 e0
+      rect walls_7 156,62,40,38 stripes:15,9 e0
       rect hut_door 168,74,16,26 1 e0
-      rect padlock 180,85,3,3 14
+      rect hut_padlock 180,85,3,3 14
+      rect hut_open_door 168,74,16,26 0 e1
+      rect hut_open_photo 173,80,6,5 15 e8
       poly - 201,62 224,48 247,62 8 e0
       rect - 204,62,40,38 stripes:7,8 e0
       rect - 216,74,16,26 8 e0

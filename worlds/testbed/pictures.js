@@ -483,20 +483,41 @@ rect window_rim 156,56,8,10 none e6
       line joint_1 60,0 60,24 c0
       line joint_2 150,24 150,48 c0
       line joint_3 230,48 230,70 c0
-      ellipse vault 262,60,36,36 8 e7
-      ellipse vault_in 262,60,28,28 7 e8
-      ellipse vault_wheel 262,60,10,10 8 e0
-      line vault_spoke_1 252,60 272,60 c0
-      line vault_spoke_2 262,50 262,70 c0
-      ellipse vault_key 262,86,3,3 14
-      rect pantry_door 24,40,34,52 6 e0
-      dots pantry_knob 52,68 c14
+      ellipse vault_door 262,60,36,36 8 e7
+      ellipse vault_door_in 262,60,28,28 7 e8
+      ellipse vault_door_wheel 262,60,10,10 8 e0
+      line vault_door_spoke_1 252,60 272,60 c0
+      line vault_door_spoke_2 262,50 262,70 c0
+      ellipse vault_door_keyhole 262,86,3,3 14
+      ellipse vault_door_open 262,60,36,36 0 e7
+      ellipse vault_door_open_light 262,60,28,28 mix:0,15@0.5
+      ellipse vault_door_open_leaf 296,60,6,34 8 e7
+      rect cellar_door 24,40,34,52 6 e0
+      dots cellar_door_knob 52,68 c14
+      rect cellar_door_open 24,40,34,52 0 e0
+      rect cellar_door_open_light 28,44,26,44 mix:0,6@0.4
+      poly cellar_door_open_leaf 24,40 31,43 31,89 24,92 6 e0
+      rect bars 250,100,50,28 0 e8
+      line bars_v1 256,100 256,128 c7
+      line bars_v2 264,100 264,128 c7
+      line bars_v3 272,100 272,128 c7
+      line bars_v4 280,100 280,128 c7
+      line bars_v5 288,100 288,128 c7
+      line bars_chain 250,114 300,114 c14
+      rect bars_open 250,100,50,28 0 e8
+      line bars_open_v1 256,100 256,128 c7
+      line bars_open_v2 262,100 262,128 c7
+      poly bars_open_leaf 300,100 306,104 306,124 300,128 8 e7
       poly boat 100,100 180,100 172,120 108,120 6 e0
       line boat_rim 100,100 180,100 c14
       rect boat_blocks 112,120,56,8 8 e0
       rect chest 190,102,40,26 6 e0
       line chest_band 190,112 230,112 c0
       rect chest_lock 206,108,8,8 14 e0
+      rect chest_open 190,102,40,26 6 e0
+      rect chest_open_in 192,102,36,8 0
+      poly chest_open_lid 192,86 228,86 232,100 188,100 6 e0
+      line chest_open_band 190,116 230,116 c0
       rect shelf 84,30,60,5 6 e0
       rect box 96,22,22,8 6 e0
       rect bin 126,12,16,18 6 e0
@@ -520,7 +541,7 @@ rect window_rim 156,56,8,10 none e6
       line seam_a 80,0 80,136 c8
       line seam_b 240,0 240,136 c8
       line seam_c 0,100 320,100 c8
-      ellipse door_open 36,66,40,52 0 e7
+      ellipse door_ajar 36,66,40,52 0 e7
       ellipse door_in 40,66,30,44 8
       ellipse door_light 50,66,12,32 mix:8,15@0.5
       rect floor_shadow 0,100,320,36 mix:7,0@0.2
@@ -538,6 +559,31 @@ rect window_rim 156,56,8,10 none e6
   },
 
   // ---- THE PANTRY: from above: two shelves laid flat in a narrow room, the jar on the lower one -------------------------------------------
+  // ---- THE SUMP: low and wet: a pool of black water, a ladder with no top -------------------------------------------------------------------
+  "tb-sump": {
+    version: 1,
+    draw: `
+      rect wall 0,0,320,70 fade:8,0/0,0/0,70
+      line stone_1 0,22 320,22 c0
+      line stone_2 0,46 320,46 c0
+      line joint_1 80,0 80,22 c0
+      line joint_2 200,22 200,46 c0
+      line joint_3 120,46 120,70 c0
+      rect floor 0,70,320,66 fade:8,0/0,70/0,136
+      line - 0,70 320,70 c0
+      ellipse pool 160,104,110,18 mix:1,0@0.5 e8
+      ellipse pool_deep 160,106,70,10 0
+      line ladder_l 270,20 270,100 c6
+      line ladder_r 284,20 284,100 c6
+      line rung_1 270,34 284,34 c6
+      line rung_2 270,52 284,52 c6
+      line rung_3 270,70 284,70 c6
+      line rung_4 270,88 284,88 c6
+    `,
+    cycles: [{ name: "the pool", areas: ["pool"], colors: [1, 9], style: "rotate", ms: 3200 }],
+    overlays: []
+  },
+
   "tb-pantry": {
     version: 1,
     draw: `
@@ -551,6 +597,9 @@ rect window_rim 156,56,8,10 none e6
       line grain_d 28,102 292,102 c0
       ellipse jar 150,96,14,14 11 e3
       ellipse jar_lid 150,96,8,8 3 e0
+      ellipse jar_open 150,96,14,14 11 e3
+      ellipse jar_open_in 150,96,10,10 mix:11,0@0.4
+      ellipse jar_open_lid 170,100,8,3 3 e0
       dots webs 34,20 40,26 286,22 280,30 40,82 46,90 c7
       line web_a 24,14 60,14 24,48 c7
       line web_b 296,14 260,14 296,48 c7

@@ -885,14 +885,17 @@ export default {
       line vine_a 46,0 48,44 c10
       line vine_b 270,0 268,48 c10
       line vine_c 236,0 238,30 c0
-      poly gate_wall 66,34 148,34 150,70 64,70 2 e0
-      poly gate_top 72,30 142,30 146,40 68,40 10 e0
-      ellipse gate_eye_l 88,30,10,7 10 e0
-      ellipse gate_eye_r 126,30,10,7 10 e0
+      poly frog_wall 66,34 148,34 150,70 64,70 2 e0
+      poly frog_top 72,30 142,30 146,40 68,40 10 e0
+      ellipse frog_eye_l 88,30,10,7 10 e0
+      ellipse frog_eye_r 126,30,10,7 10 e0
       ellipse eye_pupil_l 88,30,3,3 0
       ellipse eye_pupil_r 126,30,3,3 0
-      poly gate_mouth 78,48 136,48 140,68 74,68 0 e10
-      poly gate_lip 74,44 140,44 142,50 72,50 10 e0
+      poly gate_mouth 78,48 136,48 140,68 74,68 2 e0
+      line gate_seam 76,58 138,58 c0
+      poly gate_open_mouth 78,48 136,48 140,68 74,68 0 e10
+      rect gate_open_gleam 80,62,56,5 mix:0,10@0.25
+      poly frog_lip 74,44 140,44 142,50 72,50 10 e0
       line course_a 66,40 148,40 c0
       line course_b 66,56 78,56 c0
       line course_c 136,56 148,56 c0

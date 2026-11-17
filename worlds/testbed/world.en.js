@@ -10,12 +10,12 @@
 //          bedroom (south of the bar: sleep, dreams, visions, time)
 //        intake (south: the start room) · yard (west: things that move) > lane (west: a follower's rooms, the clerk)
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
-//        cellar (down: doors, locks, pairs, containers) > vault (east), pantry (west)
+//        cellar (down: doors, locks, pairs, containers, bars) > vault (east), pantry (west), sump (south, behind locked iron bars)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings, visions } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -310,14 +310,14 @@ const rooms = {
     name: "THE CELLAR", area: "hub", at: [0, 0, -1],
     describe: [
       "A low stone cellar with three doors. The {vault door|vault_door} is east, and the {pantry door|cellar_door} west. A {chest} stands by the wall, a {box} on a shelf, and a {bin} under it. A {boat} sits on blocks.",
-      "The hub is up. An arch north leads to the sound of water."
+      "The hub is up. An arch north leads to the sound of water, and low {iron bars|bars} close a gap in the corner, south."
     ],
-    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry" },
+    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry", s: "tb-sump" },
     scenery: [{ words: ["blocks", "wall", "shelf", "stone"], name: "the wall", says: "Dressed stone, damp to the touch." }],
     mentions: ["scrap"],
     ambience: { lines: ["Water drips somewhere, and counts.", "The boat creaks on its blocks, going nowhere."], every: [25, 60] },
     sleep: "Not in the cellar: it is far too damp.",
-    alt: "A low stone cellar with a round vault door of steel in the right wall, a small wooden door on the left, a big dark chest by the back wall and a small boat on blocks in the middle.",
+    alt: "A low stone cellar with a round vault door of steel in the right wall, a small wooden door on the left, low iron bars in the right-hand corner, a big dark chest by the back wall and a small boat on blocks in the middle.",
     overlayAlt: {}
   },
   // The falls: a picture that moves (a scrolling waterfall, glints that flicker each on their own, a torch, a pennant and a ripple).
@@ -349,6 +349,19 @@ const rooms = {
     scenery: [{ words: ["room", "steel", "walls"], name: "the walls", says: "Steel on every side, brushed." }],
     alt: "A small bright room of brushed steel with a round open door at the left, a smooth floor, and nothing on the walls.",
     overlayAlt: { tin: "A dented tin sits on the floor." }
+  },
+  // The sump: behind the cellar's locked iron bars, a way that is not a door.
+  "tb-sump": {
+    name: "THE SUMP", area: "hub", at: [0, 1, -1],
+    describe: [
+      "A low stone sump where the cellar's water drains, black and still. A rusted ladder goes nowhere in the corner.",
+      "The cellar is north, through the bars."
+    ],
+    exits: { n: "tb-cellar" },
+    scenery: [{ words: ["water", "sump", "ladder"], name: "the sump", says: "Black water, very still, and a ladder with no top." }],
+    sleep: "Not in the sump: the water would find you.",
+    alt: "A low stone sump with a pool of black water and a rusted ladder in the corner.",
+    overlayAlt: {}
   },
   "tb-pantry": {
     name: "THE PANTRY", area: "hub", at: [-1, 0, -1],
@@ -658,6 +671,15 @@ const objects = {
     lock: { key: "pantry_key", says: "The cellar door is locked on this side too.", opens: "The tiny key turns, and the cellar door swings open." },
     words: { nouns: ["cellar door", "door"], adj: ["wooden"] },
     examine: "A small wooden door, the same one seen from the other side." },
+  // Bars: a locked way that is not a door (`leads`): drawn shut and open (`bars`, `bars_open`), shaking when you try them, offering the way through once open.
+  bars: { at: "tb-cellar", leads: "s", material: "metal", locked: true, name: "Iron bars", note: "Chained, across a gap.",
+    shut: "You lean on the iron bars. They do not give.",
+    lock: { key: "grate_key", says: "The bars are chained, with a small black padlock.", opens: "The small key turns, and the bars swing aside on their hinges." },
+    words: { nouns: ["bars", "grate", "grating"], adj: ["iron", "low"], pl: true },
+    examine: "Low iron bars across a gap in the corner, chained. Behind them, the dark, and the sound of water." },
+  grate_key: { at: "bin", portable: true, material: "metal", name: "Grate key", note: "Small, and black.",
+    words: { nouns: ["key"], adj: ["grate", "small", "black"] }, ...item("pantry_key"),
+    examine: "A small black key, tagged: Grate." },
   chest: { at: "tb-cellar", container: true, open: false, locked: true, material: "wood", name: "Chest", note: "Locked, with a fuse in it.",
     lock: { key: "chest_key", says: "The chest is locked. The lock is small." },
     words: { nouns: ["chest"], adj: ["big", "dark"] },
@@ -856,6 +878,8 @@ const puzzles = {
     hints: ["The chest holds a long brass key too.", "Take the vault key from the chest."] },
   open_vault: { where: "tb-cellar", needs: ["take_vault_key"], solve: ["unlock vault door with vault key", "east"], reaches: "tb-vault", clues: ["vault_door", "vault_key"],
     hints: ["The brass key fits the vault door.", "Unlock the vault door with the vault key, then go east."] },
+  open_sump: { where: "tb-cellar", needs: [], solve: ["take grate key from bin", "unlock bars with grate key", "south"], reaches: "tb-sump", clues: ["bars", "grate_key"],
+    hints: ["The bin holds a small black key.", "Take the grate key from the bin, unlock the bars with it, and go south."] },
   open_pantry: { where: "tb-cellar", needs: [], solve: ["take pantry key from box", "unlock pantry door with pantry key", "west"], reaches: "tb-pantry", clues: ["box", "cellar_door"],
     hints: ["The box holds a tiny key.", "Take the pantry key from the box, unlock the pantry door with it, and go west."] },
   light: { where: "tb-lab", needs: ["open_chest"], solve: ["put fuse in socket", "pull lever", "yes"], ending: true, clues: ["lever", "socket", "fuse"],

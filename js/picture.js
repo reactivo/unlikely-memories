@@ -20,7 +20,7 @@
 // the point itself, t = 0 the vanishing point:   vp 160,60   poly wall 40,120@1 40,120@0.5 ...   rect and ellipse take plain numbers.
 // Pure: no page, no state.
 
-import art from "../content/art.js?v=0.61.3";
+import art from "../content/art.js?v=0.62.0";
 
 const SHAPES = ["rect", "poly", "ellipse", "line", "dots"];
 const num = (s) => { const n = Number(s); if (s === "" || !Number.isFinite(n)) throw new Error(`"${s}" isn't a number`); return n; };
@@ -199,4 +199,82 @@ export function editPicture(picture, e) {
   if (draw.length > art.draw.maxShapes) return "too many shapes";
   return { ...picture, version: picture.version + 1, draw,
            ...(e.cycles ? { cycles: e.cycles } : {}), ...(e.overlays ? { overlays: e.overlays } : {}), ...(e.loops ? { loops: e.loops } : {}) };
+}
+
+// ---- Open drawings: a thing that opens is drawn twice (BRIEF.md §7; ART-DIRECTION.md §5) -----------------------------------------------------
+// A thing that opens (a door, a gate, a hatch, a chest, a lid) is drawn in its room's picture twice, shut and open: its shut drawing is the shapes whose
+// id is the thing's id or starts with "<id>_" (a group), its open drawing the shapes whose id is "<id>_open" or starts with "<id>_open_". The picture
+// shows only the one that fits the thing now; nothing a world writes moves one for the other. A shape belongs to the longest thing id it starts with
+// ("chest_key" is the key's, not the chest's), and a thing with no open drawing has its shut one always.
+
+// Is the thing open now (true), shut (false), or has it no open state at all (null)? A container is open when its `open` is true (`"always"`, a lid
+// it has none: null); a way (`door` or `leads`) or any other thing with a lock: locked is shut, unlocked or `open` is open.
+export function openness(o) {
+  if (!o || typeof o !== "object") return null;
+  if (o.container === true) return o.open === "always" ? null : o.open === true;
+  if (o.locked === true) return false;
+  if (o.open === true || o.locked === false) return true;
+  return o.open === false ? false : null;
+}
+
+// Can this thing open at the start, so a picture that draws it needs both drawings? It has a `lock`/`locked`, or it is a closed (or openable) thing.
+export const opensAtAll = (o) => !!o && typeof o === "object" && (o.locked !== undefined || (o.open === false && o.open !== "always"));
+
+// A shape id split into the thing it belongs to and which of its drawings it is: { id, open } for the longest thing (`things`: id → thing,
+// or a Set of ids) that is the id or its start before an underscore; null when it belongs to none. (id "chest_open_lid" with a chest: { id: "chest", open: true }.)
+export function formOf(shapeId, has) {
+  if (typeof shapeId !== "string") return null;
+  const parts = shapeId.split("_");
+  for (let n = parts.length; n >= 1; n--) {
+    const id = parts.slice(0, n).join("_");
+    if (!has(id)) continue;
+    const rest = parts.slice(n);
+    return { id, open: rest[0] === "open" };
+  }
+  return null;
+}
+
+// The drawing list to paint for the things as they are now: the same list when nothing in it has an open drawing, else without the open drawings of
+// shut things and without the shut drawings of open ones. `objects`: the world's things by id (the state's `world.objects`, or the same read from a
+// world's own list). A thing with an open drawing is shown open by `openness`; one that cannot be said to open shows shut.
+export function shownDraw(draw, objects, force) {
+  if (!Array.isArray(draw) || !draw.some(s => typeof s?.id === "string" && s.id.includes("_open"))) return draw;
+  const has = (id) => Object.hasOwn(objects || {}, id);
+  const forms = draw.map(s => formOf(s?.id, has));
+  const withOpen = new Set(forms.filter(f => f?.open).map(f => f.id));
+  if (!withOpen.size) return draw;
+  return draw.filter((s, i) => {
+    const f = forms[i];
+    if (!f || !withOpen.has(f.id)) return true;
+    return f.open === (force ?? openness(objects[f.id]) === true);   // (`force`: true or false, every thing as open or as shut: what the checker paints)
+  });
+}
+
+// What is wrong with a picture's open drawings, as the things of its world are (the checker, js/checklint.js): a thing that can open (it has `locked`,
+// or is a closed container) and is drawn must have its open drawing "<id>_open" too, and an open drawing needs a thing that can open and a shut one.
+export function openDrawingProblems(draw, objects) {
+  const has = (id) => Object.hasOwn(objects || {}, id), why = [];
+  const ids = (draw || []).map(s => s?.id).filter(id => typeof id === "string");
+  const forms = new Map();                                   // thing id → { shut, open } as drawn
+  for (const id of ids) { const f = formOf(id, has); if (f) forms.set(f.id, { ...forms.get(f.id), [f.open ? "open" : "shut"]: true }); }
+  for (const [id, f] of forms) {
+    const o = objects[id];
+    if (!f.open && opensAtAll(o)) why.push(`"${id}" can open (${o.locked !== undefined ? "it has `locked`" : "it is shut"}) and is drawn, but the picture has no open drawing "${id}_open" (a shape, or shapes "${id}_open_…": BRIEF.md §7)`);
+    else if (f.open && !f.shut) why.push(`"${id}_open" is drawn but the shut drawing "${id}" (or "${id}_…") is not: a thing that opens is drawn both ways`);
+    else if (f.open && openness(o) === null) why.push(`"${id}_open" is an open drawing, but "${id}" has nothing that opens (no \`locked\`, no lid): ${id} is never shown open`);
+  }
+  for (const id of ids) {
+    const m = /^(.+?)_open(_|$)/.exec(id);
+    if (m && !formOf(id, has)) why.push(`"${id}" is an open drawing ("<thing>_open"), but there is no thing "${m[1]}" in the world that opens`);
+  }
+  return why;
+}
+
+// What a picture's open drawings show now, as a key for its painted copy: the ids of the things drawn open (sorted), "" when none are.
+export function openKey(draw, objects) {
+  if (!Array.isArray(draw)) return "";
+  const has = (id) => Object.hasOwn(objects || {}, id);
+  const ids = new Set();
+  for (const s of draw) { const f = formOf(s?.id, has); if (f?.open && openness(objects[f.id]) === true) ids.add(f.id); }
+  return [...ids].sort().join(",");
 }

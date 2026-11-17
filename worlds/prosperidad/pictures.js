@@ -9,7 +9,7 @@ export default {
   // ---- THE BLIND ALLEY (the opening): eye level, one-point view to the steel fire door on the right third; neon pink -----------
   callejon: {
     version: 1,
-    shot: "Eye level, facing north, one-point view, vp on the right third (213,50). Palette neon, flat. One light: a pink neon tube on the left wall, half dead, and the glow of the city over the roofs. Subject: the steel {fire door} at the far end, on the right third, painted shut: a dark seam of old paint down its hinge side and a dent at shoulder height. Left wing and near left: the pink {neon tube} on the grey brick wall, a {bin} against the wall with an iron {crowbar} leaning on it, a stack of {crates} with a flat top where the {radio} stands. Right wing: more {crates} and a pipe down the wall. Floor: bands from magenta far to blue near, with {puddles} holding the sign's pink. Sky magenta over blue, the far roofs black. moves: the tube (faulty), the puddle glints (shimmer)",
+    shot: "Eye level, facing north, one-point view, vp on the right third (213,50). Palette neon, flat. One light: a pink neon tube on the left wall, half dead, and the glow of the city over the roofs. Subject: the steel {fire door} at the far end, on the right third, painted shut: a dark seam of old paint down its hinge side and a dent at shoulder height. Open (once the crowbar has prised it, shape ids puerta_open…): the door swung in on its bar, a narrow grey slab on the hinge side, the doorway dark with the club's magenta and pink light and bass glow in it, spilling a wedge of pink on the alley floor. Left wing and near left: the pink {neon tube} on the grey brick wall, a {bin} against the wall with an iron {crowbar} leaning on it, a stack of {crates} with a flat top where the {radio} stands. Right wing: more {crates} and a pipe down the wall. Floor: bands from magenta far to blue near, with {puddles} holding the sign's pink. Sky magenta over blue, the far roofs black. moves: the tube (faulty), the puddle glints (shimmer)",
     draw: `vp 213,50
 rect sky 0,0,320,30 1
 rect glow 0,30,320,34 5
@@ -54,13 +54,19 @@ line joint_l3 8,75 8,100 c0
 line joint_r1 306,25 306,50 c0
 line joint_r2 288,75 288,100 c0
 rect door_frame 197,45,32,42 0
-rect door 200,48,26,38 7 e0
-rect door_panel 203,52,20,14 8
-rect door_panel2 203,70,20,12 8
-line door_bar 203,68 223,68 c15
-line door_dent 205,58 211,62 c0
-line door_seam 201,50 201,84 c0
-dots door_rivets 202,50 224,50 202,84 224,84 c8
+rect puerta 200,48,26,38 7 e0
+rect puerta_panel 203,52,20,14 8
+rect puerta_panel2 203,70,20,12 8
+line puerta_bar 203,68 223,68 c15
+line puerta_dent 205,58 211,62 c0
+line puerta_seam 201,50 201,84 c0
+dots puerta_rivets 202,50 224,50 202,84 224,84 c8
+rect puerta_open 200,48,26,38 0
+rect puerta_open_glow 202,50,22,35 mix:5,13@0.28
+rect puerta_open_core 207,56,12,29 mix:13,15@0.45
+poly puerta_open_leaf 200,48 205,51 205,83 200,86 7 e0
+line puerta_open_bar 202,68 202,74 c15
+poly puerta_open_spill 200,87 226,87 242,102 190,102 mix:,13@0.3
 ellipse door_lamp 213,41,3,2 11
 rect door_sill 196,86,34,3 8
 rect tube_glow 8,28,46,40 5
@@ -131,7 +137,7 @@ line crack_f2 240,134 262,130 c0`,
   // ---- BACKSTAGE: eye level, frontal, a bare bulb; the guitar case on the left third, the club's glow through the curtain on the right ----
   trastienda: {
     version: 1,
-    shot: "Eye level, facing north, frontal, no vanishing point. Palette lamplight, flat. One light: a bare bulb hung centre; the club's magenta glow through the parted curtain on the right third (a picture within the picture). Subject: the {guitar case} on the floor, left third (x about 107), long and black with a belt; second thing: the {curtain} door on the right third. Back wall: the {mirror} ringed with bulbs, a coat rail of sequinned jackets on the left wing, stacked {amplifier cases} on the right wing, a bare bulb. Floor planks in bands. moves: the bulb (flicker), the glow through the curtain (blink)",
+    shot: "Eye level, facing north, frontal, no vanishing point. Palette lamplight, flat. One light: a bare bulb hung centre; the club's magenta glow through the parted curtain on the right third (a picture within the picture). Subject: the {guitar case} on the floor, left third (x about 107), long and black with a belt (open, shape ids funda_open…: the lid up, the red plush lining and the neck hollow showing); second thing: the {curtain} door on the right third. Back wall: the {mirror} ringed with bulbs, a coat rail of sequinned jackets on the left wing, stacked {amplifier cases} on the right wing, a bare bulb. Floor planks in bands. moves: the bulb (flicker), the glow through the curtain (blink)",
     draw: `rect wall 0,0,320,102 mix:6,0@0.5
 rect wall_lit 66,0,190,102 6
 rect floor_far 0,102,320,12 6
@@ -218,6 +224,14 @@ rect funda_clasp 124,108,6,4 7
 dots funda_studs 74,108 84,108 74,120 84,120 134,120 c7
 rect funda_label 108,116,14,5 14
 ellipse funda_shadow 106,126,40,3 0
+rect funda_open_lid 72,90,68,12 8 e0
+line funda_open_hinge 72,102 140,102 c0
+rect funda_open_body 70,104,72,20 4 e0
+rect funda_open_pad 74,108,64,12 mix:4,0@0.35
+rect funda_open_neck 142,110,16,8 4 e0
+rect funda_open_hollow 144,112,12,4 0
+dots funda_open_studs 74,106 84,106 130,106 c7
+ellipse funda_open_shadow 106,126,40,3 0
 rect crate_l 4,106,26,20 6 e0
 line crate_l_pl 4,116 30,116 c0
 rect poster 238,6,26,32 13 e0
@@ -724,7 +738,7 @@ rect string_spool 156,82,10,8 6 e0
 line string_line 166,86 180,90 c6
 poly r_body 88,92 90,66 106,56 128,66 130,92 2
 poly r_body_sh 116,92 128,66 130,92 8
-poly r_cardi_open 106,92 108,66 114,66 114,92 7
+poly r_cardi_front 106,92 108,66 114,66 114,92 7
 dots r_buttons 110,72 110,78 110,84 c0
 poly r_arm_down 90,70 82,90 90,92 96,72 2
 poly r_arm_up 124,68 138,52 144,56 130,76 2
@@ -984,7 +998,7 @@ rect pen_stand 290,80,10,6 7 e0
 line pen 296,74 296,80 c0
 poly n_body 202,86 204,62 212,56 226,56 234,62 236,86 2
 poly n_body_sh 226,86 234,62 236,86 8
-poly n_cardi_open 212,86 214,62 218,62 218,86 7
+poly n_cardi_front 212,86 214,62 218,62 218,86 7
 rect n_collar 212,54,14,4 15
 dots n_buttons 216,66 216,72 216,78 c0
 poly n_arm 236,70 252,82 246,88 232,78 2

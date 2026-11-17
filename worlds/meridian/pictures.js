@@ -45,7 +45,11 @@ ellipse clock 200,58,6,6 15 e0`,
 rect ledgers 8,4,304,16 stripes:4,6
 poly floor 0,24 320,24 320,136 0,136 mix:8,6@0.3
 poly desk 70,64 250,64 300,110 20,110 6 e0
-rect drawer 124,96,72,9 0 e0
+rect drawer 124,96,72,9 mix:6,0@0.3 e0
+dots drawer_knob 160,100 c14
+rect drawer_open 124,96,72,9 0 e0
+rect drawer_open_front 124,105,72,8 mix:6,0@0.3 e0
+dots drawer_open_knob 160,109 c14
 poly ledger 150,74 204,70 210,86 156,90 15 e0
 ellipse lamp 262,56,12,7 14 e0
 ellipse glow 262,56,24,14 mix:,14@0.3` },
@@ -70,13 +74,19 @@ rect button 92,72,24,10 4 e0
 rect panel 80,94,160,18 8 e0` },
   stairwell: { version: 1, draw: `rect bg 0,0,320,136 fade:9,1/0,0/0,136
 poly stairs 80,136 160,70 240,70 300,136 8 e0
-rect gate_rail 90,26,140,3 8 e0
-line gate_b1 110,28 110,100 c8
-line gate_b2 135,28 135,100 c8
-line gate_b3 160,28 160,100 c8
-line gate_b4 185,28 185,100 c8
-line gate_b5 210,28 210,100 c8
+rect stair_gate_rail 90,26,140,3 8 e0
+line stair_gate_b1 110,28 110,100 c8
+line stair_gate_b2 135,28 135,100 c8
+line stair_gate_b3 160,28 160,100 c8
+line stair_gate_b4 185,28 185,100 c8
+line stair_gate_b5 210,28 210,100 c8
 rect plate 150,72,20,8 7 e0
+rect stair_gate_open_rail 90,16,140,3 8 e0
+line stair_gate_open_b1 110,18 110,34 c8
+line stair_gate_open_b2 135,18 135,34 c8
+line stair_gate_open_b3 160,18 160,34 c8
+line stair_gate_open_b4 185,18 185,34 c8
+line stair_gate_open_b5 210,18 210,34 c8
 line cable_line 178,14 176,40 c0
 dots sparks 176,40 180,42 c14
 ellipse light 200,20,6,4 14 e0

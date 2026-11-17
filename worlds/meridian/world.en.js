@@ -2,10 +2,10 @@
 // (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings as endingPictures } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -45,11 +45,7 @@ const opening = {
 };
 
 // Named changes, run from rules and locks.
-const changes = {
-  gate_open: [
-    { draw: "stairwell", remove: ["gate_rail", "gate_b1", "gate_b2", "gate_b3", "gate_b4", "gate_b5"] }
-  ]
-};
+const changes = {};   // (the gate's bars go up by themselves: the picture's `stair_gate_open` drawing)
 
 // What each ending picture says to a screen reader (alt); the drawings are language-free (pictures.js).
 const endingAlts = {
@@ -169,7 +165,7 @@ export default {
         { words: ["stairs", "steps"], name: "the stairs", leads: "d", says: "Stone steps going down to the cellar, the cold coming up them to meet you." }
       ],
       sleep: "Not in the Records Office. Mrs Hale would file you under Pending.",
-      alt: "A desk and ledgers seen from above, one lamp lit on the desk and a drawer open in its front.",
+      alt: "A desk and ledgers seen from above, one lamp lit on the desk and a drawer in its front.",
       picture: pictures.records, music: roomMusic.records },
     { add: "object", id: "archivist", portrait: sprites.archivist_portrait, at: "records", name: "Mrs Hale", note: "Sorting cards.",
       words: { nouns: ["mrs", "hale", "archivist"], adj: [], g: "f", proper: true },
@@ -287,8 +283,7 @@ export default {
       shut: "The gate across the stairs is shut. A plate on it says: \"Manual override. See Records.\"",
       lock: { key: "crank",
         says: "The gate has a hole where a handle goes, not a keyhole. Nothing you carry fits it.",
-        opens: "You fit the crank into the hole and wind. The gate rattles up one bar at a time, and stops a little short of the top.",
-        then: "gate_open" },
+        opens: "You fit the crank into the hole and wind. The gate rattles up one bar at a time, and stops a little short of the top." },
       examine: "Black iron bars, and at waist height a square hole with a cog behind it, meant for a crank. Someone has painted the cog red so that it could be seen." },
     { add: "object", id: "cable", at: "stairwell", name: "Cable", note: "Hanging low.",
       words: { nouns: ["cable", "wire"], adj: ["black"] },

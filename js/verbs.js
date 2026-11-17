@@ -4,7 +4,7 @@
 // A few actions are handled here in full (look, take…); every other action (js/actions.js) answers with its
 // standard reply from the pack (replies.<action>, varied).
 
-import { ACTIONS, BUILT_IN } from "./actions.js?v=0.61.3";
+import { ACTIONS, BUILT_IN } from "./actions.js?v=0.62.0";
 
 const reachable = { "$obj.place": { in: ["$here", "player"] } };   // in the room or carried (or inside those)
 const reachable2 = { "$obj2.place": { in: ["$here", "player"] } };  // the same for the action's second object
@@ -34,11 +34,11 @@ const rules = [
   // get into stays shut to you, and so does a closed container: the lock and the lid come before getting in.
   { id: "std_unlock", match: { verb: ["unlock", "open"] }, if: [{ "$obj.locked": true }], do: [{ unlock: "$obj" }] },
   { id: "std_locked", match: { verb: ["enter", "push", "pull"] }, if: [{ "$obj.locked": true }, { "$obj.lock.says": { "!=": null } }],
-    do: [{ say: "$obj.lock.says" }] },
-  { id: "std_locked_plain", match: { verb: ["enter", "push", "pull"] }, if: [{ "$obj.locked": true }], do: [{ say: "@locked" }] },
+    do: [{ rattle: "$obj" }, { say: "$obj.lock.says" }] },
+  { id: "std_locked_plain", match: { verb: ["enter", "push", "pull"] }, if: [{ "$obj.locked": true }], do: [{ rattle: "$obj" }, { say: "@locked" }] },
   { id: "std_locked_in", match: { verb: ["sit", "climb", "lie"] }, if: [{ "$obj.enterable": { "!=": null } }, { "$obj.locked": true }, { "$obj.lock.says": { "!=": null } }],
-    do: [{ say: "$obj.lock.says" }] },
-  { id: "std_locked_in_plain", match: { verb: ["sit", "climb", "lie"] }, if: [{ "$obj.enterable": { "!=": null } }, { "$obj.locked": true }], do: [{ say: "@locked" }] },
+    do: [{ rattle: "$obj" }, { say: "$obj.lock.says" }] },
+  { id: "std_locked_in_plain", match: { verb: ["sit", "climb", "lie"] }, if: [{ "$obj.enterable": { "!=": null } }, { "$obj.locked": true }], do: [{ rattle: "$obj" }, { say: "@locked" }] },
   { id: "std_get_in_closed", match: { verb: ["enter", "sit", "climb", "lie"] }, if: [{ "$obj.enterable": { "!=": null } }, { "$obj.container": true }, { "$obj.open": false }],
     do: [{ say: "@closed", things: ["$obj"], vary: true }] },
 
@@ -70,7 +70,7 @@ const rules = [
   { id: "std_open", match: { verb: "open" }, if: [{ "$obj.container": true }, { "$obj.open": false }, { "$obj.locked": { "!=": true } }, reachable],
     do: [{ set: "$obj.open", to: true }, { say: "@opened", things: ["$obj"] }, { inside: "$obj" }] },
   { id: "std_open_already", match: { verb: "open" }, if: [{ "$obj.container": true }, reachable], do: [{ say: "@alreadyOpen", things: ["$obj"] }] },
-  { id: "std_close_locked", match: { verb: "close" }, if: [{ "$obj.container": true }, { "$obj.locked": true }, reachable], do: [{ say: "@locked", things: ["$obj"] }] },
+  { id: "std_close_locked", match: { verb: "close" }, if: [{ "$obj.container": true }, { "$obj.locked": true }, reachable], do: [{ rattle: "$obj" }, { say: "@locked", things: ["$obj"] }] },
   { id: "std_close", match: { verb: "close" }, if: [{ "$obj.container": true }, { "$obj.open": true }, reachable],
     do: [{ set: "$obj.open", to: false }, { say: "@closedIt", things: ["$obj"] }] },
   { id: "std_close_already", match: { verb: "close" }, if: [{ "$obj.container": true }, reachable], do: [{ say: "@alreadyClosed", things: ["$obj"] }] },
@@ -199,9 +199,9 @@ const rules = [
   // Go: through an exit that leads to a room; a closed or missing exit is wall. A shut way with a line of its own
   // (an exit `{ to, if, closed }`, or a locked thing that `leads` that way: its lock's `says`, else "locked") says it; one without gets
   // the standard "no way".
-  { id: "std_go_locked_plain", match: { verb: "go" }, if: [{ "$exit.by": { "!=": null } }, { "$exit.closed": "@locked" }], do: [{ say: "@locked", things: ["$exit.by"] }] },
+  { id: "std_go_locked_plain", match: { verb: "go" }, if: [{ "$exit.by": { "!=": null } }, { "$exit.closed": "@locked" }], do: [{ rattle: "$exit.by" }, { say: "@locked", things: ["$exit.by"] }] },
   { id: "std_go_lacking", match: { verb: "go" }, if: [{ "$exit.needs": { "!=": null } }, { "$exit.closed": "@lacking" }], do: [{ say: "@lacking", things: ["$exit.needs"] }] },
-  { id: "std_go_closed", match: { verb: "go" }, if: [{ "$exit.closed": { "!=": null } }], do: [{ say: "$exit.closed" }] },
+  { id: "std_go_closed", match: { verb: "go" }, if: [{ "$exit.closed": { "!=": null } }], do: [{ rattle: "$exit.by" }, { say: "$exit.closed" }] },
   // "Go to the lamp", "walk to the gate" with the thing here and not a way out (a way out is read as going that way: js/parser.js):
   // it is right here. The world's own rule for going to it comes first, as everywhere.
   { id: "std_go_here", match: { verb: "go" }, if: [{ "$obj.name": { "!=": null } }], do: [{ say: "@hereAlready" }] },

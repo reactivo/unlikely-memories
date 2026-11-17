@@ -5,10 +5,10 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.
@@ -665,8 +665,7 @@ const changes = {
   open_hut: [
     { set: "hut.examine", to: "Number 7, its door open. Inside: a smell of rope and summers, a nail on the wall, and the shape in the dust where the oars stood." },
     { set: "hut.note", to: "Open." },
-    { move: "oars", to: "huts" },
-    { draw: "huts", replace: ["rect hut_door 168,74,16,26 0 e1"], remove: ["padlock"], add: ["rect nail_photo 173,80,6,5 15 e8 after:hut_door"] }
+    { move: "oars", to: "huts" }
   ],
   // Crossing to the lighthouse and back.
   row_out: [{ move: "oars", to: "boat" }, { move: "boat", to: "lighthouse_base" },
@@ -741,7 +740,7 @@ const rules = [
   { id: "hut_photo", match: { verb: ["examine", "search", "look"], obj: "hut" }, if: [{ "hut.open": true }, { "photograph.at": "hut" }],
     do: [{ say: "$hut.examine" }, { say: "On a nail inside hangs a {photograph}." }] },
   { id: "photo_taken", match: { verb: "take", obj: "photograph" }, if: [{ "photograph.at": "hut" }],
-    do: [{ move: "photograph", to: "player" }, { draw: "huts", remove: ["nail_photo"] }, { say: "You take it down from the nail. It comes away as if it had been waiting." }] },
+    do: [{ move: "photograph", to: "player" }, { draw: "huts", remove: ["hut_open_photo"] }, { say: "You take it down from the nail. It comes away as if it had been waiting." }] },
 
   // -- The boat: oars in it, then row --------------------------------------------------------------------------
   { id: "oars_in_boat", match: { verb: "put", obj: "oars", obj2: "boat" }, if: [holding("oars")],

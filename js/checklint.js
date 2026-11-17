@@ -6,23 +6,23 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.61.3";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.61.3";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.61.3";
-import { isAction } from "./actions.js?v=0.61.3";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.61.3";
-import { solveCommand } from "./narrator.js?v=0.61.3";
-import { isLine } from "./shapes.js?v=0.61.3";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.61.3";
-import { nextCell } from "./space.js?v=0.61.3";
-import { moveTo, worldTime, parts } from "./time.js?v=0.61.3";
-import * as opening from "./opening.js?v=0.61.3";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.61.3";
-import art from "../content/art.js?v=0.61.3";
-import { isGroup, colorsOf, areaPixels, parseShapes } from "./picture.js?v=0.61.3";
-import { paintPicture, CLEAR } from "./paint.js?v=0.61.3";
-import { filterProblem } from "./filters.js?v=0.61.3";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.61.3";
+import { parse, normalise } from "./parser.js?v=0.62.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.62.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.62.0";
+import { isAction } from "./actions.js?v=0.62.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.62.0";
+import { solveCommand } from "./narrator.js?v=0.62.0";
+import { isLine } from "./shapes.js?v=0.62.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.62.0";
+import { nextCell } from "./space.js?v=0.62.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.62.0";
+import * as opening from "./opening.js?v=0.62.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.62.0";
+import art from "../content/art.js?v=0.62.0";
+import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.62.0";
+import { paintPicture, CLEAR } from "./paint.js?v=0.62.0";
+import { filterProblem } from "./filters.js?v=0.62.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.62.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -665,7 +665,7 @@ function pictureProblems(state) {
     if (!room?.picture) continue;
     carried(`rooms/${id}`, room.picture, "describe it as the room's alt");
     overlaysDescribed(`rooms/${id}`, id, room.picture.overlays);
-    for (const why of drawingProblems(room.picture)) problems.push(`rooms/${id}: ${why}`);
+    for (const why of drawingProblems(room.picture, state.world.objects)) problems.push(`rooms/${id}: ${why}`);
   }
   let hurts = null;
   for (const { effect: e, where } of effectsOf(state)) {
@@ -698,7 +698,7 @@ function pictureProblems(state) {
 
 // What is wrong with one picture ({ version, draw: [shapes], cycles?, overlays?, loops? }), a room's or an ending's: only the shapes
 // and fills of the art spec, colours 0–15, at most `maxShapes`, unique ids, at most 3 cycles that point at real shapes (and sweep, rest and the scroll's area right), and at most 1 loop.
-function drawingProblems(picture) {
+function drawingProblems(picture, objects) {
   if (!picture || !Array.isArray(picture.draw) || !picture.draw.length) return ["has no drawing list"];
   const why = [];
   if (picture.shot !== undefined && !(typeof picture.shot === "string" && picture.shot.trim())) why.push("its shot is the drawing description, one string");
@@ -749,30 +749,31 @@ function drawingProblems(picture) {
       else if (!(Array.isArray(a) && a.length === 4)) why.push(`${cn}: area ${JSON.stringify(a)} is neither a shape id of the picture, a list of shape ids nor [x, y, width, height]`);
     }
   }
-  if (!why.length) why.push(...scrollOverlaps(picture), ...emptyAreas(picture));
+  if (objects) why.push(...openDrawingProblems(picture.draw, objects));   // (a room's: its things that open are drawn shut and open)
+  if (!why.length) why.push(...scrollOverlaps(picture, objects), ...emptyAreas(picture, objects));
   why.push(...loopProblems(picture.loops));
   return why;
 }
 
 // A cycle's area (a shape's id, or an id in a group) that paints nothing: every pixel of the shape is covered by shapes drawn after it, so the
 // cycle has nothing of it to move (a glint under a later wall). A problem, naming the cycle and the area: draw the shape later, or point the cycle at one that shows.
-function emptyAreas(picture) {
+function emptyAreas(picture, objects) {
   const cycles = picture.cycles || [];
   if (!cycles.length) return [];
-  let areas;
-  try { ({ areas } = paintPicture(picture.draw)); } catch { return []; }
+  let seen;   // (a thing that opens is drawn shut and open: an area counts when it paints something in either)
+  try { seen = [false, true].map(open => paintPicture(objects ? shownDraw(picture.draw, objects, open) : picture.draw).areas); } catch { return []; }
   const why = [];
   for (const c of cycles) for (const a of (c.areas || []).flat())
-    if (typeof a === "string" && !areas[a]?.length) why.push(`cycle "${c.name ?? "?"}": its area "${a}" paints nothing (later shapes cover all of it), so the cycle has nothing of it to move`);
+    if (typeof a === "string" && !seen.some(areas => areas[a]?.length)) why.push(`cycle "${c.name ?? "?"}": its area "${a}" paints nothing (later shapes cover all of it), so the cycle has nothing of it to move`);
   return why;
 }
 
 // A scroll's area is never also another cycle's (ART-DIRECTION.md §6.1): the pixels the scroll's areas show, and those another cycle's do.
-function scrollOverlaps(picture) {
+function scrollOverlaps(picture, objects) {
   const cycles = picture.cycles || [];
   if (!cycles.some(c => c?.style === "scroll") || cycles.length < 2) return [];
   let areas;
-  try { ({ areas } = paintPicture(picture.draw)); } catch { return []; }
+  try { ({ areas } = paintPicture(objects ? shownDraw(picture.draw, objects, false) : picture.draw)); } catch { return []; }
   const { width: W, height: H } = art.picture, taken = cycles.map(c => new Set((c.areas || []).flatMap(a => areaPixels(a, areas, W, H)))), why = [];
   cycles.forEach((c, i) => { if (c.style === "scroll") cycles.forEach((o, j) => {
     if (i !== j && [...taken[i]].some(k => taken[j].has(k))) why.push(`cycle "${c.name ?? "?"}": a scroll's area is never also another cycle's, but cycle "${o.name ?? "?"}" shares some of it`);

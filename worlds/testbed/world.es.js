@@ -7,10 +7,10 @@
 // la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings, visions } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -305,14 +305,14 @@ const rooms = {
     name: "EL SÓTANO", area: "hub", at: [0, 0, -1],
     describe: [
       "Un sótano bajo de piedra con tres puertas. La {puerta de la cámara|vault_door} está al este, y la {puerta de la despensa|cellar_door} al oeste. Un {cofre|chest} está junto a la pared, una {caja|box} en una balda y un {cubo|bin} debajo. Un {bote|boat} descansa sobre calzos.",
-      "El centro está arriba. Un arco al norte lleva a un sonido de agua."
+      "El centro está arriba. Un arco al norte lleva a un sonido de agua, y unos {barrotes|bars} de hierro cierran un hueco en la esquina, al sur."
     ],
-    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry" },
+    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry", s: "tb-sump" },
     scenery: [{ words: ["calzos", "pared", "balda", "piedra"], name: "la pared", says: "Piedra labrada, húmeda al tacto." }],
     mentions: ["trozo"],
     ambience: { lines: ["Gotea agua en algún sitio, y cuenta.", "El bote cruje sobre sus calzos, sin ir a ninguna parte."], every: [25, 60] },
     sleep: "En el sótano no: hay demasiada humedad.",
-    alt: "Un sótano bajo de piedra con una puerta de cámara redonda de acero en la pared derecha, una puerta pequeña de madera a la izquierda, un cofre grande y oscuro junto a la pared del fondo y un bote pequeño sobre calzos en medio.",
+    alt: "Un sótano bajo de piedra con una puerta de cámara redonda de acero en la pared derecha, una puerta pequeña de madera a la izquierda, unos barrotes bajos de hierro en la esquina derecha, un cofre grande y oscuro junto a la pared del fondo y un bote pequeño sobre calzos en medio.",
     overlayAlt: {}
   },
   // La cascada: un cuadro que se mueve (una cascada que corre, destellos que parpadean cada uno a su aire, una antorcha, una bandera y una onda).
@@ -344,6 +344,19 @@ const rooms = {
     scenery: [{ words: ["sala", "acero", "paredes"], name: "las paredes", says: "Acero por todos lados, cepillado." }],
     alt: "Una sala pequeña y brillante de acero cepillado con una puerta redonda abierta a la izquierda, un suelo liso y nada en las paredes.",
     overlayAlt: { tin: "Una lata abollada está en el suelo." }
+  },
+  // El desagüe: tras los barrotes cerrados del sótano, un paso que no es una puerta.
+  "tb-sump": {
+    name: "EL DESAGÜE", area: "hub", at: [0, 1, -1],
+    describe: [
+      "Un desagüe bajo de piedra por donde se va el agua del sótano, negra y quieta. Una escalera oxidada no lleva a ninguna parte, en la esquina.",
+      "El sótano está al norte, tras los barrotes."
+    ],
+    exits: { n: "tb-cellar" },
+    scenery: [{ words: ["agua", "desague", "escalera"], name: "el desagüe", says: "Agua negra, muy quieta, y una escalera sin final." }],
+    sleep: "En el desagüe no: el agua te encontraría.",
+    alt: "Un desagüe bajo de piedra con una charca de agua negra y una escalera oxidada en la esquina.",
+    overlayAlt: {}
   },
   "tb-pantry": {
     name: "LA DESPENSA", area: "hub", at: [-1, 0, -1],
@@ -653,6 +666,15 @@ const objects = {
     lock: { key: "pantry_key", says: "La puerta del sótano está cerrada también por este lado.", opens: "La llave diminuta gira, y la puerta del sótano se abre." },
     words: { nouns: ["puerta del sotano", "puerta"], adj: ["sotano", "madera"], g: "f" },
     examine: "Una puerta pequeña de madera, la misma vista desde el otro lado." },
+  // Barrotes: un paso cerrado con llave que no es una puerta (`leads`): dibujados cerrados y abiertos (`bars`, `bars_open`), que sacuden la imagen al probarlos y ofrecen el paso una vez abiertos.
+  bars: { at: "tb-cellar", leads: "s", material: "metal", locked: true, name: "Barrotes", note: "Encadenados, tapando un hueco.",
+    shut: "Te apoyas en los barrotes de hierro. No ceden.",
+    lock: { key: "grate_key", says: "Los barrotes están encadenados, con un candado negro pequeño.", opens: "La llave pequeña gira, y los barrotes se apartan sobre sus bisagras." },
+    words: { nouns: ["barrotes", "reja", "rejas"], adj: ["hierro", "bajos"], g: "m", pl: true },
+    examine: "Unos barrotes bajos de hierro tapan un hueco en la esquina, encadenados. Detrás, la oscuridad y el sonido del agua." },
+  grate_key: { at: "bin", portable: true, material: "metal", name: "Llave de la reja", note: "Pequeña, y negra.",
+    words: { nouns: ["llave"], adj: ["reja", "negra"], g: "f" }, ...item("pantry_key"),
+    examine: "Una llave pequeña negra, con una etiqueta: Reja." },
   chest: { at: "tb-cellar", container: true, open: false, locked: true, material: "wood", name: "Cofre", note: "Cerrado, con un fusible dentro.",
     lock: { key: "chest_key", says: "El cofre está cerrado con llave. La cerradura es pequeña." },
     words: { nouns: ["cofre", "baul"], adj: ["grande", "oscuro"], g: "m" },
@@ -850,6 +872,8 @@ const puzzles = {
     hints: ["El cofre guarda también una llave larga de latón.", "Saca la llave de la cámara del cofre."] },
   open_vault: { where: "tb-cellar", needs: ["take_vault_key"], solve: ["abre la puerta de la cámara con la llave larga", "este"], reaches: "tb-vault", clues: ["vault_door", "vault_key"],
     hints: ["La llave de latón encaja en la puerta de la cámara.", "Abre la puerta de la cámara con la llave larga, y ve al este."] },
+  open_sump: { where: "tb-cellar", needs: [], solve: ["saca la llave de la reja del cubo", "abre los barrotes con la llave de la reja", "sur"], reaches: "tb-sump", clues: ["bars", "grate_key"],
+    hints: ["El cubo guarda una llave pequeña negra.", "Saca la llave de la reja del cubo, abre con ella los barrotes, y ve al sur."] },
   open_pantry: { where: "tb-cellar", needs: [], solve: ["saca la llave diminuta de la caja", "abre la puerta de la despensa con la llave diminuta", "oeste"], reaches: "tb-pantry", clues: ["box", "cellar_door"],
     hints: ["La caja guarda una llave diminuta.", "Saca la llave diminuta de la caja, abre con ella la puerta de la despensa, y ve al oeste."] },
   light: { where: "tb-lab", needs: ["open_chest"], solve: ["pon el fusible en el zocalo", "tira de la palanca", "si"], ending: true, clues: ["lever", "socket", "fuse"],

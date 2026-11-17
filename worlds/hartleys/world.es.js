@@ -3,10 +3,10 @@
 // Un solo conjunto de cambios, todo o nada. Los ids, las coordenadas, las cifras, los dibujos y los
 // sprites son los de la versión inglesa; solo cambia lo que lleva lenguaje.
 
-import pictures, { endings } from "./pictures.js?v=0.61.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.61.3";
-import levels from "./levels.js?v=0.61.3";
-import sprites from "./sprites.js?v=0.61.3";
+import pictures, { endings } from "./pictures.js?v=0.62.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.62.0";
+import levels from "./levels.js?v=0.62.0";
+import sprites from "./sprites.js?v=0.62.0";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
 export const bible = {
@@ -423,8 +423,7 @@ const objects = {
 // ---- Cambios con nombre ------------------------------------------------------------------------------------------------------
 const changes = {
   roof_open: [
-    { set: "roof_door.examine", to: "La puerta de la azotea, abierta. Por el tramo baja un aire frío y el rumor de la ciudad." },
-    { draw: "second_landing", restyle: [{ id: "roof_door", fill: 0 }] }
+    { set: "roof_door.examine", to: "La puerta de la azotea, abierta. Por el tramo baja un aire frío y el rumor de la ciudad." }
   ],
   // Los finales
   afternoon_ending: [
