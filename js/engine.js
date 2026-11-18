@@ -2,25 +2,25 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.64.1";
-import standardVerbs from "./verbs.js?v=0.64.1";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.64.1";
-import { clean, isLine } from "./shapes.js?v=0.64.1";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.64.1";
-import { readPicture, editPicture } from "./picture.js?v=0.64.1";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.64.1";
-import * as opening from "./opening.js?v=0.64.1";
-import { PRACTICE } from "./practice.js?v=0.64.1";
-import { translate as translateUse } from "./use.js?v=0.64.1";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.64.1";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.64.1";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.64.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.64.1";
-import { makeSleeping } from "./sleeping.js?v=0.64.1";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.64.1";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.64.1";
-import { answerLine } from "./speech.js?v=0.64.1";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.64.1";
+import { random, between } from "./random.js?v=0.65.0";
+import standardVerbs from "./verbs.js?v=0.65.0";
+import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.65.0";
+import { clean, isLine } from "./shapes.js?v=0.65.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.65.0";
+import { readPicture, editPicture } from "./picture.js?v=0.65.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.65.0";
+import * as opening from "./opening.js?v=0.65.0";
+import { PRACTICE } from "./practice.js?v=0.65.0";
+import { translate as translateUse } from "./use.js?v=0.65.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.65.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.65.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.65.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.65.0";
+import { makeSleeping } from "./sleeping.js?v=0.65.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.65.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.65.0";
+import { answerLine } from "./speech.js?v=0.65.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.65.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -1208,6 +1208,7 @@ function wanted(g, action) {
     return asked && comes(asked) ? asked : null;
   }
   if (action.obj && objects[action.obj]?.from) return comes(action.obj) && (!action.obj2 || action.obj2 === objects[action.obj].from) ? action.obj : null;
+  if (!action.obj && action.text) return null;                     // something the game has never heard of ("order sword"): nothing comes
   const all = Object.keys(objects).filter(id => comes(id) && (!action.obj || objects[id].from === action.obj));   // nothing named, or only the source
   return all.length === 1 ? all[0] : null;
 }

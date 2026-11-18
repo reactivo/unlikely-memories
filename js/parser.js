@@ -14,13 +14,13 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.64.1";
-import { exitTo, wayAt, wayOf, waysOf, waysAsThings } from "./exits.js?v=0.64.1";
-import { inScope, person } from "./place.js?v=0.64.1";
-import { receives } from "./use.js?v=0.64.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.64.1";
-import { distance } from "./fields.js?v=0.64.1";
-import { PRACTICE, VERB } from "./practice.js?v=0.64.1";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.65.0";
+import { exitTo, wayAt, wayOf, waysOf, waysAsThings } from "./exits.js?v=0.65.0";
+import { inScope, person } from "./place.js?v=0.65.0";
+import { receives } from "./use.js?v=0.65.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.65.0";
+import { distance } from "./fields.js?v=0.65.0";
+import { PRACTICE, VERB } from "./practice.js?v=0.65.0";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
@@ -305,6 +305,7 @@ function vocabulary(words) {
     one: new Set(w.grammar?.oneWords || []),          // "the iron ONE": stands for the thing, names nothing
     contractions: w.grammar?.contractions || {},      // Spanish "al" → "a el", read right after the verb
     nameParts: new Set(w.grammar?.nameParts || []),   // prepositions that can be part of a name ("butaca DEL pasillo")
+    polite: phrases({ f: w.grammar?.polite || [] }),   // "a beer, PLEASE": asking for it (an order)
     fillerStart: phrases({ f: w.filler?.start || [] }), fillerEnd: phrases({ f: w.filler?.end || [] }),
     punct: new Set([".", ",", ";"]),
     names: words.names || {},
@@ -484,6 +485,7 @@ function personFirst(words, state, W, recent) {
 // One command (layer 2): its verb, then a direction, or its objects and what comes with them. { actions } or { error }.
 // recent: the things mentioned lately, newest first (what a pronoun can mean).
 function readCommand(tokens, state, W, recent) {
+  const pleased = endsPolite(tokens.filter(t => t !== ","), W);   // "a beer, please": asking for it (below)
   tokens = withoutFiller(tokens.filter(t => t !== ","), W);
   if (!tokens) return { error: { say: "@unsure" } };
   tokens = splitContraction(tokens, W);
@@ -526,6 +528,11 @@ function readCommand(tokens, state, W, recent) {
   const lone = (i) => W.pronouns[rest[i]] && W.preps.has(i ? rest[i - 1] : v ? tokens[v.len - 1] : null) &&
                       (i === rest.length - 1 || W.and.has(rest[i + 1]) || W.punct.has(rest[i + 1]));
   rest = rest.filter((t, i) => !W.articles.has(t) || lone(i));
+  // Just what you want and "please" ("a beer, please", *un café, por favor*): ORDER it, when it is a thing that comes from someone (here or not).
+  if (!verb && pleased && !pronoun && rest.length) {
+    const r = resolve(rest, state, W, false, true);
+    if (r.id && !r.scenery && state.world.objects[r.id]?.from) { verb = "order"; verbText = W.verbWord.order; }
+  }
 
   // A direction alone, or after "go": go that way. (In and out are also prepositions: "in", "dentro", so the whole
   // rest is tried first.)
@@ -571,6 +578,8 @@ function readCommand(tokens, state, W, recent) {
       // here), unless the room, or a rule for the verb on its own, answers it here.
       const alone = state.world.rooms[state.player.at]?.[verb] != null || answersAlone(verb, state);
       const one = alone ? null : onlyCandidate(verb, state) || onlyAnswer(verb, state);
+      // ORDER and BUY alone: the one thing that comes from someone here (js/engine.js, wanted); several of them, what? (none: the stock reply)
+      if (!alone && !one && (verb === "order" || verb === "buy") && sourcesHere(state) > 1) return { error: { say: "@whatTo", arg: verbText } };
       return { actions: [one ? { verb, obj: one } : { verb }] };
     }
     const guess = NO_GUESS.has(verb) ? null : onlyCandidate(verb, state);   // "knock": the only thing to knock on
@@ -661,6 +670,9 @@ function readCommand(tokens, state, W, recent) {
     if (r.leads && phrases.length === 1 && LEADS_VERBS.has(verb) && !(verb === "take" && state.world.objects[r.id]?.portable)
         && !(verb === "open" && (state.world.objects[r.id]?.locked || state.world.objects[r.id]?.container)))
       return { actions: [{ verb: "go", dir: (verb === "climb" && v && typed(upOrDown(tokens.slice(0, v.len), W), r)) || r.leads }] };
+    // ORDER or BUY something the game has never heard of: the world's reply for the verb, else the pack's (nothing here to order or buy)
+    if (r.error && (verb === "order" || verb === "buy") && ["@unsure", "@notHere"].includes(r.error.say))
+      return { actions: [{ verb, text: ph.words.join(" ") }] };
     if (r.error) return r;
     if (r.absent) absent.push(r.id);
     if (verb === "ask" && ph.prep && objs.length === 1 && W.topics?.[objs[0]] && !r.scenery) topic = "?";   // still a question
@@ -944,6 +956,17 @@ function attachedTo(r, verb, word, state, W) {
 function onlyAnswer(verb, state) {
   const ids = Object.entries(state.world.objects).filter(([id, o]) => o[verb] != null && typeof o[verb] !== "boolean" && inScope(state, id));
   return ids.length === 1 ? ids[0][0] : null;
+}
+
+// Does the command end with a polite word ("please", *por favor*: the pack's `polite`)?
+function endsPolite(tokens, W) {
+  return tokens.length > 1 && W.polite.some(p => p.parts.every((part, k) => tokens[tokens.length - p.parts.length + k] === part));
+}
+
+// How many things that come from someone are here with their source (in the room, or with you): what ORDER alone can bring.
+function sourcesHere(state) {
+  const objects = state.world.objects;
+  return Object.values(objects).filter(o => typeof o.from === "string" && objects[o.from] && inScope(state, o.from)).length;
 }
 
 // Verbs never completed by guessing (too general: "take" alone should ask what).

@@ -6,7 +6,7 @@
 // SEE MAP (under the six) opens the map: the button itself does it (popovertarget, index.html; ui/map.js); this names it. Once the
 // story has ended the whole compass, SEE MAP included, is dim and ignores clicks and Tab (the game is locked).
 
-import { exitTo } from "../js/exits.js?v=0.64.1";
+import { exitTo } from "../js/exits.js?v=0.65.0";
 
 const DIRS = ["n", "s", "e", "w", "u", "d"];
 

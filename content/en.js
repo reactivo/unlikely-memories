@@ -403,7 +403,7 @@ export default {
       use: ["use", "utilise", "utilize", "apply", "operate", "employ"],
       eat: ["eat", "swallow", "consume", "devour", "chew", "munch", "gobble"],
       drink: ["drink", "sip", "gulp", "quaff", "swig"],
-      order: ["order"],
+      order: ["order", "ill have", "ill take", "id like", "i want", "bring me"],
       buy: ["buy", "purchase", "pay for"],
       go: ["go", "walk", "run", "head", "travel", "proceed", "move to", "crawl", "visit", "go back", "come back", "head back",
            "walk back", "get back", "return"],   // "go back down the stairs": down the stairs
@@ -475,6 +475,7 @@ export default {
       fromWords: ["from", "out of"],               // "take letter FROM bottle": where a thing is taken out of
       attached: null,                              // pronouns joined to verbs: none in English
       speechTo: ["to", "at"],                      // who words are said to: "say hello TO the waiter"
+      polite: ["please"],                          // "a beer, please": asking for it (ORDER), when the thing comes from someone
       askFor: ["for"],                             // "ask Dot FOR tea", "ask for tea": asking for a thing (it comes), not about it
       whom: [],                                    // the word before the person asked (Spanish "pregunta A Inés"); English names them bare: "ask Dot"
       oneWords: ["one", "ones"],                   // "the iron ONE": answers "Which do you mean?" without naming anything

@@ -467,7 +467,7 @@ export default {
       eat: ["comer", "come", "coma", "como", "tragar", "traga", "trague", "trago", "tragarse", "tragate", "comerse",
             "comete", "devorar", "devora", "masticar", "mastica", "engullir"],
       drink: ["beber", "bebe", "beba", "bebo", "beberse", "sorber", "sorbe", "tragar agua"],
-      order: ["pedir", "pide", "pida", "pido", "encargar", "encarga"],
+      order: ["pedir", "pide", "pida", "pido", "encargar", "encarga", "ponme", "pongame", "ponnos", "sirveme", "sirvame", "quiero", "quisiera", "me pones", "me pone"],
       buy: ["comprar", "compra", "compre", "compro", "adquirir", "adquiere", "pagar", "paga", "pague", "pago"],
       go: ["ir", "ve", "vaya", "voy", "andar", "anda", "ande", "ando", "caminar", "camina", "camine", "camino", "dirigirse",
            "dirigete", "avanzar", "avanza", "correr", "corre", "gatear", "gatea", "visitar", "visita", "visite", "visito",
@@ -586,6 +586,7 @@ export default {
                   pairs: { selo: { person: "le", thing: "lo" }, sela: { person: "le", thing: "la" },
                            selos: { person: "le", thing: "los" }, selas: { person: "le", thing: "las" } } },
       speechTo: ["a", "al"],                       // a quién se dice: "di hola AL portero"
+      polite: ["por favor"],                       // «un café, por favor»: pedirlo (ORDER), si la cosa viene de alguien
       askFor: [],                                  // pedir algo es «pide té», «pídele té a Dot» (ORDER); «pregunta a Dot por el té» es preguntar sobre ello
       whom: ["a", "al"],                           // a quién se pregunta o se pide: «pregunta A Inés por el café», «pide A Inés un café»
       oneWords: ["uno", "una", "unos", "unas"],    // "la de hierro, UNA": responde a «¿Cuál quieres decir?» sin nombrar nada
