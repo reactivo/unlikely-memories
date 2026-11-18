@@ -2182,184 +2182,490 @@ rect shadow_bus 132,108,108,3 8`,
   }
 };
 
-// ---- The cover: the splash page (docs/splash/PLAN.md; /prosperidad/) ---------------------------------------------------------------------
-// The first real cover (16 November 2026, the poster rules of round 9: docs/splash/PLAN.md, "Draft rules"): the tower, the Emperor (the street punk you
-// play, the title's own man) a huge figure against the neon; 480 x 400 (the phone crop, columns 80-399, is the round 9 poster; the wings carry the strip on; round 10, 16 November 2026), a full poster in the neon palette (blue leads), flat. The engine draws the
-// world's title in the top band (rows 0-95, one flat blue), in colour 15, in capitals (js/title.js). Three cycles and two loops, one of them a rat that
-// crosses behind the Emperor (`under: "em"`).
+// ---- The cover: the splash page (docs/splash/PLAN.md; /prosperidad/) ------------------------------------------------
+// The taller 480 x 560 cover (17 November 2026): the Emperor from behind, a huge black back cut by row 469, looking down the Avenida in one clean
+// one-point perspective. Rows 0-119 and 470-559 one flat blue; the road's near band is that blue so the art lands on row 469.
 export const cover = {
-  shot: "archetype: the tower (the story turns on one person whose presence rules the poster: the Emperor, the street punk you play, the title's own man). Title at the top: rows 0-95 plain blue across the whole 480 width, the facade starts below it in the same blue so the band stays flat. The Emperor is one huge flat black silhouette seen from below, about 284 pixels tall from the tip of his mohawk (row 112) to his boots (row 396), standing a little right of centre at x about 258, in profile turned to the left, looking away down the strip, a short leather jacket with the collar up, tight trousers, boots in a stride, the mohawk a tall fin swept back over the crown; a cigarette hangs from his lips with a small red ember, the one bright point; his near arm (the viewer's left) hangs at his side, bent a little out, the hand a closed fist at mid-thigh, so a gap of light shows between arm and jacket; his far arm is in his jacket pocket, the elbow pushing out on the right; no inner detail. Rim light: a thin light cyan edge on his left side only (the fin's front, the jacket's left edge, the near arm's outer edge, the near leg's left edge), thrown by a cyan tube sign at the left. Backdrop: the blue wall of El Charlie with black seams, a few worn patches and lit windows, and on it one huge round porthole sign, a light magenta disc in a magenta rim with a ring of white bulbs, a white hot spot behind his head so the head and fin read dark against the lightest thing, a few stains and drips on the disc; the wall meets the wet road at the horizon, at his knee (row 332); the road in three flat bands (light magenta far, magenta, blue near) with streaks of the sign's light and a magenta puddle under his boots. Element 3 and the question: a tiny man, a black silhouette in a trilby and a long coat, about 42 pixels tall, standing at the left in a lit light-cyan doorway at the foot of the wall, a leather case in one hand, the other in his pocket, his back half turned: the Minister, small; who is he, and what will he want of you. Wings (columns 0-79 and 400-479, the strip carrying on, all dim and nothing the poster needs): on the left, the next building along, a wall with a black seam, four windows in magenta and cyan (one light cyan), a worn stain, a roller shutter of black and blue rows at the street, a small dim magenta sign and a street lamp on a bent arm with its small light-cyan bulb and a pool of light on the road; on the right, another building with a black seam, windows in magenta and cyan, a stain, a shop with a magenta awning, a black door and a dim cyan shop window, and a lamp post that also carries a hanging cyan blade sign on a bracket, with its pool of light on the road; the road's three bands and streaks run on across both wings. Palette neon (the bible's first), flat: blue 1 leads (title band, wall, near road), light magenta 13 and magenta 5 for the porthole and its rim, black for the figures, small light cyan 11, white 15 and one red ember. light: the lit porthole behind him, the cyan tube beside, the two street lamps in the wings. moves: the cyan tube (faulty flicker), the small corner sign (blink), the blade sign in the right wing (blink), the bulbs round the porthole (twinkle), the smoke curling up from his cigarette (loop), a small black rat that runs left to right along the road behind his boots across the whole width now and then (travelling loop, hidden behind his legs)",
+  shot: "archetype: the split (two names, one man: the strip's Emperor above the waterline of a wet street, Javier, the name on the papers, in its reflection; it beat the dwarf, the sign over a tiny figure, which could be any neon night). A film still, the avenida in one-point view at knee height, vanishing point (240,268), on a blue night: a huge flat magenta sunburst (a pink disc 13 with 11 rays 5 up to row 128) behind the Emperor, a 124 pixel black silhouette on a magenta glow in the middle of the wet street, feet on row 300: a crown-like mohawk, nose, a cigarette with a white tip, raised collar, jacket; his near arm hangs, his far arm bends into his pocket; he looks left. Below his feet, on a magenta pool, his reflection is another man: short hair, a plain jacket, both arms at his sides, a small case in one hand, a white shirt V and a black silk tie, cut by ripples. Grey and black blocks on both sides in perspective (lit windows 13 11 6, a magenta sign 13 and a cyan one 11, a water tank, a chimney), brown crates, a bin and a lamp post on the sidewalks, light streaks in the road, a grey gutter slab landing on row 469. The question: which man steps out of the door at dawn. Rows 0-119 plain blue 1; background blue 1 leads, black, brown 6, grey 8, magenta 5, lights 13 11 15; flat. moves: the left sign (flicker), the cyan sign (flicker), a few glints (twinkle), the chimney smoke (loop), a rat on the road (travelling loop)",
   title: 15,
   titleAt: "top",
   draw: `
-rect sky 0,0,480,400 1
-
-# the wall of El Charlie and the buildings either side: seams and worn patches (in the dark, away from the glow)
-line course1 0,132 150,132 c0
-line course2 366,128 479,128 c0
-line course3 0,262 479,262 c0
-line course4 0,300 479,300 c0
-rect seamA 98,100,2,162 0
-rect seamB 372,100,2,162 0
-rect seamL 40,100,2,162 0
-rect seamC 402,100,2,162 0
-poly stain1 80,104 104,102 110,130 92,148 80,140 0
-poly stain1W 64,112 80,104 80,140 70,150 58,140 0
-poly stain2 356,246 399,240 399,262 370,262 0
-poly stain2W 399,240 420,244 424,262 399,262 0
-poly stain3 80,226 98,222 104,246 80,262 0
-poly stain3W 66,230 80,226 80,262 62,258 0
-poly stain4 404,206 430,204 434,232 410,244 404,238 0
-
-# lit windows, the poster's and the wings'
-rect win1 322,146,18,24 11
-rect win2 350,146,18,24 13
-rect win3 350,196,18,24 11
-rect win4 88,160,16,22 13
-rect win5 88,196,16,22 11
-line pipe 384,100 384,332 c0
-rect wL1 8,140,16,22 5
-rect wL2 46,140,16,22 3
-rect wL3 8,184,16,22 3
-rect wL4 46,184,16,22 5
-rect wL5 46,226,16,22 11
-line wLm1 8,151 23,151 c0
-line wLm2 46,195 61,195 c0
-line wLm3 54,226 54,247 c0
-rect wR1 414,136,16,22 5
-rect wR2 446,136,16,22 3
-rect wR3 414,182,16,22 3
-rect wR4 446,182,16,22 5
-line wRm1 414,147 429,147 c0
-line wRm2 454,136 454,157 c0
-line wRm3 446,193 461,193 c0
-
-# the wings' shopfronts: a roller shutter on the left, an awning, a door and a window on the right
-rect shutT 2,264,66,4 0
-rect shut 4,268,62,64 stripes:1,0
-rect sgLg 68,212,10,22 5
-rect sgL 70,216,6,14 13
-poly awn 408,262 479,262 479,284 408,284 5
-line awnE 408,284 479,284 c0
-rect doorR 424,288,26,44 0
-rect tranR 424,285,26,3 5
-rect shopW 456,290,20,28 3
-line shopWm 456,304 475,304 c0
-
-# the corner sign at the right
-rect signRg 364,274,30,14 5
-rect signR 369,278,20,6 13
-
-# the huge porthole sign: rim, disc, inner ring, hot spot, stains
-ellipse rim 258,204,105,105 5
-ellipse disc 258,204,98,98 13
-ellipse ring 258,204,86,86 5
-ellipse face 258,204,82,82 13
-ellipse spot 254,152,40,40 15
-poly patch1 188,262 220,254 232,278 208,292 186,282 5
-poly patch2 294,276 324,262 338,284 312,296 5
-line drip1 210,291 210,306 c5
-line drip2 314,295 314,310 c5
-line drip3 280,299 280,314 c5
-dots bulbs 359,204 354,235 340,263 317,286 289,300 258,305 227,300 199,286 176,263 162,235 157,204 162,173 176,145 199,122 227,108 258,103 289,108 317,122 340,145 354,173 c15
-
-# the cyan tube sign at the left of the poster, leaning
-poly tubeG 102,118 124,118 146,322 124,322 3
-line tubeA 113,122 136,318 c11
-line tubeB 114,122 137,318 c11
-
-# the Minister's lit doorway and the road, across the whole width
-rect door 132,296,38,36 11
-rect roadF 0,332,480,12 13
-rect roadM 0,344,480,18 5
-rect roadN 0,362,480,37 1
-line streak1 192,336 324,336 c15
-line streak2 160,340 350,340 c11
-line streak3 120,352 180,352 c13
-line streak4 320,354 380,354 c13
-line streak5 88,370 140,370 c5
-line streak6 334,376 396,376 c5
-line streak7 94,390 150,390 c13
-line streakW1 6,335 40,335 c11
-line streakW2 12,358 56,358 c13
-line streakW3 4,372 46,372 c5
-line streakW4 20,388 70,388 c13
-line streakW5 410,337 458,337 c11
-line streakW6 436,356 476,356 c13
-line streakW7 420,376 470,376 c5
-line streakW8 440,392 478,392 c13
-ellipse puddle 258,386,84,11 5
-ellipse puddleS 258,385,56,6 13
-
-# the street lamps of the wings: poles, arms, heads, small bulbs, pools of light on the road
-ellipse poolL 50,352,20,4 13
-ellipse poolR 428,352,20,4 13
-rect lampPL 29,176,3,156 0
-line lampAL 30,177 46,170 c0
-rect lampHL 42,168,12,5 0
-ellipse lampBL 48,175,4,3 11
-rect lampPR 437,172,3,160 0
-line lampAR 437,174 426,170 c0
-rect lampHR 420,168,12,5 0
-ellipse lampBR 426,175,4,3 11
-rect brk 437,206,30,3 0
-rect bladeG 458,209,16,46 3
-rect blade 462,213,8,38 11
-line bladeM 462,232 469,232 c3
-
-# the Minister, small: hat, face, coat, case, legs
-poly mn_crown 146,304 156,304 157,310 145,310 0
-poly mn_brim 140,310 162,309 162,312 140,313 0
-ellipse mn_face 150,317,4,4 0
-poly mn_coat 143,321 159,321 163,342 141,342 0
-poly mn_arm 142,323 146,323 141,338 138,338 0
-rect mn_case 132,338,10,7 0
-rect mn_legL 145,342,5,5 0
-rect mn_legR 153,342,5,5 0
-
-# the Emperor: mohawk, head, neck, collar, jacket, arms, legs, boots
-poly em_fin 237,134 239,120 245,113 253,112 261,115 268,126 270,142 263,132 251,127 243,129 0
-poly em_head 250,129 262,131 269,142 269,158 263,169 252,174 242,173 235,168 231,163 232,159 226,156 232,150 233,143 238,134 0
-poly em_neck 240,168 262,168 268,184 236,186 0
-poly em_collarL 230,192 238,170 248,182 244,194 0
-poly em_collarR 272,192 266,170 256,182 260,194 0
-poly em_jacket 238,184 216,188 208,206 210,240 216,266 212,276 294,278 290,264 298,228 302,200 294,189 270,184 0
-poly em_armN 216,188 234,192 222,250 210,296 194,294 200,246 0
-ellipse em_fist 201,304,8,9 0
-poly em_armF 296,194 304,200 318,240 308,264 294,266 292,230 0
-poly em_legL 222,274 258,274 250,334 246,386 216,386 220,334 0
-poly em_bootL 192,397 204,384 248,382 250,397 0
-poly em_legR 264,274 292,274 294,334 302,386 272,386 270,334 0
-poly em_bootR 270,386 304,382 306,396 270,397 0
-line em_cig 231,164 222,165 c0
-rect em_ember 218,163,5,4 4
-rect em_core 219,164,2,2 14
-
-# the rim light on his left edge
-line rim1 237,134 239,120 245,113 c11
-line rim2 216,188 208,206 210,240 c11
-line rim3 216,189 200,246 194,294 c11
-line rim4 222,276 220,334 216,386 c11
+rect sky 0,0,480,560 1
+dots stars 30,160 62,206 48,250 96,140 150,150 126,190 330,146 372,170 420,150 452,196 438,246 404,130 c15
+dots starsC 20,196 110,132 356,134 466,160 460,236 c11
+poly ray15 299,215.1 334.7,200.6 296.6,206 5
+poly ray30 294.2,200.2 324.9,177 289.4,192 5
+poly ray45 285.6,187 309.3,156.7 279,180.4 5
+poly ray60 274,176.6 289,141.1 265.8,171.8 5
+poly ray75 260,169.4 265.4,131.3 250.9,167 5
+poly ray90 244.7,166.2 240,128 235.3,166.2 5
+poly ray105 229.1,167 214.6,131.3 220,169.4 5
+poly ray120 214.2,171.8 191,141.1 206,176.6 5
+poly ray135 201,180.4 170.7,156.7 194.4,187 5
+poly ray150 190.6,192 155.1,177 185.8,200.2 5
+poly ray165 183.4,206 145.3,200.6 181,215.1 5
+ellipse discRing 240,226,80,80 5
+ellipse disc 240,226,74,74 13
+poly L3 188,232 222,255 222,272.6 188,281.4 8
+poly l3a 194.8,245.2 205,250.2 205,258.6 194.8,256 0 e0
+poly l3b 194.8,261.6 205,263 205,271 194.8,271.9 13 e0
+poly R3 258,255 292,229 292,281.4 258,272.6 5
+poly r3a 264.8,255.2 276.7,248.8 276.7,257.3 264.8,260.9 0 e0
+poly r3b 264.8,264.1 276.7,262 276.7,270.9 264.8,270 13 e0
+poly L2 120,196 188,237 188,281.4 120,299 0
+poly l2w0 128.2,212.4 147.2,221.9 147.2,233.1 128.2,225.9 13 e0
+poly l2w1 157.4,227 177.8,237.2 177.8,244.7 157.4,237 0 e8
+poly l2w2 128.2,239.3 147.2,244.2 147.2,255.4 128.2,252.7 0 e8
+poly l2w3 157.4,246.9 177.8,252.1 177.8,259.6 157.4,256.8 13 e0
+poly l2w4 128.2,266.2 147.2,266.5 147.2,277.7 128.2,279.6 6 e0
+poly l2w5 157.4,266.7 177.8,267 177.8,274.5 157.4,276.6 0 e8
+poly R2 292,234 360,190 360,299 292,281.4 8
+line r2c0 292,249.7 360,226 c0
+line r2c1 292,265.3 360,261.9 c0
+poly r2w0 302.2,233.1 320.6,222.8 320.6,234.6 302.2,242.1 0 e0
+poly r2w1 331.4,216.8 351.8,205.4 351.8,221.7 331.4,230.1 13 e0
+poly r2w2 302.2,250.1 320.6,244.8 320.6,256.6 302.2,259.1 11 e0
+poly r2w3 331.4,241.7 351.8,235.9 351.8,252.2 331.4,255 0 e0
+poly r2w4 302.2,267.1 320.6,266.8 320.6,278.6 302.2,276.1 0 e0
+poly r2w5 331.4,266.7 351.8,266.4 351.8,282.7 331.4,280 6 e0
+poly L1 0,150 120,208 120,299 0,330 8
+line l1c0 0,204 120,235.3 c0
+line l1c1 0,249 120,258.1 c0
+line l1c2 0,290.4 120,279 c0
+poly signFr 7.2,174.4 84,204.7 84,225.9 7.2,205.9 0
+poly signIn 12,181.5 79.2,206.5 79.2,221 12,202 13
+line signTxt 19.2,194.1 72,211.4 c0
+poly l1w0 12,224.2 43.2,230.1 43.2,247.8 12,244.8 0 e0
+poly l1w1 60,233.2 91.2,239 91.2,252.5 60,249.5 11 e0
+poly l1w2 12,261.9 43.2,262.6 43.2,280.4 12,282.4 13 e0
+poly l1w3 60,263 91.2,263.7 91.2,277.2 60,279.3 0 e0
+poly l1w4 98.4,240.4 115.2,243.5 115.2,254.9 98.4,253.2 0 e0
+poly l1w5 98.4,263.9 115.2,264.3 115.2,275.7 98.4,276.8 0 e0
+rect tankLegs 44,170,3,12 0
+rect tankLegs2 62,168,3,14 0
+rect tank 40,150,28,22 0
+poly tankCap 38,150 54,140 70,150 0
+line tankBand 40,158 68,158 c8
+poly R1 360,203 480,138 480,330 360,299 0
+poly cyFr 396,198.5 470.4,165.3 470.4,198.5 396,220.9 8
+poly cyanIn 400.8,200.2 465.6,172.9 465.6,194.5 400.8,215.6 11
+line cyTxt 410.4,204.3 456,187.3 c0
+poly r1w0 369.6,239.3 391.2,234.5 391.2,249 369.6,251.7 13 e0
+poly r1w1 400.8,232.4 422.4,227.6 422.4,245.1 400.8,247.8 0 e8
+poly r1w2 432,225.4 453.6,220.7 453.6,241.2 432,243.9 11 e0
+poly r1w3 460.8,219.1 477.6,215.3 477.6,238.1 460.8,240.3 6 e0
+poly r1w4 369.6,262.1 391.2,261.1 391.2,275.6 369.6,274.5 0 e8
+poly r1w5 400.8,260.7 422.4,259.7 422.4,277.2 400.8,276.1 11 e0
+poly r1w6 432,259.2 453.6,258.2 453.6,278.8 432,277.7 13 e0
+poly r1w7 460.8,257.9 477.6,257.1 477.6,280 460.8,279.1 0 e8
+rect chim 368,152,12,48 0
+rect chimCap 365,148,18,5 8
+line antenna 318,214 318,196 c0
+line antennaX 310,202 326,202 c0
+line roofL 0,150 120,208 c0
+line roofR 480,138 360,203 c8
+poly walkL 0,330 0,430 240,268 mix:8,1@0.35
+poly walkR 480,330 480,430 240,268 mix:8,1@0.35
+poly road 240,268 480,430 480,469 0,469 0,430 mix:1,0@0.25
+line jL348 240,268 0,348 c0
+line jR348 240,268 480,348 c0
+line jL368 240,268 0,368 c0
+line jR368 240,268 480,368 c0
+line jL390 240,268 0,390 c0
+line jR390 240,268 480,390 c0
+line jL414 240,268 0,414 c0
+line jR414 240,268 480,414 c0
+line kerbL 240,268 0,430 c15
+line kerbR 240,268 480,430 c15
+ellipse poolRim 240,392,92,42 mix:5,1@0.5
+poly glowRoad 200,262 280,262 322,392 158,392 5
+ellipse pool 240,392,72,30 5
+poly mohawk 228.5,189.6 225.1,173.5 231.9,179.3 230.8,159.7 237.7,173.5 240,152.8 244.6,173.5 249.2,159.7 248.1,179.3 254.9,173.5 251.5,189.6 0
+poly head 228.5,185 240,180.4 251.5,185 253.8,198.8 248.1,211.4 233.1,212.6 228.5,206.9 226.2,203.4 221.6,201.1 226.2,196.5 0
+line cig 227.3,206.9 215.8,209.2 c0
+dots cigTip 213.7,209.2 c15
+poly neck 235.4,210.3 244.6,210.3 244.6,220.7 235.4,220.7 0
+poly collarL 219.3,204.6 235.4,214.9 235.4,225.3 217,221.8 0
+poly collarR 260.7,204.6 244.6,214.9 244.6,225.3 263,221.8 0
+poly jacket 217,219.5 226.2,216.1 253.8,216.1 263,219.5 265.3,235.6 260.7,249.4 273.4,263.2 206.7,263.2 219.3,249.4 214.7,235.6 0
+poly armL 217,219.5 208.9,228.7 200.9,244.8 198.6,262.1 206.7,264.4 210.1,249.4 218.2,237.9 220.4,226.4 0
+ellipse handL 202,267,5,5 0
+poly armR 263,219.5 273.4,226.4 289.4,247.1 281.4,260.9 267.6,257.4 265.3,251.7 276.8,245.9 269.9,234.4 0
+poly legL 219.3,260.9 237.7,260.9 236.6,293.1 243.4,297.7 243.4,301.1 210.1,301.1 211.3,296.6 219.3,293.1 0
+poly legR 242.3,260.9 260.7,260.9 260.7,293.1 268.8,296.6 269.9,301.1 237.7,301.1 237.7,297.7 243.4,293.1 0
+poly jLegL 221.6,339.1 237.7,339.1 236.6,304.6 243.4,300 212.4,300 219.3,304.6 0
+poly jLegR 242.3,339.1 258.4,339.1 260.7,304.6 267.6,300 237.7,300 243.4,304.6 0
+poly jJacket 214.7,380.5 223.9,385.1 256.1,385.1 265.3,380.5 263,336.8 217,336.8 0
+poly jArmL 203.2,378.2 212.4,378.2 211.3,334.5 203.2,334.5 0
+poly jArmR 267.6,378.2 276.8,378.2 276.8,334.5 268.8,334.5 0
+poly jCase 271.1,334.5 292.9,334.5 292.9,316.1 271.1,316.1 0
+poly jNeck 235.4,392 244.6,392 244.6,380.5 235.4,380.5 0
+poly jHead 227.3,401.2 229.7,413.9 240,418.4 250.3,413.9 252.7,401.2 246.9,389.7 233.1,389.7 0
+poly jShirt 230.8,383.9 249.2,383.9 240,359.8 15
+poly jTie 238.8,381.6 241.2,381.6 243.4,362.1 240,356.4 236.6,362.1 0
+rect rip0 200,322,80,2 5
+rect rip1 190,352,100,2 5
+rect rip2 204,386,72,2 5
+rect rip3 196,406,92,2 5
+rect slL0 112,352,5,12 13
+rect slL1 114,372,5,10 13
+rect slL2 116,394,5,8 13
+rect slR0 360,352,5,12 11
+rect slR1 358,374,5,10 11
+rect slR2 356,396,5,8 11
+rect slLb0 100,356,3,8 5
+rect slLb1 96,380,3,8 5
+poly dash-1404 148.7,404 155.3,404 149,414 142.1,414 15
+poly dash1404 324.7,404 331.3,404 337.9,414 331,414 15
+poly dash-1428 132.8,428 140.1,428 131.3,442 123.5,442 15
+poly dash1428 339.9,428 347.2,428 356.5,442 348.7,442 15
+rect shine0 40,426,24,1 8
+rect shine1 70,444,16,1 8
+rect shine2 150,448,20,1 8
+rect shine3 296,448,18,1 8
+rect shine4 380,430,22,1 8
+rect shine5 430,446,16,1 8
+rect shine6 22,404,14,1 8
+rect shine7 452,408,14,1 8
+rect crate1 56,342,26,24 6 e0
+line crate1x 56,354 82,354 c0
+line crate1y 69,342 69,366 c0
+rect crate2 64,320,20,22 6 e0
+line crate2x 64,331 84,331 c0
+rect bin 96,340,16,24 8 e0
+rect binLid 94,337,20,4 0
+rect pole 346,196,4,140 0
+poly poleArm 346,198 346,194 330,190 330,194 0
+poly lamp 322,194 334,194 332,200 324,200 15
+rect poleBase 343,330,10,6 8 e0
+dots glints 384,201.5 444,239.1 468,308.7 154,220.2 140.4,259.6 174.4,282.1 414,306 c11
+rect slab 0,456,480,13 8
+line slabTop 0,456 480,456 c0
+rect seam0 34,457,2,12 0
+rect seam1 118,457,2,12 0
+rect seam2 204,457,2,12 0
+rect seam3 290,457,2,12 0
+rect seam4 372,457,2,12 0
+rect seam5 452,457,2,12 0
+ellipse manhole 330,436,22,5 0 e8
+dots manholeD 322,436 330,435 338,436 c8
+ellipse puddleA 126,438,16,3 5
+ellipse puddleB 412,442,14,3 5
 `,
-  cycles: [
-  { name: "the cyan tube", areas: ["tubeA", "tubeB"], colors: [11, 3], style: "flicker", ms: [800, 4000] },
-  { name: "the corner sign", areas: ["signR", "signRg"], colors: [13, 5, 1], style: "blink", ms: 1200 },
-  { name: "the blade sign", areas: ["blade", "bladeG"], colors: [11, 3, 1], style: "blink", ms: 1700 },
-  { name: "the bulbs", areas: ["bulbs"], colors: [15, 13], style: "pingpong", scatter: true, ms: 600 }
-],
-  loops: [
-  { name: "the cigarette smoke", at: [208, 133], style: "loop", ms: 280, frames: [
-    ["......8.88......", ".......8...8....", ".........88.8...", "........8.8.....", ".......88.88....", "........8.8.....", ".....8.88.......", ".....8...8......", ".....8888.......", ".....8.8........", "......8888......", ".......8.8......", ".........8888...", ".........8.8....", "..........888...", "..........8.8...", "..........777...", ".........777....", "........777.....", ".......777......", "........77......", "........77......", ".........77.....", "..........77....", "...........77...", "............77..", "............7...", "............7...", "............7...", "............7..."],
-    [".......8.88.....", ".......8...8....", "........88.8....", "......8.8.......", ".....88.88......", "......8.8.......", "....8.88........", ".....8...8......", "......8888......", ".......8.8......", "........8888....", ".........8.8....", "..........8888..", ".........8.8....", ".........888....", ".........8.8....", "........777.....", ".......777......", ".......777......", ".......777......", ".........77.....", "..........77....", "...........77...", "............77..", "............77..", "............77..", "............7...", "...........7....", "...........7....", "...........7...."],
-    ["......8.88......", "......8...8.....", "......88.8......", "....8.8.........", "....88.88.......", "......8.8.......", ".....8.88.......", "......8...8.....", "........8888....", ".........8.8....", ".........8888...", ".........8.8....", ".........8888...", "........8.8.....", ".......888......", ".......8.8......", ".......777......", ".......777......", "........777.....", ".........777....", "...........77...", "............77..", "............77..", "............77..", "...........77...", "..........77....", "...........7....", "...........7....", "...........7....", "...........7...."],
-    ["....8.88........", "....8...8.......", ".....88.8.......", "....8.8.........", ".....88.88......", "........8.8.....", ".......8.88.....", "........8...8...", ".........8888...", ".........8.8....", "........8888....", ".......8.8......", ".......8888.....", "......8.8.......", "......888.......", ".......8.8......", "........777.....", ".........777....", "..........777...", "...........777..", "............77..", "............77..", "...........77...", "..........77....", "..........77....", ".........77.....", "..........7.....", "...........7....", "...........7....", "............7..."],
-    ["...8.88.........", "....8...8.......", "......88.8......", "......8.8.......", ".......88.88....", "..........8.8...", "........8.88....", "........8...8...", "........8888....", ".......8.8......", "......8888......", "......8.8.......", "......8888......", "......8.8.......", ".......888......", ".........8.8....", "..........777...", "...........777..", "...........777..", "...........777..", "...........77...", "..........77....", ".........77.....", ".........77.....", ".........77.....", ".........77.....", "...........7....", "...........7....", "............7...", "............7..."],
-    ["....8.88........", "......8...8.....", "........88.8....", "........8.8.....", "........88.88...", "..........8.8...", ".......8.88.....", "......8...8.....", "......8888......", ".....8.8........", ".....8888.......", "......8.8.......", ".......8888.....", "........8.8.....", ".........888....", "..........8.8...", "...........777..", "...........777..", "..........777...", ".........777....", ".........77.....", "........77......", "........77......", ".........77.....", "..........77....", "..........77....", "............7...", "............7...", "............7...", "............7..."]
-  ] },
-  { name: "the rat", style: "loop", ms: 120, path: [[-20, 389], [500, 389]], travel: 5300, pause: 25000, under: "em", frames: [
-    [".......ddddd....", "......000000dd..", "0000000000000f00", ".....0000000000.", "......00..00...."],
-    [".......ddddd....", "......000000dd..", ".....000000000f0", "00000000000000..", ".....0.0..0.0..."],
-    [".......ddddd....", "......000000dd..", "0000000000000f00", ".....0000000000.", "....0.0....0.0.."]
-  ] }
-]
+  cycles: [{"name":"the left sign","areas":["signIn"],"colors":[13,5],"style":"flicker","ms":[900,3600]},{"name":"the cyan sign","areas":["cyanIn"],"colors":[11,15],"style":"flicker","ms":[700,3000]},{"name":"the lit windows","areas":["glints"],"colors":[11,13],"style":"pingpong","scatter":true,"ms":900}],
+  loops: [{"name":"the chimney smoke","at":[367,125],"style":"loop","ms":300,"frames":[[".....88f........",".......88.......","......888.......","........8f......","........888.....",".........88.....","........88f.....",".........88.....","........888.....","........8f......",".......888......",".......88.......","......8f........","......88........",".....88.........","....8f..........","....88..........","...88...........","...8f...........","...88...........","...88...........","...8f...........","....88..........","....88.........."],["........888.....",".........88.....","........88f.....",".........88.....",".......888......","........8f......","......888.......","......88........",".....88f........",".....88.........","...888..........","....8f..........","...88...........","...88...........","...8f...........","...88...........","...88...........","....8f..........","....88..........",".....88.........","......8f........",".......88.......",".......88.......","........8f......"],[".......888......",".......8f.......",".....888........","......88........","....88f.........","....88..........","...888..........","...8f...........","..888...........","...88...........","..88f...........","...88...........","....88..........","....8f..........",".....88.........","......88........",".......8f.......",".......88.......","........88......","........8f......",".........88.....",".........88.....",".........8f.....",".........88....."],["...88f..........","....88..........","..888...........","...8f...........","..888...........","...88...........","..88f...........","....88..........","...888..........",".....8f.........",".....888........",".......88.......",".......8f.......","........88......","........88......",".........8f.....",".........88.....",".........88.....",".........8f.....","........88......","........88......",".......8f.......",".......88.......","......88........"],["..888...........","...88...........","...88f..........","....88..........","....888.........","......8f........","......888.......",".......88.......",".......88f......","........88......","........888.....",".........8f.....",".........88.....",".........88.....","........8f......","........88......",".......88.......",".......8f.......","......88........",".....88.........","....8f..........","....88..........","...88...........","...8f..........."]]},{"name":"the rat","style":"loop","ms":120,"path":[[-20,440],[500,440]],"travel":5200,"pause":8000,"frames":[[".......ddddd....","......000000dd..","0000000000000f00",".....0000000000.","......00..00...."],[".......ddddd....","......000000dd..",".....000000000f0","00000000000000..",".....0.0..0.0..."],[".......ddddd....","......000000dd..","0000000000000f00",".....0000000000.","....0.0....0.0.."]]}]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "archetype: the tower (the story turns on one person whose presence rules the poster: the Emperor, the street punk you play, the title's own man). Title at the top: rows 0-95 plain blue across the whole 480 width, the facade starts below it in the same blue so the band stays flat. The Emperor is one huge flat black silhouette seen from below, about 284 pixels tall from the tip of his mohawk (row 112) to his boots (row 396), standing a little right of centre at x about 258, in profile turned to the left, looking away down the strip, a short leather jacket with the collar up, tight trousers, boots in a stride, the mohawk a tall fin swept back over the crown; a cigarette hangs from his lips with a small red ember, the one bright point; his near arm (the viewer's left) hangs at his side, bent a little out, the hand a closed fist at mid-thigh, so a gap of light shows between arm and jacket; his far arm is in his jacket pocket, the elbow pushing out on the right; no inner detail. Rim light: a thin light cyan edge on his left side only (the fin's front, the jacket's left edge, the near arm's outer edge, the near leg's left edge), thrown by a cyan tube sign at the left. Backdrop: the blue wall of El Charlie with black seams, a few worn patches and lit windows, and on it one huge round porthole sign, a light magenta disc in a magenta rim with a ring of white bulbs, a white hot spot behind his head so the head and fin read dark against the lightest thing, a few stains and drips on the disc; the wall meets the wet road at the horizon, at his knee (row 332); the road in three flat bands (light magenta far, magenta, blue near) with streaks of the sign's light and a magenta puddle under his boots. Element 3 and the question: a tiny man, a black silhouette in a trilby and a long coat, about 42 pixels tall, standing at the left in a lit light-cyan doorway at the foot of the wall, a leather case in one hand, the other in his pocket, his back half turned: the Minister, small; who is he, and what will he want of you. Wings (columns 0-79 and 400-479, the strip carrying on, all dim and nothing the poster needs): on the left, the next building along, a wall with a black seam, four windows in magenta and cyan (one light cyan), a worn stain, a roller shutter of black and blue rows at the street, a small dim magenta sign and a street lamp on a bent arm with its small light-cyan bulb and a pool of light on the road; on the right, another building with a black seam, windows in magenta and cyan, a stain, a shop with a magenta awning, a black door and a dim cyan shop window, and a lamp post that also carries a hanging cyan blade sign on a bracket, with its pool of light on the road; the road's three bands and streaks run on across both wings. Palette neon (the bible's first), flat: blue 1 leads (title band, wall, near road), light magenta 13 and magenta 5 for the porthole and its rim, black for the figures, small light cyan 11, white 15 and one red ember. light: the lit porthole behind him, the cyan tube beside, the two street lamps in the wings. moves: the cyan tube (faulty flicker), the small corner sign (blink), the blade sign in the right wing (blink), the bulbs round the porthole (twinkle), the smoke curling up from his cigarette (loop), a small black rat that runs left to right along the road behind his boots across the whole width now and then (travelling loop, hidden behind his legs)",
+ "title": 15,
+ "titleAt": "top",
+ "draw": "\nrect sky 0,0,480,400 1\n\n# the wall of El Charlie and the buildings either side: seams and worn patches (in the dark, away from the glow)\nline course1 0,132 150,132 c0\nline course2 366,128 479,128 c0\nline course3 0,262 479,262 c0\nline course4 0,300 479,300 c0\nrect seamA 98,100,2,162 0\nrect seamB 372,100,2,162 0\nrect seamL 40,100,2,162 0\nrect seamC 402,100,2,162 0\npoly stain1 80,104 104,102 110,130 92,148 80,140 0\npoly stain1W 64,112 80,104 80,140 70,150 58,140 0\npoly stain2 356,246 399,240 399,262 370,262 0\npoly stain2W 399,240 420,244 424,262 399,262 0\npoly stain3 80,226 98,222 104,246 80,262 0\npoly stain3W 66,230 80,226 80,262 62,258 0\npoly stain4 404,206 430,204 434,232 410,244 404,238 0\n\n# lit windows, the poster's and the wings'\nrect win1 322,146,18,24 11\nrect win2 350,146,18,24 13\nrect win3 350,196,18,24 11\nrect win4 88,160,16,22 13\nrect win5 88,196,16,22 11\nline pipe 384,100 384,332 c0\nrect wL1 8,140,16,22 5\nrect wL2 46,140,16,22 3\nrect wL3 8,184,16,22 3\nrect wL4 46,184,16,22 5\nrect wL5 46,226,16,22 11\nline wLm1 8,151 23,151 c0\nline wLm2 46,195 61,195 c0\nline wLm3 54,226 54,247 c0\nrect wR1 414,136,16,22 5\nrect wR2 446,136,16,22 3\nrect wR3 414,182,16,22 3\nrect wR4 446,182,16,22 5\nline wRm1 414,147 429,147 c0\nline wRm2 454,136 454,157 c0\nline wRm3 446,193 461,193 c0\n\n# the wings' shopfronts: a roller shutter on the left, an awning, a door and a window on the right\nrect shutT 2,264,66,4 0\nrect shut 4,268,62,64 stripes:1,0\nrect sgLg 68,212,10,22 5\nrect sgL 70,216,6,14 13\npoly awn 408,262 479,262 479,284 408,284 5\nline awnE 408,284 479,284 c0\nrect doorR 424,288,26,44 0\nrect tranR 424,285,26,3 5\nrect shopW 456,290,20,28 3\nline shopWm 456,304 475,304 c0\n\n# the corner sign at the right\nrect signRg 364,274,30,14 5\nrect signR 369,278,20,6 13\n\n# the huge porthole sign: rim, disc, inner ring, hot spot, stains\nellipse rim 258,204,105,105 5\nellipse disc 258,204,98,98 13\nellipse ring 258,204,86,86 5\nellipse face 258,204,82,82 13\nellipse spot 254,152,40,40 15\npoly patch1 188,262 220,254 232,278 208,292 186,282 5\npoly patch2 294,276 324,262 338,284 312,296 5\nline drip1 210,291 210,306 c5\nline drip2 314,295 314,310 c5\nline drip3 280,299 280,314 c5\ndots bulbs 359,204 354,235 340,263 317,286 289,300 258,305 227,300 199,286 176,263 162,235 157,204 162,173 176,145 199,122 227,108 258,103 289,108 317,122 340,145 354,173 c15\n\n# the cyan tube sign at the left of the poster, leaning\npoly tubeG 102,118 124,118 146,322 124,322 3\nline tubeA 113,122 136,318 c11\nline tubeB 114,122 137,318 c11\n\n# the Minister's lit doorway and the road, across the whole width\nrect door 132,296,38,36 11\nrect roadF 0,332,480,12 13\nrect roadM 0,344,480,18 5\nrect roadN 0,362,480,37 1\nline streak1 192,336 324,336 c15\nline streak2 160,340 350,340 c11\nline streak3 120,352 180,352 c13\nline streak4 320,354 380,354 c13\nline streak5 88,370 140,370 c5\nline streak6 334,376 396,376 c5\nline streak7 94,390 150,390 c13\nline streakW1 6,335 40,335 c11\nline streakW2 12,358 56,358 c13\nline streakW3 4,372 46,372 c5\nline streakW4 20,388 70,388 c13\nline streakW5 410,337 458,337 c11\nline streakW6 436,356 476,356 c13\nline streakW7 420,376 470,376 c5\nline streakW8 440,392 478,392 c13\nellipse puddle 258,386,84,11 5\nellipse puddleS 258,385,56,6 13\n\n# the street lamps of the wings: poles, arms, heads, small bulbs, pools of light on the road\nellipse poolL 50,352,20,4 13\nellipse poolR 428,352,20,4 13\nrect lampPL 29,176,3,156 0\nline lampAL 30,177 46,170 c0\nrect lampHL 42,168,12,5 0\nellipse lampBL 48,175,4,3 11\nrect lampPR 437,172,3,160 0\nline lampAR 437,174 426,170 c0\nrect lampHR 420,168,12,5 0\nellipse lampBR 426,175,4,3 11\nrect brk 437,206,30,3 0\nrect bladeG 458,209,16,46 3\nrect blade 462,213,8,38 11\nline bladeM 462,232 469,232 c3\n\n# the Minister, small: hat, face, coat, case, legs\npoly mn_crown 146,304 156,304 157,310 145,310 0\npoly mn_brim 140,310 162,309 162,312 140,313 0\nellipse mn_face 150,317,4,4 0\npoly mn_coat 143,321 159,321 163,342 141,342 0\npoly mn_arm 142,323 146,323 141,338 138,338 0\nrect mn_case 132,338,10,7 0\nrect mn_legL 145,342,5,5 0\nrect mn_legR 153,342,5,5 0\n\n# the Emperor: mohawk, head, neck, collar, jacket, arms, legs, boots\npoly em_fin 237,134 239,120 245,113 253,112 261,115 268,126 270,142 263,132 251,127 243,129 0\npoly em_head 250,129 262,131 269,142 269,158 263,169 252,174 242,173 235,168 231,163 232,159 226,156 232,150 233,143 238,134 0\npoly em_neck 240,168 262,168 268,184 236,186 0\npoly em_collarL 230,192 238,170 248,182 244,194 0\npoly em_collarR 272,192 266,170 256,182 260,194 0\npoly em_jacket 238,184 216,188 208,206 210,240 216,266 212,276 294,278 290,264 298,228 302,200 294,189 270,184 0\npoly em_armN 216,188 234,192 222,250 210,296 194,294 200,246 0\nellipse em_fist 201,304,8,9 0\npoly em_armF 296,194 304,200 318,240 308,264 294,266 292,230 0\npoly em_legL 222,274 258,274 250,334 246,386 216,386 220,334 0\npoly em_bootL 192,397 204,384 248,382 250,397 0\npoly em_legR 264,274 292,274 294,334 302,386 272,386 270,334 0\npoly em_bootR 270,386 304,382 306,396 270,397 0\nline em_cig 231,164 222,165 c0\nrect em_ember 218,163,5,4 4\nrect em_core 219,164,2,2 14\n\n# the rim light on his left edge\nline rim1 237,134 239,120 245,113 c11\nline rim2 216,188 208,206 210,240 c11\nline rim3 216,189 200,246 194,294 c11\nline rim4 222,276 220,334 216,386 c11\n",
+ "cycles": [
+  {
+   "name": "the cyan tube",
+   "areas": [
+    "tubeA",
+    "tubeB"
+   ],
+   "colors": [
+    11,
+    3
+   ],
+   "style": "flicker",
+   "ms": [
+    800,
+    4000
+   ]
+  },
+  {
+   "name": "the corner sign",
+   "areas": [
+    "signR",
+    "signRg"
+   ],
+   "colors": [
+    13,
+    5,
+    1
+   ],
+   "style": "blink",
+   "ms": 1200
+  },
+  {
+   "name": "the blade sign",
+   "areas": [
+    "blade",
+    "bladeG"
+   ],
+   "colors": [
+    11,
+    3,
+    1
+   ],
+   "style": "blink",
+   "ms": 1700
+  },
+  {
+   "name": "the bulbs",
+   "areas": [
+    "bulbs"
+   ],
+   "colors": [
+    15,
+    13
+   ],
+   "style": "pingpong",
+   "scatter": true,
+   "ms": 600
+  }
+ ],
+ "loops": [
+  {
+   "name": "the cigarette smoke",
+   "at": [
+    208,
+    133
+   ],
+   "style": "loop",
+   "ms": 280,
+   "frames": [
+    [
+     "......8.88......",
+     ".......8...8....",
+     ".........88.8...",
+     "........8.8.....",
+     ".......88.88....",
+     "........8.8.....",
+     ".....8.88.......",
+     ".....8...8......",
+     ".....8888.......",
+     ".....8.8........",
+     "......8888......",
+     ".......8.8......",
+     ".........8888...",
+     ".........8.8....",
+     "..........888...",
+     "..........8.8...",
+     "..........777...",
+     ".........777....",
+     "........777.....",
+     ".......777......",
+     "........77......",
+     "........77......",
+     ".........77.....",
+     "..........77....",
+     "...........77...",
+     "............77..",
+     "............7...",
+     "............7...",
+     "............7...",
+     "............7..."
+    ],
+    [
+     ".......8.88.....",
+     ".......8...8....",
+     "........88.8....",
+     "......8.8.......",
+     ".....88.88......",
+     "......8.8.......",
+     "....8.88........",
+     ".....8...8......",
+     "......8888......",
+     ".......8.8......",
+     "........8888....",
+     ".........8.8....",
+     "..........8888..",
+     ".........8.8....",
+     ".........888....",
+     ".........8.8....",
+     "........777.....",
+     ".......777......",
+     ".......777......",
+     ".......777......",
+     ".........77.....",
+     "..........77....",
+     "...........77...",
+     "............77..",
+     "............77..",
+     "............77..",
+     "............7...",
+     "...........7....",
+     "...........7....",
+     "...........7...."
+    ],
+    [
+     "......8.88......",
+     "......8...8.....",
+     "......88.8......",
+     "....8.8.........",
+     "....88.88.......",
+     "......8.8.......",
+     ".....8.88.......",
+     "......8...8.....",
+     "........8888....",
+     ".........8.8....",
+     ".........8888...",
+     ".........8.8....",
+     ".........8888...",
+     "........8.8.....",
+     ".......888......",
+     ".......8.8......",
+     ".......777......",
+     ".......777......",
+     "........777.....",
+     ".........777....",
+     "...........77...",
+     "............77..",
+     "............77..",
+     "............77..",
+     "...........77...",
+     "..........77....",
+     "...........7....",
+     "...........7....",
+     "...........7....",
+     "...........7...."
+    ],
+    [
+     "....8.88........",
+     "....8...8.......",
+     ".....88.8.......",
+     "....8.8.........",
+     ".....88.88......",
+     "........8.8.....",
+     ".......8.88.....",
+     "........8...8...",
+     ".........8888...",
+     ".........8.8....",
+     "........8888....",
+     ".......8.8......",
+     ".......8888.....",
+     "......8.8.......",
+     "......888.......",
+     ".......8.8......",
+     "........777.....",
+     ".........777....",
+     "..........777...",
+     "...........777..",
+     "............77..",
+     "............77..",
+     "...........77...",
+     "..........77....",
+     "..........77....",
+     ".........77.....",
+     "..........7.....",
+     "...........7....",
+     "...........7....",
+     "............7..."
+    ],
+    [
+     "...8.88.........",
+     "....8...8.......",
+     "......88.8......",
+     "......8.8.......",
+     ".......88.88....",
+     "..........8.8...",
+     "........8.88....",
+     "........8...8...",
+     "........8888....",
+     ".......8.8......",
+     "......8888......",
+     "......8.8.......",
+     "......8888......",
+     "......8.8.......",
+     ".......888......",
+     ".........8.8....",
+     "..........777...",
+     "...........777..",
+     "...........777..",
+     "...........777..",
+     "...........77...",
+     "..........77....",
+     ".........77.....",
+     ".........77.....",
+     ".........77.....",
+     ".........77.....",
+     "...........7....",
+     "...........7....",
+     "............7...",
+     "............7..."
+    ],
+    [
+     "....8.88........",
+     "......8...8.....",
+     "........88.8....",
+     "........8.8.....",
+     "........88.88...",
+     "..........8.8...",
+     ".......8.88.....",
+     "......8...8.....",
+     "......8888......",
+     ".....8.8........",
+     ".....8888.......",
+     "......8.8.......",
+     ".......8888.....",
+     "........8.8.....",
+     ".........888....",
+     "..........8.8...",
+     "...........777..",
+     "...........777..",
+     "..........777...",
+     ".........777....",
+     ".........77.....",
+     "........77......",
+     "........77......",
+     ".........77.....",
+     "..........77....",
+     "..........77....",
+     "............7...",
+     "............7...",
+     "............7...",
+     "............7..."
+    ]
+   ]
+  },
+  {
+   "name": "the rat",
+   "style": "loop",
+   "ms": 120,
+   "path": [
+    [
+     -20,
+     389
+    ],
+    [
+     500,
+     389
+    ]
+   ],
+   "travel": 5300,
+   "pause": 25000,
+   "under": "em",
+   "frames": [
+    [
+     ".......ddddd....",
+     "......000000dd..",
+     "0000000000000f00",
+     ".....0000000000.",
+     "......00..00...."
+    ],
+    [
+     ".......ddddd....",
+     "......000000dd..",
+     ".....000000000f0",
+     "00000000000000..",
+     ".....0.0..0.0..."
+    ],
+    [
+     ".......ddddd....",
+     "......000000dd..",
+     "0000000000000f00",
+     ".....0000000000.",
+     "....0.0....0.0.."
+    ]
+   ]
+  }
+ ]
 };

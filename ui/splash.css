@@ -1,51 +1,36 @@
-/* A world's own page (ui/splash.js; INTERFACE.md §13a): the cover, the title and the keys, one poster centred in the window, shown instead of
-   the list or the game by css/layout.css (data-view="splash"; this file never sets display on .splash). The poster is as wide as what the cover
-   shows: on an upright phone its crop (columns 80-399, 320 × 400) as wide as the column (whole device pixels a pixel: ui/splash.js), on a wide window
-   the whole 480 × 400 as wide as keeps the whole poster (cover, title, keys) inside the window's height, at any scale (--splash-width, from --splash-rest
-   and --splash-cols: css/layout.css). The cover is the game's picture, stretched with hard edges, drawn at its own
-   480 × 400 (ui/splash.js; the canvas is wider than its box on a phone and the box trims it), a poster with the world's title drawn into its pixels by the engine (js/title.js: no HTML title; the heading is
-   visually hidden, for a screen reader). The keys are the game's keys (css/key.css), as on a card:
-   as tall as the tabs on a phone, and as SETTINGS in the strip on wide windows (layout.css sets --play-height and --play-text). */
+/* A world's own page (ui/splash.js; INTERFACE.md §13a): the screen is the poster. Its background is the cover's own background colour
+   (--splash-bg: ui/splash.js reads it from the cover's first row), filling the column on a wide window (the page's dark either side) and the
+   whole screen on a phone (behind the clock and the browser's bars too: base.css). In it, from the top: a small line ("An Unlikely Memories
+   interactive fiction"), the cover with the world's title drawn into its top band by the engine (js/title.js), then one key that blinks
+   (START NEW GAME, or CONTINUE with a saved game) and the way back to the list under it. The cover is 480 × 560; the page shows its rows
+   0–469 (the bottom band, 470–559, is the same flat colour as the page, which carries on below it), as wide as the poster: on an upright phone
+   the crop (columns 80–399) as wide as the screen, on a wide window as many of the 480 columns as the column is wide, the column as wide as the
+   window's height allows (--splash-width: css/layout.css). Any scale: the CRT look hides the unevenness. Extra height is the background's:
+   the whole is centred in it. This file never sets display on .splash (layout.css). */
 @layer ui {
   .splash {
     box-sizing: border-box;
     min-height: 100dvh;
-    padding-block: max(var(--space-m), env(safe-area-inset-top, 0px)) max(var(--space-m), env(safe-area-inset-bottom, 0px));
     color: var(--color-text);
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 
     & .poster {
-      display: flex;
-      flex-direction: column;
-      width: var(--splash-width, 100%);
-      gap: var(--space-m);
-    }
-
-    /* The probe (ui/splash.js): as wide as the poster could be; the script rounds it to whole device pixels per cover pixel (js/cover.js) and sets
-       the poster's width, which is then this variable's value no more. It takes no room. */
-    & .fit {
-      width: var(--splash-width, 100%);
-      height: 0;
-      flex: none;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    & .cover {
       position: relative;
-      overflow: hidden;                                   /* (a phone's crop: the canvas is wider than the box) */
-      aspect-ratio: var(--splash-cols) / 400;
+      box-sizing: border-box;
+      width: var(--splash-width, 100%);
+      height: 100dvh;
+      overflow: hidden;
+      padding-block: max(var(--space-m), env(safe-area-inset-top, 0px)) max(var(--space-l), env(safe-area-inset-bottom, 0px));   /* (read by ui/splash.js: where the cover may go) */
+      background: var(--splash-bg, var(--color-bg));
+      color: var(--splash-ink, #fff);
+    }
 
-      /* The CRT look's dark edges (ui/crt.js sets data-crt and --crt-vignette), as on the room's picture (ui/scene.css). */
-      &[data-crt]::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: radial-gradient(ellipse closest-side at 50% 50%, transparent 55%, rgb(0 0 0 / var(--crt-vignette, 0)) 100%);
-      }
+    /* The poster's picture: the whole box, one canvas under the CRT look (ui/splash.js draws the page's colour, the title and the art into it). */
+    & .cover {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;                                   /* (the crop: the canvas is wider and taller than the box) */
 
       & canvas {
         position: absolute;
@@ -53,32 +38,80 @@
         left: calc(var(--splash-skip) / var(--splash-cols) * -100%);   /* (% = the box's width: the crop's first column at its left edge) */
         display: block;
         width: calc(480 / var(--splash-cols) * 100%);                 /* all 480 columns; the CRT look's canvas has the same CSS, so it is cropped alike */
+        height: var(--canvas-h, auto);                                 /* (ui/splash.js: its rows at the width's scale) */
         max-width: none;
-        height: 100%;
         image-rendering: crisp-edges;
         image-rendering: pixelated;
       }
     }
 
+    /* The key and the link, over the picture, under the art (ui/splash.js sets their top). */
     & .keys {
+      position: absolute;
+      left: 0;
+      right: 0;
       display: flex;
       flex-direction: column;
-      gap: var(--space-s);
+      align-items: center;
+      gap: var(--space-m);
     }
 
+    /* The keys, side by side: CONTINUE and NEW GAME with a saved game, START NEW GAME alone without one. */
     & .buttons {
-      display: contents;   /* (CONTINUE and NEW GAME, made by ui/splash.js, are keys of .keys' column) */
+      display: inline-grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;                           /* side by side, as wide as each other */
+      gap: var(--space-m);
+
+      &.stacked { grid-auto-flow: row; }                /* too wide for the screen: one above the other, still as wide as each other (ui/splash.js) */
     }
 
-    /* The three keys, one above the other; the label trimmed to its capitals and centred (typography.css, .text-button button). */
-    & .play {
-      --key-pad-y: var(--space-s);
-      --key-pad-x: var(--space-s);
-      min-width: 0;
-      min-height: var(--play-height, var(--tile-touch));
-      font-size: var(--play-text, var(--text-m));
+    /* The one key: an outline that blinks, on and off like a cursor (steady with reduced motion). */
+    & .start {
+      font: inherit;
+      font-size: var(--play-text, var(--text-m));          /* the game's keys' size (the list's PLAY: ui/home.css) */
       line-height: var(--line-xs);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       white-space: nowrap;
+      color: inherit;
+      background: transparent;
+      border: 2px solid var(--splash-ink, #fff);         /* (steady: only the words blink) */
+      border-radius: 2px;
+      min-height: var(--play-height, var(--tile-touch));
+      padding: var(--space-s) var(--space-l);
+      cursor: pointer;
+
+
+      &:hover, &:focus-visible { animation: none; outline: none; background: rgb(255 255 255 / 0.12); }   /* (steady and lit while pointed at: a pause could stop it unseen) */
+    }
+
+    & .back {
+      font: inherit;
+      font-size: var(--text-m);
+      line-height: var(--line-xs);
+      text-box: trim-both cap alphabetic;                  /* (the words' own height: the gap above them is the keys' gap and this padding, as above the key) */
+      color: inherit;
+      background: none;
+      border: 0;
+      padding: var(--space-s);
+      cursor: pointer;
+      opacity: 0.9;
+
+      &:hover, &:focus-visible { text-decoration: underline; opacity: 1; }
     }
   }
+
+  .splash .start.main { animation: splash-blink 1.1s steps(1, end) infinite; }   /* only the main key blinks */
+  .splash .start.main:is(:hover, :focus-visible) { animation: none; }
+
+  @keyframes splash-blink {                            /* the words only: the outline stays */
+    0% { color: var(--splash-ink, #fff); }
+    60% { color: transparent; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .splash .start.main { animation: none; }
+  }
+  :root[data-motion="reduce"] .splash .start.main { animation: none; }
 }

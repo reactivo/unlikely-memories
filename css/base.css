@@ -48,6 +48,18 @@ body {
   padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 
+/* A world's own page (ui/splash.css): the poster reaches the screen's edges, and on an upright phone the page itself is the cover's
+   background colour (--splash-bg, set on <html> by ui/splash.js), so the clock's strip and the browser's bars take it too. */
+:root[data-view="splash"] body {
+  padding-left: 0;
+  padding-right: 0;
+}
+@media (width < 760px) and (height >= 560px) {
+  :root[data-view="splash"] {
+    --color-bg-rest: var(--splash-bg, #000);
+  }
+}
+
 /* Reactions (INTERFACE.md §6c): while you are hurt or healed, ui/page.js puts data-reaction="hurt" or "heal" on <html> for as
    long as its flash runs. The page background, --color-bg, then takes --reaction of the hurt or the healed colour. Every
    part of the page that shows the background reads that one variable (html and body, the sticky top and bottom, the fade

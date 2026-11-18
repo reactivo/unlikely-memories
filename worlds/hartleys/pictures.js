@@ -567,143 +567,345 @@ export const endings = {
   }
 };
 
-// ---- THE COVER (its page, /hartleys/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+// ---- THE COVER (its page, /hartleys/: docs/splash/PLAN.md): 480 x 560, the title drawn by the game on its band ---------------------------
 export const cover = {
-  shot: "archetype: the tower (it turns on one person who watches everything: Mr Gage, the floorwalker, whose store never closes). Title at the top (flat brown band, rows 0-95, letters yellow 14); the image starts under a black cornice at row 96. Palette gaslight, leading brown (6): dark grey and brown over the walls, darkening to black at the edges, yellow (14) only for the lamps and the glow, one red (4, 12) for a window, a tag and a carnation. Camera at knee height on the shop floor, looking up, facing north into the hall. The dominant element is Mr Gage, a huge black silhouette (head, swept hair, nose in profile facing left, narrow shoulders, a morning coat with cut-away tails), standing on the right third (x about 300, feet at row 357, head at row 121): his left arm (screen left) hangs at his side, a plain mitt at mid-thigh; his right arm (screen right) is bent out with the hand in his trouser pocket, so the glow shows in the gap between arm and body. Behind him a tall arched window of lit glass {window} (flat yellow going to brown by dither lower down, gradient 1: the lamps' light thinning towards the floor) inside three nested halos of dots on the wall; a thin yellow rim light on his right edge from a gas lamp {gaslamp} on the right wing. Backdrop: the store front, a black cornice at the top, a dark grey brass cash-railway tube {tube} running across the whole poster behind his head, pilasters, the wall falling to black at both wings (gradient 2, cause: distance from the glow), a wood floor with a perspective of boards. Other elements: in the foreground left a mahogany counter {counter} with a small stoppered bottle {bottle} glowing yellow on it with a red price tag (the question: the price of everything is a memory, and what will you pay with; tiny against the huge man); left wing a lit shop window {shop} with two dress forms turned a few degrees; right wing a red-lit window with a form, and the gas lamp. Diagonals: the pool of window light running down-left across the floor and his long cast shadow running down-right. moves: the gas lamp (flicker), the left shop window (flicker), the bottle's glow (shimmer), a moth pair round the gas lamp (loop), a cash canister crossing the tube and passing behind Mr Gage's head (loop, under).",
-  title: 14,
+  shot: "archetype: the icon (it turns on one thing, the glove from the Gloves counter lying with its fingers shut 'the way a hand closes on something in a pocket': here raised like a fist, closed round a light that leaks out between its fingers, standing in an open drawer of the glove wall; it beat the tower, the giant mannequin, and the split, the store above and the memory below). Palette gaslight, background brown (6, measured: the most used colour of the rooms after black), dark grey (8) for the cuff, the cornice and the plinth, red (4) for the button loop, light grey (7) for the glove, yellow (14) for the light, the rays, the pulls and the rim light. The fist, its thumb and the price tag sit in rows 150-262. moves: the light between the fingers, the dust in the light and the glints on the brass pulls (cycles); the price tag swinging from the thumb and a moth at the glove (loops).",
+  title: 15,
   titleAt: "top",
   draw: `
-rect bg 0,0,480,400 6
-rect wall_c 120,96,300,250 mix:6,8@0.4
-rect wall_l 0,96,120,250 fade:6,0/120,0/-30,0
-rect wall_r 420,96,60,250 fade:6,0/420,0/495,0
-ellipse halo_3 300,236,120,138 mix:,14@0.1
-ellipse halo_2 300,236,92,128 mix:,14@0.2
-ellipse halo_1 300,236,64,118 mix:,14@0.35
-poly arch 240,346 240,194 244,162 254,134 266,114 282,104 296,110 312,124 322,142 326,166 326,346 fade:14,6/283,262/283,420
-line bar_1 262,124 262,346 c6
-line bar_2 282,106 282,346 c6
-line bar_3 304,118 304,346 c6
-line bar_4 244,190 324,190 c6
-line bar_5 240,262 326,262 c6
-rect cornice 0,96,480,5 0
-rect pilaster_l 116,101,10,245 mix:8,0@0.5
-rect pilaster_r 414,101,12,245 mix:8,0@0.5
-rect tube 0,126,480,6 8 e0
-line - 0,128 480,128 c6
-rect - 60,124,4,10 0
-rect - 190,124,4,10 0
-rect - 410,124,4,10 0
-rect - 462,124,4,10 0
-rect sign_l 30,150,76,16 6 e0
-line - 36,156 100,156 c14
-line - 44,161 92,161 c14
-rect shop_l 26,178,84,140 mix:14,6@0.3 e0
-ellipse form_l1_head 48,206,4,5 0
-poly form_l1 44,212 52,212 54,250 62,300 34,300 44,250 0
-ellipse form_l2_head 82,200,4,5 0
-poly form_l2 78,206 86,206 88,248 100,300 66,300 78,248 0
-rect sill_l 20,318,96,6 8 e0
-rect sign_r 434,222,40,10 6 e0
-line - 440,227 468,227 c14
-rect shop_r 436,240,36,66 4 e0
-ellipse form_r_head 454,258,3,4 0
-poly form_r 451,263 457,263 460,300 448,300 0
-rect sill_r 432,306,44,5 8 e0
-ellipse lamp_h2 446,194,22,24 mix:,14@0.12
-ellipse lamp_h1 446,194,13,15 mix:,14@0.25
-line - 470,196 452,194 c0
-ellipse lamp 446,194,6,7 14
-rect floor 0,346,480,54 mix:6,0@0.55
-line - 0,346 479,346 c0
-vp 300,346
-line - 0,399@1 0,399@0.3 c0
-line - 120,399@1 120,399@0.3 c0
-line - 400,399@1 400,399@0.3 c0
-line - 479,399@1 479,399@0.3 c0
-poly pool 240,346 326,346 250,399 20,399 mix:,14@0.35
-poly shadow 262,356 326,356 479,399 372,399 mix:,0@0.7
-poly counter_top 0,322 198,322 190,332 0,332 6
-poly counter_front 0,332 190,332 208,399 0,399 mix:6,0@0.8
-line - 0,322 198,322 c14
-ellipse bottle_glow 146,304,26,30 mix:,14@0.2
-ellipse bottle_glow2 146,304,16,20 mix:,14@0.3
-poly bottle_body 140,298 152,298 158,310 158,321 134,321 134,310 14
-poly bottle_in 135,313 157,313 158,321 134,321 6
-rect bottle_neck 142,286,8,12 14
-rect bottle_stopper 141,281,10,5 6
-line - 152,296 164,306 c8
-poly bottle_tag 160,304 170,306 168,316 158,314 4
-poly gage_leg_l 280,244 302,244 299,350 276,350 0
-poly gage_leg_r 300,244 322,244 326,350 302,350 0
-poly gage_shoe_l 266,349 299,349 299,357 258,357 0
-poly gage_shoe_r 302,349 326,349 326,357 296,357 0
-poly gage_arm_l 260,170 276,168 278,184 270,264 254,264 256,200 0
-ellipse gage_hand_l 261,274,6,9 0
-poly gage_arm_r 320,168 336,174 352,216 336,254 322,252 334,218 322,196 0
-poly gage_coat 272,170 300,161 328,170 332,214 338,262 342,300 320,282 304,256 276,244 274,214 0
-rect gage_neck 294,152,12,12 0
-ellipse gage_head 300,138,12,17 0
-poly gage_hair 289,132 292,121 302,117 314,121 318,134 312,144 308,132 0
-poly gage_nose 289,138 283,145 289,148 0
-line gage_rim_a 336,174 352,216 336,254 c14
-line gage_rim_b 332,214 338,262 342,300 c14
-dots gage_carnation 281,182 282,182 281,183 282,183 280,183 283,183 c12
+rect bg 0,0,480,560 6
+# the light inside the closed glove
+ellipse glow_o 240,214,200,96 mix:,14@0.08
+ellipse glow_i 240,204,132,72 mix:,14@0.16
+ellipse glow_c 240,196,70,50 mix:,14@0.26
+# rays out of the fingers
+poly ray_1 236,160 244,160 150,124 112,124 mix:,14@0.34
+poly ray_2 226,160 234,160 206,124 174,124 mix:,14@0.42
+poly ray_3 236,160 244,160 252,124 228,124 mix:,14@0.50
+poly ray_4 246,160 254,160 306,124 274,124 mix:,14@0.42
+poly ray_5 236,160 244,160 368,124 330,124 mix:,14@0.34
+dots motes 120,160 150,198 196,140 300,146 344,190 372,168 396,226 108,238 330,236 c14
+# the drawer wall behind: cornice, seams, pulls and cards
+rect cornice 0,300,480,10 mix:8,0@0.3 e0
+line corn_hi 0,301 479,301 c7
+rect wall_sh 0,310,480,136 mix:6,0@0.12
+line row_1 0,342 479,342 c0
+line row_2 0,374 479,374 c0
+line row_3 0,406 479,406 c0
+line row_4 0,438 479,438 c0
+line v1_a 60,310 60,342 c0
+line v1_b 120,310 120,342 c0
+line v1_c 180,310 180,342 c0
+line v1_d 300,310 300,342 c0
+line v1_e 360,310 360,342 c0
+line v1_f 420,310 420,342 c0
+line v2_a 30,342 30,374 c0
+line v2_b 90,342 90,374 c0
+line v2_c 150,342 150,374 c0
+line v2_d 330,342 330,374 c0
+line v2_e 390,342 390,374 c0
+line v2_f 450,342 450,374 c0
+line v3_a 60,374 60,406 c0
+line v3_b 120,374 120,406 c0
+line v3_c 360,374 360,406 c0
+line v3_d 420,374 420,406 c0
+line v4_a 30,406 30,438 c0
+line v4_b 90,406 90,438 c0
+line v4_c 150,406 150,438 c0
+line v4_d 330,406 330,438 c0
+line v4_e 390,406 390,438 c0
+line v4_f 450,406 450,438 c0
+dots pulls 30,326 90,326 150,326 330,326 390,326 450,326 60,358 420,358 90,390 390,390 30,422 450,422 c14
+rect card_a 76,320,12,6 7 e0
+rect card_b 336,320,12,6 7 e0
+rect card_c 396,352,12,6 7 e0
+rect card_d 66,352,12,6 7 e0
+rect card_e 36,416,12,6 7 e0
+rect card_f 436,416,12,6 7 e0
+rect gap_a 360,342,30,3 0
+line gap_a_l 361,343 389,343 c14
+rect gap_b 90,406,30,3 0
+line gap_b_l 91,407 119,407 c14
+# a lit pool on the wall under the glove
+ellipse wall_glow 240,350,150,44 mix:,14@0.12
+# the plinth, cut clean at row 469
+rect plinth 0,446,480,24 mix:8,0@0.45
+line plinth_hi 0,446 479,446 c7
+line plinth_lo 0,458 479,458 c0
+line toe_a 60,458 60,469 c0
+line toe_b 180,458 180,469 c0
+line toe_c 300,458 300,469 c0
+line toe_d 420,458 420,469 c0
+# the open drawer the glove stands in
+poly drawer_in 156,384 324,384 338,408 142,408 0
+rect drawer_front 142,408,196,38 6 e0
+line drawer_hi 143,409 337,409 c14
+rect drawer_pull 224,422,32,5 14 e0
+rect drawer_card 166,420,34,14 7 e0
+line card_l1 170,424 196,424 c0
+line card_l2 170,429 190,429 c0
+# tissue paper round the cuff
+poly tissue_b 150,396 164,380 190,386 214,376 240,384 268,374 296,386 318,380 332,396 318,404 160,404 mix:7,15@0.4 e0
+# the gauntlet and the cuff
+poly gauntlet 200,300 280,300 300,336 306,384 174,384 180,336 mix:7,15@0.4 e0
+poly gaunt_sh 258,300 280,300 300,336 306,384 262,384 mix:7,8@0.5
+line gaunt_fold_a 212,306 206,380 c8
+line gaunt_fold_b 268,306 274,380 c8
+rect cuff 196,297,88,5 8 e0
+ellipse button 240,324,5,5 15 e0
+line loop 240,306 240,319 c4
+# the back of the hand
+poly hand_back 186,184 294,184 298,236 286,272 276,300 204,300 194,272 182,236 mix:7,15@0.4 e0
+poly hand_sh 262,184 294,184 298,236 286,272 276,300 258,300 mix:7,8@0.45
+# knuckles
+ellipse knuck_1 202,184,16,18 mix:7,15@0.4 e0
+ellipse knuck_2 227,176,15,18 mix:7,15@0.4 e0
+ellipse knuck_3 253,176,15,18 mix:7,15@0.4 e0
+ellipse knuck_4 278,184,16,18 mix:7,15@0.4 e0
+ellipse knuck_sh 282,188,10,12 mix:7,8@0.5
+# light slipping between the fingers
+poly slit_a 213,180 217,180 217,196 214,196 14
+poly slit_b 238,168 242,168 242,194 238,194 14
+poly slit_c 263,180 267,180 266,196 263,196 14
+line rim_k1 190,174 199,168 c14
+line rim_k2 214,160 224,158 c14
+line rim_k3 240,160 250,158 c14
+line rim_k4 266,164 276,168 c14
+# the three stitched ribs of a glove
+line rib_a 214,200 220,296 c8
+line rib_b 240,198 240,296 c8
+line rib_c 266,200 260,296 c8
+line rib_d 216,200 222,296 c0
+line rib_e 264,200 258,296 c0
+# the thumb, curled in against the palm
+poly thumb 190,206 174,212 162,226 163,240 176,242 196,228 202,214 mix:7,15@0.4 e0
+poly thumb_sh 174,222 188,214 196,228 176,242 mix:7,8@0.45
+line rim_thumb 174,212 162,226 c14
 `,
   cycles: [
-    {
-      "name": "the gas lamp",
-      "areas": [
-        "lamp",
-        "lamp_h1",
-        "lamp_h2"
-      ],
-      "colors": [
-        14,
-        6
-      ],
-      "style": "flicker",
-      "ms": [
-        700,
-        2200
-      ]
-    },
-    {
-      "name": "the shop window",
-      "areas": [
-        "shop_l"
-      ],
-      "colors": [
-        14,
-        6
-      ],
-      "style": "flicker",
-      "ms": [
-        900,
-        4000
-      ]
-    },
-    {
-      "name": "the memory's glow",
-      "areas": [
-        "bottle_glow",
-        "bottle_glow2"
-      ],
-      "colors": [
-        14,
-        6
-      ],
-      "style": "pingpong",
-      "scatter": true,
-      "ms": 1400
-    }
+    { "name": "the light between the fingers", "areas": ["slit_a", "slit_b", "slit_c"], "colors": [14, 15], "style": "pingpong", "ms": 1500 },
+    { "name": "the dust in the light", "areas": ["motes"], "colors": [14, 15], "style": "flicker", "ms": [500, 1600] },
+    { "name": "the brass pulls", "areas": ["pulls"], "colors": [14, 15], "style": "flicker", "scatter": true, "ms": 2400 }
   ],
-  loops: [{"name":"the moths","at":[436,186],"ms":170,"style":"loop","frames":[["........7.7.........",".........7..........","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................",".........7..........",".........7..........","...................."],
-    ["....................","....................","...............7....","...............7....","....................","....................","....................","....................","....................","....................","....................","....................","...7.7..............","....7...............","....................","...................."],
-    ["....................","....................","....................","....................","....................","....................","..7.................","..7.............7.7.","..................7.","....................","....................","....................","....................","....................","....................","...................."],
-    ["....................","......7.7...........",".......7............","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................",".............7......",".............7......","...................."],
-    ["....................",".............7......",".............7......","....................","....................","....................","....................","....................","....................","....................","....................","....................","....................",".....7.7............","......7.............","...................."],
-    ["....................","....................","....................","....................","....................","....................","....................","..7.............7.7.","..7..............7..","....................","....................","....................","....................","....................","....................","...................."]]},{"name":"the cash canister","under":"gage","path":[[-12,127],
-    [480,127]],"travel":7000,"pause":6000,"ms":300,"style":"loop","frames":[["..66666666..",".6eeee66666.","666666666666",".6666666666.","..66666666.."],
-    ["..66666666..",".66666eeee6.","666666666666",".6666666666.","..66666666.."]]}]
+  loops: [
+    { "name": "the price tag on its string", "at": [162, 236], "ms": 420, "style": "pingpong",
+      "frames": [
+        ["....0.........", "....0.........", "....0.........", "....0.........", "....0.........", "...000000000..", "..04444444440.", "..04eeeeeee40.", "..04444444440.", "..04eeeee4440.", "..04444444440.", "..04eeeeee440.", "..04444444440.", "..04eeee44440.", "..04444444440.", "..04444444440.", "...000000000.."],
+        ["...0..........", "...0..........", "...0..........", "....0.........", "....0.........", "....000000000.", "...04444444440", "...04eeeeeee40", "...04444444440", "...04eeeee4440", "...04444444440", "...04eeeeee440", "...04444444440", "...04eeee44440", "...04444444440", "...04444444440", "....000000000."]
+      ] },
+    { "name": "a moth at the glove", "at": [312, 196], "ms": 170, "style": "loop",
+      "frames": [["f.....f.", ".f...f..", "..fff...", "........"], ["........", "..fff...", ".f...f..", "f.....f."], ["f.f.....", ".ff.....", "........", "........"]] }
+  ]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "archetype: the tower (it turns on one person who watches everything: Mr Gage, the floorwalker, whose store never closes). Title at the top (flat brown band, rows 0-95, letters yellow 14); the image starts under a black cornice at row 96. Palette gaslight, leading brown (6): dark grey and brown over the walls, darkening to black at the edges, yellow (14) only for the lamps and the glow, one red (4, 12) for a window, a tag and a carnation. Camera at knee height on the shop floor, looking up, facing north into the hall. The dominant element is Mr Gage, a huge black silhouette (head, swept hair, nose in profile facing left, narrow shoulders, a morning coat with cut-away tails), standing on the right third (x about 300, feet at row 357, head at row 121): his left arm (screen left) hangs at his side, a plain mitt at mid-thigh; his right arm (screen right) is bent out with the hand in his trouser pocket, so the glow shows in the gap between arm and body. Behind him a tall arched window of lit glass {window} (flat yellow going to brown by dither lower down, gradient 1: the lamps' light thinning towards the floor) inside three nested halos of dots on the wall; a thin yellow rim light on his right edge from a gas lamp {gaslamp} on the right wing. Backdrop: the store front, a black cornice at the top, a dark grey brass cash-railway tube {tube} running across the whole poster behind his head, pilasters, the wall falling to black at both wings (gradient 2, cause: distance from the glow), a wood floor with a perspective of boards. Other elements: in the foreground left a mahogany counter {counter} with a small stoppered bottle {bottle} glowing yellow on it with a red price tag (the question: the price of everything is a memory, and what will you pay with; tiny against the huge man); left wing a lit shop window {shop} with two dress forms turned a few degrees; right wing a red-lit window with a form, and the gas lamp. Diagonals: the pool of window light running down-left across the floor and his long cast shadow running down-right. moves: the gas lamp (flicker), the left shop window (flicker), the bottle's glow (shimmer), a moth pair round the gas lamp (loop), a cash canister crossing the tube and passing behind Mr Gage's head (loop, under).",
+ "title": 14,
+ "titleAt": "top",
+ "draw": "\nrect bg 0,0,480,400 6\nrect wall_c 120,96,300,250 mix:6,8@0.4\nrect wall_l 0,96,120,250 fade:6,0/120,0/-30,0\nrect wall_r 420,96,60,250 fade:6,0/420,0/495,0\nellipse halo_3 300,236,120,138 mix:,14@0.1\nellipse halo_2 300,236,92,128 mix:,14@0.2\nellipse halo_1 300,236,64,118 mix:,14@0.35\npoly arch 240,346 240,194 244,162 254,134 266,114 282,104 296,110 312,124 322,142 326,166 326,346 fade:14,6/283,262/283,420\nline bar_1 262,124 262,346 c6\nline bar_2 282,106 282,346 c6\nline bar_3 304,118 304,346 c6\nline bar_4 244,190 324,190 c6\nline bar_5 240,262 326,262 c6\nrect cornice 0,96,480,5 0\nrect pilaster_l 116,101,10,245 mix:8,0@0.5\nrect pilaster_r 414,101,12,245 mix:8,0@0.5\nrect tube 0,126,480,6 8 e0\nline - 0,128 480,128 c6\nrect - 60,124,4,10 0\nrect - 190,124,4,10 0\nrect - 410,124,4,10 0\nrect - 462,124,4,10 0\nrect sign_l 30,150,76,16 6 e0\nline - 36,156 100,156 c14\nline - 44,161 92,161 c14\nrect shop_l 26,178,84,140 mix:14,6@0.3 e0\nellipse form_l1_head 48,206,4,5 0\npoly form_l1 44,212 52,212 54,250 62,300 34,300 44,250 0\nellipse form_l2_head 82,200,4,5 0\npoly form_l2 78,206 86,206 88,248 100,300 66,300 78,248 0\nrect sill_l 20,318,96,6 8 e0\nrect sign_r 434,222,40,10 6 e0\nline - 440,227 468,227 c14\nrect shop_r 436,240,36,66 4 e0\nellipse form_r_head 454,258,3,4 0\npoly form_r 451,263 457,263 460,300 448,300 0\nrect sill_r 432,306,44,5 8 e0\nellipse lamp_h2 446,194,22,24 mix:,14@0.12\nellipse lamp_h1 446,194,13,15 mix:,14@0.25\nline - 470,196 452,194 c0\nellipse lamp 446,194,6,7 14\nrect floor 0,346,480,54 mix:6,0@0.55\nline - 0,346 479,346 c0\nvp 300,346\nline - 0,399@1 0,399@0.3 c0\nline - 120,399@1 120,399@0.3 c0\nline - 400,399@1 400,399@0.3 c0\nline - 479,399@1 479,399@0.3 c0\npoly pool 240,346 326,346 250,399 20,399 mix:,14@0.35\npoly shadow 262,356 326,356 479,399 372,399 mix:,0@0.7\npoly counter_top 0,322 198,322 190,332 0,332 6\npoly counter_front 0,332 190,332 208,399 0,399 mix:6,0@0.8\nline - 0,322 198,322 c14\nellipse bottle_glow 146,304,26,30 mix:,14@0.2\nellipse bottle_glow2 146,304,16,20 mix:,14@0.3\npoly bottle_body 140,298 152,298 158,310 158,321 134,321 134,310 14\npoly bottle_in 135,313 157,313 158,321 134,321 6\nrect bottle_neck 142,286,8,12 14\nrect bottle_stopper 141,281,10,5 6\nline - 152,296 164,306 c8\npoly bottle_tag 160,304 170,306 168,316 158,314 4\npoly gage_leg_l 280,244 302,244 299,350 276,350 0\npoly gage_leg_r 300,244 322,244 326,350 302,350 0\npoly gage_shoe_l 266,349 299,349 299,357 258,357 0\npoly gage_shoe_r 302,349 326,349 326,357 296,357 0\npoly gage_arm_l 260,170 276,168 278,184 270,264 254,264 256,200 0\nellipse gage_hand_l 261,274,6,9 0\npoly gage_arm_r 320,168 336,174 352,216 336,254 322,252 334,218 322,196 0\npoly gage_coat 272,170 300,161 328,170 332,214 338,262 342,300 320,282 304,256 276,244 274,214 0\nrect gage_neck 294,152,12,12 0\nellipse gage_head 300,138,12,17 0\npoly gage_hair 289,132 292,121 302,117 314,121 318,134 312,144 308,132 0\npoly gage_nose 289,138 283,145 289,148 0\nline gage_rim_a 336,174 352,216 336,254 c14\nline gage_rim_b 332,214 338,262 342,300 c14\ndots gage_carnation 281,182 282,182 281,183 282,183 280,183 283,183 c12\n",
+ "cycles": [
+  {
+   "name": "the gas lamp",
+   "areas": [
+    "lamp",
+    "lamp_h1",
+    "lamp_h2"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "ms": [
+    700,
+    2200
+   ]
+  },
+  {
+   "name": "the shop window",
+   "areas": [
+    "shop_l"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "ms": [
+    900,
+    4000
+   ]
+  },
+  {
+   "name": "the memory's glow",
+   "areas": [
+    "bottle_glow",
+    "bottle_glow2"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "pingpong",
+   "scatter": true,
+   "ms": 1400
+  }
+ ],
+ "loops": [
+  {
+   "name": "the moths",
+   "at": [
+    436,
+    186
+   ],
+   "ms": 170,
+   "style": "loop",
+   "frames": [
+    [
+     "........7.7.........",
+     ".........7..........",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     ".........7..........",
+     ".........7..........",
+     "...................."
+    ],
+    [
+     "....................",
+     "....................",
+     "...............7....",
+     "...............7....",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "...7.7..............",
+     "....7...............",
+     "....................",
+     "...................."
+    ],
+    [
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "..7.................",
+     "..7.............7.7.",
+     "..................7.",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "...................."
+    ],
+    [
+     "....................",
+     "......7.7...........",
+     ".......7............",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     ".............7......",
+     ".............7......",
+     "...................."
+    ],
+    [
+     "....................",
+     ".............7......",
+     ".............7......",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     ".....7.7............",
+     "......7.............",
+     "...................."
+    ],
+    [
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "..7.............7.7.",
+     "..7..............7..",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "....................",
+     "...................."
+    ]
+   ]
+  },
+  {
+   "name": "the cash canister",
+   "under": "gage",
+   "path": [
+    [
+     -12,
+     127
+    ],
+    [
+     480,
+     127
+    ]
+   ],
+   "travel": 7000,
+   "pause": 6000,
+   "ms": 300,
+   "style": "loop",
+   "frames": [
+    [
+     "..66666666..",
+     ".6eeee66666.",
+     "666666666666",
+     ".6666666666.",
+     "..66666666.."
+    ],
+    [
+     "..66666666..",
+     ".66666eeee6.",
+     "666666666666",
+     ".6666666666.",
+     "..66666666.."
+    ]
+   ]
+  }
+ ]
 };

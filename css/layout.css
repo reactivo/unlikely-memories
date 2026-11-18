@@ -15,12 +15,13 @@
 
     /* The world's page (ui/splash.css): what the poster needs besides its cover (the padding, three keys and the gaps), which the cover's width
        gives back so that the whole poster fits the window's height. */
-    --splash-rest: 200px;
-    /* The cover is 480 x 400 (art.js cover): a wide window shows all 480 columns, an upright phone only the crop, columns 80-399 (320 of them: --splash-cols,
+    --splash-rest: 190px;
+    --splash-rows: 470;                        /* the rows shown: the title's band (0-119) and the art under it (ui/splash.js: on a wide window its middle rows, as many as the height leaves) */
+    /* The cover is 480 x 560 (art.js cover): a wide window shows all 480 columns, an upright phone only the crop, columns 80-399 (320 of them: --splash-cols,
        and --splash-skip the columns left of it; ui/splash.js asks the CSS which it is, as ui/crop.js does of the room's picture). */
     --splash-cols: 480;
     --splash-skip: 0;
-    --splash-width: min(100%, var(--column-max), max(360px, calc((100dvh - var(--splash-rest)) * var(--splash-cols) / 400)));   /* the poster's width: its cover as high as the window leaves, at any scale */
+    --splash-width: min(100%, var(--column));   /* a wide window: the game's own column (it narrows on a low window); the rows shown follow the height (ui/splash.js) */
 
     /* The column: title bar, picture, story and prompt are all this wide. */
     --column-max: 960px;                       /* widest: the game's column and the landing page's */
@@ -68,7 +69,8 @@
     :root {
       --splash-cols: 320;
       --splash-skip: 80;
-      --splash-width: min(100%, 480px);
+      --splash-rows: 470;                      /* the band and all the art, rows 0-469 */
+      --splash-width: 100%;
     }
   }
 

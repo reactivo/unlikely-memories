@@ -988,193 +988,260 @@ export const endings = {
   }
 };
 
-// ---- THE COVER (its page, /sea/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+// ---- THE COVER (its page, /sea/: docs/splash/PLAN.md): 480 x 560, the title drawn by the game on its band ---------------------------
 export const cover = {
-  shot: "archetype: the dwarf (a place bigger than you: the sea). Title at the top: the band (rows 0-95) is flat blue (1), the title in white (15). Palette harbournight, leading blue (1) as the flat sky/band, black below: the sky is blue at the top band going to black at the horizon, the sea blue at the horizon deepening to black towards us, brown (6) for the pier's boards and posts, dark grey (8) for swell strokes and shade, white (15) for the moon and what it lights, one small red (4) for the lifebuoy and the lighthouse's band, a few yellow (14) lamps on the far shore as the one accent. Light: one hard light, a full moon (a clean flat white disc, no halo) low over the sea right of centre, throwing a glittering path down the water; everything solid is black against it. Dominant: the huge night, sea and moon; a small lone figure (58 pixels, about a quarter of the picture's height) on the third at column 190, a black silhouette with a 1-pixel dark-grey rim on the moon-facing side and one white point at the nose, a brimmed hat, a turned-up collar, a knee-length coat, seen in profile facing right, standing at the end of a pier looking away across the water at the lighthouse: the near hand is in its coat pocket (the elbow shows behind), the far arm is hidden by the body. Its long shadow runs down the boards towards us and to the left, as a dither of black. A diagonal: the pier, in perspective to a vanishing point on the horizon at the right, runs from the bottom left corner up to its end beside the figure, with plank seams, a rope rail on posts and a {lifebuoy} on one post. The question: the {lighthouse}, white with a red band, dark, standing on its black rock far across the water on the right third (columns 352-370), its lamp cold. Other elements: the moon, the pier, a few lit lamps and a tall hotel on the far shore in the right wing. Wings: more sea with broken strokes of swell and the pier's posts and piles to the left with a low dune on the horizon and more stars; the far shore of the town to the right. Gradients: the sky (the night thickening towards the horizon, from the flat band above), the sea (water deepening from the horizon towards us), the deck (boards going from brown to dark grey away along the pier). moves: the glints on the moon's path (shimmer), the stars (a few dim and return), the far lamps (flicker), two gulls crossing high in the sky (travelling loop).",
+  shot: "archetype: the icon (it turns on one thing: the lighthouse whose lamp burns only what you are willing to forget; it beat the split (the waterline poster), which fits any seaside ghost story). Palette sea: night blue 1 as sky and band, white 15 and light grey 7 for the tower, red 4 for its two bands, black 0 for the lantern frame, rocks and gallery, yellow 14 for the lamp and the beams, dark grey 8 and brown 6 for the sea's streaks. The tower stands centred and huge, tapering from the rock at row 402 to a lit lantern at row 152; two soft beams cross the sky left and right. No figure. Title top, white. Moves: the lamp flickers, a lit window, a few stars, a gull, a far ship with a mast light crossing the horizon.",
   title: 15,
   titleAt: "top",
   draw: `
-# the whole canvas in the lead colour, which is also the flat title band (rows 0-95)
-rect bg 0,0,480,400 1
-# the sky: night thickening to the horizon, from the band down
-rect sky 0,96,480,130 fade:1,0/0,96/0,262
-# the sea: blue at the horizon, deepening to black towards us
-rect sea 0,226,480,174 fade:1,0/0,226/0,440
-# stars: still ones, then ones that dim and return
-dots stars_a 8,104 34,128 60,110 96,102 118,140 146,118 172,104 198,134 214,112 236,156 244,106 120,176 70,164 22,170 150,168 182,150 210,188 98,198 40,204 130,210 336,104 378,112 400,130 414,108 430,152 452,118 470,100 462,176 420,190 388,176 340,140 334,176 256,196 300,204 342,206 c15
-dots stars_b 52,142 188,122 228,138 310,106 344,160 404,162 446,138 88,184 c15
-# the moon, a flat disc
-ellipse moon 292,150,31,31 15
-# the lighthouse on its rock: tower, shade side, red band, dark lantern, roof, gallery, then the rock over its foot
-poly lh_tower 354,228 358,158 366,158 370,228 15
-poly lh_shade 363,158 366,158 370,228 364,228 mix:15,8@0.5
-poly lh_band 356,188 368,188 368,200 355,200 4
-rect lh_gallery 352,156,22,3 0 e8
-rect lh_lantern 355,148,14,8 8 e0
-poly lh_roof 353,148 362,140 371,148 0 e8
-poly lh_rock 332,240 342,228 352,224 374,223 386,229 396,240 0
-line lh_rockedge 332,240 342,228 352,224 c8
-line - 326,241 340,241 c8
-line - 388,242 404,242 c8
-# the left wing: a low dune on the horizon
-poly dune_l 0,226 0,216 14,214 30,218 52,223 70,226 0
-line - 0,216 14,214 30,218 c8
-# the right wing: the far shore, a tall hotel, lamps and their reflections
-poly shore_r 430,226 444,221 462,219 480,216 480,242 440,242 0
-rect hotel 452,198,16,26 0 e8
-poly hotel_roof 450,198 460,192 470,198 0 e8
-dots lamps 434,229 442,228 450,228 472,228 477,227 456,204 460,204 464,204 456,210 464,210 460,216 c14
-dots lamp_refl 434,244 442,245 450,244 472,245 c6
-# the moon's path on the water, from the horizon to us, alternately white and dark grey
-line mp01 286,229 298,229 c15
-line mp02 282,232 292,232 c8
-line mp03 279,235 299,235 c15
-line mp04 274,239 292,239 c8
-line mp05 272,243 306,243 c15
-line mp06 264,248 286,248 c8
-line mp07 262,252 318,252 c15
-line mp08 256,258 300,258 c8
-line mp09 252,263 330,263 c15
-line mp10 246,270 288,270 c8
-line mp11 244,277 336,277 c15
-line mp12 258,285 345,285 c8
-line mp13 244,293 360,293 c15
-line mp14 250,302 340,302 c8
-line mp15 226,312 380,312 c15
-line mp16 262,323 372,323 c8
-# swell: broken strokes of dark grey across the water, both wings
-line sw01 360,262 372,262 c8
-line sw02 374,270 392,270 c8
-line sw03 400,258 414,258 c8
-line sw04 410,290 430,290 c8
-line sw05 440,300 462,300 c8
-line sw06 350,320 372,320 c8
-line sw07 420,318 450,318 c8
-line sw08 380,345 410,345 c8
-line sw09 432,372 470,372 c8
-line sw10 300,378 340,378 c8
-line sw11 396,384 440,384 c8
-line sw12 440,262 458,262 c8
-line sw13 452,282 472,282 c8
-line sw14 4,245 22,245 c8
-line sw15 36,255 60,255 c8
-line sw16 10,266 30,266 c8
-line sw17 44,236 58,236 c8
-line sw18 90,246 112,246 c8
-line sw19 130,236 150,236 c8
-line sw20 100,266 126,266 c8
-# the pier: the deck in perspective (brown going to dark grey away from us), its seams, its far edge
-poly deck 0,318 240,253 240,276 0,396 fade:6,8/0,0/520,0
-line seam01 12,315 12,390 c0
-line seam02 40,307 40,376 c0
-line seam03 66,300 66,363 c0
-line seam04 90,294 90,351 c0
-line seam05 112,288 112,340 c0
-line seam06 132,282 132,330 c0
-line seam07 150,277 150,321 c0
-line seam08 166,273 166,313 c0
-line seam09 207,262 207,292 c0
-line seam10 219,259 219,286 c0
-line seam11 230,256 230,281 c0
-line deck_edge 0,318 240,253 c8
-# the rope rail: posts along the far edge, the rope, the lifebuoy on the post at 70
-line rope 0,288 70,277 120,267 166,257 212,248 238,242 c0
-rect post1 12,288,4,26 6 e0
-rect post2 68,277,4,22 6 e0
-rect post3 118,267,4,19 6 e0
-rect post4 164,257,4,16 6 e0
-rect post5 210,248,4,13 6 e0
-rect post6 238,242,4,11 6 e0
-ellipse buoy 70,289,5,5 4
-ellipse buoy_hole 70,289,2,2 0
-dots buoy_white 65,289 75,289 c15
-# under the deck: the fascia, the piles, the pier's shadow on the water
-poly fascia 0,396 240,276 240,284 0,404 0
-rect pile1 38,382,5,17 6 e0
-rect pile2 108,348,5,26 6 e0
-rect pile3 169,318,4,14 6 e0
-rect pile4 224,291,3,10 6 e0
-poly pier_shadow 0,404 240,284 240,300 0,420 mix:,0@0.6
-# the figure's long shadow along the boards, towards us
-poly shadow 184,296 202,296 106,333 96,336 80,338 78,333 96,326 mix:,0@0.7
-# the figure: a black silhouette in profile facing right
-poly fig_legs 184,276 199,276 199,293 202,294 202,297 191,297 191,285 189,285 189,297 181,297 181,295 184,293 0
-poly fig_coat 181,258 187,256 195,256 200,258 203,281 178,281 0
-poly fig_elbow 183,262 178,266 178,274 184,276 0
-poly fig_collar 186,256 188,252 193,252 194,257 0
-rect fig_neck 188,251,6,4 0
-poly fig_head 187,246 195,246 195,248 197,250 195,251 195,253 188,253 0
-poly fig_hat 186,239 194,239 195,244 185,244 0
-rect fig_brim 183,244,15,2 0
-# the moon's rim on the figure's right edge, and one bright point at the nose
-line fig_rim 200,258 203,281 c8
-dots fig_rim2 198,245 c8
-dots fig_glint 197,250 c15
+rect bg 0,0,480,560 1
+dots stars_a 292,302 23,288 172,136 465,226 215,230 289,273 226,287 173,217 43,268 85,312 58,212 369,142 289,302 127,238 244,261 148,156 417,244 121,300 281,219 85,126 330,270 69,229 177,203 305,283 240,217 155,294 99,178 453,261 140,282 363,166 243,269 168,165 c7
+dots stars_b 114,299 32,312 372,205 398,194 54,244 168,185 181,315 83,208 354,293 375,307 c15
+poly beam_l 224,150 224,164 0,222 0,124 mix:1,14@0.13
+poly beam_r 256,150 256,164 480,222 480,124 mix:1,14@0.13
+poly beam_l2 224,152 224,162 96,196 96,146 mix:1,14@0.22
+poly beam_r2 256,152 256,162 384,196 384,146 mix:1,14@0.22
+rect sea 0,332,480,138 fade:1,0/0,332/0,469
+poly shore_l 0,332 0,320 36,316 80,324 120,332 mix:1,0@0.4
+poly shore_r 480,332 480,322 440,318 400,326 372,332 mix:1,0@0.4
+line horizon 0,332 480,332 c8
+line gl0 96,340 136,340 c14
+line gl1 60,352 90,352 c8
+line gl2 150,350 176,350 c6
+line gl3 30,372 80,372 c14
+line gl4 120,376 154,376 c8
+line gl5 78,398 122,398 c6
+line gl6 10,420 48,420 c14
+line gl7 330,342 370,342 c8
+line gl8 392,356 426,356 c6
+line gl9 300,352 324,352 c14
+line gl10 420,376 470,376 c8
+line gl11 350,382 386,382 c6
+line gl12 400,402 446,402 c14
+line gl13 440,424 476,424 c8
+line gl14 26,445 66,445 c6
+line gl15 430,448 470,448 c14
+poly tw_body 214,178 266,178 292,402 188,402 fade:15,7/188,0/292,0
+poly tw_shade 246,178 266,178 292,402 252,402 mix:7,8@0.35
+poly tw_red1 209.8,214 270.2,214 273,238 207,238 4
+poly tw_red2 201,290 279,290 282,316 198,316 4
+line tw_c200 211.4,200 268.6,200 c8
+line tw_c256 204.9,256 275.1,256 c8
+line tw_c270 203.3,270 276.7,270 c8
+line tw_c340 195.2,340 284.8,340 c8
+line tw_c358 193.1,358 286.9,358 c8
+line tw_c376 191,376 289,376 c8
+rect tw_gal 200,168,80,9 0
+rect tw_gal2 206,177,68,3 8
+line tw_rail202 202,156 202,168 c0
+line tw_rail214 214,156 214,168 c0
+line tw_rail226 226,156 226,168 c0
+line tw_rail254 254,156 254,168 c0
+line tw_rail266 266,156 266,168 c0
+line tw_rail278 278,156 278,168 c0
+line tw_rail 202,156 278,156 c0
+rect lamp 222,138,36,30 14
+ellipse lamp_core 240,153,7,9 15
+rect tw_m222 221,138,3,30 0
+rect tw_m231 230,138,3,30 0
+rect tw_m249 248,138,3,30 0
+rect tw_m258 257,138,3,30 0
+rect tw_lt 220,136,40,4 0
+poly tw_roof 218,138 240,125 262,138 0
+rect tw_ball 238,121,4,6 0
+line tw_rim 224,133 240,126 c8
+rect tw_win 233,262,14,22 0
+rect tw_sill 230,284,20,3 8
+rect tw_wlit 237,266,6,14 14
+rect tw_win2 236,222,8,10 0
+rect tw_door 226,370,28,32 0
+ellipse tw_arch 240,370,14,9 0
+rect tw_dl 238,384,4,6 6
+poly rock_c 118,469 150,432 190,408 240,398 296,406 336,432 366,469 0
+poly rock_l 0,469 0,428 44,418 84,436 132,469 0
+poly rock_r 480,469 480,412 432,424 392,446 352,469 0
+poly rock_m1 140,462 180,426 214,410 mix:0,8@0.5 e0
+poly rock_m2 0,430 44,420 84,438 60,446 20,440 mix:0,8@0.5
+poly rock_m3 480,414 432,426 392,448 420,446 460,432 mix:0,8@0.5
+line rk_rim1 190,409 240,399 c7
+line rk_rim2 240,399 296,407 c8
+line rk_rimL 0,428 44,418 c7
+line rk_rimR 480,412 432,424 c7
+line rk_cr1 200,420 210,444 c8
+line rk_cr2 270,414 282,438 c8
+line rk_cr3 300,424 312,452 c8
+line rk_cr4 20,446 40,462 c8
+line rk_cr5 450,440 436,462 c8
+line foam0 110,468 140,468 c15
+line foam1 140,464 162,464 c7
+line foam2 330,466 360,466 c15
+line foam3 360,462 384,462 c7
+line foam4 60,461 86,461 c15
+line foam5 400,459 426,459 c7
+line foam6 0,452 26,452 c15
+line foam7 440,450 472,450 c7
 `,
-  cycles: [
-    {
-      "name": "the moon on the water",
-      "areas": [
-        "mp01",
-        "mp02",
-        "mp03",
-        "mp04",
-        "mp05",
-        "mp06",
-        "mp07",
-        "mp08",
-        "mp09",
-        "mp10",
-        "mp11",
-        "mp12",
-        "mp13",
-        "mp14",
-        "mp15",
-        "mp16"
-      ],
-      "colors": [
-        15,
-        8,
-        1
-      ],
-      "style": "pingpong",
-      "scatter": true,
-      "ms": 420
-    },
-    {
-      "name": "the stars",
-      "areas": [
-        "stars_b"
-      ],
-      "colors": [
-        15,
-        1
-      ],
-      "style": "pingpong",
-      "ms": 2400
-    },
-    {
-      "name": "the far lamps",
-      "areas": [
-        "lamps"
-      ],
-      "colors": [
-        14,
-        6
-      ],
-      "style": "flicker",
-      "scatter": true,
-      "ms": [
-        900,
-        3000
-      ]
-    }
-  ],
-  loops: [{"name":"the gulls","path":[[-30,100],
-    [500,108]],"travel":16000,"pause":6000,"ms":340,"style":"loop","frames":[["........................","........................","..f...f.................","...fff..................","........................","........................","..............fffff.....","........................","........................","........................"],
-    ["........................","........................","........................","..fffff.................","........................","........................","..............fffff.....","........................","........................","........................"],
-    ["........................","........................","........................","...fff..................","..f...f.................","........................","..............fffff.....","........................","........................","........................"],
-    ["........................","........................","........................","..fffff.................","........................","..............f...f.....","...............fff......","........................","........................","........................"],
-    ["........................","........................","........................","..fffff.................","........................","........................","..............fffff.....","........................","........................","........................"],
-    ["........................","........................","........................","..fffff.................","........................","........................","...............fff......","..............f...f.....","........................","........................"]]}]
+  cycles: [{"name":"the lamp","areas":["lamp"],"colors":[14,7],"style":"flicker","ms":[700,2200]},{"name":"the window","areas":["tw_wlit"],"colors":[14,6],"style":"pingpong","ms":1400},{"name":"the stars","areas":["stars_b"],"colors":[15,7],"style":"pingpong","scatter":true,"ms":2400}],
+  loops: [{"name":"the gull","path":[[-30,170],[500,150]],"travel":16000,"pause":6000,"ms":340,"style":"loop","frames":[["..0...0.................","...000..................","........................","........................","........................","........................","........................","........................"],["........................","..00000.................","........................","........................","........................","........................","........................","........................"],["........................","...000..................","..0...0.................","........................","........................","........................","........................","........................"],["........................","..00000.................","........................","........................","........................","........................","........................","........................"]]},{"name":"the ship","path":[[-30,326],[510,326]],"travel":70000,"pause":0,"ms":900,"style":"loop","under":"tw","frames":[[".........e..........",".........0..........","......0000000.......","..0000000000000000..","...00000000000000...","....................","....................","...................."],["....................",".........e..........",".........0..........","......0000000.......","..0000000000000000..","...00000000000000...","....................","...................."]]}]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "archetype: the dwarf (a place bigger than you: the sea). Title at the top: the band (rows 0-95) is flat blue (1), the title in white (15). Palette harbournight, leading blue (1) as the flat sky/band, black below: the sky is blue at the top band going to black at the horizon, the sea blue at the horizon deepening to black towards us, brown (6) for the pier's boards and posts, dark grey (8) for swell strokes and shade, white (15) for the moon and what it lights, one small red (4) for the lifebuoy and the lighthouse's band, a few yellow (14) lamps on the far shore as the one accent. Light: one hard light, a full moon (a clean flat white disc, no halo) low over the sea right of centre, throwing a glittering path down the water; everything solid is black against it. Dominant: the huge night, sea and moon; a small lone figure (58 pixels, about a quarter of the picture's height) on the third at column 190, a black silhouette with a 1-pixel dark-grey rim on the moon-facing side and one white point at the nose, a brimmed hat, a turned-up collar, a knee-length coat, seen in profile facing right, standing at the end of a pier looking away across the water at the lighthouse: the near hand is in its coat pocket (the elbow shows behind), the far arm is hidden by the body. Its long shadow runs down the boards towards us and to the left, as a dither of black. A diagonal: the pier, in perspective to a vanishing point on the horizon at the right, runs from the bottom left corner up to its end beside the figure, with plank seams, a rope rail on posts and a {lifebuoy} on one post. The question: the {lighthouse}, white with a red band, dark, standing on its black rock far across the water on the right third (columns 352-370), its lamp cold. Other elements: the moon, the pier, a few lit lamps and a tall hotel on the far shore in the right wing. Wings: more sea with broken strokes of swell and the pier's posts and piles to the left with a low dune on the horizon and more stars; the far shore of the town to the right. Gradients: the sky (the night thickening towards the horizon, from the flat band above), the sea (water deepening from the horizon towards us), the deck (boards going from brown to dark grey away along the pier). moves: the glints on the moon's path (shimmer), the stars (a few dim and return), the far lamps (flicker), two gulls crossing high in the sky (travelling loop).",
+ "title": 15,
+ "titleAt": "top",
+ "draw": "\n# the whole canvas in the lead colour, which is also the flat title band (rows 0-95)\nrect bg 0,0,480,400 1\n# the sky: night thickening to the horizon, from the band down\nrect sky 0,96,480,130 fade:1,0/0,96/0,262\n# the sea: blue at the horizon, deepening to black towards us\nrect sea 0,226,480,174 fade:1,0/0,226/0,440\n# stars: still ones, then ones that dim and return\ndots stars_a 8,104 34,128 60,110 96,102 118,140 146,118 172,104 198,134 214,112 236,156 244,106 120,176 70,164 22,170 150,168 182,150 210,188 98,198 40,204 130,210 336,104 378,112 400,130 414,108 430,152 452,118 470,100 462,176 420,190 388,176 340,140 334,176 256,196 300,204 342,206 c15\ndots stars_b 52,142 188,122 228,138 310,106 344,160 404,162 446,138 88,184 c15\n# the moon, a flat disc\nellipse moon 292,150,31,31 15\n# the lighthouse on its rock: tower, shade side, red band, dark lantern, roof, gallery, then the rock over its foot\npoly lh_tower 354,228 358,158 366,158 370,228 15\npoly lh_shade 363,158 366,158 370,228 364,228 mix:15,8@0.5\npoly lh_band 356,188 368,188 368,200 355,200 4\nrect lh_gallery 352,156,22,3 0 e8\nrect lh_lantern 355,148,14,8 8 e0\npoly lh_roof 353,148 362,140 371,148 0 e8\npoly lh_rock 332,240 342,228 352,224 374,223 386,229 396,240 0\nline lh_rockedge 332,240 342,228 352,224 c8\nline - 326,241 340,241 c8\nline - 388,242 404,242 c8\n# the left wing: a low dune on the horizon\npoly dune_l 0,226 0,216 14,214 30,218 52,223 70,226 0\nline - 0,216 14,214 30,218 c8\n# the right wing: the far shore, a tall hotel, lamps and their reflections\npoly shore_r 430,226 444,221 462,219 480,216 480,242 440,242 0\nrect hotel 452,198,16,26 0 e8\npoly hotel_roof 450,198 460,192 470,198 0 e8\ndots lamps 434,229 442,228 450,228 472,228 477,227 456,204 460,204 464,204 456,210 464,210 460,216 c14\ndots lamp_refl 434,244 442,245 450,244 472,245 c6\n# the moon's path on the water, from the horizon to us, alternately white and dark grey\nline mp01 286,229 298,229 c15\nline mp02 282,232 292,232 c8\nline mp03 279,235 299,235 c15\nline mp04 274,239 292,239 c8\nline mp05 272,243 306,243 c15\nline mp06 264,248 286,248 c8\nline mp07 262,252 318,252 c15\nline mp08 256,258 300,258 c8\nline mp09 252,263 330,263 c15\nline mp10 246,270 288,270 c8\nline mp11 244,277 336,277 c15\nline mp12 258,285 345,285 c8\nline mp13 244,293 360,293 c15\nline mp14 250,302 340,302 c8\nline mp15 226,312 380,312 c15\nline mp16 262,323 372,323 c8\n# swell: broken strokes of dark grey across the water, both wings\nline sw01 360,262 372,262 c8\nline sw02 374,270 392,270 c8\nline sw03 400,258 414,258 c8\nline sw04 410,290 430,290 c8\nline sw05 440,300 462,300 c8\nline sw06 350,320 372,320 c8\nline sw07 420,318 450,318 c8\nline sw08 380,345 410,345 c8\nline sw09 432,372 470,372 c8\nline sw10 300,378 340,378 c8\nline sw11 396,384 440,384 c8\nline sw12 440,262 458,262 c8\nline sw13 452,282 472,282 c8\nline sw14 4,245 22,245 c8\nline sw15 36,255 60,255 c8\nline sw16 10,266 30,266 c8\nline sw17 44,236 58,236 c8\nline sw18 90,246 112,246 c8\nline sw19 130,236 150,236 c8\nline sw20 100,266 126,266 c8\n# the pier: the deck in perspective (brown going to dark grey away from us), its seams, its far edge\npoly deck 0,318 240,253 240,276 0,396 fade:6,8/0,0/520,0\nline seam01 12,315 12,390 c0\nline seam02 40,307 40,376 c0\nline seam03 66,300 66,363 c0\nline seam04 90,294 90,351 c0\nline seam05 112,288 112,340 c0\nline seam06 132,282 132,330 c0\nline seam07 150,277 150,321 c0\nline seam08 166,273 166,313 c0\nline seam09 207,262 207,292 c0\nline seam10 219,259 219,286 c0\nline seam11 230,256 230,281 c0\nline deck_edge 0,318 240,253 c8\n# the rope rail: posts along the far edge, the rope, the lifebuoy on the post at 70\nline rope 0,288 70,277 120,267 166,257 212,248 238,242 c0\nrect post1 12,288,4,26 6 e0\nrect post2 68,277,4,22 6 e0\nrect post3 118,267,4,19 6 e0\nrect post4 164,257,4,16 6 e0\nrect post5 210,248,4,13 6 e0\nrect post6 238,242,4,11 6 e0\nellipse buoy 70,289,5,5 4\nellipse buoy_hole 70,289,2,2 0\ndots buoy_white 65,289 75,289 c15\n# under the deck: the fascia, the piles, the pier's shadow on the water\npoly fascia 0,396 240,276 240,284 0,404 0\nrect pile1 38,382,5,17 6 e0\nrect pile2 108,348,5,26 6 e0\nrect pile3 169,318,4,14 6 e0\nrect pile4 224,291,3,10 6 e0\npoly pier_shadow 0,404 240,284 240,300 0,420 mix:,0@0.6\n# the figure's long shadow along the boards, towards us\npoly shadow 184,296 202,296 106,333 96,336 80,338 78,333 96,326 mix:,0@0.7\n# the figure: a black silhouette in profile facing right\npoly fig_legs 184,276 199,276 199,293 202,294 202,297 191,297 191,285 189,285 189,297 181,297 181,295 184,293 0\npoly fig_coat 181,258 187,256 195,256 200,258 203,281 178,281 0\npoly fig_elbow 183,262 178,266 178,274 184,276 0\npoly fig_collar 186,256 188,252 193,252 194,257 0\nrect fig_neck 188,251,6,4 0\npoly fig_head 187,246 195,246 195,248 197,250 195,251 195,253 188,253 0\npoly fig_hat 186,239 194,239 195,244 185,244 0\nrect fig_brim 183,244,15,2 0\n# the moon's rim on the figure's right edge, and one bright point at the nose\nline fig_rim 200,258 203,281 c8\ndots fig_rim2 198,245 c8\ndots fig_glint 197,250 c15\n",
+ "cycles": [
+  {
+   "name": "the moon on the water",
+   "areas": [
+    "mp01",
+    "mp02",
+    "mp03",
+    "mp04",
+    "mp05",
+    "mp06",
+    "mp07",
+    "mp08",
+    "mp09",
+    "mp10",
+    "mp11",
+    "mp12",
+    "mp13",
+    "mp14",
+    "mp15",
+    "mp16"
+   ],
+   "colors": [
+    15,
+    8,
+    1
+   ],
+   "style": "pingpong",
+   "scatter": true,
+   "ms": 420
+  },
+  {
+   "name": "the stars",
+   "areas": [
+    "stars_b"
+   ],
+   "colors": [
+    15,
+    1
+   ],
+   "style": "pingpong",
+   "ms": 2400
+  },
+  {
+   "name": "the far lamps",
+   "areas": [
+    "lamps"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "scatter": true,
+   "ms": [
+    900,
+    3000
+   ]
+  }
+ ],
+ "loops": [
+  {
+   "name": "the gulls",
+   "path": [
+    [
+     -30,
+     100
+    ],
+    [
+     500,
+     108
+    ]
+   ],
+   "travel": 16000,
+   "pause": 6000,
+   "ms": 340,
+   "style": "loop",
+   "frames": [
+    [
+     "........................",
+     "........................",
+     "..f...f.................",
+     "...fff..................",
+     "........................",
+     "........................",
+     "..............fffff.....",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "..fffff.................",
+     "........................",
+     "........................",
+     "..............fffff.....",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "...fff..................",
+     "..f...f.................",
+     "........................",
+     "..............fffff.....",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "..fffff.................",
+     "........................",
+     "..............f...f.....",
+     "...............fff......",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "..fffff.................",
+     "........................",
+     "........................",
+     "..............fffff.....",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "..fffff.................",
+     "........................",
+     "........................",
+     "...............fff......",
+     "..............f...f.....",
+     "........................",
+     "........................"
+    ]
+   ]
+  }
+ ]
 };

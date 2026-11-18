@@ -6,23 +6,24 @@
 // (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.63.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.63.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.63.0";
-import { isAction } from "./actions.js?v=0.63.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.63.0";
-import { solveCommand } from "./narrator.js?v=0.63.0";
-import { isLine } from "./shapes.js?v=0.63.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.63.0";
-import { nextCell } from "./space.js?v=0.63.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.63.0";
-import * as opening from "./opening.js?v=0.63.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.63.0";
-import art from "../content/art.js?v=0.63.0";
-import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.63.0";
-import { paintPicture, CLEAR } from "./paint.js?v=0.63.0";
-import { filterProblem } from "./filters.js?v=0.63.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.63.0";
+import { parse, normalise } from "./parser.js?v=0.64.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.64.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.64.0";
+import { isAction } from "./actions.js?v=0.64.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.64.0";
+import { solveCommand } from "./narrator.js?v=0.64.0";
+import { isLine } from "./shapes.js?v=0.64.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.64.0";
+import { nextCell } from "./space.js?v=0.64.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.64.0";
+import * as opening from "./opening.js?v=0.64.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.64.0";
+import art from "../content/art.js?v=0.64.0";
+import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.64.0";
+import { paintPicture, CLEAR } from "./paint.js?v=0.64.0";
+import { contrast, MIN_CONTRAST } from "./hist.js?v=0.64.0";
+import { filterProblem } from "./filters.js?v=0.64.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.64.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -784,7 +785,7 @@ function scrollOverlaps(picture, objects) {
 // What a picture's motion could be gentler about (art.effects.pace; BRIEF.md §7, "Animation"): never a problem. Steps quicker than the recipes'
 // (pingpong, rotate and blink without a sweep; a flicker's waits; a scroll's step; a sweep's), all the cycles together moving more than a sixth of
 // the picture's pixels (a flicker not counted), a picture with no cycle whose `shot` doesn't say "moves: nothing", and a shot with no "moves:" part.
-// `size` is the picture's own width and height: a room's (art.picture, the default) or a cover's (art.cover: 480 x 400).
+// `size` is the picture's own width and height: a room's (art.picture, the default) or a cover's (art.cover: 480 x 560).
 export function motionWarnings(picture, size = art.picture) {
   const why = [], cycles = (picture.cycles || []).filter(c => c && typeof c === "object"), pace = art.effects.pace;
   for (const c of cycles) {
@@ -811,42 +812,94 @@ export function motionWarnings(picture, size = art.picture) {
   return why;
 }
 
-// A world's cover (`export const cover = { shot, title, titleAt, draw, cycles, loops }`: docs/splash/PLAN.md), checked: never a problem. Its motion by the
-// cover's own 480 x 400 (not a room's), a cover narrower than that warned of, and its title band: `title` a palette number and `titleAt` "top" or "bottom"; the band (art.cover.bands) one flat
-// colour across the full width, painted by the shapes with nothing crossing it (no shape but the first that paints all of it, no dither or edge), no cycle or loop touching it,
-// and a colour that isn't the title's own (the engine draws the title there, js/title.js).
-export function coverWarnings(cover) {
+// A world's cover (`export const cover = { shot, title, titleAt, draw, cycles, loops }`: docs/splash/PLAN.md; BRIEF.md §7, "Cover and box art"), checked: never a
+// problem. 480 x 560 (art.cover): its motion by that size; the first shape paints the whole canvas, wings included; BOTH bands (art.cover.bands: rows
+// 0-119 and 470-559) one flat colour, the same one, the world's background: painted by the shapes with nothing crossing them (no shape but the first
+// that paints all of it, no dither or edge), no cycle or loop touching them; the title (`title`, a palette number, and `titleAt` "top" or "bottom":
+// the engine draws it there, js/title.js) a colour that isn't the background and reads on it (contrast >= 4.5:1); the background is the world's
+// measured one when it is given (`background`: js/hist.js, coverBackground; the most-used colour of its room pictures, black aside, that white reads
+// on); the motion calm (at most 3 cycles and 2 loops, at least 2 and 1; a cycle paints one of its colours only, never the background; at most one
+// scatter). `background` is left out where there is no world (a made-up cover in a test): then the bands' colour is the cover's own.
+export function coverWarnings(cover, { background = null } = {}) {
   if (!cover || typeof cover !== "object") return [];
   const draw = typeof cover.draw === "string" ? parseShapes(cover.draw).shapes : cover.draw, why = [];
   const pic = { ...cover, draw };
   why.push(...motionWarnings(pic, art.cover), ...loopProblems(cover.loops, art.cover, art.effects.loops.coverMax));   // (a cover may have up to coverMax loops)
-  // At least two cycles and one loop (Diego, 16 November 2026): a poster that is clearly alive.
-  const nc = (cover.cycles || []).length, nl = (cover.loops || []).length;
-  if (nc < 2 || nl < 1) why.push(`has ${nc} cycle${nc === 1 ? "" : "s"} and ${nl} loop${nl === 1 ? "" : "s"}: a cover has at least two cycles and one loop`);
+  // A poster that is clearly alive and calm (Diego, 16-17 November 2026): 2-3 cycles, 1-2 loops.
+  const nc = (cover.cycles || []).length, nl = (cover.loops || []).length, lim = art.cover.motion;
+  if (nc < lim.cycles[0] || nl < lim.loops[0]) why.push(`has ${nc} cycle${nc === 1 ? "" : "s"} and ${nl} loop${nl === 1 ? "" : "s"}: a cover has at least ${lim.cycles[0]} cycles and ${lim.loops[0]} loop`);
+  if (nc > lim.cycles[1]) why.push(`has ${nc} cycles: a cover has at most ${lim.cycles[1]} (a poster moves a few living things)`);
+  if (nl > lim.loops[1]) why.push(`has ${nl} loops: a cover has at most ${lim.loops[1]}`);
+  if ((cover.cycles || []).filter(c => c?.scatter).length > 1) why.push("has more than one scatter cycle: at most one, on a handful of points");
   const { width: W, height: H, bands } = art.cover, band = bands[cover.titleAt];
   if (!band) why.push(`titleAt is ${JSON.stringify(cover.titleAt)}: it names the title's band, "top" (rows ${bands.top[0]}-${bands.top[1] - 1}) or "bottom" (rows ${bands.bottom[0]}-${bands.bottom[1] - 1})`);
   if (!Number.isInteger(cover.title) || cover.title < 0 || cover.title > 15) why.push(`title is ${JSON.stringify(cover.title)}: it is the title's colour, a palette number 0-15`);
   if (!band || !Array.isArray(draw) || !draw.length) return why;
   let px, areas;
   try { ({ px, areas } = paintPicture(draw, W, H, CLEAR)); } catch { return why; }
-  // Covers are 480 x 400 (an upright phone shows columns 80-399, a wide window all of them): the rightmost painted column says how wide this one was drawn.
+  // Covers are 480 wide (an upright phone shows columns 80-399, a wide window all of them): the rightmost painted column says how wide this one was drawn.
   let right = -1;
   for (let k = 0; k < px.length; k++) if (px[k] !== CLEAR) right = Math.max(right, k % W);
   if (right >= 0 && right + 1 < W) { why.push(`covers are ${W} x ${H}: this one paints only ${right + 1} columns (the first shape paints all of 0-${W - 1}, wings included)`); return why; }
-  const name = `its title band (${cover.titleAt}, rows ${band[0]}-${band[1] - 1})`, seen = new Map();
+  const flat = bandWarnings(px, W, bands.top, `its top band (rows ${bands.top[0]}-${bands.top[1] - 1})`, why),
+    flatBottom = bandWarnings(px, W, bands.bottom, `its bottom band (rows ${bands.bottom[0]}-${bands.bottom[1] - 1})`, why);
+  const bg = flat ?? flatBottom, name = `its title band (${cover.titleAt}, rows ${band[0]}-${band[1] - 1})`;
+  if (flat != null && flatBottom != null && flat !== flatBottom) why.push(`its top band is colour ${flat} and its bottom band colour ${flatBottom}: both are the background, one colour`);
+  if (bg != null && Number.isInteger(cover.title) && cover.title >= 0 && cover.title <= 15) {
+    if (bg === cover.title) why.push(`${name} is colour ${cover.title}, the title's own: the title wouldn't show`);
+    else if (contrast(cover.title, bg) < MIN_CONTRAST) why.push(`the title's colour ${cover.title} has a contrast of ${contrast(cover.title, bg).toFixed(1)}:1 on the background (colour ${bg}): at least ${MIN_CONTRAST}:1`);
+  }
+  if (bg != null && background != null && bg !== background) why.push(`the background is colour ${bg}, but the world's own pictures measure colour ${background} (the most-used colour of its rooms, black aside, that white reads on: node tools/pictures/hist.mjs <world>)`);
+  const inBand = (k) => (k >= bands.top[0] * W && k < bands.top[1] * W) || (k >= bands.bottom[0] * W && k < bands.bottom[1] * W);
+  for (const c of cover.cycles || []) if (c && (c.areas || []).some(a => areaPixels(a, areas, W, H).some(inBand))) why.push(`cycle "${c.name ?? "?"}" touches a band: no cycle may`);
+  for (const c of cover.cycles || []) {
+    if (!c || typeof c !== "object") continue;
+    const cols = colorsOf(c);
+    if (bg != null && Array.isArray(cols) && cols.includes(bg)) why.push(`cycle "${c.name ?? "?"}" has the background colour ${bg} among its colours: a cycle never moves into or out of the background`);
+    if (c.style === "scroll" || c.sweep || !Array.isArray(cols)) continue;   // (a scroll slides a pattern, a sweep runs its colours over its area by design)
+    const own = new Set();
+    for (const a of c.areas || []) for (const k of areaPixels(a, areas, W, H)) if (cols.includes(px[k])) own.add(px[k]);
+    if (own.size > 1) why.push(`cycle "${c.name ?? "?"}": its area is painted in ${own.size} of its colours (${[...own].join(", ")}), a dither or a mix, so it flips at once and the picture sparkles: paint its area in one of its colours, flat`);
+  }
+  for (const l of cover.loops || []) if (l?.under && !Object.keys(areas).some(id => id === l.under || id.startsWith(l.under + "_"))) why.push(`loop "${l.name ?? "?"}": under "${l.under}" matches no shape that shows (an id, or the start of ids "<id>_…")`);
+  for (const l of cover.loops || []) {
+    const pts = l?.path ?? (l?.at ? [l.at] : []), h = l?.frames?.[0]?.length ?? 0;
+    for (const bd of [bands.top, bands.bottom]) if (pts.length && Math.max(...pts.map(p => p[1])) + h > bd[0] && Math.min(...pts.map(p => p[1])) < bd[1]) { why.push(`loop "${l.name ?? "?"}" reaches into a band (rows ${bd[0]}-${bd[1] - 1}): no loop may`); break; }
+  }
+  return why;
+}
+
+// One band of a poster's pixels (rows [from, to)): one flat, painted colour. Adds to `why` what is wrong; returns the colour when it is one, else null.
+function bandWarnings(px, W, band, name, why) {
+  const seen = new Map();
   for (let k = band[0] * W; k < band[1] * W; k++) seen.set(px[k], (seen.get(px[k]) ?? 0) + 1);
   if (seen.size > 1) {
     const list = [...seen].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([c, n]) => (c === CLEAR ? "unpainted" : `colour ${c}`) + ` ${n}`).join(", ");
     why.push(`${name} is not one flat colour (${seen.size} in it: ${list}): the image ends before it, and no shape, edge, dither, line or light crosses into it`);
-  } else if ([...seen.keys()][0] === CLEAR) why.push(`${name} is unpainted: the first shape paints the whole canvas`);
-  else if ([...seen.keys()][0] === cover.title) why.push(`${name} is colour ${cover.title}, the title's own: the title wouldn't show`);
-  const inBand = (k) => k >= band[0] * W && k < band[1] * W;
-  for (const c of cover.cycles || []) if (c && (c.areas || []).some(a => areaPixels(a, areas, W, H).some(inBand))) why.push(`cycle "${c.name ?? "?"}" touches ${name}: no cycle may`);
-  for (const l of cover.loops || []) if (l?.under && !Object.keys(areas).some(id => id === l.under || id.startsWith(l.under + "_"))) why.push(`loop "${l.name ?? "?"}": under "${l.under}" matches no shape that shows (an id, or the start of ids "<id>_…")`);
-  for (const l of cover.loops || []) {
-    const pts = l?.path ?? (l?.at ? [l.at] : []), h = l?.frames?.[0]?.length ?? 0;
-    if (pts.length && Math.max(...pts.map(p => p[1])) + h > band[0] && Math.min(...pts.map(p => p[1])) < band[1]) why.push(`loop "${l.name ?? "?"}" reaches into ${name}: no loop may`);
+    return null;
   }
+  const c = [...seen.keys()][0];
+  if (c === CLEAR) { why.push(`${name} is unpainted: the first shape paints the whole canvas`); return null; }
+  return c;
+}
+
+// A world's box art (`export const boxart = { shot, title, titleAt, draw }`: the earlier 480 x 400 cover, shown in the list of games as its phone
+// crop, still: art.boxart; BRIEF.md §7, "Cover and box art"), checked as the 480 x 400 covers were: 480 columns painted, its title band (art.boxart.bands) one
+// flat, painted colour that isn't the title's own, the title's colour a palette number, and no cycle or loop is checked (it never moves).
+export function boxartWarnings(boxart) {
+  if (!boxart || typeof boxart !== "object") return [];
+  const draw = typeof boxart.draw === "string" ? parseShapes(boxart.draw).shapes : boxart.draw, why = [];
+  const { width: W, height: H, bands } = art.boxart, band = bands[boxart.titleAt];
+  if (!band) why.push(`titleAt is ${JSON.stringify(boxart.titleAt)}: it names the title's band, "top" (rows ${bands.top[0]}-${bands.top[1] - 1}) or "bottom" (rows ${bands.bottom[0]}-${bands.bottom[1] - 1})`);
+  if (!Number.isInteger(boxart.title) || boxart.title < 0 || boxart.title > 15) why.push(`title is ${JSON.stringify(boxart.title)}: it is the title's colour, a palette number 0-15`);
+  if (!band || !Array.isArray(draw) || !draw.length) return why;
+  let px;
+  try { ({ px } = paintPicture(draw, W, H, CLEAR)); } catch { return why; }
+  let right = -1;
+  for (let k = 0; k < px.length; k++) if (px[k] !== CLEAR) right = Math.max(right, k % W);
+  if (right >= 0 && right + 1 < W) { why.push(`box art is ${W} x ${H}: this one paints only ${right + 1} columns (the first shape paints all of 0-${W - 1}, wings included)`); return why; }
+  const bg = bandWarnings(px, W, band, `its title band (${boxart.titleAt}, rows ${band[0]}-${band[1] - 1})`, why);
+  if (bg != null && bg === boxart.title) why.push(`its title band is colour ${boxart.title}, the title's own: the title wouldn't show`);
   return why;
 }
 

@@ -1788,239 +1788,532 @@ export const endings = {
 
 // ---- THE COVER (its page, /noon/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
 export const cover = {
-  shot: "archetype: the icon (it turns on one thing: the gold bell that has lost its tongue); it beat the dwarf (a small explorer before the stone frog-mouth gate: a figure before a temple door could open any world's poster). Title at the top (rows 0-95 one flat light blue sky; the temple wall's cornice begins at row 100). Eye level on the terrace, looking up a little at the temple's stepped yellow stone face, noon palette, flat style: lead yellow (the wall, the lit floor), sky light blue with light cyan at the horizon, greens, brown for shade, one small red accent; one light, the noon sun high on the right, hard flat shade, the sunlit patch the opening throws on the floor falling down to the left. Dominant element: the huge gold bell (about 160 wide, a third of the poster's height) hung by a chain link from a black beam in the stepped corbel opening of the wall (the backdrop: the stepped opening with its sky and a far valley), seen from slightly below so that its mouth is an empty black ellipse with one bare gold hook hanging in it (the question: where is its tongue); a white lit stripe on its right, brown shade on its left, two brown bands, one sparkle on its shoulder. Other elements: through the opening the far jungle, the river as a light cyan ribbon climbing to the right, and two stilt houses of the village with a trickle of smoke; the explorer, small, a black silhouette in a pith helmet, in profile on the third x 150, head tilted back looking up at the bell, both arms hang at his sides, a white rim light on his right edge and the red badge on his helmet as the one bright point, standing in the lit patch with a short shadow. Wings: stone courses with dark stones and cracks, a creeper hanging from the cornice, a fallen block and tufts at the left; a stone niche, moss and ferns at the right. Moves: glints on the river (shimmer), a sparkle on the bell, the village smoke (a loop, rising), birds far off crossing behind the wall (a loop, under the wall: seen only through the opening)",
-  title: 0,
+  shot: "archetype: the icon (it turns on one thing, the gold bell that lost its tongue; it beat the split, the river that runs up the valley, which any river poster could be). Round 13, drawn fresh on the measured brown (6) with green (2), yellow (14) and light green (10). Flat style, one light: the noon sun. The bell is gold, seen from below, hung from a black beam between two posts, in front of a big green disc with a light-green rim; its mouth is an empty dark hole with only the stub of the hook, no tongue: the question. Second element: a black explorer 70 pixels tall on the left ridge, a pith helmet, a stick in the right hand, a rolled map in the left, looking out; third: the stepped yellow temple on the right ridge. Everything the story needs is in rows 138-262, columns 84-386. Wings: a fig tree and cloud streaks on the left, the temple and a ridge on the right. The lower part: a green river carrying the bell's broken gold reflection and the posts' black reflections, light-green chevrons pointing up the valley, a dugout, black reeds cut by the bottom edge. Title white on brown 5.2:1. Moves: the disc's rim breathes (cycle), glints on the river (cycle, scatter), chevrons run up (cycle), a bird crosses behind the bell (loop), a fish leaps (loop).",
+  title: 15,
   titleAt: "top",
   draw: `
-# the wall, the sky above it, the cornice
-rect wall_base 0,0,480,400 14
-rect sky 0,0,480,100 9
-rect wall_cornice 0,100,480,10 6
-line wall_cornice_lit 0,100 479,100 c14
-line wall_cornice_under 0,110 479,110 c0
-
-# stone courses
-line wall_c1 0,136 479,136 c6
-line wall_c2 0,162 479,162 c6
-line wall_c3 0,188 479,188 c6
-line wall_c4 0,214 479,214 c6
-line wall_c5 0,240 479,240 c6
-line wall_c6 0,266 479,266 c6
-line wall_c7 0,292 479,292 c6
-line wall_c8 0,318 479,318 c6
-
-# dark stones among the pale ones
-rect wall_blk_a 54,138,84,22 6
-rect wall_blk_b 370,190,72,22 6
-rect wall_blk_c 386,242,42,22 6
-rect wall_blk_d 34,294,48,22 6
-rect wall_blk_e 398,268,56,22 6
-
-# joints, left of the opening
-line wall_j_l0 26,111 26,135 c6
-line wall_j_l0b 120,111 120,135 c6
-line wall_j_l1 52,137 52,161 c6
-line wall_j_l1b 140,137 140,161 c6
-line wall_j_l2 12,163 12,187 c6
-line wall_j_l2b 90,163 90,187 c6
-line wall_j_l3 36,189 36,213 c6
-line wall_j_l3b 100,189 100,213 c6
-line wall_j_l4 20,215 20,239 c6
-line wall_j_l4b 66,215 66,239 c6
-line wall_j_l5 46,241 46,265 c6
-line wall_j_l5b 92,241 92,265 c6
-line wall_j_l6 8,267 8,291 c6
-line wall_j_l6b 60,267 60,291 c6
-line wall_j_l7 32,293 32,317 c6
-line wall_j_l7b 84,293 84,317 c6
-line wall_j_l8 20,319 20,337 c6
-line wall_j_l8b 70,319 70,337 c6
-
-# joints, right of the opening
-line wall_j_r0 330,111 330,135 c6
-line wall_j_r0b 424,111 424,135 c6
-line wall_j_r1 350,137 350,161 c6
-line wall_j_r1b 452,137 452,161 c6
-line wall_j_r2 352,163 352,187 c6
-line wall_j_r2b 420,163 420,187 c6
-line wall_j_r3 368,189 368,213 c6
-line wall_j_r3b 444,189 444,213 c6
-line wall_j_r4 388,215 388,239 c6
-line wall_j_r4b 462,215 462,239 c6
-line wall_j_r5 384,241 384,265 c6
-line wall_j_r5b 430,241 430,265 c6
-line wall_j_r6 396,267 396,291 c6
-line wall_j_r6b 456,267 456,291 c6
-line wall_j_r7 380,293 380,317 c6
-line wall_j_r7b 436,293 436,317 c6
-line wall_j_r8 402,319 402,337 c6
-line wall_j_r8b 452,319 452,337 c6
-
-# cracks and moss
-line wall_crack_a 62,216 56,228 60,238 c0
-line wall_crack_b 440,294 446,306 442,316 c0
-poly wall_moss_l 0,324 14,318 34,324 56,332 70,338 0,338 2
-poly wall_moss_lhl 0,324 14,318 26,322 10,326 10
-poly wall_moss_r 480,322 462,316 440,324 418,332 404,338 480,338 2
-poly wall_moss_rhl 480,322 462,316 450,320 466,326 10
-
-# the stepped opening: its reveal, the sky, the far valley
-poly wall_reveal 197,116 283,116 283,138 298,138 298,162 318,162 318,186 338,186 338,210 356,210 356,242 373,242 373,338 107,338 107,242 124,242 124,210 142,210 142,186 162,186 162,162 182,162 182,138 197,138 6
-poly open_sky 205,124 275,124 275,146 290,146 290,170 310,170 310,194 330,194 330,218 348,218 348,250 365,250 365,338 115,338 115,250 132,250 132,218 150,218 150,194 170,194 170,170 190,170 190,146 205,146 9
-rect open_haze 115,280,250,14 11
-poly open_cloud_a 196,156 240,154 262,158 206,162 11
-poly open_cloud_b 136,236 166,234 170,240 140,242 11
-poly open_hill 115,306 135,298 160,302 184,296 206,300 240,296 262,300 290,294 316,298 342,292 365,296 365,312 115,312 10
-poly open_jungle 115,316 128,310 146,314 160,310 190,314 240,312 290,310 312,304 330,298 348,296 365,294 365,338 115,338 2
-poly open_jungle_hl_l 118,316 130,311 144,315 128,319 10
-poly open_jungle_hl_r 318,308 330,302 342,300 332,306 10
-poly open_river 115,328 365,318 365,330 115,338 11
-line open_river_edge 115,328 365,318 c9
-poly village_a_roof 326,312 332,306 338,312 14
-rect village_a_wall 328,312,8,3 6
-line village_a_stilt_a 329,315 329,319 c6
-line village_a_stilt_b 335,315 335,318 c6
-poly village_b_roof 346,314 353,308 360,314 14
-rect village_b_wall 348,314,10,3 6
-line village_b_stilt_a 349,317 349,320 c6
-line village_b_stilt_b 357,317 357,319 c6
-line gl1 122,333 126,333 c15
-line gl2 134,331 139,331 c11
-line gl3 146,335 150,335 c15
-line gl4 324,325 328,325 c11
-line gl5 334,328 340,328 c15
-line gl6 346,324 350,324 c11
-line gl7 354,328 358,328 c15
-
-# the beam, the chain, the bell
-rect beam 184,160,112,10 0
-line beam_lit 184,160 295,160 c6
-ellipse chain_a 240,175,3,4 14 e0
-ellipse chain_b 240,181,3,3 14 e0
-poly bell_body 222,186 258,186 267,196 276,224 287,256 300,288 320,314 160,314 180,288 193,256 204,224 213,196 14
-poly bell_band1 201,232 279,232 280,237 200,237 6
-poly bell_band2 183,280 297,280 299,285 181,285 6
-poly bell_shade 222,186 213,196 204,224 193,256 180,288 160,314 178,314 194,288 206,256 217,224 226,198 232,186 6
-poly bell_lit 254,188 263,198 272,224 283,256 296,288 314,312 305,312 290,288 277,256 266,224 257,200 248,190 15
-ellipse bell_crown 240,186,19,6 14 e0
-ellipse bell_rim_under 240,316,80,17 6
-ellipse bell_rim 240,314,80,17 14
-ellipse bell_mouth 240,311,71,12 0
-line bell_hook 240,300 240,312 c14
-ellipse bell_hook_ring 240,314,3,2 14
-dots spk_core 250,256 249,256 251,256 250,255 250,257 c14
-dots spk_mid 249,255 251,255 249,257 251,257 248,256 252,256 250,254 250,258 c14
-dots spk_tip 247,256 246,256 253,256 254,256 250,253 250,259 c14
-
-# the floor
-rect floor_base 0,338,480,62 6
-line floor_edge 0,338 479,338 c0
-line floor_h1 0,356 479,356 c0
-line floor_h2 0,372 479,372 c0
-line floor_h3 0,386 479,386 c0
-line floor_j1 40,356 36,372 c0
-line floor_j2 70,372 66,386 c0
-line floor_j3 20,372 14,386 c0
-line floor_j4 96,356 90,372 c0
-line floor_j5 380,356 384,372 c0
-line floor_j6 420,372 426,386 c0
-line floor_j7 450,356 456,372 c0
-poly floor_lit 150,346 340,346 290,399 100,399 14
-line floor_lh1 141,356 331,356 c6
-line floor_lh2 126,372 316,372 c6
-line floor_lh3 112,386 302,386 c6
-line floor_lj1 196,346 190,356 c6
-line floor_lj2 280,346 274,356 c6
-line floor_lj3 170,356 164,372 c6
-line floor_lj4 246,356 242,372 c6
-line floor_lj5 320,356 318,372 c6
-line floor_lj6 150,372 144,386 c6
-line floor_lj7 212,372 208,386 c6
-line floor_lj8 280,372 278,386 c6
-poly floor_block_top 10,366 20,358 66,358 58,366 14 e0
-rect floor_block 10,366,48,18 6 e0
-line tuft_l 76,352 78,346 80,352 82,345 84,352 86,347 88,352 c2
-line tuft_r 410,350 412,344 414,350 416,343 418,350 420,345 422,350 c10
-
-# the explorer
-poly fig_shadow 141,392 159,392 120,399 98,399 0
-poly fig_leg_b 143,378 149,378 149,394 138,394 139,391 0
-poly fig_leg_f 150,378 157,378 158,391 162,394 150,394 0
-poly fig_coat 142,352 158,352 164,360 165,377 137,378 138,362 0
-poly fig_arm_b 137,354 142,354 141,376 136,376 0
-ellipse fig_hand_b 137,378,2,3 0
-ellipse fig_hand_f 165,379,2,3 0
-rect fig_neck 148,352,5,3 0
-ellipse fig_head 151,349,4,5 0
-poly fig_nose 154,349 158,351 154,353 0
-ellipse fig_helmet 150,342,7,5 0
-poly fig_brim 144,346 163,343 164,345 145,348 0
-dots fig_badge 156,342 c12
-line fig_rim 159,353 164,360 165,377 c15
-
-# wings: the creeper at the left, the niche at the right, ferns
-poly vine_a 0,110 58,110 52,130 60,152 46,176 54,198 40,214 28,196 34,172 14,160 22,138 0,146 2
-poly vine_hl 36,110 58,110 52,130 56,146 46,140 40,124 10
-poly vine_hl2 44,176 54,198 46,206 40,190 10
-line vine_t1 12,160 10,184 8,196 c2
-line vine_t2 30,200 28,224 c2
-poly wall_niche_arch 420,236 420,208 434,196 448,208 448,236 6 e0
-poly wall_niche_in 424,236 424,210 434,202 444,210 444,236 0
-ellipse fern_l_a 30,336,16,7 2 e0
-ellipse fern_l_b 26,330,10,4 10
-ellipse fern_r_a 452,336,18,7 2 e0
-ellipse fern_r_b 458,330,12,4 10
+rect sky 0,0,480,560 6
+# the green disc behind the bell: a light-green rim
+ellipse rim 240,226,102,102 10
+ellipse disc 240,226,96,96 2
+# the far hills across the water
+poly farhill 0,322 0,306 70,300 150,304 240,298 330,304 410,300 479,306 479,322 10
+poly farhillD 0,322 0,314 90,310 200,314 300,310 479,314 479,322 2
+poly ridgeR 479,326 479,248 436,244 396,254 360,276 326,326 10
+poly ridgeR2 479,326 479,292 440,290 410,298 388,312 372,326 2
+# the temple: stepped yellow tiers with brown ledges, a dark door, a brown stair
+rect tmp_t0 340,276,140,22 14
+rect tmp_l0 340,295,140,3 6
+rect tmp_t1 352,256,116,20 14
+rect tmp_l1 352,273,116,3 6
+rect tmp_t2 366,238,88,18 14
+rect tmp_l2 366,253,88,3 6
+rect tmp_t3 380,222,60,16 14
+rect tmp_l3 380,235,60,3 6
+rect tmp_t4 392,206,36,16 14
+rect tmp_l4 392,219,36,3 6
+rect tmp_cap 388,200,44,6 6
+rect tmp_stair 405,222,10,76 6
+rect tmp_door 404,208,12,14 0
+outline tmp e0
+# left ridge
+poly ridgeL 0,326 0,262 50,256 100,258 150,262 190,274 226,298 256,326 10
+poly ridgeL2 0,326 0,290 70,284 130,290 180,300 212,316 232,326 2
+line ridgeLl 0,262 50,256 100,258 150,262 c2
+# the fig tree on the left
+poly trunkL 28,258 30,176 38,176 44,258 0
+ellipse crwL1 36,176,34,11 0
+ellipse crwL2 36,174,32,9 2
+ellipse crwL3 36,171,28,5 10
+ellipse crwL4 62,196,20,8 0
+ellipse crwL5 62,194,18,6 2
+ellipse crwL6 62,192,14,3 10
+line vineL 20,182 20,224 c0
+# two lit cloud streaks
+rect cl1 6,150,44,3 14
+rect cl2 18,157,30,3 14
+rect cl3 392,162,50,3 14
+rect cl4 404,169,32,3 14
+# the gantry
+rect beam 68,138,344,12 0
+rect postL 84,138,14,126 0
+rect postR 372,138,14,162 0
+poly braceL 98,150 98,172 120,150 0
+poly braceR 372,150 372,172 350,150 0
+# the bell: gold, seen from below, the mouth empty
+rect bell_yoke 232,150,16,10 0
+poly bell_body 222,160 258,160 262,176 266,196 272,214 284,230 306,242 174,242 196,230 208,214 214,196 218,176 14
+poly bell_sh 252,160 258,160 262,176 266,196 272,214 284,230 306,242 284,242 278,226 266,208 260,190 255,174 6
+rect bell_b1 214,192,52,2 6
+rect bell_b2 208,212,64,2 6
+rect bell_b3 196,228,88,2 6
+line bell_gl 227,168 218,208 c15
+line bell_gl2 229,168 220,206 c15
+ellipse bell_lip 240,242,66,16 14
+ellipse bell_in 240,241,58,12 6
+ellipse bell_hole 240,244,46,8 0
+line bell_hook 240,232 240,240 c14
+ellipse bell_ring 240,242,3,3 14
+outline bell e0
+# the explorer on the left ridge: black, a pith helmet, a stick in the right hand, a rolled map in the left
+poly e_helm 125,199 128,190 134,187 140,190 143,199 0
+poly e_brim 121,199 147,199 149,202 119,202 0
+ellipse e_head 134,208,5,6 0
+rect e_neck 132,213,4,4 0
+poly e_body 124,217 144,217 144,248 124,248 0
+poly e_shL 124,217 119,222 118,226 124,226 0
+poly e_armL 117,224 122,224 121,246 117,246 0
+rect e_map 113,244,8,10 0
+poly e_shR 144,217 149,222 150,226 144,226 0
+poly e_armR 146,224 150,226 154,238 150,240 0
+rect e_stick 153,228,3,34 0
+poly e_skirt 124,244 144,244 147,254 121,254 0
+poly e_legL 125,252 133,252 132,263 123,263 0
+poly e_legR 135,252 143,252 145,263 136,263 0
+# tufts on the ridges
+line gr60 60,280 66,272 72,280 c2
+line gr104 104,292 110,284 116,292 c2
+line gr172 172,296 178,288 184,296 c2
+line gr24 24,300 30,292 36,300 c2
+line gr420 420,308 426,300 432,308 c2
+line gr452 452,316 458,308 464,316 c2
+line gr340 340,316 346,308 352,316 c2
+line gr400 400,318 406,310 412,318 c2
+# the river: green water, black shoreline
+rect water 0,326,480,144 2
+line shoreL 0,326 256,326 c0
+line shoreR 326,326 479,326 c0
+rect refl0 165,326,150,4 14
+rect refl1 173,334,134,4 14
+rect refl2 181,342,118,4 14
+rect refl3 188,350,104,4 14
+rect refl4 193,358,94,4 14
+rect refl5 198,366,84,4 14
+rect refl6 203,376,74,4 14
+rect refl7 207,388,66,4 14
+rect refl8 212,402,56,4 14
+rect refl9 217,418,46,4 14
+rect reflB0 186,330,36,3 6
+rect reflB1 198,338,29,3 6
+rect reflB2 204,346,25,3 6
+rect reflB3 211,354,21,3 6
+rect reflB4 216,362,18,3 6
+rect reflB5 221,370,15,3 6
+rect rfPL0 86,330,12,6 0
+rect rfPR0 374,330,12,6 0
+rect rfPL1 86,342,12,6 0
+rect rfPR1 374,342,12,6 0
+rect rfPL2 86,354,12,6 0
+rect rfPR2 374,354,12,6 0
+rect rfPL3 86,366,12,6 0
+rect rfPR3 374,366,12,6 0
+rect wv0 24,336,22,2 10
+rect wv1 66,339,8,2 10
+rect wv2 100,335,8,2 0
+rect wv3 139,334,22,2 10
+rect wv4 362,334,18,2 10
+rect wv5 427,339,8,2 0
+rect wv6 147,349,12,2 10
+rect wv7 372,344,10,2 0
+rect wv8 428,348,22,2 0
+rect wv9 460,346,18,2 0
+rect wv10 58,359,14,2 0
+rect wv11 476,356,16,2 10
+rect wv12 118,367,20,2 0
+rect wv13 24,378,22,2 0
+rect wv14 70,375,12,2 0
+rect wv15 115,375,12,2 0
+rect wv16 156,377,22,2 0
+rect wv17 13,384,20,2 10
+rect wv18 50,386,14,2 0
+rect wv19 101,385,16,2 0
+rect wv20 158,385,8,2 10
+rect wv21 20,397,18,2 10
+rect wv22 55,396,20,2 0
+rect wv23 97,398,8,2 0
+rect wv24 373,397,22,2 10
+rect wv25 474,397,22,2 10
+rect wv26 71,404,8,2 10
+rect wv27 94,409,8,2 0
+rect wv28 325,409,16,2 0
+rect wv29 456,406,22,2 0
+rect wv30 23,419,22,2 10
+rect wv31 108,420,8,2 0
+rect wv32 335,417,10,2 0
+rect wv33 358,419,8,2 0
+rect wv34 412,419,8,2 0
+rect wv35 70,430,18,2 10
+rect wv36 111,429,16,2 10
+rect wv37 212,429,18,2 0
+rect wv38 246,426,18,2 0
+rect wv39 369,428,10,2 10
+rect wv40 53,439,20,2 10
+rect wv41 122,435,10,2 0
+rect wv42 255,438,8,2 10
+rect wv43 333,434,20,2 10
+rect wv44 20,444,10,2 0
+rect wv45 53,450,8,2 0
+rect wv46 205,448,18,2 10
+rect wv47 281,450,12,2 0
+rect wv48 324,447,14,2 10
+rect wv49 385,448,18,2 0
+rect wv50 29,459,18,2 10
+rect wv51 58,459,14,2 0
+rect wv52 332,455,22,2 10
+rect wv53 380,456,18,2 10
+rect wv54 165,468,16,2 0
+rect wv55 293,464,18,2 10
+rect wv56 326,464,14,2 0
+rect gl0 205,340,14,3 14
+rect gl1 268,356,14,3 14
+rect gl2 220,380,14,3 14
+rect gl3 258,398,14,3 14
+rect gl4 236,414,14,3 14
+line chev0 40,352 50,344 60,352 c10
+line chev1 112,376 122,368 132,376 c10
+line chev2 350,348 360,340 370,348 c10
+line chev3 420,372 430,364 440,372 c10
+line chev4 64,408 74,400 84,408 c10
+line chev5 150,346 160,338 170,346 c10
+line chev6 372,396 382,388 392,396 c10
+line chev7 140,436 150,428 160,436 c10
+line chev8 304,432 314,424 324,432 c10
+line chev9 436,426 446,418 456,426 c10
+line chev10 22,450 32,442 42,450 c10
+line chev11 392,452 402,444 412,452 c10
+# a dugout drifting up the river
+poly canoe 318,408 372,402 384,406 366,416 324,418 0
+line paddle 342,396 352,414 c0
+# the near bank: black reeds and roots cut by the bottom edge
+poly reedL1 0,469 0,420 14,438 24,469 0
+poly reedL2 12,469 22,430 38,452 44,469 0
+poly reedL3 34,469 44,446 62,464 66,469 0
+poly reedL4 56,469 70,452 84,469 0
+poly reedR1 479,469 479,414 464,436 452,469 0
+poly reedR2 468,469 456,426 440,450 434,469 0
+poly reedR3 446,469 430,450 414,466 412,469 0
+poly reedR4 420,469 404,456 396,469 0
+line reedLl 8,428 20,456 c10
+line reedRl 472,422 460,452 c10
 `,
   cycles: [
-    {
-      "name": "the glints",
-      "areas": [
-        "gl1",
-        "gl2",
-        "gl3",
-        "gl4",
-        "gl5",
-        "gl6",
-        "gl7"
-      ],
-      "colors": [
-        15,
-        11,
-        9
-      ],
-      "style": "pingpong",
-      "scatter": true,
-      "ms": 420
-    },
-    {
-      "name": "the sparkle",
-      "areas": [
-        "spk_core",
-        "spk_mid",
-        "spk_tip"
-      ],
-      "colors": [
-        15,
-        15,
-        11,
-        14
-      ],
-      "rest": 46,
-      "style": "rotate",
-      "sweep": true,
-      "ms": 110
-    }
+    { "name": "the disc's rim", "areas": ["rim"], "colors": [10, 14, 15, 14], "style": "rotate", "ms": 800 },
+    { "name": "the glints", "areas": ["gl0","gl1","gl2","gl3","gl4"], "colors": [14, 15, 14, 10], "style": "pingpong", "scatter": true, "ms": 480 },
+    { "name": "the river runs up", "areas": ["chev0","chev1","chev2","chev3","chev4","chev5","chev6","chev7","chev8","chev9","chev10","chev11"], "style": "scroll", "dir": "up", "ms": 160 }
   ],
-  loops: [{"name":"the village smoke","at":[350,285],"ms":280,"style":"loop","frames":[[".......8......","......8..8....","........8.....",".......8..8...",".......8.88...",".......8.88...","........8.88..","........8.88..",".......888....","......888.....",".....888......","....888.......","....777.......","....777.......","....77........","....77........",".....77.......",".....77.......","......77......",".....77.......","....7.........","....7.........","...7..........","..7..........."],
-    ["........8.....",".......8..8...",".........8....","........8..8..","........8.88..","........8.88..",".......8.88...",".......8.88...","......888.....","....888.......","....888.......","....888.......",".....777......",".....777......",".....77.......",".....77.......","......77......","......77......",".....77.......","....77........","...7..........","..7...........","..7...........","..7..........."],
-    [".........8....","........8..8..","..........8...",".........8..8.",".......8.88...",".......8.88...","......8.88....",".....8.88.....",".....888......","....888.......",".....888......",".....888......","......777.....","......777.....","......77......","......77......",".....77.......",".....77.......","....77........","..77..........","..7...........","..7...........","...7..........","...7.........."],
-    ["..........8...",".........8..8.",".........8....","........8..8..","......8.88....",".....8.88.....",".....8.88.....",".....8.88.....","......888.....",".....888......","......888.....","......888.....",".......777....",".......777....",".....77.......",".....77.......","....77........","...77.........","...77.........","..77..........","...7..........","...7..........","....7.........","....7........."],
-    [".........8....","........8..8..","........8.....","......8..8....",".....8.88.....",".....8.88.....","......8.88....","......8.88....",".......888....","......888.....",".......888....",".......888....","......777.....","......777.....","....77........","...77.........","...77.........","...77.........","....77........","...77.........","....7.........","....7.........",".....7........",".....7........"],
-    ["........8.....","......8..8....",".......8......","......8..8....","......8.88....","......8.88....",".......8.88...",".......8.88...","........888...",".......888....","......888.....","......888.....",".....777......","....777.......","...77.........","...77.........","....77........","....77........",".....77.......","....77........",".....7........",".....7........","....7.........","....7........."]]},{"name":"the birds","at":[0,0],"ms":340,"style":"loop","under":"wall","path":[[-26,128],
-    [482,146]],"travel":16000,"pause":6000,"frames":[["0...0...................",".000....................","........................","........................","........................","........................",".............00000......","........................","........................","........................"],
-    ["........................","00000...................","........................","........................","........................","........................",".............00000......","........................","........................","........................"],
-    ["........................",".000....................","0...0...................","........................","........................","........................",".............00000......","........................","........................","........................"],
-    ["........................","00000...................","........................","........................","........................",".............0...0......","..............000.......","........................","........................","........................"],
-    ["........................","00000...................","........................","........................","........................","........................",".............00000......","........................","........................","........................"],
-    ["........................","00000...................","........................","........................","........................","........................","..............000.......",".............0...0......","........................","........................"]]}]
+  loops: [{"name":"the bird","path":[[-10,186],[490,170]],"travel":15000,"pause":8000,"ms":260,"style":"loop","under":"bell","frames":[["0.....0",".0...0.","..000..","...0..."],["..000..",".0...0.","0.....0","......."]]},{"name":"the fish","at":[286,428],"ms":360,"style":"loop","frames":[["....ff..","...ffff.","..ffff..",".ff.f...","f......."],["........","........","..ff....",".ffff...","ffff.f.."]]}]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "archetype: the icon (it turns on one thing: the gold bell that has lost its tongue); it beat the dwarf (a small explorer before the stone frog-mouth gate: a figure before a temple door could open any world's poster). Title at the top (rows 0-95 one flat light blue sky; the temple wall's cornice begins at row 100). Eye level on the terrace, looking up a little at the temple's stepped yellow stone face, noon palette, flat style: lead yellow (the wall, the lit floor), sky light blue with light cyan at the horizon, greens, brown for shade, one small red accent; one light, the noon sun high on the right, hard flat shade, the sunlit patch the opening throws on the floor falling down to the left. Dominant element: the huge gold bell (about 160 wide, a third of the poster's height) hung by a chain link from a black beam in the stepped corbel opening of the wall (the backdrop: the stepped opening with its sky and a far valley), seen from slightly below so that its mouth is an empty black ellipse with one bare gold hook hanging in it (the question: where is its tongue); a white lit stripe on its right, brown shade on its left, two brown bands, one sparkle on its shoulder. Other elements: through the opening the far jungle, the river as a light cyan ribbon climbing to the right, and two stilt houses of the village with a trickle of smoke; the explorer, small, a black silhouette in a pith helmet, in profile on the third x 150, head tilted back looking up at the bell, both arms hang at his sides, a white rim light on his right edge and the red badge on his helmet as the one bright point, standing in the lit patch with a short shadow. Wings: stone courses with dark stones and cracks, a creeper hanging from the cornice, a fallen block and tufts at the left; a stone niche, moss and ferns at the right. Moves: glints on the river (shimmer), a sparkle on the bell, the village smoke (a loop, rising), birds far off crossing behind the wall (a loop, under the wall: seen only through the opening)",
+ "title": 0,
+ "titleAt": "top",
+ "draw": "\n# the wall, the sky above it, the cornice\nrect wall_base 0,0,480,400 14\nrect sky 0,0,480,100 9\nrect wall_cornice 0,100,480,10 6\nline wall_cornice_lit 0,100 479,100 c14\nline wall_cornice_under 0,110 479,110 c0\n\n# stone courses\nline wall_c1 0,136 479,136 c6\nline wall_c2 0,162 479,162 c6\nline wall_c3 0,188 479,188 c6\nline wall_c4 0,214 479,214 c6\nline wall_c5 0,240 479,240 c6\nline wall_c6 0,266 479,266 c6\nline wall_c7 0,292 479,292 c6\nline wall_c8 0,318 479,318 c6\n\n# dark stones among the pale ones\nrect wall_blk_a 54,138,84,22 6\nrect wall_blk_b 370,190,72,22 6\nrect wall_blk_c 386,242,42,22 6\nrect wall_blk_d 34,294,48,22 6\nrect wall_blk_e 398,268,56,22 6\n\n# joints, left of the opening\nline wall_j_l0 26,111 26,135 c6\nline wall_j_l0b 120,111 120,135 c6\nline wall_j_l1 52,137 52,161 c6\nline wall_j_l1b 140,137 140,161 c6\nline wall_j_l2 12,163 12,187 c6\nline wall_j_l2b 90,163 90,187 c6\nline wall_j_l3 36,189 36,213 c6\nline wall_j_l3b 100,189 100,213 c6\nline wall_j_l4 20,215 20,239 c6\nline wall_j_l4b 66,215 66,239 c6\nline wall_j_l5 46,241 46,265 c6\nline wall_j_l5b 92,241 92,265 c6\nline wall_j_l6 8,267 8,291 c6\nline wall_j_l6b 60,267 60,291 c6\nline wall_j_l7 32,293 32,317 c6\nline wall_j_l7b 84,293 84,317 c6\nline wall_j_l8 20,319 20,337 c6\nline wall_j_l8b 70,319 70,337 c6\n\n# joints, right of the opening\nline wall_j_r0 330,111 330,135 c6\nline wall_j_r0b 424,111 424,135 c6\nline wall_j_r1 350,137 350,161 c6\nline wall_j_r1b 452,137 452,161 c6\nline wall_j_r2 352,163 352,187 c6\nline wall_j_r2b 420,163 420,187 c6\nline wall_j_r3 368,189 368,213 c6\nline wall_j_r3b 444,189 444,213 c6\nline wall_j_r4 388,215 388,239 c6\nline wall_j_r4b 462,215 462,239 c6\nline wall_j_r5 384,241 384,265 c6\nline wall_j_r5b 430,241 430,265 c6\nline wall_j_r6 396,267 396,291 c6\nline wall_j_r6b 456,267 456,291 c6\nline wall_j_r7 380,293 380,317 c6\nline wall_j_r7b 436,293 436,317 c6\nline wall_j_r8 402,319 402,337 c6\nline wall_j_r8b 452,319 452,337 c6\n\n# cracks and moss\nline wall_crack_a 62,216 56,228 60,238 c0\nline wall_crack_b 440,294 446,306 442,316 c0\npoly wall_moss_l 0,324 14,318 34,324 56,332 70,338 0,338 2\npoly wall_moss_lhl 0,324 14,318 26,322 10,326 10\npoly wall_moss_r 480,322 462,316 440,324 418,332 404,338 480,338 2\npoly wall_moss_rhl 480,322 462,316 450,320 466,326 10\n\n# the stepped opening: its reveal, the sky, the far valley\npoly wall_reveal 197,116 283,116 283,138 298,138 298,162 318,162 318,186 338,186 338,210 356,210 356,242 373,242 373,338 107,338 107,242 124,242 124,210 142,210 142,186 162,186 162,162 182,162 182,138 197,138 6\npoly open_sky 205,124 275,124 275,146 290,146 290,170 310,170 310,194 330,194 330,218 348,218 348,250 365,250 365,338 115,338 115,250 132,250 132,218 150,218 150,194 170,194 170,170 190,170 190,146 205,146 9\nrect open_haze 115,280,250,14 11\npoly open_cloud_a 196,156 240,154 262,158 206,162 11\npoly open_cloud_b 136,236 166,234 170,240 140,242 11\npoly open_hill 115,306 135,298 160,302 184,296 206,300 240,296 262,300 290,294 316,298 342,292 365,296 365,312 115,312 10\npoly open_jungle 115,316 128,310 146,314 160,310 190,314 240,312 290,310 312,304 330,298 348,296 365,294 365,338 115,338 2\npoly open_jungle_hl_l 118,316 130,311 144,315 128,319 10\npoly open_jungle_hl_r 318,308 330,302 342,300 332,306 10\npoly open_river 115,328 365,318 365,330 115,338 11\nline open_river_edge 115,328 365,318 c9\npoly village_a_roof 326,312 332,306 338,312 14\nrect village_a_wall 328,312,8,3 6\nline village_a_stilt_a 329,315 329,319 c6\nline village_a_stilt_b 335,315 335,318 c6\npoly village_b_roof 346,314 353,308 360,314 14\nrect village_b_wall 348,314,10,3 6\nline village_b_stilt_a 349,317 349,320 c6\nline village_b_stilt_b 357,317 357,319 c6\nline gl1 122,333 126,333 c15\nline gl2 134,331 139,331 c11\nline gl3 146,335 150,335 c15\nline gl4 324,325 328,325 c11\nline gl5 334,328 340,328 c15\nline gl6 346,324 350,324 c11\nline gl7 354,328 358,328 c15\n\n# the beam, the chain, the bell\nrect beam 184,160,112,10 0\nline beam_lit 184,160 295,160 c6\nellipse chain_a 240,175,3,4 14 e0\nellipse chain_b 240,181,3,3 14 e0\npoly bell_body 222,186 258,186 267,196 276,224 287,256 300,288 320,314 160,314 180,288 193,256 204,224 213,196 14\npoly bell_band1 201,232 279,232 280,237 200,237 6\npoly bell_band2 183,280 297,280 299,285 181,285 6\npoly bell_shade 222,186 213,196 204,224 193,256 180,288 160,314 178,314 194,288 206,256 217,224 226,198 232,186 6\npoly bell_lit 254,188 263,198 272,224 283,256 296,288 314,312 305,312 290,288 277,256 266,224 257,200 248,190 15\nellipse bell_crown 240,186,19,6 14 e0\nellipse bell_rim_under 240,316,80,17 6\nellipse bell_rim 240,314,80,17 14\nellipse bell_mouth 240,311,71,12 0\nline bell_hook 240,300 240,312 c14\nellipse bell_hook_ring 240,314,3,2 14\ndots spk_core 250,256 249,256 251,256 250,255 250,257 c14\ndots spk_mid 249,255 251,255 249,257 251,257 248,256 252,256 250,254 250,258 c14\ndots spk_tip 247,256 246,256 253,256 254,256 250,253 250,259 c14\n\n# the floor\nrect floor_base 0,338,480,62 6\nline floor_edge 0,338 479,338 c0\nline floor_h1 0,356 479,356 c0\nline floor_h2 0,372 479,372 c0\nline floor_h3 0,386 479,386 c0\nline floor_j1 40,356 36,372 c0\nline floor_j2 70,372 66,386 c0\nline floor_j3 20,372 14,386 c0\nline floor_j4 96,356 90,372 c0\nline floor_j5 380,356 384,372 c0\nline floor_j6 420,372 426,386 c0\nline floor_j7 450,356 456,372 c0\npoly floor_lit 150,346 340,346 290,399 100,399 14\nline floor_lh1 141,356 331,356 c6\nline floor_lh2 126,372 316,372 c6\nline floor_lh3 112,386 302,386 c6\nline floor_lj1 196,346 190,356 c6\nline floor_lj2 280,346 274,356 c6\nline floor_lj3 170,356 164,372 c6\nline floor_lj4 246,356 242,372 c6\nline floor_lj5 320,356 318,372 c6\nline floor_lj6 150,372 144,386 c6\nline floor_lj7 212,372 208,386 c6\nline floor_lj8 280,372 278,386 c6\npoly floor_block_top 10,366 20,358 66,358 58,366 14 e0\nrect floor_block 10,366,48,18 6 e0\nline tuft_l 76,352 78,346 80,352 82,345 84,352 86,347 88,352 c2\nline tuft_r 410,350 412,344 414,350 416,343 418,350 420,345 422,350 c10\n\n# the explorer\npoly fig_shadow 141,392 159,392 120,399 98,399 0\npoly fig_leg_b 143,378 149,378 149,394 138,394 139,391 0\npoly fig_leg_f 150,378 157,378 158,391 162,394 150,394 0\npoly fig_coat 142,352 158,352 164,360 165,377 137,378 138,362 0\npoly fig_arm_b 137,354 142,354 141,376 136,376 0\nellipse fig_hand_b 137,378,2,3 0\nellipse fig_hand_f 165,379,2,3 0\nrect fig_neck 148,352,5,3 0\nellipse fig_head 151,349,4,5 0\npoly fig_nose 154,349 158,351 154,353 0\nellipse fig_helmet 150,342,7,5 0\npoly fig_brim 144,346 163,343 164,345 145,348 0\ndots fig_badge 156,342 c12\nline fig_rim 159,353 164,360 165,377 c15\n\n# wings: the creeper at the left, the niche at the right, ferns\npoly vine_a 0,110 58,110 52,130 60,152 46,176 54,198 40,214 28,196 34,172 14,160 22,138 0,146 2\npoly vine_hl 36,110 58,110 52,130 56,146 46,140 40,124 10\npoly vine_hl2 44,176 54,198 46,206 40,190 10\nline vine_t1 12,160 10,184 8,196 c2\nline vine_t2 30,200 28,224 c2\npoly wall_niche_arch 420,236 420,208 434,196 448,208 448,236 6 e0\npoly wall_niche_in 424,236 424,210 434,202 444,210 444,236 0\nellipse fern_l_a 30,336,16,7 2 e0\nellipse fern_l_b 26,330,10,4 10\nellipse fern_r_a 452,336,18,7 2 e0\nellipse fern_r_b 458,330,12,4 10\n",
+ "cycles": [
+  {
+   "name": "the glints",
+   "areas": [
+    "gl1",
+    "gl2",
+    "gl3",
+    "gl4",
+    "gl5",
+    "gl6",
+    "gl7"
+   ],
+   "colors": [
+    15,
+    11,
+    9
+   ],
+   "style": "pingpong",
+   "scatter": true,
+   "ms": 420
+  },
+  {
+   "name": "the sparkle",
+   "areas": [
+    "spk_core",
+    "spk_mid",
+    "spk_tip"
+   ],
+   "colors": [
+    15,
+    15,
+    11,
+    14
+   ],
+   "rest": 46,
+   "style": "rotate",
+   "sweep": true,
+   "ms": 110
+  }
+ ],
+ "loops": [
+  {
+   "name": "the village smoke",
+   "at": [
+    350,
+    285
+   ],
+   "ms": 280,
+   "style": "loop",
+   "frames": [
+    [
+     ".......8......",
+     "......8..8....",
+     "........8.....",
+     ".......8..8...",
+     ".......8.88...",
+     ".......8.88...",
+     "........8.88..",
+     "........8.88..",
+     ".......888....",
+     "......888.....",
+     ".....888......",
+     "....888.......",
+     "....777.......",
+     "....777.......",
+     "....77........",
+     "....77........",
+     ".....77.......",
+     ".....77.......",
+     "......77......",
+     ".....77.......",
+     "....7.........",
+     "....7.........",
+     "...7..........",
+     "..7..........."
+    ],
+    [
+     "........8.....",
+     ".......8..8...",
+     ".........8....",
+     "........8..8..",
+     "........8.88..",
+     "........8.88..",
+     ".......8.88...",
+     ".......8.88...",
+     "......888.....",
+     "....888.......",
+     "....888.......",
+     "....888.......",
+     ".....777......",
+     ".....777......",
+     ".....77.......",
+     ".....77.......",
+     "......77......",
+     "......77......",
+     ".....77.......",
+     "....77........",
+     "...7..........",
+     "..7...........",
+     "..7...........",
+     "..7..........."
+    ],
+    [
+     ".........8....",
+     "........8..8..",
+     "..........8...",
+     ".........8..8.",
+     ".......8.88...",
+     ".......8.88...",
+     "......8.88....",
+     ".....8.88.....",
+     ".....888......",
+     "....888.......",
+     ".....888......",
+     ".....888......",
+     "......777.....",
+     "......777.....",
+     "......77......",
+     "......77......",
+     ".....77.......",
+     ".....77.......",
+     "....77........",
+     "..77..........",
+     "..7...........",
+     "..7...........",
+     "...7..........",
+     "...7.........."
+    ],
+    [
+     "..........8...",
+     ".........8..8.",
+     ".........8....",
+     "........8..8..",
+     "......8.88....",
+     ".....8.88.....",
+     ".....8.88.....",
+     ".....8.88.....",
+     "......888.....",
+     ".....888......",
+     "......888.....",
+     "......888.....",
+     ".......777....",
+     ".......777....",
+     ".....77.......",
+     ".....77.......",
+     "....77........",
+     "...77.........",
+     "...77.........",
+     "..77..........",
+     "...7..........",
+     "...7..........",
+     "....7.........",
+     "....7........."
+    ],
+    [
+     ".........8....",
+     "........8..8..",
+     "........8.....",
+     "......8..8....",
+     ".....8.88.....",
+     ".....8.88.....",
+     "......8.88....",
+     "......8.88....",
+     ".......888....",
+     "......888.....",
+     ".......888....",
+     ".......888....",
+     "......777.....",
+     "......777.....",
+     "....77........",
+     "...77.........",
+     "...77.........",
+     "...77.........",
+     "....77........",
+     "...77.........",
+     "....7.........",
+     "....7.........",
+     ".....7........",
+     ".....7........"
+    ],
+    [
+     "........8.....",
+     "......8..8....",
+     ".......8......",
+     "......8..8....",
+     "......8.88....",
+     "......8.88....",
+     ".......8.88...",
+     ".......8.88...",
+     "........888...",
+     ".......888....",
+     "......888.....",
+     "......888.....",
+     ".....777......",
+     "....777.......",
+     "...77.........",
+     "...77.........",
+     "....77........",
+     "....77........",
+     ".....77.......",
+     "....77........",
+     ".....7........",
+     ".....7........",
+     "....7.........",
+     "....7........."
+    ]
+   ]
+  },
+  {
+   "name": "the birds",
+   "at": [
+    0,
+    0
+   ],
+   "ms": 340,
+   "style": "loop",
+   "under": "wall",
+   "path": [
+    [
+     -26,
+     128
+    ],
+    [
+     482,
+     146
+    ]
+   ],
+   "travel": 16000,
+   "pause": 6000,
+   "frames": [
+    [
+     "0...0...................",
+     ".000....................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     ".............00000......",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     ".............00000......",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     ".000....................",
+     "0...0...................",
+     "........................",
+     "........................",
+     "........................",
+     ".............00000......",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "........................",
+     ".............0...0......",
+     "..............000.......",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     ".............00000......",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "..............000.......",
+     ".............0...0......",
+     "........................",
+     "........................"
+    ]
+   ]
+  }
+ ]
 };

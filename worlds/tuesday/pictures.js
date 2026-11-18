@@ -613,156 +613,385 @@ export const endings = {
   }
 };
 
-// ---- THE COVER (its page, /tuesday/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
+// ---- THE COVER (its page, /tuesday/: docs/splash/PLAN.md): 480 x 560, the title drawn by the game on its band -----------------------------------
 export const cover = {
-  shot: "archetype: the icon. Its yes: the world turns on one thing, Monday itself, cut out of the week by decree; the poster is the week with its Monday column missing. It beat the tower (the Minister's statue over the square: any town with a monument could own that poster, and the decree's power doesn't need his outline). Title at the top (a flat brown 6 band, rows 0-95: the wall carried on, the title in yellow 14). Facing: straight at the wall, eye level, upright. Palette gaslight (lead brown 6; dark grey 8, black, yellow 14 for the lamp and the lit paper, one red 4 accent); the light is one gas lamp on a bracket at the left, at about x 88, y 172, a flat yellow globe with a dithered halo on the wall, so the calendar is lit from the left and throws a dither shadow down and to the right (the diagonal, with the rails inside the gap, which converge on the far light). Dominant: one huge tear-off wall calendar on the wall, centred, columns 116-362, rows 104-388: a dark grey board with a black binding strip (three hanger holes showing the wall), a yellow lit sheet (the right half checked with brown for shade: it turns from the lamp), a brown month band with two bars (no letters), a row of day-name dashes, a grid of five rows by seven columns with a dash of a number in each cell, and the pad's edge in stripes under the sheet. The Monday column (second from the left, columns 155-189) is cut clean out of the sheet and the board: a dark hole 34 wide and 220 high, dark grey fading to black. Through it, the question: a railway line runs away up the hole in perspective (two brown rails, sleepers), a small black train leaving, two carriages with yellow windows and a red tail lamp (the one red accent), a pale yellow light at the far end. Not the answer: nothing says how to board or what Tuesday holds. No figures. Backdrop: the brown wall falling into the dark towards the bottom (a gradient with its cause, the lamp's reach), tongue-and-groove seams in the wings, a dark grey skirting along the foot. Wings: left, a gas pipe running diagonally down from the corner into the lamp's bracket, the lamp {gas lamp} with its halo, and a stack of two brown {suitcases} with black straps against the skirting; right, a round {station clock} on the wall with black hands at twenty to twelve (a muted yellow face, black rim, four tick dots) and a rail of four luggage {tags} hanging on it. Other elements from the game: the train, the clock, the lamp. Scale contrast: the calendar fills the poster, the train in its hole is 25 pixels tall. moves: the gas lamp and its halo (flicker), the carriages' windows and the far light (flicker), the red tail lamp (pingpong), two moths round the lamp (loop).",
-  title: 14,
+  shot: "archetype: the icon. Its yes: the whole story is one object, the last carriage of the 23:40 that leaves for Tuesday, seen from behind and to the left from the platform, on the rails that run off into the dark; its rear panel carries a clock at twenty to twelve, red tail lamps and a lit door window, a red signal waits beyond it, and a suitcase left on the platform in the foreground says nobody comes back. Beat the tower (the Minister, used on the old cover). moves: the carriage windows, the tail lamps and the signal, the windows of the town, a bird over the roofs, a moth at the lamp",
+  title: 15,
   titleAt: "top",
   draw: `
-rect bg 0,0,480,400 6
-rect wall 0,96,480,304 fade:6,0/0,100/0,476
-line seam_l1 26,98 26,399 c0
-line seam_l2 56,98 56,399 c0
-line seam_r1 424,98 424,399 c0
-line seam_r2 454,98 454,399 c0
-rect skirting 0,390,480,10 8 e0
-rect case_big 4,344,64,46 6 e0
-rect case_top 14,324,42,20 6 e0
-rect case_strap_1 20,344,3,46 0
-rect case_strap_2 48,344,3,46 0
-line case_handle 28,324 28,320 42,320 42,324 c0
-rect tag_rail 384,252,96,3 8 e0
-rect tag_1 392,255,11,16 mix:14,6@0.5 e0
-rect tag_2 412,255,11,22 mix:14,6@0.5 e0
-rect tag_3 434,255,11,13 mix:14,6@0.5 e0
-rect tag_4 456,255,11,19 mix:14,6@0.5 e0
-dots tag_holes 397,258 417,258 439,258 461,258 c0
-ellipse clock_rim 436,166,29,29 0
-ellipse clock_face 436,166,26,26 mix:14,6@0.3
-dots clock_ticks 436,143 436,189 413,166 459,166 c0
-line clock_min 436,166 419,176 c0
-line clock_hr 436,166 434,152 c0
-ellipse clock_hub 436,166,2,2 0
-ellipse halo_3 88,172,70,56 mix:,14@0.1
-ellipse halo_2 88,172,48,38 mix:,14@0.2
-ellipse halo_1 88,172,28,22 mix:,14@0.35
-poly pipe 0,112 0,118 58,150 82,162 82,157 56,144 8 e0
-rect lamp_cap 82,159,12,4 8 e0
-ellipse lamp 88,172,8,10 14 e0
-rect lamp_base 83,181,10,4 8 e0
-poly shadow_cal 134,114 380,114 380,398 134,398 mix:,0@0.65
-rect board 116,104,246,284 8 e0
-line board_rim 117,106 117,386 c6
-rect cal_head 116,104,246,16 0
-ellipse hole_a 160,112,3,2 6
-ellipse hole_b 239,112,3,2 6
-ellipse hole_c 318,112,3,2 6
-rect sheet 122,124,236,254 14
-rect sheet_shade_a 240,124,66,254 mix:14,6@0.25
-rect sheet_shade_b 306,124,52,254 mix:14,6@0.5
-rect pad 122,378,236,6 stripes:14,6
-rect month 122,124,236,26 6
-rect month_a 134,132,58,8 14
-rect month_b 292,132,34,8 14
-rect dn_1 129,157,14,2 8
-rect dn_3 197,157,14,2 8
-rect dn_4 231,157,14,2 8
-rect dn_5 265,157,14,2 8
-rect dn_6 299,157,14,2 8
-rect dn_7 331,157,14,2 8
-line grid_h1 122,168 358,168 c8
-line grid_h2 122,210 358,210 c8
-line grid_h3 122,252 358,252 c8
-line grid_h4 122,294 358,294 c8
-line grid_h5 122,336 358,336 c8
-line grid_v1 223,152 223,378 c8
-line grid_v2 257,152 257,378 c8
-line grid_v3 291,152 291,378 c8
-line grid_v4 324,152 324,378 c8
-dots num_r1 127,173 128,173 129,173 194,173 195,173 196,173 228,173 229,173 230,173 262,173 263,173 264,173 296,173 297,173 298,173 329,173 330,173 331,173 c8
-dots num_r2 127,215 128,215 129,215 194,215 195,215 196,215 228,215 229,215 230,215 262,215 263,215 265,215 266,215 296,215 297,215 299,215 300,215 329,215 330,215 332,215 333,215 c8
-dots num_r3 127,257 128,257 130,257 131,257 194,257 195,257 197,257 198,257 228,257 229,257 231,257 232,257 262,257 263,257 265,257 266,257 296,257 297,257 299,257 300,257 329,257 330,257 332,257 333,257 c8
-dots num_r4 127,299 128,299 130,299 131,299 194,299 195,299 197,299 198,299 228,299 229,299 231,299 232,299 262,299 263,299 265,299 266,299 296,299 297,299 299,299 300,299 329,299 330,299 332,299 333,299 c8
-dots num_r5 127,341 128,341 130,341 131,341 194,341 195,341 197,341 198,341 228,341 229,341 231,341 232,341 262,341 263,341 265,341 266,341 296,341 297,341 298,341 329,341 330,341 331,341 c8
-rect slot 155,152,34,220 fade:8,0/0,152/0,427 e0
-vp 172,156
-ellipse far_halo 172,164,11,8 mix:,14@0.3
-ellipse far_light 172,162,4,3 14
-line rail_l 163,372@1 163,372@0.05 c6
-line rail_r 181,372@1 181,372@0.05 c6
-line sl_1 157,372@0.94 187,372@0.94 c6
-line sl_2 157,372@0.82 187,372@0.82 c6
-line sl_3 157,372@0.71 187,372@0.71 c6
-line sl_4 157,372@0.61 187,372@0.61 c6
-line sl_5 157,372@0.52 187,372@0.52 c6
-line sl_6 157,372@0.34 187,372@0.34 c6
-line sl_7 157,372@0.28 187,372@0.28 c6
-line sl_8 157,372@0.22 187,372@0.22 c6
-line sl_9 157,372@0.17 187,372@0.17 c6
-poly train_c2 166,236 166,227 168,224 176,224 178,227 178,236 0
-rect train_c2_win_a 168,228,3,4 14
-rect train_c2_win_b 173,228,3,4 14
-poly train_body 165,262 165,243 168,238 177,238 180,243 180,262 0
-rect train_win_a 167,244,4,5 14
-rect train_win_b 174,244,4,5 14
-ellipse train_lamp 172,257,2,2 4
-rect train_floor 164,262,17,2 0
+rect bg 0,0,480,560 6
+# stars over the line (below the title band)
+dots stars 20,140 52,128 96,150 130,132 176,124 410,134 440,150 462,128 392,160 24,160 70,122 458,164 c15
+dots stars_dim 40,150 110,128 150,146 420,126 450,142 30,128 400,148 470,150 c7
+poly hill_l 0,176 0,148 30,142 70,150 120,160 160,170 160,176 mix:6,0@0.55
+poly hill_r 330,176 380,162 420,150 460,144 480,140 480,176 mix:6,0@0.55
+# the town to the left, in the wing
+poly t_roof_1 0,172 0,156 8,148 18,156 18,172 0
+poly t_roof_2 18,172 18,160 30,152 42,160 42,172 0
+rect t_chim_2 36,146,4,10 0
+rect t_tower 50,142,16,30 0
+poly t_spire 48,142 58,124 68,142 0
+ellipse t_clock 58,152,6,6 14 e0
+poly t_roof_3 70,172 70,158 82,150 96,158 96,172 0
+poly t_roof_4 96,172 96,162 106,156 118,162 118,172 0
+rect t_win_a 8,162,3,4 14
+rect t_win_b 26,164,3,4 14
+rect t_win_c 78,164,3,4 14
+rect t_win_d 104,166,3,4 14
+# the town to the right, beyond the signal
+poly r_roof_1 400,172 400,152 412,142 426,152 426,172 0
+rect r_chim_1 418,134,4,12 0
+poly r_roof_2 426,172 426,160 440,150 454,160 454,172 0
+poly r_roof_3 454,172 454,150 466,140 480,148 480,172 0
+rect r_win_a 410,158,3,4 14
+rect r_win_b 436,162,3,4 14
+rect r_win_c 462,156,3,4 14
+rect ground 0,170,480,300 fade:0,8/0,172/0,469
+poly sleeper_0 254,265 338,265 343,267 257,267 6
+poly sleeper_1 261,271 350,271 355,274 263,274 6
+poly sleeper_2 268,277 363,277 369,281 271,281 6
+poly sleeper_3 276,285 378,285 385,288 280,288 6
+poly sleeper_4 286,294 395,294 403,298 290,298 6
+poly sleeper_5 297,304 415,304 424,309 302,309 6
+poly sleeper_6 310,316 438,316 450,321 316,321 6
+poly sleeper_7 325,330 467,330 480,337 333,337 6
+poly sleeper_8 344,347 501,347 517,356 353,356 6
+poly sleeper_9 368,369 543,369 564,379 379,379 6
+poly sleeper_10 398,396 597,396 625,410 413,410 6
+poly sleeper_11 437,432 669,432 706,451 458,451 6
+poly rail_a 255,256 259,256 547,482 533,482 7
+line rail_a_shine 255,256 533,482 c15
+poly rail_b 305,256 309,256 727,482 713,482 7
+line rail_b_shine 305,256 713,482 c15
+poly sleeper2_0 290,216 330,216 337,218 295,218 6
+poly sleeper2_1 305,221 350,221 359,224 312,224 6
+poly sleeper2_2 324,228 375,228 386,231 333,231 6
+poly sleeper2_3 349,236 408,236 422,240 360,240 6
+poly sleeper2_4 383,247 451,247 470,252 398,252 6
+poly sleeper2_5 429,262 511,262 539,270 451,270 6
+poly rail2_a 240,199 241,199 649,326 641,326 7
+poly rail2_b 257,199 258,199 739,326 731,326 7
+dots ballast 236,300 260,320 300,290 330,330 372,310 420,350 444,300 460,380 392,420 340,400 300,440 250,360 210,420 270,460 430,440 470,330 400,290 190,330 354,276 280,284 c8
+dots ballast_lt 250,284 320,300 380,330 440,320 300,380 360,440 420,400 460,420 330,350 c7
+poly platform 0,170 150,170 309,469 0,469 fade:8,7/0,170/0,469
+line seam_3 150,170 90,469 c8
+line seam_13 150,170 -109,469 c8
+line seam_24 150,170 -328,469 c8
+line seam_36 150,170 -568,469 c8
+line seam_50 150,170 -847,469 c8
+line seam_70 150,170 -1245,469 c8
+line seam_95 150,170 -1744,469 c8
+line seam_130 150,170 -2441,469 c8
+line seam_z140 0,212 172,212 c8
+line seam_z85 0,239 187,239 c8
+line seam_z60 0,268 202,268 c8
+line seam_z46 0,298 218,298 c8
+line seam_z37 0,329 235,329 c8
+line seam_z31 0,359 251,359 c8
+line seam_z26 0,396 270,396 c8
+line seam_z23 0,431 289,431 c8
+poly platform_edge 150,170 309,469 282,469 14
+line platform_lip 150,170 309,469 c0
+dots scuffs 14,230 60,250 120,236 40,300 24,350 60,420 150,380 200,400 120,440 30,456 210,330 230,440 90,330 180,440 c7
+dots scuffs_dk 28,262 80,222 130,260 50,330 20,396 100,404 190,360 160,432 70,448 220,372 c8
+ellipse pool_30 129,218,60,15 mix:,14@0.3
+ellipse pool_17 138,198,34,9 mix:,14@0.3
+ellipse pool_10.5 142,187,21,5 mix:,14@0.3
+ellipse glow_30 111,136,27,14 mix:,14@0.22
+rect post_30 109,125,4,90 0
+poly head_30 102,125 120,125 117,140 105,140 0
+ellipse bulb_30 111,133,5,6 14
+ellipse glow_17 128,151,15,8 mix:,14@0.22
+rect post_17 127,145,2,51 0
+poly head_17 123,145 133,145 132,154 124,154 0
+ellipse bulb_17 128,149,3,3 14
+ellipse glow_10.5 136,158,9,5 mix:,14@0.22
+rect post_10.5 135,154,2,32 0
+poly head_10.5 133,154 139,154 138,159 134,159 0
+ellipse bulb_10.5 136,157,2,2 14
+ellipse sig_glow 380,131,13,13 mix:,4@0.25
+rect sig_post 378,125,4,128 0
+rect sig_head 373,121,14,26 0
+ellipse sig_red 380,127,4,4 4
+ellipse sig_yel 380,138,3,3 8
+poly car_side 222,123 161,163 161,182 222,249 8 e0
+poly car_roof_side 222,121 161,163 161,165 222,138 0
+poly car_stripe 222,219 161,177 161,179 222,233 4
+poly car_skirt 222,235 161,180 161,182 222,251 0
+poly car_win_0 214,160 208,161 208,202 214,205 14 e0
+poly car_win_1 204,162 200,163 200,197 204,200 14 e0
+poly car_win_2 197,163 194,163 194,194 197,196 14 e0
+poly car_win_3 192,164 189,164 189,191 192,193 14 e0
+poly car_win_4 187,164 185,165 185,189 187,191 14 e0
+poly car_win_5 184,165 182,165 182,188 184,189 14 e0
+poly car_win_6 181,165 179,166 179,186 181,187 14 e0
+poly car_win_7 178,166 177,166 177,185 178,186 14 e0
+poly car_gap_0 176,152 175,153 175,198 176,199 0
+poly car_win_8 174,166 173,167 173,183 174,183 14 e0
+poly car_win_9 172,167 172,167 172,182 172,182 14 e0
+poly car_win_10 171,167 170,167 170,181 171,182 14 e0
+poly car_win_11 170,167 169,167 169,181 170,181 14 e0
+poly car_win_12 169,167 168,167 168,180 169,180 14 e0
+poly car_win_13 168,167 167,167 167,180 168,180 14 e0
+poly car_win_14 167,167 167,168 167,179 167,179 14 e0
+poly car_win_15 166,168 166,168 166,179 166,179 14 e0
+poly car_gap_1 165,160 165,160 165,187 165,187 0
+poly car_win_16 165,168 164,168 164,178 165,178 14 e0
+poly car_win_17 164,168 164,168 164,178 164,178 14 e0
+poly car_win_18 164,168 163,168 163,177 164,177 14 e0
+poly car_win_19 163,168 163,168 163,177 163,177 14 e0
+poly car_win_20 163,168 162,168 162,177 163,177 14 e0
+poly car_win_21 162,168 162,168 162,177 162,177 14 e0
+poly car_win_22 162,168 162,168 162,176 162,176 14 e0
+poly car_win_23 161,168 161,168 161,176 161,176 14 e0
+ellipse car_wheel_22 210,234,10,10 0
+ellipse car_wheel_36 204,228,9,9 0
+ellipse car_wheel_160 179,201,5,5 0
+ellipse car_wheel_174 178,200,5,5 0
+ellipse car_wheel_227 173,195,4,4 0
+ellipse car_wheel_241 172,194,4,4 0
+poly car_rear 222,135 232,127 356,127 366,135 366,249 222,249 8 e0
+poly car_roof 219,137 232,124 356,124 369,137 369,142 219,142 0
+rect car_rear_shade 344,142,22,107 mix:8,0@0.4
+rect car_rear_band 222,215,144,8 4
+ellipse car_clock_rim 294,173,27,27 0
+ellipse car_clock 294,173,24,24 14
+line car_tick_12 294,150 294,155 c0
+line car_tick_3 317,173 312,173 c0
+line car_tick_6 294,196 294,191 c0
+line car_tick_9 271,173 276,173 c0
+line car_hand_h 294,173 292,161 c0
+line car_hand_h_b 295,173 293,161 c0
+line car_hand_m 294,173 278,183 c0
+line car_hand_m_b 295,173 279,183 c0
+ellipse car_hub 294,173,2,2 0
+rect car_door 272,205,44,10 0
+rect car_door_win 278,209,32,16 14
+line car_door_split 294,227 294,215 c8
+ellipse car_halo_l 240,237,15,15 mix:,4@0.3
+ellipse car_lampring_l 240,237,8,8 0
+ellipse car_lamp_l 240,237,5,5 4
+ellipse car_halo_r 348,237,15,15 mix:,4@0.3
+ellipse car_lampring_r 348,237,8,8 0
+ellipse car_lamp_r 348,237,5,5 4
+rect car_buffer_l 228,225,10,8 0
+rect car_buffer_r 350,225,10,8 0
+rect car_under 226,249,136,15 0
+line car_coupling 284,243 304,243 c8
+poly case_shadow 95,320 175,320 245,354 135,354 mix:,0@0.55
+poly case_body 95,320 95,274 101,268 169,268 175,274 175,320 0
+poly case_handle 123,268 127,260 143,260 147,268 143,268 141,263 129,263 127,268 0
+line case_strap_l 117,268 117,320 c8
+line case_strap_r 153,268 153,320 c8
+line case_rim 101,268 169,268 c14
+rect case_tag 155,276,6,10 4
+line case_tag_string 153,268 158,276 c8
 `,
-  cycles: [
-    {
-      "name": "the gas lamp",
-      "areas": [
-        "lamp",
-        "halo_1",
-        "halo_2",
-        "halo_3"
-      ],
-      "colors": [
-        14,
-        6
-      ],
-      "style": "flicker",
-      "ms": [
-        1200,
-        4200
-      ]
-    },
-    {
-      "name": "the carriage windows and the far light",
-      "areas": [
-        "train_win_a",
-        "train_win_b",
-        "train_c2_win_a",
-        "train_c2_win_b",
-        "far_light"
-      ],
-      "colors": [
-        14,
-        6
-      ],
-      "style": "flicker",
-      "ms": [
-        3000,
-        8000
-      ]
-    },
-    {
-      "name": "the tail lamp",
-      "areas": [
-        "train_lamp"
-      ],
-      "colors": [
-        4,
-        12
-      ],
-      "style": "pingpong",
-      "ms": 900
-    }
-  ],
-  loops: [{"name":"two moths round the gas lamp","at":[75,162],"ms":170,"style":"loop","frames":[["..........................","..........................","..........................","..........................","..........................","..........................","...7.7....................","....7.....................","..........................","..........................","..........................",".....................7....",".....................7....","..........................","..........................","..........................","..........................","..........................","..........................",".........................."],
-    ["..........................",".........7................",".........7................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..............7.7.........","...............7..........","..........................",".........................."],
-    ["..........................","...............7.7........","................7.........","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................",".......7..................",".......7..................","..........................","..........................",".........................."],
-    ["..........................","..........................","..........................","..........................","..........................","..........................",".....................7....",".....................7....","..........................","..7.7.....................","...7......................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................",".........................."],
-    ["..........................","..........................","..........................","......7...................","......7...................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..................7.7.....","...................7......","..........................","..........................","..........................","..........................",".........................."],
-    ["..........................","..........................",".............7.7..........","..............7...........","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","..........................","...........7..............","...........7..............","..........................","..........................",".........................."]]}]
+  cycles: [{"name":"the carriage windows","areas":["car_win_0","car_win_1","car_win_2","car_win_3","car_win_4","car_win_5","car_win_6","car_win_7","car_win_8","car_win_9","car_win_10","car_win_11","car_win_12","car_win_13","car_win_14","car_win_15","car_win_16","car_win_17","car_win_18","car_win_19","car_win_20","car_win_21","car_win_22","car_win_23","car_door_win"],"colors":[14,8],"style":"flicker","ms":[2500,7000]},{"name":"the tail lamps and the signal","areas":["car_lamp_l","car_lamp_r","sig_red"],"colors":[4,12],"style":"pingpong","ms":900},{"name":"the windows of the town","areas":["t_win_a","t_win_b","t_win_c","t_win_d","r_win_a","r_win_b","r_win_c"],"colors":[14,0],"style":"flicker","ms":[3000,9000]}],
+  loops: [{"name":"a bird over the roofs","path":[[470,142],[120,150]],"travel":9000,"pause":4000,"ms":170,"style":"loop","under":"car","frames":[["0............0","00..0....0..00","000.000000.000",".0000000000000","..00..00..00..","...0......0..."],["..............","....0....0....","...00000000...",".000000000000.","00..000000..00","0............0"]]},{"name":"a moth at the lamp","at":[117,121],"ms":180,"style":"loop","frames":[["f.f.",".ff.","f.f."],[".ff.","f..f",".ff."]]}]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "archetype: the icon. Its yes: the world turns on one thing, Monday itself, cut out of the week by decree; the poster is the week with its Monday column missing. It beat the tower (the Minister's statue over the square: any town with a monument could own that poster, and the decree's power doesn't need his outline). Title at the top (a flat brown 6 band, rows 0-95: the wall carried on, the title in yellow 14). Facing: straight at the wall, eye level, upright. Palette gaslight (lead brown 6; dark grey 8, black, yellow 14 for the lamp and the lit paper, one red 4 accent); the light is one gas lamp on a bracket at the left, at about x 88, y 172, a flat yellow globe with a dithered halo on the wall, so the calendar is lit from the left and throws a dither shadow down and to the right (the diagonal, with the rails inside the gap, which converge on the far light). Dominant: one huge tear-off wall calendar on the wall, centred, columns 116-362, rows 104-388: a dark grey board with a black binding strip (three hanger holes showing the wall), a yellow lit sheet (the right half checked with brown for shade: it turns from the lamp), a brown month band with two bars (no letters), a row of day-name dashes, a grid of five rows by seven columns with a dash of a number in each cell, and the pad's edge in stripes under the sheet. The Monday column (second from the left, columns 155-189) is cut clean out of the sheet and the board: a dark hole 34 wide and 220 high, dark grey fading to black. Through it, the question: a railway line runs away up the hole in perspective (two brown rails, sleepers), a small black train leaving, two carriages with yellow windows and a red tail lamp (the one red accent), a pale yellow light at the far end. Not the answer: nothing says how to board or what Tuesday holds. No figures. Backdrop: the brown wall falling into the dark towards the bottom (a gradient with its cause, the lamp's reach), tongue-and-groove seams in the wings, a dark grey skirting along the foot. Wings: left, a gas pipe running diagonally down from the corner into the lamp's bracket, the lamp {gas lamp} with its halo, and a stack of two brown {suitcases} with black straps against the skirting; right, a round {station clock} on the wall with black hands at twenty to twelve (a muted yellow face, black rim, four tick dots) and a rail of four luggage {tags} hanging on it. Other elements from the game: the train, the clock, the lamp. Scale contrast: the calendar fills the poster, the train in its hole is 25 pixels tall. moves: the gas lamp and its halo (flicker), the carriages' windows and the far light (flicker), the red tail lamp (pingpong), two moths round the lamp (loop).",
+ "title": 14,
+ "titleAt": "top",
+ "draw": "\nrect bg 0,0,480,400 6\nrect wall 0,96,480,304 fade:6,0/0,100/0,476\nline seam_l1 26,98 26,399 c0\nline seam_l2 56,98 56,399 c0\nline seam_r1 424,98 424,399 c0\nline seam_r2 454,98 454,399 c0\nrect skirting 0,390,480,10 8 e0\nrect case_big 4,344,64,46 6 e0\nrect case_top 14,324,42,20 6 e0\nrect case_strap_1 20,344,3,46 0\nrect case_strap_2 48,344,3,46 0\nline case_handle 28,324 28,320 42,320 42,324 c0\nrect tag_rail 384,252,96,3 8 e0\nrect tag_1 392,255,11,16 mix:14,6@0.5 e0\nrect tag_2 412,255,11,22 mix:14,6@0.5 e0\nrect tag_3 434,255,11,13 mix:14,6@0.5 e0\nrect tag_4 456,255,11,19 mix:14,6@0.5 e0\ndots tag_holes 397,258 417,258 439,258 461,258 c0\nellipse clock_rim 436,166,29,29 0\nellipse clock_face 436,166,26,26 mix:14,6@0.3\ndots clock_ticks 436,143 436,189 413,166 459,166 c0\nline clock_min 436,166 419,176 c0\nline clock_hr 436,166 434,152 c0\nellipse clock_hub 436,166,2,2 0\nellipse halo_3 88,172,70,56 mix:,14@0.1\nellipse halo_2 88,172,48,38 mix:,14@0.2\nellipse halo_1 88,172,28,22 mix:,14@0.35\npoly pipe 0,112 0,118 58,150 82,162 82,157 56,144 8 e0\nrect lamp_cap 82,159,12,4 8 e0\nellipse lamp 88,172,8,10 14 e0\nrect lamp_base 83,181,10,4 8 e0\npoly shadow_cal 134,114 380,114 380,398 134,398 mix:,0@0.65\nrect board 116,104,246,284 8 e0\nline board_rim 117,106 117,386 c6\nrect cal_head 116,104,246,16 0\nellipse hole_a 160,112,3,2 6\nellipse hole_b 239,112,3,2 6\nellipse hole_c 318,112,3,2 6\nrect sheet 122,124,236,254 14\nrect sheet_shade_a 240,124,66,254 mix:14,6@0.25\nrect sheet_shade_b 306,124,52,254 mix:14,6@0.5\nrect pad 122,378,236,6 stripes:14,6\nrect month 122,124,236,26 6\nrect month_a 134,132,58,8 14\nrect month_b 292,132,34,8 14\nrect dn_1 129,157,14,2 8\nrect dn_3 197,157,14,2 8\nrect dn_4 231,157,14,2 8\nrect dn_5 265,157,14,2 8\nrect dn_6 299,157,14,2 8\nrect dn_7 331,157,14,2 8\nline grid_h1 122,168 358,168 c8\nline grid_h2 122,210 358,210 c8\nline grid_h3 122,252 358,252 c8\nline grid_h4 122,294 358,294 c8\nline grid_h5 122,336 358,336 c8\nline grid_v1 223,152 223,378 c8\nline grid_v2 257,152 257,378 c8\nline grid_v3 291,152 291,378 c8\nline grid_v4 324,152 324,378 c8\ndots num_r1 127,173 128,173 129,173 194,173 195,173 196,173 228,173 229,173 230,173 262,173 263,173 264,173 296,173 297,173 298,173 329,173 330,173 331,173 c8\ndots num_r2 127,215 128,215 129,215 194,215 195,215 196,215 228,215 229,215 230,215 262,215 263,215 265,215 266,215 296,215 297,215 299,215 300,215 329,215 330,215 332,215 333,215 c8\ndots num_r3 127,257 128,257 130,257 131,257 194,257 195,257 197,257 198,257 228,257 229,257 231,257 232,257 262,257 263,257 265,257 266,257 296,257 297,257 299,257 300,257 329,257 330,257 332,257 333,257 c8\ndots num_r4 127,299 128,299 130,299 131,299 194,299 195,299 197,299 198,299 228,299 229,299 231,299 232,299 262,299 263,299 265,299 266,299 296,299 297,299 299,299 300,299 329,299 330,299 332,299 333,299 c8\ndots num_r5 127,341 128,341 130,341 131,341 194,341 195,341 197,341 198,341 228,341 229,341 231,341 232,341 262,341 263,341 265,341 266,341 296,341 297,341 298,341 329,341 330,341 331,341 c8\nrect slot 155,152,34,220 fade:8,0/0,152/0,427 e0\nvp 172,156\nellipse far_halo 172,164,11,8 mix:,14@0.3\nellipse far_light 172,162,4,3 14\nline rail_l 163,372@1 163,372@0.05 c6\nline rail_r 181,372@1 181,372@0.05 c6\nline sl_1 157,372@0.94 187,372@0.94 c6\nline sl_2 157,372@0.82 187,372@0.82 c6\nline sl_3 157,372@0.71 187,372@0.71 c6\nline sl_4 157,372@0.61 187,372@0.61 c6\nline sl_5 157,372@0.52 187,372@0.52 c6\nline sl_6 157,372@0.34 187,372@0.34 c6\nline sl_7 157,372@0.28 187,372@0.28 c6\nline sl_8 157,372@0.22 187,372@0.22 c6\nline sl_9 157,372@0.17 187,372@0.17 c6\npoly train_c2 166,236 166,227 168,224 176,224 178,227 178,236 0\nrect train_c2_win_a 168,228,3,4 14\nrect train_c2_win_b 173,228,3,4 14\npoly train_body 165,262 165,243 168,238 177,238 180,243 180,262 0\nrect train_win_a 167,244,4,5 14\nrect train_win_b 174,244,4,5 14\nellipse train_lamp 172,257,2,2 4\nrect train_floor 164,262,17,2 0\n",
+ "cycles": [
+  {
+   "name": "the gas lamp",
+   "areas": [
+    "lamp",
+    "halo_1",
+    "halo_2",
+    "halo_3"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "ms": [
+    1200,
+    4200
+   ]
+  },
+  {
+   "name": "the carriage windows and the far light",
+   "areas": [
+    "train_win_a",
+    "train_win_b",
+    "train_c2_win_a",
+    "train_c2_win_b",
+    "far_light"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "ms": [
+    3000,
+    8000
+   ]
+  },
+  {
+   "name": "the tail lamp",
+   "areas": [
+    "train_lamp"
+   ],
+   "colors": [
+    4,
+    12
+   ],
+   "style": "pingpong",
+   "ms": 900
+  }
+ ],
+ "loops": [
+  {
+   "name": "two moths round the gas lamp",
+   "at": [
+    75,
+    162
+   ],
+   "ms": 170,
+   "style": "loop",
+   "frames": [
+    [
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "...7.7....................",
+     "....7.....................",
+     "..........................",
+     "..........................",
+     "..........................",
+     ".....................7....",
+     ".....................7....",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     ".........................."
+    ],
+    [
+     "..........................",
+     ".........7................",
+     ".........7................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..............7.7.........",
+     "...............7..........",
+     "..........................",
+     ".........................."
+    ],
+    [
+     "..........................",
+     "...............7.7........",
+     "................7.........",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     ".......7..................",
+     ".......7..................",
+     "..........................",
+     "..........................",
+     ".........................."
+    ],
+    [
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     ".....................7....",
+     ".....................7....",
+     "..........................",
+     "..7.7.....................",
+     "...7......................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     ".........................."
+    ],
+    [
+     "..........................",
+     "..........................",
+     "..........................",
+     "......7...................",
+     "......7...................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..................7.7.....",
+     "...................7......",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     ".........................."
+    ],
+    [
+     "..........................",
+     "..........................",
+     ".............7.7..........",
+     "..............7...........",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "..........................",
+     "...........7..............",
+     "...........7..............",
+     "..........................",
+     "..........................",
+     ".........................."
+    ]
+   ]
+  }
+ ]
 };

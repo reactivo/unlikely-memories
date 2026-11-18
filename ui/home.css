@@ -152,6 +152,10 @@
       color: var(--none);
     }
 
+    & .none + .list {
+      margin-top: var(--space-l);   /* (the line saying a game didn't load, above the list) */
+    }
+
     & .card {
       display: grid;
       grid-template-columns: var(--card-columns, minmax(0, 1fr));   /* wider windows: 3/7 of the card for the picture */
@@ -233,6 +237,79 @@
       line-height: var(--line-xs);
       text-box: trim-both cap alphabetic;
       white-space: nowrap;
+    }
+  }
+
+  /* The list as a grid of box art (16-17 November 2026): each world's box art alone in the card's square (its border and padding), 2 across on
+     a phone, 3 at the column's width, 4 on very wide windows. The box art is its poster's phone crop, 320 x 400 (ui/home.js), still. */
+  .home .list.boxes {
+    grid-template-columns: repeat(var(--boxes, 2), minmax(0, 1fr));
+    gap: var(--space-m);
+  }
+  @media (width >= 760px) { .home .list.boxes { --boxes: 3; } }
+  @media (width >= 1600px) { .home .list.boxes { --boxes: 4; } .home { --home-column-max: 1280px; } }
+  .home .card.box {
+    display: block;
+    padding: var(--space-s);
+    cursor: pointer;
+  }
+  .home .box-open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: var(--tile-bg);
+    cursor: pointer;
+    aspect-ratio: 320 / 400;
+    position: relative;
+
+    &:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+    & canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+    }
+  }
+
+  /* The game's popup (ui/home.js): a card over the page, the page darker behind it; a click outside closes it. */
+  .home .game-pop {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    width: min(calc(100vw - 2 * var(--space-m)), 520px);
+    max-height: calc(100dvh - 2 * var(--space-m));
+    overflow: auto;
+
+    &::backdrop { background: rgb(0 0 0 / 0.75); }
+    &:focus, & .pop:focus { outline: none; }
+    & .pop {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-s);
+      border-color: var(--card-line-on);
+    }
+    & .tile { margin-bottom: var(--space-s); }
+    & .close {
+      position: absolute;
+      top: var(--space-xs, 4px);
+      right: var(--space-s);
+      z-index: 1;
+      padding: var(--space-xs, 4px) var(--space-s);
+      border: 0;
+      background: none;
+      color: var(--color-text);
+      font: inherit;
+      font-size: var(--text-l, 28px);
+      line-height: 1;
+      cursor: pointer;
+
+      &:focus { outline: none; }
+      &:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }   /* (the game's own ring, from the keyboard only) */
     }
   }
 

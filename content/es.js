@@ -329,9 +329,11 @@ export default {
   panel: { game: "JUEGO", restart: "Reiniciar partida", quit: "Salir" },
   // La página de inicio (ui/home.js). El nombre del juego no se traduce. Los botones salen en mayúsculas (home.css).
   home: { subtitle: "Ficción Artificial Interactiva", newGame: "Nueva partida", resume: "Continuar", version: "Versión",
+          close: "Cerrar", start: "Nueva partida", backToList: "Volver a la lista de juegos", kicker: "Unlikely Memories presenta",
           loadGame: "Jugar", allGames: "Todos los juegos",   // loadGame: la tarjeta de un mundo con página propia (una portada) lleva a ella; allGames: el camino de vuelta a la lista
           language: (l) => `Idioma: ${{ en: "inglés", es: "español" }[l]}`,   // los botones del selector, arriba a la derecha
-          none: "Todavía no hay juegos en español." },
+          none: "Todavía no hay juegos en español.",
+          loadFailed: "No se pudo cargar ese juego. Revisa tu conexión e inténtalo de nuevo." },   // se muestra sobre la lista cuando fallan los archivos de un juego
   labels: { directions: "DIRECCIONES", inv: "INVENTARIO", map: "Mapa", seeMap: "Ver mapa" },   // seeMap: el botón bajo la brújula
   // El mapa (js/map.js, ui/map.js): su hoja de estilos lo muestra en mayúsculas. `level(n)` nombra una planta que no es la baja.
   map: { title: "Mapa", close: "Cerrar el mapa", hint: "Arrastra o pellizca el mapa", ground: "Planta baja",

@@ -917,189 +917,510 @@ export const endings = {
 
 // ---- THE COVER (its page, /boathouse/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
 export const cover = {
-  shot: "archetype: the split (two sides: the village above the waterline and the same village hanging lit in the lake below, the lake lighting every window again, a little late); title at the top (rows 0-95 flat brown, the image starts under it); the waterline at y 214, the middle of the picture; viewpoint at the quay's edge looking north over the lake, eye level, a low wide landscape, jetty vp 310,238; palette goldenhour (leads brown 6, light red 12 and yellow 14 only in the sky near the hidden sun and on what it strikes, black for silhouettes); light: the low sun lies behind the island out of frame (no disc), so the horizon glows yellow and everything against it is black; ONE bright small light, the extra lamp in the water; dominant element = the village on its hill (black houses, a chapel spire, yellow lit windows, a pale rim on the sunward roof edges) and its mirror image in the lake, the two halves each their own colour: above a glowing brown-to-yellow sky, below the lake dithered from yellow at the horizon to brown to near black at your feet; the other elements: the small island on x296 with its iron lamp-post DARK above the water; the same lamp-post upside down in the water, lit white-yellow in a pool of black water with a halo, a lamp the village does not have (the question: whose light is that, and why does the lake have one more than the village); the jetty running up from the lower right toward the lamp, brown planks with a light edge and black piles, a post at its end (the third element); wings: more roofs and sky and a gull-crossed sky at the left, a far shore with dark houses and a few lit windows (and their reflections) at the right, black reeds at the lower left, the jetty's foot at the lower right; no figure; gradients with their causes: the sky (the glow of the low sun at the horizon) and the lake (distance and depth, two bands of one dither), nothing else is a gradient; hard black silhouettes, no cast shadows; moves: the path of light under the lamp (moon-path cycle), the lit windows in the water (flicker), glints on the reflection (cycle), smoke from the chimney of the third house (loop), gulls crossing the sky (loop)",
-  title: 14,
+  shot: "archetype: the icon (one thing: the lantern, the light every boat must carry; it beat the split, the village above and the lake below, which is the old cover). Brown 6 is the page and the sky; light red 12 the afterglow on the far shore and its water, yellow 14 the lantern's glass, the windows and the trail, white 15 the flame, black 0 the cage, the post, the shore and the reeds, blue 1 only in cold glints. A huge lantern hangs from the iron arm of the jetty's post, black cage and lit glass, right of the middle (rows 141-260, columns 230-294), a halo of yellow dither round it; behind it the far shore of the village in black with its chapel's cote and lit windows, and below it the village's windows again in the water, with one lamp more than there are above (the question: whose lamp is that). The post and its arm stand on the left (a diagonal with the jetty's planks coming toward us, the post's shadow across them); the lantern's trail runs down the lake; black reeds cut by the right edge. No figure. Everything the story needs lies in rows 120-260 and columns 96-300. Rows 0-119 and 470-559 flat brown. Title white. moves: the flame (flicker), a few lit windows (flicker, scatter), the lantern's trail (sweep); smoke from a chimney, a moth at the lantern (loops).",
+  title: 15,
   titleAt: "top",
-  draw: `
-  rect bg 0,0,480,400 6
-  rect sky_a 0,96,480,74 fade:6,12/0,96/0,170
-  rect sky_b 0,170,480,44 fade:12,14/0,170/0,214
-  poly cloud_a 330,127 392,127 384,131 340,131 12
-  poly cloud_b 178,112 238,112 230,116 186,116 12
-  poly cloud_c 392,148 448,148 440,152 400,152 12
-  poly cloud_d 14,104 64,104 56,108 22,108 12
-  poly far_shore 352,214 352,208 378,203 404,205 430,200 456,202 480,200 480,214 0
-  poly far_house 392,205 392,198 402,192 412,198 412,205 0
-  dots far_win 366,209 388,207 412,208 436,205 462,206 c14
-  poly island 272,214 280,209 294,206 312,207 322,214 0
-  line island_post 298,207 298,178 c0
-  poly island_lamp 294,178 302,178 303,172 298,167 293,172 0
-  poly hill 0,214 0,152 40,142 90,136 140,148 190,168 232,190 256,208 268,214 0
-  poly house_a 4,170 4,150 22,128 40,148 40,170 0
-  poly house_b 38,160 38,142 60,116 84,140 84,160 0
-  poly chapel 88,152 88,124 98,108 108,124 108,152 0
-  poly house_c 106,170 106,148 126,128 146,148 146,170 0
-  rect chimney 134,124,5,16 0
-  poly house_d 144,184 144,162 164,142 184,162 184,184 0
-  poly house_e 180,200 180,174 200,154 218,174 218,200 0
-  poly house_f 214,210 214,190 232,174 250,192 250,210 0
-  line rim_a 22,128 40,148 c12
-  line rim_b 60,116 84,140 c12
-  line rim_c 98,108 108,124 c12
-  line rim_d 126,128 146,148 c12
-  line rim_e 164,142 184,162 c12
-  rect w_01 12,156,3,4 14
-  rect w_02 26,160,3,4 14
-  rect w_03 46,146,3,4 14
-  rect w_04 64,146,3,4 14
-  rect w_05 96,124,3,5 14
-  rect w_06 114,154,3,4 14
-  rect w_07 132,156,3,4 14
-  rect w_08 152,168,3,4 14
-  rect w_09 172,170,3,4 14
-  rect w_10 190,180,3,4 14
-  rect w_11 206,182,3,4 14
-  rect w_12 222,194,3,4 14
-  rect w_13 238,196,3,4 14
-  rect lake_a 0,214,480,86 fade:14,6/0,214/0,300
-  rect lake_b 0,300,480,99 fade:6,0/0,300/0,425
-  poly far_shore_r 352,214 352,220 378,225 404,223 430,228 456,226 480,228 480,214 0
-  poly far_house_r 392,223 392,230 402,236 412,230 412,223 0
-  dots far_win_r 366,219 388,221 412,220 436,223 462,222 c14
-  poly hill_r 0,214 0,276 40,286 90,292 140,280 190,260 232,238 256,220 268,214 0
-  poly house_a_r 4,258 4,278 22,300 40,280 40,258 0
-  poly house_b_r 38,268 38,286 60,312 84,288 84,268 0
-  poly chapel_r 88,276 88,304 98,320 108,304 108,276 0
-  poly house_c_r 106,258 106,280 126,300 146,280 146,258 0
-  rect chimney_r 134,289,5,15 0
-  poly house_d_r 144,244 144,266 164,286 184,266 184,244 0
-  poly house_e_r 180,228 180,254 200,274 218,254 218,228 0
-  poly house_f_r 214,218 214,238 232,254 250,236 250,218 0
-  rect wr_01 12,268,3,4 14
-  rect wr_02 26,264,3,4 14
-  rect wr_03 46,278,3,4 14
-  rect wr_04 64,278,3,4 14
-  rect wr_05 96,299,3,5 14
-  rect wr_06 114,270,3,4 14
-  rect wr_07 132,268,3,4 14
-  rect wr_08 152,256,3,4 14
-  rect wr_09 172,254,3,4 14
-  rect wr_10 190,244,3,4 14
-  rect wr_11 206,242,3,4 14
-  rect wr_12 222,230,3,4 14
-  rect wr_13 238,228,3,4 14
-  line rip_a 16,262 62,262 c6
-  line rip_b 70,282 118,282 c6
-  line rip_c 150,262 200,262 c6
-  line rip_d 40,298 80,298 c6
-  line rip_e 190,240 232,240 c6
-  line rip_f 92,310 104,310 c6
-  poly island_r 272,214 280,219 294,222 312,221 322,214 0
-  line island_post_r 298,221 298,246 c0
-  ellipse pool 298,257,22,13 0
-  ellipse halo_c 298,256,20,11 mix:,14@0.12
-  ellipse halo_b 298,256,14,8 mix:,14@0.22
-  ellipse halo_a 298,256,9,6 mix:,14@0.36
-  poly lamp_r 294,250 302,250 303,256 298,261 293,256 14
-  rect lamp_core 297,252,3,4 15
-  line path_1 292,274 304,274 c14
-  line path_2 288,281 308,281 c12
-  line path_3 282,289 314,289 c14
-  line path_4 276,298 320,298 c12
-  line path_5 268,308 328,308 c14
-  vp 310,238
-  poly jetty 430,399@1 560,399@1 560,399@0.22 430,399@0.22 6 e0
-  line jetty_lit 430,399@1 430,399@0.22 c12
-  line pl_a 430,399@0.9 560,399@0.9 c0
-  line pl_b 430,399@0.75 560,399@0.75 c0
-  line pl_c 430,399@0.62 560,399@0.62 c0
-  line pl_d 430,399@0.5 560,399@0.5 c0
-  line pl_e 430,399@0.4 560,399@0.4 c0
-  line pl_f 430,399@0.32 560,399@0.32 c0
-  line pl_g 430,399@0.26 560,399@0.26 c0
-  rect pile_a 382,328,4,14 0
-  rect pile_b 415,370,5,16 0
-  rect jetty_post 348,250,4,24 0
-  poly reeds 0,399 0,352 6,344 10,356 18,338 24,358 32,348 40,370 52,382 64,399 0
-  line reed_a 12,350 10,322 c0
-  line reed_b 22,352 26,326 c0
-  line reed_c 34,356 32,334 c0
+  draw: `rect bg 0,0,480,560 6
+# afterglow over the far shore: light red at the water, melting up into the page's brown
+rect haze 0,170,480,70 fade:6,12/0,170/0,240
+line cloud_a 14,150 70,150 c12
+line cloud_b 392,158 456,158 c12
+line cloud_c 330,188 396,188 c12
+line cloud_d 26,194 96,194 c12
+line cloud_e 420,206 476,206 c14
+# the far shore: a village in black, the chapel's cote tallest
+poly sh_a 0,242 0,232 14,228 30,228 44,234 44,242 0
+poly sh_h1 40,242 40,230 52,222 66,230 66,242 0
+poly sh_h2 62,242 62,226 78,216 94,226 94,242 0
+poly sh_chapel 100,242 100,214 108,198 116,214 116,242 0
+poly sh_cote 105,198 108,188 111,198 0
+rect sh_chim 80,204,4,14 0
+poly sh_h3 112,242 112,230 128,222 146,230 146,242 0
+poly sh_h4 142,242 142,232 160,224 178,232 178,242 0
+poly sh_h5 174,242 174,234 190,228 206,234 206,242 0
+poly sh_h6 202,242 202,236 218,232 232,236 232,242 0
+poly sh_h7 300,242 300,232 320,222 340,232 340,242 0
+poly sh_h8 336,242 336,226 358,214 380,226 380,242 0
+poly sh_h9 376,242 376,232 394,226 412,234 412,242 0
+poly sh_h10 408,242 408,228 426,220 446,230 446,242 0
+poly sh_h11 440,242 440,234 460,230 480,236 480,242 0
+line sh_rim_a 78,216 94,226 c12
+line sh_rim_b 108,198 116,214 c12
+line sh_rim_c 358,214 380,226 c12
+# the village's windows, lit
+rect w_0 48,232,3,4 14
+rect w_1 72,226,3,4 14
+rect w_2 88,230,3,4 14
+rect w_3 122,230,3,4 14
+rect w_4 152,232,3,4 14
+rect w_5 182,236,3,4 14
+rect w_6 210,238,3,4 14
+rect w_7 308,234,3,4 14
+rect w_8 330,232,3,4 14
+rect w_9 348,230,3,4 14
+rect w_10 364,224,3,4 14
+rect w_11 388,232,3,4 14
+rect w_12 418,232,3,4 14
+rect w_13 452,238,3,4 14
+# the lake: light red at the horizon, brown, then dark at the viewer's feet, cut clean at row 469
+rect lake_a 0,242,480,50 fade:12,6/0,242/0,292
+rect lake_b 0,292,480,177 fade:6,0/0,292/0,469
+rect refl 0,242,480,14 mix:6,0@0.4
+# the village again below, a little late; and one lamp more than there is above
+rect wr_0 51,250,3,9 14
+rect wr_1 75,244,3,9 14
+rect wr_2 91,248,3,9 14
+rect wr_3 125,248,3,9 14
+rect wr_4 155,250,3,9 14
+rect wr_5 185,254,3,9 14
+rect wr_6 213,256,3,9 14
+rect wr_7 311,252,3,9 14
+rect wr_8 333,250,3,9 14
+rect wr_9 351,248,3,9 14
+rect wr_10 367,242,3,9 14
+rect wr_11 391,250,3,9 14
+rect wr_12 421,250,3,9 14
+rect wr_13 455,256,3,9 14
+rect xl_win 376,262,3,11 14
+rect xl_core 377,264,1,5 15
+ellipse xl_halo_b 377,268,22,12 mix:,14@0.14
+ellipse xl_halo_a 377,268,12,7 mix:,14@0.3
+# the lantern's glow: it lights the sky, the shore and the lake around it
+ellipse halo_c 262,206,128,84 mix:,14@0.10
+ellipse halo_b 262,206,92,70 mix:,14@0.17
+ellipse halo_a 262,206,62,56 mix:,14@0.28
+# the jetty comes toward us out of the lake; its post, at the far end, carries the lantern
+vp 113,300
+poly jetty -60,469@1 230,469@1 230,469@0.3 -60,469@0.3 6 e0
+line pl_a -60,469@0.9 230,469@0.9 c0
+line pl_b -60,469@0.8 230,469@0.8 c0
+line pl_c -60,469@0.7 230,469@0.7 c0
+line pl_d -60,469@0.6 230,469@0.6 c0
+line pl_e -60,469@0.5 230,469@0.5 c0
+line pl_f -60,469@0.4 230,469@0.4 c0
+line jetty_lit 230,469@1 230,469@0.3 c12
+poly post_shadow 100,352 124,352 88,469 44,469 0
+poly pile_shadow 212,432 221,432 180,469 150,469 0
+dots knots 90,402 150,420 40,440 120,452 186,450 70,380 c0
+rect pile_r1 212,392,9,40 0
+rect pile_r2 168,372,6,24 0
+rect pile_r3 140,360,4,14 0
+poly pile_sh 150,430 220,432 214,438 140,436 0
+# the post and its arm: black against the glow
+rect post 100,128,26,224 0
+poly post_cap 96,134 100,124 126,124 130,134 0
+rect arm 126,128,140,6 0
+poly brace 126,162 126,174 176,140 176,134 0
+line post_rim 126,134 126,340 c12
+rect chain 261,134,3,10 0
+# the lantern: black cage, lit glass, a white flame
+ellipse ring 262,147,6,6 none e0
+poly dome 234,174 240,164 250,156 262,153 274,156 284,164 290,174 0
+rect cap_rim 230,174,64,6 0
+poly glass 236,180 288,180 292,236 232,236 14
+poly lamp_core 257,228 255,214 262,192 269,214 267,228 15
+line bar_a 247,180 246,236 c0
+line bar_b 277,180 278,236 c0
+poly base 230,236 294,236 288,248 236,248 0
+rect foot 244,248,36,6 0
+rect knob 256,254,12,6 0
+line dome_rim 234,174 240,164 250,156 262,153 c12
+# the lantern's trail on the water
+line tr_0 246,270 278,270 c14
+line tr_1 240,278 284,278 c12
+line tr_2 232,287 292,287 c14
+line tr_3 226,297 298,297 c15
+line tr_4 218,308 306,308 c14
+line tr_5 212,320 312,320 c12
+line tr_6 206,333 318,333 c14
+line tr_7 200,347 324,347 c12
+line tr_8 196,362 328,362 c14
+line tr_9 192,378 332,378 c12
+line tr_10 188,394 336,394 c14
+line tr_11 184,411 340,411 c12
+line tr_12 182,429 342,429 c14
+line tr_13 180,448 344,448 c12
+# cold glints and ripples
+line gl_0 40,300 100,300 c14
+line gl_1 300,310 380,310 c1
+line gl_2 120,330 180,330 c1
+line gl_3 340,342 430,342 c14
+line gl_4 20,352 60,352 c1
+line gl_5 270,364 340,364 c1
+line gl_6 400,380 470,380 c14
+line gl_7 330,404 400,404 c1
+line gl_8 270,424 330,424 c1
+line gl_9 410,432 470,432 c14
+line gl_10 300,452 370,452 c1
+line gl_11 420,456 476,456 c1
+line gl_12 40,306 70,306 c14
+# black reeds at the right, cut by the picture's edge
+poly reeds 392,469 396,430 404,418 408,436 416,408 422,440 432,424 440,452 452,430 460,456 480,440 480,469 0
+line reed_a 404,420 398,372 c0
+line reed_b 416,410 424,366 c0
+line reed_c 432,426 426,384 c0
+line reed_d 452,432 460,388 c0
+line reed_e 470,444 466,404 c0
+dots reed_tips 398,372 424,366 426,384 460,388 466,404 c12
 `,
-  cycles: [
-    {
-      "name": "the path of light",
-      "areas": [
-        "path_1",
-        "path_2",
-        "path_3",
-        "path_4",
-        "path_5"
-      ],
-      "colors": [
-        12,
-        14,
-        6
-      ],
-      "style": "rotate",
-      "ms": 600
-    },
-    {
-      "name": "the lit windows below",
-      "areas": [
-        "wr_01",
-        "wr_02",
-        "wr_03",
-        "wr_04",
-        "wr_05",
-        "wr_06",
-        "wr_07",
-        "wr_08",
-        "wr_09",
-        "wr_10",
-        "wr_11",
-        "wr_12",
-        "wr_13"
-      ],
-      "colors": [
-        14,
-        12
-      ],
-      "style": "flicker",
-      "scatter": true,
-      "ms": [
-        1500,
-        5000
-      ]
-    },
-    {
-      "name": "glints on the reflection",
-      "areas": [
-        "rip_a",
-        "rip_b",
-        "rip_c",
-        "rip_d",
-        "rip_e",
-        "rip_f"
-      ],
-      "colors": [
-        6,
-        12
-      ],
-      "style": "pingpong",
-      "scatter": true,
-      "ms": 700
-    }
-  ],
-  loops: [{"name":"smoke from the chimney","at":[129,96],"style":"loop","ms":280,"frames":[["...8.8..........","....8.8.........",".....8.8........","......8.........",".....8..........","....8...........","..88888.........","...888..........","..888...........","...888..........","....888.........",".....888........","....888.........",".....888........",".......777......",".......777......","......777.......",".....777........",".....777........","....777.........","....77..........",".....77.........","......77........",".......77.......",".......7........",".......7........",".......7........",".......7........"],
-    ["....8.8.8.......",".....8.8........","....8.8.........","...8.8..........","..8.8.8.........",".8.8.8..........","88888...........",".88888..........","....888.........",".....888........","....888.........",".....888........","......888.......",".......888......","......777.......",".....777........",".....777........","....777.........","...777..........","...777..........",".....77.........",".......77.......",".......77.......","........77......",".......7........",".......7........",".......7........",".......7........"],
-    [".....8..........","....8...........","...8.8..........","..8.8...........",".8.8............","..8.............","..888...........","...88888........","....888.........",".....888........","......888.......",".......888......","......888.......",".....888........",".....777........","....777.........","...777..........","...777..........","....777.........",".....777........","......77........","........77......",".........77.....",".........77.....",".......7........",".......7........",".......7........",".......7........"],
-    ["..8.8.8.........",".8.8.8..........","8.8.8...........",".8.8............","..8.8...........","...8.8..........","..88888.........",".....888........","......888.......",".......888......","......888.......",".....888........","....888.........","...888..........","...777..........","...777..........","....777.........",".....777........",".....777........","......777.......","........77......",".........77.....","........77......",".......77.......",".......7........",".......7........",".......7........",".......7........"],
-    [".8.8............","..8.............","...8............","....8...........","...8.8..........","....8.8.........","....88888.......",".....88888......","......888.......",".....888........","....888.........","...888..........","..888...........","...888..........","....777.........",".....777........",".....777........","......777.......",".......777......",".......777......",".......77.......",".......77.......",".......77.......","......77........",".......7........",".......7........",".......7........",".......7........"],
-    ["..8.8...........","...8.8..........","..8.8.8.........","...8.8.8........","....8.8.8.......",".....8.8........","....888.........","...88888........","....888.........","...888..........","..888...........","...888..........","....888.........",".....888........",".....777........","......777.......",".......777......",".......777......","......777.......",".....777........","......77........","......77........",".....77.........",".....77.........",".......7........",".......7........",".......7........",".......7........"]]},{"name":"gulls","path":[[-30,97],
-    [490,103]],"travel":16000,"pause":6000,"style":"loop","ms":340,"frames":[["........................","...........000..........","..........0...0.........","0...0...................",".000....................","........................","........................","..................00000.","........................","........................"],
-    ["........................","..........00000.........","........................","........................","00000...................","........................","........................","..................00000.","........................","........................"],
-    ["........................","..........00000.........","........................","........................",".000....................","0...0...................","..................0...0.","...................000..","........................","........................"],
-    ["........................","..........00000.........","........................","........................","00000...................","........................","........................","..................00000.","........................","........................"],
-    ["..........0...0.........","...........000..........","........................","........................","00000...................","........................","........................","...................000..","..................0...0.","........................"],
-    ["........................","..........00000.........","........................","........................","00000...................","........................","........................","..................00000.","........................","........................"]]}]
+  cycles: [{"name":"the flame","areas":["lamp_core"],"colors":[15,14],"style":"flicker","ms":[400,900]},{"name":"a few lit windows","areas":["w_1","w_3","w_6","w_8","w_11","w_13"],"colors":[14,12],"style":"flicker","scatter":true,"ms":[2500,7000]},{"name":"the trail","areas":["tr_0","tr_1","tr_2","tr_3","tr_4","tr_5","tr_6","tr_7","tr_8","tr_9","tr_10","tr_11","tr_12","tr_13"],"colors":[14,15,12],"style":"rotate","sweep":true,"ms":420}],
+  loops: [{"name":"smoke from the shore's chimney","at":[79,191],"style":"loop","ms":320,"frames":[["...88...","..88....",".88.....","..88....","...88...","..88....",".88.....","..88....","...88..."],["..88....","...88...","..88....",".88.....","..88....","...88...","..88....",".88.....","..88...."],[".88.....","..88....","...88...","..88....",".88.....","..88....","...88...","..88....",".88....."]]},{"name":"a moth at the lantern","at":[196,168],"style":"pingpong","ms":240,"frames":[["........","..0.....","........","........"],["........","........",".....0..","........"],["........","........","........","..0....."]]}]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "archetype: the split (two sides: the village above the waterline and the same village hanging lit in the lake below, the lake lighting every window again, a little late); title at the top (rows 0-95 flat brown, the image starts under it); the waterline at y 214, the middle of the picture; viewpoint at the quay's edge looking north over the lake, eye level, a low wide landscape, jetty vp 310,238; palette goldenhour (leads brown 6, light red 12 and yellow 14 only in the sky near the hidden sun and on what it strikes, black for silhouettes); light: the low sun lies behind the island out of frame (no disc), so the horizon glows yellow and everything against it is black; ONE bright small light, the extra lamp in the water; dominant element = the village on its hill (black houses, a chapel spire, yellow lit windows, a pale rim on the sunward roof edges) and its mirror image in the lake, the two halves each their own colour: above a glowing brown-to-yellow sky, below the lake dithered from yellow at the horizon to brown to near black at your feet; the other elements: the small island on x296 with its iron lamp-post DARK above the water; the same lamp-post upside down in the water, lit white-yellow in a pool of black water with a halo, a lamp the village does not have (the question: whose light is that, and why does the lake have one more than the village); the jetty running up from the lower right toward the lamp, brown planks with a light edge and black piles, a post at its end (the third element); wings: more roofs and sky and a gull-crossed sky at the left, a far shore with dark houses and a few lit windows (and their reflections) at the right, black reeds at the lower left, the jetty's foot at the lower right; no figure; gradients with their causes: the sky (the glow of the low sun at the horizon) and the lake (distance and depth, two bands of one dither), nothing else is a gradient; hard black silhouettes, no cast shadows; moves: the path of light under the lamp (moon-path cycle), the lit windows in the water (flicker), glints on the reflection (cycle), smoke from the chimney of the third house (loop), gulls crossing the sky (loop)",
+ "title": 14,
+ "titleAt": "top",
+ "draw": "\n  rect bg 0,0,480,400 6\n  rect sky_a 0,96,480,74 fade:6,12/0,96/0,170\n  rect sky_b 0,170,480,44 fade:12,14/0,170/0,214\n  poly cloud_a 330,127 392,127 384,131 340,131 12\n  poly cloud_b 178,112 238,112 230,116 186,116 12\n  poly cloud_c 392,148 448,148 440,152 400,152 12\n  poly cloud_d 14,104 64,104 56,108 22,108 12\n  poly far_shore 352,214 352,208 378,203 404,205 430,200 456,202 480,200 480,214 0\n  poly far_house 392,205 392,198 402,192 412,198 412,205 0\n  dots far_win 366,209 388,207 412,208 436,205 462,206 c14\n  poly island 272,214 280,209 294,206 312,207 322,214 0\n  line island_post 298,207 298,178 c0\n  poly island_lamp 294,178 302,178 303,172 298,167 293,172 0\n  poly hill 0,214 0,152 40,142 90,136 140,148 190,168 232,190 256,208 268,214 0\n  poly house_a 4,170 4,150 22,128 40,148 40,170 0\n  poly house_b 38,160 38,142 60,116 84,140 84,160 0\n  poly chapel 88,152 88,124 98,108 108,124 108,152 0\n  poly house_c 106,170 106,148 126,128 146,148 146,170 0\n  rect chimney 134,124,5,16 0\n  poly house_d 144,184 144,162 164,142 184,162 184,184 0\n  poly house_e 180,200 180,174 200,154 218,174 218,200 0\n  poly house_f 214,210 214,190 232,174 250,192 250,210 0\n  line rim_a 22,128 40,148 c12\n  line rim_b 60,116 84,140 c12\n  line rim_c 98,108 108,124 c12\n  line rim_d 126,128 146,148 c12\n  line rim_e 164,142 184,162 c12\n  rect w_01 12,156,3,4 14\n  rect w_02 26,160,3,4 14\n  rect w_03 46,146,3,4 14\n  rect w_04 64,146,3,4 14\n  rect w_05 96,124,3,5 14\n  rect w_06 114,154,3,4 14\n  rect w_07 132,156,3,4 14\n  rect w_08 152,168,3,4 14\n  rect w_09 172,170,3,4 14\n  rect w_10 190,180,3,4 14\n  rect w_11 206,182,3,4 14\n  rect w_12 222,194,3,4 14\n  rect w_13 238,196,3,4 14\n  rect lake_a 0,214,480,86 fade:14,6/0,214/0,300\n  rect lake_b 0,300,480,99 fade:6,0/0,300/0,425\n  poly far_shore_r 352,214 352,220 378,225 404,223 430,228 456,226 480,228 480,214 0\n  poly far_house_r 392,223 392,230 402,236 412,230 412,223 0\n  dots far_win_r 366,219 388,221 412,220 436,223 462,222 c14\n  poly hill_r 0,214 0,276 40,286 90,292 140,280 190,260 232,238 256,220 268,214 0\n  poly house_a_r 4,258 4,278 22,300 40,280 40,258 0\n  poly house_b_r 38,268 38,286 60,312 84,288 84,268 0\n  poly chapel_r 88,276 88,304 98,320 108,304 108,276 0\n  poly house_c_r 106,258 106,280 126,300 146,280 146,258 0\n  rect chimney_r 134,289,5,15 0\n  poly house_d_r 144,244 144,266 164,286 184,266 184,244 0\n  poly house_e_r 180,228 180,254 200,274 218,254 218,228 0\n  poly house_f_r 214,218 214,238 232,254 250,236 250,218 0\n  rect wr_01 12,268,3,4 14\n  rect wr_02 26,264,3,4 14\n  rect wr_03 46,278,3,4 14\n  rect wr_04 64,278,3,4 14\n  rect wr_05 96,299,3,5 14\n  rect wr_06 114,270,3,4 14\n  rect wr_07 132,268,3,4 14\n  rect wr_08 152,256,3,4 14\n  rect wr_09 172,254,3,4 14\n  rect wr_10 190,244,3,4 14\n  rect wr_11 206,242,3,4 14\n  rect wr_12 222,230,3,4 14\n  rect wr_13 238,228,3,4 14\n  line rip_a 16,262 62,262 c6\n  line rip_b 70,282 118,282 c6\n  line rip_c 150,262 200,262 c6\n  line rip_d 40,298 80,298 c6\n  line rip_e 190,240 232,240 c6\n  line rip_f 92,310 104,310 c6\n  poly island_r 272,214 280,219 294,222 312,221 322,214 0\n  line island_post_r 298,221 298,246 c0\n  ellipse pool 298,257,22,13 0\n  ellipse halo_c 298,256,20,11 mix:,14@0.12\n  ellipse halo_b 298,256,14,8 mix:,14@0.22\n  ellipse halo_a 298,256,9,6 mix:,14@0.36\n  poly lamp_r 294,250 302,250 303,256 298,261 293,256 14\n  rect lamp_core 297,252,3,4 15\n  line path_1 292,274 304,274 c14\n  line path_2 288,281 308,281 c12\n  line path_3 282,289 314,289 c14\n  line path_4 276,298 320,298 c12\n  line path_5 268,308 328,308 c14\n  vp 310,238\n  poly jetty 430,399@1 560,399@1 560,399@0.22 430,399@0.22 6 e0\n  line jetty_lit 430,399@1 430,399@0.22 c12\n  line pl_a 430,399@0.9 560,399@0.9 c0\n  line pl_b 430,399@0.75 560,399@0.75 c0\n  line pl_c 430,399@0.62 560,399@0.62 c0\n  line pl_d 430,399@0.5 560,399@0.5 c0\n  line pl_e 430,399@0.4 560,399@0.4 c0\n  line pl_f 430,399@0.32 560,399@0.32 c0\n  line pl_g 430,399@0.26 560,399@0.26 c0\n  rect pile_a 382,328,4,14 0\n  rect pile_b 415,370,5,16 0\n  rect jetty_post 348,250,4,24 0\n  poly reeds 0,399 0,352 6,344 10,356 18,338 24,358 32,348 40,370 52,382 64,399 0\n  line reed_a 12,350 10,322 c0\n  line reed_b 22,352 26,326 c0\n  line reed_c 34,356 32,334 c0\n",
+ "cycles": [
+  {
+   "name": "the path of light",
+   "areas": [
+    "path_1",
+    "path_2",
+    "path_3",
+    "path_4",
+    "path_5"
+   ],
+   "colors": [
+    12,
+    14,
+    6
+   ],
+   "style": "rotate",
+   "ms": 600
+  },
+  {
+   "name": "the lit windows below",
+   "areas": [
+    "wr_01",
+    "wr_02",
+    "wr_03",
+    "wr_04",
+    "wr_05",
+    "wr_06",
+    "wr_07",
+    "wr_08",
+    "wr_09",
+    "wr_10",
+    "wr_11",
+    "wr_12",
+    "wr_13"
+   ],
+   "colors": [
+    14,
+    12
+   ],
+   "style": "flicker",
+   "scatter": true,
+   "ms": [
+    1500,
+    5000
+   ]
+  },
+  {
+   "name": "glints on the reflection",
+   "areas": [
+    "rip_a",
+    "rip_b",
+    "rip_c",
+    "rip_d",
+    "rip_e",
+    "rip_f"
+   ],
+   "colors": [
+    6,
+    12
+   ],
+   "style": "pingpong",
+   "scatter": true,
+   "ms": 700
+  }
+ ],
+ "loops": [
+  {
+   "name": "smoke from the chimney",
+   "at": [
+    129,
+    96
+   ],
+   "style": "loop",
+   "ms": 280,
+   "frames": [
+    [
+     "...8.8..........",
+     "....8.8.........",
+     ".....8.8........",
+     "......8.........",
+     ".....8..........",
+     "....8...........",
+     "..88888.........",
+     "...888..........",
+     "..888...........",
+     "...888..........",
+     "....888.........",
+     ".....888........",
+     "....888.........",
+     ".....888........",
+     ".......777......",
+     ".......777......",
+     "......777.......",
+     ".....777........",
+     ".....777........",
+     "....777.........",
+     "....77..........",
+     ".....77.........",
+     "......77........",
+     ".......77.......",
+     ".......7........",
+     ".......7........",
+     ".......7........",
+     ".......7........"
+    ],
+    [
+     "....8.8.8.......",
+     ".....8.8........",
+     "....8.8.........",
+     "...8.8..........",
+     "..8.8.8.........",
+     ".8.8.8..........",
+     "88888...........",
+     ".88888..........",
+     "....888.........",
+     ".....888........",
+     "....888.........",
+     ".....888........",
+     "......888.......",
+     ".......888......",
+     "......777.......",
+     ".....777........",
+     ".....777........",
+     "....777.........",
+     "...777..........",
+     "...777..........",
+     ".....77.........",
+     ".......77.......",
+     ".......77.......",
+     "........77......",
+     ".......7........",
+     ".......7........",
+     ".......7........",
+     ".......7........"
+    ],
+    [
+     ".....8..........",
+     "....8...........",
+     "...8.8..........",
+     "..8.8...........",
+     ".8.8............",
+     "..8.............",
+     "..888...........",
+     "...88888........",
+     "....888.........",
+     ".....888........",
+     "......888.......",
+     ".......888......",
+     "......888.......",
+     ".....888........",
+     ".....777........",
+     "....777.........",
+     "...777..........",
+     "...777..........",
+     "....777.........",
+     ".....777........",
+     "......77........",
+     "........77......",
+     ".........77.....",
+     ".........77.....",
+     ".......7........",
+     ".......7........",
+     ".......7........",
+     ".......7........"
+    ],
+    [
+     "..8.8.8.........",
+     ".8.8.8..........",
+     "8.8.8...........",
+     ".8.8............",
+     "..8.8...........",
+     "...8.8..........",
+     "..88888.........",
+     ".....888........",
+     "......888.......",
+     ".......888......",
+     "......888.......",
+     ".....888........",
+     "....888.........",
+     "...888..........",
+     "...777..........",
+     "...777..........",
+     "....777.........",
+     ".....777........",
+     ".....777........",
+     "......777.......",
+     "........77......",
+     ".........77.....",
+     "........77......",
+     ".......77.......",
+     ".......7........",
+     ".......7........",
+     ".......7........",
+     ".......7........"
+    ],
+    [
+     ".8.8............",
+     "..8.............",
+     "...8............",
+     "....8...........",
+     "...8.8..........",
+     "....8.8.........",
+     "....88888.......",
+     ".....88888......",
+     "......888.......",
+     ".....888........",
+     "....888.........",
+     "...888..........",
+     "..888...........",
+     "...888..........",
+     "....777.........",
+     ".....777........",
+     ".....777........",
+     "......777.......",
+     ".......777......",
+     ".......777......",
+     ".......77.......",
+     ".......77.......",
+     ".......77.......",
+     "......77........",
+     ".......7........",
+     ".......7........",
+     ".......7........",
+     ".......7........"
+    ],
+    [
+     "..8.8...........",
+     "...8.8..........",
+     "..8.8.8.........",
+     "...8.8.8........",
+     "....8.8.8.......",
+     ".....8.8........",
+     "....888.........",
+     "...88888........",
+     "....888.........",
+     "...888..........",
+     "..888...........",
+     "...888..........",
+     "....888.........",
+     ".....888........",
+     ".....777........",
+     "......777.......",
+     ".......777......",
+     ".......777......",
+     "......777.......",
+     ".....777........",
+     "......77........",
+     "......77........",
+     ".....77.........",
+     ".....77.........",
+     ".......7........",
+     ".......7........",
+     ".......7........",
+     ".......7........"
+    ]
+   ]
+  },
+  {
+   "name": "gulls",
+   "path": [
+    [
+     -30,
+     97
+    ],
+    [
+     490,
+     103
+    ]
+   ],
+   "travel": 16000,
+   "pause": 6000,
+   "style": "loop",
+   "ms": 340,
+   "frames": [
+    [
+     "........................",
+     "...........000..........",
+     "..........0...0.........",
+     "0...0...................",
+     ".000....................",
+     "........................",
+     "........................",
+     "..................00000.",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "..........00000.........",
+     "........................",
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "..................00000.",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "..........00000.........",
+     "........................",
+     "........................",
+     ".000....................",
+     "0...0...................",
+     "..................0...0.",
+     "...................000..",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "..........00000.........",
+     "........................",
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "..................00000.",
+     "........................",
+     "........................"
+    ],
+    [
+     "..........0...0.........",
+     "...........000..........",
+     "........................",
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "...................000..",
+     "..................0...0.",
+     "........................"
+    ],
+    [
+     "........................",
+     "..........00000.........",
+     "........................",
+     "........................",
+     "00000...................",
+     "........................",
+     "........................",
+     "..................00000.",
+     "........................",
+     "........................"
+    ]
+   ]
+  }
+ ]
 };

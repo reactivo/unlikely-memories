@@ -789,39 +789,155 @@ export const visions = {
 // lit window that flickers, a lamp that pulses, a small star that twinkles and a bat that crosses behind the tower (loops),
 // under a flat blue band for the title. A cover has at least two cycles and one loop.
 export const cover = {
-  shot: "Looking up from the plain, facing the tower, frontal; 480 x 400, the tower in the phone's crop (columns 80-399), the wings (0-79, 400-479) carrying the plain on: two far huts and a pylon, hills, more stars. Palette: night blue and grey, the window's yellow 14 the one light. The tower on the middle third, half the cover's height; a flat blue band above it, across the whole width, for the title. The question: why one window is lit. moves: the lit window (flickers), the lamp (pulses), a twinkling star and a bat crossing behind the tower (loops).",
+  shot: "archetype: the icon (it turns on one thing, the lever that lights the floor; it beat the split, the floor and its plan, which any test lab could claim): a huge steel lever thrown over out of its slot in a brown bench plate, a lamp lit on its arm, sparks running off along a cable to the right; no figures; moves: the lamp (green to yellow), the sparks (flicker), the slot light, a moth crossing, a signal running along the cable.",
   title: 15,
   titleAt: "top",
   draw: `
-    rect sky 0,0,480,400 1
-    ellipse moon 330,150,16,16 15
-    rect tower 200,110,80,230 8 e7
-    rect tower_top 192,98,96,12 7
-    rect window 232,150,16,22 14
-    rect window_glow 228,146,24,30 mix:,14@0.25
-    rect door 228,300,24,40 0
-    rect lamp 245,306,6,6 6
-    rect ground 0,340,480,60 fade:8,/0,340/0,400
-    ellipse hill_l 100,380,70,30 0
-    ellipse hill_r 380,380,70,30 0
-    ellipse hill_wl 20,376,60,34 0
-    ellipse hill_wr 450,378,56,32 0
-    rect hut_l 10,300,34,40 0
-    poly roof_l 6,300 27,282 48,300 0
-    rect hut_l_win 22,314,8,8 6
-    rect hut_r 420,308,38,32 0
-    poly roof_r 416,308 439,290 462,308 0
-    rect pylon_r 466,230,4,110 0
-    rect pylon_r_arm 456,240,24,4 0
-    dots stars 110,130 150,164 190,124 104,200 140,270 370,210 20,180 52,230 410,160 450,130 c15
-  `,
+    rect sky 0,0,480,560 8
+    ellipse halo_core 338,154,46,30 mix:,14@0.12
+    poly plate 104,446 122,318 150,292 330,292 358,318 376,446 6 e0
+    poly plate_lit 124,318 152,296 328,296 356,318 340,306 150,306 mix:6,15@0.35
+    poly plate_dark 108,404 372,404 376,446 104,446 mix:6,0@0.35
+    poly plate_side 330,296 356,318 376,446 346,446 mix:6,0@0.3
+    rect slot_frame 186,306,108,56 7 e0
+    rect slot_in 198,318,84,32 0
+    rect slot_light 204,326,72,3 14
+    poly shadow 226,362 176,448 206,448 250,362 mix:6,0@0.55
+    dots rivets 124,304 356,304 124,436 356,436 124,370 356,370 c7
+    dots rivets_hi 123,303 355,303 123,435 355,435 c15
+    rect lever_hub 226,326,28,20 7 e0
+    poly lever_arm 226,340 256,340 350,166 326,152 7 e0
+    line lever_rim 256,340 350,166 c15
+    line lever_rim2 254,340 348,167 c15
+    line lever_shade 228,340 327,154 c8
+    line lever_shade2 230,340 329,155 c0
+    ellipse lever_knob 338,148,22,22 6 e0
+    ellipse knob_hi 331,141,7,7 mix:6,15@0.5
+    ellipse lamp 292,236,8,8 2 e0
+    ellipse lamp_glow 292,236,13,11 mix:,2@0.25
+    dots lamp_hi 290,234 c15
+    rect bench 0,440,480,29 6 e0
+    rect bench_lip 0,440,480,5 7
+    rect bench_face 0,447,480,22 mix:6,0@0.3
+    poly stripe_1 20,447 40,447 30,469 10,469 7
+    poly stripe_2 80,447 100,447 90,469 70,469 7
+    poly stripe_3 140,447 160,447 150,469 130,469 7
+    poly stripe_4 200,447 220,447 210,469 190,469 7
+    poly stripe_5 260,447 280,447 270,469 250,469 7
+    poly stripe_6 320,447 340,447 330,469 310,469 7
+    poly stripe_7 380,447 400,447 390,469 370,469 7
+    poly stripe_8 440,447 460,447 450,469 430,469 7
+    line cable_r 374,396 408,420 440,406 480,372 c0
+    line cable_r2 374,397 408,421 440,407 480,373 c0
+    line cable_r3 374,398 408,422 440,408 480,374 c0
+    line cable_r_hi 374,394 408,418 440,404 480,370 c7
+    line sparks 408,416 418,392 432,414 444,382 458,408 470,372 480,364 c14
+    line sparks_core 408,416 418,392 432,414 444,382 458,408 470,372 480,364 c15
+    dots sparks_dots 428,384 462,384 450,396 474,392 c14
+    line cable_l 106,400 70,424 34,408 0,420 c0
+    line cable_l2 106,401 70,425 34,409 0,421 c0
+    line cable_l3 106,402 70,426 34,410 0,422 c0
+    line cable_l_hi 106,398 70,422 34,406 0,418 c7
+    ellipse plug 30,430,14,8 7 e0
+    rect plug_in 25,428,10,4 0
+`,
   cycles: [
-    { name: "the lit window", areas: ["window", "window_glow"], colors: [14, 6], style: "flicker", ms: [700, 2200] },
-    { name: "the lamp", areas: ["lamp"], colors: [6, 14], style: "pingpong", ms: 900 }
+    { name: "the lamp", areas: ["lamp"], colors: [2, 14], style: "pingpong", ms: 1400 },
+    { name: "the sparks", areas: ["sparks_core"], colors: [14, 15], style: "flicker", ms: [400, 900] },
+    { name: "the slot", areas: ["slot_light"], colors: [14, 6], style: "pingpong", ms: 1800 }
   ],
   loops: [
-    { name: "the star", at: [140, 190], style: "loop", ms: 500, frames: [[".f.", "fff", ".f."], ["...", ".f.", "..."]] },
-    // A bat that crosses the poster at the tower's height and passes BEHIND the tower: `under: "tower"` hides it where the tower's shapes (tower, tower_top) show.
-    { name: "the bat", style: "loop", ms: 150, path: [[-8, 250], [484, 250]], travel: 8000, pause: 2000, under: "tower", frames: [["f..f", ".ff."], [".ff.", "f..f"]] }
+    { name: "the moth", style: "loop", ms: 150, path: [[-8, 176], [484, 150]], travel: 9000, pause: 2500, frames: [["f..f", ".ff."], [".ff.", "f..f"]] },
+    { name: "the signal", style: "loop", ms: 120, path: [[372, 396], [478, 370]], travel: 2600, pause: 1200, frames: [["ee", "ee"], ["e.", ".e"]] }
   ]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "Looking up from the plain, facing the tower, frontal; 480 x 400, the tower in the phone's crop (columns 80-399), the wings (0-79, 400-479) carrying the plain on: two far huts and a pylon, hills, more stars. Palette: night blue and grey, the window's yellow 14 the one light. The tower on the middle third, half the cover's height; a flat blue band above it, across the whole width, for the title. The question: why one window is lit. moves: the lit window (flickers), the lamp (pulses), a twinkling star and a bat crossing behind the tower (loops).",
+ "title": 15,
+ "titleAt": "top",
+ "draw": "\n    rect sky 0,0,480,400 1\n    ellipse moon 330,150,16,16 15\n    rect tower 200,110,80,230 8 e7\n    rect tower_top 192,98,96,12 7\n    rect window 232,150,16,22 14\n    rect window_glow 228,146,24,30 mix:,14@0.25\n    rect door 228,300,24,40 0\n    rect lamp 245,306,6,6 6\n    rect ground 0,340,480,60 fade:8,/0,340/0,400\n    ellipse hill_l 100,380,70,30 0\n    ellipse hill_r 380,380,70,30 0\n    ellipse hill_wl 20,376,60,34 0\n    ellipse hill_wr 450,378,56,32 0\n    rect hut_l 10,300,34,40 0\n    poly roof_l 6,300 27,282 48,300 0\n    rect hut_l_win 22,314,8,8 6\n    rect hut_r 420,308,38,32 0\n    poly roof_r 416,308 439,290 462,308 0\n    rect pylon_r 466,230,4,110 0\n    rect pylon_r_arm 456,240,24,4 0\n    dots stars 110,130 150,164 190,124 104,200 140,270 370,210 20,180 52,230 410,160 450,130 c15\n  ",
+ "cycles": [
+  {
+   "name": "the lit window",
+   "areas": [
+    "window",
+    "window_glow"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "ms": [
+    700,
+    2200
+   ]
+  },
+  {
+   "name": "the lamp",
+   "areas": [
+    "lamp"
+   ],
+   "colors": [
+    6,
+    14
+   ],
+   "style": "pingpong",
+   "ms": 900
+  }
+ ],
+ "loops": [
+  {
+   "name": "the star",
+   "at": [
+    140,
+    190
+   ],
+   "style": "loop",
+   "ms": 500,
+   "frames": [
+    [
+     ".f.",
+     "fff",
+     ".f."
+    ],
+    [
+     "...",
+     ".f.",
+     "..."
+    ]
+   ]
+  },
+  {
+   "name": "the bat",
+   "style": "loop",
+   "ms": 150,
+   "path": [
+    [
+     -8,
+     250
+    ],
+    [
+     484,
+     250
+    ]
+   ],
+   "travel": 8000,
+   "pause": 2000,
+   "under": "tower",
+   "frames": [
+    [
+     "f..f",
+     ".ff."
+    ],
+    [
+     ".ff.",
+     "f..f"
+    ]
+   ]
+  }
+ ]
 };

@@ -8,8 +8,8 @@
 // "bottom"); the lines one font pixel (the font's own line gap) apart at that scale; the block centred in its band. A capital with a mark (Á) rises
 // above the capitals' height: its line gets that much room above it, so a mark never touches the line above.
 
-import art from "../content/art.js?v=0.63.0";
-import { TITLE_FONTS } from "../content/titlefonts/index.js?v=0.63.0";
+import art from "../content/art.js?v=0.64.0";
+import { TITLE_FONTS } from "../content/titlefonts/index.js?v=0.64.0";
 
 const C = art.cover;
 
@@ -42,9 +42,11 @@ export const inkWidth = (font, text) => widthOf(measure(font, text));
 
 // The title as lines: { lines: [text], scale, top, height, rows: [{ text, x, y, m }] , font } (x, y in cover pixels: the line's left ink column and its baseline-less box top),
 // for a title, a font table, and the band ("top" or "bottom").
-export function layoutTitle(title, font, at = "top", lang) {
+// `kicker`: a small line above the title (the series' "An Unlikely Memories interactive fiction"), in the same font at `kickerScale` (art.cover.kickerScale, 1; the phone's page asks for 2: ui/splash.js),
+// two title pixels above the title's capitals; the two are one block, centred in the band.
+export function layoutTitle(title, font, at = "top", lang, kicker = "", kickerScale = C.kickerScale ?? 1, format = C) {   // format: the poster's size and bands (art.cover, or art.boxart)
   const text = String(title ?? "").toLocaleUpperCase(lang).replace(/\s+/g, " ").trim();
-  const [b0, b1] = C.bands[at] ?? C.bands.top, w = (t) => widthOf(measure(font, t));
+  const [b0, b1] = format.bands[at] ?? format.bands.top, w = (t) => widthOf(measure(font, t));
   const words = text.split(" ");
   let lines = [text];
   if (w(text) * C.titleScale.min > C.titleWidth && words.length > 1) {
@@ -59,22 +61,27 @@ export function layoutTitle(title, font, at = "top", lang) {
   // Each line's box in font pixels: the capitals' height, the room a mark needs above them; a descender counts under the last line only.
   const above = ms.map(m => Math.max(0, m.high - font.cap)), below = ms.at(-1).low;
   const rowsHigh = ms.reduce((s, _, i) => s + above[i] + font.cap, 0) + gap * (ms.length - 1) + below;
-  const fit = Math.min(...ms.map(m => Math.floor(C.titleWidth / Math.max(1, widthOf(m)))), Math.floor((b1 - b0) / rowsHigh));
+  const ktext = String(kicker ?? "").toLocaleUpperCase(lang).replace(/\s+/g, " ").trim(), ks = kickerScale;
+  const km = ktext ? measure(font, ktext) : null, kickHigh = km ? (Math.max(km.high, font.cap) * ks) : 0;
+  const kgap = (s) => km ? 2 * s : 0;                              // two title pixels between the line and the title
+  const fit = Math.min(...ms.map(m => Math.floor(C.titleWidth / Math.max(1, widthOf(m)))), Math.floor((b1 - b0 - kickHigh) / (rowsHigh + 2)));
   const scale = Math.max(1, Math.min(C.titleScale.max, fit));
-  const top = b0 + Math.floor(((b1 - b0) - rowsHigh * scale) / 2);
-  let y = top;
+  const top = b0 + Math.floor(((b1 - b0) - rowsHigh * scale - kickHigh - kgap(scale)) / 2);
+  let y = top + kickHigh + kgap(scale);
+  const kick = km ? { text: ktext, m: km, s: ks, x: Math.floor((format.width - widthOf(km) * ks) / 2), y: top + (Math.max(km.high, font.cap) - font.cap) * ks } : null;
   const rows = ms.map((m, i) => {
-    const row = { text: lines[i], m, x: Math.floor((C.width - widthOf(m) * scale) / 2), y: y + above[i] * scale };   // y: the capitals' top row
+    const row = { text: lines[i], m, x: Math.floor((format.width - widthOf(m) * scale) / 2), y: y + above[i] * scale };   // y: the capitals' top row
     y += (above[i] + font.cap + gap) * scale;
     return row;
   });
-  return { lines, scale, top, height: rowsHigh * scale, band: [b0, b1], rows, font };
+  return { lines, scale, top, height: rowsHigh * scale + kickHigh + kgap(scale), band: [b0, b1], rows: kick ? [kick, ...rows] : rows, font };
 }
 
 // The pixels the title covers, as indices into a grid `width` wide (row by row).
 export function titlePixels(layout, width = C.width, height = C.height) {
-  const out = [], s = layout.scale, cap = layout.font.cap;
+  const out = [], cap = layout.font.cap;
   for (const row of layout.rows) for (const [g, pen] of row.m.at) {
+    const s = row.s ?? layout.scale;
     g.rows.forEach((r, j) => {
       for (let i = 0; i < r.length; i++) {
         if (r[i] !== "#") continue;

@@ -591,171 +591,18 @@ export const visions = {
 
 // ---- THE COVER (its page, /lantern/: docs/splash/PLAN.md): 480 x 400, the title drawn by the game on its band ---------------------------
 export const cover = {
-  shot: "archetype: the dwarf (the story turns on a place bigger than you: a fog-bound street that keeps what is said in it); title at the top, a flat brown band over rows 0-95; gaslight (leads brown 6, dark grey 8, black, yellow lamps 14; one small green accent for a cap), the lamps along the Row lit in a haze, hard light from the far end. Dominant: the huge unlit gas lamp-post of the Row (the one Mr Fenn didn't light), a black silhouette seen from a low camera on the left third, its dark lantern cap near the band's edge, with a thin yellow rim light on its right edge; at its foot a small figure, Mr Fenn the dead lamplighter, a black silhouette sitting against the post's base in profile, head bowed, a green cap, his near arm reaching down to a lamplighter's pole that leans up beside him (the other arm rests on his knee, hidden), a long dithered shadow running away to the lower left. Backdrop: one-point view, vanishing point at x 330, y 272, the street going away between the pub wall (left, a red-lit window, a door) and the pie shop (right, a lit window, a chimney), shrinking pairs of lit lamps {lamps} converging on the court doors {court doors} glowing yellow in the fog at the end of the Row, Constable Pye {constable} a tiny black figure with his lamp standing before them. Elements: Mr Fenn {lamplighter}, the lit lamps, the court, the constable. The question: why is the lamplighter dead under the one lamp that is dark? Gradients: the pub wall darkening towards the camera (the lamps at the far end light it, the near end falls into the dark); the sky from brown at the band down to dark grey at the horizon (the air thickening with distance). Wings: left, the pub wall with its red window, a door, dark upper windows, a lit window and a drainpipe; right, the pie shop with its lit window and door, upper windows, a wall lamp with its halo, two chimneys against the sky. Light: the lamps, soft halos round the nearest, pools on the pavement and reflections on the wet road, rim lights on the silhouettes on the side towards the lamps. moves: the gas flames (flicker), the fog glow (pingpong), the lit windows (flicker), moths round the middle lamp (loop), smoke from the pie shop chimney (loop)",
-  title: 14,
-  titleAt: "top",
-  draw: `
-# the whole canvas: gaslight's lead, brown; the top band stays this one flat colour
-rect bg 0,0,480,400 6
-rect air 0,96,480,176 fade:6,8/0,96/0,272
-vp 330,272
-# the fog glow at the far end of the Row
-ellipse glow_far3 338,262,110,46 mix:,14@0.1
-ellipse glow_far2 338,264,64,30 mix:,14@0.2
-ellipse glow_far1 338,266,30,16 mix:,14@0.35
-# the court at the end, dark, with its lit doors
-poly court 314,272 314,246 322,238 330,232 338,238 346,246 346,272 mix:8,0@0.5 e0
-rect court_doors 325,252,10,20 14
-line court_mull 330,252 330,271 c8
-# chimneys against the sky (the wall is drawn over their feet)
-rect chimney_r1 446,124,10,40 0
-rect chimney_r1_cap 444,122,14,3 0
-rect chimney_r2 410,200,9,40 0
-rect chimney_r2_cap 408,198,13,3 0
-# the pub wall (left): darker nearer the camera
-poly wall_l 0,100@1 0,300@1 0,300@0.1 0,100@0.1 fade:8,6/-60,0/300,0
-line roof_l 0,100@1 0,100@0.1 c0
-poly win_l1 14,140@1 14,140@0.95 14,176@0.95 14,176@1 0 e8
-poly win_l2 52,138@1 52,138@0.93 52,174@0.93 52,174@1 0 e8
-poly win_lit 92,160@1 92,160@0.92 92,198@0.92 92,198@1 14 e0
-poly bell_window 10,215@1 10,215@0.88 10,262@0.88 10,262@1 mix:4,12@0.45 e0
-line bell_mull 10,238@1 10,238@0.88 c0
-poly bell_door 58,222@1 58,222@0.9 58,295@0.9 58,295@1 0 e8
-line pipe_l 78,142 78,292 c0
-# the pie shop wall (right)
-poly wall_r 480,130@1 480,296@1 480,296@0.15 480,130@0.15 mix:8,0@0.45
-line roof_r 480,130@1 480,130@0.15 c0
-poly pie_window 470,210@1 470,210@0.7 470,262@0.7 470,262@1 mix:6,14@0.45 e0
-line pie_mull1 470,236@1 470,236@0.7 c0
-line pie_mull2 470,210@0.85 470,262@0.85 c0
-poly pie_door 415,238@1 415,238@0.9 415,286@0.9 415,286@1 0 e8
-poly win_r1 468,166@1 468,166@0.75 468,192@0.75 468,192@1 0 e8
-ellipse halo_w 438,258,14,11 mix:,14@0.2
-line brk_r 456,258 441,258 c0
-ellipse brk_lamp 438,258,3,4 14
-# the ground: pavements, the dark wet road, flagstones and kerbs
-poly ground 0,300@1 0,400@1 480,400@1 480,296@1 480,296@0.02 0,300@0.02 mix:8,6@0.55
-poly road 185,400@1 440,400@1 440,400@0.02 185,400@0.02 mix:0,8@0.55
-ellipse fog_hz 330,280,150,9 mix:,6@0.3
-line joint_h1 0,318 278,318 c8
-line joint_h2 0,334 258,334 c8
-line joint_h3 0,352 238,352 c8
-line joint_h4 0,378 210,378 c8
-line joint_v1 30,400@1 30,400@0.05 c8
-line joint_v2 100,400@1 100,400@0.05 c8
-line joint_v3 160,400@1 160,400@0.05 c8
-line joint_v4 470,400@1 470,400@0.05 c8
-line kerb_l 185,400@1 185,400@0.02 c0
-line kerb_r 440,400@1 440,400@0.02 c0
-# pools of light and reflections
-ellipse pool_f 210,348,58,16 mix:,14@0.12
-ellipse pool_a 372,326,38,7 mix:,14@0.25
-ellipse pool_b 290,312,26,5 mix:,14@0.25
-poly refl_a 366,324 376,324 372,352 368,352 mix:,14@0.3
-poly refl_b 287,309 293,309 292,334 288,334 mix:,14@0.25
-# the far lamps, small
-ellipse halo_g 336,262,8,6 mix:,14@0.25
-rect lampg_shaft 335,263,1,16 0
-poly lampg_body 334,259 338,259 338,263 334,263 14
-ellipse halo_f 320,260,9,7 mix:,14@0.25
-rect lampf_shaft 319,262,1,19 0
-poly lampf_body 317,257 322,257 322,262 317,262 14
-ellipse halo_e 342,251,9,7 mix:,14@0.25
-rect lampe_shaft 342,255,2,32 0
-poly lampe_cap 337,247 342,243 347,247 0
-poly lampe_body 339,247 346,247 345,255 340,255 14
-ellipse halo_d 308,245,10,8 mix:,14@0.25
-rect lampd_shaft 307,250,2,41 0
-poly lampd_cap 302,240 308,235 314,240 0
-poly lampd_body 304,240 312,240 311,250 305,250 14
-# Constable Pye before the court doors, tiny
-poly pye_cape 327,279 333,279 335,292 325,292 0
-ellipse pye_head 330,276,2,3 0
-poly pye_helmet 327,273 330,267 333,273 0
-dots pye_lamp 337,286 337,287 c14
-# the middle right lamp (the moths')
-ellipse halo_c1 352,230,16,13 mix:,14@0.12
-ellipse halo_c2 352,230,9,8 mix:,14@0.25
-rect mlamp_shaft 351,236,3,62 0
-poly mlamp_globe 346,224 358,224 356,236 348,236 14
-poly mlamp_cap 344,224 352,217 360,224 0
-rect mlamp_fin 351,213,2,4 0
-# the big lit lamp, left of the street
-ellipse halo_b1 290,217,26,20 mix:,14@0.1
-ellipse halo_b2 290,217,17,14 mix:,14@0.2
-ellipse halo_b3 290,217,11,9 mix:,14@0.35
-rect lampb_shaft 288,226,4,81 0
-poly lampb_base 285,307 287,298 293,298 295,307 0
-rect lampb_bar 283,230,16,2 0
-poly lampb_body 283,208 297,208 295,226 285,226 14
-line lampb_mul 290,209 290,225 c0
-poly lampb_cap 280,208 290,199 300,208 0
-rect lampb_fin 289,195,2,5 0
-# the near lit lamp, right of the street
-ellipse halo_a1 372,197,40,30 mix:,14@0.1
-ellipse halo_a2 372,197,28,22 mix:,14@0.2
-ellipse halo_a3 372,197,18,14 mix:,14@0.35
-rect lampa_shaft 369,208,6,113 0
-poly lampa_base 366,321 368,308 376,308 378,321 0
-rect lampa_ring 368,260,8,2 0
-rect lampa_bar 361,214,22,2 0
-poly lampa_body 362,186 382,186 379,208 365,208 14
-line lampa_mul 372,187 372,207 c0
-line lampa_mul2 363,197 381,197 c0
-poly lampa_cap 358,186 372,174 386,186 0
-rect lampa_fin 371,168,2,6 0
-# the long shadows, away from the lamps, falling to the lower left
-poly post_shadow 146,361 176,361 113,400 83,400 mix:,0@0.7
-poly fenn_shadow 182,362 240,362 177,400 119,400 mix:,0@0.7
-# the lamplighter's pole, leaning beside him
-line pole_a 228,362 200,262 c0
-line pole_b 229,362 201,262 c0
-line pole_hook 200,263 197,259 197,255 c14
-# Mr Fenn at the post's foot: one black silhouette in profile, his back to the post
-poly fenn_thigh 182,350 214,336 222,344 186,362 0
-poly fenn_shin 212,340 224,340 228,361 240,362 240,364 214,364 0
-poly fenn_torso 180,356 182,318 188,310 202,310 208,320 207,346 190,352 0
-ellipse fenn_head 198,302,6,7 0
-poly fenn_cap 191,299 193,293 203,292 209,297 200,298 2
-poly fenn_arm 194,318 203,317 226,334 221,341 0
-line fenn_rim_chest 208,321 207,344 c14
-dots fenn_rim_face 204,299 204,303 c14
-# the huge unlit lamp-post, black, on the left third
-poly post_base 146,361 150,330 172,330 176,361 0
-rect post_ring 148,324,22,6 0
-poly post_shaft 155,330 158,176 166,176 169,330 0
-rect post_ring2 154,250,16,3 0
-rect post_ring3 156,176,12,4 0
-rect post_bar 140,194,44,3 0
-ellipse post_knob_l 140,195,3,3 0
-ellipse post_knob_r 184,195,3,3 0
-poly post_lan 142,124 182,124 178,176 146,176 0
-poly post_panes 146,129 178,129 175,171 149,171 8
-line post_mul1 156,129 156,171 c0
-line post_mul2 168,129 168,171 c0
-line post_mul3 148,150 176,150 c0
-poly post_cap 136,126 162,108 188,126 0
-rect post_fin 160,100,4,9 0
-ellipse post_ball 162,101,2,2 0
-line post_rim_cap 163,108 188,126 c14
-line post_rim_lan 183,126 179,174 c14
-line post_rim_sh 168,318 166,200 c14
-line post_rim_base 175,360 172,332 c14
-`,
-  cycles: [
+  "shot": "archetype: the tower (it turns on one person whose presence rules the place: Mr Fenn, the dead lamplighter, still at his post; it beat the icon, the dark lamp, which a lamp on any other street could be, and the dwarf, the cover it replaces). Dithered style; title at the top on the flat dark grey 8 band (rows 0-119, white 15); main palette: dark grey 8 (the fog, the sky), brown 6 (the wet cobbles), light grey 7 (fog light, rim light), yellow 14 (the lamps), white 15 (flame cores), black. Dominant: Mr Fenn huge from a low camera, one black silhouette (cap at row 148, boots at row 339), in profile facing the dark lamp, rim light 7 on cap, face, shoulder and arm; his far arm hangs empty at his side; his near arm is raised and holds the lamplighter's pole, which runs up behind his shoulder to the dark lamp's tap and hooks it; he stands before the fog's pale pool, which is behind the dark lamp. The question: why is that one lamp dark. Backdrop: the Row's houses lost in the fog with a few lit windows, four lit lamps along it, wet cobbles with fan and course lines, lamp reflections and puddles, his long shadow thrown at us across the stones, a drain grate cut by the picture's edge at row 469. moves: the gas flames (flicker), the lit windows (flicker), the flame cores (pingpong), moths round the near left lamp (loop), a crow crossing the fog (travelling loop)",
+  "title": 15,
+  "titleAt": "top",
+  "draw": "\nrect bg 0,0,480,560 8\n# the fog's pale pool behind the dark lamp and the man: dithered rings on the page's own grey\nellipse glow5 262,212,196,92 mix:8,7@0.08\nellipse glow4 262,212,160,84 mix:8,7@0.16\nellipse glow3 262,210,120,72 mix:8,7@0.28\nellipse glow2 262,206,84,58 mix:8,7@0.42\nellipse glow1 268,198,50,40 mix:7,15@0.2\n# the Row's houses lost in the fog, roofs sloping to the far end\npoly house_l 0,196 168,262 168,300 0,330 mix:8,0@0.55\npoly house_l2 0,262 96,282 96,314 0,330 mix:8,0@0.3\npoly house_r 479,188 350,258 350,300 479,330 mix:8,0@0.55\npoly house_r2 479,250 400,274 400,310 479,330 mix:8,0@0.3\nrect chim_l1 30,176,12,34 mix:8,0@0.55\nrect chim_l2 118,222,9,26 mix:8,0@0.55\nrect chim_r1 436,168,12,34 mix:8,0@0.55\nrect chim_r2 372,226,9,26 mix:8,0@0.55\nrect win_l1 40,252,11,14 14\nrect win_l2 128,276,8,10 14\nrect win_r1 430,252,11,14 14\nrect win_r2 382,272,8,10 14\nrect win_r3 452,296,9,11 14\n# the wet cobbles: grey far off, brown near, darker in front, courses and fan lines to the vanishing point (262,298)\npoly road 0,296 479,296 479,469 0,469 fade:8,6/0,296/0,360\npoly road2 0,380 479,380 479,469 0,469 mix:6,0@0.22\npoly road3 0,430 479,430 479,469 0,469 mix:6,0@0.34\nline kerb_l 168,300 0,330 c7\nline kerb_r 350,300 479,330 c7\nline cob_fm120 262,304 -120,469 c0\nline cob_fm10 262,304 -10,469 c0\nline cob_f70 262,304 70,469 c0\nline cob_f140 262,304 140,469 c0\nline cob_f200 262,304 200,469 c0\nline cob_f262 262,304 262,469 c0\nline cob_f320 262,304 320,469 c0\nline cob_f385 262,304 385,469 c0\nline cob_f460 262,304 460,469 c0\nline cob_f560 262,304 560,469 c0\nline cob_f680 262,304 680,469 c0\nline cob_h0 0,308 479,308 c0\nline cob_h1 0,322 479,322 c0\nline cob_h2 0,340 479,340 c0\nline cob_h3 0,362 479,362 c0\nline cob_h4 0,390 479,390 c0\nline cob_h5 0,424 479,424 c0\nline cob_h6 0,462 479,462 c0\n# lit lamps down the Row, big near, small far (flat flames, halos mixed)\nellipse halo_lampA 106,209,40,40 mix:,14@0.2\nrect lampA_shaft 104,222,4,90 0\npoly lampA_base 101,314 104,304 108,304 111,314 0\nrect lampA_bar 95,222,22,3 0\npoly lampA_body 98,196 114,196 112,222 100,222 14\nrect lampA_core 105,201,2,14 15\npoly lampA_cap 95,196 106,186 117,196 0\nellipse halo_lampB 150,228,32,34 mix:,14@0.2\nrect lampB_shaft 148,238,4,66 0\npoly lampB_base 145,306 148,296 152,296 155,306 0\nrect lampB_bar 141,238,18,3 0\npoly lampB_body 144,218 156,218 154,238 146,238 14\nrect lampB_core 149,223,2,8 15\npoly lampB_cap 141,218 150,208 159,218 0\nellipse halo_lampC 376,230,32,34 mix:,14@0.2\nrect lampC_shaft 374,240,4,64 0\npoly lampC_base 371,306 374,296 378,296 381,306 0\nrect lampC_bar 367,240,18,3 0\npoly lampC_body 370,220 382,220 380,240 372,240 14\nrect lampC_core 375,225,2,8 15\npoly lampC_cap 367,220 376,210 385,220 0\nellipse halo_lampD 424,207,40,40 mix:,14@0.2\nrect lampD_shaft 422,220,4,94 0\npoly lampD_base 419,316 422,306 426,306 429,316 0\nrect lampD_bar 413,220,22,3 0\npoly lampD_body 416,194 432,194 430,220 418,220 14\nrect lampD_core 423,199,2,14 15\npoly lampD_cap 413,194 424,184 435,194 0\n# reflections of the lit lamps in the wet road, puddles\npoly rA 103,320 109,320 111,396 101,396 mix:,14@0.35\npoly rAb 98,330 114,330 118,396 94,396 mix:,14@0.12\npoly rD 421,322 427,322 429,396 419,396 mix:,14@0.35\npoly rDb 416,332 432,332 436,396 412,396 mix:,14@0.12\npoly rB 147,312 153,312 155,350 145,350 mix:,14@0.3\npoly rC 373,312 379,312 381,350 371,350 mix:,14@0.3\nellipse puddle_a 130,408,52,6 mix:6,7@0.3\nellipse puddle_b 372,440,66,7 mix:6,7@0.3\nellipse puddle_c 60,452,40,5 mix:6,7@0.25\n# the dark lamp: post and lantern black against the glow\npoly dpost_base 303,308 309,292 321,292 327,308 0\nrect dpost_ring 306,284,18,5 0\nrect dpost_shaft 309,190,6,98 0\nrect dpost_ring2 306,250,12,3 0\nrect dpost_bar 292,190,40,4 0\npoly dark_lan 288,150 336,150 332,190 292,190 mix:8,0@0.55\nline dark_mul1 312,151 312,189 c0\nline dark_mul2 290,170 334,170 c0\npoly dark_cap 278,152 312,134 346,152 0\nrect dark_fin 311,126,2,9 0\nrect dark_tap 309,194,6,6 0\nline dark_rim1 278,152 312,134 346,152 c7\nline dark_rim2 336,152 332,190 c7\nline dpost_rim 315,196 315,284 c7\n# fog ribbons across the Row, in front of the lamps\nellipse fogA 262,312,260,7 mix:8,7@0.22\nellipse fogB 90,356,160,6 mix:8,7@0.2\nellipse fogC 410,376,130,6 mix:8,7@0.2\n# his long shadow thrown at us across the wet stones (light behind him)\npoly shadow 198,338 262,338 214,469 -10,469 mix:6,0@0.72\npoly shadow2 206,340 252,340 190,469 40,469 mix:6,0@0.84\nline sh_c1 200,350 262,350 c6\nline sh_c2 150,382 250,382 c6\nline sh_c3 90,424 230,424 c6\nline sh_c4 20,462 214,462 c6\n# Mr Fenn, huge from a low camera: one black silhouette, cap, coat, the pole up to the dark lamp's tap\nline pole_a 210,314 306,196 c0\nline pole_b 211,314 307,196 c0\nline pole_c 212,314 308,196 c0\nline pole_hook 306,196 311,192 316,196 c0\npoly fenn_legL 198,300 216,300 214,326 228,334 228,339 196,339 198,326 0\npoly fenn_legR 226,300 244,300 246,324 264,332 264,337 230,339 228,326 0\npoly fenn_coat 190,206 194,197 204,194 222,194 236,198 242,208 244,250 258,302 244,310 214,306 186,312 178,300 190,254 0\npoly fenn_arm_far 174,208 186,200 186,244 184,280 172,288 164,282 166,246 0\nellipse fenn_hand_far 170,288,7,8 0\nline fenn_gap 187,214 189,296 c7\nrect fenn_neck 201,186,14,14 0\npoly fenn_scarf 194,194 222,194 226,204 192,206 0\npoly fenn_head 196,164 222,164 224,172 229,177 224,180 225,185 219,190 211,191 202,189 196,181 0\npoly fenn_cap 192,162 194,153 204,148 218,148 225,154 226,162 0\npoly fenn_brim 222,159 240,164 224,167 0\npoly fenn_arm_near 236,202 249,205 266,238 285,210 293,217 270,256 256,260 236,226 0\nellipse fenn_hand_near 288,214,7,7 0\n# rim light from the glow on the edges that face it\nline fenn_rim_cap 204,148 218,148 225,154 226,162 c7\nline fenn_rim_face 229,177 224,180 225,185 219,190 c7\nline fenn_rim_sh 236,198 246,210 250,252 262,302 c7\nline fenn_rim_arm 249,205 266,238 285,210 c7\nline fenn_rim_hand 283,210 289,208 c7\n# the foreground: a drain grate, cut by the picture's edge\nrect grate 300,452,90,17 0\nline grate_306 306,452 306,469 c6\nline grate_316 316,452 316,469 c6\nline grate_326 326,452 326,469 c6\nline grate_336 336,452 336,469 c6\nline grate_346 346,452 346,469 c6\nline grate_356 356,452 356,469 c6\nline grate_366 366,452 366,469 c6\nline grate_376 376,452 376,469 c6\nline grate_386 386,452 386,469 c6\nline grate_t 300,460 390,460 c6\n# the picture ends cleanly at row 469: the band below is the plain background again\nrect floor_cut 0,470,480,90 8\n",
+  "cycles": [
     {
       "name": "the gas flames",
       "areas": [
-        "lampa_body",
-        "lampb_body",
-        "mlamp_globe",
-        "lampd_body",
-        "lampe_body",
-        "halo_a2",
-        "halo_a3",
-        "halo_b2",
-        "halo_b3",
-        "brk_lamp"
+        "lampA_body",
+        "lampB_body",
+        "lampC_body",
+        "lampD_body"
       ],
       "colors": [
         14,
@@ -768,25 +615,13 @@ line post_rim_base 175,360 172,332 c14
       ]
     },
     {
-      "name": "the fog glow",
-      "areas": [
-        "glow_far1",
-        "glow_far2",
-        "glow_far3"
-      ],
-      "colors": [
-        14,
-        6
-      ],
-      "style": "pingpong",
-      "ms": 2800
-    },
-    {
       "name": "the lit windows",
       "areas": [
-        "court_doors",
-        "pie_window",
-        "win_lit"
+        "win_l1",
+        "win_l2",
+        "win_r1",
+        "win_r2",
+        "win_r3"
       ],
       "colors": [
         14,
@@ -794,20 +629,529 @@ line post_rim_base 175,360 172,332 c14
       ],
       "style": "flicker",
       "ms": [
-        2000,
+        2200,
         7000
       ]
+    },
+    {
+      "name": "the flame cores",
+      "areas": [
+        "lampA_core",
+        "lampD_core",
+        "lampB_core",
+        "lampC_core"
+      ],
+      "colors": [
+        15,
+        14
+      ],
+      "style": "pingpong",
+      "ms": 2600
     }
   ],
-  loops: [{"name":"moths round the lamp","at":[340,222],"style":"loop","ms":170,"under":"mlamp","frames":[["........................","........................","........................","........................","........................","........................","...7....................","........................",".....................777","........................","........................","........................","........................","........................","........................","........................"],
-    ["........................","........................","........................",".................7......","........................","........................","........................","........................","........................","........................","........................","........................","........................",".....777................","........................","........................"],
-    ["........................","........................","........................","......777...............","........................","........................","........................","........................","........................","........................","........................","........................","..............7.........","........................","........................","........................"],
-    ["........................","........................","........................","........................","........................","........................","........................","........................","..7.....................","...................777..","........................","........................","........................","........................","........................","........................"],
-    ["........................","........................","..................7.....","........................","........................","........................","........................","........................","........................","........................","........................","........................","........................","......777...............","........................","........................"],
-    ["........................","........................","........................","........................","........777.............","........................","........................","........................","........................","........................","........................","........................","........................",".................7......","........................","........................"]]},{"name":"smoke from the pie shop chimney","at":[446,100],"style":"loop","ms":280,"frames":[["......8.........",".....8..8.......","......8.8.......","......8.8.......",".......8..8.....","........8.8.....",".........88.....","........8..8....","........8.8.....",".......88.8.....","......8.8.......",".....7.77.......","....7.7.........","...77.7.........","...7.7..........","....777.........",".....77.........","......77........","......77........","......77........","......7.........",".....7..........","....7...........","...7............"],
-    [".....8..........","......8..8......","........8.8.....","........8.8.....",".........8..8...",".........8.8....",".........88.....",".......8..8.....","......8.8.......",".....88.8.......",".....8.8........","....7.77........","...7.7..........","....77.7........",".....7.7........","......777.......",".......77.......",".......77.......","......77........",".....77.........","....7...........","...7............","...7............","..7............."],
-    [".......8........","........8..8....","..........8.8...",".........8.8....",".........8..8...","........8.8.....",".......88.......",".....8..8.......",".....8.8........","....88.8........","....8.8.........",".....7.77.......",".....7.7........","......77.7......",".......7.7......",".......777......",".......77.......","......77........","....77..........","...77...........","...7............","..7.............","..7.............","...7............"],
-    [".........8......",".........8..8...","..........8.8...","........8.8.....",".......8..8.....","......8.8.......","......88........","....8..8........","....8.8.........",".....88.8.......","......8.8.......",".......7.77.....",".......7.7......",".......77.7.....",".......7.7......","......777.......",".....77.........","....77..........","...77...........","..77............","..7.............","...7............","....7...........",".....7.........."],
-    [".........8......","........8..8....","........8.8.....","......8.8.......","......8..8......",".....8.8........",".....88.........",".....8..8.......","......8.8.......",".......88.8.....","........8.8.....","........7.77....",".......7.7......","......77.7......",".....7.7........","....777.........","....77..........","...77...........","..77............","...77...........","....7...........",".....7..........","......7.........","......7........."],
-    [".......8........","......8..8......",".......8.8......",".....8.8........",".....8..8.......","......8.8.......",".......88.......",".......8..8.....","........8.8.....","........88.8....","........8.8.....",".......7.77.....",".....7.7........","....77.7........","....7.7.........","...777..........","...77...........","....77..........","....77..........",".....77.........","......7.........","......7.........","......7.........",".....7.........."]]}]
+  "loops": [
+    {
+      "name": "moths round the near left lamp",
+      "at": [
+        94,
+        176
+      ],
+      "style": "loop",
+      "ms": 170,
+      "frames": [
+        [
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "....7...................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "................7.......",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "...........7............",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................"
+        ],
+        [
+          "........................",
+          "........................",
+          "........................",
+          ".........7..............",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "...................7....",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........7...............",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................"
+        ],
+        [
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "..............7.........",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          ".....7..................",
+          "........................",
+          ".................7......",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................"
+        ],
+        [
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          ".......7................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "........................",
+          "..................7.....",
+          "...7....................",
+          "........................",
+          "........................",
+          "........................",
+          "........................"
+        ]
+      ]
+    },
+    {
+      "name": "a crow crossing the fog",
+      "style": "loop",
+      "ms": 160,
+      "path": [
+        [
+          20,
+          146
+        ],
+        [
+          440,
+          134
+        ]
+      ],
+      "travel": 14000,
+      "pause": 5000,
+      "frames": [
+        [
+          "........",
+          "0.....0.",
+          ".0...0..",
+          "..000...",
+          "........"
+        ],
+        [
+          "........",
+          "........",
+          "..000...",
+          ".0...0..",
+          "0.....0."
+        ]
+      ]
+    }
+  ]
+};
+
+
+// ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
+export const boxart = {
+ "shot": "archetype: the dwarf (the story turns on a place bigger than you: a fog-bound street that keeps what is said in it); title at the top, a flat brown band over rows 0-95; gaslight (leads brown 6, dark grey 8, black, yellow lamps 14; one small green accent for a cap), the lamps along the Row lit in a haze, hard light from the far end. Dominant: the huge unlit gas lamp-post of the Row (the one Mr Fenn didn't light), a black silhouette seen from a low camera on the left third, its dark lantern cap near the band's edge, with a thin yellow rim light on its right edge; at its foot a small figure, Mr Fenn the dead lamplighter, a black silhouette sitting against the post's base in profile, head bowed, a green cap, his near arm reaching down to a lamplighter's pole that leans up beside him (the other arm rests on his knee, hidden), a long dithered shadow running away to the lower left. Backdrop: one-point view, vanishing point at x 330, y 272, the street going away between the pub wall (left, a red-lit window, a door) and the pie shop (right, a lit window, a chimney), shrinking pairs of lit lamps {lamps} converging on the court doors {court doors} glowing yellow in the fog at the end of the Row, Constable Pye {constable} a tiny black figure with his lamp standing before them. Elements: Mr Fenn {lamplighter}, the lit lamps, the court, the constable. The question: why is the lamplighter dead under the one lamp that is dark? Gradients: the pub wall darkening towards the camera (the lamps at the far end light it, the near end falls into the dark); the sky from brown at the band down to dark grey at the horizon (the air thickening with distance). Wings: left, the pub wall with its red window, a door, dark upper windows, a lit window and a drainpipe; right, the pie shop with its lit window and door, upper windows, a wall lamp with its halo, two chimneys against the sky. Light: the lamps, soft halos round the nearest, pools on the pavement and reflections on the wet road, rim lights on the silhouettes on the side towards the lamps. moves: the gas flames (flicker), the fog glow (pingpong), the lit windows (flicker), moths round the middle lamp (loop), smoke from the pie shop chimney (loop)",
+ "title": 14,
+ "titleAt": "top",
+ "draw": "\n# the whole canvas: gaslight's lead, brown; the top band stays this one flat colour\nrect bg 0,0,480,400 6\nrect air 0,96,480,176 fade:6,8/0,96/0,272\nvp 330,272\n# the fog glow at the far end of the Row\nellipse glow_far3 338,262,110,46 mix:,14@0.1\nellipse glow_far2 338,264,64,30 mix:,14@0.2\nellipse glow_far1 338,266,30,16 mix:,14@0.35\n# the court at the end, dark, with its lit doors\npoly court 314,272 314,246 322,238 330,232 338,238 346,246 346,272 mix:8,0@0.5 e0\nrect court_doors 325,252,10,20 14\nline court_mull 330,252 330,271 c8\n# chimneys against the sky (the wall is drawn over their feet)\nrect chimney_r1 446,124,10,40 0\nrect chimney_r1_cap 444,122,14,3 0\nrect chimney_r2 410,200,9,40 0\nrect chimney_r2_cap 408,198,13,3 0\n# the pub wall (left): darker nearer the camera\npoly wall_l 0,100@1 0,300@1 0,300@0.1 0,100@0.1 fade:8,6/-60,0/300,0\nline roof_l 0,100@1 0,100@0.1 c0\npoly win_l1 14,140@1 14,140@0.95 14,176@0.95 14,176@1 0 e8\npoly win_l2 52,138@1 52,138@0.93 52,174@0.93 52,174@1 0 e8\npoly win_lit 92,160@1 92,160@0.92 92,198@0.92 92,198@1 14 e0\npoly bell_window 10,215@1 10,215@0.88 10,262@0.88 10,262@1 mix:4,12@0.45 e0\nline bell_mull 10,238@1 10,238@0.88 c0\npoly bell_door 58,222@1 58,222@0.9 58,295@0.9 58,295@1 0 e8\nline pipe_l 78,142 78,292 c0\n# the pie shop wall (right)\npoly wall_r 480,130@1 480,296@1 480,296@0.15 480,130@0.15 mix:8,0@0.45\nline roof_r 480,130@1 480,130@0.15 c0\npoly pie_window 470,210@1 470,210@0.7 470,262@0.7 470,262@1 mix:6,14@0.45 e0\nline pie_mull1 470,236@1 470,236@0.7 c0\nline pie_mull2 470,210@0.85 470,262@0.85 c0\npoly pie_door 415,238@1 415,238@0.9 415,286@0.9 415,286@1 0 e8\npoly win_r1 468,166@1 468,166@0.75 468,192@0.75 468,192@1 0 e8\nellipse halo_w 438,258,14,11 mix:,14@0.2\nline brk_r 456,258 441,258 c0\nellipse brk_lamp 438,258,3,4 14\n# the ground: pavements, the dark wet road, flagstones and kerbs\npoly ground 0,300@1 0,400@1 480,400@1 480,296@1 480,296@0.02 0,300@0.02 mix:8,6@0.55\npoly road 185,400@1 440,400@1 440,400@0.02 185,400@0.02 mix:0,8@0.55\nellipse fog_hz 330,280,150,9 mix:,6@0.3\nline joint_h1 0,318 278,318 c8\nline joint_h2 0,334 258,334 c8\nline joint_h3 0,352 238,352 c8\nline joint_h4 0,378 210,378 c8\nline joint_v1 30,400@1 30,400@0.05 c8\nline joint_v2 100,400@1 100,400@0.05 c8\nline joint_v3 160,400@1 160,400@0.05 c8\nline joint_v4 470,400@1 470,400@0.05 c8\nline kerb_l 185,400@1 185,400@0.02 c0\nline kerb_r 440,400@1 440,400@0.02 c0\n# pools of light and reflections\nellipse pool_f 210,348,58,16 mix:,14@0.12\nellipse pool_a 372,326,38,7 mix:,14@0.25\nellipse pool_b 290,312,26,5 mix:,14@0.25\npoly refl_a 366,324 376,324 372,352 368,352 mix:,14@0.3\npoly refl_b 287,309 293,309 292,334 288,334 mix:,14@0.25\n# the far lamps, small\nellipse halo_g 336,262,8,6 mix:,14@0.25\nrect lampg_shaft 335,263,1,16 0\npoly lampg_body 334,259 338,259 338,263 334,263 14\nellipse halo_f 320,260,9,7 mix:,14@0.25\nrect lampf_shaft 319,262,1,19 0\npoly lampf_body 317,257 322,257 322,262 317,262 14\nellipse halo_e 342,251,9,7 mix:,14@0.25\nrect lampe_shaft 342,255,2,32 0\npoly lampe_cap 337,247 342,243 347,247 0\npoly lampe_body 339,247 346,247 345,255 340,255 14\nellipse halo_d 308,245,10,8 mix:,14@0.25\nrect lampd_shaft 307,250,2,41 0\npoly lampd_cap 302,240 308,235 314,240 0\npoly lampd_body 304,240 312,240 311,250 305,250 14\n# Constable Pye before the court doors, tiny\npoly pye_cape 327,279 333,279 335,292 325,292 0\nellipse pye_head 330,276,2,3 0\npoly pye_helmet 327,273 330,267 333,273 0\ndots pye_lamp 337,286 337,287 c14\n# the middle right lamp (the moths')\nellipse halo_c1 352,230,16,13 mix:,14@0.12\nellipse halo_c2 352,230,9,8 mix:,14@0.25\nrect mlamp_shaft 351,236,3,62 0\npoly mlamp_globe 346,224 358,224 356,236 348,236 14\npoly mlamp_cap 344,224 352,217 360,224 0\nrect mlamp_fin 351,213,2,4 0\n# the big lit lamp, left of the street\nellipse halo_b1 290,217,26,20 mix:,14@0.1\nellipse halo_b2 290,217,17,14 mix:,14@0.2\nellipse halo_b3 290,217,11,9 mix:,14@0.35\nrect lampb_shaft 288,226,4,81 0\npoly lampb_base 285,307 287,298 293,298 295,307 0\nrect lampb_bar 283,230,16,2 0\npoly lampb_body 283,208 297,208 295,226 285,226 14\nline lampb_mul 290,209 290,225 c0\npoly lampb_cap 280,208 290,199 300,208 0\nrect lampb_fin 289,195,2,5 0\n# the near lit lamp, right of the street\nellipse halo_a1 372,197,40,30 mix:,14@0.1\nellipse halo_a2 372,197,28,22 mix:,14@0.2\nellipse halo_a3 372,197,18,14 mix:,14@0.35\nrect lampa_shaft 369,208,6,113 0\npoly lampa_base 366,321 368,308 376,308 378,321 0\nrect lampa_ring 368,260,8,2 0\nrect lampa_bar 361,214,22,2 0\npoly lampa_body 362,186 382,186 379,208 365,208 14\nline lampa_mul 372,187 372,207 c0\nline lampa_mul2 363,197 381,197 c0\npoly lampa_cap 358,186 372,174 386,186 0\nrect lampa_fin 371,168,2,6 0\n# the long shadows, away from the lamps, falling to the lower left\npoly post_shadow 146,361 176,361 113,400 83,400 mix:,0@0.7\npoly fenn_shadow 182,362 240,362 177,400 119,400 mix:,0@0.7\n# the lamplighter's pole, leaning beside him\nline pole_a 228,362 200,262 c0\nline pole_b 229,362 201,262 c0\nline pole_hook 200,263 197,259 197,255 c14\n# Mr Fenn at the post's foot: one black silhouette in profile, his back to the post\npoly fenn_thigh 182,350 214,336 222,344 186,362 0\npoly fenn_shin 212,340 224,340 228,361 240,362 240,364 214,364 0\npoly fenn_torso 180,356 182,318 188,310 202,310 208,320 207,346 190,352 0\nellipse fenn_head 198,302,6,7 0\npoly fenn_cap 191,299 193,293 203,292 209,297 200,298 2\npoly fenn_arm 194,318 203,317 226,334 221,341 0\nline fenn_rim_chest 208,321 207,344 c14\ndots fenn_rim_face 204,299 204,303 c14\n# the huge unlit lamp-post, black, on the left third\npoly post_base 146,361 150,330 172,330 176,361 0\nrect post_ring 148,324,22,6 0\npoly post_shaft 155,330 158,176 166,176 169,330 0\nrect post_ring2 154,250,16,3 0\nrect post_ring3 156,176,12,4 0\nrect post_bar 140,194,44,3 0\nellipse post_knob_l 140,195,3,3 0\nellipse post_knob_r 184,195,3,3 0\npoly post_lan 142,124 182,124 178,176 146,176 0\npoly post_panes 146,129 178,129 175,171 149,171 8\nline post_mul1 156,129 156,171 c0\nline post_mul2 168,129 168,171 c0\nline post_mul3 148,150 176,150 c0\npoly post_cap 136,126 162,108 188,126 0\nrect post_fin 160,100,4,9 0\nellipse post_ball 162,101,2,2 0\nline post_rim_cap 163,108 188,126 c14\nline post_rim_lan 183,126 179,174 c14\nline post_rim_sh 168,318 166,200 c14\nline post_rim_base 175,360 172,332 c14\n",
+ "cycles": [
+  {
+   "name": "the gas flames",
+   "areas": [
+    "lampa_body",
+    "lampb_body",
+    "mlamp_globe",
+    "lampd_body",
+    "lampe_body",
+    "halo_a2",
+    "halo_a3",
+    "halo_b2",
+    "halo_b3",
+    "brk_lamp"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "ms": [
+    1400,
+    5200
+   ]
+  },
+  {
+   "name": "the fog glow",
+   "areas": [
+    "glow_far1",
+    "glow_far2",
+    "glow_far3"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "pingpong",
+   "ms": 2800
+  },
+  {
+   "name": "the lit windows",
+   "areas": [
+    "court_doors",
+    "pie_window",
+    "win_lit"
+   ],
+   "colors": [
+    14,
+    6
+   ],
+   "style": "flicker",
+   "ms": [
+    2000,
+    7000
+   ]
+  }
+ ],
+ "loops": [
+  {
+   "name": "moths round the lamp",
+   "at": [
+    340,
+    222
+   ],
+   "style": "loop",
+   "ms": 170,
+   "under": "mlamp",
+   "frames": [
+    [
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "...7....................",
+     "........................",
+     ".....................777",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     ".................7......",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     ".....777................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "......777...............",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "..............7.........",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "..7.....................",
+     "...................777..",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "..................7.....",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "......777...............",
+     "........................",
+     "........................"
+    ],
+    [
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........777.............",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     ".................7......",
+     "........................",
+     "........................"
+    ]
+   ]
+  },
+  {
+   "name": "smoke from the pie shop chimney",
+   "at": [
+    446,
+    100
+   ],
+   "style": "loop",
+   "ms": 280,
+   "frames": [
+    [
+     "......8.........",
+     ".....8..8.......",
+     "......8.8.......",
+     "......8.8.......",
+     ".......8..8.....",
+     "........8.8.....",
+     ".........88.....",
+     "........8..8....",
+     "........8.8.....",
+     ".......88.8.....",
+     "......8.8.......",
+     ".....7.77.......",
+     "....7.7.........",
+     "...77.7.........",
+     "...7.7..........",
+     "....777.........",
+     ".....77.........",
+     "......77........",
+     "......77........",
+     "......77........",
+     "......7.........",
+     ".....7..........",
+     "....7...........",
+     "...7............"
+    ],
+    [
+     ".....8..........",
+     "......8..8......",
+     "........8.8.....",
+     "........8.8.....",
+     ".........8..8...",
+     ".........8.8....",
+     ".........88.....",
+     ".......8..8.....",
+     "......8.8.......",
+     ".....88.8.......",
+     ".....8.8........",
+     "....7.77........",
+     "...7.7..........",
+     "....77.7........",
+     ".....7.7........",
+     "......777.......",
+     ".......77.......",
+     ".......77.......",
+     "......77........",
+     ".....77.........",
+     "....7...........",
+     "...7............",
+     "...7............",
+     "..7............."
+    ],
+    [
+     ".......8........",
+     "........8..8....",
+     "..........8.8...",
+     ".........8.8....",
+     ".........8..8...",
+     "........8.8.....",
+     ".......88.......",
+     ".....8..8.......",
+     ".....8.8........",
+     "....88.8........",
+     "....8.8.........",
+     ".....7.77.......",
+     ".....7.7........",
+     "......77.7......",
+     ".......7.7......",
+     ".......777......",
+     ".......77.......",
+     "......77........",
+     "....77..........",
+     "...77...........",
+     "...7............",
+     "..7.............",
+     "..7.............",
+     "...7............"
+    ],
+    [
+     ".........8......",
+     ".........8..8...",
+     "..........8.8...",
+     "........8.8.....",
+     ".......8..8.....",
+     "......8.8.......",
+     "......88........",
+     "....8..8........",
+     "....8.8.........",
+     ".....88.8.......",
+     "......8.8.......",
+     ".......7.77.....",
+     ".......7.7......",
+     ".......77.7.....",
+     ".......7.7......",
+     "......777.......",
+     ".....77.........",
+     "....77..........",
+     "...77...........",
+     "..77............",
+     "..7.............",
+     "...7............",
+     "....7...........",
+     ".....7.........."
+    ],
+    [
+     ".........8......",
+     "........8..8....",
+     "........8.8.....",
+     "......8.8.......",
+     "......8..8......",
+     ".....8.8........",
+     ".....88.........",
+     ".....8..8.......",
+     "......8.8.......",
+     ".......88.8.....",
+     "........8.8.....",
+     "........7.77....",
+     ".......7.7......",
+     "......77.7......",
+     ".....7.7........",
+     "....777.........",
+     "....77..........",
+     "...77...........",
+     "..77............",
+     "...77...........",
+     "....7...........",
+     ".....7..........",
+     "......7.........",
+     "......7........."
+    ],
+    [
+     ".......8........",
+     "......8..8......",
+     ".......8.8......",
+     ".....8.8........",
+     ".....8..8.......",
+     "......8.8.......",
+     ".......88.......",
+     ".......8..8.....",
+     "........8.8.....",
+     "........88.8....",
+     "........8.8.....",
+     ".......7.77.....",
+     ".....7.7........",
+     "....77.7........",
+     "....7.7.........",
+     "...777..........",
+     "...77...........",
+     "....77..........",
+     "....77..........",
+     ".....77.........",
+     "......7.........",
+     "......7.........",
+     "......7.........",
+     ".....7.........."
+    ]
+   ]
+  }
+ ]
 };

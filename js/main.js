@@ -4,43 +4,43 @@
 // world (#<id>, js/route.js); on a world's own page (/<id>/, <html data-world>: tools/pages.mjs) the world's splash (no hash) or its game
 // (#<id>). Never touches the page (that's ui/).
 
-import en from "../content/en.js?v=0.63.0";
-import es from "../content/es.js?v=0.63.0";
-import { newState, startOf, FORMAT } from "./state.js?v=0.63.0";
-import { withPractice } from "./practice.js?v=0.63.0";
-import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.63.0";
-import { parse, retype } from "./parser.js?v=0.63.0";
-import { inScope } from "./place.js?v=0.63.0";
-import { tell, describe, introOf, text, listName, placeName, joined } from "./narrator.js?v=0.63.0";
-import { parts, hhmm } from "./time.js?v=0.63.0";
-import * as saves from "./saves.js?v=0.63.0";
-import { suggestion, topicsLine, story, offers } from "./view.js?v=0.63.0";
-import { walk, tripWords } from "./map.js?v=0.63.0";
-import { createClock } from "./clock.js?v=0.63.0";
-import { routeOf, hashOf } from "./route.js?v=0.63.0";
-import { listFor, thumbnailFor, coverFor } from "../worlds/index.js?v=0.63.0";
-import { load, store } from "./prefs.js?v=0.63.0";
-import { examineSVG } from "../ui/sprite.js?v=0.63.0";
-import * as titlebar from "../ui/titlebar.js?v=0.63.0";
-import * as scene from "../ui/scene.js?v=0.63.0";
-import * as crop from "../ui/crop.js?v=0.63.0";
-import * as log from "../ui/log.js?v=0.63.0";
-import * as prompt from "../ui/prompt.js?v=0.63.0";
-import * as compass from "../ui/compass.js?v=0.63.0";
-import * as inventory from "../ui/inventory.js?v=0.63.0";
-import * as options from "../ui/options.js?v=0.63.0";
-import * as soundpanel from "../ui/soundpanel.js?v=0.63.0";
-import * as graphicspanel from "../ui/graphicspanel.js?v=0.63.0";
-import * as map from "../ui/map.js?v=0.63.0";
-import * as page from "../ui/page.js?v=0.63.0";
-import * as tools from "../ui/tools.js?v=0.63.0";
-import * as tabs from "../ui/tabs.js?v=0.63.0";
-import * as keys from "../ui/keys.js?v=0.63.0";
-import * as home from "../ui/home.js?v=0.63.0";
-import * as splash from "../ui/splash.js?v=0.63.0";
-import * as icons from "../ui/icons.js?v=0.63.0";
-import * as crt from "../ui/crt.js?v=0.63.0";
-import * as sound from "../ui/sound.js?v=0.63.0";
+import en from "../content/en.js?v=0.64.0";
+import es from "../content/es.js?v=0.64.0";
+import { newState, startOf, FORMAT } from "./state.js?v=0.64.0";
+import { withPractice } from "./practice.js?v=0.64.0";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.64.0";
+import { parse, retype } from "./parser.js?v=0.64.0";
+import { inScope } from "./place.js?v=0.64.0";
+import { tell, describe, introOf, text, listName, placeName, joined } from "./narrator.js?v=0.64.0";
+import { parts, hhmm } from "./time.js?v=0.64.0";
+import * as saves from "./saves.js?v=0.64.0";
+import { suggestion, topicsLine, story, offers } from "./view.js?v=0.64.0";
+import { walk, tripWords } from "./map.js?v=0.64.0";
+import { createClock } from "./clock.js?v=0.64.0";
+import { routeOf, hashOf } from "./route.js?v=0.64.0";
+import { listFor, thumbnailFor, coverFor, boxartFor, hasCover, loadWorld } from "../worlds/load.js?v=0.64.0";
+import { load, store } from "./prefs.js?v=0.64.0";
+import { examineSVG } from "../ui/sprite.js?v=0.64.0";
+import * as titlebar from "../ui/titlebar.js?v=0.64.0";
+import * as scene from "../ui/scene.js?v=0.64.0";
+import * as crop from "../ui/crop.js?v=0.64.0";
+import * as log from "../ui/log.js?v=0.64.0";
+import * as prompt from "../ui/prompt.js?v=0.64.0";
+import * as compass from "../ui/compass.js?v=0.64.0";
+import * as inventory from "../ui/inventory.js?v=0.64.0";
+import * as options from "../ui/options.js?v=0.64.0";
+import * as soundpanel from "../ui/soundpanel.js?v=0.64.0";
+import * as graphicspanel from "../ui/graphicspanel.js?v=0.64.0";
+import * as map from "../ui/map.js?v=0.64.0";
+import * as page from "../ui/page.js?v=0.64.0";
+import * as tools from "../ui/tools.js?v=0.64.0";
+import * as tabs from "../ui/tabs.js?v=0.64.0";
+import * as keys from "../ui/keys.js?v=0.64.0";
+import * as home from "../ui/home.js?v=0.64.0";
+import * as splash from "../ui/splash.js?v=0.64.0";
+import * as icons from "../ui/icons.js?v=0.64.0";
+import * as crt from "../ui/crt.js?v=0.64.0";
+import * as sound from "../ui/sound.js?v=0.64.0";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -60,7 +60,17 @@ let graphics = graphicspanel.readGraphics(load(graphicspanel.KEY));   // the scr
 crt.allow(graphics.crt);                                 // (the CRT look's own switch: ui/crt.js)
 let state = null;                                        // the current game: everything it knows (none while the list of games shows)
 let view = "home";                                       // which view the page shows: "home" (the list of games), "game", or "splash" (a world's own page)
-const splashId = document.documentElement.dataset.world || null;   // the world whose page this is (/<id>/), or none (the list's page)
+// The list's address (the folder of the list's page) and the world whose page is shown (/<id>/), or none. The page loads once: going
+// from the list to a world's page and back changes the address (history.pushState) and the view, not the page (17 November 2026: each
+// move was a whole new page, every file fetched again). A world's page loaded by its own address (a link, a reload) is marked
+// <html data-world> (tools/pages.mjs), so the list's address is its parent.
+const ROOT = new URL(document.documentElement.dataset.world ? "../" : "./", location.href);
+function pageWorld() {
+  const rest = decodeURIComponent(location.pathname).slice(decodeURIComponent(ROOT.pathname).length);
+  const m = /^([A-Za-z0-9_-]+)\/?(index\.html)?$/.exec(rest);
+  return m && hasCover(m[1]) ? m[1] : null;
+}
+let splashId = pageWorld();
 let openId = null;                                       // the world in the game view
 let opening = 0;                                         // counts views asked for, so a slow one can see it was overtaken
 let restartTimer = null;                                 // the pause between choosing to begin again and the new game starting
@@ -94,14 +104,16 @@ const on = {
     mix = { ...mix, muted: true };                       // stays as it was: this is the system's, not the player's)
     if (view === "game") redraw();
   },
-  homeLanguage: (l) => setHomeLang(l),                   // EN · ES on the list of games
+  homeLanguage: (l) => setHomeLang(l),
+  saved: async (id) => !!(await autoSaved(id)),          // has this world a saved game? (a game's popup on the list asks)                   // EN · ES on the list of games
   quit: () => quit(),                                    // "Quit" in options (or the QUIT command): back to the list of games
   play: (id, fresh = false) => {                        // CONTINUE / NEW GAME on a card: the address changes, route() follows
     if (fresh) freshFor = id;                            // (NEW GAME on a world with a saved game: open it with a new game, once; its kept game stays)
     location.hash = hashOf(id);
   },
-  open: (id) => location.assign(id + "/"),               // LOAD GAME on a card of a world with a cover: its own page, /<id>/ (ui/splash.js)
-  list: () => location.assign("../"),                    // ALL GAMES on a world's page: the list of games
+  preload: (id) => { loadWorld(id, lang).catch(() => {}); },   // a game's popup opened: its files load now (a failure shows when it is opened)
+  open: (id) => go(new URL(id + "/", ROOT)),             // PLAY in a game's popup: its own page, /<id>/ (ui/splash.js), without a reload
+  list: () => go(ROOT),                                  // back to the list of games, without a reload
   restart: () => restart({ ask: true }),                 // "Restart game" in options (and Esc): asks in the story first, unless the story is over
   travel: (room) => travel(room),                        // a room was clicked on the map: walk there
   focus: () => { if (view === "game") ui.prompt.focus(); },   // give the command line the focus back
@@ -134,7 +146,7 @@ const ui = {
   sound: sound.mount(on)                               // the music: no element, drawn from the state like the rest (ui/sound.js)
 };
 const landing = home.mount($(".home"), on);              // the list of games: not drawn from the game's state, so apart from ui
-const poster = splashId ? splash.mount($("#splash"), on) : null;   // a world's own page, on its address only (/<id>/)
+const poster = splash.mount($("#splash"), on);       // a world's own page (/<id>/): on the list's page too, for the move without a reload
 
 // Keyboard shortcuts (ui/keys.js). The arrow keys stay the command line's own (the cursor, and earlier commands: ui/prompt.js).
 // Esc: restart the game (it asks first, in the story).
@@ -574,6 +586,8 @@ function begin(id) {
 // An id that is no world in this language gives the list, with the address replaced. Runs at start and when the address changes
 // (the back button).
 function route() {
+  splashId = pageWorld();
+  if (splashId) document.documentElement.dataset.world = splashId; else delete document.documentElement.dataset.world;
   const r = routeOf(location.hash, lang, freshFor, splashId);
   freshFor = null;                                       // read once: a reload or the back button never starts afresh again
   if (r.replace) window.history.replaceState(null, "", location.pathname + location.search);   // (window.history: plain `history` is the undo list)
@@ -581,6 +595,12 @@ function route() {
   else if (r.view === "home") showHome();
   else if (r.view === "splash") showSplash(r.id);
   else if (view !== "game" || openId !== r.id) openWorld(r.id, r.fresh);
+}
+
+// Go to an address of this site without loading a page (the list, a world's page): a new history entry, then the view it shows.
+function go(url) {
+  window.history.pushState(null, "", url.href);
+  route();
 }
 
 // Leave the game view: the game is saved, its clock and timer stop, and a new game that was about to start doesn't; a sleep playing
@@ -595,16 +615,18 @@ function leaveGame() {
   ui.sound.leave();                                      // the music stops with the game (and plays again when one is drawn)
 }
 
-// Show the list of games: one card per world written in this language, CONTINUE beside NEW GAME on those with a saved game.
-async function showHome() {
+// Show the list of games: one box art per world written in this language (from the cards: no world is loaded for it). failed: a game's files
+// didn't load, so a short line says so above the list.
+async function showHome(failed = false) {
   const mine = ++opening;
   leaveGame();
   poster?.stop();
   view = "home"; openId = null;
+  document.title = "Unlikely Memories";
   const worlds = listFor(lang);
-  const saved = await Promise.all(worlds.map(w => autoSaved(w.id)));
   if (mine !== opening) return;                          // another view was asked for meanwhile
-  landing.update({ lang, pack: LANG_PACKS[lang], worlds: worlds.map((w, i) => ({ ...w, thumb: thumbnailFor(w.id, lang), saved: !!saved[i] })) });
+  // (no saved game is read here: the list shows box art only; a game's popup asks for its own, on.saved: 17 November 2026, the list at once)
+  landing.update({ lang, pack: LANG_PACKS[lang], failed, worlds: worlds.map(w => ({ ...w, thumb: thumbnailFor(w.id, lang), boxart: boxartFor(w.id, lang) })) });
   ui.page.show("home", lang);
 }
 
@@ -624,6 +646,7 @@ async function showSplash(id) {
   const mine = ++opening;
   leaveGame();
   view = "splash"; openId = null;
+  try { await loadWorld(id, lang); } catch (e) { return mine === opening ? loadFailed(id, e) : undefined; }   // (the world's files, once: its page shows when they are here)
   const saved = await autoSaved(id), cover = coverFor(id, lang);
   if (mine !== opening) return;
   if (!cover) return on.list();                          // (no cover: no page)
@@ -638,6 +661,7 @@ async function showSplash(id) {
 async function openWorld(id, fresh = false) {
   const mine = ++opening;
   leaveGame();
+  try { await loadWorld(id, lang); } catch (e) { return mine === opening ? loadFailed(id, e) : undefined; }   // (a new game builds the world from its files)
   const r = fresh ? null : await autoSaved(id);
   if (mine !== opening) return;
   poster?.stop();
@@ -646,6 +670,15 @@ async function openWorld(id, fresh = false) {
   clock.resume();
   if (r) restore(r);
   else restart({ id });
+}
+
+// A world's files didn't load (offline, a missing file): the list shows, with a short line saying so, and the address is the list's
+// (replaced, so back doesn't return to the world that can't open).
+function loadFailed(id, e) {
+  console.warn(`The world "${id}" didn't load:`, e);
+  window.history.replaceState(null, "", ROOT.pathname + ROOT.search);
+  splashId = null; delete document.documentElement.dataset.world;
+  showHome(true);
 }
 
 // QUIT, EXIT, or the options' Quit: the address goes back to none (a new entry, so back returns to the game) and the list shows.
@@ -697,13 +730,17 @@ if (DEBUG_PANEL) {
     // A new game of this world in another language (the language is remembered, as on the list of games); its SAVE is kept.
     language(l) {
       if (view !== "game" || restarting || !dev.languages().includes(l) || l === state.lang) return;
-      lang = l; store("parser-lang", l);
-      begin(state.worldId);
+      const id = state.worldId, was = lang;
+      loadWorld(id, l).then(() => {                     // (the world's files in that language, if not here yet)
+        if (view !== "game" || restarting || state?.worldId !== id) return;
+        lang = l; store("parser-lang", l);
+        begin(id);
+      }).catch(e => { lang = was; console.warn(`The world "${id}" didn't load in ${l}:`, e); });
     }
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js?v=0.63.0"), import("./debug.js?v=0.63.0")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.64.0"), import("./debug.js?v=0.64.0")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on
@@ -739,5 +776,5 @@ if (DEBUG_PANEL) {
 
 // Start up: tick the clock display 4 times a second; bring older saved games to their worlds; show the view the address asks for.
 setInterval(() => { if (view === "game") showTime(); }, 250);
-window.addEventListener("hashchange", route);
+window.addEventListener("popstate", route);                // (back and forward: a hash changed, or the list and a world's page, which change no hash; popstate comes for both)
 saves.migrate().catch(() => {}).finally(route);

@@ -9,7 +9,11 @@ export default {
   // is set in capitals in `titleFont` (a name in content/titlefonts/, made by tools/titlefont.mjs from a pixel TTF; the debug panel's Typography
   // section tries the others), one line when it fits at a scale of `titleScale.min` or more within `titleWidth` pixels, else two balanced lines, at the
   // largest whole scale up to `titleScale.max` at which every line fits that width and the block fits its band.
-  cover: { width: 480, height: 400, crop: [80, 399], titleFont: "m3x6", bands: { top: [0, 96], bottom: [305, 400] }, titleWidth: 300, titleScale: { min: 4, max: 5 },
+  // The box art (the list of games, ui/home.js): a still poster, 480 x 400 with the title in its top band, shown as its phone crop (columns 80-399).
+  boxart: { width: 480, height: 400, crop: [80, 399], bands: { top: [0, 96], bottom: [305, 400] } },
+  cover: { width: 480, height: 560, crop: [80, 399], titleFont: "m3x6", bands: { top: [0, 120], bottom: [470, 560] }, kickerScale: 1, titleWidth: 300, titleScale: { min: 4, max: 5 },
+    // The poster's motion, calm (checker: coverWarnings): [fewest, most] of each; at most one scatter cycle.
+    motion: { cycles: [2, 3], loops: [1, 2] },
     // The cover draws itself when the splash opens (js/cover.js, shownAt; ui/splash.js): its drawing list painted shape by shape, in its own order,
     // the first (the background) at once, in `ms` in all whatever the number of shapes; `ease` > 1 makes the first shapes slower than the last
     // (the shapes shown go as the time's fraction to the power `ease`). Then the title, then the cycles and loops. A tap or key skips it; reduced motion
