@@ -9,21 +9,21 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.66.1";
-import { PARTS, LINES } from "./opening.js?v=0.66.1";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.66.1";
-import { DIRECTIONS } from "./space.js?v=0.66.1";
-import { isObject, isLine } from "./shapes.js?v=0.66.1";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.66.1";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.66.1";
-import { PART_IDS } from "./time.js?v=0.66.1";
+import { ANSWERED } from "./verbs.js?v=0.67.0";
+import { PARTS, LINES } from "./opening.js?v=0.67.0";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.67.0";
+import { DIRECTIONS } from "./space.js?v=0.67.0";
+import { isObject, isLine } from "./shapes.js?v=0.67.0";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.67.0";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.67.0";
+import { PART_IDS } from "./time.js?v=0.67.0";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
 const ROOM = ["name", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "music", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
-  "here", "lies", "words", "sprite", "floorSprite", "portrait", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
+  "here", "lies", "words", "sprite", "floorSprite", "figure", "portrait", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
   "requires", "spends", "lacking", "remains", "dream", "places", "rounds", "arrives", "leaves", "material", ...ANSWERED];
 const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];

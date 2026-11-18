@@ -2,6 +2,21 @@
 // colours of ART-DIRECTION.md §3), "." = clear. Items are 16 × 16 (inventory, examined objects); "_floor"
 // versions are small and drawn on room pictures while the object lies there.
 export default {
+  // Admiral's figure (BRIEF.md §7, "Overlays"): a seated cat in profile, white bib, a brass tag. It sits low in its 40 x 120 box (on the bottom 52 units), so its overlays give `tall` for the whole box.
+  cat_figure: `
+poly cat_tail 27,119 35,118 38,114 37,110 35,111 35,115 27,116 mix:8,0@0.35
+poly cat_body 8,120 29,120 30,112 26,103 17,101 11,104 8,112 mix:7,8@0.3
+ellipse cat_haunch 24,115,6,5 mix:7,8@0.6
+poly cat_bib 10,104 14,103 14,120 10,120 mix:15,7@0.25
+ellipse cat_head 13,98,6,5 7
+poly cat_cheek 16,97 19,98 17,102 14,102 mix:7,8@0.5
+poly cat_ear_l 7,96 8,89 11,94 7
+poly cat_ear_r 15,94 18,89 19,96 mix:7,8@0.5
+dots cat_eye 11,98 15,98 c10
+dots cat_nose 13,100 c12
+dots cat_tag 12,104 c14
+outline cat e0
+`.trim(),
   shell: [
     "................",
     "................",
@@ -229,22 +244,6 @@ export default {
     ".078777777787070",
     ".0ff70000007ff70",
     "..00........000."
-  ],
-  cat_floor: [
-    ".0..0.........",
-    "070070........",
-    "0777770.......",
-    "0a07870.......",
-    "d777770.......",
-    ".0ff7770......",
-    "..0f77770.....",
-    "..0f787770....",
-    "..0f7787770.0.",
-    "..0f7778777070",
-    "..0f7777777070",
-    "..0ff777777070",
-    "..0ff07777770.",
-    "...00.000000.."
   ],
   // A woman in green from the dining room: hair up in a bun, pearls (the guests' face, shown when they are examined).
   guests_portrait: [

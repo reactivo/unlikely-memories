@@ -391,7 +391,7 @@ export default {
       {name: "carousel lights", areas: ["bulbs"], colors: [14,6], style: "rotate", ms: 500}
     ],
     overlays: [
-      { object: "cat", at: [120, 92] }
+      { object: "cat", at: [127, 105], tall: 34 }
     ]
   },
 
@@ -505,7 +505,7 @@ export default {
       ellipse glow 160,8,50,12 mix:,14@0.12
     `,
     overlays: [
-      { object: "cat", at: [100, 100] }
+      { object: "cat", at: [107, 113], tall: 80 }
     ]
   },
 
@@ -555,7 +555,7 @@ export default {
       {name: "candles", areas: ["flames"], colors: [14,12], style: "flicker", ms: [300,1400]}
     ],
     overlays: [
-      { object: "cat", at: [154, 103] }
+      { object: "cat", at: [161, 116], tall: 110 }
     ]
   },
 
@@ -593,7 +593,7 @@ export default {
       {name: "sconces", areas: ["sconces", "sconces2", "sconces3", "sconces4"], colors: [14,6], style: "flicker", ms: [2000,8000]}
     ],
     overlays: [
-      { object: "cat", at: [150, 104] }
+      { object: "cat", at: [157, 117], tall: 96 }
     ]
   },
 
@@ -665,7 +665,7 @@ export default {
       dots pigeons 90,118 92,118 96,122 98,122 226,128 228,128 236,124 238,124 244,130 c7
     `,
     overlays: [
-      { object: "cat", at: [182, 98] }
+      { object: "cat", at: [189, 111], tall: 40 }
     ]
   },
 
@@ -729,7 +729,7 @@ export default {
       line - 0,112 320,112 c14
     `,
     overlays: [
-      { object: "cat", at: [262, 99] }
+      { object: "cat", at: [269, 112], tall: 110 }
     ]
   },
 

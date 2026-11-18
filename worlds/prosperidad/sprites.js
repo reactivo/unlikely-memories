@@ -1,6 +1,37 @@
 // Sprites for "Emperor of the Crust" (world.en.js / world.es.js, shared): 16 x 16, rows of palette numbers in hex (0-f), "." clear,
-// outlined in black so they read on the dark inventory slot. The carried things, the Minister (a standing figure for the pictures), and the portraits of the people (BRIEF.md §7).
+// outlined in black so they read on the dark inventory slot. The carried things, the Minister (his figure, shapes, for the pictures), and the portraits of the people (BRIEF.md §7).
 export default {
+  // The Minister's figure (BRIEF.md §7, "Overlays"): shapes in a 40 x 120 box, feet on the bottom line at x = 20; each overlay says where his feet stand and how tall.
+  ministro_figure: `
+rect min_leg_l 12,88,6,28 8
+rect min_leg_r 22,88,6,28 8
+poly min_shoe_l 10,116 18,116 19,120 8,120 0
+poly min_shoe_r 22,116 30,116 32,120 21,120 0
+poly min_arm_far 8,39 12,37 12,72 7,72 6
+rect min_hand_far 7,72,5,5 7
+poly min_coat 11,35 29,35 31,42 32,70 34,90 6,90 8,70 9,42 6
+poly min_arm_near 28,37 32,40 34,70 29,73 6
+rect min_neck 17,29,6,6 7
+poly min_shirt 15,33 25,33 20,46 15
+poly min_lapel_l 11,35 17,33 20,46 15,56 12,48 6
+poly min_lapel_r 29,35 23,33 20,46 25,56 28,48 6
+line min_lapel_edge_l 17,34 20,46 15,56 c8
+line min_lapel_edge_r 23,34 20,46 25,56 c8
+dots min_buttons 20,62 20,72 20,82 c0
+line min_hem 6,88 34,88 c8
+rect min_hand_near 29,72,5,5 7
+rect min_case 26,77,13,12 0
+line min_handle 29,77 29,74 35,74 35,77 c0
+dots min_clasp 30,81 35,81 c14
+ellipse min_head 20,24,6,7 7
+dots min_glasses 17,24 23,24 c14
+line min_bridge 19,24 21,24 c14
+poly min_crown 14,5 26,5 27,16 13,16 7
+rect min_band 13,13,14,3 8
+rect min_brim 9,16,22,3 7
+rect min_brimshade 12,19,16,1 8
+outline min e0
+`.trim(),
   // A little transistor radio, aerial out, grille and a yellow dial.
   radio: [
     "..........0.....",
@@ -249,54 +280,6 @@ export default {
     ".0e666600666660.",
     ".0e666600666660."
   ],
-  // The Minister standing, 14 x 44, for the pictures: grey hat, gold glasses, camel coat, a black leather case in one hand, grey trousers.
-  ministro_floor: [
-    "...08888880...",
-    "...08888880...",
-    "...08888880...",
-    "..0077777700..",
-    ".088888888880.",
-    "..0077777700..",
-    "...07777770...",
-    "...0ee77ee0...",
-    "...07777770...",
-    "...07788770...",
-    "...07777770...",
-    "..0000770000..",
-    ".066666666660.",
-    ".066666666660.",
-    "0e666066066660",
-    "0e666066066660",
-    "66666066066660",
-    "66666066066660",
-    "66666066066660",
-    "66666066066660",
-    "66666606066660",
-    "66666600666660",
-    "66666600666660",
-    "66666600666660",
-    "66666600666660",
-    "66666600666660",
-    "66666600666660",
-    "66666666666660",
-    "66666660666660",
-    "66666666667760",
-    "66666666688e88",
-    "66666666680008",
-    "0e666660688888",
-    "06666666688888",
-    ".0088888888888",
-    "..088880888888",
-    "..088880888888",
-    "..088880888000",
-    "..0888808880..",
-    "..0888808880..",
-    "..0888808880..",
-    "..00000.00000.",
-    "..00000.00000.",
-    ".............."
-  ],
-
   // Portraits (BRIEF.md §7): head and shoulders, one pixel of black round.
   // Cuco: a black mohawk, pale face, a black leather jacket.
   cuco_portrait: [

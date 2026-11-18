@@ -12,7 +12,7 @@
 //
 // The randomness here (noise, where a loop starts, a breath's rate) is the player's own, never the game's.
 
-import { NOISES, freqOf } from "../../js/music.js?v=0.66.1";
+import { NOISES, freqOf } from "../../js/music.js?v=0.67.0";
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 

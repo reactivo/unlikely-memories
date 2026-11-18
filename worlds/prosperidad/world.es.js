@@ -3,11 +3,11 @@
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 // Reescrito el 2026-11-15 (extrañeza 0): ahora la historia es la caza de un camello que hace su ronda por las salas de la avenida.
 
-import pictures, { endings } from "./pictures.js?v=0.66.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
-import levels from "./levels.js?v=0.66.1";
-import sprites from "./sprites.js?v=0.66.1";
-import plan from "./plan.js?v=0.66.1";
+import pictures, { endings } from "./pictures.js?v=0.67.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.67.0";
+import levels from "./levels.js?v=0.67.0";
+import sprites from "./sprites.js?v=0.67.0";
+import plan from "./plan.js?v=0.67.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -529,7 +529,7 @@ const objects = {
     rounds: { rooms: ["charlie", "avenida", "opera", "avenida", "estafeta", "avenida"], every: [4, 4] },
     arrives: ["El Ministro entra, saluda a la sala como a un auditorio de provincias y se coloca en el mejor sitio que hay.", "El Ministro llega con su maletín, su sombrero y sus cuatro minutos."],
     leaves: ["El Ministro apura su copa, se abotona el abrigo y sigue a la siguiente puerta.", "El Ministro mira un reloj que no lleva y se va."],
-    words: { nouns: ["ministro", "camello", "dealer", "ildefonso"], adj: ["el", "viejo", "alto"], g: "m" }, ...item("ministro"),
+    words: { nouns: ["ministro", "camello", "dealer", "ildefonso"], adj: ["el", "viejo", "alto"], g: "m" }, ...item("ministro"), figure: sprites.ministro_figure,
     here: "{El Ministro|ministro} está aquí, con abrigo de camello y sombrero gris, un maletín de cuero en una mano y aire de quien visita las provincias.",
     examine: "Un hombre alto y delgado de sesenta años, con abrigo de camello, sombrero gris y gafas de montura dorada, y un maletín de cuero que no suelta nunca. Lleva el cuello abierto y sin corbata. Da la mano como un obispo y cuenta como un banco.",
     talk: "«Buenas noches —dice el Ministro, como a una delegación—. Tengo cuatro minutos y no los gasto nunca mal».",

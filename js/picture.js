@@ -20,7 +20,7 @@
 // the point itself, t = 0 the vanishing point:   vp 160,60   poly wall 40,120@1 40,120@0.5 ...   rect and ellipse take plain numbers.
 // Pure: no page, no state.
 
-import art from "../content/art.js?v=0.66.1";
+import art from "../content/art.js?v=0.67.0";
 
 const SHAPES = ["rect", "poly", "ellipse", "line", "dots"];
 const num = (s) => { const n = Number(s); if (s === "" || !Number.isFinite(n)) throw new Error(`"${s}" isn't a number`); return n; };
@@ -129,6 +129,45 @@ export function formatShape(s) {
     : `stripes:${f.stripes.join(",")}`;
   return [kind, s.id || "-", pts, fill, s.color !== undefined ? "c" + s.color : "", s.edge !== undefined ? "e" + s.edge : "",
           s.after ? "after:" + s.after : ""].filter(Boolean).join(" ");
+}
+
+// ---- Figures: a moving thing's picture, as shapes (BRIEF.md §7, "Overlays"; js/movers.js) ---------------------------------------------
+// A thing's `figure` is shapes in the notation above (under the figure rules of BRIEF.md §7), drawn in a box FIGURE.width wide and
+// FIGURE.height tall: (0,0) its top-left, its feet (or base) on the bottom line, centred on x = FIGURE.feet. An overlay of the thing gives
+// `at: [x, y]` (where its feet stand in the room) and `tall` (its height there); placeFigure turns the shapes into the room's own pixels.
+export const FIGURE = { width: 40, height: 120, feet: 20 };
+
+// The shapes of a figure written in the notation, or the reasons it doesn't parse (an array of strings, never thrown).
+export function readFigure(figure) {
+  if (typeof figure !== "string" || !figure.trim()) return { shapes: [], problems: ["is shapes in the short notation (a string, one line per shape)"] };
+  const { shapes, problems } = parseShapes(figure);
+  return { shapes, problems: problems.length ? problems : shapes.length ? [] : ["has no shapes"] };
+}
+
+// Every coordinate of a shape that lies outside the figure's box (as "x,y" texts); an ellipse counts its whole extent, a rect its far corner.
+export function outsideBox(shape) {
+  const pts = shape.rect ? [[shape.rect[0], shape.rect[1]], [shape.rect[0] + shape.rect[2], shape.rect[1] + shape.rect[3]]]
+    : shape.ellipse ? [[shape.ellipse[0] - shape.ellipse[2], shape.ellipse[1] - shape.ellipse[3]], [shape.ellipse[0] + shape.ellipse[2], shape.ellipse[1] + shape.ellipse[3]]]
+    : shape.poly || shape.line || shape.dots || [];
+  return pts.filter(([x, y]) => x < 0 || y < 0 || x > FIGURE.width || y > FIGURE.height).map(p => p.join(","));
+}
+
+// A figure's shapes (as parsed) placed in a room: scaled to `tall` pixels high, its feet on `at` = [x, y]. Points go to the nearest whole
+// pixel; a rect's width and height and an ellipse's radii are at least 1 px (a rect keeps its neighbours' shared edges: both of its sides
+// are rounded, not its size). An outline line is passed on as it is (it works on the ids). Returns a new drawing list for paintPicture.
+export function placeFigure(shapes, at, tall) {
+  const k = tall / FIGURE.height;
+  const X = (x) => Math.round(at[0] + (x - FIGURE.feet) * k), Y = (y) => Math.round(at[1] - (FIGURE.height - y) * k);
+  const P = ([x, y]) => [X(x), Y(y)], size = (v) => Math.max(1, Math.round(v * k));
+  return shapes.map(s => {
+    if (s.outline) return s;
+    const o = { ...s };
+    if (s.rect) { const [x, y, w, h] = s.rect, x0 = X(x), y0 = Y(y); o.rect = [x0, y0, Math.max(1, X(x + w) - x0), Math.max(1, Y(y + h) - y0)]; }
+    else if (s.ellipse) o.ellipse = [X(s.ellipse[0]), Y(s.ellipse[1]), size(s.ellipse[2]), size(s.ellipse[3])];
+    else for (const key of ["poly", "line", "dots"]) if (s[key]) o[key] = s[key].map(P);
+    if (s.fill?.fade) o.fill = { ...s.fill, from: P(s.fill.from), to: P(s.fill.to) };
+    return o;
+  });
 }
 
 // A palette cycle's colours with its `rest` (a whole number: the last colour repeated that many more times, so [15, 7, 8] with rest 167 is a

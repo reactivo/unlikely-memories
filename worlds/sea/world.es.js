@@ -7,11 +7,11 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.66.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
-import levels from "./levels.js?v=0.66.1";
-import sprites from "./sprites.js?v=0.66.1";
-import plan from "./plan.js?v=0.66.1";
+import pictures, { endings } from "./pictures.js?v=0.67.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.67.0";
+import levels from "./levels.js?v=0.67.0";
+import sprites from "./sprites.js?v=0.67.0";
+import plan from "./plan.js?v=0.67.0";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.
@@ -537,7 +537,7 @@ const objects = {
   cat: { portrait: sprites.cat_portrait, at: "lobby", name: "Almirante", note: "El gato del hotel.", actions: ["Acariciar a Almirante"],
     rounds: { rooms: ["lobby", "dining", "hallway"], every: [3, 6], random: true },
     places: [{ at: "player", if: [{ "cat.stroked": true }], within: ["lobby", "dining", "hallway", "promenade", "square", "post_office"] }],
-    sprite: sprites.cat, floorSprite: sprites.cat_floor,
+    sprite: sprites.cat, figure: sprites.cat_figure,
     words: { nouns: ["almirante", "gato", "minino", "chapa", "collar"], adj: ["gris", "hotel", "viejo", "laton"], g: "m", proper: true },
     here: "{Almirante|cat}, el gato del hotel, se lava una pata, como si siempre hubiera estado ahí.",
     arrives: ["Almirante, el gato del hotel, entra sin prisa y se sienta, como si lo hubieras hecho esperar.",

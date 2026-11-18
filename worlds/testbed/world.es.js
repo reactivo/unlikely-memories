@@ -7,11 +7,11 @@
 // la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.66.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
-import levels from "./levels.js?v=0.66.1";
-import sprites from "./sprites.js?v=0.66.1";
-import plan from "./plan.js?v=0.66.1";
+import pictures, { endings, visions } from "./pictures.js?v=0.67.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.67.0";
+import levels from "./levels.js?v=0.67.0";
+import sprites from "./sprites.js?v=0.67.0";
+import plan from "./plan.js?v=0.67.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -642,7 +642,7 @@ const objects = {
     talk: "El gato te mira, y luego mira algo detrás de ti." },
   watchman: { at: "tb-yard", name: "Vigilante", note: "En su ronda.",
     rounds: { rooms: ["tb-yard", "tb-lane"], every: [4, 4] },
-    words: { nouns: ["vigilante", "guardia"], adj: ["largo"], g: "m" }, ...item("watchman"),
+    words: { nouns: ["vigilante", "guardia"], adj: ["largo"], g: "m" }, ...item("watchman"), figure: sprites.watchman_figure,
     here: "Un {vigilante|watchman} hace su ronda.",
     examine: "Un vigilante de abrigo largo. Recorre el patio y el callejón, un paso cada cuatro movimientos tuyos." },
   bird: { at: "tb-lane", name: "Pájaro", note: "Se mueve solo.",

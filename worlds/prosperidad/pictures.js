@@ -3,7 +3,7 @@
 // Style: flat. Every picture's `shot` names its palette, its light, its subject and its dressing, and what moves.
 // Palettes: neon (the strip, El Charlie, the corner, the plaza, the blind alley), lamplight (backstage, La Opera, the pension, the
 // occupied house), institution (the post office, the launderette), moonlight (the patio, the roof, the cutting), ember (the works).
-// The Minister is an overlay (his floorSprite) in the four rooms of his round: El Charlie, the avenida, La Opera and the post office.
+// The Minister is an overlay (his figure, shapes scaled to each spot's height) in the four rooms of his round: El Charlie, the avenida, La Opera and the post office.
 
 export default {
   // ---- THE BLIND ALLEY (the opening): eye level, one-point view to the steel fire door on the right third; neon pink -----------
@@ -404,7 +404,7 @@ line cable_b 130,106 170,108 c8`,
       { name: "the stage wash", areas: ["panel_stage_hi"], colors: [13, 5], style: "flicker", ms: [900, 2600] },
       { name: "the safety pin sign", areas: ["sign_a", "sign_b", "sign_ring", "sign_c", "sign_d"], colors: [13, 1], style: "blink", ms: 1500 }
     ],
-    overlays: [{ object: "ministro", at: [212, 58] }]
+    overlays: [{ object: "ministro", at: [226, 104], tall: 56 }]
   },
 
   // ---- THE AVENIDA: eye level down the strip to El Charlie's front; neon on both sides; the thumbnail ------------------------
@@ -535,7 +535,7 @@ line sign_line 31,68 45,68 c0`,
       { name: "the arrow sign", areas: ["arrow_a", "arrow_b", "arrow_c"], colors: [11, 3], rest: 2, style: "rotate", sweep: true, ms: 300 },
       { name: "the faulty pink tube", areas: ["bar_tube_a", "bar_tube_b", "bar_tube_c", "bar_tube_d"], colors: [13, 5], style: "flicker", ms: [800, 4000] }
     ],
-    overlays: [{ object: "ministro", at: [94, 88] }, { object: "monedas", at: [40, 106] }]
+    overlays: [{ object: "ministro", at: [101, 132], tall: 46 }, { object: "monedas", at: [40, 106] }]
   },
 
   // ---- THE CORNER: frontal, the one working street lamp; Marisol on the left third; the pension's sign on the right ---------------
@@ -785,7 +785,7 @@ rect desk_lamp_g 296,66,6,16 7 e0`,
     cycles: [
       { name: "the strip light", areas: ["light_tube", "light_patch"], colors: [15, 7], style: "flicker", ms: [500, 1600] }
     ],
-    overlays: [{ object: "ministro", at: [156, 84] }]
+    overlays: [{ object: "ministro", at: [163, 128], tall: 74 }]
   },
 
   // ---- LA OPERA: frontal across the little stage; Doña Aurora singing on the left third, the round table and the gilt mirror on the right ----
@@ -913,7 +913,7 @@ line rug_edge2 170,126 250,128 c4`,
       { name: "the lamp", areas: ["bulb_1", "bulb_3", "bulb_5", "stage_pool"], colors: [14, 6], style: "flicker", ms: [800, 2400] },
       { name: "the candle flame", areas: ["candle_flame", "candle_pool"], colors: [14, 12], style: "flicker", ms: [400, 1200] }
     ],
-    overlays: [{ object: "ministro", at: [232, 60] }]
+    overlays: [{ object: "ministro", at: [239, 104], tall: 52 }]
   },
 
   // ---- PENSIÓN ESPERANZA: eye level, a little off-centre; the staircase on the left, Don Nicanor behind his desk on the right third ----

@@ -2,6 +2,19 @@
 // on the dark inventory slot. Each carried or moving thing in the world has one; the cat, the watchman, the bird and the clerk are
 // drawn on the floor with theirs too.
 export default {
+  // The watchman's figure (BRIEF.md §7, "Overlays"): a long blue coat, a black cap, a lamp in one hand, in a 40 x 120 box, feet on the bottom line at x = 20.
+  watchman_figure: `
+rect watch_leg_l 14,100,5,20 0
+rect watch_leg_r 21,100,5,20 0
+poly watch_coat 12,34 28,34 30,60 33,104 7,104 10,60 1
+poly watch_arm 28,38 32,42 33,80 29,82 1
+rect watch_lamp 30,80,5,7 14
+rect watch_neck 17,28,6,6 15
+ellipse watch_head 20,22,6,7 15
+poly watch_cap 13,17 14,6 26,6 27,17 0
+rect watch_brim 11,16,18,3 0
+outline watch e0
+`.trim(),
   handset: [
     "................",
     "................",

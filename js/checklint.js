@@ -6,24 +6,24 @@
 // (Also here: `planProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.66.1";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.66.1";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.66.1";
-import { isAction } from "./actions.js?v=0.66.1";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.66.1";
-import { solveCommand } from "./narrator.js?v=0.66.1";
-import { isLine } from "./shapes.js?v=0.66.1";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "./exits.js?v=0.66.1";
-import { roomBeside } from "./plan.js?v=0.66.1";
-import { moveTo, worldTime, parts } from "./time.js?v=0.66.1";
-import * as opening from "./opening.js?v=0.66.1";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.66.1";
-import art from "../content/art.js?v=0.66.1";
-import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.66.1";
-import { paintPicture, CLEAR } from "./paint.js?v=0.66.1";
-import { contrast, MIN_CONTRAST } from "./hist.js?v=0.66.1";
-import { filterProblem } from "./filters.js?v=0.66.1";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.66.1";
+import { parse, normalise } from "./parser.js?v=0.67.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.67.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.67.0";
+import { isAction } from "./actions.js?v=0.67.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.67.0";
+import { solveCommand } from "./narrator.js?v=0.67.0";
+import { isLine } from "./shapes.js?v=0.67.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "./exits.js?v=0.67.0";
+import { roomBeside } from "./plan.js?v=0.67.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.67.0";
+import * as opening from "./opening.js?v=0.67.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.67.0";
+import art from "../content/art.js?v=0.67.0";
+import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems, readFigure, outsideBox, FIGURE } from "./picture.js?v=0.67.0";
+import { paintPicture, CLEAR } from "./paint.js?v=0.67.0";
+import { contrast, MIN_CONTRAST } from "./hist.js?v=0.67.0";
+import { filterProblem } from "./filters.js?v=0.67.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.67.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -638,6 +638,30 @@ export function lacksOverlay(room, id, o) {
   if (!o?.portable || !room?.picture || o.shape) return false;
   return !(room.picture.overlays || []).some(x => x?.object === id);
 }
+// What is wrong with a thing's `figure` (BRIEF.md §7, "Overlays"): shapes in the short notation that parse, under the figure rules the
+// pictures' own shapes keep, and every point inside its box. Reasons only (the caller says whose).
+function figureProblems(figure) {
+  const { shapes, problems } = readFigure(figure);
+  if (problems.length) return problems;
+  const why = [], box = `${FIGURE.width} wide and ${FIGURE.height} tall, (0,0) its top-left corner, its feet on the bottom line, centred on x = ${FIGURE.feet}`;
+  for (const [i, sh] of shapes.entries()) {
+    const out = sh.outline ? [] : outsideBox(sh);
+    if (out.length) why.push(`shape ${i + 1} (${sh.id ?? Object.keys(sh).find(k => art.draw.shapes.includes(k))}) has points outside its box (${box}): ${out.slice(0, 4).join("; ")}; draw it inside the box`);
+  }
+  return [...why, ...drawingProblems({ draw: shapes })];
+}
+// An overlay of a thing with a `figure` says how tall it is there and where its feet stand (BRIEF.md §7): `tall`, 8 to 136 whole pixels,
+// and `at` = [x, y], the feet, inside the picture.
+export const TALL_MIN = 8, TALL_MAX = 136;
+function figuredOverlayProblems(overlay, objects) {
+  if (typeof objects?.[overlay?.object]?.figure !== "string") return [];
+  const { width: W, height: H } = art.picture, t = overlay.tall, at = overlay.at, id = overlay.object, why = [];
+  if (!Number.isInteger(t) || t < TALL_MIN || t > TALL_MAX)
+    why.push(`the overlay "${id}" is a thing with a figure, so it needs \`tall\`, how tall it stands there in whole pixels, ${TALL_MIN} to ${TALL_MAX}${t === undefined ? "" : ` (it has ${JSON.stringify(t)})`}: { "object": "${id}", "at": [feet x, feet y], "tall": 60 }`);
+  if (!(Array.isArray(at) && at.length === 2 && at.every(Number.isFinite) && at[0] >= 0 && at[0] < W && at[1] >= 0 && at[1] < H))
+    why.push(`the overlay "${id}" has a figure, so its \`at\` is where its feet stand and must lie inside the picture (x 0 to ${W - 1}, y 0 to ${H - 1}), not ${JSON.stringify(at)}`);
+  return why;
+}
 function pictureProblems(state) {
   const problems = [], pictures = state.pictures || {}, file = `world.${state.lang || "en"}.js`;
   const described = (x) => typeof x === "string" && x.trim();
@@ -648,7 +672,9 @@ function pictureProblems(state) {
     for (const o of Array.isArray(picture?.overlays) ? picture.overlays : []) if (o && typeof o === "object" && "alt" in o)
       problems.push(`${name}: the picture's overlay "${o.object}" carries an alt (pictures.js holds shapes only, no text); say it as overlayAlt.${o.object} on the room in ${file}`);
   };
+  for (const [id, o] of Object.entries(state.world.objects)) if (o && "figure" in o) for (const why of figureProblems(o.figure)) problems.push(`${id}: figure ${why}`);
   const overlaysDescribed = (name, roomId, overlays) => {
+    for (const o of Array.isArray(overlays) ? overlays : []) for (const why of figuredOverlayProblems(o, state.world.objects)) problems.push(`${name}: ${why}`);
     for (const o of Array.isArray(overlays) ? overlays : [])
       if (!described(state.world.rooms[roomId]?.overlayAlt?.[o?.object]))
         problems.push(`${name}: the overlay "${o?.object}" has no alt, its description for screen readers; add overlayAlt.${o?.object} to room "${roomId}" in ${file}`);
@@ -1310,7 +1336,7 @@ export function clockMentions(raw) {
 // Every player-facing text of a world: [{ where, field, text }]. Not pictures or their descriptions (`alt`).
 const TEXT_KEYS = new Set(["describe", "says", "say", "closed", "note", "examine", "here", "lies", "talk", "take", "listen", "enter", "text", "default", "hint", "hints", "lines", "again", "already", "brought", "eat", "drink",
   "starts", "ends", "status", "answer", "arrives", "leaves"]);   // (starts…answer: a condition's lines; arrives, leaves: a thing that moves)
-const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "portrait", "words", "mentions", "if", "match", "id", "name", "label"]);
+const NOT_TEXT = new Set(["picture", "alt", "overlayAlt", "draw", "sprite", "floorSprite", "figure", "portrait", "words", "mentions", "if", "match", "id", "name", "label"]);
 function worldTexts(state, pack) {
   const out = [];
   for (const [id, r] of Object.entries(state.world.rooms)) collectTexts(r, id, pack, out);
@@ -1520,7 +1546,7 @@ function answeredByWorld(state, there, v, word, scenery, pack) {
 // alts and the bible's title and blurb: [{ where, field, text }].
 function shownTexts(state, bible) {
   const shown = [];
-  const SKIP = new Set(["picture", "draw", "words", "mentions", "sprite", "floorSprite", "portrait", "if", "match", "id", "solve"]);
+  const SKIP = new Set(["picture", "draw", "words", "mentions", "sprite", "floorSprite", "figure", "portrait", "if", "match", "id", "solve"]);
   const walk = (node, where, field, text) => {
     if (typeof node === "string") { if (text) shown.push({ where, field, text: node }); return; }
     if (Array.isArray(node)) return node.forEach(x => walk(x, where, field, text));

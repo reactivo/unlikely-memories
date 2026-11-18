@@ -2,9 +2,9 @@
 // here); this file puts a grid on the canvas, and holds the overlays, the thumbnails, the scroll's plan and the loops' sprites. Pure: no page, so tests
 // can run it too. ui/scene.js turns the grid into colours on the canvas.
 
-import art from "../content/art.js?v=0.66.1";
-import { parseShapes } from "../js/picture.js?v=0.66.1";
-import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.66.1";
+import art from "../content/art.js?v=0.67.0";
+import { parseShapes, readFigure, placeFigure } from "../js/picture.js?v=0.67.0";
+import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.67.0";
 export { paint, paintPicture, threshold, lit, CLEAR_PIXEL };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].
@@ -65,10 +65,36 @@ export function covered(picture, state, roomId, width = art.picture.width, heigh
   return mask;
 }
 
+// A figure (a moving thing's `figure`, shapes: js/picture.js) placed in a room and painted with the room's own painter: its pixels as
+// { k: where in the picture, c: palette number }, only where it paints. Made once for each figure, spot and height (the scene composes
+// again whenever something moves), so a room that shows it again costs a lookup.
+const placed = new Map(), parsed = new Map();
+export function figurePixels(figure, at, tall, width = art.picture.width, height = art.picture.height) {
+  const key = `${at[0]},${at[1]},${tall},${width}x${height}|${figure}`;
+  let hit = placed.get(key);
+  if (hit) return hit;
+  let shapes = parsed.get(figure);
+  if (!shapes) parsed.set(figure, shapes = readFigure(figure).shapes);
+  const px = paintPicture(placeFigure(shapes, at, tall), width, height, CLEAR_PIXEL).px, k = [], c = [];
+  px.forEach((v, i) => { if (v !== CLEAR_PIXEL) { k.push(i); c.push(v); } });
+  if (placed.size > 300) placed.clear();
+  placed.set(key, hit = { k: Int32Array.from(k), c: Uint8Array.from(c) });
+  return hit;
+}
+
+// Does this overlay draw its thing's figure: the thing has one and the overlay says how tall it is (`at` is then its feet)?
+export const isFigure = (own, o) => typeof own?.figure === "string" && Number.isFinite(o.tall) && o.tall > 0 && Array.isArray(o.at);
+
 // Each pixel of each overlay shown: fn(index in the picture, palette number).
 function overlayPixels(picture, state, roomId, width, height, fn) {
   for (const o of overlaysShown(picture, state, roomId)) {
-    const own = state.world.objects[o.object], rows = own.floorSprite || own.sprite;
+    const own = state.world.objects[o.object];
+    if (isFigure(own, o)) {
+      const f = figurePixels(own.figure, o.at, o.tall, width, height);
+      for (let i = 0; i < f.k.length; i++) fn(f.k[i], f.c[i]);
+      continue;
+    }
+    const rows = own.floorSprite || own.sprite;
     if (rows) rows.forEach((row, j) => [...row].forEach((ch, i) => {
       const c = HEX_INDEX[ch], x = o.at[0] + i, y = o.at[1] + j;
       if (c !== undefined && x >= 0 && y >= 0 && x < width && y < height) fn(y * width + x, c);
@@ -77,7 +103,8 @@ function overlayPixels(picture, state, roomId, width, height, fn) {
 }
 
 // The whole picture for a room in this state: its painted shapes (cached by the caller) with the overlays on top, each
-// its object's own `floorSprite`, else its `sprite` (rows in hex, as the world writes them), at the overlay's `at`.
+// its object's own `floorSprite`, else its `sprite` (rows in hex, as the world writes them), at the overlay's `at` (its top-left corner); or,
+// for a thing with a `figure`, the figure's shapes scaled to the overlay's `tall`, its feet on `at` (figurePixels).
 export function compose(base, picture, state, roomId, width = art.picture.width, height = art.picture.height) {
   const px = base.slice();
   overlayPixels(picture, state, roomId, width, height, (k, c) => { px[k] = c; });

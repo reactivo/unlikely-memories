@@ -266,7 +266,7 @@ export default {
       dots stones 120,100 150,114 200,96 180,120 70,118 c7
       line crack 100,128 140,112 180,124 c8
     `,
-    overlays: [{ object: "cat", at: [150, 98] }, { object: "watchman", at: [206, 66] }, { object: "bird", at: [56, 112] }]
+    overlays: [{ object: "cat", at: [150, 98] }, { object: "watchman", at: [214, 92], tall: 56 }, { object: "bird", at: [56, 112] }]
   },
 
   // ---- THE LANE: far away: a long lane going away between blank walls to one small lit window --------------------------------------------
@@ -288,7 +288,7 @@ rect window_rim 156,56,8,10 none e6
       dots cobbles 90,110 130,98 160,92 200,104 240,118 60,124 c8
     `,
     cycles: [{ name: "the window", areas: ["window", "window_glow"], colors: [14, 6], style: "rotate", ms: 3000 }],
-    overlays: [{ object: "cat", at: [92, 96] }, { object: "watchman", at: [136, 62] }, { object: "bird", at: [236, 100] }, { object: "clerk", at: [150, 46] }]
+    overlays: [{ object: "cat", at: [92, 96] }, { object: "watchman", at: [140, 80], tall: 20 }, { object: "bird", at: [236, 100] }, { object: "clerk", at: [150, 46] }]
   },
 
   // ---- THE WAYS: a bare landing: the wheel on the back wall, the shutter on the right, the chute on the left, the guard in the doorway ----

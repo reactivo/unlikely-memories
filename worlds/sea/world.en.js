@@ -5,11 +5,11 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.66.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
-import levels from "./levels.js?v=0.66.1";
-import sprites from "./sprites.js?v=0.66.1";
-import plan from "./plan.js?v=0.66.1";
+import pictures, { endings } from "./pictures.js?v=0.67.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.67.0";
+import levels from "./levels.js?v=0.67.0";
+import sprites from "./sprites.js?v=0.67.0";
+import plan from "./plan.js?v=0.67.0";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.
@@ -534,7 +534,7 @@ const objects = {
   cat: { portrait: sprites.cat_portrait, at: "lobby", name: "Admiral", note: "The hotel cat.", actions: ["Stroke Admiral"],
     rounds: { rooms: ["lobby", "dining", "hallway"], every: [3, 6], random: true },
     places: [{ at: "player", if: [{ "cat.stroked": true }], within: ["lobby", "dining", "hallway", "promenade", "square", "post_office"] }],
-    sprite: sprites.cat, floorSprite: sprites.cat_floor,
+    sprite: sprites.cat, figure: sprites.cat_figure,
     words: { nouns: ["admiral", "cat", "tom", "tag", "collar"], adj: ["grey", "gray", "hotel", "old", "brass"], g: "m", proper: true },
     here: "{Admiral|cat}, the hotel cat, sits washing a paw, as if he had always been there.",
     arrives: ["Admiral, the hotel cat, strolls in and sits down, as if you had kept him waiting.",

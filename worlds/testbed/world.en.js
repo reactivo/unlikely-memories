@@ -12,11 +12,11 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers, bars) > vault (east), pantry (west), sump (south, behind locked iron bars)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.66.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
-import levels from "./levels.js?v=0.66.1";
-import sprites from "./sprites.js?v=0.66.1";
-import plan from "./plan.js?v=0.66.1";
+import pictures, { endings, visions } from "./pictures.js?v=0.67.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.67.0";
+import levels from "./levels.js?v=0.67.0";
+import sprites from "./sprites.js?v=0.67.0";
+import plan from "./plan.js?v=0.67.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -647,7 +647,7 @@ const objects = {
     talk: "The cat looks at you, and then at something behind you." },
   watchman: { at: "tb-yard", name: "Watchman", note: "On his round.",
     rounds: { rooms: ["tb-yard", "tb-lane"], every: [4, 4] },
-    words: { nouns: ["watchman", "guardsman"], adj: ["long"] }, ...item("watchman"),
+    words: { nouns: ["watchman", "guardsman"], adj: ["long"] }, ...item("watchman"), figure: sprites.watchman_figure,
     here: "A {watchman} walks his round.",
     examine: "A watchman in a long coat. He walks the yard and the lane, one step every four moves of yours." },
   bird: { at: "tb-lane", name: "Bird", note: "Moves on its own.",

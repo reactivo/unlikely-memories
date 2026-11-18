@@ -3,11 +3,11 @@
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 // Reworked 2026-11-15 (strangeness 0): the story is now the hunt for a dealer who walks a round of the strip's rooms.
 
-import pictures, { endings } from "./pictures.js?v=0.66.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
-import levels from "./levels.js?v=0.66.1";
-import sprites from "./sprites.js?v=0.66.1";
-import plan from "./plan.js?v=0.66.1";
+import pictures, { endings } from "./pictures.js?v=0.67.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.67.0";
+import levels from "./levels.js?v=0.67.0";
+import sprites from "./sprites.js?v=0.67.0";
+import plan from "./plan.js?v=0.67.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -528,7 +528,7 @@ const objects = {
     rounds: { rooms: ["charlie", "avenida", "opera", "avenida", "estafeta", "avenida"], every: [4, 4] },
     arrives: ["The Minister comes in, nods to the room as to a provincial audience, and takes the best spot it has.", "The Minister arrives with his case, his hat and his four minutes."],
     leaves: ["The Minister finishes his drink, buttons his coat and goes on to the next door.", "The Minister looks at his watch, which is not there, and leaves."],
-    words: { nouns: ["minister", "dealer", "ildefonso", "ministro"], adj: ["the", "old", "tall"], g: "m" }, ...item("ministro"),
+    words: { nouns: ["minister", "dealer", "ildefonso", "ministro"], adj: ["the", "old", "tall"], g: "m" }, ...item("ministro"), figure: sprites.ministro_figure,
     here: "{The Minister|ministro} is here, in a camel coat and a grey hat, with a leather case in one hand and the air of a man visiting the provinces.",
     examine: "A tall thin man of sixty in a camel coat, a grey hat and gold-rimmed glasses, with a leather case that is never put down. His collar is open at the neck and there is no tie in it. He shakes hands like a bishop and counts like a bank.",
     talk: `"Good evening," says the Minister, as to a delegation. "I have four minutes, and I never spend them badly."`,
