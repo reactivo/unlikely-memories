@@ -6,7 +6,7 @@
 // SEE MAP (under the six) opens the map: the button itself does it (popovertarget, index.html; ui/map.js); this names it. Once the
 // story has ended the whole compass, SEE MAP included, is dim and ignores clicks and Tab (the game is locked).
 
-import { exitTo } from "../js/exits.js?v=0.64.0";
+import { exitTo } from "../js/exits.js?v=0.64.1";
 
 const DIRS = ["n", "s", "e", "w", "u", "d"];
 
@@ -26,6 +26,9 @@ export function mount(root, on) {
       current = next;
       const exits = exitsOf(next.state), was = prev ? exitsOf(prev.state) : null, over = !!next.state.ended;
       root.classList.toggle("over", over);             // the story is over: dim (compass.css)
+      // A game drawn afresh (the page's first draw, a world opened again after QUIT, a restored one) shows no blink: one that was running when the game
+      // view was hidden never got its animationend, and would play again when the view came back.
+      if (!prev || reason === "restore") buttons.forEach(b => b.classList.remove("changed"));
       if (prev && prev.state.lang === next.state.lang && !prev.state.ended === !over && sameExits(was, exits)) return;
       const t = next.pack;
       const m = root.querySelector(".map");              // SEE MAP: the map, while the story goes on

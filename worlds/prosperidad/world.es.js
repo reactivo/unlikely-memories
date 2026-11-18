@@ -3,10 +3,10 @@
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 // Reescrito el 2026-11-15 (extrañeza 0): ahora la historia es la caza de un camello que hace su ronda por las salas de la avenida.
 
-import pictures, { endings } from "./pictures.js?v=0.64.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.64.0";
-import levels from "./levels.js?v=0.64.0";
-import sprites from "./sprites.js?v=0.64.0";
+import pictures, { endings } from "./pictures.js?v=0.64.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.64.1";
+import levels from "./levels.js?v=0.64.1";
+import sprites from "./sprites.js?v=0.64.1";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -224,7 +224,7 @@ const rooms = {
       { words: ["terciopelo", "cortinas", "reservados", "asientos"], name: "el terciopelo", says: "Rojo en otro tiempo, marrón ahora, con un brillo en los brazos donde mil codos han apoyado sus opiniones." },
       { words: ["espejos", "espejo", "dorado"], name: "los espejos", says: "Marcos dorados con cristal viejo, y en el cristal una sala el doble de llena y el doble de joven. Es una mentira piadosa." },
       { words: ["hombres", "parroquianos", "abrigos", "publico", "público", "caballeros"], name: "los parroquianos", says: "Hombres mayores de buen abrigo, cada uno con su copa y su asiento, escuchando con los ojos cerrados como si el aria la cantara alguien a quien quisieron." },
-      { words: ["barra", "mostrador", "botellas", "anis", "anís", "vasos"], name: "la barra", says: "Una barra corta de caoba con un espejo detrás y un camarero llamado Gaspar al que nadie ha oído hablar. El anís llega en vasitos del tamaño de un dedal y cuesta del tamaño de un cubo." },
+      { words: ["barra", "mostrador", "botellas", "anis", "anís", "vasos"], name: "la barra", says: "Una barra corta de caoba con un espejo detrás y un camarero llamado Gaspar al que nadie ha oído hablar. El anís llega en vasitos del tamaño de un dedal y cuesta del tamaño de un cubo. Una cafetera silba al fondo de la barra, y un café es una moneda." },
       { words: ["mesa", "vela", "asiento"], name: "la mesa del escenario", says: "Una mesa redonda con una vela en una botella y vistas a la puerta. No se sienta nadie que no sea esperado." }
     ],
     ambience: { lines: [
@@ -501,17 +501,27 @@ const objects = {
     consumable: true, starts: "drunk", drink: ["Fría y amarga, y lo primero de esta noche que ha sido tuyo.", "Más templada, y un poco más lejos del suelo.", "Baja como un reto."],
     words: { nouns: ["cerveza", "vaso", "caña", "cana"], adj: ["fria", "fría"], g: "f" },
     examine: "Un vaso de cerveza, fría, con una espuma que Pelayo ha cortado con el canto de un cuchillo." },
-  monedas: { at: "avenida", portable: true, material: "metal", name: "Tres monedas", note: "Una cerveza cada una.", remains: "monedas_2",
+  // El café de La Ópera: también una moneda (las mismas que las de la cerveza), servido por la palabra de doña Aurora y las manos de Gaspar. Acaba con
+  // la condición de borracho (`stops`); borracho o no, sabe a café. Un café en total (`times: 1`). Borracho se acaba también con el tiempo (el `lasts` de
+  // la condición) y con un sueño de cuatro horas o más (el del motor: js/sleep.js, SOBERS), así que el mundo no escribe nada para dormir.
+  cafe: { at: null, from: "aurora", requires: "monedas", spends: true, times: 1, material: "glass", name: "Café", note: "Solo, en una taza pequeña.",
+    lacking: "«Un café es una moneda, cariño —dice doña Aurora entre dos compases—. A mi coro no lo pago con buenas intenciones».",
+    brought: "Doña Aurora te coge la moneda de la mano sin perder el compás y hace una seña a Gaspar, que deja un {café|cafe} negro en la barra sin decir palabra.",
+    already: "«Bébete ese primero, cariño», dice doña Aurora.", again: "«Con uno basta —dice doña Aurora—. Con dos te da por cantar, y yo el escenario no lo comparto».",
+    consumable: true, stops: "drunk", drink: "Negro, amargo y hirviendo. Sabe a café, y al lado bueno de la noche.",
+    words: { nouns: ["cafe", "café", "taza", "cafecito"], adj: ["negro", "caliente", "pequeña", "pequena"], g: "m" },
+    examine: "Una taza pequeña de café negro sobre un platillo, humeante, con la desportilladura del borde vuelta con educación hacia el otro lado." },
+  monedas: { at: "avenida", portable: true, material: "metal", name: "Tres monedas", note: "Una consumición cada una.", remains: "monedas_2",
     words: { nouns: ["monedas", "moneda", "dinero", "calderilla", "suelto"], adj: ["tres", "cobre"], g: "f", pl: true }, ...item("monedas"),
     here: "Tres {monedas} yacen en la acera, delante de la puerta de El Charlie, donde hace cola la gente y los bolsillos van sueltos.",
     lies: "Tres monedas yacen donde las dejaron.",
-    examine: "Tres monedas de cobre, tibias del bolsillo de alguien, gastadas de tanto andar. En El Charlie una moneda es una cerveza." },
-  monedas_2: { at: null, portable: true, material: "metal", name: "Dos monedas", note: "Una cerveza cada una.", remains: "moneda_1",
+    examine: "Tres monedas de cobre, tibias del bolsillo de alguien, gastadas de tanto andar. Una moneda es una cerveza en El Charlie, o un café en La Ópera." },
+  monedas_2: { at: null, portable: true, material: "metal", name: "Dos monedas", note: "Una consumición cada una.", remains: "moneda_1",
     words: { nouns: ["monedas", "moneda", "dinero", "calderilla", "suelto"], adj: ["dos", "cobre"], g: "f", pl: true }, ...item("monedas_2"),
-    lies: "Dos monedas yacen donde las dejaron.", examine: "Dos monedas de cobre, gastadas. En El Charlie una moneda es una cerveza." },
-  moneda_1: { at: null, portable: true, material: "metal", name: "Moneda", note: "Una cerveza.",
+    lies: "Dos monedas yacen donde las dejaron.", examine: "Dos monedas de cobre, gastadas. Una moneda es una cerveza en El Charlie, o un café en La Ópera." },
+  moneda_1: { at: null, portable: true, material: "metal", name: "Moneda", note: "Una consumición.",
     words: { nouns: ["moneda", "dinero", "calderilla", "suelto"], adj: ["ultima", "última", "cobre"], g: "f" }, ...item("moneda_1"),
-    lies: "Una moneda yace donde la dejaron.", examine: "Una moneda de cobre, gastada. Una cerveza más en El Charlie." },
+    lies: "Una moneda yace donde la dejaron.", examine: "Una moneda de cobre, gastada. Una consumición más: una cerveza en El Charlie, un café en La Ópera." },
 
   // El Ministro: en su ronda (las salas, por orden, un paso cada cuatro movimientos tuyos)
   ministro: { portrait: sprites.ministro_portrait, at: "opera", name: "El Ministro", note: "En su ronda.",
@@ -596,6 +606,7 @@ const objects = {
     talk: "«Cariño —dice doña Aurora entre dos compases—, si has venido a escuchar, calla. Si has venido a beber, Gaspar es sordo».",
     topics: {
       room: { open: true, label: "la sala", words: ["sala", "bar", "ópera", "opera", "escenario", "cantar", "canta"], says: "«Hace cuarenta años esto era el café de enfrente de la ópera, y todas las coristas de la ciudad tomaban el café en esa mesa —dice doña Aurora—. La ópera es un banco ahora. Las coristas son abuelas. Yo soy la última que sigue con plumas»." },
+      coffee: { open: true, label: "el café", words: ["cafe", "café", "taza", "gaspar", "maquina", "máquina", "sobrio"], says: "«Una moneda, cariño, igual que antes de que la ópera fuera un banco —dice doña Aurora—. Gaspar lo hace negro y no lo discute nunca. Ha despejado a hombres mejores que tú»." },
       dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "mesa", "caballero"], says: "«¿Don Ildefonso? Mesa redonda, espalda a la pared, un carajillo que no acaba nunca —dice doña Aurora—. Es un caballero y lleva once años de ministro, porque visita sus circunscripciones con puntualidad. Espera un poco y llegará, a mí me da cuatro minutos»." },
       tie: { label: "una corbata negra", words: ["corbata", "negra", "seda", "entierro"], says: "«¿Una corbata negra? Anoche me pidió una, pobre hombre, con su hermana aún sin enterrar —dice doña Aurora—. Las que tengo son pajaritas y amarillas. Pregunta por los bares, cariño. Alguien habrá enterrado a alguien»." },
       matilde: { label: "Matilde", words: ["matilde", "hermana", "portera", "entierro"], says: "«Matilde Peláez, la portera de la calle Hierro nueve. No dijo nunca a nadie que tenía una hermana, hasta que fue una muerta —dice doña Aurora—. Mantuvo vivo a un chico del tercero a base de sopa, y le escribió cartas durante treinta años que no lo encontraron nunca. El Ministro lo cuenta él mismo, con su carajillo, todas las noches de esta semana»." },
@@ -771,8 +782,8 @@ export default {
       movement: { chance: 0.3, says: ["Los pies te llevan por otro camino del que querías.", "Sales por un lado, y la calle te da la vuelta."] } },
     // Verbos que necesita este mundo
     { add: "word", verb: "open", words: ["forzar", "apalancar", "hacer palanca", "palanquear"] },
-    { add: "word", verb: "order", reply: "Aquí nadie quiere tus pesetas. Esta noche la avenida se paga con favores." },
-    { add: "word", verb: "buy", reply: "Aquí nadie quiere tus pesetas. Esta noche la avenida se paga con favores." },
+    { add: "word", verb: "order", reply: "Aquí nadie tiene uso para las pesetas; la avenida las olvidó. Una moneda compra una cerveza o un café, y todo lo demás esta noche se paga con favores." },
+    { add: "word", verb: "buy", reply: "Aquí nadie tiene uso para las pesetas; la avenida las olvidó. Una moneda compra una cerveza o un café, y todo lo demás esta noche se paga con favores." },
     { add: "word", verb: "dance", words: ["bailar", "pogear", "mover el esqueleto"], reply: "Te mueves un poco. La avenida lo ve y no le da importancia, que es para lo que sirve bailar en la avenida." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

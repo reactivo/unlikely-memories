@@ -4,43 +4,43 @@
 // world (#<id>, js/route.js); on a world's own page (/<id>/, <html data-world>: tools/pages.mjs) the world's splash (no hash) or its game
 // (#<id>). Never touches the page (that's ui/).
 
-import en from "../content/en.js?v=0.64.0";
-import es from "../content/es.js?v=0.64.0";
-import { newState, startOf, FORMAT } from "./state.js?v=0.64.0";
-import { withPractice } from "./practice.js?v=0.64.0";
-import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.64.0";
-import { parse, retype } from "./parser.js?v=0.64.0";
-import { inScope } from "./place.js?v=0.64.0";
-import { tell, describe, introOf, text, listName, placeName, joined } from "./narrator.js?v=0.64.0";
-import { parts, hhmm } from "./time.js?v=0.64.0";
-import * as saves from "./saves.js?v=0.64.0";
-import { suggestion, topicsLine, story, offers } from "./view.js?v=0.64.0";
-import { walk, tripWords } from "./map.js?v=0.64.0";
-import { createClock } from "./clock.js?v=0.64.0";
-import { routeOf, hashOf } from "./route.js?v=0.64.0";
-import { listFor, thumbnailFor, coverFor, boxartFor, hasCover, loadWorld } from "../worlds/load.js?v=0.64.0";
-import { load, store } from "./prefs.js?v=0.64.0";
-import { examineSVG } from "../ui/sprite.js?v=0.64.0";
-import * as titlebar from "../ui/titlebar.js?v=0.64.0";
-import * as scene from "../ui/scene.js?v=0.64.0";
-import * as crop from "../ui/crop.js?v=0.64.0";
-import * as log from "../ui/log.js?v=0.64.0";
-import * as prompt from "../ui/prompt.js?v=0.64.0";
-import * as compass from "../ui/compass.js?v=0.64.0";
-import * as inventory from "../ui/inventory.js?v=0.64.0";
-import * as options from "../ui/options.js?v=0.64.0";
-import * as soundpanel from "../ui/soundpanel.js?v=0.64.0";
-import * as graphicspanel from "../ui/graphicspanel.js?v=0.64.0";
-import * as map from "../ui/map.js?v=0.64.0";
-import * as page from "../ui/page.js?v=0.64.0";
-import * as tools from "../ui/tools.js?v=0.64.0";
-import * as tabs from "../ui/tabs.js?v=0.64.0";
-import * as keys from "../ui/keys.js?v=0.64.0";
-import * as home from "../ui/home.js?v=0.64.0";
-import * as splash from "../ui/splash.js?v=0.64.0";
-import * as icons from "../ui/icons.js?v=0.64.0";
-import * as crt from "../ui/crt.js?v=0.64.0";
-import * as sound from "../ui/sound.js?v=0.64.0";
+import en from "../content/en.js?v=0.64.1";
+import es from "../content/es.js?v=0.64.1";
+import { newState, startOf, FORMAT } from "./state.js?v=0.64.1";
+import { withPractice } from "./practice.js?v=0.64.1";
+import { step, nextDue, ask, takesBlank, withoutYesNo } from "./engine.js?v=0.64.1";
+import { parse, retype } from "./parser.js?v=0.64.1";
+import { inScope } from "./place.js?v=0.64.1";
+import { tell, describe, introOf, text, listName, placeName, joined } from "./narrator.js?v=0.64.1";
+import { parts, hhmm } from "./time.js?v=0.64.1";
+import * as saves from "./saves.js?v=0.64.1";
+import { suggestion, topicsLine, story, offers } from "./view.js?v=0.64.1";
+import { walk, tripWords } from "./map.js?v=0.64.1";
+import { createClock } from "./clock.js?v=0.64.1";
+import { routeOf, hashOf } from "./route.js?v=0.64.1";
+import { listFor, thumbnailFor, coverFor, boxartFor, hasCover, loadWorld } from "../worlds/load.js?v=0.64.1";
+import { load, store } from "./prefs.js?v=0.64.1";
+import { examineSVG } from "../ui/sprite.js?v=0.64.1";
+import * as titlebar from "../ui/titlebar.js?v=0.64.1";
+import * as scene from "../ui/scene.js?v=0.64.1";
+import * as crop from "../ui/crop.js?v=0.64.1";
+import * as log from "../ui/log.js?v=0.64.1";
+import * as prompt from "../ui/prompt.js?v=0.64.1";
+import * as compass from "../ui/compass.js?v=0.64.1";
+import * as inventory from "../ui/inventory.js?v=0.64.1";
+import * as options from "../ui/options.js?v=0.64.1";
+import * as soundpanel from "../ui/soundpanel.js?v=0.64.1";
+import * as graphicspanel from "../ui/graphicspanel.js?v=0.64.1";
+import * as map from "../ui/map.js?v=0.64.1";
+import * as page from "../ui/page.js?v=0.64.1";
+import * as tools from "../ui/tools.js?v=0.64.1";
+import * as tabs from "../ui/tabs.js?v=0.64.1";
+import * as keys from "../ui/keys.js?v=0.64.1";
+import * as home from "../ui/home.js?v=0.64.1";
+import * as splash from "../ui/splash.js?v=0.64.1";
+import * as icons from "../ui/icons.js?v=0.64.1";
+import * as crt from "../ui/crt.js?v=0.64.1";
+import * as sound from "../ui/sound.js?v=0.64.1";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 const LANG_PACKS = { en, es };
@@ -620,6 +620,7 @@ function leaveGame() {
 async function showHome(failed = false) {
   const mine = ++opening;
   leaveGame();
+  if (view === "splash") ui.sound.leave();               // (a world's page plays its theme: back on the list, it stops: 18 November 2026)
   poster?.stop();
   view = "home"; openId = null;
   document.title = "Unlikely Memories";
@@ -646,14 +647,22 @@ async function showSplash(id) {
   const mine = ++opening;
   leaveGame();
   view = "splash"; openId = null;
+  const reading = autoSaved(id);                         // (read meanwhile: the page doesn't wait for it, its keys do)
   try { await loadWorld(id, lang); } catch (e) { return mine === opening ? loadFailed(id, e) : undefined; }   // (the world's files, once: its page shows when they are here)
-  const saved = await autoSaved(id), cover = coverFor(id, lang);
+  const cover = coverFor(id, lang);
   if (mine !== opening) return;
   if (!cover) return on.list();                          // (no cover: no page)
   const pack = LANG_PACKS[lang];
-  poster.show({ id, title: cover.title, cover, pack, saved: !!saved, lang });
+  // Everything the first frame doesn't need waits for it: the page shows as soon as the files are here (18 November 2026: a phone waited
+  // seconds on a blank list while the saved game was read and the music's start was built).
+  poster.show({ id, title: cover.title, cover, pack, saved: null, lang });
   ui.page.show("splash", lang);
-  ui.sound.update(null, { state: startOf(lang, id), pack, music: soundpanel.audible(mix), mix, graphics }, "restore");
+  let told = false;                                       // (a store that never answers: START after a moment, which still continues a saved game)
+  const late = setTimeout(() => { if (mine === opening && !told) poster.saved(false); }, 1500);
+  reading.then(saved => { told = true; clearTimeout(late); if (mine === opening) poster.saved(!!saved); });
+  requestAnimationFrame(() => setTimeout(() => {         // (the frame after the page's first: its theme, from the world's start)
+    if (mine === opening) ui.sound.update(null, { state: startOf(lang, id), pack, music: soundpanel.audible(mix), mix, graphics }, "restore");
+  }, 0));
 }
 
 // Show a world: its saved game continued if it has one, else a new game from its start room. fresh: a new game from its start room
@@ -740,7 +749,7 @@ if (DEBUG_PANEL) {
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js?v=0.64.0"), import("./debug.js?v=0.64.0")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.64.1"), import("./debug.js?v=0.64.1")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on

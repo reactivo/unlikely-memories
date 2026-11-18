@@ -8,8 +8,8 @@
 // Node (the tests, the golden check, the tools) has every world from the start: this module loads worlds/index.js there and keeps all
 // of it, so nothing that runs in Node changes.
 
-import { CARDS, DEFAULT, TEXTS, COVERS } from "./cards.js?v=0.64.0";
-import { parseShapes } from "../js/picture.js?v=0.64.0";
+import { CARDS, DEFAULT, TEXTS, COVERS } from "./cards.js?v=0.64.1";
+import { parseShapes } from "../js/picture.js?v=0.64.1";
 
 export { CARDS, DEFAULT };
 
@@ -71,7 +71,7 @@ export function loadWorld(id, lang) {
 
 // Node and the tools: every world there is, already (worlds/index.js loads them all, in its own order). Never reached by a browser.
 if (typeof process !== "undefined" && process.versions?.node) {
-  const { WORLDS } = await import("./index.js?v=0.64.0");
+  const { WORLDS } = await import("./index.js?v=0.64.1");
   for (const [id, w] of Object.entries(WORLDS)) {
     for (const [lang, text] of Object.entries(w.text)) { texts.set(id + "/" + lang, text); asked.set(id + "/" + lang, Promise.resolve()); }
     if (w.cover) covers.set(id, w.cover);

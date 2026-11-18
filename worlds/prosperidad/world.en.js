@@ -3,10 +3,10 @@
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 // Reworked 2026-11-15 (strangeness 0): the story is now the hunt for a dealer who walks a round of the strip's rooms.
 
-import pictures, { endings } from "./pictures.js?v=0.64.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.64.0";
-import levels from "./levels.js?v=0.64.0";
-import sprites from "./sprites.js?v=0.64.0";
+import pictures, { endings } from "./pictures.js?v=0.64.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.64.1";
+import levels from "./levels.js?v=0.64.1";
+import sprites from "./sprites.js?v=0.64.1";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -223,7 +223,7 @@ const rooms = {
       { words: ["plush", "curtains", "velvet", "booths", "seats"], name: "the plush", says: "Red once, brown now, with a shine on the arms where a thousand elbows have rested their opinions." },
       { words: ["mirrors", "mirror", "gilt"], name: "the mirrors", says: "Gilt frames round old glass, and in the glass a room twice as full and twice as young. It is a kind lie." },
       { words: ["men", "regulars", "coats", "audience", "gentlemen"], name: "the regulars", says: "Old men in good coats, each with a glass and a seat that is his, listening with their eyes shut as if the aria were being sung by someone they once loved." },
-      { words: ["bar", "counter", "bottles", "anisette", "glasses"], name: "the bar", says: "A short mahogany bar with a mirror behind it and a barman called Gaspar who has never been heard to speak. The anisette comes in glasses the size of a thimble and costs the size of a cup." },
+      { words: ["bar", "counter", "bottles", "anisette", "glasses"], name: "the bar", says: "A short mahogany bar with a mirror behind it and a barman called Gaspar who has never been heard to speak. The anisette comes in glasses the size of a thimble and costs the size of a cup. A coffee machine hisses at the far end of it, and a coffee is a coin." },
       { words: ["table", "candle", "seat"], name: "the table by the stage", says: "A round table with a candle in a bottle and a view of the door. Nobody sits at it who is not expected." }
     ],
     ambience: { lines: [
@@ -500,17 +500,27 @@ const objects = {
     consumable: true, starts: "drunk", drink: ["Cold and bitter, and the first thing tonight that was yours.", "Warmer, and a little further from the floor.", "It goes down like a dare."],
     words: { nouns: ["beer", "glass", "pint"], adj: ["cold"] },
     examine: "A glass of beer, cold, with a head that Pelayo cut with the side of a knife." },
-  monedas: { at: "avenida", portable: true, material: "metal", name: "Three coins", note: "A beer each.", remains: "monedas_2",
+  // Coffee at La Ópera: a coin too (the same coins as the beer's), served by Doña Aurora's word and Gaspar's hands. It ends the drunk condition
+  // (`stops`); drunk or not, it tastes of coffee. One coffee in all (`times: 1`). Drunk also ends by time (the condition's `lasts`) and by a sleep of
+  // four hours or more (the engine's: js/sleep.js, SOBERS), so the world writes nothing for sleeping.
+  cafe: { at: null, from: "aurora", requires: "monedas", spends: true, times: 1, material: "glass", name: "Coffee", note: "Black, in a small cup.",
+    lacking: `"A coffee is a coin, darling," says Doña Aurora, between two bars. "I don't pay my chorus in good intentions."`,
+    brought: "Doña Aurora takes the coin out of your hand without losing the note, and nods at Gaspar, who sets down a {coffee|cafe}, black, without a word.",
+    already: `"Drink that one first, darling," says Doña Aurora.`, again: `"One is enough," says Doña Aurora. "Two and you start singing, and I do not share the stage."`,
+    consumable: true, stops: "drunk", drink: "Black, bitter and scalding. It tastes of coffee, and of the good side of the night.",
+    words: { nouns: ["coffee", "cup", "espresso"], adj: ["black", "hot", "small"] },
+    examine: "A small cup of black coffee on a saucer, steaming, with the chip in its rim turned politely away from you." },
+  monedas: { at: "avenida", portable: true, material: "metal", name: "Three coins", note: "A drink each.", remains: "monedas_2",
     words: { nouns: ["coins", "coin", "money", "change"], adj: ["three", "copper"], pl: true }, ...item("monedas"),
     here: "Three {coins|monedas} lie on the pavement in front of El Charlie's door, where the queue stands and pockets are loose.",
     lies: "Three coins lie where they were put down.",
-    examine: "Three copper coins, warm from somebody's pocket, worn smooth. A coin is a beer at El Charlie." },
-  monedas_2: { at: null, portable: true, material: "metal", name: "Two coins", note: "A beer each.", remains: "moneda_1",
+    examine: "Three copper coins, warm from somebody's pocket, worn smooth. A coin is a beer at El Charlie, or a coffee at La Ópera." },
+  monedas_2: { at: null, portable: true, material: "metal", name: "Two coins", note: "A drink each.", remains: "moneda_1",
     words: { nouns: ["coins", "coin", "money", "change"], adj: ["two", "copper"], pl: true }, ...item("monedas_2"),
-    lies: "Two coins lie where they were put down.", examine: "Two copper coins, worn smooth. A coin is a beer at El Charlie." },
-  moneda_1: { at: null, portable: true, material: "metal", name: "Coin", note: "One beer.",
+    lies: "Two coins lie where they were put down.", examine: "Two copper coins, worn smooth. A coin is a beer at El Charlie, or a coffee at La Ópera." },
+  moneda_1: { at: null, portable: true, material: "metal", name: "Coin", note: "One drink.",
     words: { nouns: ["coin", "money", "change"], adj: ["last", "copper"] }, ...item("moneda_1"),
-    lies: "A coin lies where it was put down.", examine: "A copper coin, worn smooth. One more beer at El Charlie." },
+    lies: "A coin lies where it was put down.", examine: "A copper coin, worn smooth. One more drink: a beer at El Charlie, a coffee at La Ópera." },
 
   // The Minister: on his round (the rounds: rooms listed in order, a step every four of your moves)
   ministro: { portrait: sprites.ministro_portrait, at: "opera", name: "The Minister", note: "On his round.",
@@ -595,6 +605,7 @@ const objects = {
     talk: `"Darling," says Doña Aurora between two bars, "if you've come to listen, shut up. If you've come to drink, Gaspar is deaf."`,
     topics: {
       room: { open: true, label: "the room", words: ["room", "bar", "ópera", "opera", "stage", "singing", "sing"], says: `"Forty years ago this was the café opposite the opera house, and every chorus girl in the city took her coffee at that table," says Doña Aurora. "The opera house is a bank now. The chorus girls are grandmothers. I am the last of them still in feathers."` },
+      coffee: { open: true, label: "the coffee", words: ["coffee", "cup", "gaspar", "machine", "sober"], says: `"A coin, darling, the same as before the opera house became a bank," says Doña Aurora. "Gaspar makes it black and never discusses it. It has sobered up better men than you."` },
       dealer: { open: true, label: "the Minister", words: ["minister", "dealer", "ministro", "table", "gentleman"], says: `"Don Ildefonso? Round table, back to the wall, a carajillo he never finishes," says Doña Aurora. "He's a gentleman and he has been a minister for eleven years, because he visits his constituencies on schedule. Wait a few minutes and he'll be along, he gives me four."` },
       tie: { label: "a black tie", words: ["tie", "black", "silk", "funeral"], says: `"A black tie? Last night he asked me for one, poor man, with his sister still warm on a slab," says Doña Aurora. "The ones I have are bow ties and yellow. Ask round the bars, darling. Someone has buried somebody."` },
       matilde: { label: "Matilde", words: ["matilde", "sister", "portera", "funeral"], says: `"Matilde Peláez, the portera of Calle Hierro nine. He never told anyone he had a sister, until she was a death," says Doña Aurora. "She kept a boy on the third floor alive with soup, and wrote him letters for thirty years. He never wrote back. The Minister says so himself, over his carajillo, every night this week."` },
@@ -770,8 +781,8 @@ export default {
       movement: { chance: 0.3, says: ["Your feet take you another way than the one you meant.", "You set off one way, and the street turns you round."] } },
     // Verbs this world needs
     { add: "word", verb: "open", words: ["prise", "pry", "force", "jemmy", "lever"] },
-    { add: "word", verb: "order", reply: "Nobody here wants your pesetas. Tonight the strip is paid in favours." },
-    { add: "word", verb: "buy", reply: "Nobody here wants your pesetas. Tonight the strip is paid in favours." },
+    { add: "word", verb: "order", reply: "Nobody here has any use for pesetas; the strip forgot them. A coin buys a beer or a coffee, and anything else tonight is paid in favours." },
+    { add: "word", verb: "buy", reply: "Nobody here has any use for pesetas; the strip forgot them. A coin buys a beer or a coffee, and anything else tonight is paid in favours." },
     { add: "word", verb: "dance", words: ["dance", "boogie", "jig", "pogo"], reply: "You move a little. The strip sees it and thinks nothing of it, which is what a dance on the strip is for." },
 
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),

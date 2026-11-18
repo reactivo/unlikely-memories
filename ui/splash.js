@@ -17,14 +17,14 @@
 // drawn from the finished pixels each frame drawn, as the room's picture has it; a cover with clear pixels (transparent) gets none, as the
 // look is an opaque rectangle.
 
-import art from "../content/art.js?v=0.64.0";
-import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.64.0";
-import { putPixels, compileLoop, underMask, RGB, CLEAR_PIXEL } from "./draw.js?v=0.64.0";
-import { painter } from "../js/paint.js?v=0.64.0";
-import { shownAt, fitWidth, cropColumns } from "../js/cover.js?v=0.64.0";
-import { screen } from "./crt.js?v=0.64.0";
-import { prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.64.0";
-import { reducedMotion, calm } from "./media.js?v=0.64.0";
+import art from "../content/art.js?v=0.64.1";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.64.1";
+import { putPixels, compileLoop, underMask, RGB, CLEAR_PIXEL } from "./draw.js?v=0.64.1";
+import { painter } from "../js/paint.js?v=0.64.1";
+import { shownAt, fitWidth, cropColumns } from "../js/cover.js?v=0.64.1";
+import { screen, settings as lookSettings } from "./crt.js?v=0.64.1";
+import { prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.64.1";
+import { reducedMotion, calm } from "./media.js?v=0.64.1";
 
 // The cover's size (art.cover): 480 wide, 400 tall.
 export const COVER = { width: art.cover.width, height: art.cover.height };
@@ -80,7 +80,23 @@ export function mount(root, on) {
 
   // With the CRT look on, the cover's flat colour comes out a little brighter (its glow) or darker (its scanlines) than the palette's: the page
   // takes the colour the look really gives the top band (an average of a patch of it, read from the look's canvas right after it is drawn).
-  let match = true;
+  // It is read after the page is on screen (a read from the GPU makes the browser wait for it: never before the first frame), and kept for
+  // the colour, the canvas's size and the look's settings, so a page opened again takes it at once.
+  let match = true, matching = 0;
+  const matched = new Map();
+  const lookKey = () => { const gl = canvas.nextElementSibling; return gl instanceof HTMLCanvasElement ? `${bg}|${gl.width}x${gl.height}|${JSON.stringify(lookSettings())}` : null; };
+  const setPageColour = (hex) => { document.documentElement.style.setProperty("--splash-bg", hex); document.querySelector('meta[name="theme-color"]')?.setAttribute("content", hex); };
+  function scheduleMatch() {
+    const key = lookKey();
+    if (key && matched.has(key)) return setPageColour(matched.get(key));
+    cancelAnimationFrame(matching);
+    matching = requestAnimationFrame(() => setTimeout(() => {      // (the frame after this one, once it is painted)
+      if (!frame || !image) return;
+      if (opaque) look.draw(image);                               // (drawn again just before the read: the canvas keeps no drawing between frames)
+      const hex = matchLook(), k = lookKey();
+      if (hex && k) matched.set(k, hex);
+    }, 0));
+  }
   function matchLook() {
     const gl = canvas.nextElementSibling;
     if (!(gl instanceof HTMLCanvasElement) || !gl.width || getComputedStyle(gl).display === "none") return;
@@ -90,9 +106,9 @@ export function mount(root, on) {
     const d = c.getImageData(0, 0, 8, 8).data; let r = 0, g = 0, b = 0;
     for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
     const n = d.length / 4, hex = "#" + [r, g, b].map(v => Math.round(v / n).toString(16).padStart(2, "0")).join("");
-    if (hex === "#000000") return;                        // (nothing drawn yet)
-    document.documentElement.style.setProperty("--splash-bg", hex);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", hex);
+    if (hex === "#000000") return null;                   // (nothing drawn yet)
+    setPageColour(hex);
+    return hex;
   }
   window.addEventListener("resize", () => { match = true; });
 
@@ -126,16 +142,20 @@ export function mount(root, on) {
   window.addEventListener("resize", fit);                // (a zoom changes the ratio; the probe's own size is watched too: it has none while the page is hidden)
   if (typeof ResizeObserver === "function") new ResizeObserver(fit).observe(poster);
 
-  // The draw-in: `whole` is the finished poster (painted once, at the start), `build` the painter that shows it growing, `began` when it started, `shown` the shapes painted so far; null once finished.
-  let from = 0, whole = null, build = null, began = 0, shown = 0, draw = null;
+  // The draw-in: `build` the painter that shows the poster growing (and, painted to its end, the finished poster: one painting in all, so the page
+  // shows at once: 18 November 2026), `began` when it started, `shown` the shapes painted so far; null once finished.
+  let setKeys = null;                                    // the keys for the page shown (show(): its world and language)
+  let from = 0, build = null, began = 0, shown = 0, draw = null;
   const stopSkip = () => { for (const e of ["pointerdown", "keydown"]) document.removeEventListener(e, finish, true); };
   // Finish the drawing at once (a tap or key; reduced motion; the last shape): the poster as painted, its cycles and loops from now.
   function finish() {
     if (!build) return;
     stopSkip();
-    const now = performance.now(), areas = whole.areas();
+    build.to(Infinity);
+    const now = performance.now(), areas = build.areas();
     from = now;
-    frame = whole.px; layer.src = frame; build = null;
+    frame = build.px; layer.src = frame; build = null;
+    opaque = frame.every(c => c !== CLEAR_PIXEL);
     cycles = (draw.cycles || []).map(c => prepareCycle(c, frame, areas, W, H, now));
     loops = (draw.loops || []).map(l => ({ l, sprite: compileLoop(l), mem: { tick: 0, frame: 0 }, t0: now, hide: underMask(l, areas, W, H) }));
     render(now); animate();
@@ -153,7 +173,7 @@ export function mount(root, on) {
     shownPx.set(out.subarray(cut * W, (BAND + artRows) * W), off * W);
     putPixels(image, shownPx, RGB);
     ctx.putImageData(image, 0, 0);
-    if (opaque) { look.draw(image); if (match) { match = false; matchLook(); } }   // (from the first frame: the band is the background from the start)   // the CRT look, over the finished pixels: once per frame drawn
+    if (opaque) { look.draw(image); if (match) { match = false; scheduleMatch(); } }   // (from the first frame: the band is the background from the start)   // the CRT look, over the finished pixels: once per frame drawn
   }
   function tick(now) {
     now = Math.max(now, from);                            // (a frame's stamp can be from before the tap that finished the drawing: the loops' clocks start then)
@@ -206,24 +226,29 @@ export function mount(root, on) {
       heading.textContent = name;
       canvas.setAttribute("aria-label", name);
       document.title = `${name} · Unlikely Memories`;
-      keys.replaceChildren(...buttonsFor(saved, t).map(b => key(b.label, name, () => on.play(id, b.fresh), b.main)));
+      setKeys = (has) => keys.replaceChildren(...buttonsFor(has, t).map(b => key(b.label, name, () => on.play(id, b.fresh), b.main)));
+      // Not known yet (null: the saved game is still being read), the keys' place is kept by an unseen START, so nothing moves when they come.
+      setKeys(!!saved);
+      if (saved == null) for (const b of keys.children) { b.style.visibility = "hidden"; b.disabled = true; }
       back.textContent = t.backToList ?? t.allGames;
       kicker.textContent = t.kicker ?? "";                  // (for a screen reader: the line itself is drawn into the cover)
       stopSkip(); cancelAnimationFrame(loop); loop = 0;
       draw = cover; cycles = []; loops = []; lastSteps = "";
-      whole = painter(cover.draw, W, H, CLEAR_PIXEL); whole.to(Infinity);
-      opaque = whole.px.every(c => c !== CLEAR_PIXEL);
-      paintPage(whole.px); match = true;
       build = painter(cover.draw, W, H, CLEAR_PIXEL); frame = build.px; layer.src = frame;
+      began = now; shown = Math.min(1, cover.draw.length); build.to(shown);   // the first shape, the background, at once
+      while (frame[240] === CLEAR_PIXEL && shown < cover.draw.length) build.to(++shown);   // (and on until the band's colour is there)
+      opaque = frame.every(c => c !== CLEAR_PIXEL);           // (a cover's first shape fills it: the rules; if not, finish() says so once it is all painted)
+      paintPage(frame); match = true;
       layoutInk();
       fit();
-      began = now; shown = Math.min(1, cover.draw.length); build.to(shown);   // the first shape, the background, at once
       if (calm() || cover.draw.length <= 1) return finish();
       render(now);
       for (const e of ["pointerdown", "keydown"]) document.addEventListener(e, finish, true);   // (never stops the event: a button pressed still acts)
       animate();
     },
+    // The saved game, once read (show() was given saved: null): its keys, CONTINUE and NEW GAME or START.
+    saved(has) { if (!setKeys) return; setKeys(!!has); fit(); },
     // The page is left (the game starts, or the list shows): the animation stops.
-    stop() { stopSkip(); cancelAnimationFrame(loop); loop = 0; build = null; whole = null; frame = null; ink = null; }
+    stop() { stopSkip(); cancelAnimationFrame(loop); loop = 0; build = null; frame = null; ink = null; setKeys = null; cancelAnimationFrame(matching); }
   };
 }
