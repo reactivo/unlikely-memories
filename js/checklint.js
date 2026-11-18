@@ -6,24 +6,24 @@
 // (Also here: `planProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.68.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.68.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.68.0";
-import { isAction } from "./actions.js?v=0.68.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.68.0";
-import { solveCommand } from "./narrator.js?v=0.68.0";
-import { isLine } from "./shapes.js?v=0.68.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "./exits.js?v=0.68.0";
-import { roomBeside } from "./plan.js?v=0.68.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.68.0";
-import * as opening from "./opening.js?v=0.68.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.68.0";
-import art from "../content/art.js?v=0.68.0";
-import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems, readFigure, outsideBox, FIGURE } from "./picture.js?v=0.68.0";
-import { paintPicture, CLEAR } from "./paint.js?v=0.68.0";
-import { contrast, MIN_CONTRAST } from "./hist.js?v=0.68.0";
-import { filterProblem } from "./filters.js?v=0.68.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.68.0";
+import { parse, normalise } from "./parser.js?v=0.68.1";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.68.1";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.68.1";
+import { isAction } from "./actions.js?v=0.68.1";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.68.1";
+import { solveCommand } from "./narrator.js?v=0.68.1";
+import { isLine } from "./shapes.js?v=0.68.1";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "./exits.js?v=0.68.1";
+import { roomBeside } from "./plan.js?v=0.68.1";
+import { moveTo, worldTime, parts } from "./time.js?v=0.68.1";
+import * as opening from "./opening.js?v=0.68.1";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.68.1";
+import art from "../content/art.js?v=0.68.1";
+import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems, readFigure, outsideBox, FIGURE } from "./picture.js?v=0.68.1";
+import { paintPicture, CLEAR } from "./paint.js?v=0.68.1";
+import { contrast, MIN_CONTRAST } from "./hist.js?v=0.68.1";
+import { filterProblem } from "./filters.js?v=0.68.1";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.68.1";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -463,16 +463,16 @@ function roomLengthWarnings(state, warnings) {
 }
 
 // The intro (BRIEF.md §3, §6 "How long"): the text shown once at the start, above the start room's, its `opening.intro`. It is there
-// (js/opening.js refuses a world without one, or one that names a thing), in the world's language, and near its length: about 50 words,
-// 2–4 sentences, warned past 80 like a room. The language is told by the pack's own small words (its articles, prepositions and "and"):
+// (js/opening.js refuses a world without one, or one that names a thing), in the world's language, and near its length: about 90 words,
+// two short paragraphs, warned past 150. The language is told by the pack's own small words (its articles, prepositions and "and"):
 // a text in the world's language uses at least three different ones in 50 words; one in another language, almost none. The voice
 // wordings the checker refuses (hedges) and the other text checks read it with the world's texts (worldTexts).
-const INTRO_AIM = 50, INTRO_FAR = 80, INTRO_SMALL = 3;
+const INTRO_AIM = 90, INTRO_FAR = 150, INTRO_SMALL = 3;
 function introChecks(state, pack, problems, warnings) {
   const t = state.opening?.intro;
   if (typeof t !== "string" || !t.trim()) return;
   const words = unmarked(t).split(/\s+/).filter(Boolean);
-  if (words.length > INTRO_FAR) warnings.push(`opening (intro): ${words.length} words; the intro aims at about ${INTRO_AIM} words, 2–4 sentences; ${words.length} is far past it`);
+  if (words.length > INTRO_FAR) warnings.push(`opening (intro): ${words.length} words; the intro aims at about ${INTRO_AIM} words, two short paragraphs; ${words.length} is far past it`);
   const w = pack.words, small = new Set([...(w.articles || []), ...(w.preps || []), ...(w.and || [])].map(x => String(x).toLowerCase()));
   const used = new Set((unmarked(t).toLowerCase().match(/\p{L}+/gu) ?? []).filter(x => small.has(x)));
   if (small.size && used.size < INTRO_SMALL)

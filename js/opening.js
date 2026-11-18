@@ -13,8 +13,8 @@
 //
 //   opening: { room, hints, way, intro, lines: { hintFrame } }
 
-import { DIRECTIONS } from "./space.js?v=0.68.0";
-import { waysOf, wayAt, exitTo } from "./exits.js?v=0.68.0";
+import { DIRECTIONS } from "./space.js?v=0.68.1";
+import { waysOf, wayAt, exitTo } from "./exits.js?v=0.68.1";
 
 export const IDS = ["room", "hints", "way"];                       // the parts that name a room or a thing, by id
 export const PARTS = [...IDS, "intro"];                            // and the intro, a text
@@ -66,7 +66,7 @@ export function problems(g, d) {
   // then gone with its farewell, is no more. A world still naming a thing, or writing a farewell, is refused with the reason.
   if (typeof d.intro === "string" && obj(d.intro))
     why.push(`opening.intro "${d.intro}" names a thing: the intro is now the text shown at the start of the game, above the start room's ` +
-      "(2–4 sentences: where you are, how you got here, what pulls you on); the carried intro thing is gone (BRIEF.md §3)");
+      "(about 80–100 words in two short paragraphs: who you are and how you got here, where you are, what is wrong and what pulls you on); the carried intro thing is gone (BRIEF.md §3)");
   else if (typeof d.intro !== "string" || !d.intro.trim())
     why.push("opening.intro must be the intro: the text shown at the start of the game, above the start room's (BRIEF.md §3)");
   if (d.lines && "farewell" in d.lines)
