@@ -3,10 +3,11 @@
 // and endings, other words. The pictures, sprites and music are shared (pictures.js, sprites.js, music.js): they have no words.
 // Reworked 2026-11-15 (strangeness 0): the story is now the hunt for a dealer who walks a round of the strip's rooms.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -43,7 +44,7 @@ export const bible = {
     "Nobody on the strip gives anything for nothing, and nobody forgets what they are owed: a favour is a debt with better manners.",
     "After midnight everybody goes by the name the strip gave them; the name on the papers is for daylight and for the people who knew you when you were small."
   ],
-  opening: "A blind alley behind a club, the start room, south of its backstage: a transistor radio on a crate (hints, a late-night call-in), the intro, a beer mat's message about the Minister (why you came). The fire door at the far end is painted into its frame: a crowbar that leans against the bin prises it open.",
+  opening: "A blind alley behind a club, the start room, north of its backstage: a transistor radio on a crate (hints, a late-night call-in), the intro, a beer mat's message about the Minister (why you came). The fire door at the far end is painted into its frame: a crowbar that leans against the bin prises it open.",
   music: "a nervous dorian shuffle heard through a club wall; a bass drum that misses a beat, a cheap guitar on one chord and a chimney sweep's whistle; the radio between stations",
   characters: ["Cuco, who runs the sound at El Charlie", "Pelayo, who runs its bar", "Doña Aurora, who owns and sings at La Ópera", "Marisol, who works the corner",
     "Doña Remedios, of the all-night post office", "Tomás, the chimney sweep", "Don Nicanor, of the Pensión Esperanza", "Marga, the drummer at the works",
@@ -71,17 +72,17 @@ const endingPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "club": the blind alley, the start room, south of the back room behind its fire door; the back room and the bar floor. Area "calle" (x grows east, y south):
+// Area "club": the blind alley, the start room, north of the back room behind its fire door; the back room and the bar floor. Area "calle" (x grows east, y south):
 // the Avenida with the post office east and La Ópera west, the corner south of it with the pension east and the launderette west, the
 // plaza below. Area "casa": the portal, the patio and the roof. Area "vias": the cutting and the works.
 const rooms = {
   callejon: {
-    name: "THE BLIND ALLEY", area: "club", at: [0, 1, 0],
+    name: "THE BLIND ALLEY",
     describe: [
       "Grey brick on both sides and a wall behind: the back of El Charlie, with crates, a bin and puddles that hold the pink of a neon tube. The tube has been saying half a word since the spring.",
       "The only way out is the {fire door|puerta} at the far end, painted into its frame. The bass comes through it like a pulse through a wall."
     ],
-    exits: { n: "trastienda" },
+    exits: { s: "way" },
     scenery: [
       { words: ["bin", "dustbin", "rubbish", "lid"], name: "the bin", says: "Full. It has been full since before the club had a name, and it keeps its own counsel." },
       { words: ["crates", "crate", "bottles"], name: "the crates", says: "Beer crates, empty, stacked by someone with a better memory for the stack than for the beer." },
@@ -99,12 +100,12 @@ const rooms = {
     overlayAlt: { radio: "A small transistor radio stands on a crate, its aerial out.", palanca: "A crowbar leans against the bin." }
   },
   trastienda: {
-    name: "BACKSTAGE", area: "club", at: [0, 0, 0],
+    name: "BACKSTAGE",
     describe: [
       "Backstage at El Charlie: amplifier cases, a coat rail of sequinned jackets left by a glam band nobody liked, a mirror ringed with bulbs, half of them dead. A {guitar case|funda} lies on its back on the floor, belonging to nobody who is looking.",
-      "The noise comes through the curtain to the east, all bass and no treble. The {fire door|puerta_trasera} to the alley is south, propped open on its bar."
+      "The noise comes through the curtain to the east, all bass and no treble. The {fire door|puerta_trasera} to the alley is north, propped open on its bar."
     ],
-    exits: { e: "charlie", s: "callejon" },
+    exits: { e: "way", n: "way" },
     scenery: [
       { words: ["amps", "amp", "amplifier", "amplifiers", "cases", "speakers"], name: "the amplifier cases", says: "Black boxes with the club's name stencilled on, and under the name somebody's phone number, crossed out twice." },
       { words: ["rail", "jackets", "jacket", "sequins", "coats"], name: "the coat rail", says: "Sequinned jackets in sizes for people who no longer need them. They throw the bulbs back at you in small change." },
@@ -119,12 +120,12 @@ const rooms = {
     alt: "A cluttered backstage room at night: a mirror ringed with bulbs, a rail of sequinned jackets, stacked amplifier cases, a guitar case on the floor, and a black curtain on the right leading to the bar."
   },
   charlie: {
-    name: "EL CHARLIE", area: "club", at: [1, 0, 0],
+    name: "EL CHARLIE",
     describe: [
       "El Charlie at one in the morning: a low stage, a drum kit held together with gaffer tape, black walls papered in stickers, a floor that keeps your shoes. Eighty punks, and at the back table two of them cutting lines on a mirror, in no hurry.",
       "{Cuco|cuco} runs the sound from a plank by the stage; {Pelayo|pelayo} runs the bar, a longer plank. The backstage curtain is west, the street door south."
     ],
-    exits: { w: "trastienda", s: "avenida" },
+    exits: { w: "way", s: "way" },
     scenery: [
       { words: ["stage", "kit", "drums", "drum", "tape", "gaffer"], name: "the stage", says: "Knee high and sticky. The drum kit is more tape than kit, and the drummer hits it as if it owed him money." },
       { words: ["walls", "wall", "stickers", "posters", "graffiti"], name: "the walls", says: "Stickers on stickers: bands, parties, a political party, a lost cat. The black underneath has not been seen since 1981." },
@@ -143,12 +144,12 @@ const rooms = {
     overlayAlt: { ministro: "The Minister stands by the back table in his camel coat and grey hat, a leather case in one hand." }
   },
   avenida: {
-    name: "THE AVENIDA", area: "calle", at: [0, 0, 0],
+    name: "THE AVENIDA",
     describe: [
       "The strip: one long avenue of grey shutters that open, once the night is old, into every colour that costs money. Neon runs wet on the road, and the pavement belongs to whoever is standing on it.",
       "El Charlie's black front is north, its porthole window lit. The Estafeta, the post office, is east, and La Ópera west. South the avenue bends to the corner."
     ],
-    exits: { n: "charlie", e: "estafeta", w: "opera", s: "esquina" },
+    exits: { n: "way", e: "way", w: "way", s: "way" },
     scenery: [
       { words: ["shutters", "shutter", "shopfronts", "shops", "shopfront"], name: "the shutters", says: "Half up, half down, like eyelids. Behind them someone sells something that is not on the sign." },
       { words: ["neon", "signs", "sign", "tubes", "colour", "colours"], name: "the neon", says: "Pink, cyan, a red that is rented by the month. Every tube here is somebody's rent." },
@@ -167,12 +168,12 @@ const rooms = {
     overlayAlt: { ministro: "The Minister stands in the middle of the pavement in his camel coat and grey hat, a leather case in one hand.", monedas: "Three coins lie on the pavement in front of the club's door." }
   },
   esquina: {
-    name: "THE CORNER", area: "calle", at: [0, 1, 0],
+    name: "THE CORNER",
     describe: [
       "The corner where the avenue bends, with the one street lamp that works. {Marisol|marisol} has stood under it for eleven years and speaks of it as other women speak of a lease.",
       "The Pensión Esperanza is east, the Lavandería west, the avenue north. A little plaza opens south."
     ],
-    exits: { n: "avenida", e: "pension", w: "lavanderia", s: "plaza" },
+    exits: { n: "way", e: "way", w: "way", s: "way" },
     scenery: [
       { words: ["lamp", "lamppost", "post", "light"], name: "the street lamp", says: "A pole and an orange globe. It lights a circle of pavement with a rent that Marisol pays in manners." },
       { words: ["pension", "esperanza", "sign"], name: "the Pensión Esperanza", says: "A narrow front with a green sign, ROOMS BY THE HOUR in letters that have heard everything.", leads: "e" },
@@ -190,12 +191,12 @@ const rooms = {
     alt: "A street corner at night under one orange lamp: a woman in a short coat stands by the lamp post on the left, a green-signed pensión on the right, a bright launderette window further along, and neon colour on the wet road."
   },
   estafeta: {
-    name: "THE ESTAFETA", area: "calle", at: [1, 0, 0],
+    name: "THE ESTAFETA",
     describe: [
       "A post office that never shut, because nobody told it how. Pigeonholes to the ceiling, a strip light that stutters, and a long counter where {Doña Remedios|remedios} stamps letters for people who have moved.",
       "A canvas sack sags in the corner, waiting for the night van. The avenue is west."
     ],
-    exits: { w: "avenida" },
+    exits: { w: "way" },
     scenery: [
       { words: ["sack", "bag", "canvas", "van"], name: "the mail sack", says: "Canvas, stencilled MAIL, fat with the strip's correspondence: final demands, love letters, and letters from the same hand every week to the same address, returned." },
       { words: ["pigeonholes", "pigeonhole", "holes", "letters", "mail", "post"], name: "the pigeonholes", says: "Thousands of them, every one stuffed. Nobody collects. The post is waiting for the people to get better at being addressed." },
@@ -212,12 +213,12 @@ const rooms = {
     overlayAlt: { ministro: "The Minister stands at the end of the counter in his camel coat and grey hat, waiting for his post." }
   },
   opera: {
-    name: "LA ÓPERA", area: "calle", at: [-1, 0, 0],
+    name: "LA ÓPERA",
     describe: [
       "La Ópera: red plush gone brown, gilt mirrors with the gilt gone, a tiny stage under a chandelier of seven bulbs. Doña Aurora sings on it every night, bare to the waist under a feather boa, to a room of men in good coats who have lost their theatres.",
       "{Doña Aurora|aurora} owns the room, the stage and the debts, and has a voice that has outlasted all three. The avenue is east."
     ],
-    exits: { e: "avenida" },
+    exits: { e: "way" },
     scenery: [
       { words: ["stage", "chandelier", "bulbs", "boa", "feathers"], name: "the stage", says: "A tiny stage with a chandelier of seven bulbs, three of them lit. Doña Aurora stands under it in a feather boa and nothing else, with the dignity of a woman who has seen the worst of opera and the best of the audience." },
       { words: ["plush", "curtains", "velvet", "booths", "seats"], name: "the plush", says: "Red once, brown now, with a shine on the arms where a thousand elbows have rested their opinions." },
@@ -235,12 +236,12 @@ const rooms = {
     overlayAlt: { ministro: "The Minister stands by the round table next to the stage in his camel coat and grey hat, a leather case in one hand." }
   },
   pension: {
-    name: "PENSIÓN ESPERANZA", area: "calle", at: [1, 1, 0],
+    name: "PENSIÓN ESPERANZA",
     describe: [
       "The lobby of a pensión that rents by the hour, by the night and, once, by the year. A key board, a brass bell, a runner worn to the weave on the way to the stairs.",
       "{Don Nicanor|nicanor} keeps the desk, and a ledger he calls the Book of Hours. The {stairs|escalera_pension} climb to the rooms. The corner is west."
     ],
-    exits: { w: "esquina", u: "pension_hab" },
+    exits: { w: "way", u: "way" },
     scenery: [
       { words: ["desk", "bell", "brass", "counter"], name: "the desk", says: "A varnished desk with a bell nobody rings. Everyone who comes here is expected." },
       { words: ["keys", "key", "board", "hooks"], name: "the key board", says: "Twelve hooks, ten keys. Two hooks have names pencilled under them instead of numbers." },
@@ -256,12 +257,12 @@ const rooms = {
     alt: "A narrow pensión lobby lit by one lamp: a varnished desk with a thin man behind it on the right, a board of keys on the wall, and a staircase with a worn red runner on the left going up into the dark."
   },
   pension_hab: {
-    name: "ROOM SEVEN", area: "calle", at: [1, 1, 1],
+    name: "ROOM SEVEN",
     describe: [
       "Room seven: a bed made tight, a wardrobe, a wash-stand with a cracked basin and a window onto a neon sign, so that the whole room goes pink and off pink every four seconds. It is clean, and it is somebody's.",
       "A {kohl pot|kohl} stands on the wash-stand, scraped to the bottom. On the wallpaper by the bed there is a {scrawl|pintada} in lipstick. The stairs go down."
     ],
-    exits: { d: "pension" },
+    exits: { d: "way" },
     scenery: [
       { words: ["bed", "blanket", "sheets", "pillow"], name: "the bed", says: "Made tight enough to bounce a duro. The sheets are clean, and the clean is the point." },
       { words: ["wardrobe", "clothes", "dresses", "dress", "hangers"], name: "the wardrobe", says: "A few dresses on wire hangers, each a different night. At the back, a man's jacket that nobody has had the heart to return." },
@@ -277,12 +278,12 @@ const rooms = {
     alt: "A small pensión room lit pink by a neon sign through the window: a tight-made bed with a red blanket, a wardrobe, a wash-stand with a basin and a small mirror, and lipstick writing on the wallpaper by the bed."
   },
   lavanderia: {
-    name: "THE LAVANDERÍA", area: "calle", at: [-1, 1, 0],
+    name: "THE LAVANDERÍA",
     describe: [
       "A launderette open all night, because the owner is in Valencia and nobody has told the machines. A wall of washers, a bench bolted to the floor, and a {big dryer|secadora} at the end with a slot for tokens and a window like a porthole.",
       "Something long and dark lies against the dryer's glass, behind a latch that has not clicked in a year. The corner is east."
     ],
-    exits: { e: "esquina" },
+    exits: { e: "way" },
     scenery: [
       { words: ["washers", "washer", "washing", "machines", "drums", "drum"], name: "the washers", says: "Ten white drums turning in ten small seas. Each one is full of somebody's week." },
       { words: ["bench", "seat", "bolts"], name: "the bench", says: "Bolted to the floor for reasons the launderette keeps to itself. A good place to wait, and a bad place to be asked to move." },
@@ -299,12 +300,12 @@ const rooms = {
     overlayAlt: { cepillo: "A chimney sweep's long black brush lies on the open door of the dryer." }
   },
   plaza: {
-    name: "PLAZA DEL CARBÓN", area: "calle", at: [0, 2, 0],
+    name: "PLAZA DEL CARBÓN",
     describe: [
       "A square with a dry fountain and one sodium lamp, orange in a city that keeps its colour for after dark. Coal was sold here once. The name outlived the coal, as names do.",
       "Tenements ring it, each window a different shade of lit, and now and then a rat crosses the cobbles, from the drain to a doorway. The corner is north, the portal of the casa tomada south, the cutting east."
     ],
-    exits: { n: "esquina", s: "casa", e: "terraplen" },
+    exits: { n: "way", s: "way", e: "way" },
     scenery: [
       { words: ["fountain", "basin", "dry", "fish"], name: "the fountain", says: "A stone basin with a stone fish for a spout, dry since before the sailors left. Someone has filled it with flowerpots and bottle tops." },
       { words: ["lamp", "sodium", "lamppost"], name: "the sodium lamp", says: "Orange. The only light in Prosperidad that is the same colour all day, which is why nobody trusts it." },
@@ -322,12 +323,12 @@ const rooms = {
     alt: "A small square at night: a dry stone fountain with flowerpots in it in the middle, one orange sodium lamp on the right, and tall tenements all round with windows lit in green, red and blue.",
   },
   casa: {
-    name: "THE CASA TOMADA", area: "casa", at: [0, 0, 0],
+    name: "THE CASA TOMADA",
     describe: [
       "The portal of the casa tomada, looking south: a wall of letterboxes, every one stuffed, and a bicycle chained to a radiator that gave up on the building in 1979. A candle burns on the first stair, paid for by a rota.",
       "The hall runs on to the patio and its light. The plaza is behind you, north."
     ],
-    exits: { n: "plaza", s: "patio" },
+    exits: { n: "way", s: "way" },
     scenery: [
       { words: ["letterboxes", "letterbox", "boxes", "mail", "post"], name: "the letterboxes", says: "Forty boxes with names in felt-tip, every one stuffed with leaflets, fines and catalogues nobody will open. One has \"Maza, 3rd\" on it, crossed out." },
       { words: ["bicycle", "bike", "radiator", "chain"], name: "the bicycle", says: "Chained to a radiator that stopped heating the building in 1979. The bicycle has a flat tyre and a very good lock, which is the usual way round in this city." },
@@ -344,12 +345,12 @@ const rooms = {
     alt: "The hall of an occupied house at night, looking south: a wall of stuffed letterboxes on the left, a bicycle chained to a radiator on the right, a candle on the first stair, and at the far end a bright square of the patio."
   },
   patio: {
-    name: "THE PATIO", area: "casa", at: [0, 1, 0],
+    name: "THE PATIO",
     describe: [
       "A courtyard open to the sky, six floors of washing lines and candle-lit windows. Someone has painted the walls the colour of a sky they cannot see, and the rain has taken most of it back.",
       "An iron {ladder|escalera_patio} climbs the north wall to the roof. The hall is back north."
     ],
-    exits: { n: "casa", u: "azotea" },
+    exits: { n: "way", u: "way" },
     scenery: [
       { words: ["washing", "lines", "line", "sheets", "clothes"], name: "the washing", says: "Sheets, shirts and one enormous pair of trousers, hung out in the hope of a sun." },
       { words: ["windows", "window", "candles", "candle", "floors"], name: "the windows", says: "Candles in the windows, six floors of them. The building has no power and a great deal of light." },
@@ -366,12 +367,12 @@ const rooms = {
     alt: "A tall courtyard at night seen from its floor: six storeys of grey wall with candle-lit windows and washing lines, a patch of dark sky at the top, and an iron ladder going up the right-hand wall."
   },
   azotea: {
-    name: "THE ROOF", area: "casa", at: [0, 1, 1],
+    name: "THE ROOF",
     describe: [
       "The roof of the casa tomada: tar, aerials and a row of chimney pots standing in the dark like a congregation. The whole city lies below, grey by day and wet colour now.",
       "{Tomás|tomas} sits on the ridge in the dark, black from head to foot. The only clean things about him are the whites of his eyes. The ladder goes down."
     ],
-    exits: { d: "patio" },
+    exits: { d: "way" },
     scenery: [
       { words: ["pots", "pot", "chimneys", "chimney", "row", "congregation"], name: "the chimney pots", says: "Eleven pots, brick and clay, each with a cap of soot. Only the twelfth, far off at the works, still draws." },
       { words: ["aerials", "aerial", "antennas", "antenna", "wires"], name: "the aerials", says: "A forest of wire coat-hangers and brave ideas, all pointing at a television that moved away." },
@@ -388,12 +389,12 @@ const rooms = {
     alt: "A flat roof at night under a low moon: a row of chimney pots like dark figures on the left, a sweep in black with a tall hat sitting against a pot on the left third, a skyline of neon colour below on the right, and aerials against the sky."
   },
   terraplen: {
-    name: "THE CUTTING", area: "vias", at: [0, 0, 0],
+    name: "THE CUTTING",
     describe: [
       "A railway cutting under a low moon: grey ballast, two rusting rails and a wagon on a siding with its slide painted shut by slogans nobody has read. The line has not carried a train in ten years.",
       "East, the rails run on to the works and its great chimney. The plaza is west."
     ],
-    exits: { w: "plaza", e: "fabrica" },
+    exits: { w: "way", e: "way" },
     scenery: [
       { words: ["rails", "rail", "line", "tracks", "track", "sleepers", "ballast"], name: "the rails", says: "Two rusted lines to the horizon, and the horizon is a factory. Nothing has run on them in ten years." },
       { words: ["wagon", "slide", "slogans", "siding"], name: "the wagon", says: "A goods wagon with its slide painted over in slogans: WAGES, BREAD, NOT THIS. Under them, in older paint, PROSPERIDAD S.A." },
@@ -410,12 +411,12 @@ const rooms = {
     alt: "A railway cutting at night under a low moon: two rusted rails running east to a black factory hall on the right third, with one very tall chimney against the sky, and a goods wagon on a siding on the left."
   },
   fabrica: {
-    name: "THE WORKS", area: "vias", at: [1, 0, 0],
+    name: "THE WORKS",
     describe: [
       "The old works of Prosperidad S.A., which printed catalogues until the money ran out. A furnace still glows at one end of the hall, fed with pallets by whoever sleeps here, and the great chimney stands in the middle of the floor, black from foot to roof, the flue the building was built round.",
       "{Marga|marga} sits at her drums by the furnace. The way back is west, along the line."
     ],
-    exits: { w: "terraplen" },
+    exits: { w: "way" },
     scenery: [
       { words: ["furnace", "fire", "embers", "glow", "grate", "pallets"], name: "the furnace", says: "A brick mouth with one red eye, fed with pallets. It is the only heating the band has, and the band is in the oven's debt." },
       { words: ["ash", "floor", "ashes", "soot", "cinders"], name: "the ash", says: "Warm, grey, and deep enough to take a shoe. Under it, a floor of old catalogue pages, burnt in sheets." },
@@ -441,7 +442,7 @@ const objects = {
     words: { nouns: ["radio", "transistor"], adj: ["transistor", "little", "old", "small"] }, ...item("radio"),
     here: "A {transistor radio|radio} stands on a crate, tuned to a late-night call-in.",
     examine: "A little transistor radio held together with sticking plaster. It is tuned to a call-in show where strangers phone in at night to give each other advice, and some of it is good." },
-  puerta: { at: "callejon", material: "metal", name: "Fire door", note: "Painted shut.", door: "n", locked: true,
+  puerta: { at: "callejon", material: "metal", name: "Fire door", note: "Painted shut.", door: "s", locked: true,
     lock: { key: "palanca",
       says: "The fire door is painted into its frame. There is a seam along the hinge side, wide enough for the lip of something flat and strong.",
       opens: "You work the crowbar's lip into the seam and lean. The paint lets go like ice, the fire door swings in on its bar, and the bass comes out to meet you.",
@@ -456,7 +457,7 @@ const objects = {
     examine: "A rusty crowbar, the lip of its claw clogged with paint from other doors. Heavy enough to be an argument." },
 
   // Backstage
-  puerta_trasera: { at: "trastienda", material: "metal", name: "Back door", note: "Out to the alley.", door: "s",
+  puerta_trasera: { at: "trastienda", material: "metal", name: "Back door", note: "Out to the alley.", door: "n",
     words: { nouns: ["door"], adj: ["back", "fire", "steel", "metal", "grey"] },
     examine: "The fire door from the inside: a push bar, propped open, and the alley's pink puddles beyond it." },
   funda: { at: "trastienda", container: true, open: false, material: "wood", name: "Guitar case", note: "Rattles when tipped.",
@@ -674,8 +675,8 @@ const objects = {
 // ---- The puzzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the radio's first hints are about it.
-  way_out: { where: "callejon", needs: [], solve: ["{take} crowbar", "unlock door with crowbar", "north"], reaches: "trastienda", clues: ["puerta", "palanca"],
-    hints: ["The fire door is painted into its frame, with a seam along the hinge side, and something heavy leans against the bin.", "Take the crowbar, prise the fire door open with it, and go north."] },
+  way_out: { where: "callejon", needs: [], solve: ["{take} crowbar", "unlock door with crowbar", "south"], reaches: "trastienda", clues: ["puerta", "palanca"],
+    hints: ["The fire door is painted into its frame, with a seam along the hinge side, and something heavy leans against the bin.", "Take the crowbar, prise the fire door open with it, and go south."] },
   take_strings: { where: "trastienda", needs: [], solve: ["open case", "{take} strings"], gives: ["cuerdas"], clues: ["funda", "pelayo"],
     hints: ["The guitar case backstage rattles when it is tipped, and a band is short of something.", "Open the guitar case and take the bass strings."] },
   strings_for_tokens: { where: "fabrica", needs: ["cuerdas"], solve: ["give strings to marga"], gives: ["fichas"], clues: ["marga", "pelayo"],
@@ -753,8 +754,9 @@ const opening = {
 export default {
   because: "A blind alley behind a punk bar, then a grey city's strip, two bars and a launderette on a Saturday night in 1985, and a dealer who walks his round and wants a black tie.",
   opening,
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
-    "The player is the Emperor, a punk of the strip in Prosperidad, 1985; his name before that was Javier (Maza, of Calle Hierro nine, third floor); the start room is the blind alley behind El Charlie, south of backstage through the fire door.",
+    "The player is the Emperor, a punk of the strip in Prosperidad, 1985; his name before that was Javier (Maza, of Calle Hierro nine, third floor); the start room is the blind alley behind El Charlie, north of backstage through the fire door.",
     "The Minister, Don Ildefonso Peláez, is a dealer who walks his round: El Charlie, the Avenida, La Ópera, the Avenida, the Estafeta, the Avenida; he takes no money. He wants a black tie for his sister Matilde's funeral.",
     "The chain: crowbar, bass strings from the guitar case, tokens from Marga, the sweep's brush from the Lavandería dryer, soot from Tomás, the tape from Marisol, the black tie from Cuco, and the Minister's paper wrap.",
     "Two endings: the Emperor takes the wrap and the crown; Javier takes the first bus to the funeral."

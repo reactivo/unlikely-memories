@@ -2,10 +2,11 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -76,18 +77,18 @@ const visionPictures = {
 };
 
 // ---- Salas -------------------------------------------------------------------------------------------------------------
-// Zona "row" (la x crece al este, la y al sur): el tribunal al norte de la calle, The Bell al oeste y la tienda de pasteles al
-// este; el último farol al sur, con la subestación al oeste, la caseta al este y la escalera del río al sur; el puente al este
-// de la escalera. El coche, la sala de inicio, está junto al bordillo de la calle: se SALE de él a la calle (pagada la carrera) y
-// se ENTRA desde ella, así que tiene una casilla propia junto al tribunal, sin unirse a nada por norte, sur, este u oeste.
+// El plano (plan.js; la x crece al este, la y al sur): el tribunal al norte de la calle, el coche, la sala de inicio, junto al
+// bordillo, al oeste, a ras de calle, y la tienda de pasteles al este; el último farol al sur, con la subestación al oeste, la
+// caseta al este y la escalera del río al sur; el puente al este de la escalera y The Bell al oeste, junto al río. Se SALE del
+// coche a la calle (pagada la carrera, al este) y se ENTRA desde ella (al oeste).
 const rooms = {
   cab: {
-    name: "EL COCHE DE PUNTO", area: "row", at: [0, -1, 0],
+    name: "EL COCHE DE PUNTO",
     describe: [
       "Dentro de un coche de punto, detenido. El caballo se ha ido, y con él el cochero; las riendas cuelgan junto a la ventanilla como una frase que nadie terminó. Al otro lado del cristal solo hay blanco.",
       "Frente a tus rodillas, las portezuelas plegables están abiertas a la {niebla|cab_fog}, que es la única salida y se planta en ellas como un portero."
     ],
-    exits: { out: { to: "row", if: false, closed: "Pones un pie en el estribo, y la niebla te lo devuelve, con educación, como lo haría un portero. De un coche de punto no se baja nadie sin pagar la carrera." } },
+    exits: { e: { out: true, if: false, closed: "Pones un pie en el estribo, y la niebla te lo devuelve, con educación, como lo haría un portero. De un coche de punto no se baja nadie sin pagar la carrera." } },
     scenery: [
       { words: ["riendas", "rienda", "cochero", "caballo", "varas", "limoneras"], name: "las riendas", says: "Riendas de cuero, que suben por encima del techo hasta donde estaba el cochero. Siguen tibias allí donde las sujetó." },
       { words: ["ventanilla", "ventana", "cristal", "vidrio"], name: "la ventanilla", says: "Una pequeña ventanilla lateral, empañada. Al otro lado, blanco, y nada en el blanco." },
@@ -108,19 +109,18 @@ const rooms = {
     }
   },
   row: {
-    name: "LANTERN ROW", area: "row", at: [1, 0, 0],
+    name: "LANTERN ROW",
     describe: [
       "Lantern Row: una calle de tiendas entre el tribunal del forense y el río, alumbrada por gas. Con esta niebla los faroles cuelgan como naranjas envueltas en papel de seda; podría ser cualquier hora.",
-      "{El agente Pye|pye} hace su ronda, que es la calle, que es corta. Al norte, tras unas {puertas|court_doors} de roble, el tribunal. El pub The Bell está al oeste, la tienda de pasteles al este. Al sur, la calle baja al último farol y el río."
+      "{El agente Pye|pye} hace su ronda, que es la calle, que es corta. Al norte, tras unas {puertas|court_doors} de roble, el tribunal. Tu coche, al oeste; la tienda de pasteles, al este. Al sur, la calle baja al último farol y el río."
     ],
     exits: {
-      n: { to: "court", if: { "time.hour": { between: [0, 6] } }, closed: "Las puertas del tribunal están cerradas. La cartulina que las cubre dice que la investigación es a medianoche." },
-      w: { to: "bell", if: { "time.hour": { between: [11, 23] } }, closed: "The Bell está cerrado. A través de la ventana, las sillas están sobre las mesas con las patas al aire, como algo que se ha dado por vencido." },
-      e: "pie_shop", s: "last_lamp", in: "cab"
+      n: { if: { "time.hour": { between: [0, 6] } }, closed: "Las puertas del tribunal están cerradas. La cartulina que las cubre dice que la investigación es a medianoche." },
+      w: { in: true }, e: "way", s: "way"
     },
     scenery: [
       { words: ["faroles", "farol", "farolas", "farola", "gas", "naranjas", "naranja"], name: "los faroles", says: "Faroles de gas sobre postes de hierro, uno cada pocas puertas, cada uno encendido a mano. En la niebla se dan luz a sí mismos y no mucha a nadie más." },
-      { words: ["bell", "pub", "campana", "taberna"], name: "el pub The Bell", says: "La fachada baja de un pub, barniz marrón y latón, con un olor a cerveza negra que sale por la puerta.", leads: "w" },
+      { words: ["bell", "pub", "campana", "taberna"], name: "el pub The Bell", says: "Desde aquí no se ve: The Bell está junto a la escalera del río, un borrón rojo en la niebla y olor a cerveza negra en la humedad." },
       { words: ["tienda", "pasteleria", "pasteles", "pastel", "halloran"], name: "la tienda de pasteles", says: "El escaparate de la tienda de pasteles está amarillo y empañado.", leads: "e" },
       { words: ["fachadas", "fachada", "tiendas", "escaparates", "calle"], name: "las fachadas", says: "Un estanco, una cerería, una tienda que arregla paraguas y nada más. Todo cerrado, todo alumbrado por el farol de otro." },
       { words: ["niebla", "bruma", "calima"], name: "la niebla", says: "Gris amarillenta y tan espesa que se puede apoyar uno en ella. De vez en cuando pasa una palabra a la altura de la cabeza, demasiado débil para entenderla." },
@@ -137,15 +137,15 @@ const rooms = {
     // El tribunal se reúne a medianoche: vale la pena esperarla aquí siempre que no esté reunido.
     waitFor: { time: "next 00:00", says: "Esperas junto a las puertas del tribunal. La niebla viene y se pone a tu lado, y también espera.", if: [{ "time.hour": { between: [6, 24] } }] },
     sleep: "En la calle no. El agente Pye te haría circular.",
-    alt: "Una calle de fachadas de tiendas en espesa niebla gris, vista desde el centro de los adoquines: faroles de gas que se alejan como borrones naranjas, la ventana roja de The Bell a la izquierda, la amarilla de la tienda de pasteles a la derecha, las puertas oscuras del tribunal al fondo y, a la derecha, un policía con casco de pie."
+    alt: "Una calle de fachadas de tiendas en espesa niebla gris, vista desde el centro de los adoquines: faroles de gas que se alejan como borrones naranjas, un borrón rojo de ventana, lejos, a la izquierda, la amarilla de la tienda de pasteles a la derecha, las puertas oscuras del tribunal al fondo y, a la derecha, un policía con casco de pie."
   },
   bell: {
-    name: "THE BELL", area: "row", at: [0, 0, 0],
+    name: "THE BELL",
     describe: [
       "The Bell: barniz marrón, vigas bajas y un calor como el del interior del abrigo de alguien. Unos hombres de gorra cantan en la barra, cada uno un poco por detrás del anterior.",
-      "{El señor Cotter|cotter}, el tabernero, saca brillo a un vaso que nunca estará lo bastante limpio para él. En la chimenea arde un {fuego|fire}. La calle queda al este, tras la {puerta|bell_door}."
+      "{El señor Cotter|cotter}, el tabernero, saca brillo a un vaso que nunca estará lo bastante limpio para él. En la chimenea arde un {fuego|fire}. La escalera del río queda al este, tras la {puerta|bell_door}."
     ],
-    exits: { e: { to: "row", out: true } },
+    exits: { e: { out: true } },
     scenery: [
       { words: ["barra", "mostrador", "grifos", "bomba", "bombas"], name: "la barra", says: "Caoba, marcada por cuarenta años de codos. Las manillas de latón de los grifos están gastadas con la forma de unas manos." },
       { words: ["hombres", "hombre", "gorras", "gorra", "cantores", "canto", "cancion", "coro", "estribillo"], name: "los hombres de la barra", says: "Estibadores y cocheros, cantando sobre un río y una chica que no quiso. Ninguno se sabe toda la letra. Entre todos casi se la saben." },
@@ -164,12 +164,12 @@ const rooms = {
     alt: "Un pub de vigas bajas en silueta: hombres de gorra negros contra el resplandor rojo y naranja de un fuego de carbón a la izquierda, una larga barra oscura y, tras ella, el tabernero sosteniendo en alto un vaso."
   },
   pie_shop: {
-    name: "HALLORAN'S", area: "row", at: [2, 0, 0],
+    name: "HALLORAN'S",
     describe: [
       "Una tienda de pasteles tan ancha como un perchero: un mostrador, un escaparate empañado hasta la ceguera y un {horno|oven} que no se ha apagado desde los tiempos de la vieja Reina. Todo huele a masa y a grasa caliente.",
       "{La señora Halloran|halloran} está tras el mostrador con harina hasta los codos, pasando el trapo por un sitio que ya está limpio. La calle queda al oeste, tras la {puerta|pie_door}."
     ],
-    exits: { w: { to: "row", out: true } },
+    exits: { w: { out: true } },
     scenery: [
       { words: ["mostrador", "bandejas", "bandeja", "pasteles", "masa"], name: "el mostrador", says: "Bandejas de pasteles en filas, cada uno con un respiradero cortado en forma de hoja. En una de las filas falta uno." },
       { words: ["escaparate", "ventana", "vaho", "vapor", "letra", "cristal"], name: "el escaparate", says: "Empañado por dentro hasta no ver. Alguien ha escrito con un dedo una sola letra en el vaho, una A, y el vaho casi se la ha llevado de vuelta." }
@@ -180,12 +180,12 @@ const rooms = {
     alt: "Una tienda de pasteles vista desde arriba: un largo mostrador marrón con bandejas de pasteles dorados en filas, la boca encendida de un horno de hierro arriba, un escaparate empañado a lo largo del borde inferior y una mujer con gorro blanco inclinada sobre el mostrador, a la derecha."
   },
   court: {
-    name: "TRIBUNAL DEL FORENSE", area: "row", at: [1, -1, 0],
+    name: "TRIBUNAL DEL FORENSE",
     describe: [
       "Una sala barnizada con un pupitre alto, un {estrado de testigos|witness_box} y un jurado de doce sillas, ocupadas por la niebla, que escucha. Las investigaciones de la calle se celebran a medianoche, para que el difunto pueda asistir si le apetece.",
       "{El doctor Mabbott|mabbott}, el forense, espera en el pupitre con su pluma. La calle queda al sur, tras las {puertas|court_doors_in}."
     ],
-    exits: { s: { to: "row", out: true } },
+    exits: { s: { out: true } },
     scenery: [
       { words: ["pupitre", "tribuna", "sitial", "tachuelas", "cuero", "paneles"], name: "el pupitre", says: "Alto y verde, con tachuelas de latón. Lo construyeron para que los forenses miraran las cosas desde arriba, y lo hacen." },
       { words: ["sillas", "silla", "jurado", "niebla"], name: "el jurado", says: "Doce sillas en dos filas. La niebla las ha ocupado todas y está muy quieta, como se queda un jurado que ya ha decidido escuchar." }
@@ -195,15 +195,15 @@ const rooms = {
     alt: "Mirando hacia arriba desde el estrado de testigos a un alto pupitre verde de forense: un hombre delgado de negro encima con una pluma, una lámpara de pantalla verde a su lado y, a la derecha, doce sillas de jurado con niebla pálida sentada en ellas."
   },
   last_lamp: {
-    name: "EL ÚLTIMO FAROL", area: "row", at: [1, 1, 0],
+    name: "EL ÚLTIMO FAROL",
     describe: [
       "El final de la calle, donde los adoquines acaban en el muro del río. Todos los faroles están encendidos menos el último {farol|dark_lamp}. Debajo, en el bordillo, {el señor Fenn|fenn}, el farolero, con las manos en las rodillas. Murió aquí esta noche, y nadie lo ha relevado.",
       "La {niebla|fog_lamp} es aquí más espesa, y murmura. Su {caseta|hut_door} queda al este, la subestación al oeste. Unos escalones bajan al río, al sur; la calle sube al norte."
     ],
     exits: {
-      n: "row", w: "substation", s: "river_steps",
+      n: "way", w: "way", s: "way",
       // La caseta es el único edificio al que aquí significa «dentro» (la subestación se entra por su nombre): el camino al este es también el camino dentro.
-      e: { to: "hut", in: true }
+      e: { in: true }
     },
     scenery: [
       { words: ["muro", "bordillo", "adoquines", "rio"], name: "el muro del río", says: "Un muro bajo de piedra negra, y el río chapoteando contra él en algún lugar de abajo. El bordillo está gastado allí donde un solo hombre se sentó una vez." },
@@ -222,12 +222,12 @@ const rooms = {
     alt: "Una vista amplia a lo largo de un muro de río en niebla azul oscura. A la izquierda, un alto poste de hierro con el farol apagado, el cristal negro; a su pie, un hombre menudo con gorra sentado en el bordillo. A la derecha, una caseta verde de madera con su puerta. A lo lejos, calle arriba, el débil resplandor de otros faroles."
   },
   hut: {
-    name: "LA CASETA DEL FAROLERO", area: "row", at: [2, 1, 0],
+    name: "LA CASETA DEL FAROLERO",
     describe: [
       "La caseta del señor Fenn: una caja de madera del tamaño de un armario, con olor a gas y a parafina. Cuarenta años de gorras cuelgan de cuarenta años de clavos, la más vieja arriba.",
       "Su {libro de registro|logbook} está abierto sobre el estante, en la página de hoy. La puerta queda al oeste."
     ],
-    exits: { w: "last_lamp" },
+    exits: { w: "way" },
     scenery: [
       { words: ["gorras", "gorra", "clavos", "clavo"], name: "las gorras", says: "La misma gorra cuarenta veces, cada una un poco más verde que la siguiente. El clavo más nuevo está vacío." },
       { words: ["estante", "balda", "lata", "cerillas", "fosforos"], name: "el estante", says: "Una tabla sobre dos escuadras, con el libro de registro y una lata de cerillas que nadie ha necesitado en cuarenta años." },
@@ -238,12 +238,12 @@ const rooms = {
     overlayAlt: { trumpet: "Una trompetilla de latón abollada yace en el suelo." }
   },
   substation: {
-    name: "LA SUBESTACIÓN", area: "row", at: [0, 1, 0],
+    name: "LA SUBESTACIÓN",
     describe: [
       "La subestación de la Compañía Eléctrica: una sala de ladrillo con la única bombilla eléctrica de la calle y una {dínamo|dynamo} que zumba como un hombre que sabe que tiene razón.",
       "{El señor Voss|voss} está sentado bajo la bombilla, ante un escritorio, con el {libro de cuentas|ledger} abierto y un sombrero hongo que no se ha quitado desde que lo envió la Compañía. El último farol queda al este, tras la {puerta|substation_door}."
     ],
-    exits: { e: { to: "last_lamp", out: true } },
+    exits: { e: { out: true } },
     scenery: [
       { words: ["bombilla", "luz", "foco", "cable"], name: "la bombilla", says: "Una bombilla eléctrica colgada de su cable, muy blanca, muy segura de sí. Hace que el ladrillo parezca sorprendido en falta." },
       { words: ["escritorio", "mesa", "ladrillo", "ladrillos", "cables"], name: "el escritorio", says: "Un escritorio de la Compañía, ladrillo de la Compañía, cables de la Compañía que bajan al suelo, esperando al lunes." }
@@ -258,13 +258,14 @@ const rooms = {
     alt: "Una sala de ladrillo iluminada por una sola bombilla eléctrica desnuda: una gran dínamo zumbante a la izquierda y, a la derecha, un hombre con sombrero hongo ante un escritorio con un libro de cuentas abierto."
   },
   river_steps: {
-    name: "LA ESCALERA DEL RÍO", area: "row", at: [1, 2, 0],
+    name: "LA ESCALERA DEL RÍO",
     describe: [
       "Una escalera de piedra baja desde el muro del río hasta una franja de barro, y más abajo el Támesis pasa, pardo y sin prisa. Lo oyes mejor que lo ves.",
-      "Al pie, {Pip|pip}, una niña que rebusca en el fango, remueve las cosas con un palo y guarda las buenas en un cubo. El {río|river} lame el último escalón, como si quisiera el siguiente. El puente queda al este; el último farol, arriba, al norte."
+      "Al pie, {Pip|pip}, una niña que rebusca en el fango, remueve las cosas con un palo y guarda las buenas en un cubo. El {río|river} lame el último escalón, como si quisiera el siguiente. El puente queda al este, The Bell al oeste; el último farol, arriba, al norte."
     ],
-    exits: { n: "last_lamp", e: "bridge" },
+    exits: { n: "way", e: "way", w: { if: { "time.hour": { between: [11, 23] } }, closed: "The Bell está cerrado. A través de la ventana, las sillas están sobre las mesas con las patas al aire, como algo que se ha dado por vencido." } },
     scenery: [
+      { words: ["bell", "pub", "campana", "taberna"], name: "el pub The Bell", says: "La fachada baja de un pub, barniz marrón y latón, con un olor a cerveza negra que sale por la puerta.", leads: "w" },
       { words: ["escalera", "escalones", "escalon", "muro"], name: "la escalera", says: "Escalones de piedra, verdes abajo, que vuelven a subir al último farol, al norte.", leads: "n" },
       { words: ["barro", "fango", "franja", "orilla"], name: "el barro", says: "Barro negro, brillante. Las cosas se hunden en él y, si Pip anda cerca, vuelven a aparecer." }
     ],
@@ -279,12 +280,12 @@ const rooms = {
     alt: "Mirando hacia abajo desde un muro de río: una escalera de piedra baja a la izquierda hasta una franja de barro negro, una niña pequeña con un abrigo grande y un cubo sobre el barro, y el río pardo llenando el cuadro hasta una orilla lejana perdida en la niebla."
   },
   bridge: {
-    name: "EL PUENTE", area: "row", at: [2, 2, 0],
+    name: "EL PUENTE",
     describe: [
       "Sobre el puente la niebla se aclara, como si se hubiera parado a tomar aliento. El río pasa por debajo sin un ruido. En la orilla, Lantern Row es un collar corto de faroles encendidos con un hueco al final.",
       "El {parapeto|parapet} está mojado y frío bajo tus manos. La mitad lejana del puente lleva años perdida en la niebla, y nadie va a buscarla. La escalera del río queda al oeste."
     ],
-    exits: { w: "river_steps" },
+    exits: { w: "way" },
     scenery: [
       { words: ["rio", "agua", "tamesis"], name: "el río", says: "Debajo, el río, pasando bajo el puente como si tuviera una cita." },
       { words: ["faroles", "farol", "collar", "hueco", "orilla", "calle", "lantern", "row"], name: "la calle", says: "Once faroles en fila, pequeños y amarillos, y luego un hueco donde debería estar el duodécimo." },
@@ -407,7 +408,7 @@ const objects = {
 
   // Las salidas de The Bell, la tienda de pasteles, el tribunal y la subestación (marcadas `out: true`): cada una su puerta (BRIEF.md
   // §8, "Exits": cada entrada o salida es una cosa). La del coche es la niebla, su salida (al oeste, y fuera).
-  bell_door: { at: "bell", door: "e", material: "wood", name: "Puerta", note: "Sale a la calle.",
+  bell_door: { at: "bell", door: "e", material: "wood", name: "Puerta", note: "Sale a la escalera del río.",
     words: { nouns: ["puerta"], adj: ["taberna"], g: "f" },
     examine: "Una puerta pesada con un tirador de latón gastado. Cada vez que se abre, la niebla se asoma." },
   pie_door: { at: "pie_shop", door: "w", material: "glass", name: "Puerta", note: "Sale a la calle.",
@@ -526,7 +527,7 @@ const changes = {
   fare_paid: [
     { say: "Tiendes el chelín. La niebla lo coge como un buen portero coge una propina, sin que se note, y se aparta. En algún lugar por encima de ella da la hora un reloj de iglesia, y no suena muy seguro." },
     { move: "shilling", to: null },
-    { connect: "cab", dir: "out", to: "row" }
+    { connect: "cab", dir: "e", out: true }
   ],
   key_taken: [
     { set: "fenn.examine", to: "Un hombre menudo con gorra y un abrigo verdoso en las costuras, sentado muy recto en el bordillo con las manos en las rodillas. Sin el cordel, el cuello se le ve desnudo. Está muerto, y sigue de servicio." },
@@ -685,10 +686,10 @@ const rules = [
 
   // The Bell cierra a las once; el tribunal se reúne a medianoche y se levanta a las seis.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
-    do: [{ say: "El señor Cotter hace sonar la campanilla de la barra. «Hora», dice, y el canto se corta en mitad de una palabra. Te encuentras en la calle con los demás, que se van en distintas direcciones por la niebla y no salen de ella." },
-         { travel: "row" }] },
+    do: [{ say: "El señor Cotter hace sonar la campanilla de la barra. «Hora», dice, y el canto se corta en mitad de una palabra. Te encuentras en la escalera del río con los demás, que se van en distintas direcciones por la niebla y no salen de ella." },
+         { travel: "river_steps" }] },
   { id: "bell_shuts", when: "at", at: "23:00", if: [{ "player.at": { in: ["row", "last_lamp", "pie_shop", "substation", "hut", "river_steps"] } }],
-    do: [{ say: "Calle arriba suena una campanilla en The Bell, y el canto se corta en mitad de una palabra. Lantern Row se queda callada, lo bastante para oír caer una palabra." }] },
+    do: [{ say: "Junto al río suena una campanilla en The Bell, y el canto se corta en mitad de una palabra. Lantern Row se queda callada, lo bastante para oír caer una palabra." }] },
   // Lo que la imagen de la calle muestra: la ventana de The Bell se oscurece a las once y se enciende a las once de la mañana; las
   // puertas del tribunal están abiertas de medianoche a las seis.
   { id: "bell_dark", when: "at", at: "23:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:0,4@0.2" }] }] },
@@ -739,6 +740,7 @@ const opening = {
 export default {
   because: "Una calle envuelta en niebla, la noche de la investigación de un farolero, y el coche que te trajo, detenido junto a su bordillo.",
   opening,
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "El jugador empieza en un coche detenido en Lantern Row, en Londres, en una niebla espesa, un jueves a las diez y media de la noche.",
     "Albert Fenn, farolero, murió esta noche bajo el único farol que no encendió, y sigue allí sentado, muerto, hasta que lo releven.",
@@ -749,8 +751,8 @@ export default {
     { time: "day 1 22:30", weekday: "thu" },                 // el juego empieza a las diez y media
     // Verbos que este mundo necesita
     { add: "word", verb: "accuse", words: ["acusar", "acusa", "acuse", "acuso", "culpar", "culpa", "inculpar", "inculpa", "denunciar", "denuncia", "nombrar", "nombra"], absent: true, reply: "Los nombres son para la investigación: el tribunal del forense, al norte de la calle, cuando se reúne a medianoche." },
-    { add: "word", verb: "order", reply: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." },
-    { add: "word", verb: "buy", reply: "Hay porter en The Bell, al oeste de la calle, y pasteles en Halloran's, al este." },
+    { add: "word", verb: "order", reply: "Hay porter en The Bell, junto a la escalera del río, y pasteles en Halloran's, al este de la calle." },
+    { add: "word", verb: "buy", reply: "Hay porter en The Bell, junto a la escalera del río, y pasteles en Halloran's, al este de la calle." },
     { add: "word", verb: "breathe", words: ["respirar", "respira", "respire", "respiro", "inspirar", "inspira", "aspirar", "aspira", "tomar aire", "toma aire", "coger aire", "coge aire"], reply: "Respiras niebla, y ella te respira a ti. Fuera, en el puente, pasada la escalera del río, el aire es más fino." },
     { add: "word", verb: "swim", words: ["nadar", "nade", "nado", "bucear", "bucea", "chapotear", "chapotea", "vadear", "vadea", "zambullirse", "zambullete"] },
     { add: "word", verb: "pay", words: ["págale", "pagale", "pagarle", "dar propina", "da propina", "dale propina", "dale una propina", "da una propina"], object: "optional", reply: "Aquí nadie espera que le paguen." },

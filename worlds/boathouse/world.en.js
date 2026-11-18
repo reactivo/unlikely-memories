@@ -1,10 +1,11 @@
 // "The Lake Lights It Again": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -55,12 +56,12 @@ const endingPictures = {
 // east of it, the churchyard south, up the hill. Every picture faces north but the car's, which faces east, down its tunnel.
 const rooms = {
   car: {
-    name: "THE FUNICULAR", area: "shore", at: [-1, 0, 0],
+    name: "THE FUNICULAR",
     describe: [
       "A funicular car, stopped halfway down the hill in the dark of its tunnel. A lamp burns in the roof, and the brickwork drips onto the cable as it has since before there was a cable.",
       "Slatted benches line the walls, and a wet window looks onto brick. Ahead, the tunnel opens on a bright arch, half closed by an iron {grille}, and nothing else is open. A red {lever} stands by the door."
     ],
-    exits: { e: { to: "quay", if: false, closed: "The grille stands half across the arch, and the gap is the width of a bottle and no wider. By the door, the red lever waits to be asked." } },
+    exits: { e: { if: false, closed: "The grille stands half across the arch, and the gap is the width of a bottle and no wider. By the door, the red lever waits to be asked." } },
     scenery: [
       { words: ["bench", "benches", "slats", "seat", "seats"], name: "the benches", says: "Slatted wood, worn pale by people who sat very still. The last place on the bench is warm." },
       { words: ["window", "pane", "sash"], name: "the window", says: "Wet on the outside only. Beyond it, the brick goes by, though the car does not move." },
@@ -79,12 +80,12 @@ const rooms = {
     overlayAlt: { bottle: "A green bottle stands on the bench, a small light moving in it." }
   },
   quay: {
-    name: "THE QUAY", area: "shore", at: [0, 0, 0],
+    name: "THE QUAY",
     describe: [
       "The quay at the foot of the village, where the hill runs out of rope and into water. The lake lies flat to the north, against the stones, and takes its colour from whatever is above it.",
       "East stands the tarred {boathouse door|boathouse_door}, chained and padlocked. Nets hang on a rack to the west, by the funicular, and floats are stacked under the wall. A jetty runs north into the lake. Steps climb south to the village."
     ],
-    exits: { e: { to: "boathouse", in: true }, n: "jetty", s: "lane", w: "car" },
+    exits: { e: { in: true }, n: "way", s: "way", w: "way" },
     scenery: [
       { words: ["lake", "water", "waves", "stones"], name: "the lake", says: "Flat, wide and in no hurry. It keeps a little of everything it has been shown." },
       { words: ["nets", "net", "rack"], name: "the nets", says: "Brown nets hung to dry on a rack of poles. They have been dry for a long time and nobody has taken them in." },
@@ -103,12 +104,12 @@ const rooms = {
     overlayAlt: {}
   },
   boathouse: {
-    name: "THE BOATHOUSE", area: "shore", at: [1, 0, 0],
+    name: "THE BOATHOUSE",
     describe: [
       "Inside the boathouse it is brown and dry and smells of tar. The big lake doors stand open at the far end, on the water.",
       "A small {boat} rests on its slip, rowlocks empty, facing the lake. Ropes, floats and a row of hooks hang on the walls, and a {ladder|boat_ladder} climbs to the loft. The quay is west."
     ],
-    exits: { w: "quay", u: "loft" },
+    exits: { w: "way", u: "way" },
     scenery: [
       { words: ["doors", "lake doors", "lake"], name: "the lake doors", says: "Two tall tarred doors, hooked back against the walls. Through them the lake looks like a larger room that belongs to this one." },
       { words: ["slip", "slipway", "rails", "planks", "floor"], name: "the slip", says: "A slope of planks running down into the water, greased with a thin green shine." },
@@ -127,12 +128,12 @@ const rooms = {
     overlayAlt: { lantern: "A brass lantern hangs from a hook by the door." }
   },
   loft: {
-    name: "THE LOFT", area: "shore", at: [1, 0, 1],
+    name: "THE LOFT",
     describe: [
       "Under the roof the boathouse keeps what it doesn't use: sails gone to soft folds, a coil of chain, a lamp bracket with no lamp. A round window looks out over the lake.",
       "Dust lies on everything but a path from the {ladder|loft_ladder} to the window, which has been walked a great many times by somebody who stopped each time at the glass. The ladder goes down."
     ],
-    exits: { d: "boathouse" },
+    exits: { d: "way" },
     scenery: [
       { words: ["sails", "sail", "folds", "canvas"], name: "the sails", says: "Grey canvas, folded as small as sails go. They smell of a wind that stopped." },
       { words: ["chain", "coil"], name: "the chain", says: "Links as big as your wrist, rusted into one piece with the floor." },
@@ -151,12 +152,12 @@ const rooms = {
     overlayAlt: {}
   },
   jetty: {
-    name: "THE JETTY", area: "shore", at: [0, -1, 0],
+    name: "THE JETTY",
     describe: [
       "A jetty of grey planks runs north into the lake, further than it needs to. Far across the water an island sits low, with a dark lamp-post on it.",
       "A mooring {post|post} stands at the end, with a hook on it. The jetty's {reflection|street} lies upside down between the piles, and reeds stand along the shore. The quay is south."
     ],
-    exits: { s: "quay", n: { to: true, if: { "time.hour": { between: [19, 6] } }, closed: "The planks end, and the lake below them is brown and cold and has nothing to walk on. The lamps are not lit yet." } },
+    exits: { s: "way", n: { to: true, if: { "time.hour": { between: [19, 6] } }, closed: "The planks end, and the lake below them is brown and cold and has nothing to walk on. The lamps are not lit yet." } },
     scenery: [
       { words: ["lake", "water", "ripples"], name: "the lake", says: "Close to, it is brown and clear at once, so that you see the piles going down into it and the planks reflected, upside down, between." },
       { words: ["island", "lamp-post", "lamppost", "far"], name: "the island", says: "A low hump of reeds and one iron lamp-post, a mile out. The lamp on it has been dark for as long as Teodor has been late." },
@@ -175,12 +176,12 @@ const rooms = {
     overlayAlt: {}
   },
   lane: {
-    name: "THE LANE", area: "village", at: [0, 0, 0],
+    name: "THE LANE",
     describe: [
       "The lane runs down to the lake between houses that keep their shutters shut on it: slate, whitewash, a lamp on every third corner. A wedge of the lake shows at the bottom.",
       "East, the {Heron|heron} has its door open and its lamp over it. A painted {notice} is nailed to a post. North, steps go down to the quay. South, a cinder path climbs to the churchyard."
     ],
-    exits: { n: "quay", e: { to: "inn", in: true }, s: "churchyard" },
+    exits: { n: "way", e: { in: true }, s: "way" },
     scenery: [
       { words: ["houses", "house", "cottages", "shutters", "slate", "whitewash"], name: "the houses", says: "Narrow whitewashed houses with their shutters drawn at the lake side, as if the lake were a neighbour with opinions." },
       { words: ["lamps", "lamp", "posts", "post", "corner", "corners"], name: "the lamps", says: "Iron lamps on iron posts, each one with a little ladder rung welded to the side, for a lamplighter who is late." },
@@ -198,12 +199,12 @@ const rooms = {
     overlayAlt: {}
   },
   inn: {
-    name: "THE HERON", area: "village", at: [1, 0, 0],
+    name: "THE HERON",
     describe: [
       "The Heron: low beams, a fire, six tables and a smell of wet wool drying. Every chair faces the window, and the window faces the lake.",
       "Photographs of boats hang behind the bar. A tall {chair} stands by the {fire}, kept empty. A shelf over the mantel holds a candle and a mug. The lane is west."
     ],
-    exits: { w: "lane" },
+    exits: { w: "way" },
     scenery: [
       { words: ["beams", "beam", "ceiling"], name: "the beams", says: "Black oak, low enough to touch. Someone has hung a hook on every fourth beam, and nothing on any of the hooks." },
       { words: ["tables", "table", "chairs"], name: "the tables", says: "Six small tables, six chairs each, all pushed in at the same angle, towards the window." },
@@ -222,12 +223,12 @@ const rooms = {
     overlayAlt: { matches: "A box of matches on the mantel beside a stub of candle." }
   },
   churchyard: {
-    name: "THE CHURCHYARD", area: "village", at: [0, 1, 0],
+    name: "THE CHURCHYARD",
     describe: [
       "A churchyard on the last flat ground before the hill goes steep: a small stone chapel, leaning stones, and a wall low enough to see the whole lake over.",
       "A small {bell} hangs in an open cote beside the chapel, its rope tied up out of reach. Under the roofed gate, nails hold what the village wants kept dry. The lane is north, below the wall."
     ],
-    exits: { n: "lane" },
+    exits: { n: "way" },
     scenery: [
       { words: ["chapel", "church", "door", "porch"], name: "the chapel", says: "Small, stone and shut. A card in the porch says services are held whenever someone is late." },
       { words: ["stones", "stone", "graves", "gravestones", "headstones"], name: "the stones", says: "Leaning slates in the long grass. Every name has a boat cut under it instead of a date, and one slate, at the end, has a boat and no name." },
@@ -395,7 +396,7 @@ const rules = [
   // The start room's way out: the red lever rolls the grille aside (a rule that `connect`s the exit), and the picture follows.
   { id: "pull_lever", match: { verb: ["pull", "push", "use"], obj: "lever" }, if: [{ "lever.pulled": false }],
     do: [{ say: "You pull the lever. It comes over stiffly, the way a thing does that has been waiting to be asked, and somewhere under the floor a rod turns. Down at the arch the grille rolls aside on its runner, all the way, and the evening comes up the tunnel smelling of the lake." },
-      { set: "lever.pulled", to: true }, { connect: "car", dir: "e", to: "quay" },
+      { set: "lever.pulled", to: true }, { connect: "car", dir: "e" },
       { set: "grille.note", to: "Rolled aside." },
       { set: "car.describe", to: [
         "A funicular car, stopped halfway down the hill in the dark of its tunnel. A lamp burns in the roof, and the brickwork drips onto the cable as it has since before there was a cable.",
@@ -531,6 +532,7 @@ const rules = [
 // ---- The world ---------------------------------------------------------------------------------------------------------------
 export default {
   because: "A lake village at the end of the day: a funicular car, a quay, a boathouse and its loft, a jetty, a lane, an inn and a churchyard; a boatman who is late.",
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "The start room is the stopped funicular car, west of the quay; its red lever rolls the grille aside, onto the quay.",
     "Teodor the boatman rowed out at dusk to light the island's lamp and has not come back; the village keeps his hours.",

@@ -1,10 +1,11 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -55,18 +56,18 @@ const endingPictures = {
 };
 
 // ---- Rooms ------------------------------------------------------------------------------------------------------------
-// Area "galerie": the van, the start room (BRIEF.md §3), at the loading dock on the street's level (z 0, a cell of its own: no exit
-// joins it to the ground floor), its hatch a way down into the cellar (a passage: the cellar is not the cell below), left once the
-// rope has lifted it, and climbed back into from the cellar (OUT, by the hatch overhead); the cellar (z -1), the ground floor, the
-// landing and lens room (z 1), the roof (z 2).
+// The van, the start room (BRIEF.md §3), is at the loading dock south of the vestibule, on the street's level (no exit joins it to the ground
+// floor); its hatch is a way down into the cellar by a rule, once the rope has lifted it, and the cellar climbs back into it by a rule (OUT, by
+// the hatch overhead): the cellar is under the vestibule (a real down and up by the stairs), not under the van, so the hatch is a move, not a
+// step. The cellar is on the floor below, the ground floor, the landing and lens room are a floor up, and the roof two.
 const rooms = {
   cart: {
-    name: "THE PACKING VAN", area: "galerie", at: [0, 1, 0],
+    name: "THE PACKING VAN",
     describe: [
       "A packing van, backed against the Galerie Aubry's loading dock, the tarpaulin laced down on every side. Straw underfoot, crates stacked to the roof, a lantern turned low.",
       "The only way on is the {hatch} in the floor, down into the cellar, nailed down for the drive. A {rope} runs from its ring to a coil in the straw."
     ],
-    exits: { d: { to: "cellar", passage: true, if: false, closed: "Nailed down for the drive: four nails. A hatch that rattles on the cobbles is a hatch a gendarme looks at. The rope on its ring is for lifting it." } },
+    exits: { d: { to: true, if: { "rope.pulled": true }, closed: "Nailed down for the drive: four nails. A hatch that rattles on the cobbles is a hatch a gendarme looks at. The rope on its ring is for lifting it." } },
     scenery: [
       { words: ["straw"], name: "the straw", says: "Packing straw, and not clean: someone has slept in it." },
       { words: ["tarpaulin", "tarp"], name: "the tarpaulin", says: "Laced to the rail every hand's width. Nothing gets in or out that way." },
@@ -79,12 +80,12 @@ const rooms = {
     mentions: []
   },
   cellar: {
-    name: "CRATE CELLAR", area: "galerie", at: [0, 0, -1],
+    name: "CRATE CELLAR",
     describe: [
       "Brick vaults, blackened by gas and damp, and packing cases stencilled for Calais and Marseille. A watchman's {tally} is chalked by the stairs.",
       "Stairs climb to the vestibule. West is the packing room, east the boiler room. Overhead, the van's {hatch} stands open on the dock, its rope hanging down."
     ],
-    exits: { u: "vestibule", w: "packing_room", e: "boiler", out: "cart" },
+    exits: { u: "way", w: "way", e: "way" },
     scenery: [
       { words: ["cases", "case", "crates"], name: "the cases", says: "Stencilled, nailed, and not yours." },
       { words: ["stairs", "stair"], name: "the stairs", leads: "u" },
@@ -95,12 +96,12 @@ const rooms = {
     overlayAlt: {}
   },
   packing_room: {
-    name: "PACKING ROOM", area: "galerie", at: [-1, 0, -1],
+    name: "PACKING ROOM",
     describe: [
       "A bench scarred by crowbars, wood-wool in drifts, and a row of bare frames waiting to be wrapped. A {label} is tacked to the nearest.",
       "The cellar is east."
     ],
-    exits: { e: "cellar" },
+    exits: { e: "way" },
     scenery: [
       { words: ["bench", "crowbars"], name: "the bench", says: "Scarred pine. Someone has been prising lids here for forty years." },
       { words: ["wood-wool", "wool", "shavings"], name: "the wood-wool", says: "Soft, pale and everywhere." },
@@ -111,12 +112,12 @@ const rooms = {
     overlayAlt: {}
   },
   boiler: {
-    name: "BOILER ROOM", area: "galerie", at: [1, 0, -1],
+    name: "BOILER ROOM",
     describe: [
       "An iron boiler banked for the night, ticking as it cools. A coal chute climbs into the dark, its shutter chained from the street.",
       "Tins stand on a shelf. The cellar is west."
     ],
-    exits: { w: "cellar" },
+    exits: { w: "way" },
     scenery: [
       { words: ["boiler"], name: "the boiler", says: "Warm iron. It has kept the pictures dry for years and has opinions about it." },
       { words: ["chute", "shutter", "coal"], name: "the coal chute", says: "Chained from the street side. Nobody leaves by it." },
@@ -127,12 +128,12 @@ const rooms = {
     overlayAlt: { oilcan: "A tin oil can on the shelf." }
   },
   vestibule: {
-    name: "VESTIBULE", area: "galerie", at: [0, 0, 0],
+    name: "VESTIBULE",
     describe: [
       "Marble floor, a visitors' {book} open on its stand, and the street doors chained for the night.",
       "The great hall is north, the cloakroom east. Stairs go down to the cellar."
     ],
-    exits: { n: "hall", e: "cloakroom", d: "cellar" },
+    exits: { n: "way", e: "way", d: "way" },
     scenery: [
       { words: ["doors", "chain", "street"], name: "the street doors", says: "Chained on the inside, with a lock the size of a fist. The way out is not this way." },
       { words: ["marble", "floor"], name: "the marble", says: "Cold, white and cleaner than you." },
@@ -143,12 +144,12 @@ const rooms = {
     overlayAlt: {}
   },
   cloakroom: {
-    name: "CLOAKROOM", area: "galerie", at: [1, 0, 0],
+    name: "CLOAKROOM",
     describe: [
       "Pegs, a counter with a brass bell, and one coat left hanging since the last visitor. Nobody has come back for it.",
       "The vestibule is west."
     ],
-    exits: { w: "vestibule" },
+    exits: { w: "way" },
     scenery: [
       { words: ["pegs", "peg"], name: "the pegs", says: "Empty, all but one." },
       { words: ["coat", "overcoat"], name: "the coat", says: "A heavy overcoat, a size too big for the peg. It smells of brandy, and of a man who thinks nobody looks in cloakrooms." },
@@ -159,12 +160,12 @@ const rooms = {
     overlayAlt: { flask: "A silver flask on the counter." }
   },
   hall: {
-    name: "SALLE DES MARINES", area: "galerie", at: [0, -1, 0],
+    name: "SALLE DES MARINES",
     describe: [
       "Sea pictures to the ceiling: storms, harbours, a drowned bell tower. Each frame has a gas jet beneath it and a fine {wire} from its corner up to a brass bell on the cornice.",
       "The vestibule is south, an office east, the watchman's gallery west. Stairs climb to the landing."
     ],
-    exits: { s: "vestibule", e: "office", w: "west_gallery", u: "landing" },
+    exits: { s: "way", e: "way", w: "way", u: "way" },
     scenery: [
       { words: ["pictures", "frames", "picture", "storms", "harbours"], name: "the sea pictures", says: "Gilt frames, black water. Not what you came for, and every one of them listening." },
       { words: ["jets", "jet", "gas"], name: "the gas jets", says: "A row of small blue flames, one under each frame, turned low." },
@@ -175,12 +176,12 @@ const rooms = {
     overlayAlt: {}
   },
   office: {
-    name: "THE OFFICE", area: "galerie", at: [1, -1, 0],
+    name: "THE OFFICE",
     describe: [
       "A small office: a roll-top desk, a green-shaded gas bracket, and Aubry's {ledger} open at the day's page.",
       "The hall is west."
     ],
-    exits: { w: "hall" },
+    exits: { w: "way" },
     scenery: [
       { words: ["desk", "roll-top", "drawers"], name: "the desk", says: "Locked, but only in the way a desk is locked at the end of a long day." },
       { words: ["bracket", "shade"], name: "the gas bracket", says: "A green glass shade, and the smell of a very careful old man." }
@@ -190,12 +191,12 @@ const rooms = {
     overlayAlt: { matches: "A box of matches by the gas bracket." }
   },
   west_gallery: {
-    name: "THE CASTS", area: "galerie", at: [-1, -1, 0],
+    name: "THE CASTS",
     describe: [
       "Plaster casts of gods and athletes stand pale under the jets, close enough to knock a shoulder against.",
       "The hall is east."
     ],
-    exits: { e: "hall" },
+    exits: { e: "way" },
     scenery: [
       { words: ["casts", "cast", "gods", "athletes", "plaster"], name: "the casts", says: "Plaster gods with plaster noses, and a faint smell of brandy among them." },
       { words: ["chair"], name: "the chair", says: "Bentwood, and dented to a particular shape." }
@@ -205,12 +206,12 @@ const rooms = {
     overlayAlt: { lens_key: "A brass key lying on the floor." }
   },
   landing: {
-    name: "THE LANDING", area: "galerie", at: [0, -1, 1],
+    name: "THE LANDING",
     describe: [
       "A half-landing under a round window, the gas turned low. The stairs run back down.",
       "North, a heavy {door|lens_door} with a brass plate."
     ],
-    exits: { d: "hall", n: "lens_room" },
+    exits: { d: "way", n: "way" },
     scenery: [
       { words: ["stairs", "stair"], name: "the stairs", leads: "d" },
       { words: ["plate", "brass"], name: "the plate", says: "LENS WORKS OF SAINT-OUEN: PHARES. The brass has been polished by someone who loves it." },
@@ -221,12 +222,12 @@ const rooms = {
     overlayAlt: {}
   },
   lens_room: {
-    name: "SALLE DU PHARE", area: "galerie", at: [0, -2, 1],
+    name: "SALLE DU PHARE",
     describe: [
       "Under a glass dome stands the great {lens}, a beehive of glass rings taller than you, its {lamp} cold inside. Facing it hangs a {painting}: a lighthouse on black rocks, a black sea, the painted lamp dark.",
       "South is the landing. An iron ladder climbs to the dome hatch."
     ],
-    exits: { s: "landing", u: "roof" },
+    exits: { s: "way", u: "way" },
     scenery: [
       { words: ["dome", "glass"], name: "the dome", says: "Black glass in iron ribs, and the moon sitting in it." },
       { words: ["ladder", "hatch"], name: "the ladder", leads: "u" },
@@ -237,12 +238,12 @@ const rooms = {
     overlayAlt: {}
   },
   roof: {
-    name: "THE ROOF", area: "galerie", at: [0, -2, 2],
+    name: "THE ROOF",
     describe: [
       "Zinc roofs and chimney pots under a low moon, Paris going away in every direction, the river a dull blade beyond. The dome hatch is below you.",
       "A {drainpipe} runs down the back wall to the alley."
     ],
-    exits: { d: "lens_room" },
+    exits: { d: "way" },
     scenery: [
       { words: ["roofs", "zinc", "pots", "chimney", "paris", "river"], name: "the roofs", says: "Zinc and smoke, and a river that has seen better thieves." },
       { words: ["hatch", "dome"], name: "the hatch", leads: "d" }
@@ -273,7 +274,7 @@ const objects = {
   },
   // The van's hatch from below: the way back up into the start room (OUT, climbing the rope).
   van_hatch: {
-    at: "cellar", name: "Hatch", note: "Up into the van.", leads: "out",
+    at: "cellar", name: "Hatch", note: "Up into the van.",
     words: { nouns: ["hatch", "trapdoor", "rope"], adj: ["van's", "open"] },
     examine: "The van's hatch, open in the vault where the dock is let into it, a square of lantern-light with the rope hanging down through it. Enough to climb by, if the van is where you left something."
   },
@@ -378,7 +379,7 @@ const rules = [
   // The start room's way out: the rope lifts the nailed hatch (a rule that `connect`s the exit), and the picture follows.
   { id: "pull_rope", match: { verb: ["pull", "use"], obj: "rope" }, if: [{ "rope.pulled": false }],
     do: [{ say: "You take up the slack and lean back on the rope. The nails come up one at a time, each with a small complaint, and the hatch lifts on the dark and the smell of the cellar. Below, the Galerie Aubry ticks and settles, like a clock that has been told a secret." },
-      { set: "rope.pulled", to: true }, { connect: "cart", dir: "d", to: "cellar", passage: true },
+      { set: "rope.pulled", to: true },
       { set: "hatch.note", to: "Lifted." },
       { set: "hatch.examine", to: "The hatch stands up on its hinges, its nails bent. Under it is the cellar of the Galerie Aubry." },
       { set: "cart.describe", to: [
@@ -389,6 +390,10 @@ const rules = [
   { id: "pull_rope_again", match: { verb: ["pull", "use"], obj: "rope" }, do: [{ say: "The hatch is up. The rope has done its work, and knows it." }] },
   // From the cellar, the rope is climbed back up into the van (OUT, by the hatch overhead).
   { id: "climb_van_hatch", match: { verb: "climb", obj: "van_hatch" }, do: [{ travel: "cart" }] },
+  // The cellar is under the vestibule (the stairs are a real down and up), not under the van: the lifted hatch is a move by a rule
+  // (the plan, BRIEF.md §2), down from the van, and up again from the cellar (OUT, or climbing the rope).
+  { id: "hatch_down", match: { verb: "go", dir: "d" }, if: [{ "player.at": "cart" }, { "rope.pulled": true }], do: [{ travel: "cellar" }] },
+  { id: "hatch_out", match: { verb: "go", dir: "out" }, if: [{ "player.at": "cellar" }], do: [{ travel: "cart" }] },
   { id: "pull_hatch", match: { verb: "pull", obj: "hatch" }, if: [{ "rope.pulled": false }],
     do: [{ say: "Four nails hold it, and fingers will not do. Your weight on the rope will." }] },
   { id: "give_flask", match: { verb: "give", obj: "flask", obj2: "gaspard" }, if: [{ "gaspard.asleep": false }],
@@ -514,6 +519,7 @@ const opening = {
 export default {
   because: "The Galerie Aubry by night, from a packing van at its loading dock: one painting and one cold lens.",
   opening,
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "The player starts in a packing van backed against the Galerie Aubry's loading dock, Quai Voltaire, Paris, at half past eleven at night; the hatch in its floor opens down into the cellar.",
     "Every picture is wired to a bell; lifting a frame rings them all.",

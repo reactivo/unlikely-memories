@@ -3,10 +3,11 @@
 // todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
 // Reescrito el 2026-11-15 (extrañeza 0): ahora la historia es la caza de un camello que hace su ronda por las salas de la avenida.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -44,7 +45,7 @@ export const bible = {
     "En la avenida nadie da nada por nada y nadie olvida lo que le deben: un favor es una deuda con mejores modales.",
     "Pasada la medianoche cada cual va por el nombre que le puso la calle; el de los papeles es para el día y para quien te conoció de pequeño."
   ],
-  opening: "Un callejón sin salida detrás de un club, la sala del comienzo, al sur de su trastienda: una radio de transistores sobre un cajón (pistas, un programa de llamadas de madrugada), la introducción, el mensaje de un posavasos sobre el Ministro (por qué has venido). La puerta de incendios del fondo está pintada contra su marco: una palanca apoyada en el contenedor la fuerza.",
+  opening: "Un callejón sin salida detrás de un club, la sala del comienzo, al norte de su trastienda: una radio de transistores sobre un cajón (pistas, un programa de llamadas de madrugada), la introducción, el mensaje de un posavasos sobre el Ministro (por qué has venido). La puerta de incendios del fondo está pintada contra su marco: una palanca apoyada en el contenedor la fuerza.",
   music: "un chacachá dórico nervioso, oído a través de la pared de un club; un bombo que se salta un golpe, una guitarra barata sobre un solo acorde y el silbido de un deshollinador; la radio entre dos emisoras",
   characters: ["Cuco, que lleva el sonido de El Charlie", "Pelayo, que lleva su barra", "doña Aurora, dueña y cantante de La Ópera", "Marisol, que trabaja la esquina",
     "doña Remedios, de la estafeta", "Tomás, el deshollinador", "don Nicanor, de la Pensión Esperanza", "Marga, la batería de la fábrica",
@@ -72,17 +73,17 @@ const endingPictures = {
 };
 
 // ---- Salas -----------------------------------------------------------------------------------------------------------
-// Área "club": el callejón sin salida, la sala del comienzo, al sur de la trastienda tras su puerta de incendios; la trastienda y la sala de El Charlie. Área "calle" (x crece al este, y al sur):
+// Área "club": el callejón sin salida, la sala del comienzo, al norte de la trastienda tras su puerta de incendios; la trastienda y la sala de El Charlie. Área "calle" (x crece al este, y al sur):
 // la avenida con la estafeta al este y La Ópera al oeste, la esquina al sur con la pensión al este y la lavandería al oeste, y la plaza más abajo.
 // Área "casa": el portal, el patio y la azotea. Área "vias": el terraplén y la fábrica.
 const rooms = {
   callejon: {
-    name: "CALLEJÓN SIN SALIDA", area: "club", at: [0, 1, 0],
+    name: "CALLEJÓN SIN SALIDA",
     describe: [
       "Ladrillo gris a los lados y una pared al fondo: la parte de atrás de El Charlie, con cajones, un contenedor y charcos que guardan el rosa de un tubo de neón. El tubo lleva desde la primavera diciendo media palabra.",
       "La única salida es la {puerta de incendios|puerta} del fondo, pintada contra su marco. El bajo atraviesa el acero como un pulso a través de una pared."
     ],
-    exits: { n: "trastienda" },
+    exits: { s: "way" },
     scenery: [
       { words: ["contenedor", "basura", "basuras", "tapa"], name: "el contenedor", says: "Lleno. Lleva lleno desde antes de que el club tuviera nombre, y se guarda sus opiniones." },
       { words: ["cajones", "cajon", "cajón", "botellas", "cajas"], name: "los cajones", says: "Cajones de cerveza, vacíos, apilados por alguien con mejor memoria para la pila que para la cerveza." },
@@ -100,12 +101,12 @@ const rooms = {
     overlayAlt: { radio: "Una pequeña radio de transistores sobre un cajón, con la antena fuera.", palanca: "Una palanca apoyada en el contenedor." }
   },
   trastienda: {
-    name: "TRASTIENDA", area: "club", at: [0, 0, 0],
+    name: "TRASTIENDA",
     describe: [
       "La trastienda de El Charlie: cajas de amplificadores, un perchero de chaquetas de lentejuelas que dejó un grupo glam que no le gustó a nadie y un espejo rodeado de bombillas, la mitad fundidas. Una {funda de guitarra|funda} yace boca arriba en el suelo, de nadie que mire.",
-      "El ruido llega por la cortina del este, todo graves y ningún agudo. La {puerta de incendios|puerta_trasera} del callejón queda al sur, abierta sobre su barra."
+      "El ruido llega por la cortina del este, todo graves y ningún agudo. La {puerta de incendios|puerta_trasera} del callejón queda al norte, abierta sobre su barra."
     ],
-    exits: { e: "charlie", s: "callejon" },
+    exits: { e: "way", n: "way" },
     scenery: [
       { words: ["amplificadores", "amplificador", "amplis", "cajas", "altavoces"], name: "las cajas de los amplificadores", says: "Cajas negras con el nombre del club en plantilla y, debajo, el teléfono de alguien tachado dos veces." },
       { words: ["perchero", "chaquetas", "chaqueta", "lentejuelas", "abrigos"], name: "el perchero", says: "Chaquetas de lentejuelas en tallas de gente que ya no las necesita. Devuelven las bombillas en calderilla." },
@@ -120,12 +121,12 @@ const rooms = {
     alt: "Una trastienda abarrotada de noche: un espejo rodeado de bombillas, un perchero de chaquetas de lentejuelas, cajas de amplificadores apiladas, una funda de guitarra en el suelo y una cortina negra a la derecha que da al bar."
   },
   charlie: {
-    name: "EL CHARLIE", area: "club", at: [1, 0, 0],
+    name: "EL CHARLIE",
     describe: [
       "El Charlie a la una: un escenario bajo, una batería sujeta con cinta americana, paredes negras de pegatinas y un suelo que se queda con tus zapatos. Ochenta punks y, en la mesa del fondo, dos cortando rayas sobre un espejo.",
       "{Cuco|cuco} lleva el sonido desde un tablón; {Pelayo|pelayo}, la barra, otro tablón más largo. La cortina queda al oeste, la calle al sur."
     ],
-    exits: { w: "trastienda", s: "avenida" },
+    exits: { w: "way", s: "way" },
     scenery: [
       { words: ["escenario", "bateria", "batería", "bombo", "cinta", "americana"], name: "el escenario", says: "A la altura de la rodilla y pegajoso. La batería es más cinta que batería, y el batería le pega como si le debiera dinero." },
       { words: ["paredes", "pared", "pegatinas", "carteles", "pintadas"], name: "las paredes", says: "Pegatinas sobre pegatinas: grupos, fiestas, un partido, un gato perdido. El negro de debajo no se ve desde 1981." },
@@ -144,12 +145,12 @@ const rooms = {
     overlayAlt: { ministro: "El Ministro, de pie junto a la mesa del fondo con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano." }
   },
   avenida: {
-    name: "LA AVENIDA", area: "calle", at: [0, 0, 0],
+    name: "LA AVENIDA",
     describe: [
       "La avenida: una calle larga de persianas grises que, ya entrada la noche, se abren a todos los colores que cuestan dinero. El neón corre mojado por la calzada, y la acera es de quien la pisa.",
       "El frente negro de El Charlie queda al norte, con su ojo de buey encendido. La estafeta, al este, y La Ópera, al oeste. Al sur la avenida se dobla hacia la esquina."
     ],
-    exits: { n: "charlie", e: "estafeta", w: "opera", s: "esquina" },
+    exits: { n: "way", e: "way", w: "way", s: "way" },
     scenery: [
       { words: ["persianas", "persiana", "escaparates", "tiendas", "locales"], name: "las persianas", says: "Medio subidas, medio bajadas, como párpados. Detrás, alguien vende algo que no figura en el rótulo." },
       { words: ["neon", "neón", "rotulos", "rótulos", "tubos", "color", "colores"], name: "el neón", says: "Rosa, cian, un rojo que se alquila por meses. Cada tubo de aquí es el alquiler de alguien." },
@@ -168,12 +169,12 @@ const rooms = {
     overlayAlt: { ministro: "El Ministro, de pie en medio de la acera con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano.", monedas: "Tres monedas yacen en la acera, delante de la puerta del club." }
   },
   esquina: {
-    name: "LA ESQUINA", area: "calle", at: [0, 1, 0],
+    name: "LA ESQUINA",
     describe: [
       "La esquina donde se dobla la avenida, con la única farola que funciona. {Marisol|marisol} lleva once años debajo y habla de ella como otras hablan de un contrato de alquiler.",
       "La Pensión Esperanza queda al este, la Lavandería al oeste, la avenida al norte. Al sur se abre una plazuela."
     ],
-    exits: { n: "avenida", e: "pension", w: "lavanderia", s: "plaza" },
+    exits: { n: "way", e: "way", w: "way", s: "way" },
     scenery: [
       { words: ["farola", "poste", "luz", "globo"], name: "la farola", says: "Un poste y un globo naranja. Alumbra un círculo de acera cuyo alquiler Marisol paga con buenos modales." },
       { words: ["pension", "pensión", "esperanza", "cartel"], name: "la Pensión Esperanza", says: "Una fachada estrecha con un cartel verde: HABITACIONES POR HORAS, en letras que lo han oído todo.", leads: "e" },
@@ -191,12 +192,12 @@ const rooms = {
     alt: "Una esquina de noche bajo una farola naranja: una mujer con abrigo corto junto al poste a la izquierda, una pensión de cartel verde a la derecha, el escaparate iluminado de una lavandería más allá y el color del neón sobre la calzada mojada."
   },
   estafeta: {
-    name: "LA ESTAFETA", area: "calle", at: [1, 0, 0],
+    name: "LA ESTAFETA",
     describe: [
       "Una oficina de correos que no cerró nunca, porque nadie le explicó cómo. Casilleros hasta el techo, un fluorescente que tartamudea y un mostrador largo donde {doña Remedios|remedios} sella cartas de gente que se ha mudado.",
       "Un saco de lona se hunde en un rincón, esperando a la furgoneta de la noche. La avenida queda al oeste."
     ],
-    exits: { w: "avenida" },
+    exits: { w: "way" },
     scenery: [
       { words: ["saco", "lona", "furgoneta", "bolsa"], name: "el saco de correo", says: "Lona con CORREOS estampado, hinchada con la correspondencia de la avenida: reclamaciones, cartas de amor y cartas de la misma letra cada semana a la misma dirección, devueltas." },
       { words: ["casilleros", "casillero", "cartas", "correo", "huecos"], name: "los casilleros", says: "Miles, y todos llenos. Nadie recoge. El correo espera a que la gente aprenda a tener dirección." },
@@ -213,12 +214,12 @@ const rooms = {
     overlayAlt: { ministro: "El Ministro, de pie al final del mostrador con su abrigo de camello y su sombrero gris, esperando su correo." }
   },
   opera: {
-    name: "LA ÓPERA", area: "calle", at: [-1, 0, 0],
+    name: "LA ÓPERA",
     describe: [
       "La Ópera: terciopelo rojo vuelto marrón, espejos sin dorado, un escenario diminuto bajo una lámpara de siete bombillas. Doña Aurora canta en él cada noche, desnuda de cintura para arriba bajo una boa de plumas, para hombres de buen abrigo a los que se les cerraron los teatros.",
       "{Doña Aurora|aurora} es dueña de la sala, del escenario y de las deudas, y su voz las ha sobrevivido. La avenida queda al este."
     ],
-    exits: { e: "avenida" },
+    exits: { e: "way" },
     scenery: [
       { words: ["escenario", "lampara", "lámpara", "bombillas", "boa", "plumas"], name: "el escenario", says: "Un escenario diminuto con una lámpara de siete bombillas, tres encendidas. Doña Aurora está debajo con una boa de plumas y nada más, con la dignidad de quien ha visto lo peor de la ópera y lo mejor del público." },
       { words: ["terciopelo", "cortinas", "reservados", "asientos"], name: "el terciopelo", says: "Rojo en otro tiempo, marrón ahora, con un brillo en los brazos donde mil codos han apoyado sus opiniones." },
@@ -236,12 +237,12 @@ const rooms = {
     overlayAlt: { ministro: "El Ministro, de pie junto a la mesa redonda del escenario con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano." }
   },
   pension: {
-    name: "PENSIÓN ESPERANZA", area: "calle", at: [1, 1, 0],
+    name: "PENSIÓN ESPERANZA",
     describe: [
       "El vestíbulo de una pensión que alquila por horas, por noches y, una vez, por años. Un tablero de llaves, un timbre de latón, una alfombra gastada hasta la trama en el camino hacia la escalera.",
       "{Don Nicanor|nicanor} atiende el mostrador, y un libro de registro al que llama el Libro de Horas. La {escalera|escalera_pension} sube a las habitaciones. La esquina queda al oeste."
     ],
-    exits: { w: "esquina", u: "pension_hab" },
+    exits: { w: "way", u: "way" },
     scenery: [
       { words: ["mostrador", "timbre", "latón", "laton", "recepcion", "recepción"], name: "el mostrador", says: "Un mostrador barnizado con un timbre que nadie toca. A todo el que viene aquí lo esperan." },
       { words: ["llaves", "llave", "tablero", "ganchos"], name: "el tablero de llaves", says: "Doce ganchos, diez llaves. Dos ganchos tienen un nombre a lápiz debajo en vez de un número." },
@@ -257,12 +258,12 @@ const rooms = {
     alt: "El vestíbulo estrecho de una pensión con una sola lámpara: un mostrador barnizado con un hombre delgado detrás, a la derecha, un tablero de llaves en la pared y una escalera con alfombra roja gastada a la izquierda que sube a la oscuridad."
   },
   pension_hab: {
-    name: "HABITACIÓN SIETE", area: "calle", at: [1, 1, 1],
+    name: "HABITACIÓN SIETE",
     describe: [
       "La habitación siete: una cama hecha a tensión, un armario, un lavabo con la palangana rota y una ventana a un rótulo de neón, de modo que toda la habitación se pone rosa y deja de estarlo cada cuatro segundos. Está limpia, y es de alguien.",
       "Un {tarro de kohl|kohl} reposa en el lavabo, rascado hasta el fondo. En el papel de la pared, junto a la cama, hay una {pintada|pintada} de pintalabios. La escalera baja."
     ],
-    exits: { d: "pension" },
+    exits: { d: "way" },
     scenery: [
       { words: ["cama", "manta", "sabanas", "sábanas", "almohada"], name: "la cama", says: "Hecha con tanta tensión que botaría un duro. Las sábanas están limpias, y ese es el punto." },
       { words: ["armario", "ropa", "vestidos", "vestido", "perchas"], name: "el armario", says: "Unos cuantos vestidos en perchas de alambre, cada uno una noche distinta. Al fondo, una chaqueta de hombre que nadie ha tenido el valor de devolver." },
@@ -278,12 +279,12 @@ const rooms = {
     alt: "Una pequeña habitación de pensión teñida de rosa por un rótulo de neón en la ventana: una cama hecha a tensión con una manta roja, un armario, un lavabo con palangana y un espejito, y letras de pintalabios en el papel de la pared junto a la cama."
   },
   lavanderia: {
-    name: "LA LAVANDERÍA", area: "calle", at: [-1, 1, 0],
+    name: "LA LAVANDERÍA",
     describe: [
       "Una lavandería abierta toda la noche, porque el dueño está en Valencia y nadie se lo ha dicho a las máquinas. Una pared de lavadoras, un banco atornillado al suelo y, al fondo, una {secadora grande|secadora} con una ranura para fichas y un ojo de buey.",
       "Algo largo y oscuro descansa contra el cristal de la secadora, detrás de un pestillo que no suena desde hace un año. La esquina queda al este."
     ],
-    exits: { e: "esquina" },
+    exits: { e: "way" },
     scenery: [
       { words: ["lavadoras", "lavadora", "maquinas", "máquinas", "tambores", "tambor"], name: "las lavadoras", says: "Diez tambores blancos girando en diez mares pequeños. Cada uno va lleno de la semana de alguien." },
       { words: ["banco", "asiento", "tornillos"], name: "el banco", says: "Atornillado al suelo por razones que la lavandería se reserva. Buen sitio para esperar y mal sitio para que te pidan que te muevas." },
@@ -300,12 +301,12 @@ const rooms = {
     overlayAlt: { cepillo: "El cepillo largo y negro de un deshollinador, sobre la puerta abierta de la secadora." }
   },
   plaza: {
-    name: "PLAZA DEL CARBÓN", area: "calle", at: [0, 2, 0],
+    name: "PLAZA DEL CARBÓN",
     describe: [
       "Una plaza con una fuente seca y una sola farola de sodio, naranja en una ciudad que guarda el color para la noche. Aquí se vendió carbón. El nombre sobrevivió al carbón, como suelen los nombres.",
       "Las casas de vecinos la rodean, cada ventana de un tono, y de vez en cuando una rata cruza los adoquines, del desagüe a un portal. La esquina al norte, la casa tomada al sur, el terraplén al este."
     ],
-    exits: { n: "esquina", s: "casa", e: "terraplen" },
+    exits: { n: "way", s: "way", e: "way" },
     scenery: [
       { words: ["fuente", "pilon", "pilón", "seca", "pez"], name: "la fuente", says: "Un pilón de piedra con un pez de piedra de surtidor, seco desde antes de que se fueran los marineros. Alguien lo ha llenado de macetas y chapas de botella." },
       { words: ["farola", "sodio"], name: "la farola de sodio", says: "Naranja. La única luz de Prosperidad que es del mismo color todo el día, por lo que nadie se fía de ella." },
@@ -323,12 +324,12 @@ const rooms = {
     alt: "Una plaza pequeña de noche: una fuente de piedra seca con macetas dentro en el centro, una farola de sodio naranja a la derecha y casas de vecinos altas alrededor con ventanas encendidas en verde, rojo y azul."
   },
   casa: {
-    name: "LA CASA TOMADA", area: "casa", at: [0, 0, 0],
+    name: "LA CASA TOMADA",
     describe: [
       "El portal de la casa tomada, mirando al sur: una pared de buzones, todos reventados, y una bicicleta encadenada a un radiador que dejó el edificio en 1979. En el primer escalón arde una vela, pagada por turnos.",
       "El zaguán sigue hacia el patio y su luz. La plaza queda a tu espalda, al norte."
     ],
-    exits: { n: "plaza", s: "patio" },
+    exits: { n: "way", s: "way" },
     scenery: [
       { words: ["buzones", "buzon", "buzón", "correo", "cartas"], name: "los buzones", says: "Cuarenta buzones con nombres en rotulador, todos reventados de folletos, multas y catálogos que nadie abrirá. En uno pone «Maza, 3.º», tachado." },
       { words: ["bicicleta", "bici", "radiador", "cadena"], name: "la bicicleta", says: "Encadenada a un radiador que dejó de calentar el edificio en 1979. La bicicleta tiene una rueda pinchada y un candado buenísimo, que es lo normal en esta ciudad." },
@@ -345,12 +346,12 @@ const rooms = {
     alt: "El zaguán de una casa ocupada de noche, mirando al sur: una pared de buzones reventados a la izquierda, una bicicleta encadenada a un radiador a la derecha, una vela en el primer escalón y, al fondo, un cuadrado luminoso que es el patio."
   },
   patio: {
-    name: "EL PATIO", area: "casa", at: [0, 1, 0],
+    name: "EL PATIO",
     describe: [
       "Un patio abierto al cielo, seis pisos de cuerdas de tender y ventanas con velas. Alguien ha pintado las paredes del color de un cielo que no ve, y la lluvia se ha llevado casi todo.",
       "Una {escalera de hierro|escalera_patio} sube por la pared norte hasta el tejado. El zaguán queda al norte."
     ],
-    exits: { n: "casa", u: "azotea" },
+    exits: { n: "way", u: "way" },
     scenery: [
       { words: ["colada", "cuerdas", "cuerda", "sabanas", "sábanas", "ropa"], name: "la colada", says: "Sábanas, camisas y un par de pantalones enorme, tendidos con la esperanza de un sol." },
       { words: ["ventanas", "ventana", "velas", "vela", "pisos"], name: "las ventanas", says: "Velas en las ventanas, seis pisos. El edificio no tiene luz y tiene mucha claridad." },
@@ -367,12 +368,12 @@ const rooms = {
     alt: "Un patio alto de noche visto desde el suelo: seis plantas de pared gris con ventanas de velas y cuerdas de tender, un trozo de cielo oscuro arriba y una escalera de hierro subiendo por la pared de la derecha."
   },
   azotea: {
-    name: "LA AZOTEA", area: "casa", at: [0, 1, 1],
+    name: "LA AZOTEA",
     describe: [
       "El tejado de la casa tomada: alquitrán, antenas y una fila de chimeneas en la oscuridad como una congregación. Toda la ciudad se extiende abajo, gris de día y de color mojado ahora.",
       "{Tomás|tomas} está sentado en el caballete, negro de pies a cabeza. Lo único limpio que tiene son los blancos de los ojos. La escalera baja."
     ],
-    exits: { d: "patio" },
+    exits: { d: "way" },
     scenery: [
       { words: ["chimeneas", "chimenea", "tubos", "fila", "congregacion", "congregación"], name: "las chimeneas", says: "Once, de ladrillo y barro, cada una con un capuchón de hollín. Solo la duodécima, lejos, en la fábrica, tira todavía." },
       { words: ["antenas", "antena", "cables", "alambres"], name: "las antenas", says: "Un bosque de perchas de alambre y ideas valientes, todas apuntando a una televisión que se mudó." },
@@ -389,12 +390,12 @@ const rooms = {
     alt: "Una azotea plana de noche bajo una luna baja: una fila de chimeneas como figuras oscuras a la izquierda, un deshollinador de negro con sombrero de copa sentado contra una chimenea en el primer tercio izquierdo, un horizonte de neón de colores abajo a la derecha y antenas contra el cielo."
   },
   terraplen: {
-    name: "EL TERRAPLÉN", area: "vias", at: [0, 0, 0],
+    name: "EL TERRAPLÉN",
     describe: [
       "Un terraplén de ferrocarril bajo una luna baja: balasto gris, dos raíles oxidados y un vagón en una vía muerta con el portón cegado por lemas que nadie ha leído. No pasa un tren desde hace diez años.",
       "Al este, los raíles siguen hasta la fábrica y su gran chimenea. La plaza queda al oeste."
     ],
-    exits: { w: "plaza", e: "fabrica" },
+    exits: { w: "way", e: "way" },
     scenery: [
       { words: ["railes", "raíles", "rail", "carril", "carriles", "vias", "vías", "balasto", "traviesas"], name: "los raíles", says: "Dos líneas oxidadas hasta el horizonte, y el horizonte es una fábrica. Nada ha rodado sobre ellas desde hace diez años." },
       { words: ["vagon", "vagón", "porton", "portón", "lemas", "apartadero"], name: "el vagón", says: "Un vagón de mercancías con el portón cubierto de lemas: SUELDOS, PAN, ESTO NO. Debajo, en pintura más vieja: PROSPERIDAD S.A." },
@@ -411,12 +412,12 @@ const rooms = {
     alt: "Un terraplén de ferrocarril de noche bajo una luna baja: dos raíles oxidados que corren hacia el este, hacia una nave negra de fábrica en el tercio derecho con una chimenea altísima contra el cielo, y un vagón de mercancías en una vía muerta a la izquierda."
   },
   fabrica: {
-    name: "LA FÁBRICA", area: "vias", at: [1, 0, 0],
+    name: "LA FÁBRICA",
     describe: [
       "La vieja fábrica de Prosperidad S.A., que imprimía catálogos hasta que se acabó el dinero. Un horno sigue encendido al fondo de la nave, alimentado con palés por quien duerme aquí, y la gran chimenea se alza en medio del suelo, negra desde la base hasta el techo, el tiro alrededor del cual se levantó el edificio.",
       "{Marga|marga} está sentada a su batería junto al horno. El camino de vuelta queda al oeste, por la vía."
     ],
-    exits: { w: "terraplen" },
+    exits: { w: "way" },
     scenery: [
       { words: ["horno", "fuego", "brasas", "resplandor", "parrilla", "pales", "palés"], name: "el horno", says: "Una boca de ladrillo con un ojo rojo, alimentada con palés. Es la única calefacción del grupo, y el grupo está en deuda con el horno." },
       { words: ["ceniza", "cenizas", "suelo", "hollin", "hollín", "escoria"], name: "la ceniza", says: "Tibia, gris y tan honda que se traga un zapato. Debajo, un suelo de viejas páginas de catálogo, quemadas en pliegos." },
@@ -442,7 +443,7 @@ const objects = {
     words: { nouns: ["radio", "transistor", "transistores"], adj: ["transistor", "pequeña", "vieja"], g: "f" }, ...item("radio"),
     here: "Una {radio} de transistores sobre un cajón está sintonizada en un programa de llamadas de madrugada.",
     examine: "Una radio de transistores pequeña, sujeta con esparadrapo. Está puesta en un programa donde, de noche, desconocidos llaman para darse consejos unos a otros, y algunos son buenos." },
-  puerta: { at: "callejon", material: "metal", name: "Puerta de incendios", note: "Pintada contra el marco.", door: "n", locked: true,
+  puerta: { at: "callejon", material: "metal", name: "Puerta de incendios", note: "Pintada contra el marco.", door: "s", locked: true,
     lock: { key: "palanca",
       says: "La puerta de incendios está pintada contra su marco. Hay una rendija por el lado de las bisagras, lo bastante ancha para el pico de algo plano y fuerte.",
       opens: "Metes el pico de la palanca en la rendija y haces fuerza. La pintura cede como hielo, la puerta de incendios se abre hacia dentro sobre su barra y el bajo sale a recibirte.",
@@ -457,7 +458,7 @@ const objects = {
     examine: "Una palanca oxidada, con el pico atascado de pintura de otras puertas. Lo bastante pesada para ser un argumento." },
 
   // Trastienda
-  puerta_trasera: { at: "trastienda", material: "metal", name: "Puerta trasera", note: "Al callejón.", door: "s",
+  puerta_trasera: { at: "trastienda", material: "metal", name: "Puerta trasera", note: "Al callejón.", door: "n",
     words: { nouns: ["puerta"], adj: ["trasera", "incendios", "acero", "metálica", "metalica", "gris"], g: "f" },
     examine: "La puerta de incendios por dentro: una barra, abierta y calzada, y al otro lado los charcos rosas del callejón." },
   funda: { at: "trastienda", container: true, open: false, material: "wood", name: "Funda de guitarra", note: "Suena al inclinarla.",
@@ -676,8 +677,8 @@ const objects = {
 // ---- Los puzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
   // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la radio hablan de ella.
-  way_out: { where: "callejon", needs: [], solve: ["{take} palanca", "abrir puerta con palanca", "norte"], reaches: "trastienda", clues: ["puerta", "palanca"],
-    hints: ["La puerta de incendios está pintada contra su marco, con una rendija por el lado de las bisagras, y algo pesado se apoya en el contenedor.", "Coge la palanca, fuerza con ella la puerta de incendios y ve al norte."] },
+  way_out: { where: "callejon", needs: [], solve: ["{take} palanca", "abrir puerta con palanca", "sur"], reaches: "trastienda", clues: ["puerta", "palanca"],
+    hints: ["La puerta de incendios está pintada contra su marco, con una rendija por el lado de las bisagras, y algo pesado se apoya en el contenedor.", "Coge la palanca, fuerza con ella la puerta de incendios y ve al sur."] },
   take_strings: { where: "trastienda", needs: [], solve: ["abrir funda", "{take} cuerdas"], gives: ["cuerdas"], clues: ["funda", "pelayo"],
     hints: ["La funda de guitarra de la trastienda suena al inclinarla, y a un grupo le falta algo.", "Abre la funda de guitarra y coge las cuerdas de bajo."] },
   strings_for_tokens: { where: "fabrica", needs: ["cuerdas"], solve: ["dar cuerdas a marga"], gives: ["fichas"], clues: ["marga", "pelayo"],
@@ -754,8 +755,9 @@ const opening = {
 export default {
   because: "Un callejón sin salida detrás de un bar punk, luego la avenida de una ciudad gris, dos bares y una lavandería en un sábado por la noche de 1985, y un camello que hace su ronda y quiere una corbata negra.",
   opening,
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
-    "El jugador es el Emperador, un punk de la avenida en Prosperidad, 1985; antes de eso se llamaba Javier (Maza, de la calle Hierro nueve, tercero); la sala del comienzo es el callejón de detrás de El Charlie, al sur de la trastienda, tras la puerta de incendios.",
+    "El jugador es el Emperador, un punk de la avenida en Prosperidad, 1985; antes de eso se llamaba Javier (Maza, de la calle Hierro nueve, tercero); la sala del comienzo es el callejón de detrás de El Charlie, al norte de la trastienda, tras la puerta de incendios.",
     "El Ministro, don Ildefonso Peláez, es un camello que hace su ronda: El Charlie, la avenida, La Ópera, la avenida, la estafeta, la avenida; no acepta dinero. Quiere una corbata negra para el entierro de su hermana Matilde.",
     "La cadena: la palanca, las cuerdas de bajo de la funda de guitarra, las fichas de Marga, el cepillo del deshollinador de la secadora de la Lavandería, el hollín de Tomás, la cinta de Marisol, la corbata negra de Cuco y la papelina del Ministro.",
     "Dos finales: el Emperador se queda la papelina y la corona; Javier coge el primer autobús al entierro."

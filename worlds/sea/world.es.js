@@ -7,10 +7,11 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.
@@ -82,12 +83,12 @@ const endingPictures = {
 const rooms = {
   // La sala del comienzo (BRIEF.md §3): el pasillo del Ministerio, del que se sale por la puerta verde cuando llamas. La playa queda arriba.
   corridor: {
-    name: "PASILLO 7-B", area: "coast", at: [0, 0, -4],
+    name: "PASILLO 7-B",
     describe: [
       "Ministerio de la Felicidad Suficiente, planta menos cuatro. Paredes grises, linóleo gris, luz gris, como cada mañana desde hace once años. Un {altavoz|loudspeaker} murmura que estás conforme.",
       "Hoy una {puerta verde|green_door} diminuta respira bajito en la pared, con un charco y una raya de luz amarilla por debajo. El ojo del {cartel|poster} te vigila; una {cámara|camera} gira para mirar a otra parte."
     ],
-    exits: { u: { to: "beach", passage: true, if: false, closed: "La puertecita está cerrada. Respira contra tu mano, tibia, y espera. La placa de encima dice que llames." } },
+    exits: { u: { if: false, closed: "La puertecita está cerrada. Respira contra tu mano, tibia, y espera. La placa de encima dice que llames." } },
     scenery: [
       { words: ["pasillo", "pared", "paredes", "techo", "lampara", "lamparas", "luz", "luces", "linoleo", "lino", "suelo"], name: "el pasillo", says: "Linóleo gris, paredes grises, lámparas encendidas en 1987 sin pedirles opinión." },
       { words: ["placa", "letrero", "letras"], name: "la placa", says: "Grabado en letras de otro tiempo: «Llama solo si recuerdas tu nombre»." },
@@ -106,11 +107,11 @@ const rooms = {
     }
   },
   beach: {
-    name: "LA PLAYA", area: "coast", at: [0, 0, 0],
+    name: "LA PLAYA",
     describe: [
       doorStands, seaDark, sand
     ],
-    exits: { n: "pier", w: "tideline", e: { to: "cave", in: true }, s: "dunes", d: { to: "corridor", passage: true } },
+    exits: { n: "way", w: "way", e: { in: true }, s: "way", d: "way" },
     ambience: { lines: ["Una gaviota grita una vez y nadie le contesta.", "Una ola sube por la arena más que las otras, toca la puerta y se retira.", "La puerta inspira. En algún lugar muy lejano, un altavoz carraspea."],
                 if: [{ "beach_door.driftwood": { "!=": true } }] },
     alt: "Una playa de noche bajo la luna llena. Una pequeña puerta verde se alza en la arena, con luz que se escapa por sus bordes. A la izquierda, un muelle se adentra en el mar; a lo lejos, un faro apagado sobre una roca. A la derecha, rocas negras y la boca de una cueva.",
@@ -121,12 +122,12 @@ const rooms = {
     ]
   },
   tideline: {
-    name: "LA LÍNEA DE LA MAREA", area: "coast", at: [-1, 0, 0],
+    name: "LA LÍNEA DE LA MAREA",
     describe: [
       "La marea ha dejado una raya a lo largo de la arena: algas, un {guante|glove}, un {zapato|shoe} de niño, una {hoja|page} escrita a máquina que se va reblandeciendo. Todo lo que el mar devuelve, lo devuelve despacio.",
       "La playa sigue hacia el este. Al sur, las casetas de baño."
     ],
-    exits: { e: "beach", s: "huts" },
+    exits: { e: "way", s: "way" },
     alt: "Arena mojada vista desde arriba. Una línea de algas la cruza, con un guante gris, un zapato rojo pequeño y una hoja mecanografiada empapada.",
     overlayAlt: { shell: "Una caracola pálida yace cerca de la hoja." },
     scenery: [
@@ -135,13 +136,13 @@ const rooms = {
     ]
   },
   cave: {
-    name: "LA CUEVA", area: "coast", at: [1, 0, 0],
+    name: "LA CUEVA",
     describe: [
       "La cueva es baja y huele a sal y a monedas viejas. En algún lugar que no ves gotea el agua.",
       "Di cualquier cosa y la cueva te la devuelve, un momento tarde y con otra voz.",
       "Se sale por el oeste, hacia la playa."
     ],
-    exits: { w: "beach" },
+    exits: { w: "way" },
     listen: "Gotas. El mar, fuera. Y debajo de todo, muy débil, el sonido de alguien que contiene la respiración.",
     alt: "El interior de una cueva oscura, mirando hacia fuera por su boca: la luna sobre el mar. Un charco en el suelo de la cueva atrapa la luz.",
     scenery: [
@@ -151,13 +152,13 @@ const rooms = {
     ]
   },
   pier: {
-    name: "EL MUELLE", area: "coast", at: [0, -1, 0],
+    name: "EL MUELLE",
     describe: [
       "Tablones viejos, grises de sal, con huecos tan anchos que se ve el mar respirando debajo. El muelle sigue hacia el norte, en la oscuridad.",
       "Un {salvavidas|lifebuoy} cuelga de un poste. Alguien pintó en él un nombre y luego lo tapó con pintura.",
       "Al sur, la playa."
     ],
-    exits: { s: "beach", n: "pier_end" },
+    exits: { s: "way", n: "way" },
     alt: "Un muelle de madera que se aleja de ti hacia el mar nocturno, con barandas de cuerda y un salvavidas rojo y blanco en el poste más cercano.",
     scenery: [
       { words: ["tablones", "tablon", "tablas", "muelle", "huecos"], name: "los tablones" }, { words: ["mar", "agua"], name: "el mar", says: "Negro, y muy frío de mirar. Más allá tira, paciente, como algo que tiene todo el tiempo del mundo." },
@@ -165,13 +166,13 @@ const rooms = {
     ]
   },
   pier_end: {
-    name: "EL EXTREMO DEL MUELLE", area: "coast", at: [0, -2, 0],
+    name: "EL EXTREMO DEL MUELLE",
     describe: [
       "El muelle se acaba aquí, como si se hubiera arrepentido. El último poste tiene una argolla de hierro para amarrar.",
       "Al otro lado del agua negra, el {faro|lighthouse_near} se alza sobre su roca. Demasiado lejos para ir a nado. No tanto para ir a remo.",
       "El muelle vuelve hacia el sur."
     ],
-    exits: { s: "pier", n: true },
+    exits: { s: "way", n: true },
     sleep: "En el extremo del muelle no, con el mar respirando bajo los tablones.",
     alt: "El final de un muelle de noche. Al otro lado del agua, un faro blanco con una franja roja se alza sobre una roca, con la linterna apagada.",
     overlayAlt: { boat: "Una pequeña barca azul está atada al poste." },
@@ -181,12 +182,12 @@ const rooms = {
     ]
   },
   huts: {
-    name: "LAS CASETAS DE BAÑO", area: "coast", at: [-1, 1, 0],
+    name: "LAS CASETAS DE BAÑO",
     describe: [
       "Una hilera de casetas de baño mira al mar, rayadas, numeradas, cerradas hasta la próxima temporada. La pintura se ha desteñido en todas menos en una: la {caseta 7|hut}, recién pintada, como si esperaran a alguien.",
       "La línea de la marea queda al norte. Las dunas, al este."
     ],
-    exits: { n: "tideline", e: "dunes" },
+    exits: { n: "way", e: "way" },
     alt: "Una hilera de seis casetas de baño rayadas, de noche. Cinco están desteñidas y grises; una, en el centro, está recién pintada de blanco y azul, con tejado rojo y un candado en la puerta.",
     scenery: [
       { words: ["casetas", "hilera", "pintura", "rayas"], name: "las casetas" }, { words: ["arena", "playa"], name: "la arena" },
@@ -194,13 +195,13 @@ const rooms = {
     ]
   },
   dunes: {
-    name: "LAS DUNAS", area: "coast", at: [0, 1, 0],
+    name: "LAS DUNAS",
     describe: [
       "Un sendero de tablas serpentea entre las dunas. La hierba se mueve un poco, aunque no hay viento.",
       "En algún sitio suena una {radio} con una canción que terminó hace años y sigue terminando.",
       "Al norte, la playa. Al sur, las luces del paseo marítimo. Al oeste, las casetas de baño."
     ],
-    exits: { n: "beach", s: "promenade", w: "huts" },
+    exits: { n: "way", s: "way", w: "way" },
     alt: "Un camino de tablas entre dunas oscuras coronadas de barrón, hacia el débil resplandor de un pueblo.",
     scenery: [
       { words: ["dunas", "duna", "arena"], name: "las dunas" }, { words: ["hierba", "barron", "pasto"], name: "la hierba" },
@@ -208,12 +209,12 @@ const rooms = {
     ]
   },
   promenade: {
-    name: "EL PASEO MARÍTIMO", area: "coast", at: [0, 2, 0],
+    name: "EL PASEO MARÍTIMO",
     describe: [
       "Barandillas blancas y farolas encendidas que no dan luz. Todo el mundo ha entrado a merendar.",
       "Al oeste, el {hotel Miramar|hotel} tiene la puerta abierta. Al este, un tiovivo gira sin nadie encima. La plaza queda al sur; las dunas, al norte."
     ],
-    exits: { n: "dunes", s: "square", w: { to: "lobby", in: true }, e: "carousel" },
+    exits: { n: "way", s: "way", w: { in: true }, e: "way" },
     overlayAlt: { cat: "Un gato gris está sentado en el paseo, entre el hotel y las farolas." },
     alt: "Un paseo marítimo de noche: barandillas blancas delante, tres farolas encendidas, un hotel alto a la izquierda con una ventana iluminada y la puerta abierta, un tiovivo a rayas a la derecha.",
     scenery: [
@@ -223,13 +224,13 @@ const rooms = {
     ]
   },
   carousel: {
-    name: "EL TIOVIVO", area: "coast", at: [1, 2, 0],
+    name: "EL TIOVIVO",
     describe: [
       "El tiovivo gira sin nadie encima, al compás de una cajita de música tocada un poco demasiado despacio. Los caballitos suben y bajan.",
       "Uno de ellos, un {caballito gris|horse}, lleva un número pintado en la silla: 7-B.",
       "El paseo marítimo queda al oeste."
     ],
-    exits: { w: "promenade" },
+    exits: { w: "way" },
     alt: "Primer plano de un tiovivo bajo un toldo rojo y blanco rodeado de bombillas. Delante, un caballito gris con la silla roja; más allá, uno blanco y uno marrón.",
     scenery: [
       { words: ["tiovivo", "carrusel", "toldo", "bombillas", "musica", "melodia", "barra"], name: "el tiovivo" },
@@ -237,12 +238,12 @@ const rooms = {
     ]
   },
   lobby: {
-    name: "HOTEL MIRAMAR", area: "coast", at: [-1, 2, 0],
+    name: "HOTEL MIRAMAR",
     describe: [
       "Palmeras en macetones de latón y una alfombra gastada en forma de senderos. Tras el mostrador, el {tablero de llaves|keyboard} tiene un gancho vacío. Una {campanilla|bell} espera sobre el mostrador.",
       "Por las puertas dobles del oeste llega un tintineo de cubiertos. Una escalera sube. El paseo marítimo queda al este."
     ],
-    exits: { e: "promenade", w: "dining", u: "hallway" },
+    exits: { e: "way", w: "way", u: "way" },
     sleep: "En el vestíbulo no. En algún sitio de arriba hay una cama hecha para ti.",
     overlayAlt: { cat: "Un gato gris está sentado en la alfombra, delante del mostrador." },
     alt: "Un vestíbulo de hotel: un mostrador de recepción con una campanilla de latón, un tablero de llaves detrás, palmeras en macetas, puertas dobles luminosas a la izquierda y una escalera con alfombra roja a la derecha.",
@@ -253,13 +254,13 @@ const rooms = {
     ]
   },
   dining: {
-    name: "EL COMEDOR", area: "coast", at: [-2, 2, 0],
+    name: "EL COMEDOR",
     describe: [
       "Una mesa larga, un mantel blanco, los restos de un postre. Doce {comensales|guests} de etiqueta se sientan alrededor, hablando en voz baja. Llevan mucho tiempo en el postre. A nadie se le ha ocurrido levantarse.",
       "En la cabecera más cercana hay una {silla|chair} vacía y, en el plato de delante, una {tarjeta|card}.",
       "El vestíbulo queda al este."
     ],
-    exits: { e: "lobby" },
+    exits: { e: "way" },
     ambience: { lines: ["Alguien propone un brindis. Todos levantan la copa. Nadie bebe.", "Un comensal se ríe de un chiste que se contó antes de que llegaras.", "La sal vuelve a dar la vuelta a la mesa."], every: [30, 70], chance: 0.8 },
     sleep: "En la mesa no, entre doce comensales de etiqueta.",
     overlayAlt: { cat: "Un gato gris está sentado en el respaldo de la silla vacía." },
@@ -271,12 +272,12 @@ const rooms = {
     ]
   },
   hallway: {
-    name: "PRIMER PISO", area: "coast", at: [-1, 2, 1],
+    name: "PRIMER PISO",
     describe: [
       "Un pasillo de puertas numeradas. La alfombra se traga tus pasos. Se parece mucho a otro pasillo que conoces, y no se le parece en nada.",
       "La {puerta 11|door11} está entornada, con la llave todavía en la cerradura. La escalera baja."
     ],
-    exits: { d: "lobby", w: { to: "room11", in: true } },
+    exits: { d: "way", w: { in: true } },
     overlayAlt: { cat: "Un gato gris está sentado en la alfombra roja." },
     alt: "Un cálido pasillo de hotel en perspectiva, paredes marrones y alfombra roja, puertas a ambos lados. La puerta más cercana de la izquierda está entornada, con luz en el borde.",
     scenery: [
@@ -285,12 +286,12 @@ const rooms = {
     ]
   },
   room11: {
-    name: "HABITACIÓN 11", area: "coast", at: [-2, 2, 1],
+    name: "HABITACIÓN 11",
     describe: [
       "Una habitación pequeña con una {ventana|window} al mar. La cama está hecha. Sobre la silla, un {abrigo|coat} de tu talla y de tu color, aunque nunca has tenido un abrigo así.",
       "La puerta está al este."
     ],
-    exits: { e: "hallway" },
+    exits: { e: "way" },
     alt: "Una pequeña habitación de hotel de noche: una ventana al mar oscuro entre cortinas rojas, un abrigo azul sobre una silla, una cama hecha con una almohada blanca.",
     overlayAlt: { letter: "Una carta yace sobre la almohada." },
     scenery: [
@@ -300,13 +301,13 @@ const rooms = {
     ]
   },
   square: {
-    name: "LA PLAZA", area: "coast", at: [0, 3, 0],
+    name: "LA PLAZA",
     describe: [
       "Tiendas cerradas alrededor de una fuente sin agua. El {reloj|clock} del ayuntamiento marca las cinco y cuarto. Es domingo. Lleva un tiempo siendo domingo.",
       "Las palomas pasean con las manos a la espalda.",
       "Correos está al oeste. Al este, un café iluminado. La estación queda al sur; el paseo marítimo, al norte."
     ],
-    exits: { n: "promenade", w: "post_office", e: "cafe", s: "station" },
+    exits: { n: "way", w: "way", e: "way", s: "way" },
     overlayAlt: { cat: "Un gato gris está sentado en el borde de la fuente seca." },
     ambience: { lines: ["Una paloma da la vuelta entera a la fuente y se detiene donde empezó.", "El péndulo tras la esfera del reloj sigue oscilando. Las agujas no se mueven.", "Alguien, en una tienda cerrada, da la vuelta a un cartel: de «Cerrado» a «Cerrado por cierre»."] },
     alt: "Una plaza de noche: un ayuntamiento con una torre de reloj que marca las cinco y cuarto, una fuente seca, tiendas con las persianas bajadas a la izquierda, con la puerta azul de Correos, y un café iluminado a la derecha. Palomas sobre los adoquines.",
@@ -318,12 +319,12 @@ const rooms = {
     ]
   },
   post_office: {
-    name: "CORREOS", area: "coast", at: [-1, 3, 0],
+    name: "CORREOS",
     describe: [
       "Mostradores de madera, olor a cola y a lluvia. Tras la reja, el {administrador|postmaster} clasifica cartas en casillas marcadas con fechas en lugar de nombres. Las casillas se hunden más allá de donde acaba la sala.",
       "La {puerta|po_door} está al este."
     ],
-    exits: { e: { to: "square", out: true } },
+    exits: { e: { out: true } },
     sleep: "Sobre el mostrador no. El administrador tiene cartas que clasificar, y te clasificaría a ti.",
     overlayAlt: { cat: "Un gato gris está sentado en el mostrador, junto a la reja." },
     alt: "Entre los barrotes de la reja de una oficina de correos: un administrador con gorra azul y gafas bajo una lámpara verde, y casillas llenas de cartas a su espalda.",
@@ -333,12 +334,12 @@ const rooms = {
     ]
   },
   cafe: {
-    name: "EL CAFÉ", area: "coast", at: [1, 3, 0],
+    name: "EL CAFÉ",
     describe: [
       "Cuatro mesas y un {camarero|waiter}, que lleva doblando la misma servilleta desde que se tiene memoria. La servilleta se dobla, se desdobla y se dobla otra vez, un poco distinta cada vez. La cafetera suspira.",
       "La plaza queda al oeste, al otro lado de la {puerta|cafe_door}."
     ],
-    exits: { w: { to: "square", out: true } },
+    exits: { w: { out: true } },
     sleep: "En el café no. El camarero te doblaría, como la servilleta.",
     alt: "Un pequeño café cálido: una cafetera humeante sobre el mostrador, mesas redondas de mármol, un camarero con delantal blanco doblando una servilleta, una ventana a la plaza oscura.",
     overlayAlt: { coffee: "Una taza de café humea sobre la mesa." },
@@ -348,12 +349,12 @@ const rooms = {
     ]
   },
   station: {
-    name: "LA ESTACIÓN", area: "coast", at: [0, 4, 0],
+    name: "LA ESTACIÓN",
     describe: [
       "Un andén, un banco, un {tren|train} con las puertas abiertas y el motor dormido. El {horario|timetable} anuncia que todos los trenes salen a las 17.15.",
       "Las vías siguen hacia el sur, en la oscuridad, y se detienen poco más allá, como si hubieran olvidado adónde iban. La plaza queda al norte."
     ],
-    exits: { n: "square", s: true },
+    exits: { n: "way", s: true },
     ambience: { lines: ["El motor da una vuelta en su sueño.", "Un silbato suena, muy lejos, para otro tren.", "La señal del final de la vía pasa del rojo al rojo."], every: [40, 90], chance: 0.6 },
     sleep: "En el andén no. El tren podría irse sin ti, o peor, contigo.",
     alt: "Un andén de noche bajo una marquesina. Un tren verde oscuro espera a la derecha con una puerta abierta. Un banco y un tablero blanco de horarios en el andén; una señal roja, lejos, al final de la vía.",
@@ -363,12 +364,12 @@ const rooms = {
     ]
   },
   lighthouse_base: {
-    name: "LA ROCA DEL FARO", area: "lighthouse", at: [0, 0, 0],
+    name: "LA ROCA DEL FARO",
     describe: [
       "Una roca en el mar, justo lo bastante grande para un faro y una argolla de amarre. Las olas llegan de todos lados, sin prisa.",
       "El faro sube, blanco, hacia la oscuridad. Tiene la puerta abierta. Dentro, una escalera de hierro gira hacia arriba. La barca es la única manera de volver."
     ],
-    exits: { u: "lantern", s: true },
+    exits: { u: "way", s: true },
     sleep: "En la roca no. Las olas llegan de todos lados, y tarde o temprano alguna se quedaría.",
     alt: "Un alto faro blanco con franjas rojas visto desde abajo, con la linterna oscura contra las estrellas. La espuma rompe en la roca de su pie; la puerta está abierta.",
     overlayAlt: { boat: "La barca está atada a la argolla de amarre." },
@@ -378,11 +379,11 @@ const rooms = {
     ]
   },
   lantern: {
-    name: "LA LINTERNA", area: "lighthouse", at: [0, 0, 1],
+    name: "LA LINTERNA",
     describe: [
       lampCold, farDoor, down
     ],
-    exits: { d: "lighthouse_base" },
+    exits: { d: "way" },
     alt: "El interior de la linterna: una gran lente de cristal en el centro, sobre un pedestal de latón; por los marcos de las ventanas, el mar nocturno y una playa lejana y fina con una sola lucecita amarilla.",
     scenery: [
       { words: ["cristal", "cristales", "ventanas", "ventana", "vidrio"], name: "el cristal" }, { words: ["mar", "playa", "puerta", "plaza"], name: "la vista" },
@@ -704,7 +705,7 @@ const rules = [
   // `connect`a la salida); la hora del pueblo entra con el aire salado (el cambio `arrival`). Luego sigue abierta, en los dos sentidos.
   { id: "green_door_knock", match: { verb: "knock", obj: "green_door" }, if: [{ "green_door.named": false }],
     do: [{ set: "green_door.named", to: true }, { say: "Te arrodillas y llamas tres veces. La respiración cesa. Desde muy lejos, una voz pregunta: «¿Cómo te llamas?». Se lo dices, y se queda con él. La placa de latón se ablanda y gotea sobre el linóleo, y la puerta se abre hacia dentro. Es muy pequeña, y luego ya no lo es." },
-         { connect: "corridor", dir: "u", to: "beach", passage: true }, { change: "door_open" }, { change: "arrival" }] },
+         { connect: "corridor", dir: "u" }, { change: "door_open" }, { change: "arrival" }] },
   { id: "green_door_again", match: { verb: "knock", obj: "green_door" },
     do: [{ say: "Llamas. La puerta ya tiene tu nombre, y no te lo pide dos veces." }] },
   { id: "beach_door_knock", match: { verb: "knock", obj: "beach_door" },
@@ -884,6 +885,7 @@ export default {
   because: "El jugador dio su nombre en la puerta verde; el mundo de detrás está construido.",
   opening,
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, "Fields and properties"); las del motor no se declaran.
+  plan,                                   // where every room is (plan.js): exits are made from it
   properties: {
     "green_door.named": { type: "boolean", start: false },   // has llamado y le has dado tu nombre a la puerta verde: está abierta
     "beach_door.driftwood": { type: "boolean", start: false },   // la puerta verde se ha vuelto madera de deriva

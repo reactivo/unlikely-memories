@@ -2,10 +2,11 @@
 // (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings as endingPictures } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -58,6 +59,7 @@ const endingAlts = {
 
 export default {
   because: "The start room, a fenced service yard behind the block, whose one door opens on the sixth floor; then the Meridian Block: sixth-floor corridor, records, canteen, staff room, stairwell, lobby, cellar, registry; a slip to reprint, a crank for the gate, and the registry's slot, last booth or shredder.",
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "The slip comes from the Staff Room printer (once). The crank is in the Records drawer.",
     "The stair gate's lock takes the crank; it opens the stairs to the registry (up from the stairwell).",
@@ -73,12 +75,12 @@ export default {
 
     // ---- the start room: a fenced yard behind the block (the ground's level, a cell no exit joins to the lobby), its way out the one
     // door, IN, opened by the buzzer, onto the sixth-floor corridor; the corridor's OUT is the same door back ------------------------
-    { add: "room", id: "yard", name: "SERVICE YARD", area: "block", at: [0, 0, -1],
+    { add: "room", id: "yard", name: "SERVICE YARD",
       describe: [
         "A yard at the back of the Meridian Block, fenced in sheet metal taller than a person. Bins stand in the puddles, and a lift motor rusts under a tarpaulin, left out here when the lifts were given up.",
         "The only {door} is in the back wall, with a brass {buzzer} beside its frame."
       ],
-      exits: { in: { to: "corridor", if: false, closed: "The door stays shut. Beside its frame the brass buzzer waits, with a label under it." } },
+      exits: { u: { in: true, if: false, closed: "The door stays shut. Beside its frame the brass buzzer waits, with a label under it." } },
       scenery: [
         { words: ["housing", "motor", "tarpaulin"], name: "the housing", says: "A lift motor under a tarpaulin, its brass plate turned to the wall and its cables cut short. The rain got under the tarpaulin long ago, and the motor has stopped minding." },
         { words: ["bins", "bin"], name: "the bins", says: "Full of paper that was once forms, and is now mostly weather." },
@@ -112,19 +114,19 @@ export default {
       again: "You press it again. Somewhere inside, the buzzer says the same thing more quietly, as if to someone who has already heard.",
       do: [
         { say: "You press the buzzer once. Somewhere deep in the building it answers, a little late, and the door gives, then opens the rest of the way, as if it had remembered how." },
-        { connect: "yard", dir: "in", to: "corridor" }
+        { connect: "yard", dir: "u", in: true }
       ] } },
     { add: "puzzle", id: "buzz_in", where: "yard", needs: [], solve: ["push buzzer", "in"], reaches: "corridor", clues: ["door", "buzzer"],
       hints: ["The door has a buzzer beside its frame, and the label under it asks to be pressed once.", "Press the buzzer, then go in through the door."] },
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
     // ---- the Meridian Block -----------------------------------------------------------------------------------
-    { add: "room", id: "corridor", name: "SIXTH FLOOR", area: "block", at: [0, 0, 0],
+    { add: "room", id: "corridor", name: "SIXTH FLOOR",
       describe: [
         "The sixth floor of the Meridian Block: grey doors, each with a nameplate and no light under it. The clock over the stairs reads [time], and has not been right in years.",
         "A {notice board|notice_board} is pinned with one notice in three colours. The {shaft} stands open on the south wall: a lift's doorway onto a warm dark. Ways lead west, east and north."
       ],
-      exits: { w: "records", e: "canteen", n: "stairwell", out: "yard" },
+      exits: { w: "way", e: "way", n: "way", d: { out: true } },
       scenery: [
         { words: ["nameplates", "nameplate"], name: "the nameplates", says: "Names, and beside some of them a date, and beside those, a second date that is later." },
         { words: ["clock"], name: "the clock", says: "It reads [time], and is very sure of it." }
@@ -151,12 +153,12 @@ export default {
       words: { nouns: ["shaft", "lift shaft"], adj: [] },
       examine: "The doors stand open on a shaft with no car in it, only a cable going down into a dark that is warm. A sign on the frame says OUT OF ORDER. DO NOT ENTER, in the Authority's kindest type." },
 
-    { add: "room", id: "records", name: "RECORDS OFFICE", area: "block", at: [-1, 0, 0],
+    { add: "room", id: "records", name: "RECORDS OFFICE",
       describe: [
         "The Records Office, where the paper is kept, because the machines lost the rest. Ledgers climb the shelves to a ceiling stained like a map, and the one lamp on the desk works only while the Archivist is looking at it.",
         "Behind the desk, {Mrs Hale|archivist} sorts index cards into an order nobody has asked for in years. A shelf label points down at the {drawer}. Stairs go down to the cellar."
       ],
-      exits: { e: "corridor", d: "cellar" },
+      exits: { e: "way", d: "way" },
       mentions: ["hale"],
       scenery: [
         { words: ["ledgers", "shelves"], name: "the ledgers", says: "Columns of names, each with dates beside them. Most of the dates are the same." },
@@ -189,12 +191,12 @@ export default {
       examine: "A brass crank for winding a gate up by hand, the handle worn to a shine by a hand that stopped. It is heavier than it looks, and warm from the drawer.",
       sprite: sprites.crank },
 
-    { add: "room", id: "cellar", name: "CELLAR", area: "block", at: [-1, 0, -1],
+    { add: "room", id: "cellar", name: "CELLAR",
       describe: [
         "The cellar under the Records Office. The old generator sits in its own dust, and it has not run since the audit. Nobody has switched it off, either; a tag on it says so.",
         "Pipes run along the ceiling, and a single bulb is lit at the far end, for nobody. The {generator} is the size of a car, and quiet, the way a sleeping thing is quiet."
       ],
-      exits: { u: "records" },
+      exits: { u: "way" },
       scenery: [
         { words: ["tag"], name: "the tag", says: "The tag says: \"Not to be switched off.\" Under it, in a different pen: \"Not to be switched on.\" At the foot, in the smallest print: \"Suspended pending audit.\"" },
         { words: ["pipes"], name: "the pipes", says: "They are cold, and they go on a long way in both directions, which pipes should not." }
@@ -208,12 +210,12 @@ export default {
       switch_off: "Your hand is on the switch when the tag turns over in the draught: \"Not to be switched off.\" Upstairs, the Registry's lights stay on because the generator is on, not because it runs. You leave it be.",
       listen: "Nothing turns inside it. Deep in the brass a relay clicks, once, to say it is still on." },
 
-    { add: "room", id: "canteen", name: "CANTEEN", area: "block", at: [1, 0, 0],
+    { add: "room", id: "canteen", name: "CANTEEN",
       describe: [
         "The canteen of the Meridian Block, where meals were served until the kitchens were automated, and then served by the kitchens until they stopped. The tables are wiped for a lunch the hatch has not yet decided to make.",
         "An {urn} gurgles on the counter, full of hot water for nobody, and a {vending machine|vending} hums beside the door, taking coins and giving nothing back."
       ],
-      exits: { w: "corridor", e: "staff" },
+      exits: { w: "way", e: "way" },
       alt: "A steaming urn on a long counter, seen looking up from the canteen floor, and a vending machine by the door.",
       overlayAlt: { biscuit: "A biscuit sits on a saucer by the urn." },
       picture: pictures.canteen, music: roomMusic.canteen },
@@ -232,12 +234,12 @@ export default {
       examine: "A plain biscuit, a little soft, with the dent of a thumb in it that was not yours.",
       sprite: sprites.biscuit },
 
-    { add: "room", id: "staff", name: "STAFF ROOM", area: "block", at: [2, 0, 0],
+    { add: "room", id: "staff", name: "STAFF ROOM",
       describe: [
         "The Staff Room, where the Authority's notices were drafted and approved. A blind is down over the window, and a radiator ticks as though it has been asked to wait.",
         "A {printer} stands against the wall with its tray open and empty, and its light on, in case someone comes to ask for something."
       ],
-      exits: { w: "canteen" },
+      exits: { w: "way" },
       scenery: [
         { words: ["blind", "window"], name: "the blind", says: "Pulled down, and a line of grey light comes round the edge of it, as if the window had been asked to stay shut." },
         { words: ["radiator"], name: "the radiator", says: "Cold, and ticking anyway." }
@@ -253,15 +255,15 @@ export default {
       examine: "Your summons again, in the same words, in a newer typeface. Underneath, in smaller type: Presence may be confirmed in person, once.",
       sprite: sprites.slip },
 
-    { add: "room", id: "stairwell", name: "STAIRWELL", area: "block", at: [0, -1, 0],
+    { add: "room", id: "stairwell", name: "STAIRWELL",
       describe: [
         "The stairwell of the Meridian Block, concrete on every side, smelling of cold rain and of the lift that is not in it. Stairs climb past a {gate|stair_gate} towards the fourteenth floor, and go down towards the lobby.",
         "A black {cable|cable} hangs low over the flight and sparks each time the light stutters. The corridor is south, back the way you came."
       ],
       exits: {
-        s: "corridor",
-        d: "lobby",
-        u: "registry"
+        s: "way",
+        d: "way",
+        u: "way"
       },
       scenery: [
         { words: ["stairs", "steps"], name: "the stairs", leads: ["u", "d"], says: "Concrete, worn into the middle by a hundred years of people going somewhere else." },
@@ -289,12 +291,12 @@ export default {
       words: { nouns: ["cable", "wire"], adj: ["black"] },
       examine: "A black cable, thick as a wrist, hanging out of the ceiling and humming like a fridge. Every time the light stutters it sparks, and the sparks last a little longer than they should." },
 
-    { add: "room", id: "lobby", name: "LOBBY", area: "block", at: [0, -1, -1],
+    { add: "room", id: "lobby", name: "LOBBY",
       describe: [
         "The lobby of the Meridian Block, with a porter's counter nobody has manned since the porter was automated, a {bell} on it, and a {bench} bolted to the floor. The front is glass, from the floor to the high ceiling.",
         "Beyond the {glass|glass_front}, the street is lit by lamps that all flicker together, and a fog takes the far buildings a floor at a time. A sheet of paper is stuck to the glass: \"Under review.\""
       ],
-      exits: { u: "stairwell" },
+      exits: { u: "way" },
       scenery: [
         { words: ["counter", "porter's counter"], name: "the counter", says: "Empty, with a bell on it that nobody has rung for a while." },
         { words: ["street", "lamps", "fog", "city", "bus"], name: "the street", says: "Lamps, fog, and a bus stop with three people at it, all facing this way." },
@@ -326,12 +328,12 @@ export default {
       examine: "Bolted down, so that it can be sat on and not taken away.",
       enter: "You sit. The bench was bolted down for this, and holds you the way it was told to: firmly, and without asking where you are going." },
 
-    { add: "room", id: "registry", name: "REGISTRY", area: "block", at: [0, -1, 1],
+    { add: "room", id: "registry", name: "REGISTRY",
       describe: [
         "The Registry, fourteenth floor, where residents are confirmed. It is bright and quiet, the way a waiting room is when it expects you by name. Frosted {booths|booth} run down one wall, each with a green light on, except the last.",
         "A {terminal} shows PLEASE REMAIN PRESENT in a patient font. Beside it a {slot} is the width of a summons, and a {shredder} hums under a placard: \"Repeat presence is destroyed.\" The stairs go down."
       ],
-      exits: { d: "stairwell" },
+      exits: { d: "way" },
       scenery: [
         { words: ["placard"], name: "the placard", says: "\"Repeat presence is destroyed.\" It has been there since before anyone can remember a repeat." },
         { words: ["stairs", "steps"], name: "the stairs", leads: "d", says: "The stairs you came up, going back down to the stairwell." }

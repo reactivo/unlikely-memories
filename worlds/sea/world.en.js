@@ -5,10 +5,11 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.
@@ -79,12 +80,12 @@ const endingPictures = {
 const rooms = {
   // The start room (BRIEF.md §3): the Ministry corridor, left through the green door once you knock on it. The beach is up.
   corridor: {
-    name: "CORRIDOR 7-B", area: "coast", at: [0, 0, -4],
+    name: "CORRIDOR 7-B",
     describe: [
       "Ministry of Adequate Happiness, level minus four. Grey walls, grey lino, grey light, as every morning for eleven years. A {loudspeaker} murmurs that you are content.",
       "Today a small {green door|green_door} breathes low in the wall, with water and a line of yellow light under it. The eye on the {poster} watches you; a {camera} turns to look somewhere else."
     ],
-    exits: { u: { to: "beach", passage: true, if: false, closed: "The little door is shut. It breathes against your palm, warm, and waits. The plaque above it says to knock." } },
+    exits: { u: { if: false, closed: "The little door is shut. It breathes against your palm, warm, and waits. The plaque above it says to knock." } },
     scenery: [
       { words: ["wall", "walls", "ceiling", "lamp", "lamps", "light", "lino", "linoleum", "floor", "corridor", "hallway"], name: "the corridor", says: "Grey lino, grey walls, lamps that were switched on in 1987 and never asked." },
       { words: ["plaque"], name: "the plaque", says: "Engraved in old-fashioned letters: \"Knock only if you remember your name.\"" },
@@ -103,11 +104,11 @@ const rooms = {
     }
   },
   beach: {
-    name: "THE BEACH", area: "coast", at: [0, 0, 0],
+    name: "THE BEACH",
     describe: [
       doorStands, seaDark, sand
     ],
-    exits: { n: "pier", w: "tideline", e: { to: "cave", in: true }, s: "dunes", d: { to: "corridor", passage: true } },
+    exits: { n: "way", w: "way", e: { in: true }, s: "way", d: "way" },
     ambience: { lines: ["A gull calls once and is not answered.", "A wave comes further up the sand than the others, touches the door, and goes back.", "The door breathes in. Somewhere very far off, a loudspeaker clears its throat."],
                 if: [{ "beach_door.driftwood": { "!=": true } }] },
     alt: "A beach at night under a full moon. A small green door stands upright in the sand, light leaking from its edges. A pier runs out to sea on the left; far off, a dark lighthouse on a rock. Black rocks and a cave mouth on the right.",
@@ -118,12 +119,12 @@ const rooms = {
     ]
   },
   tideline: {
-    name: "THE TIDE LINE", area: "coast", at: [-1, 0, 0],
+    name: "THE TIDE LINE",
     describe: [
       "The tide has left a line along the sand: weed, a {glove}, a child's {shoe}, a typed {page} going soft. Everything the sea gives back, it gives back slowly.",
       "The beach runs east. To the south, the bathing huts."
     ],
-    exits: { e: "beach", s: "huts" },
+    exits: { e: "way", s: "way" },
     alt: "Wet sand seen from above. A line of seaweed crosses it, with a grey glove, a small red shoe and a sodden typed page.",
     overlayAlt: { shell: "A pale shell lies near the page." },
     scenery: [
@@ -132,13 +133,13 @@ const rooms = {
     ]
   },
   cave: {
-    name: "THE CAVE", area: "coast", at: [1, 0, 0],
+    name: "THE CAVE",
     describe: [
       "The cave is low and smells of salt and old coins. Water drips somewhere you can't see.",
       "Say anything here and the cave says it back, a moment late and in another voice.",
       "The way out is west, to the beach."
     ],
-    exits: { w: "beach" },
+    exits: { w: "way" },
     listen: "Drips. The sea outside. And under them, very faint, the sound of someone holding their breath.",
     alt: "Inside a dark cave, looking out through its mouth at the moon over the sea. A pool on the cave floor catches the light.",
     scenery: [
@@ -148,13 +149,13 @@ const rooms = {
     ]
   },
   pier: {
-    name: "THE PIER", area: "coast", at: [0, -1, 0],
+    name: "THE PIER",
     describe: [
       "Old boards, grey with salt, with gaps wide enough to see the sea breathing underneath. The pier goes on north into the dark.",
       "A {lifebuoy} hangs on a post. Someone painted a name on it, then painted over the name.",
       "South, the beach."
     ],
-    exits: { s: "beach", n: "pier_end" },
+    exits: { s: "way", n: "way" },
     alt: "A wooden pier stretching away from you into the night sea, with rope rails and a red and white lifebuoy on the nearest post.",
     scenery: [
       { words: ["boards", "planks", "pier", "gaps", "deck"], name: "the boards" }, { words: ["sea", "water"], name: "the sea", says: "Black, and very cold to look at. Further out it pulls, patiently, like something that has all the time in the world." },
@@ -162,13 +163,13 @@ const rooms = {
     ]
   },
   pier_end: {
-    name: "END OF THE PIER", area: "coast", at: [0, -2, 0],
+    name: "END OF THE PIER",
     describe: [
       "The pier stops here, as if it had changed its mind. The last post has an iron ring for mooring.",
       "Across the black water, the {lighthouse|lighthouse_near} stands on its rock. Too far to swim. Not too far to row.",
       "The pier leads back south."
     ],
-    exits: { s: "pier", n: true },
+    exits: { s: "way", n: true },
     sleep: "Not at the end of the pier, with the sea breathing under the boards.",
     alt: "The end of a pier at night. Across the water, a white lighthouse with a red band stands on a rock, its lantern dark.",
     overlayAlt: { boat: "A small blue rowing boat is tied to the post." },
@@ -178,12 +179,12 @@ const rooms = {
     ]
   },
   huts: {
-    name: "THE BATHING HUTS", area: "coast", at: [-1, 1, 0],
+    name: "THE BATHING HUTS",
     describe: [
       "A row of bathing huts faces the sea, striped, numbered, shut for the season. The paint has faded on all of them but one: {hut 7|hut}, freshly painted, as if somebody were expected.",
       "The tide line is north. The dunes are east."
     ],
-    exits: { n: "tideline", e: "dunes" },
+    exits: { n: "way", e: "way" },
     alt: "A row of six striped bathing huts at night. Five are faded grey; one, in the middle, is freshly painted white and blue, with a red roof and a padlock on its door.",
     scenery: [
       { words: ["huts", "row", "paint", "stripes"], name: "the huts" }, { words: ["sand", "beach"], name: "the sand" },
@@ -191,13 +192,13 @@ const rooms = {
     ]
   },
   dunes: {
-    name: "THE DUNES", area: "coast", at: [0, 1, 0],
+    name: "THE DUNES",
     describe: [
       "A path of boards winds between the dunes. The grass moves a little, though there is no wind.",
       "Somewhere a {radio} plays a song that ended years ago, and goes on ending.",
       "North, the beach. South, the lights of the promenade. West, the bathing huts."
     ],
-    exits: { n: "beach", s: "promenade", w: "huts" },
+    exits: { n: "way", s: "way", w: "way" },
     alt: "A boardwalk winding between dark dunes topped with marram grass, towards the faint glow of a town.",
     scenery: [
       { words: ["dunes", "dune", "sand"], name: "the dunes" }, { words: ["grass", "marram"], name: "the grass" },
@@ -205,12 +206,12 @@ const rooms = {
     ]
   },
   promenade: {
-    name: "THE PROMENADE", area: "coast", at: [0, 2, 0],
+    name: "THE PROMENADE",
     describe: [
       "White railings, and lamps that are lit but give no light. Everyone has gone in for tea.",
       "West, the {Hotel Miramar|hotel} keeps its door open. East, a carousel turns with nobody on it. The square is south; the dunes, north."
     ],
-    exits: { n: "dunes", s: "square", w: { to: "lobby", in: true }, e: "carousel" },
+    exits: { n: "way", s: "way", w: { in: true }, e: "way" },
     overlayAlt: { cat: "A grey cat sits on the promenade, between the hotel and the lamps." },
     alt: "A seaside promenade at night: white railings in front, three lit lamps, a tall hotel on the left with one window lit and its door open, a striped carousel on the right.",
     scenery: [
@@ -220,13 +221,13 @@ const rooms = {
     ]
   },
   carousel: {
-    name: "THE CAROUSEL", area: "coast", at: [1, 2, 0],
+    name: "THE CAROUSEL",
     describe: [
       "The carousel turns with nobody on it, to a music-box tune played a little too slowly. The horses rise and fall.",
       "One of them, a grey {horse}, has a number painted on its saddle: 7-B.",
       "The promenade is west."
     ],
-    exits: { w: "promenade" },
+    exits: { w: "way" },
     alt: "Close up on a carousel under a red and white canopy ringed with bulbs. A grey horse with a red saddle is in front; a white and a brown horse are further round.",
     scenery: [
       { words: ["carousel", "canopy", "bulbs", "music", "tune", "pole"], name: "the carousel" },
@@ -234,12 +235,12 @@ const rooms = {
     ]
   },
   lobby: {
-    name: "HOTEL MIRAMAR", area: "coast", at: [-1, 2, 0],
+    name: "HOTEL MIRAMAR",
     describe: [
       "Palms in brass pots, and a carpet worn into paths. Behind the desk, the {board of keys|keyboard} has one empty hook. A {bell} waits on the desk.",
       "Through double doors to the west, cutlery chimes. Stairs go up. The promenade is east."
     ],
-    exits: { e: "promenade", w: "dining", u: "hallway" },
+    exits: { e: "way", w: "way", u: "way" },
     sleep: "Not in the lobby. Somewhere upstairs a bed is made for you.",
     overlayAlt: { cat: "A grey cat sits on the carpet in front of the desk." },
     alt: "A hotel lobby: a reception desk with a brass bell, a board of keys behind it, palms in pots, glowing double doors on the left and red-carpeted stairs on the right.",
@@ -250,13 +251,13 @@ const rooms = {
     ]
   },
   dining: {
-    name: "THE DINING ROOM", area: "coast", at: [-2, 2, 0],
+    name: "THE DINING ROOM",
     describe: [
       "A long table, a white cloth, the remains of a dessert. Twelve {guests} in evening dress sit around it, talking quietly. They have been at dessert for a long time. Nobody has thought to leave.",
       "At the near end there is an empty {chair}, and a {card} on the plate in front of it.",
       "The lobby is east."
     ],
-    exits: { e: "lobby" },
+    exits: { e: "way" },
     ambience: { lines: ["Somebody proposes a toast. Everybody raises a glass. Nobody drinks.", "A guest laughs at a joke that was told before you arrived.", "The salt goes round the table again."], every: [30, 70], chance: 0.8 },
     sleep: "Not at the table, among twelve guests in evening dress.",
     overlayAlt: { cat: "A grey cat sits on the back of the empty chair." },
@@ -268,12 +269,12 @@ const rooms = {
     ]
   },
   hallway: {
-    name: "FIRST FLOOR", area: "coast", at: [-1, 2, 1],
+    name: "FIRST FLOOR",
     describe: [
       "A corridor of numbered doors. The carpet swallows your steps. It is very like another corridor you know, and nothing like it.",
       "{Door 11|door11} stands ajar, its key still in the lock. The stairs lead down."
     ],
-    exits: { d: "lobby", w: { to: "room11", in: true } },
+    exits: { d: "way", w: { in: true } },
     overlayAlt: { cat: "A grey cat sits on the red carpet." },
     alt: "A warm hotel corridor in perspective, brown walls and a red carpet, doors on both sides. The nearest door on the left is ajar, light at its edge.",
     scenery: [
@@ -282,12 +283,12 @@ const rooms = {
     ]
   },
   room11: {
-    name: "ROOM 11", area: "coast", at: [-2, 2, 1],
+    name: "ROOM 11",
     describe: [
       "A small room with a {window} on the sea. The bed is made. On the chair, a {coat} in your size and your colour, though you have never owned a coat like it.",
       "The door is east."
     ],
-    exits: { e: "hallway" },
+    exits: { e: "way" },
     alt: "A small hotel room at night: a window on the dark sea between red curtains, a blue coat over a chair, a made bed with a white pillow.",
     overlayAlt: { letter: "A letter lies on the pillow." },
     scenery: [
@@ -297,13 +298,13 @@ const rooms = {
     ]
   },
   square: {
-    name: "THE SQUARE", area: "coast", at: [0, 3, 0],
+    name: "THE SQUARE",
     describe: [
       "Shut shops around a fountain with no water in it. The {clock} on the town hall says a quarter past five. It is Sunday. It has been Sunday for some time.",
       "Pigeons walk about with their hands behind their backs.",
       "The post office is west. A café is east, lit. The station is south; the promenade, north."
     ],
-    exits: { n: "promenade", w: "post_office", e: "cafe", s: "station" },
+    exits: { n: "way", w: "way", e: "way", s: "way" },
     overlayAlt: { cat: "A grey cat sits on the rim of the dry fountain." },
     ambience: { lines: ["A pigeon walks the whole way round the fountain and stops where it started.", "The pendulum behind the clock face goes on swinging. The hands don't move.", "Someone in a shut shop turns a sign from \"Closed\" to \"Closed.\""] },
     alt: "A town square at night: a town hall with a clock tower at a quarter past five, a dry fountain, shuttered shops on the left with a blue post office door, a lit café on the right. Pigeons on the cobbles.",
@@ -315,12 +316,12 @@ const rooms = {
     ]
   },
   post_office: {
-    name: "POST OFFICE", area: "coast", at: [-1, 3, 0],
+    name: "POST OFFICE",
     describe: [
       "Wooden counters, a smell of glue and rain. Behind the grille, the {postmaster} sorts letters into pigeonholes marked with dates instead of names. The pigeonholes go back further than the room does.",
       "The {door|po_door} is east."
     ],
-    exits: { e: { to: "square", out: true } },
+    exits: { e: { out: true } },
     sleep: "Not across the counter. The postmaster has letters to sort, and would sort you.",
     overlayAlt: { cat: "A grey cat sits on the counter, beside the grille." },
     alt: "Through the bars of a post office grille: a postmaster in a blue cap and spectacles under a green lamp, pigeonholes full of letters behind him.",
@@ -330,12 +331,12 @@ const rooms = {
     ]
   },
   cafe: {
-    name: "THE CAFÉ", area: "coast", at: [1, 3, 0],
+    name: "THE CAFÉ",
     describe: [
       "Four tables, and one {waiter}, who has been folding the same napkin for as long as anyone remembers. The napkin is folded, unfolded and folded again, a little differently each time. The coffee machine sighs.",
       "The square is west, through the {door|cafe_door}."
     ],
-    exits: { w: { to: "square", out: true } },
+    exits: { w: { out: true } },
     sleep: "Not at the café. The waiter would fold you, like the napkin.",
     alt: "A small warm café: a steaming coffee machine on the counter, round marble tables, a waiter in a white apron folding a napkin, a window on the dark square.",
     overlayAlt: { coffee: "A cup of coffee steams on the table." },
@@ -345,12 +346,12 @@ const rooms = {
     ]
   },
   station: {
-    name: "THE STATION", area: "coast", at: [0, 4, 0],
+    name: "THE STATION",
     describe: [
       "One platform, one bench, one {train} with its doors open and its engine asleep. The {timetable} lists every train as leaving at a quarter past five.",
       "The rails run south into the dark, and stop a little way out, as if they had forgotten where they were going. The square is north."
     ],
-    exits: { n: "square", s: true },
+    exits: { n: "way", s: true },
     ambience: { lines: ["The engine turns over in its sleep.", "A whistle blows, very far away, for some other train.", "The signal at the end of the line changes from red to red."], every: [40, 90], chance: 0.6 },
     sleep: "Not on the platform. The train might go without you, or worse, with you.",
     alt: "A station platform at night under a canopy. A dark green train waits on the right with an open door. A bench and a white timetable board on the platform; a red signal far down the line.",
@@ -360,12 +361,12 @@ const rooms = {
     ]
   },
   lighthouse_base: {
-    name: "THE LIGHTHOUSE ROCK", area: "lighthouse", at: [0, 0, 0],
+    name: "THE LIGHTHOUSE ROCK",
     describe: [
       "A rock in the sea, just big enough for a lighthouse and a mooring ring. Waves arrive from every side, unhurried.",
       "The lighthouse goes up, white, into the dark. Its door is open. Inside, an iron staircase turns upward. The boat is the only way back."
     ],
-    exits: { u: "lantern", s: true },
+    exits: { u: "way", s: true },
     sleep: "Not on the rock. The waves arrive from every side, and sooner or later one of them would stay.",
     alt: "Looking up at a tall white lighthouse with red bands, its lantern dark against the stars. Foam breaks on the rock at its foot; the door is open.",
     overlayAlt: { boat: "The rowing boat is tied to the mooring ring." },
@@ -375,11 +376,11 @@ const rooms = {
     ]
   },
   lantern: {
-    name: "THE LANTERN ROOM", area: "lighthouse", at: [0, 0, 1],
+    name: "THE LANTERN ROOM",
     describe: [
       lampCold, farDoor, down
     ],
-    exits: { d: "lighthouse_base" },
+    exits: { d: "way" },
     alt: "Inside the lantern room: a great glass lens in the middle on a brass pedestal; through the window frames, the night sea and a thin far beach with one tiny yellow light.",
     scenery: [
       { words: ["glass", "windows", "window"], name: "the glass" }, { words: ["sea", "beach", "door", "square"], name: "the view" },
@@ -701,7 +702,7 @@ const rules = [
   // exit); the town's time comes in with the salt air (the change `arrival`). Then it stays open, both ways.
   { id: "green_door_knock", match: { verb: "knock", obj: "green_door" }, if: [{ "green_door.named": false }],
     do: [{ set: "green_door.named", to: true }, { say: "You kneel and knock three times. The breathing stops. From very far away a voice asks: \"What is your name?\" You tell it, and it keeps the name. The brass plaque softens and drips onto the lino, and the door swings inward. It is very small, and then it isn't." },
-         { connect: "corridor", dir: "u", to: "beach", passage: true }, { change: "door_open" }, { change: "arrival" }] },
+         { connect: "corridor", dir: "u" }, { change: "door_open" }, { change: "arrival" }] },
   { id: "green_door_again", match: { verb: "knock", obj: "green_door" },
     do: [{ say: "You knock. The door has your name already, and does not ask for it twice." }] },
   { id: "beach_door_knock", match: { verb: "knock", obj: "beach_door" },
@@ -881,6 +882,7 @@ export default {
   because: "The player gave their name at the green door; the world behind it is built.",
   opening,
   // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
+  plan,                                   // where every room is (plan.js): exits are made from it
   properties: {
     "green_door.named": { type: "boolean", start: false },   // you have knocked and given the green door your name: it stands open
     "beach_door.driftwood": { type: "boolean", start: false },   // the green door has turned to driftwood

@@ -421,6 +421,50 @@ rect window_rim 156,56,8,10 none e6
     overlays: []
   },
 
+  // ---- THE SHED: eye level; plank walls, the workbench along the left, the steep steps going up on the right (the plan's example, BRIEF.md §2) ---------------
+  "tb-shed": {
+    version: 1,
+    draw: `
+      rect planks 0,0,320,136 stripes:6,0
+      rect floor 0,100,320,36 8
+      rect bench 20,70,130,10 6 e0
+      rect bench_leg 30,80,6,24 0
+      rect bench_leg2 134,80,6,24 0
+      poly steps 210,100 300,100 300,20 230,20 5 e0
+      line step_1 210,86 300,86 c0
+      line step_2 218,72 300,72 c0
+      line step_3 224,58 300,58 c0
+      line step_4 230,44 300,44 c0
+    `,
+    overlays: []
+  },
+
+  // ---- THE STORE: wide; bare plank walls and an empty floor, a thin strip of light from the door behind --------------------------------------------
+  "tb-store": {
+    version: 1,
+    draw: `
+      rect walls 0,0,320,136 stripes:6,0
+      rect walls_dim 0,0,320,136 mix:,0@0.4
+      rect floor 0,104,320,32 8
+      rect door_light 140,20,40,84 mix:14,0@0.5
+    `,
+    overlays: []
+  },
+
+  // ---- THE ATTIC: looking up; rafters converging on a square of light --------------------------------------------------------------------------------
+  "tb-attic": {
+    version: 1,
+    draw: `
+      rect dark 0,0,320,136 fade:6,0/0,136/0,0
+      line rafter_1 0,0 130,50 c0
+      line rafter_2 320,0 190,50 c0
+      line rafter_3 0,136 130,86 c0
+      line rafter_4 320,136 190,86 c0
+      rect light 130,50,60,36 14
+    `,
+    overlays: []
+  },
+
   // ---- THE PIT: looking up from its floor: a bright square of light high above, earth walls closing in ---------------------------------------
   "tb-pit": {
     version: 1,

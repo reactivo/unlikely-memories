@@ -2,10 +2,11 @@
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -55,12 +56,12 @@ const endingPictures = {
 const rooms = {
   // The start room (BRIEF.md §3): the arcade behind the store, shut at both ends, left by the revolving door once you push it.
   pavement: {
-    name: "THE ARCADE", area: "store", at: [1, 2, 0],
+    name: "THE ARCADE",
     describe: [
       "The arcade behind Hartley's, at ten past five on a Saturday: a tiled passage under a glass roof, shuttered behind you. Every window along it is lit, and the dresses in them have turned a little towards you. The air smells of wet umbrellas.",
       "The only way in is the {revolving door|street_door}, to the north."
     ],
-    exits: { n: { to: "front_hall", in: true, if: false, closed: "The door turns past you without a gap in it, the way a door does for people who only stand and look. Its brass bar says PUSH." } },
+    exits: { n: { in: true, if: false, closed: "The door turns past you without a gap in it, the way a door does for people who only stand and look. Its brass bar says PUSH." } },
     scenery: [
       { words: ["window", "windows", "glass", "display", "dresses", "dress"], name: "the windows", says: "Dresses on stands, in colours from before you were born, each turned a few degrees towards you. The ones at the back are turned a few degrees more." },
       { words: ["sill", "sills", "ledge"], name: "the sill", says: "A stone sill, wide enough to set a parcel down on, worn smooth by people who stopped to look at dresses and then didn't leave." },
@@ -73,13 +74,13 @@ const rooms = {
     }
   },
   front_hall: {
-    name: "HARTLEY'S", area: "store", at: [1, 1, 0],
+    name: "HARTLEY'S",
     describe: [
       "The ground floor of Hartley's, all mahogany and brass, as it has been since your grandmother was measured for her first coat. You are standing on the mosaic by the {directory} board, as if you had always been about to come in.",
       "The {revolving door|revolving_door} turns slowly on its own. {Mr Gage|gage}, the floorwalker, wears a carnation and watches everything. Perfumery is west, gloves east, the lifts north."
     ],
-    exits: { w: "perfumery", e: "gloves", n: "lift_lobby",
-      s: "pavement" },
+    exits: { w: "way", e: "way", n: "way",
+      s: "way" },
     scenery: [{ words: ["mosaic", "mahogany", "brass", "counters", "ceiling", "chandelier"], name: "the hall", says: "A mosaic of a ship in full sail, worn through at the bow by a hundred years of people standing where you stand." }],
     mentions: ["carnation"],
     ambience: { lines: ["Somewhere a till rings, though nobody has bought anything.", "A cash canister goes overhead in its tube, hurrying, like a thought on its way to someone.", "The revolving door turns once, empty, and stops."], every: [45, 90] },
@@ -87,12 +88,12 @@ const rooms = {
     alt: "A grand store hall: mahogany counters, brass, a mosaic floor of a ship. A directory board on a stand, a floorwalker with a carnation, and a revolving door at the front."
   },
   perfumery: {
-    name: "PERFUMERY", area: "store", at: [0, 1, 0],
+    name: "PERFUMERY",
     describe: [
       "Counters of bottles lined up like a choir about to sing. Each bottle smells of a particular afternoon. {Madame Corre|corre} stands among them in white gloves.",
       "On the counter, a {tester} with a label in her own hand. The ground floor hall is east."
     ],
-    exits: { e: "front_hall" },
+    exits: { e: "way" },
     scenery: [{ words: ["bottles", "bottle", "counters", "counter", "choir", "perfume", "perfumes"], name: "the bottles", says: "Small bottles with handwritten labels: THE LAST DAY OF THE HOLIDAYS. A HOSPITAL CORRIDOR AT NIGHT. SNOW, BEFORE IT FALLS. They are not for sale. They are what Madame Corre makes things from." }],
     mentions: ["gloves", "label"],
     smell: "Twenty afternoons at once, none of them yours, all of them nearly.",
@@ -100,110 +101,110 @@ const rooms = {
     alt: "A perfume counter crowded with small bottles on glass shelves. A tall woman in white gloves stands behind it; a single tester bottle on the counter in front."
   },
   gloves: {
-    name: "GLOVES", area: "store", at: [2, 1, 0],
+    name: "GLOVES",
     describe: [
       "Drawers of gloves to the ceiling, each pair asleep in tissue. A card on the counter says BACK IN FIVE MINUTES, in a hand that went out of fashion long ago.",
       "On the counter one {glove} lies alone, its fingers closed, the way a hand closes on something in a pocket. The ground floor hall is west."
     ],
-    exits: { w: "front_hall" },
+    exits: { w: "way" },
     scenery: [{ words: ["drawers", "drawer", "tissue", "pairs", "counter", "minutes", "sign"], name: "the drawers", says: "Every drawer is labelled with a size and a feeling: SEVEN AND A HALF, NERVOUS. EIGHT, FOR FUNERALS. The card on the counter has gone yellow waiting." }],
     alt: "A glove counter with tall walls of small wooden drawers. On the counter, one cream glove lying by itself, its fingers curled shut."
   },
   lift_lobby: {
-    name: "THE LIFTS", area: "store", at: [1, 0, 0],
+    name: "THE LIFTS",
     describe: [
       "Brass {lift doors|lobby_doors} under an {indicator} that points to floors nobody has asked for in years: B, G, 1, 2, 4.",
       "The lift is north, its gate open. Stairs go up to the first floor; steps go down to the basement. The hall is south."
     ],
-    exits: { n: { to: "lift", in: true }, s: "front_hall", u: "first_landing", d: "basement" },
+    exits: { n: { in: true }, s: "way", u: "way", d: "way" },
     scenery: [{ words: ["stairs", "staircase", "banister"], name: "the stairs", says: "A wide staircase with a mahogany banister, going up.", leads: "u" },
               { words: ["steps", "basement"], name: "the steps", says: "Stone steps going down to the basement, with a smell of soap coming up them.", leads: "d" }],
     alt: "A lift lobby: brass doors with a folding gate open, a semicircular floor indicator above them, a staircase going up on one side and stone steps going down on the other."
   },
   lift: {
-    name: "THE LIFT", area: "store", at: [1, -1, 0],
+    name: "THE LIFT",
     describe: [
       "A lift like a small drawing room: a mirror, a velvet bench, a brass gate. {Mr Pell|pell} sits on his stool by the {lever|lift_lever} and looks at the ceiling, where the floors would be.",
       "The gate opens south, onto the lobby."
     ],
-    exits: { s: "lift_lobby", u: true, d: false },
+    exits: { s: "way", u: true, d: false },
     scenery: [{ words: ["mirror", "bench", "velvet", "stool", "ceiling", "buttons", "button", "gate", "lift"], name: "the lift", says: "There are no buttons. There is Mr Pell, and the lever, and a small brass keyhole beside the number 4. The gate is folded open onto the lobby.", leads: "s" }],
     sleep: "Not in the lift. Mr Pell would take you up and down all night.",
     alt: "Inside an old lift: a mirror, a red velvet bench, a folding brass gate, and a man in a uniform on a stool, one hand near a brass lever."
   },
   first_landing: {
-    name: "FIRST FLOOR", area: "store", at: [1, 0, 1],
+    name: "FIRST FLOOR",
     describe: [
       "The first floor landing: a palm in a brass pot, and a carpet worn to the threads by people deciding which way to go.",
       "Haberdashery is west, toys east. The stairs go up and down."
     ],
-    exits: { w: "haberdashery", e: "toys", u: "second_landing", d: "lift_lobby" },
+    exits: { w: "way", e: "way", u: "way", d: "way" },
     scenery: [{ words: ["palm", "pot", "carpet", "threads"], name: "the palm", says: "A palm that has been on the first floor longer than anyone. It leans towards the stairs, as if it were thinking of going." },
               { words: ["stairs", "staircase", "banister"], name: "the stairs", says: "Mahogany stairs, going up to the second floor and down to the ground." }],
     alt: "A wide landing with a worn red carpet, a palm in a brass pot, and stairs going up and down. Archways to the left and right."
   },
   haberdashery: {
-    name: "HABERDASHERY", area: "store", at: [0, 0, 1],
+    name: "HABERDASHERY",
     describe: [
       "Ribbons on reels, buttons in drawers, and a counter where {Miss Thimble|thimble} measures everything twice. Above her, the brass {tubes} of the cash railway go up into the ceiling.",
       "A {canister} waits in its cradle under a {handle}. The landing is east."
     ],
-    exits: { e: "first_landing" },
+    exits: { e: "way" },
     scenery: [{ words: ["ribbons", "ribbon", "reels", "reel", "buttons", "drawers", "counter", "tape"], name: "the ribbons", says: "Every colour, on reels, and a brass tape measure screwed to the edge of the counter, worn smooth in the first yard." }],
     sleep: "Not at Miss Thimble's counter. She would measure you twice.",
     alt: "A haberdashery counter with reels of coloured ribbon and small drawers of buttons. A woman with a tape measure. Above her, brass tubes run up into the ceiling; a canister sits in a cradle below a handle."
   },
   toys: {
-    name: "TOYS", area: "store", at: [2, 0, 1],
+    name: "TOYS",
     describe: [
       "Rocking toys, toy soldiers, a train set going round a table in a loop that never gets anywhere. A {clockwork bear|bear} sits on a shelf, waiting to be wound.",
       "The landing is west."
     ],
-    exits: { w: "first_landing" },
+    exits: { w: "way" },
     scenery: [{ words: ["soldiers", "soldier", "train", "set", "table", "loop", "toys", "shelf", "shelves"], name: "the toys", says: "The soldiers stand in rows, facing the stairs. The train goes round. Nobody has bought a toy here since the children grew up." }],
     mentions: ["train set"],
     alt: "A toy department: shelves of soldiers and rocking horses, a model train circling a table, and a small brown clockwork bear sitting on a shelf."
   },
   second_landing: {
-    name: "SECOND FLOOR", area: "store", at: [1, 0, 2],
+    name: "SECOND FLOOR",
     describe: [
       "The second floor landing, quieter, with a smell of new carpet. A {door|roof_door} at the top of a short flight says ROOF GARDEN, CLOSED FOR THE WINTER. It has been closed for a great many winters.",
       "Furniture is west, coats east. The stairs go down."
     ],
-    exits: { w: "furniture", e: "coats", d: "first_landing", u: "roof_garden" },
+    exits: { w: "way", e: "way", d: "way", u: "way" },
     scenery: [{ words: ["stairs", "staircase", "carpet"], name: "the stairs", says: "The main stairs go down to the first floor.", leads: "d" },
               { words: ["flight", "steps"], name: "the flight", says: "A short flight goes up to the roof door.", leads: "u" }],
     alt: "A quiet landing with new carpet. A short flight of steps leads up to a painted door with a sign. Archways left and right."
   },
   furniture: {
-    name: "FURNITURE", area: "store", at: [0, 0, 2],
+    name: "FURNITURE",
     describe: [
       "Rooms without walls: a dining room, a bedroom, a parlour, each laid out for a family that hasn't arrived. The {sofa} in the parlour still keeps the shape of somebody.",
       "The landing is east; the tea room, west."
     ],
-    exits: { e: "second_landing", w: "tea_room" },
+    exits: { e: "way", w: "way" },
     scenery: [{ words: ["rooms", "dining", "bedroom", "parlour", "table", "bed", "lamp", "family"], name: "the rooms", says: "Places laid at the table, a lamp on the bedside, slippers by the bed. Everything is waiting to be somebody's." }],
     mentions: ["dining room"],
     alt: "A furniture floor laid out as rooms with no walls: a dining table set for four, a bed with a lamp, and a deep sofa with a dent in its cushions."
   },
   tea_room: {
-    name: "TEA ROOM", area: "store", at: [-1, 0, 2],
+    name: "TEA ROOM",
     describe: [
       "Twelve tables, palms, a trolley of cakes under silver domes. {Dot|dot}, the waitress, has poured the same pot of tea for the same empty table since the war.",
       "A window looks over the roofs of the town. Furniture is east."
     ],
-    exits: { e: "furniture" },
+    exits: { e: "way" },
     scenery: [{ words: ["tables", "table", "palms", "trolley", "cakes", "domes", "window", "roofs", "pot"], name: "the tea room", says: "From the window, the roofs of the town go away in every direction. Above the store, a roof garden nobody visits." }],
     sleep: "Not in the tea room. Dot would only pour you another cup.",
     alt: "A tea room: small round tables with white cloths, potted palms, a cake trolley with silver domes, a waitress with a teapot, and a tall window onto rooftops."
   },
   coats: {
-    name: "COATS", area: "store", at: [2, 0, 2],
+    name: "COATS",
     describe: [
       "Coats on rails, and coats on {mannequins}, the mannequins in a row facing the door. When you look away, they face you.",
       "One of them wears a coat exactly like yours, only a little warmer. The landing is west."
     ],
-    exits: { w: "second_landing" },
+    exits: { w: "way" },
     scenery: [{ words: ["rails", "rail", "coats", "hangers"], name: "the rails", says: "Coats for every weather, and one rail at the end for weathers that haven't been invented." }],
     mentions: ["coat"],
     ambience: { lines: ["Out of the corner of your eye, a mannequin lowers its hand.", "A hanger rings against a rail, once, though nobody is near it.", "The mannequins are exactly where they were. You are almost sure."], every: [40, 80] },
@@ -211,35 +212,35 @@ const rooms = {
     alt: "A coat department: rails of coats and a row of pale mannequins in coats and hats, all facing the doorway."
   },
   basement: {
-    name: "BASEMENT", area: "store", at: [1, 0, -1],
+    name: "BASEMENT",
     describe: [
       "The basement: pans, brooms, a smell of soap. In the middle stands the cash office, a booth of brass and frosted panes where every tube in the store comes down.",
       "Inside, {Miss Ruth|ruth} sorts the canisters as they drop. The steps go up."
     ],
-    exits: { u: "lift_lobby" },
+    exits: { u: "way" },
     scenery: [{ words: ["pans", "brooms", "soap", "booth", "office", "panes", "tubes", "brass"], name: "the cash office", says: "A brass booth with frosted panes and a small sign: ALL PAYMENTS BY TUBE. The tubes from every floor come down into it like the roots of something." },
               { words: ["steps", "stairs"], name: "the steps", says: "Stone steps going up to the lifts.", leads: "u" }],
     mentions: ["cash office"],
     alt: "A basement of shelves with pans and brooms. In the middle, a brass booth with frosted panes, tubes coming down into its roof from above, a woman's shape inside."
   },
   roof_garden: {
-    name: "ROOF GARDEN", area: "store", at: [1, 0, 3],
+    name: "ROOF GARDEN",
     describe: [
       "Gravel, bare roses in tubs, and a {bench|roof_bench} facing the town. The roofs go away in every direction, the chimneys standing about like people waiting for a bus.",
       "Nobody has sat here since the garden closed. The door to the stairs is below."
     ],
-    exits: { d: "second_landing" },
+    exits: { d: "way" },
     scenery: [{ words: ["gravel", "roses", "rose", "tubs", "roofs", "chimneys", "town", "sky"], name: "the roofs", says: "Slate and chimneys, the gasworks, the spire. From up here the town looks like something you could fold and put away." },
               { words: ["door", "stairs"], name: "the door", says: "The roof door, open, and the stairs down.", leads: "d" }],
     alt: "A rooftop garden: gravel, bare rose bushes in tubs, a wooden bench facing a skyline of roofs and chimneys under a dark blue sky."
   },
   fourth_floor: {
-    name: "THE FOURTH FLOOR", area: "fourth", at: [0, 0, 4],
+    name: "THE FOURTH FLOOR",
     describe: [
       "A long room of rails, and on the rails, afternoons, hung like coats, each with a label in a careful hand. A rainy one in a grey that would suit you. A blue one that smells of the sea.",
       "Under its own lamp hangs the {afternoon} you didn't go. {The fitter|fitter} waits with pins in her mouth. The {lift|fourth_lift} is south."
     ],
-    exits: { s: { to: "lift", in: true } },
+    exits: { s: { to: true, in: true } },
     scenery: [{ words: ["rails", "rail", "afternoons", "labels", "label", "grey", "blue", "lamp"], name: "the afternoons", says: "AUGUST 1958, THE FAIR. A SUNDAY, NOT VISITING. THE BUS NOT TAKEN. Each one cut to fit somebody, and none of them collected." }],
     mentions: ["fitter"],
     alt: "A long dim room of clothes rails hung with soft shapes of different colours, like coats made of weather. At the end, one hangs under a lamp, and a woman with a pincushion waits beside it."
@@ -446,7 +447,7 @@ const rules = [
   { id: "push_street_door", match: { verb: "push", obj: "street_door" }, if: [at("pavement"), { "street_door.gap": false }],
     do: [{ set: "street_door.gap", to: true },
          { say: "You put your hand on the brass bar and push. The door slows, considers you, and brings round a pane with a gap in it, just your size." },
-         { connect: "pavement", dir: "n", to: "front_hall", in: true }, { change: "arrival" }] },
+         { connect: "pavement", dir: "n", in: true }, { change: "arrival" }] },
   { id: "push_street_door_again", match: { verb: "push", obj: "street_door" }, if: [at("pavement")],
     do: [{ say: "The door goes on turning, and keeps its gap for you." }] },
   // The hall's revolving door: it turns you out into the arcade, the start room, and lets you back in by the arcade's (BRIEF.md §3).
@@ -558,6 +559,7 @@ export default {
   because: "An arcade behind a department store, and the store at closing time.",
   opening,
   // The properties this world's rules keep (ARCHITECTURE.md §3, "Fields and properties"); the engine's own aren't declared.
+  plan,                                   // where every room is (plan.js): exits are made from it
   properties: {
     "street_door.gap": { type: "boolean", start: false }   // you have pushed the arcade's revolving door: it keeps a gap for you
   },

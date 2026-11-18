@@ -7,10 +7,11 @@
 // la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -55,12 +56,12 @@ const visionPictures = {
 const rooms = {
   // La sala de inicio (BRIEF.md §3): solo se deja por el torniquete, que se traga la ficha que está a la vista. El centro está al norte.
   "tb-start": {
-    name: "ADMISIÓN", area: "hub", at: [0, 1, 0],
+    name: "ADMISIÓN",
     describe: [
       "Una sala blanca y pequeña, con una luz en el techo y nada en las paredes. Aquí dejan pasar a quien viene a probar.",
       "La única salida es el {torniquete|gate} de la pared norte, hacia el centro. Tiene una ranura para una ficha."
     ],
-    exits: { n: { to: "tb-hub", if: false, closed: "El torniquete no gira. Su ranura pide una ficha." } },
+    exits: { n: { if: false, closed: "El torniquete no gira. Su ranura pide una ficha." } },
     scenery: [
       { words: ["pared", "paredes", "suelo", "techo"], name: "las paredes", says: "Blancas, limpias, y iguales por todas partes." },
       { words: ["luz", "lampara", "bombilla"], name: "la luz", says: "Una luz blanca y plana, sin foco y sin sombra." },
@@ -71,12 +72,12 @@ const rooms = {
     overlayAlt: { handset: "Un auricular gris cuelga de un gancho junto al torniquete.", token: "Una ficha de latón está en un platillo de hojalata, en el suelo." }
   },
   "tb-hub": {
-    name: "EL CENTRO", area: "hub", at: [0, 0, 0],
+    name: "EL CENTRO",
     describe: [
       "Una sala redonda con una puerta en cada pared. Un {tablón|board} anuncia lo que hay detrás de cada una: la clínica al norte, el {bar|bar_front} al este, la admisión al sur, el patio al oeste.",
       "Unas escaleras de hierro suben a los accesos, y unos escalones de piedra bajan al sótano."
     ],
-    exits: { n: "tb-clinic", e: { to: "tb-bar", in: true }, s: "tb-start", w: "tb-yard", u: "tb-ways", d: "tb-cellar" },
+    exits: { n: "way", e: { in: true }, s: "way", w: "way", u: "way", d: "way" },
     scenery: [
       { words: ["escaleras", "escalera"], name: "las escaleras", says: "Escaleras de hierro que suben a un descansillo y una puerta.", leads: "u" },
       { words: ["escalones", "escalon", "peldanos"], name: "los escalones", says: "Escalones de piedra, gastados en el centro, que bajan al frío.", leads: "d" },
@@ -92,12 +93,12 @@ const rooms = {
 
   // La clínica: salud, daños y curas, muerte. Al este, el laboratorio.
   "tb-clinic": {
-    name: "CLÍNICA", area: "hub", at: [0, -1, 0],
+    name: "CLÍNICA",
     describe: [
       "Una sala de azulejos con una cama, un {armario|cabinet} de acero y una {rejilla|vent} en la pared. Una placa cuadrada de {púas|spike} cortas está hundida en el suelo, con un cartel que dice Prohibido Pisar.",
       "El centro está al sur. El laboratorio, al este."
     ],
-    exits: { n: false, s: "tb-hub", e: "tb-lab" },
+    exits: { n: false, s: "way", e: "way" },
     scenery: [
       { words: ["cama", "camilla", "catre"], name: "la cama", says: "Una cama estrecha con la manta doblada en cuadro. Nadie se ha echado en ella." },
       { words: ["cartel", "placa"], name: "el cartel", says: "Prohibido Pisar, en rojo." },
@@ -108,12 +109,12 @@ const rooms = {
     overlayAlt: { pill: "Una pastilla blanca y pequeña yace sobre la cama." }
   },
   "tb-lab": {
-    name: "LABORATORIO", area: "hub", at: [1, -1, 0],
+    name: "LABORATORIO",
     describe: [
       "Una sala de banco, llena de cables. Una {palanca|lever} se alza en una ranura de acero junto a un {zócalo|socket} abierto, un {dial} está en la pared y un {botón|button} brilla junto a la {puerta|lab_door}. Una {radio} sisea en una balda.",
       "Un gancho cuelga del techo. La clínica está al oeste."
     ],
-    exits: { w: { to: "tb-clinic", out: true } },
+    exits: { w: { out: true } },
     scenery: [
       { words: ["gancho", "techo"], name: "el gancho", id: "hook", says: "Un gancho de hierro en el techo, para algo largo." },
       { words: ["cables", "cable", "banco", "balda"], name: "los cables", says: "Cables negros, pegados con cinta al banco y entre sí." }
@@ -125,12 +126,12 @@ const rooms = {
 
   // El bar: estados, y cosas que vienen de alguien. Al este, el despacho.
   "tb-bar": {
-    name: "EL BAR", area: "hub", at: [1, 0, 0],
+    name: "EL BAR",
     describe: [
       "Un bar largo y bajo con un solo taburete. {Dot|dot} lo lleva. Una {estufa|stove} brilla en un rincón, y un {cubo de hielo|ice} está junto a la puerta.",
       "El centro está al oeste, el despacho al este, y el dormitorio al sur."
     ],
-    exits: { w: "tb-hub", e: "tb-office", s: "tb-bedroom" },
+    exits: { w: "way", e: "way", s: "way" },
     scenery: [
       { words: ["barra", "mostrador", "taburete"], name: "la barra", says: "Un tablón largo sobre dos barriles. Un taburete, que no usa nadie." },
       { words: ["puerta"], name: "la puerta", says: "La puerta al centro.", leads: "w" }
@@ -141,12 +142,12 @@ const rooms = {
     overlayAlt: { coin: "Una moneda yace sobre la barra.", chips: "Tres fichas rojas yacen en fila sobre la barra.", green: "Un vaso alto y verde está sobre la barra." }
   },
   "tb-office": {
-    name: "DESPACHO", area: "hub", at: [2, 0, 0],
+    name: "DESPACHO",
     describe: [
       "Un despacho pequeño con un escritorio alto. {La señora Oduya|oduya} se sienta detrás con un {libro mayor|ledger} y no levanta la vista.",
       "Un día de la semana está en un marco de la pared. El bar está al oeste, y una puerta al norte dice Archivo."
     ],
-    exits: { w: "tb-bar", n: true },
+    exits: { w: "way", n: true },
     scenery: [
       { words: ["escritorio", "mesa"], name: "el escritorio", says: "Un escritorio alto, demasiado ordenado." },
       { words: ["marco", "pared"], name: "el marco", says: "Un marco con una sola palabra y una fina línea de polvo en lo alto." }
@@ -159,12 +160,12 @@ const rooms = {
 
   // El dormitorio, al sur del bar: sueño, sueños, visiones, tiempo.
   "tb-bedroom": {
-    name: "DORMITORIO", area: "hub", at: [1, 1, 0],
+    name: "DORMITORIO",
     describe: [
       "Una sala en penumbra con una {litera|bunk} contra una pared y una {hamaca|hammock} tendida contra la otra. Una {lámpara|lamp} arde sobre una mesa, y un {reloj|clock} hace tictac encima.",
       "El bar está al norte."
     ],
-    exits: { n: "tb-bar" },
+    exits: { n: "way" },
     scenery: [{ words: ["mesa"], name: "la mesa", says: "Una mesa pequeña con sitio para una lámpara y poco más." }],
     ambience: { lines: ["El reloj hace tictac, y tictac, y se le ocurre algo.", "La hamaca se mece, como si alguien acabara de bajarse."], every: [30, 70] },
     waitFor: { time: "next 07:00", says: "Te tumbas en la litera, despierto, hasta que se hace de día.", if: [hours(22, 7)] },
@@ -175,12 +176,13 @@ const rooms = {
 
   // El patio y el callejón: cosas que se mueven.
   "tb-yard": {
-    name: "EL PATIO", area: "hub", at: [-1, 0, 0],
+    name: "EL PATIO",
     describe: [
       "Un patio pelado de tierra apisonada, con un {banco|bench} contra el muro y una verja pequeña al callejón. El cielo es bajo y la luz, plana.",
-      "El centro está al este. El callejón, al oeste, y un hueco en el muro lleva al norte, rodeándolo."
+      "El centro está al este. El callejón, al oeste, y un hueco en el muro lleva al norte, rodeándolo.",
+      "Una {puerta|shed_door} de tablas en el muro del sur da a un cobertizo."
     ],
-    exits: { e: "tb-hub", w: "tb-lane", n: { to: "tb-lane", passage: true } },
+    exits: { e: "way", w: "way", n: true, s: { in: true } },
     scenery: [
       { words: ["verja", "reja"], name: "la verja", says: "Una verja de hierro pequeña, abierta.", leads: "w" },
       { words: ["muro", "tierra", "cielo"], name: "el muro", says: "Un muro de ladrillo, sin nada encima." },
@@ -191,12 +193,12 @@ const rooms = {
     overlayAlt: { cat: "Un gato gris está sentado en la tierra.", watchman: "Un vigilante de abrigo largo está junto al muro.", bird: "Un pajarillo salta a lo largo del muro." }
   },
   "tb-lane": {
-    name: "EL CALLEJÓN", area: "hub", at: [-2, 0, 0],
+    name: "EL CALLEJÓN",
     describe: [
       "Un callejón estrecho entre muros en blanco, con una ventana iluminada al fondo. Está tranquilo.",
       "El patio está al este."
     ],
-    exits: { e: "tb-yard" },
+    exits: { e: "way" },
     scenery: [{ words: ["muros", "muro", "callejon", "pared", "paredes"], name: "los muros", says: "Ladrillo liso a ambos lados, rascado hasta quedar limpio." }],
     ambience: { lines: ["La luz de la ventana parpadea, y se queda.", "Algo pequeño roza el muro."], every: [30, 60], if: [hours(20, 6)] },
     waitFor: { time: "next 20:00", says: "Esperas en el callejón, y la luz tras la ventana sube un poco.", if: [hours(6, 20)] },
@@ -206,19 +208,49 @@ const rooms = {
   },
 
   // Los accesos: todas las clases de salida.
+  // El ejemplo del plano (BRIEF.md §2): un cobertizo al sur del patio, al que se entra con IN y del que se sale con OUT, un almacén detrás, y el desván una planta más arriba.
+  "tb-shed": {
+    name: "EL COBERTIZO",
+    describe: [
+      "Un cobertizo pequeño de tablas, con un banco de trabajo a lo largo de una pared. Un tramo empinado de {escalones|shed_steps} sube al tejado.",
+      "El patio está al norte, por la {puerta|shed_door}. El almacén, al sur."
+    ],
+    exits: { n: "way", s: "way", u: "way" },
+    scenery: [{ words: ["banco", "pared"], name: "el banco de trabajo", says: "Un banco de trabajo sencillo, vacío." }],
+    alt: "El interior de un cobertizo pequeño de tablas, con un banco de trabajo junto a la pared y un tramo empinado de escalones que sube al tejado.",
+    overlayAlt: {}
+  },
+  "tb-store": {
+    name: "EL ALMACÉN",
+    describe: [
+      "Un almacén estrecho detrás del cobertizo, sin nada dentro más que polvo. El cobertizo está al norte."
+    ],
+    exits: { n: "way" },
+    alt: "Un almacén estrecho y pelado, de paredes de tablas y suelo polvoriento.",
+    overlayAlt: {}
+  },
+  "tb-attic": {
+    name: "EL DESVÁN",
+    describe: [
+      "El desván, justo encima del cobertizo: vigas desnudas y un cuadrado de luz. El cobertizo está abajo."
+    ],
+    exits: { d: "way" },
+    alt: "Un desván bajo, de vigas desnudas, con un cuadrado de luz sobre las tablas.",
+    overlayAlt: {}
+  },
+
   "tb-ways": {
-    name: "LOS ACCESOS", area: "hub", at: [0, 0, 1],
+    name: "LOS ACCESOS",
     describe: [
       "Un descansillo con una salida de distinta clase a cada lado. Una gran {rueda|wheel} de hierro está en la pared, y una {escalera de mano|ladder} sube.",
-      "Al norte está el anexo, tras un guardia. Al este, el rellano, y al oeste, el tobogán. Hay un {armario|cupboard} en el rincón. El centro está abajo."
+      "Al norte está el anexo, tras un guardia. Al este, el rellano, y al oeste, el tobogán. El centro está abajo."
     ],
     exits: {
-      n: { to: "tb-annex", requires: "pass", spends: true, lacking: "El guardia mira tus manos vacías y no se mueve." },
-      e: { to: "tb-landing", if: hours(8, 20), closed: "La persiana está bajada. Un cartel dice ocho." },
-      w: "tb-chute",
-      in: "tb-closet",
-      u: "tb-roof",
-      d: "tb-hub"
+      n: { requires: "pass", spends: true, lacking: "El guardia mira tus manos vacías y no se mueve." },
+      e: { if: hours(8, 20), closed: "La persiana está bajada. Un cartel dice ocho." },
+      w: "way",
+      u: "way",
+      d: "way"
     },
     scenery: [
       { words: ["guardia"], name: "el guardia", says: "Un guardia de gris está en la puerta del norte, con una mano tendida." },
@@ -231,12 +263,12 @@ const rooms = {
     overlayAlt: { pass: "Un pase blanco yace en el suelo." }
   },
   "tb-annex": {
-    name: "ANEXO", area: "hub", at: [0, -1, 1],
+    name: "ANEXO",
     describe: [
       "Un anexo estrecho forrado de estanterías. Un gancho de latón cuelga del techo sobre el medio de la sala.",
       "Los accesos están al sur."
     ],
-    exits: { s: "tb-ways" },
+    exits: { s: "way" },
     scenery: [
       { words: ["gancho"], name: "el gancho", id: "annex_hook", says: "Un gancho de latón en el techo, sobre el medio de la sala." },
       { words: ["estanterias", "estanteria", "baldas"], name: "las estanterías", says: "Estanterías vacías, sin polvo." }
@@ -245,36 +277,36 @@ const rooms = {
     overlayAlt: {}
   },
   "tb-landing": {
-    name: "RELLANO", area: "hub", at: [1, 0, 1],
+    name: "RELLANO",
     describe: [
       "Un rellano corto con una barandilla. Un tramo de {escaleras|landing_stairs} sube.",
       "Los accesos están al oeste."
     ],
-    exits: { w: "tb-ways", u: "tb-roof" },
+    exits: { w: "way", u: true },
     scenery: [{ words: ["barandilla", "rellano"], name: "la barandilla", says: "Una barandilla de acero, fría." }],
     alt: "Un rellano corto con una barandilla de acero al frente y un tramo estrecho de escaleras que sube por la pared del fondo hacia la oscuridad.",
     overlayAlt: {}
   },
   "tb-chute": {
-    name: "EL TOBOGÁN", area: "hub", at: [-1, 0, 1],
+    name: "EL TOBOGÁN",
     describe: [
       "Un tubo redondo de acero, inclinado. Hay una manija en el lado este que ya no gira.",
       "Sigue hacia abajo, hasta el patio."
     ],
-    exits: { e: { to: "tb-ways", if: false, closed: "El camino de vuelta no tiene manija por este lado." }, d: "tb-yard" },
+    exits: { e: { if: false, closed: "El camino de vuelta no tiene manija por este lado." }, d: { oneWay: true } },
     scenery: [{ words: ["tubo", "manija", "acero"], name: "el tubo", says: "Acero pulido, con una pendiente suave hacia abajo." }],
     alt: "El interior de un tubo redondo de acero, inclinado, mirando hacia abajo, hacia un pequeño círculo brillante de tierra apisonada.",
     overlayAlt: {}
   },
   "tb-closet": {
-    name: "ARMARIO", area: "hub", at: [0, 0, 2],
+    name: "ARMARIO",
     placeholder: "Un armario con nada dentro, todavía, y su {puerta|closet_door} para salir.",
-    exits: { out: "tb-ways" },
+    exits: { n: { oneWay: true, out: true } },
     alt: "El interior de un armario: tablas desnudas y una fina línea de luz bajo la puerta.",
     overlayAlt: {}
   },
   "tb-pit": {
-    name: "EL FOSO", area: "hub", at: [0, 1, 1],
+    name: "EL FOSO",
     describe: [
       "Un agujero cuadrado en el suelo de los accesos, cavado por una rueda. Está seco, y llega luz desde arriba."
     ],
@@ -284,12 +316,12 @@ const rooms = {
     overlayAlt: {}
   },
   "tb-roof": {
-    name: "LA AZOTEA", area: "hub", at: [0, 0, 3],
+    name: "LA AZOTEA",
     describe: [
       "Una azotea plana con un parapeto bajo, y todo el piso extendido muy abajo. El viento es constante.",
       "El borde está cerca. Los accesos están abajo."
     ],
-    exits: { d: "tb-ways" },
+    exits: { d: "way" },
     scenery: [
       { words: ["borde", "parapeto", "vacio"], name: "el borde", says: "Un parapeto bajo y luego nada durante mucho trecho." },
       { words: ["viento"], name: "el viento", says: "Constante, del oeste, sin tiempo dentro." }
@@ -302,12 +334,12 @@ const rooms = {
 
   // El sótano: puertas, cerraduras, pares, recipientes.
   "tb-cellar": {
-    name: "EL SÓTANO", area: "hub", at: [0, 0, -1],
+    name: "EL SÓTANO",
     describe: [
       "Un sótano bajo de piedra con tres puertas. La {puerta de la cámara|vault_door} está al este, y la {puerta de la despensa|cellar_door} al oeste. Un {cofre|chest} está junto a la pared, una {caja|box} en una balda y un {cubo|bin} debajo. Un {bote|boat} descansa sobre calzos.",
       "El centro está arriba. Un arco al norte lleva a un sonido de agua, y unos {barrotes|bars} de hierro cierran un hueco en la esquina, al sur."
     ],
-    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry", s: "tb-sump" },
+    exits: { u: "way", n: "way", e: "way", w: "way", s: "way" },
     scenery: [{ words: ["calzos", "pared", "balda", "piedra"], name: "la pared", says: "Piedra labrada, húmeda al tacto." }],
     mentions: ["trozo"],
     ambience: { lines: ["Gotea agua en algún sitio, y cuenta.", "El bote cruje sobre sus calzos, sin ir a ninguna parte."], every: [25, 60] },
@@ -317,12 +349,12 @@ const rooms = {
   },
   // La cascada: un cuadro que se mueve (una cascada que corre, destellos que parpadean cada uno a su aire, una antorcha, una bandera y una onda).
   "tb-falls": {
-    name: "LA CASCADA", area: "hub", at: [0, -1, -1],
+    name: "LA CASCADA",
     describe: [
       "Una cueva húmeda con una cascada que cae por la pared del fondo a una charca ancha y negra. Una antorcha arde en un soporte a la izquierda, y una bandera cuelga de un asta a la derecha.",
       "El sótano está al sur."
     ],
-    exits: { s: "tb-cellar" },
+    exits: { s: "way" },
     scenery: [
       { words: ["cascada", "agua", "catarata"], name: "la cascada", says: "Agua, toda yendo hacia el mismo sitio." },
       { words: ["charca", "destellos"], name: "la charca", says: "Negra y ancha, con lucecitas que van y vienen." },
@@ -335,36 +367,36 @@ const rooms = {
     overlayAlt: {}
   },
   "tb-vault": {
-    name: "LA CÁMARA", area: "hub", at: [1, 0, -1],
+    name: "LA CÁMARA",
     describe: [
       "Una sala de acero pequeña, vacía y brillante.",
       "El sótano está al oeste."
     ],
-    exits: { w: "tb-cellar" },
+    exits: { w: "way" },
     scenery: [{ words: ["sala", "acero", "paredes"], name: "las paredes", says: "Acero por todos lados, cepillado." }],
     alt: "Una sala pequeña y brillante de acero cepillado con una puerta redonda abierta a la izquierda, un suelo liso y nada en las paredes.",
     overlayAlt: { tin: "Una lata abollada está en el suelo." }
   },
   // El desagüe: tras los barrotes cerrados del sótano, un paso que no es una puerta.
   "tb-sump": {
-    name: "EL DESAGÜE", area: "hub", at: [0, 1, -1],
+    name: "EL DESAGÜE",
     describe: [
       "Un desagüe bajo de piedra por donde se va el agua del sótano, negra y quieta. Una escalera oxidada no lleva a ninguna parte, en la esquina.",
       "El sótano está al norte, tras los barrotes."
     ],
-    exits: { n: "tb-cellar" },
+    exits: { n: "way" },
     scenery: [{ words: ["agua", "desague", "escalera"], name: "el desagüe", says: "Agua negra, muy quieta, y una escalera sin final." }],
     sleep: "En el desagüe no: el agua te encontraría.",
     alt: "Un desagüe bajo de piedra con una charca de agua negra y una escalera oxidada en la esquina.",
     overlayAlt: {}
   },
   "tb-pantry": {
-    name: "LA DESPENSA", area: "hub", at: [-1, 0, -1],
+    name: "LA DESPENSA",
     describe: [
       "Una despensa estrecha de estantes de madera, iluminada por una rendija en la pared. Un {tarro|jar} está entre telarañas.",
       "El sótano está al este."
     ],
-    exits: { e: "tb-cellar" },
+    exits: { e: "way" },
     scenery: [{ words: ["estantes", "estante", "telaranas", "telarana", "rendija"], name: "los estantes", says: "Estantes de madera, colgados de telarañas viejas." }],
     alt: "Una despensa estrecha de estantes oscuros de madera con una rendija de luz blanca en la pared del fondo y un tarro pequeño de cristal en el estante del medio.",
     overlayAlt: {}
@@ -638,12 +670,9 @@ const objects = {
   wheel: { at: "tb-ways", name: "Rueda", note: "Cava, y rellena.",
     words: { nouns: ["rueda"], adj: ["hierro", "grande"], g: "f" },
     examine: "Una gran rueda de hierro en la pared. Gírala, y se abre un camino a un foso; gírala otra vez, y el camino se cierra." },
-  // Cada entrada o salida es una cosa (BRIEF.md §8, "Exits"): el armario es la entrada de los accesos al armario de dentro, una salida
-  // `in` real; su puerta, la salida; el bar (un sitio en el que se entra por su dirección, marcada `in: true`), la entrada del centro, y
+  // Cada entrada o salida es una cosa (BRIEF.md §8, "Exits"): la puerta del armario es su salida (marcada
+  // `out: true`); el bar (un sitio en el que se entra por su dirección, marcada `in: true`), la entrada del centro, y
   // la puerta del laboratorio, su salida (marcada `out: true`); los escalones y el hueco del foso, que entran cuando la rueda lo cava.
-  cupboard: { at: "tb-ways", leads: "in", material: "wood", name: "Armario", note: "Con sitio para meterse.",
-    words: { nouns: ["armario"], adj: ["bajo"], g: "m" },
-    examine: "Un armario bajo, con sitio para meterse." },
   closet_door: { at: "tb-closet", door: "out", material: "wood", name: "Puerta del armario", note: "Para salir.",
     words: { nouns: ["puerta"], adj: ["armario"], g: "f" },
     examine: "La puerta del armario, con una fina línea de luz por debajo." },
@@ -655,6 +684,15 @@ const objects = {
     words: { nouns: ["hueco"], adj: ["bajo"], g: "m" },
     here: "Un {hueco|pit_gap} bajo en la pared del sur da al armario.",
     examine: "Un hueco bajo en la pared de tierra, y a través de él, el fondo del armario." },
+  landing_stairs: { at: "tb-landing", leads: "u", name: "Escaleras", note: "Hasta la azotea.",
+    words: { nouns: ["escaleras", "tramo"], adj: ["estrechas"], pl: true, g: "f" },
+    examine: "Un tramo estrecho de escaleras que sube." },
+  shed_door: { at: "tb-yard", door: "s", material: "wood", name: "Puerta del cobertizo", note: "Al cobertizo.",
+    words: { nouns: ["puerta"], adj: ["cobertizo", "tablas"], g: "f" },
+    examine: "Una puerta de tablas, entornada sobre la oscuridad de un cobertizo pequeño." },
+  shed_steps: { at: "tb-shed", leads: "u", name: "Escalones", note: "Al desván.",
+    words: { nouns: ["escalones", "tramo"], adj: ["empinados"], pl: true, g: "m" },
+    examine: "Un tramo empinado de escalones de tablas, que sube al tejado." },
   ladder: { at: "tb-ways", leads: ["u", "d"], name: "Escalera de mano", note: "Arriba, o abajo.",
     words: { nouns: ["escalera"], adj: ["hierro", "mano"], g: "f" },
     examine: "Una escalera de mano de hierro. Subir lleva arriba; bajar, abajo." },
@@ -662,9 +700,6 @@ const objects = {
     here: "Una pértiga larga de madera yace a lo largo del suelo, de pared a pared.",
     words: { nouns: ["pertiga", "palo"], adj: ["larga", "madera"], g: "f" }, ...item("pole"),
     examine: "Una pértiga larga de madera, tan larga como la sala." },
-  landing_stairs: { at: "tb-landing", leads: "u", name: "Escaleras", note: "Hasta la azotea.",
-    words: { nouns: ["escaleras", "tramo"], adj: ["estrechas"], pl: true, g: "f" },
-    examine: "Un tramo estrecho de escaleras que sube." },
 
   // El sótano
   vault_door: { at: "tb-cellar", door: "e", material: "metal", locked: true, name: "Puerta de la cámara", note: "Redonda, y de acero.",
@@ -743,7 +778,7 @@ const rules = [
   // la cosa de las pistas salen de la declaración.
   { id: "turnstile_token", match: { verb: ["put", "use"], obj: "token", obj2: "gate" }, if: [{ "token.at": "player" }],
     do: [{ say: "El torniquete se traga la ficha y hace clic. Sus barras ya giran." }, { move: "token", to: null },
-         { connect: "tb-start", dir: "n", to: "tb-hub" }] },
+         { connect: "tb-start", dir: "n" }] },
   // Daños y curas.
   { id: "touch_spike", match: { verb: "touch", obj: "spike" }, do: [{ hurt: 1, says: "Las púas entran un poco, y salen otra vez." }] },
   { id: "smell_vent", match: { verb: "smell", obj: "vent" }, once: true, again: "El aire de la rejilla es fresco, y nada más.",
@@ -819,20 +854,23 @@ const rules = [
     do: [{ say: "El tobogán te lleva con un breve grito de aire." }] },
   { id: "go_east_shut", match: { verb: "go", dir: "e" }, if: [{ "player.at": "tb-ways" }, { "$exit": false }], then: "default",
     do: [{ say: "La persiana es algo que se ve desde aquí." }] },
+  // El viaje que no es un paso es un movimiento de una regla (BRIEF.md §2): el hueco en el muro del patio, hasta el callejón, y las escaleras del rellano hasta la azotea.
+  { id: "yard_gap", match: { verb: "go", dir: "n" }, if: [{ "player.at": "tb-yard" }],
+    do: [{ say: "Te cuelas por el hueco, rodeas el extremo del muro y sales al callejón." }, { travel: "tb-lane" }] },
+  { id: "landing_up", match: { verb: "go", dir: "u" }, if: [{ "player.at": "tb-landing" }],
+    do: [{ say: "Subes el tramo estrecho, al viento." }, { travel: "tb-roof" }] },
   { id: "wheel_dig", match: { verb: "turn", obj: "wheel" }, if: [{ "wheel.stage": 0 }],
     do: [{ say: "La rueda gira, y una trampilla del suelo, al sur de ti, se desliza sobre un foso." },
          { draw: "tb-ways", add: ["rect hatch 130,112,60,14 0 e8"] },
-         { connect: "tb-ways", dir: "s", to: "tb-pit" },
-         { connect: "tb-pit", dir: "s", to: "tb-closet", passage: true, in: true },
-         { connect: "tb-pit", dir: "n", to: "tb-ways", out: true }, { move: "pit_steps", to: "tb-pit" }, { move: "pit_gap", to: "tb-pit" },
-         { connect: "tb-pit", dir: "e", to: "tb-landing", passage: true, if: { "wheel.stage": { ">=": 1 } }, closed: "El muro es macizo hasta que la rueda haya girado." },
-         { connect: "tb-pit", dir: "w", to: "tb-chute", passage: true, requires: "pass", spends: true, lacking: "Necesitarías un pase." },
+         { connect: "tb-ways", dir: "s", if: { "wheel.stage": { ">=": 1 } }, closed: "La trampilla está cerrada." },
+         { connect: "tb-pit", dir: "s", in: true, requires: "pass", spends: true, lacking: "Necesitarías un pase." },
+         { connect: "tb-pit", dir: "n", out: true, oneWay: true }, { move: "pit_steps", to: "tb-pit" }, { move: "pit_gap", to: "tb-pit" },
          { change: "no_such_change", optional: true },
          { set: "wheel.stage", to: 1 }] },
   { id: "wheel_fill", match: { verb: "turn", obj: "wheel" }, if: [{ "wheel.stage": 1 }],
     do: [{ say: "La rueda gira hacia atrás, y la trampilla se cierra sobre el foso." },
          { draw: "tb-ways", remove: ["hatch"] },
-         { disconnect: "tb-ways", dir: "s" }, { disconnect: "tb-pit", dir: "s" }, { disconnect: "tb-pit", dir: "n" }, { disconnect: "tb-pit", dir: "e" }, { disconnect: "tb-pit", dir: "w" },
+         { disconnect: "tb-ways", dir: "s" }, { disconnect: "tb-pit", dir: "s" }, { disconnect: "tb-pit", dir: "n" },
          { move: "pit_steps", to: null }, { move: "pit_gap", to: null },
          { set: "wheel.stage", to: 0 }] },
   { id: "jump_roof", match: { verb: "jump" }, if: [{ "player.at": "tb-roof" }],
@@ -917,6 +955,7 @@ const opening = {
 export default {
   because: "El piso de pruebas: una sala de admisión, y un centro con un camino a cada mecanismo del motor.",
   opening,
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "El jugador empieza en la admisión, al sur del centro del piso de pruebas, un lunes, a mediodía.",
     "Cada sala sirve para un mecanismo; un gato, un vigilante, un pájaro y un oficinista de noche se mueven solos.",

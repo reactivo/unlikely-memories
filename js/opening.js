@@ -1,6 +1,7 @@
 // Opening: the start room of a world, built from what the world declares (ARCHITECTURE.md §3, "The opening"; what the world writes:
-// BRIEF.md §3). A world starts in its start room, an ordinary room of its first area, on the map, that you can come back to; it is
-// left only through the `way` thing's exit (any direction, n/s/e/w, up, down, in or out, to a room of its own area on any level),
+// BRIEF.md §3). A world starts in its start room, an ordinary room of the world, on its plan and so on the map, that you can come back to; it is
+// left only through the `way` thing's exit (any direction, n/s/e/w, up, down, in or out, to the room on the next square, or a way a rule
+// answers, `{ to: true, if, closed }`, when the room it leads to is elsewhere on the plan: BRIEF.md §2),
 // closed at the start and opened by an action the world writes with the engine's own
 // mechanisms (a locked door and its key, a rule that `connect`s the way, USE on a rope, a thing given to someone). The world names
 // the room and its two things (the hints thing, the way out), writes its intro (the short text shown once, above the start room's, as a
@@ -12,8 +13,8 @@
 //
 //   opening: { room, hints, way, intro, lines: { hintFrame } }
 
-import { DIRECTIONS } from "./space.js?v=0.65.0";
-import { waysOf, wayAt, exitTo } from "./exits.js?v=0.65.0";
+import { DIRECTIONS } from "./space.js?v=0.66.0";
+import { waysOf, wayAt, exitTo } from "./exits.js?v=0.66.0";
 
 export const IDS = ["room", "hints", "way"];                       // the parts that name a room or a thing, by id
 export const PARTS = [...IDS, "intro"];                            // and the intro, a text
@@ -60,7 +61,7 @@ export function problems(g, d) {
   const old = OLD_LINES.filter(l => d.lines && l in d.lines);
   if (old.length || g.entrance != null)
     why.push(`the old opening (${[...old.map(l => "lines." + l), ...(g.entrance != null ? ["game.entrance"] : [])].join(", ")}) is gone: a world starts in a start room, ` +
-      "an ordinary room of its first area left by its way out, closed at the start and opened by an action the world writes (BRIEF.md §3)");
+      "an ordinary room of the world left by its way out, closed at the start and opened by an action the world writes (BRIEF.md §3)");
   // The intro is the text shown once at the start, above the start room's (Diego, 15 November 2026): the carried intro thing, read and
   // then gone with its farewell, is no more. A world still naming a thing, or writing a farewell, is refused with the reason.
   if (typeof d.intro === "string" && obj(d.intro))
@@ -77,7 +78,6 @@ export function problems(g, d) {
   for (const k of THINGS) if (!obj(d[k])) why.push(`opening.${k} "${d[k]}" isn't an object`);
   if (new Set(IDS.map(k => d[k])).size < IDS.length) why.push("the opening's room, hints and way must all be different");
   if (why.length) return why;
-  if (typeof room.area !== "string" || !Array.isArray(room.at)) why.push(`the start room "${d.room}" needs an \`area\` and an \`at\`: it is an ordinary room of the first area, on the map`);
   if (obj(d.hints).at !== d.room) why.push(`the hints thing "${d.hints}" must be in the start room`);
   if (!obj(d.hints).portable) why.push(`the hints thing "${d.hints}" must be portable`);
   if (obj(d.way).at !== d.room) why.push(`the way out "${d.way}" must be in the start room`);
@@ -87,12 +87,6 @@ export function problems(g, d) {
   const dir = direction(g, d);
   if (!dir) why.push(`the way out "${d.way}" needs a \`door\` or \`leads\` naming one direction: the start room's exit it is`);
   else if (!(dir in (room.exits || {}))) why.push(`the start room has no exit ${dir} for its way out "${d.way}" (write it closed: locked by the way's lock, \`{ to, if, closed }\`, or \`false\` until a rule \`connect\`s it)`);
-  else {
-    // The way out may go any way (north, up, down, in, out…) and to any level; the room it leads to is in the start room's own area.
-    const to = beyond(g, d, dir), there = g.world.rooms[to];
-    if (there && there.area !== room.area)
-      why.push(`the way out "${d.way}" (${dir}) leads to "${to}", in the area "${there.area}": the room it leads to must be in the start room's own area "${room.area}" (any direction, any level)`);
-  }
   return why;
 }
 

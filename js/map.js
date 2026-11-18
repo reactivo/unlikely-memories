@@ -1,91 +1,40 @@
 // Map: what the map popup shows (INTERFACE.md §12), the way there, and the walk that follows a click on a room.
 // Pure: reads the state and the pack, never changes either, never touches the page (ui/map.js draws it).
 //
-// What is shown: the rooms you have visited on your own level (same z), spread from the room you are in through
-// visited rooms (by an exit from them, or by one of theirs that leads back to them); other areas on that level that a passage reaches are placed beside the room it leaves from, so the
-// passage reads as one step. Coordinates are the cells of the area you are in: x grows east, y south.
+// What is shown is the world's plan as it is: the rooms you have visited on the floor you are on, each on its square (state.world.plan:
+// js/plan.js), and a line for each way between two of them on neighbouring squares. Nothing is placed, moved or left off: a room is
+// where the plan says. x grows east, y south.
 
-import { exitTo } from "./exits.js?v=0.65.0";
-import { STEP } from "./space.js?v=0.65.0";
-import { text, describe } from "./narrator.js?v=0.65.0";
-import { step } from "./engine.js?v=0.65.0";
-import { parse } from "./parser.js?v=0.65.0";
-import { story } from "./view.js?v=0.65.0";
+import { exitTo } from "./exits.js?v=0.66.0";
+import { roomBeside, BACK } from "./plan.js?v=0.66.0";
+import { text, describe } from "./narrator.js?v=0.66.0";
+import { step } from "./engine.js?v=0.66.0";
+import { parse } from "./parser.js?v=0.66.0";
+import { story } from "./view.js?v=0.66.0";
 
-const COMPASS = ["n", "s", "e", "w"];    // the only directions a map can draw: the others have no cell next door
-const BACK = { n: "s", s: "n", e: "w", w: "e" };
+const COMPASS = ["n", "s", "e", "w"];    // the directions a map draws a line in: up and down are marked in the room's corner
 
-// The layout of the map for the state: where each shown room sits, and which exits join neighbouring ones.
+// The layout of the map for the state: where each shown room sits, and which ways join neighbouring ones.
 //   { z, placed: Map(id → { x, y }), edges: [{ from, dir, to }] }
-// An edge is one exit that leads to the room drawn in the cell next door in that direction, or an in or out to a room drawn on the
-// map (one way: routeTo walks them; only the compass ones are lines).
+// An edge is one way that leads to the room on the next square, a room shown too. (A room with no square, in a state with no plan
+// from a test's own rooms: the room alone.)
 function layout(state) {
-  const rooms = state.world.rooms, here = state.player.at, room = rooms[here];
-  const z = room?.at?.[2] ?? 0;
+  const plan = state.world.plan, rooms = state.world.rooms, here = state.player.at;
+  const z = plan?.[here]?.[2] ?? 0;
   const placed = new Map();                                  // id → { x, y }
-  if (!room?.at) {                                           // a room with no place (none in a world: the placeholder's): the room alone
+  if (!plan?.[here]) {
     placed.set(here, { x: 0, y: 0 });
     return { z, placed, edges: [] };
   }
   const visited = new Set(state.seen?.visited ?? []);
-  const shown = (id) => id === here || visited.has(id);
-  const taken = new Map();                                   // "x,y" → id: the cells in use
-  const key = (x, y) => x + "," + y;
-
-  // The rooms of one area reached from a seed through visited rooms on this level (by any exit of that area).
-  // An exit a rule answers (`true`) leads nowhere the map can read, so a room is also reached backwards: by a visited room
-  // whose own exit leads here (the way back from Tuesday's town hall reaches it from the High Street).
-  const leadsTo = (id, to) => Object.values(rooms[id].exits || {}).some(x => exitTo(x) === to);
-  const flood = (seed) => {
-    const area = rooms[seed].area, found = [seed];
-    const here = (r, id) => r?.at && r.area === area && r.at[2] === z && shown(id) && !found.includes(id);
-    for (let i = 0; i < found.length; i++) {
-      for (const x of Object.values(rooms[found[i]].exits || {})) {
-        const to = exitTo(x);
-        if (typeof to === "string" && here(rooms[to], to)) found.push(to);
-      }
-      for (const id of Object.keys(rooms)) if (here(rooms[id], id) && leadsTo(id, found[i])) found.push(id);
-    }
-    return found;
-  };
-  const fits = (ids, dx, dy) => ids.every(id => !taken.has(key(rooms[id].at[0] + dx, rooms[id].at[1] + dy)));
-  const put = (ids, dx, dy) => ids.forEach(id => {
-    const x = rooms[id].at[0] + dx, y = rooms[id].at[1] + dy;
-    placed.set(id, { x, y }); taken.set(key(x, y), id);
-  });
-
-  const first = flood(here), queue = [...first], areas = new Set([room.area]);
-  put(first, 0, 0);
-  // Other areas on this level, reached by a passage in a compass direction from a room already placed: put beside it
-  // (its cells moved so the room it leads to is next door). Left off if that would land on a room already drawn; each
-  // area is tried once, from the first passage found.
-  for (let i = 0; i < queue.length; i++) {
-    const id = queue[i], p = placed.get(id);
-    for (const dir of COMPASS) {
-      const to = exitTo(rooms[id].exits?.[dir]), t = typeof to === "string" ? rooms[to] : null;
-      if (!t?.at || t.at[2] !== z || areas.has(t.area) || !shown(to)) continue;
-      areas.add(t.area);
-      const ids = flood(to), dx = p.x + STEP[dir][0] - t.at[0], dy = p.y + STEP[dir][1] - t.at[1];
-      if (!fits(ids, dx, dy)) continue;                      // it would overlap: that area stays off this map
-      put(ids, dx, dy); queue.push(...ids);
-    }
-  }
-
+  for (const [id, [x, y, f]] of Object.entries(plan)) if (f === z && (id === here || visited.has(id)) && rooms[id]) placed.set(id, { x, y });
   const edges = [];
-  for (const [id, p] of placed) {
+  for (const id of placed.keys()) {
     for (const dir of COMPASS) {
-      const to = exitTo(rooms[id].exits?.[dir]), q = typeof to === "string" ? placed.get(to) : null;
-      if (q && q.x === p.x + STEP[dir][0] && q.y === p.y + STEP[dir][1]) edges.push({ from: id, dir, to });
-      // A rule answers this exit: if the room next door has an exit back here, they are joined (the walk finds out what the rule says).
-      else if (to === true) {
-        const next = taken.get(key(p.x + STEP[dir][0], p.y + STEP[dir][1]));
-        if (next && exitTo(rooms[next].exits?.[BACK[dir]]) === id) edges.push({ from: id, dir, to: next });
-      }
-    }
-    // In and out to a room drawn on this map (a start room got out of onto the street: Lantern's cab): walked, never drawn as a line.
-    for (const dir of ["in", "out"]) {
-      const to = exitTo(rooms[id].exits?.[dir]);
-      if (typeof to === "string" && placed.has(to)) edges.push({ from: id, dir, to });
+      const to = exitTo(rooms[id].exits?.[dir]), next = roomBeside(plan, id, dir);
+      if (typeof to === "string" && placed.has(to) && next === to) edges.push({ from: id, dir, to });
+      // A rule answers this way: if the room next door has a way back here they are joined (the walk finds out what the rule says).
+      else if (to === true && next && placed.has(next) && exitTo(rooms[next].exits?.[BACK[dir]]) === id) edges.push({ from: id, dir, to: next });
     }
   }
   return { z, placed, edges };
@@ -111,7 +60,6 @@ export function mapOf(state, pack) {
     .sort((a, b) => a.y - b.y || a.x - b.x || (a.id < b.id ? -1 : 1));
   const lines = [], seen = new Set();
   for (const { from, to, dir } of L.edges) {
-    if (!COMPASS.includes(dir)) continue;                    // (in and out make no line)
     const pair = from < to ? [from, to] : [to, from];
     if (!seen.has(pair.join("|"))) { seen.add(pair.join("|")); lines.push(pair); }
   }

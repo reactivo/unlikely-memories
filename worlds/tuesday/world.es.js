@@ -3,10 +3,11 @@
 // conjunto de cambios, con su sala del comienzo, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- La biblia del juego -------------------------------------------------------------------------------------------
 export const bible = {
@@ -72,12 +73,12 @@ const endingPictures = {
 const rooms = {
   // La sala del comienzo (BRIEF.md §3): un apeadero de la línea secundaria; se sale en su único vagón, cuando te has sentado a esperar.
   halt: {
-    name: "APEADERO LUNES", area: "town", at: [-1, 0, 0],
+    name: "APEADERO LUNES",
     describe: [
       "Un apeadero de vía secundaria, un domingo por la tarde: un {banco|halt_bench}, una farola y un cartel con el nombre, «Lunes», aunque la línea no va a ninguna parte después de él. El horario anuncia un tren a la semana, y salió ayer.",
       "Un único vagón espera al final del andén, al este, con la {puerta del vagón|carriage_door} abierta y la luz encendida."
     ],
-    exits: { e: { to: "lost_property", if: false, closed: "Pones un pie en el escalón, y el vagón se aparta de él, con cortesía, un palmo. En su ventanilla, un cartelito: SE RUEGA ESPERAR SENTADO HASTA QUE SE LE LLAME." } },
+    exits: { e: { if: false, closed: "Pones un pie en el escalón, y el vagón se aparta de él, con cortesía, un palmo. En su ventanilla, un cartelito: SE RUEGA ESPERAR SENTADO HASTA QUE SE LE LLAME." } },
     scenery: [
       { words: ["farola", "andén", "anden", "apeadero", "cartel", "letrero", "nombre", "plataforma"], name: "el apeadero", says: "Un banco, una farola, un cartel con el nombre. Alguien ha pintado el banco desde que cerraron la línea, y no hace mucho." },
       { words: ["horario", "tren", "línea", "linea", "vía", "via", "vías", "vias", "raíles", "railes", "carriles"], name: "el horario", says: "Un tren a la semana, hacia un lugar cuyo nombre han raspado del cartel y vuelto a escribir a lápiz: Martes." }
@@ -89,25 +90,25 @@ const rooms = {
     }
   },
   lost_property: {
-    name: "OBJETOS PERDIDOS", area: "town", at: [0, 0, 0],
+    name: "OBJETOS PERDIDOS",
     describe: [
       "Una sala larga de estanterías: paraguas, guantes, una jaula, un vestido de novia en su caja, todas las etiquetas con la misma letra paciente. Estás en medio de todo ello, como si alguien te hubiera olvidado aquí.",
       "Tras el mostrador, el {señor Ambrose|ambrose} lleva el {libro de registro|ledger}. Un {cajón|sea_crate} húmedo dice MAR, UNO, SIN RECLAMAR. El vestíbulo de la estación queda al este; una puerta trasera, al oeste, da al andén de la vía secundaria."
     ],
-    exits: { e: "station_hall", w: "halt" },
+    exits: { e: "way", w: "way" },
     scenery: [{ words: ["estanterías", "estanterias", "estantería", "estanteria", "estantes", "paraguas", "guantes", "jaula", "vestido", "novia", "caja", "etiquetas", "fechas"], name: "las estanterías", says: "Cosas que la gente dejó de buscar. Cada una tiene una etiqueta, y cada etiqueta una fecha. Ninguna fecha es un lunes posterior al decreto." },
               { words: ["mostrador"], name: "el mostrador", says: "Un mostrador largo, gastado donde se ha apoyado un siglo de reclamantes." }],
     sleep: "Entre los objetos perdidos no. El señor Ambrose te pondría una etiqueta.",
     alt: "Una sala larga de estanterías atestadas de paraguas, cajas y una jaula. Un mostrador con un libro de registro y un viejo empleado; un cajón húmedo junto a la pared."
   },
   station_hall: {
-    name: "VESTÍBULO", area: "town", at: [1, 0, 0],
+    name: "VESTÍBULO",
     describe: [
       "Un vestíbulo de azulejos bajo un techo de cristal. El {reloj de la estación|station_clock} marca [time]. Debajo, un {calendario|calendar} de hojas y, enmarcado, el {decreto|decree}.",
       "La {ventanilla|window} tiene una reja de latón y un postigo. El {horario|timetable} ocupa una pared entera y anuncia un solo tren.",
       "El andén queda al norte, la plaza al sur, tras las {puertas|station_doors}. Objetos perdidos está al oeste; la sala de espera, al este."
     ],
-    exits: { n: "platform", s: { to: "square", out: true }, w: "lost_property", e: "waiting_room" },
+    exits: { n: "way", s: { out: true }, w: "way", e: "way" },
     waitFor: { time: "next 21:00", says: "Esperas bajo el reloj. No miente en ningún minuto.", if: [hours(6, 21)] },
     scenery: [{ words: ["techo", "cristal", "azulejos", "azulejo", "vestíbulo", "vestibulo", "palomas", "paloma"], name: "el vestíbulo", says: "Azulejos verdes y crema, y un cristal tan alto que las palomas de debajo parecen pensamientos." }],
     mentions: ["reloj", "reja", "postigo"],
@@ -116,24 +117,24 @@ const rooms = {
     alt: "Un vestíbulo de estación con azulejos verdes y crema bajo un techo de cristal. Un gran reloj con un calendario debajo y un aviso enmarcado. A la derecha, una ventanilla de billetes con reja de latón; en la pared de la izquierda, un horario."
   },
   waiting_room: {
-    name: "SALA DE ESPERA", area: "town", at: [2, 0, 0],
+    name: "SALA DE ESPERA",
     describe: [
       "Bancos, una estufa fría y carteles de balnearios que han cerrado. En un rincón, un {fotomatón|booth} con la cortina echada.",
       "En el banco más cercano a la estufa, la {señora Oduya|oduya} está sentada con la maleta sobre las rodillas, igual que desde el último lunes.",
       "El vestíbulo queda al oeste."
     ],
-    exits: { w: "station_hall" },
+    exits: { w: "way" },
     scenery: [{ words: ["bancos", "banco", "estufa", "carteles", "cartel", "balnearios"], name: "la sala de espera", says: "La estufa lleva mucho tiempo fría. Los carteles prometen aire de mar, aire de montaña, cualquier aire menos este." }],
     mentions: ["cortina", "maleta"],
     alt: "Una sala de espera en penumbra, con bancos de madera y una estufa negra. Una anciana sentada con una maleta sobre las rodillas. Un fotomatón con la cortina echada en un rincón."
   },
   platform: {
-    name: "ANDÉN 1", area: "town", at: [1, -1, 0],
+    name: "ANDÉN 1",
     describe: [
       "Un andén, una vía, un {banco|bench}. Los raíles corren al este hacia un túnel y al oeste, pasada la caseta de señales. El {panel de horarios|board} cuelga de la marquesina.",
       "El vestíbulo queda al sur. El final del andén, al este; la caseta de señales, al oeste."
     ],
-    exits: { s: "station_hall", e: "platform_end", w: "signal_box", n: true },
+    exits: { s: "way", e: "way", w: "way", n: true },
     scenery: [{ words: ["raíles", "railes", "riel", "rieles", "vía", "via", "vías", "vias", "línea", "linea", "carriles", "marquesina", "túnel", "tunel"], name: "la vía", says: "Una sola vía, pulida por un solo tren, que va en un solo sentido." },
               { words: ["caseta", "casilla", "garita", "señales", "senales", "pilotes"], name: "la caseta de señales", says: "Una caja de madera sobre pilotes, toda ventanas, al oeste del andén. Alguien dentro vigila la vía." }],
     mentions: ["caseta de señales"],
@@ -143,31 +144,31 @@ const rooms = {
     alt: "Un único andén bajo una marquesina de hierro, con un banco y un panel de horarios colgado. Los raíles se curvan al este hacia un túnel; al oeste hay una caseta de señales."
   },
   platform_end: {
-    name: "FINAL DEL ANDÉN", area: "town", at: [2, -1, 0],
+    name: "FINAL DEL ANDÉN",
     describe: [
       "El andén termina en una rampa y un cartel con un hombre tachando a otro hombre. Los raíles siguen al este, hacia el {túnel|tunnel}. De él sale un aire tibio, y un zumbido que se inclina hacia ti.",
       "El andén queda al oeste."
     ],
-    exits: { w: "platform", e: true },
+    exits: { w: "way", e: true },
     scenery: [{ words: ["cartel", "rampa", "raíles", "railes", "hombre"], name: "el cartel", says: "Nadie puede ir más allá. El cartel lo dice sin palabras, y por eso sabes que va en serio." }],
     sleep: "Aquí no, con el túnel respirándote encima.",
     alt: "El final de un andén que baja en rampa hacia los raíles, los cuales se pierden en la boca oscura de un túnel. Un cartel de advertencia en un poste."
   },
   signal_box: {
-    name: "CASETA DE SEÑALES", area: "town", at: [0, -1, 0],
+    name: "CASETA DE SEÑALES",
     describe: [
       "Una caja de madera sobre pilotes, toda ventanas. Una hilera de palancas se alinea como un coro. El {guardagujas|signalman} tiene la mano en la que importa y los ojos en el {esquema|diagram} de la línea, que es un solo trazo.",
       "El andén queda al este, bajando los {escalones|box_steps}."
     ],
-    exits: { e: { to: "platform", out: true } },
+    exits: { e: { out: true } },
     scenery: [{ words: ["palancas", "palanca", "ventanas", "ventana", "pilotes"], name: "las palancas", says: "Más altas que tú, pulidas en la empuñadura, y no te toca tirar de ellas." }],
     sleep: "En la caseta de señales no. El guardagujas no ha cerrado los ojos en su turno ni una sola vez, y no va a consentir que tú lo hagas.",
     alt: "El interior de una caseta de señales: una hilera de palancas altas, ventanas por todas partes, un hombre en mangas de camisa con una mano en una palanca y un esquema de una sola línea en la pared."
   },
   square: {
-    name: "PLAZA DE LA ESTACIÓN", area: "town", at: [1, 1, 0],
+    name: "PLAZA DE LA ESTACIÓN",
     describe: squareDusk,
-    exits: { n: "station_hall", w: "hotel", e: { to: "cafe", if: hours(7, 22), closed: "El café está a oscuras, con las sillas sobre las mesas. Un cartel en la puerta: DE 7 A 22." }, s: "high_street" },
+    exits: { n: "way", w: "way", e: { if: hours(7, 22), closed: "El café está a oscuras, con las sillas sobre las mesas. Un cartel en la puerta: DE 7 A 22." }, s: "way" },
     scenery: [{ words: ["farolas", "farola", "escalera", "adoquines", "palomas", "sombrero", "farolero"], name: "las farolas", says: "Farolas de hierro con sombreritos de cristal. Alguien las enciende a las ocho, y también la que está bajo el agua de la fuente." }],
     mentions: ["estatua"],
     // Vale la pena esperar desde las siete de la mañana hasta que se encienden las farolas, a las ocho; desde la primera mañana las palabras cambian (daybreak).
@@ -175,12 +176,12 @@ const rooms = {
     alt: "Una plaza empedrada al anochecer: una fuente redonda con la estatua de un hombre de chistera, farolas de hierro todavía apagadas y una escalera apoyada en una. Al norte la fachada de la estación, a la izquierda un hotel, a la derecha un café de ventanas amarillas."
   },
   hotel: {
-    name: "HOTEL TÉRMINO", area: "town", at: [0, 1, 0],
+    name: "HOTEL TÉRMINO",
     describe: [
       "Un vestíbulo estrecho que huele a cera y a col hervida. Tras el mostrador, el {conserje de noche|porter} lee el periódico de ayer, que siempre es el del sábado.",
       "Una escalera sube a las habitaciones. La plaza queda al este, tras la {puerta|hotel_door}."
     ],
-    exits: { e: { to: "square", out: true }, u: { to: "hotel_room", if: { "room_key.at": "player" },
+    exits: { e: { out: true }, u: { if: { "room_key.at": "player" },
       closed: "El conserje carraspea. «Las habitaciones son para los huéspedes», dice. «Los huéspedes las piden»." } },
     scenery: [{ words: ["mostrador", "periódico", "periodico", "vestíbulo", "vestibulo", "col", "cera", "recepción", "recepcion"], name: "el vestíbulo", says: "Latón, cera, un timbre que nadie toca. El periódico es el del sábado; los domingos no hay periódico, y tampoco hay lunes." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera estrecha que sube a las habitaciones.", leads: "u" }],
@@ -188,34 +189,34 @@ const rooms = {
     alt: "Un vestíbulo de hotel estrecho con un mostrador de madera, un hombre leyendo el periódico tras él, ganchos con llaves en la pared y una escalera que sube a la derecha."
   },
   hotel_room: {
-    name: "HABITACIÓN 4", area: "town", at: [0, 1, 1],
+    name: "HABITACIÓN 4",
     describe: [
       "Una habitación con una {cama|bed}, un lavabo y una ventana sobre las vías. La cama está abierta, preparada para alguien que nunca sube.",
       "La escalera baja al vestíbulo."
     ],
-    exits: { d: "hotel" },
+    exits: { d: "way" },
     scenery: [{ words: ["lavabo", "palangana", "jarra", "ventana", "vías", "vias", "raíles", "railes"], name: "la ventana", says: "Desde aquí ves la línea y el túnel en el que desaparece. De noche el túnel respira." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera estrecha que baja al vestíbulo.", leads: "d" }],
     alt: "Una pequeña habitación de hotel: una cama de hierro abierta, un lavabo con una jarra, una ventana que da a las vías del tren."
   },
   cafe: {
-    name: "CAFÉ DOMINGO", area: "town", at: [2, 1, 0],
+    name: "CAFÉ DOMINGO",
     describe: [
       "Seis mesas, una barra de zinc, una radio que pone el mismo vals. {Inés|ines} limpia la barra con círculos lentos. Una {pizarra|menu} de tiza anuncia lo que hay, que es café.",
       "La plaza queda al oeste, tras la {puerta|cafe_door}."
     ],
-    exits: { w: { to: "square", out: true } },
+    exits: { w: { out: true } },
     scenery: [{ words: ["mesas", "mesa", "barra", "zinc", "radio", "vals", "sillas"], name: "el café", says: "El vals termina y vuelve a empezar sin una pausa, como alguien a quien nunca han interrumpido." }],
     sleep: "En las mesas de Inés no. Te limpiaría alrededor.",
     alt: "Un pequeño café con mesas redondas, una barra de zinc y una radio en un estante. Una mujer limpia la barra. Una pizarra de tiza con la carta en la pared. Luz amarilla y cálida."
   },
   high_street: {
-    name: "CALLE MAYOR", area: "town", at: [1, 2, 0],
+    name: "CALLE MAYOR",
     describe: [
       "Tiendas con las persianas bajadas: una mercería, una farmacia, una tienda que solo vende calendarios. El ayuntamiento queda al oeste, con una {placa|plate} de latón junto a la puerta. La relojería está al este, y su escaparate está lleno de horas distintas.",
       "La plaza queda al norte. El parque, al sur."
     ],
-    exits: { n: "square", w: { to: "town_hall", if: hours(9, 17), closed: "Las puertas están cerradas. La placa de latón da el horario: de nueve a cinco." }, e: "clock_shop", s: "park" },
+    exits: { n: "way", w: { if: hours(9, 17), closed: "Las puertas están cerradas. La placa de latón da el horario: de nueve a cinco." }, e: "way", s: "way" },
     scenery: [{ words: ["tiendas", "tienda", "persianas", "mercería", "merceria", "farmacia", "calendarios", "calendario"], name: "las tiendas", says: "En el escaparate de la tienda de calendarios hay calendarios de seis días por semana. Se venden bien." },
               { words: ["ayuntamiento", "columnas", "escalones", "escalinata"], name: "el ayuntamiento", says: "Columnas, escalones y puertas que cumplen horario de oficina. La placa de latón lo da.", leads: "w" },
               { words: ["relojería", "relojeria", "relojes", "escaparate", "esferas"], name: "la relojería", says: "Un escaparate lleno de relojes, cada uno con una hora distinta, y todos en lo cierto en algún sitio.", leads: "e" }],
@@ -223,36 +224,36 @@ const rooms = {
     alt: "Una calle de tiendas con las persianas bajadas. A la izquierda, un ayuntamiento con columnas y una placa de latón junto a la puerta; a la derecha, el escaparate de una relojería lleno de esferas de reloj."
   },
   town_hall: {
-    name: "AYUNTAMIENTO", area: "town", at: [0, 2, 0],
+    name: "AYUNTAMIENTO",
     describe: [
       "Un vestíbulo de mármol con una ventanilla para cada trámite y nadie detrás de la mayoría. Un cartel señala arriba: ARCHIVO. Otro no señala a ninguna parte: QUEJAS.",
       "La calle Mayor queda al este, tras las {puertas|hall_doors}."
     ],
-    exits: { e: { to: "high_street", out: true }, u: "archive" },
+    exits: { e: { out: true }, u: "way" },
     scenery: [{ words: ["escalera", "escaleras", "archivo"], name: "la escalera", says: "Una escalera de mármol, gastada en el centro, que sube al archivo.", leads: "u" },
               { words: ["ventanillas", "ventanilla", "mostradores", "mostrador", "mármol", "marmol", "cartel", "carteles", "quejas", "trámite", "tramite"], name: "las ventanillas", says: "Cada ventanilla tiene un timbre y un cartelito. MATRIMONIOS. DEFUNCIONES. TIEMPO. El timbre de QUEJAS se lo han llevado." }],
     sleep: "Sobre el mármol no, delante de una ventanilla para cada trámite.",
     alt: "Un vestíbulo de mármol con una larga hilera de ventanillas vacías, una escalera que sube a la izquierda y dos carteles sobre pies."
   },
   archive: {
-    name: "EL ARCHIVO", area: "town", at: [0, 2, 1],
+    name: "EL ARCHIVO",
     describe: [
       "Estanterías de registros hasta el techo, y un olor a polvo conservado a propósito. La {archivera|archivist} trabaja en una mesa bajo la única ventana, con una rebeca del color de un archivador.",
       "La escalera baja al vestíbulo."
     ],
-    exits: { d: "town_hall" },
+    exits: { d: "way" },
     scenery: [{ words: ["estanterías", "estanterias", "estantería", "estanteria", "registros", "registro", "libros", "polvo", "ventana", "mesa"], name: "las estanterías", says: "Cada año del pueblo, encuadernado y en orden. A las encuadernaciones les falta un día a la semana, y los huecos están tapados con cinta." },
               { words: ["escalera", "escaleras"], name: "la escalera", says: "Una escalera de mármol que baja al vestíbulo.", leads: "d" }],
     sleep: "Entre los registros no. La archivera te archivaría.",
     alt: "Una sala de estanterías altas llenas de registros encuadernados. Una mujer con una rebeca gris en una mesa bajo una ventana, con una lámpara a su lado."
   },
   clock_shop: {
-    name: "LA RELOJERÍA", area: "town", at: [2, 2, 0],
+    name: "LA RELOJERÍA",
     describe: [
       "Relojes en todas las paredes, cada uno con la hora de alguien, ninguno con la tuya. El {relojero|clockmaker} está sentado con una lupa en un ojo, arreglando un minuto.",
       "Sobre el mostrador hay un {reloj|backwards_clock} que anda hacia atrás. La calle Mayor queda al oeste, tras la {puerta|shop_door}."
     ],
-    exits: { w: { to: "high_street", out: true } },
+    exits: { w: { out: true } },
     scenery: [{ words: ["mostrador", "banco", "pinzas"], name: "el mostrador" },
               { words: ["relojes", "paredes", "tictac", "lupa", "esferas"], name: "los relojes", says: "Laten a velocidades distintas. Juntos suenan como una lluvia que no se decide." }],
     mentions: ["reloj del revés"],
@@ -260,12 +261,12 @@ const rooms = {
     alt: "Una tienda pequeña atestada de relojes de todos los tamaños en las paredes. Un anciano en un banco con una lupa de joyero; sobre el mostrador, un reloj con las manecillas girando al revés."
   },
   park: {
-    name: "EL PARQUE", area: "town", at: [1, 3, 0],
+    name: "EL PARQUE",
     describe: [
       "Caminos de grava, un quiosco de música sin banda y un seto recortado con la forma de una semana a la que le falta un día.",
       "La calle Mayor queda al norte. La {capilla|chapel_front}, al oeste; el estanque, al este."
     ],
-    exits: { n: "high_street", w: { to: "chapel", in: true }, e: "pond" },
+    exits: { n: "way", w: { in: true }, e: "way" },
     scenery: [
       { words: ["caminos", "camino", "grava"], name: "los caminos" },
       { words: ["quiosco", "banda", "atriles", "batuta"], name: "el quiosco de música", says: "Atriles plegados. Alguien ha dejado una batuta de director en la barandilla, apuntando a nada." },
@@ -276,44 +277,44 @@ const rooms = {
     alt: "Un pequeño parque: caminos de grava, un quiosco de música redondo y vacío, un largo seto recortado en bloques con un solo hueco. Árboles detrás."
   },
   chapel: {
-    name: "LA CAPILLA", area: "town", at: [0, 3, 0],
+    name: "LA CAPILLA",
     describe: [
       "Una capilla pequeña y fría, con un cementerio de {lápidas|gravestones} sencillas tras unas puertas de cristal. Cada lápida lleva una fecha y nada más. Todas las fechas son lunes.",
       "El parque queda al este."
     ],
-    exits: { e: "park" },
+    exits: { e: "way" },
     scenery: [{ words: ["puertas", "puerta", "cristal", "capilla", "cementerio", "bancos"], name: "la capilla", says: "Bancos fríos, olor a cera. Las puertas de cristal del cementerio no están cerradas con llave; nadie viene." }],
     alt: "El interior de una capilla pequeña y fría: bancos sencillos y, a través de altas puertas de cristal, un cementerio de lápidas pequeñas e iguales."
   },
   pond: {
-    name: "EL ESTANQUE", area: "town", at: [2, 3, 0],
+    name: "EL ESTANQUE",
     describe: [
       "Un {estanque|pond_water} redondo con un borde de piedra. El pueblo cuelga cabeza abajo en él, un poco más nítido que el de verdad.",
       "El parque queda al oeste."
     ],
-    exits: { w: "park" },
+    exits: { w: "way" },
     scenery: [{ words: ["borde", "piedra", "pueblo"], name: "el borde" }],
     alt: "Un estanque redondo con un borde de piedra, que refleja cabeza abajo los tejados y la torre del reloj de la estación."
   },
   compartment: {
-    name: "EL COMPARTIMENTO", area: "train", at: [0, 0, 0],
+    name: "EL COMPARTIMENTO",
     describe: [
       "Seis asientos de felpa verde, una redecilla para el equipaje, una {ventanilla|train_window} con una correa de cuero. Un cartel en la pared dice MARTES, con letras gastadas suavemente por los pulgares.",
       "El coche comedor queda al este. El andén, al sur, mientras el tren está en él."
     ],
-    exits: { e: "dining_car", s: "platform" },
+    exits: { e: "way", s: "way" },
     scenery: [{ words: ["asientos", "asiento", "felpa", "redecilla", "portaequipajes", "equipaje", "cartel", "martes"], name: "el compartimento", says: "Los asientos recuerdan a otras personas. El cartel dice MARTES y, debajo, más pequeño: NO SE EXPIDEN BILLETES DE VUELTA." }],
     mentions: ["correa"],
     waitFor: { time: "next 23:40", says: "Te sientas. El asiento está caliente. Por todo el tren se cierran puertas, una tras otra, como una frase al acabar." },
     alt: "El interior de un compartimento de tren: asientos de felpa verde, una redecilla para el equipaje, una ventanilla con una correa de cuero, un cartelito en la pared."
   },
   dining_car: {
-    name: "EL COCHE COMEDOR", area: "train", at: [1, 0, 0],
+    name: "EL COCHE COMEDOR",
     describe: [
       "Manteles blancos, una lámpara en cada mesa y cubiertos puestos para una comida que llega el martes. El {revisor|guard} está sentado en la última mesa, haciendo sus cuentas.",
       "El compartimento queda al oeste."
     ],
-    exits: { w: "compartment" },
+    exits: { w: "way" },
     scenery: [{ words: ["manteles", "mantel", "mesas", "mesa", "lámpara", "lampara", "lámparas", "lamparas", "cubiertos", "cubierto", "comida"], name: "las mesas", says: "Cada cubierto lleva una carta. Bajo MARTES hay una lista de platos y, bajo LUNES, una raya." }],
     alt: "Un coche comedor de tren: manteles blancos, pequeñas lámparas en cada mesa y un revisor de uniforme al fondo con una libreta."
   }
@@ -609,8 +610,8 @@ const changes = {
   train_in: [
     // El vagón es la entrada del andén ("dentro", "entrar") y la salida del compartimento; la caseta de señales, también junto al
     // andén, no está marcada: se entra por su dirección, y un "entrar" sin tren es la pista del tren.
-    { move: "train", to: "platform" }, { connect: "platform", dir: "n", to: "compartment", passage: true, in: true },
-    { connect: "compartment", dir: "s", to: "platform", passage: true },
+    { move: "train", to: "platform" }, { connect: "platform", dir: "n", in: true },
+    { connect: "compartment", dir: "s" },
     { draw: "platform", add: "rect train_body 0,50,300,26 2 e0 after:rails\nrect train_windows 10,56,280,10 stripes:14,6 after:train_body" }
   ],
   train_out: [
@@ -648,7 +649,7 @@ const rules = [
   { id: "halt_seated", match: { verb: "sit", obj: [null, "halt_bench"] }, if: [at("halt")], once: true,
     again: "Te quedas un rato más en el banco. El vagón espera con la puerta abierta; tampoco tiene prisa.",
     do: [{ say: "Te sientas en el banco, como pide el cartelito. La farola zumba. Al cabo de un rato, una voz dentro del vagón lee en voz alta, como de una etiqueta: «Un pasajero, sin reclamar». El vagón recupera el palmo que se había apartado, y te espera." },
-         { connect: "halt", dir: "e", to: "lost_property" }, { change: "arrival" }] },
+         { connect: "halt", dir: "e" }, { change: "arrival" }] },
   // Objetos perdidos: el paraguas, cuando lo pides.
   { id: "claim_umbrella", match: { verb: "ask", obj: "ambrose", topic: "umbrella" }, if: [{ "umbrella.at": "lost_property" }],
     do: [{ say: "«Paraguas gris», lee. Te mira las manos, luego la etiqueta, y lo baja del estante. «Tu letra», dice. «Las cosas suelen saberlo»." },
@@ -786,6 +787,7 @@ export default {
   because: "Un apeadero de la vía secundaria, y un pueblo sin lunes.",
   opening,
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, «Fields and properties»); las del motor no se declaran.
+  plan,                                   // where every room is (plan.js): exits are made from it
   properties: {
     "bed.slept": { type: "number" },    // el día en que se durmió por última vez en la cama
   },

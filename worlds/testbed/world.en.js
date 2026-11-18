@@ -12,10 +12,11 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers, bars) > vault (east), pantry (west), sump (south, behind locked iron bars)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -60,12 +61,12 @@ const visionPictures = {
 const rooms = {
   // The start room (BRIEF.md §3): left only through the turnstile, which takes the token lying in plain sight. The hub is north.
   "tb-start": {
-    name: "INTAKE", area: "hub", at: [0, 1, 0],
+    name: "INTAKE",
     describe: [
       "A small white room with a light in the ceiling and nothing on the walls. This is where testers are let in.",
       "The only way out is the {turnstile|gate} in the north wall, to the hub. It has a slot for a token."
     ],
-    exits: { n: { to: "tb-hub", if: false, closed: "The turnstile will not turn. Its slot wants a token." } },
+    exits: { n: { if: false, closed: "The turnstile will not turn. Its slot wants a token." } },
     scenery: [
       { words: ["wall", "walls", "floor", "ceiling"], name: "the walls", says: "White, clean, and the same on every side." },
       { words: ["light", "lamp"], name: "the light", says: "A flat white light with no source and no shadow." },
@@ -76,12 +77,12 @@ const rooms = {
     overlayAlt: { handset: "A grey handset hangs on a hook by the turnstile.", token: "A brass token lies in a tin dish on the floor." }
   },
   "tb-hub": {
-    name: "THE HUB", area: "hub", at: [0, 0, 0],
+    name: "THE HUB",
     describe: [
       "A round room with a door in every wall. A {board} lists what is behind each: the clinic north, the {bar|bar_front} east, the intake south, the yard west.",
       "Iron stairs go up to the ways, and stone steps go down to the cellar."
     ],
-    exits: { n: "tb-clinic", e: { to: "tb-bar", in: true }, s: "tb-start", w: "tb-yard", u: "tb-ways", d: "tb-cellar" },
+    exits: { n: "way", e: { in: true }, s: "way", w: "way", u: "way", d: "way" },
     scenery: [
       { words: ["stairs", "staircase"], name: "the stairs", says: "Iron stairs, going up to a landing and a door.", leads: "u" },
       { words: ["steps", "step"], name: "the steps", says: "Stone steps, worn in the middle, going down into the cold.", leads: "d" },
@@ -97,12 +98,12 @@ const rooms = {
 
   // The clinic: health, hurts and heals, death. East of it, the lab.
   "tb-clinic": {
-    name: "CLINIC", area: "hub", at: [0, -1, 0],
+    name: "CLINIC",
     describe: [
       "A tiled room with a cot, a {cabinet} of steel and a {vent} in the wall. A square plate of short {spikes|spike} is set in the floor, with a sign that reads Not For Feet.",
       "The hub is south. The lab is east."
     ],
-    exits: { n: false, s: "tb-hub", e: "tb-lab" },
+    exits: { n: false, s: "way", e: "way" },
     scenery: [
       { words: ["cot", "bed"], name: "the cot", says: "A narrow cot with a blanket folded square. Nobody has lain on it." },
       { words: ["sign", "plate"], name: "the sign", says: "Not For Feet, in red." },
@@ -113,12 +114,12 @@ const rooms = {
     overlayAlt: { pill: "A small white pill lies on the cot." }
   },
   "tb-lab": {
-    name: "LAB", area: "hub", at: [1, -1, 0],
+    name: "LAB",
     describe: [
       "A bench room of cables. A {lever} stands in a steel slot beside an open {socket}, a {dial} is set in the wall, and a {button} glows by the {door|lab_door}. A {radio} hisses on a shelf.",
       "A hook hangs from the ceiling. The clinic is west."
     ],
-    exits: { w: { to: "tb-clinic", out: true } },
+    exits: { w: { out: true } },
     scenery: [
       { words: ["hook", "ceiling"], name: "the hook", id: "hook", says: "An iron hook in the ceiling, for something long.", },
       { words: ["cables", "cable", "bench", "shelf"], name: "the cables", says: "Black cables, taped to the bench and each other." }
@@ -130,12 +131,12 @@ const rooms = {
 
   // The bar: conditions, and things that come from someone. East of it, the office.
   "tb-bar": {
-    name: "THE BAR", area: "hub", at: [1, 0, 0],
+    name: "THE BAR",
     describe: [
       "A long low bar with one stool. {Dot|dot} keeps it. A {stove} glows in the corner, and an {ice|ice} trough sits by the door.",
       "The hub is west, the office east, and the bedroom south."
     ],
-    exits: { w: "tb-hub", e: "tb-office", s: "tb-bedroom" },
+    exits: { w: "way", e: "way", s: "way" },
     scenery: [
       { words: ["bar", "counter", "stool"], name: "the bar", says: "A long plank on two barrels. One stool, which nobody uses." },
       { words: ["door"], name: "the door", says: "The door to the hub.", leads: "w" }
@@ -146,12 +147,12 @@ const rooms = {
     overlayAlt: { coin: "A coin lies on the counter.", chips: "Three red chips lie in a row on the counter.", green: "A tall green glass stands on the counter." }
   },
   "tb-office": {
-    name: "OFFICE", area: "hub", at: [2, 0, 0],
+    name: "OFFICE",
     describe: [
       "A small office with a high desk. {Mrs Oduya|oduya} sits behind it with a {ledger}, and does not look up.",
       "A day of the week sits in a frame on the wall. The bar is west, and a door north says Archive."
     ],
-    exits: { w: "tb-bar", n: true },
+    exits: { w: "way", n: true },
     scenery: [
       { words: ["desk", "desks"], name: "the desk", says: "A high desk, far too tidy." },
       { words: ["frame", "wall"], name: "the frame", says: "A frame with one word in it, and a thin line of dust along the top." }
@@ -164,12 +165,12 @@ const rooms = {
 
   // The bedroom, south of the bar: sleep, dreams, visions, time.
   "tb-bedroom": {
-    name: "BEDROOM", area: "hub", at: [1, 1, 0],
+    name: "BEDROOM",
     describe: [
       "A dim room with a {bunk} against one wall and a {hammock} slung across the other. A {lamp} burns on a table, and a {clock} ticks over it.",
       "The bar is north."
     ],
-    exits: { n: "tb-bar" },
+    exits: { n: "way" },
     scenery: [{ words: ["table"], name: "the table", says: "A small table with room for a lamp and not much else." }],
     ambience: { lines: ["The clock ticks, and ticks, and has an idea.", "The hammock sways, as if someone had just got out."], every: [30, 70] },
     waitFor: { time: "next 07:00", says: "You lie on the bunk, awake, until it is morning.", if: [hours(22, 7)] },
@@ -180,12 +181,13 @@ const rooms = {
 
   // The yard and the lane: things that move.
   "tb-yard": {
-    name: "THE YARD", area: "hub", at: [-1, 0, 0],
+    name: "THE YARD",
     describe: [
       "A bare yard of beaten earth, with a {bench} against the wall and a small gate to the lane. The sky is low and the light is flat.",
-      "The hub is east. The lane is west, and a gap in the wall leads north round to it."
+      "The hub is east. The lane is west, and a gap in the wall leads north round to it.",
+      "A plank {door|shed_door} in the south wall leads into a shed."
     ],
-    exits: { e: "tb-hub", w: "tb-lane", n: { to: "tb-lane", passage: true } },
+    exits: { e: "way", w: "way", n: true, s: { in: true } },
     scenery: [
       { words: ["gate"], name: "the gate", says: "A small iron gate, standing open.", leads: "w" },
       { words: ["wall", "earth", "sky"], name: "the wall", says: "A brick wall, with nothing on it." },
@@ -196,12 +198,12 @@ const rooms = {
     overlayAlt: { cat: "A grey cat sits on the earth.", watchman: "A watchman in a long coat stands by the wall.", bird: "A small bird hops along the wall." }
   },
   "tb-lane": {
-    name: "THE LANE", area: "hub", at: [-2, 0, 0],
+    name: "THE LANE",
     describe: [
       "A narrow lane between blank walls, with a lit window at the end. It is quiet.",
       "The yard is east."
     ],
-    exits: { e: "tb-yard" },
+    exits: { e: "way" },
     scenery: [{ words: ["walls", "wall", "lane"], name: "the walls", says: "Blank brick on both sides, scraped clean." }],
     ambience: { lines: ["The window light flickers, and holds.", "Something small scrapes along the wall."], every: [30, 60], if: [hours(20, 6)] },
     waitFor: { time: "next 20:00", says: "You wait in the lane, and the light behind the window goes up a little.", if: [hours(6, 20)] },
@@ -210,20 +212,50 @@ const rooms = {
     overlayAlt: { cat: "A grey cat sits on the cobbles.", watchman: "A watchman in a long coat walks the lane.", bird: "A small bird sits on a wall.", clerk: "A night clerk in a green visor stands under the window." }
   },
 
+  // The plan's example (BRIEF.md §2): a shed south of the yard, entered by IN and left by OUT, a store behind it, the attic a floor up.
+  "tb-shed": {
+    name: "THE SHED",
+    describe: [
+      "A small plank shed, with a workbench along one wall. A steep flight of {steps|shed_steps} goes up into the roof.",
+      "The yard is north, through the {door|shed_door}. The store is south."
+    ],
+    exits: { n: "way", s: "way", u: "way" },
+    scenery: [{ words: ["workbench", "bench", "wall"], name: "the workbench", says: "A plain workbench, bare." }],
+    alt: "The inside of a small plank shed, with a workbench along the wall and a steep flight of steps going up into the roof.",
+    overlayAlt: {}
+  },
+  "tb-store": {
+    name: "THE STORE",
+    describe: [
+      "A narrow store behind the shed, with nothing in it but dust. The shed is north."
+    ],
+    exits: { n: "way" },
+    alt: "A narrow bare store with plank walls and a dusty floor.",
+    overlayAlt: {}
+  },
+  "tb-attic": {
+    name: "THE ATTIC",
+    describe: [
+      "The attic, directly over the shed: bare rafters and a square of light. The shed is down."
+    ],
+    exits: { d: "way" },
+    alt: "A low attic under bare rafters, a square of light on the boards.",
+    overlayAlt: {}
+  },
+
   // The ways: every kind of exit.
   "tb-ways": {
-    name: "THE WAYS", area: "hub", at: [0, 0, 1],
+    name: "THE WAYS",
     describe: [
       "A landing with an exit of a different kind on each side. A big iron {wheel} is set in the wall, and a {ladder} goes up.",
-      "North is the annex, behind a guard. East is the landing, and west the chute. A {cupboard} is in the corner. The hub is down."
+      "North is the annex, behind a guard. East is the landing, and west the chute. The hub is down."
     ],
     exits: {
-      n: { to: "tb-annex", requires: "pass", spends: true, lacking: "The guard looks at your empty hands and does not move." },
-      e: { to: "tb-landing", if: hours(8, 20), closed: "The shutter is down. A sign says eight." },
-      w: "tb-chute",
-      in: "tb-closet",
-      u: "tb-roof",
-      d: "tb-hub"
+      n: { requires: "pass", spends: true, lacking: "The guard looks at your empty hands and does not move." },
+      e: { if: hours(8, 20), closed: "The shutter is down. A sign says eight." },
+      w: "way",
+      u: "way",
+      d: "way"
     },
     scenery: [
       { words: ["guard"], name: "the guard", says: "A guard in grey stands in the north doorway, with a hand out." },
@@ -236,12 +268,12 @@ const rooms = {
     overlayAlt: { pass: "A white pass lies on the floor." }
   },
   "tb-annex": {
-    name: "ANNEX", area: "hub", at: [0, -1, 1],
+    name: "ANNEX",
     describe: [
       "A narrow annex lined with shelves. A brass hook hangs from the ceiling over the middle of the room.",
       "The ways are south."
     ],
-    exits: { s: "tb-ways" },
+    exits: { s: "way" },
     scenery: [
       { words: ["hook"], name: "the hook", id: "annex_hook", says: "A brass hook in the ceiling, over the middle of the room." },
       { words: ["shelves", "shelf"], name: "the shelves", says: "Empty shelves, dusted." }
@@ -250,36 +282,36 @@ const rooms = {
     overlayAlt: {}
   },
   "tb-landing": {
-    name: "LANDING", area: "hub", at: [1, 0, 1],
+    name: "LANDING",
     describe: [
       "A short landing with a rail. A flight of {stairs|landing_stairs} goes up.",
       "The ways are west."
     ],
-    exits: { w: "tb-ways", u: "tb-roof" },
+    exits: { w: "way", u: true },
     scenery: [{ words: ["rail", "landing"], name: "the rail", says: "A steel rail, cold." }],
     alt: "A short landing with a steel rail across the front and a narrow flight of stairs going up the back wall into the dark.",
     overlayAlt: {}
   },
   "tb-chute": {
-    name: "THE CHUTE", area: "hub", at: [-1, 0, 1],
+    name: "THE CHUTE",
     describe: [
       "A round steel tube, tilted. There is a handle on the east side that no longer turns.",
       "It goes on down to the yard."
     ],
-    exits: { e: { to: "tb-ways", if: false, closed: "The way back has no handle on this side." }, d: "tb-yard" },
+    exits: { e: { if: false, closed: "The way back has no handle on this side." }, d: { oneWay: true } },
     scenery: [{ words: ["tube", "handle", "steel"], name: "the tube", says: "Polished steel, with a smooth slope down." }],
     alt: "The inside of a round steel tube, tilted, looking down it to a small bright circle of beaten earth.",
     overlayAlt: {}
   },
   "tb-closet": {
-    name: "CLOSET", area: "hub", at: [0, 0, 2],
+    name: "CLOSET",
     placeholder: "A cupboard with nothing in it yet, and its {door|closet_door} back out.",
-    exits: { out: "tb-ways" },
+    exits: { n: { oneWay: true, out: true } },
     alt: "The inside of a cupboard: bare boards and a thin line of light under the door.",
     overlayAlt: {}
   },
   "tb-pit": {
-    name: "THE PIT", area: "hub", at: [0, 1, 1],
+    name: "THE PIT",
     describe: [
       "A square hole in the floor of the ways, dug by a wheel. It is dry, and lit from above."
     ],
@@ -289,12 +321,12 @@ const rooms = {
     overlayAlt: {}
   },
   "tb-roof": {
-    name: "THE ROOF", area: "hub", at: [0, 0, 3],
+    name: "THE ROOF",
     describe: [
       "A flat roof with a low parapet, and the whole floor spread out far below. The wind is steady.",
       "The edge is near. The ways are down."
     ],
-    exits: { d: "tb-ways" },
+    exits: { d: "way" },
     scenery: [
       { words: ["edge", "parapet", "drop"], name: "the edge", says: "A low parapet, and then nothing for a long way." },
       { words: ["wind"], name: "the wind", says: "Steady, from the west, with no weather in it." }
@@ -307,12 +339,12 @@ const rooms = {
 
   // The cellar: doors, locks, pairs, containers.
   "tb-cellar": {
-    name: "THE CELLAR", area: "hub", at: [0, 0, -1],
+    name: "THE CELLAR",
     describe: [
       "A low stone cellar with three doors. The {vault door|vault_door} is east, and the {pantry door|cellar_door} west. A {chest} stands by the wall, a {box} on a shelf, and a {bin} under it. A {boat} sits on blocks.",
       "The hub is up. An arch north leads to the sound of water, and low {iron bars|bars} close a gap in the corner, south."
     ],
-    exits: { u: "tb-hub", n: "tb-falls", e: "tb-vault", w: "tb-pantry", s: "tb-sump" },
+    exits: { u: "way", n: "way", e: "way", w: "way", s: "way" },
     scenery: [{ words: ["blocks", "wall", "shelf", "stone"], name: "the wall", says: "Dressed stone, damp to the touch." }],
     mentions: ["scrap"],
     ambience: { lines: ["Water drips somewhere, and counts.", "The boat creaks on its blocks, going nowhere."], every: [25, 60] },
@@ -322,12 +354,12 @@ const rooms = {
   },
   // The falls: a picture that moves (a scrolling waterfall, glints that flicker each on their own, a torch, a pennant and a ripple).
   "tb-falls": {
-    name: "THE FALLS", area: "hub", at: [0, -1, -1],
+    name: "THE FALLS",
     describe: [
       "A wet cave with a waterfall pouring down the back wall into a wide black pool. A torch burns in a bracket on the left, and a pennant hangs from a pole on the right.",
       "The cellar is south."
     ],
-    exits: { s: "tb-cellar" },
+    exits: { s: "way" },
     scenery: [
       { words: ["waterfall", "water", "fall", "falls"], name: "the waterfall", says: "Water, all of it going the same way." },
       { words: ["pool", "glints"], name: "the pool", says: "Black and wide, with small lights that come and go on it." },
@@ -340,36 +372,36 @@ const rooms = {
     overlayAlt: {}
   },
   "tb-vault": {
-    name: "THE VAULT", area: "hub", at: [1, 0, -1],
+    name: "THE VAULT",
     describe: [
       "A small steel room, empty and bright.",
       "The cellar is west."
     ],
-    exits: { w: "tb-cellar" },
+    exits: { w: "way" },
     scenery: [{ words: ["room", "steel", "walls"], name: "the walls", says: "Steel on every side, brushed." }],
     alt: "A small bright room of brushed steel with a round open door at the left, a smooth floor, and nothing on the walls.",
     overlayAlt: { tin: "A dented tin sits on the floor." }
   },
   // The sump: behind the cellar's locked iron bars, a way that is not a door.
   "tb-sump": {
-    name: "THE SUMP", area: "hub", at: [0, 1, -1],
+    name: "THE SUMP",
     describe: [
       "A low stone sump where the cellar's water drains, black and still. A rusted ladder goes nowhere in the corner.",
       "The cellar is north, through the bars."
     ],
-    exits: { n: "tb-cellar" },
+    exits: { n: "way" },
     scenery: [{ words: ["water", "sump", "ladder"], name: "the sump", says: "Black water, very still, and a ladder with no top." }],
     sleep: "Not in the sump: the water would find you.",
     alt: "A low stone sump with a pool of black water and a rusted ladder in the corner.",
     overlayAlt: {}
   },
   "tb-pantry": {
-    name: "THE PANTRY", area: "hub", at: [-1, 0, -1],
+    name: "THE PANTRY",
     describe: [
       "A narrow pantry of wooden shelves, lit by a slit in the wall. A {jar} sits among cobwebs.",
       "The cellar is east."
     ],
-    exits: { e: "tb-cellar" },
+    exits: { e: "way" },
     scenery: [{ words: ["shelves", "shelf", "cobwebs", "cobweb", "slit"], name: "the shelves", says: "Wooden shelves, hung with old webs." }],
     alt: "A narrow pantry of dark wooden shelves with a slit of white light in the back wall, and a small glass jar on the middle shelf.",
     overlayAlt: {}
@@ -643,12 +675,8 @@ const objects = {
   wheel: { at: "tb-ways", name: "Wheel", note: "Digs, and fills.",
     words: { nouns: ["wheel"], adj: ["iron", "big"] },
     examine: "A big iron wheel set in the wall. Turn it, and a way opens to a pit; turn it again, and the way shuts." },
-  // Every way in or out is a thing (BRIEF.md §8, "Exits"): the cupboard is the ways' way in to the closet, a real `in` exit; its door
-  // the closet's way out; the bar (a place entered by its compass direction, marked `in: true`) the hub's way in, and the lab's door its
+  // Every way in or out is a thing (BRIEF.md §8, "Exits"): the closet's door is its way out (marked `out: true`); the bar (a place entered by its compass direction, marked `in: true`) the hub's way in, and the lab's door its
   // way out (marked `out: true`); the pit's steps and gap, moved in when the wheel digs the pit, its marked ways out and in.
-  cupboard: { at: "tb-ways", leads: "in", material: "wood", name: "Cupboard", note: "Big enough to stand in.",
-    words: { nouns: ["cupboard"], adj: ["low"] },
-    examine: "A low cupboard, big enough to stand in." },
   closet_door: { at: "tb-closet", door: "out", material: "wood", name: "Cupboard door", note: "Back out.",
     words: { nouns: ["door"], adj: ["cupboard"] },
     examine: "The cupboard's door, with a thin line of light under it." },
@@ -660,6 +688,15 @@ const objects = {
     words: { nouns: ["gap"], adj: ["low"] },
     here: "A low {gap|pit_gap} in the south wall gives on the closet.",
     examine: "A low gap in the earth wall, and the back of the closet through it." },
+  landing_stairs: { at: "tb-landing", leads: "u", name: "Stairs", note: "Up to the roof.",
+    words: { nouns: ["stairs", "flight"], adj: ["narrow"], pl: true },
+    examine: "A narrow flight of stairs going up." },
+  shed_door: { at: "tb-yard", door: "s", material: "wood", name: "Shed door", note: "Into the shed.",
+    words: { nouns: ["door"], adj: ["shed", "plank"] },
+    examine: "A plank door, ajar on the dark of a small shed." },
+  shed_steps: { at: "tb-shed", leads: "u", name: "Steps", note: "Up to the attic.",
+    words: { nouns: ["steps", "flight"], adj: ["steep"], pl: true },
+    examine: "A steep flight of plank steps, going up into the roof." },
   ladder: { at: "tb-ways", leads: ["u", "d"], name: "Ladder", note: "Up, or down.",
     words: { nouns: ["ladder"], adj: ["iron"] },
     examine: "An iron ladder. Climbing goes up; climbing down goes down." },
@@ -667,9 +704,6 @@ const objects = {
     here: "A long wooden pole lies along the floor, from wall to wall.",
     words: { nouns: ["pole"], adj: ["long", "wooden"] }, ...item("pole"),
     examine: "A long wooden pole, as long as the room." },
-  landing_stairs: { at: "tb-landing", leads: "u", name: "Stairs", note: "Up to the roof.",
-    words: { nouns: ["stairs", "flight"], adj: ["narrow"], pl: true },
-    examine: "A narrow flight of stairs going up." },
 
   // The cellar
   vault_door: { at: "tb-cellar", door: "e", material: "metal", locked: true, name: "Vault door", note: "Round, and steel.",
@@ -749,7 +783,7 @@ const rules = [
   // rules come from the declaration.
   { id: "turnstile_token", match: { verb: ["put", "use"], obj: "token", obj2: "gate" }, if: [{ "token.at": "player" }],
     do: [{ say: "The turnstile swallows the token and clicks. Its bars are free to turn." }, { move: "token", to: null },
-         { connect: "tb-start", dir: "n", to: "tb-hub" }] },
+         { connect: "tb-start", dir: "n" }] },
   // Hurts and heals.
   { id: "touch_spike", match: { verb: "touch", obj: "spike" }, do: [{ hurt: 1, says: "The spikes go in a little way, and come out again." }] },
   { id: "smell_vent", match: { verb: "smell", obj: "vent" }, once: true, again: "The air from the vent is cool, and nothing else.",
@@ -825,20 +859,23 @@ const rules = [
     do: [{ say: "The chute takes you with a short shout of air." }] },
   { id: "go_east_shut", match: { verb: "go", dir: "e" }, if: [{ "player.at": "tb-ways" }, { "$exit": false }], then: "default",
     do: [{ say: "The shutter is a thing you can see from here." }] },
+  // Travel that is not a step is a move by a rule (BRIEF.md §2): the gap in the yard's wall, round to the lane, and the landing's stairs to the roof.
+  { id: "yard_gap", match: { verb: "go", dir: "n" }, if: [{ "player.at": "tb-yard" }],
+    do: [{ say: "You squeeze through the gap, round the end of the wall, and come out in the lane." }, { travel: "tb-lane" }] },
+  { id: "landing_up", match: { verb: "go", dir: "u" }, if: [{ "player.at": "tb-landing" }],
+    do: [{ say: "You climb the narrow flight, into the wind." }, { travel: "tb-roof" }] },
   { id: "wheel_dig", match: { verb: "turn", obj: "wheel" }, if: [{ "wheel.stage": 0 }],
     do: [{ say: "The wheel turns, and a hatch in the floor south of you slides back on a pit." },
          { draw: "tb-ways", add: ["rect hatch 130,112,60,14 0 e8"] },
-         { connect: "tb-ways", dir: "s", to: "tb-pit" },
-         { connect: "tb-pit", dir: "s", to: "tb-closet", passage: true, in: true },
-         { connect: "tb-pit", dir: "n", to: "tb-ways", out: true }, { move: "pit_steps", to: "tb-pit" }, { move: "pit_gap", to: "tb-pit" },
-         { connect: "tb-pit", dir: "e", to: "tb-landing", passage: true, if: { "wheel.stage": { ">=": 1 } }, closed: "The wall is solid until the wheel has turned." },
-         { connect: "tb-pit", dir: "w", to: "tb-chute", passage: true, requires: "pass", spends: true, lacking: "You would need a pass." },
+         { connect: "tb-ways", dir: "s", if: { "wheel.stage": { ">=": 1 } }, closed: "The hatch is shut." },
+         { connect: "tb-pit", dir: "s", in: true, requires: "pass", spends: true, lacking: "You would need a pass." },
+         { connect: "tb-pit", dir: "n", out: true, oneWay: true }, { move: "pit_steps", to: "tb-pit" }, { move: "pit_gap", to: "tb-pit" },
          { change: "no_such_change", optional: true },
          { set: "wheel.stage", to: 1 }] },
   { id: "wheel_fill", match: { verb: "turn", obj: "wheel" }, if: [{ "wheel.stage": 1 }],
     do: [{ say: "The wheel turns back, and the hatch slides shut over the pit." },
          { draw: "tb-ways", remove: ["hatch"] },
-         { disconnect: "tb-ways", dir: "s" }, { disconnect: "tb-pit", dir: "s" }, { disconnect: "tb-pit", dir: "n" }, { disconnect: "tb-pit", dir: "e" }, { disconnect: "tb-pit", dir: "w" },
+         { disconnect: "tb-ways", dir: "s" }, { disconnect: "tb-pit", dir: "s" }, { disconnect: "tb-pit", dir: "n" },
          { move: "pit_steps", to: null }, { move: "pit_gap", to: null },
          { set: "wheel.stage", to: 0 }] },
   { id: "jump_roof", match: { verb: "jump" }, if: [{ "player.at": "tb-roof" }],
@@ -923,6 +960,7 @@ const opening = {
 export default {
   because: "The test floor: an intake room, and a hub with a way to each mechanism of the engine.",
   opening,
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "The player starts in the intake, south of the hub of the test floor, on a Monday, at noon.",
     "Each room is for one mechanism; a cat, a watchman, a bird and a night clerk move on their own.",

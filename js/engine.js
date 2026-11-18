@@ -2,25 +2,26 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.65.0";
-import standardVerbs from "./verbs.js?v=0.65.0";
-import { DIRECTIONS, STEP, roomAt, isPassage } from "./space.js?v=0.65.0";
-import { clean, isLine } from "./shapes.js?v=0.65.0";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.65.0";
-import { readPicture, editPicture } from "./picture.js?v=0.65.0";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.65.0";
-import * as opening from "./opening.js?v=0.65.0";
-import { PRACTICE } from "./practice.js?v=0.65.0";
-import { translate as translateUse } from "./use.js?v=0.65.0";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.65.0";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.65.0";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.65.0";
-import { ACTIONS, isAction } from "./actions.js?v=0.65.0";
-import { makeSleeping } from "./sleeping.js?v=0.65.0";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.65.0";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.65.0";
-import { answerLine } from "./speech.js?v=0.65.0";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.65.0";
+import { random, between } from "./random.js?v=0.66.0";
+import standardVerbs from "./verbs.js?v=0.66.0";
+import { DIRECTIONS } from "./space.js?v=0.66.0";
+import { compilePlan, roomBeside, BACK } from "./plan.js?v=0.66.0";
+import { clean, isLine } from "./shapes.js?v=0.66.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.66.0";
+import { readPicture, editPicture } from "./picture.js?v=0.66.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.66.0";
+import * as opening from "./opening.js?v=0.66.0";
+import { PRACTICE } from "./practice.js?v=0.66.0";
+import { translate as translateUse } from "./use.js?v=0.66.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.66.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.66.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.66.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.66.0";
+import { makeSleeping } from "./sleeping.js?v=0.66.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.66.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.66.0";
+import { answerLine } from "./speech.js?v=0.66.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.66.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -281,12 +282,21 @@ export function ask(state, effect) {
 // loads, the findings come back as `warnings` and are kept in state.warnings) or "refuse" (the AI's: the set is
 // refused with the reasons). Either way an effect or an operator only the engine writes (`restart`, `hint`…, `holds`: ENGINE_ONLY) refuses the
 // set, and an unknown field inside music only warns (MUSIC.md §2.4). Without it the set isn't checked (the engine's and the tests' own sets).
-export function applyChangeSet(state, set, { protect = true, fields = null } = {}) {
+export function applyChangeSet(state, planned, { protect = true, fields = null } = {}) {
+  // A world's plan (js/plan.js): the exits are made from it, or the set is refused with what to move.
+  let set = planned, squares = null;
+  if (planned.plan !== undefined) {
+    const c = compilePlan(planned);
+    if (c.problems.length) return { next: state, applied: [], refused: c.problems.map(reason => ({ effect: null, reason })) };
+    set = { ...planned, effects: c.effects };
+    squares = c.plan;
+  }
   const found = fields ? checkSet(state, set) : [];
   const refusing = found.filter(f => f.refuse || (fields === "refuse" && !f.warn));   // the engine's own effects: refused in a world too; music never
   if (refusing.length)
     return { next: state, applied: [], refused: refusing.map(f => ({ effect: f.effect ?? null, reason: `${f.piece}: ${f.text}` })) };
   const g = structuredClone(state);
+  if (squares) g.world.plan = squares;                          // where each room is: { room: [x, y, z] } (the plan, js/plan.js)
   if (set.properties && typeof set.properties === "object") g.properties = { ...g.properties, ...structuredClone(set.properties) };
   const out = { applied: [], refused: [], trusted: false };     // a world's changes never touch the opening
   each(g, set.effects || [], {}, out, "changeset#");
@@ -975,19 +985,20 @@ const EFFECTS = {
     if (paid) pay(g, paid, action, out, key + ":paid");
     if (!describedLater(out, room)) done({ describe: room });   // the new room is described, unless the same list does it itself
   },
-  connect(g, e, action, out, key) {  // open or close an exit: { connect: room, dir, to, passage?, in?, out?, if?, closed? }
+  connect(g, e, action, out, key) {  // open or close an exit: { connect: room, dir, to?, in?, out?, if?, closed? } (a planned world writes no `to`: the way leads to the room on the next square)
     const { refuse, done } = outcome(e, out);
     const id = e.connect || e.disconnect, room = g.world.rooms[id];
     if (!room) return refuse("no such room: " + id);
     if (!DIRECTIONS.includes(e.dir)) return refuse("no such direction: " + e.dir);
-    if (e.connect) {
-      if (!g.world.rooms[e.to]) return refuse("no such room: " + e.to);
-      // Inside an area an exit leads to the next cell that way; anything else must say it's a passage.
-      const to = g.world.rooms[e.to];
-      if (!e.passage && STEP[e.dir] && room.at && to.at && to.area === room.area && isPassage(g, id, e.dir, e.to))
-        return refuse(`${e.to} isn't ${e.dir} of ${id}: mark it as a passage`);
-    }
-    room.exits[e.dir] = e.connect ? connectedExit(e) : false;   // a plain room id, or { to, in, out, if, closed } when it carries any
+    let to = e.to;
+    if (e.connect && g.world.plan) {                  // a planned world: the way leads to the room on the next square (js/plan.js)
+      if (to !== undefined) return refuse(`connect ${id} ${e.dir}: take "to" out; the way leads to the room on the next square`);
+      to = roomBeside(g.world.plan, id, e.dir);
+      if (!to) return refuse(`connect ${id} ${e.dir}: there is no room on the next square that way`);
+    } else if (e.connect && !g.world.rooms[to]) return refuse("no such room: " + to);
+    room.exits[e.dir] = e.connect ? connectedExit({ ...e, to }) : false;   // a plain room id, or { to, in, out, if, closed } when it carries any
+    // A way opens from both sides, unless it is marked oneWay: the room beside gets its way back if it has none of its own yet.
+    if (e.connect && g.world.plan && e.oneWay !== true && BACK[e.dir] && g.world.rooms[to].exits[BACK[e.dir]] === undefined) g.world.rooms[to].exits[BACK[e.dir]] = id;
     done({ ...e });
   },
   inside(g, e, action, out, key) {  // say what a container holds, each thing marked ("Inside: a {crank}."): the
@@ -1292,16 +1303,12 @@ const idTaken = (g, kind, id) => {
   return has ? `can't add ${kind} "${id}": that id is already ${has === "object" ? "an" : "a"} ${has}${typeof name === "string" ? ` ("${name}")` : ""}, and ids are unique across rooms, objects and puzzles; rename one of them` : null;
 };
 
-// Add a room (in a free cell of an area), an object, a rule, a named change, a picture, the world's music, a puzzle, a condition or a word.
+// Add a room (its square is the plan's), an object, a rule, a named change, a picture, the world's music, a puzzle, a condition or a word.
 function addThing(g, e, refuse, done) {
   if (e.add === "room") {
     const { add, id, ...props } = e;
     const clash = idTaken(g, "room", id);
     if (clash) return refuse(clash);
-    if (!props.area || !Array.isArray(props.at) || props.at.length !== 3 || !props.at.every(Number.isInteger))
-      return refuse("a room needs an area and a cell [x, y, z]: " + id);
-    const taken = roomAt(g, props.area, props.at);
-    if (taken) return refuse(`cell ${props.at} of ${props.area} is taken by ${taken}`);
     if (props.picture && typeof props.picture.draw === "string") {   // the short notation (js/picture.js)
       const read = readPicture(props.picture);
       if (typeof read === "string") return refuse(`picture of ${id}: ${read}`);

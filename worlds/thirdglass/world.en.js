@@ -1,10 +1,11 @@
 // "The Third Glass": a world, in English, written the way the AI is asked to write a world
 // (BRIEF.md). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -82,6 +83,7 @@ const endingAlts = {
 
 export default {
   because: "The start room in a night desert, then a well camp, a dry river and a cave of painted walls; a lamp, a copy of a painted woman, a camel that stands, a skin of old rain, a well, a bell; and an elder's three glasses.",
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "The door is the way out; knocked on, it opens on the camel lines, where it is morning.",
     "Chain: lamp (tent) -> cloth (camel lines) + charcoal (camp fire) -> rub the painted woman in the gallery -> show the rubbing to Afternoon, who stands and lets go of the goatskin -> fill it in the cistern -> put it in the well, which gives up a bell -> give the bell to Afternoon and ride her: departed.",
@@ -102,12 +104,12 @@ export default {
     { add: "music", ...music, levels },   // the music (music.js; its levels, levels.js, generated); each room's own as its `music`
 
     // ---- the start room: the sand sea, south of the camel lines, a door standing in its frame; night here at any hour --
-    { add: "room", id: "dunes", name: "THE SAND SEA", area: "camp", at: [0, 2, 0],
+    { add: "room", id: "dunes", name: "THE SAND SEA",
       describe: [
         "Dunes in every direction, each the same as the last, under more stars than the sky has any use for. The sand is still warm from a day that ended long ago. Your tracks begin at your heels.",
         "A {door} stands in the sand to the north, hung in a frame with no wall. It is the only thing here that is not sand."
       ],
-      exits: { n: { to: "lines", if: false, closed: "The door stays shut, the way a door does for a guest who has not knocked." } },
+      exits: { n: { if: false, closed: "The door stays shut, the way a door does for a guest who has not knocked." } },
       scenery: [
         { words: ["dunes", "dune", "sand", "crest", "crests"], name: "the dunes", says: "Dune after dune, combed the same way by the same wind. You could walk to the nearest and find you had never left." },
         { words: ["stars", "star", "sky"], name: "the stars", says: "More than are needed. They hang low and close together, like people waiting to be told something." },
@@ -140,19 +142,19 @@ export default {
       again: "You knock again. Nobody comes. The door is open, and that is answer enough.",
       do: [
         { say: "You knock. After a while someone on the other side lifts the latch, politely, and is gone before the door has finished opening. Beyond it it is morning, and cool, and the air smells of woodsmoke and tea." },
-        { connect: "dunes", dir: "n", to: "lines" }
+        { connect: "dunes", dir: "n" }
       ] } },
     { add: "puzzle", id: "knock", where: "dunes", needs: [], solve: ["knock on door", "north"], reaches: "lines", clues: ["door", "shell"],
       hints: ["A door with no wall is still somebody's door, and a guest knocks.", "Knock on the door, then go north through it."] },
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
     // ---- the well camp --------------------------------------------------------------------------------------------
-    { add: "room", id: "camp", name: "THE WELL CAMP", area: "camp", at: [0, 0, 0],
+    { add: "room", id: "camp", name: "THE WELL CAMP",
       describe: [
         "Five black tents stand round a well, with the tea fire between them and the dunes close all round, like a hand. The well has been dry since winter, and the camp is still polite about it.",
         "Every shadow here lies towards the {well}, at any hour. The eldest's {tent|black_tent} is north, the camels south, a dry riverbed west. East there is only sand, and the tracks into it do not come back."
       ],
-      exits: { n: { to: "tent", in: true }, s: "lines", w: "wadi", e: true },
+      exits: { n: { in: true }, s: "way", w: "way", e: true },
       scenery: [
         { words: ["tents", "camp"], name: "the camp", says: "Five tents of goat hair, black going grey, each with its back to the wind and its door to the well." },
         { words: ["fire", "tea fire", "embers", "ashes"], name: "the fire", says: "A small fire of acacia, kept in all night by someone who then pretends not to have." },
@@ -187,12 +189,12 @@ export default {
       sprite: sprites.charcoal },
 
     // ---- the black tent -------------------------------------------------------------------------------------------
-    { add: "room", id: "tent", name: "THE BLACK TENT", area: "camp", at: [0, -1, 0],
+    { add: "room", id: "tent", name: "THE BLACK TENT",
       describe: [
         "Inside it is dusk, whatever the hour. Rugs lie three deep, a brazier ticks, and a small enamel teapot has been about to boil since before you came.",
         "{Fadimata|fadimata} keeps the brazier, with her glasses lined up on a tin tray. A one-string {imzad} hangs from the tent pole, humming under its breath. The flap to the south is the way out."
       ],
-      exits: { s: "camp" },
+      exits: { s: "way" },
       scenery: [
         { words: ["rugs", "rug", "carpet"], name: "the rugs", says: "The oldest is woven with this camp seen from above: five tents, a well, and a little way off, a figure sitting that is not here either." },
         { words: ["brazier", "teapot", "pot", "coals"], name: "the brazier", says: "Coals the colour of the inside of an eyelid. The teapot sits on them like a hen, and is about to say something." },
@@ -260,12 +262,12 @@ export default {
       sprite: sprites.lamp },
 
     // ---- the camel lines --------------------------------------------------------------------------------------------
-    { add: "room", id: "lines", name: "CAMEL LINES", area: "camp", at: [0, 1, 0],
+    { add: "room", id: "lines", name: "CAMEL LINES",
       describe: [
         "The camels are kept south of the camp in a long row, kneeling, all facing the same way. They have knelt since the well went quiet, and chew as though nothing were the matter.",
         "{Afternoon|afternoon}, the white lead camel, kneels at the end of the row beneath a full saddle. {Aghali|aghali} ties a load on the next one, undoes it, and ties it again. Washing hangs between two posts. The camp is north; south, the door with no wall."
       ],
-      exits: { n: "camp", s: "dunes" },
+      exits: { n: "way", s: "way" },
       scenery: [
         { words: ["camels", "row", "herd", "others"], name: "the camels", says: "A dozen camels, kneeling in step, each with its eyes shut at the same angle. They are waiting, and they are good at it." },
         { words: ["washing", "line", "posts", "post"], name: "the washing", says: "Cotton and blue indigo, drying in air that has no moisture in it to offer. It dries anyway, out of tact." },
@@ -343,12 +345,12 @@ export default {
       sprite: sprites.bell },
 
     // ---- the dry river, the ridge ------------------------------------------------------------------------------------
-    { add: "room", id: "wadi", name: "THE DRY RIVER", area: "wadi", at: [0, 0, 0],
+    { add: "room", id: "wadi", name: "THE DRY RIVER",
       describe: [
         "A riverbed of pale sand between low banks, rippled as finely as wood grain. Nothing has run here since before the camp, and the sand runs anyway, west, quietly, a little faster than you can walk.",
         "A flat {stone|flat_stone} lies beside the path, with a single curved track ending at its edge. A red rock stands to the west, a ridge climbs north, and the camp is east."
       ],
-      exits: { e: "camp", w: "mouth", n: "ridge" },
+      exits: { e: "way", w: "way", n: "way" },
       scenery: [
         { words: ["ripples", "sand", "riverbed", "bed", "banks", "bank"], name: "the riverbed", says: "The ripples travel west, all together, a current of sand that no water was ever asked to join." },
         { words: ["rock", "red rock"], name: "the red rock", says: "A hill of red sandstone with a dark crack at its foot. The riverbed runs straight into it, and does not come out the other side." },
@@ -369,12 +371,12 @@ export default {
     { add: "object", id: "flat_stone", at: "wadi", use: "touch", name: "Flat stone", note: "A track ends at it.",
       words: { nouns: ["stone", "slab"], adj: ["flat"] },
       examine: "A flat stone the size of a tray, the colour of the bed. The track beside it is one curved line, and it stops at the stone's edge and does not start again." },
-    { add: "room", id: "ridge", name: "THE RIDGE", area: "wadi", at: [0, -1, 0],
+    { add: "room", id: "ridge", name: "THE RIDGE",
       describe: [
         "The ridge is a long spine of broken stone, and the whole sand sea lies under it, ribbed like the roof of a mouth. The camp is a pinch of black seed in a pale dish, its shadows all pointing in.",
         "Far to the east, past where the dunes should stop, there is a smudge of green and a thread of smoke going straight up. Someone has kept that fire a very long time. A {cairn} marks the top."
       ],
-      exits: { s: "wadi" },
+      exits: { s: "way" },
       scenery: [
         { words: ["smoke", "green", "smudge", "fire", "thread"], name: "the smoke", says: "A thread of smoke, ruled straight from a far green place to the sky. Whoever keeps that fire is expecting someone." },
         { words: ["dunes", "sand", "sea"], name: "the sand sea", says: "Ribs of sand from edge to edge. In all that, the only thing that is not the same as the rest is the smoke." }
@@ -395,12 +397,12 @@ export default {
       examine: "A heap of stones, one from every traveller who stopped here to look east. The oldest are worn round with being held. The newest is still the shape of a pocket." },
 
     // ---- the cave --------------------------------------------------------------------------------------------------
-    { add: "room", id: "mouth", name: "THE CAVE MOUTH", area: "wadi", at: [-1, 0, 0],
+    { add: "room", id: "mouth", name: "THE CAVE MOUTH",
       describe: [
         "The red rock leans over a crack as tall as a doorway, and the cold comes out of it like a breath held a very long time. Out of the sun the air smells of wet stone and old smoke.",
         "Cattle are painted on the wall beside the crack, red, walking inward. A passage goes down into a dark so complete you could lean on it. The dry river is behind you."
       ],
-      exits: { e: "wadi", d: { to: "gallery", if: [{ "lamp.at": "player" }, { "lamp.lit": true }],
+      exits: { e: "way", d: { if: [{ "lamp.at": "player" }, { "lamp.lit": true }],
         closed: "You go three steps down, and the dark has weight and no floor you can see. You come back up to the mouth. Down there wants a light you carry, and have lit." } },
       scenery: [
         { words: ["cattle", "cows", "herd", "ox", "oxen"], name: "the cattle", says: "Ochre, a finger wide, laid on thousands of years ago by someone who had time. The last cow looks back, at you, or at whoever is behind you. They are walking in, not out, as if the dark were a pasture." },
@@ -417,12 +419,12 @@ export default {
       },
       alt: "A tall red rock with a dark crack at its foot, red painted cattle walking into it.",
       picture: pictures.mouth },
-    { add: "room", id: "gallery", name: "THE PAINTED GALLERY", area: "cave", at: [0, 0, -1],
+    { add: "room", id: "gallery", name: "THE PAINTED GALLERY",
       describe: [
         "Your light finds a long chamber painted from floor to roof in ochre and white: giraffes, a river with fish in it, dancers in rows. The paint moves when the flame does, and settles when it is still.",
         "At the far end, life-size, a {woman|painting} sits by a well with a small flame at her knee, facing the way you came in. A narrow way goes north, the sound of water is west, and the passage rises behind you."
       ],
-      exits: { u: "mouth", n: "hands", w: "cistern" },
+      exits: { u: "way", n: "way", w: "way" },
       scenery: [
         { words: ["giraffes", "giraffe", "fish", "river", "dancers", "dancing", "ochre", "paint"], name: "the paintings", says: "Giraffes with their heads in the roof, a river you could drink if it were not paint, dancers in rows with their arms in the air. They are all looking at the woman." },
         { words: ["well", "flame"], name: "the painted well", says: "A painted well with a painted flame beside it. The flame does not flicker. Of everything in the room, it is the only thing that waits." }
@@ -442,12 +444,12 @@ export default {
       words: { nouns: ["woman", "painting", "figure"], adj: ["painted", "red"] },
       touch: "You lay a palm on her painted hand. The rock is cool and smooth, the kind that keeps what is pressed on it. Copying her would want something to press, and something to press with.",
       examine: "She is painted red and white, sitting upright, her hands open on her knees. Her eyes are two dots, and both are looking at the way in. The stone around her is fine and smooth, the kind that keeps what is pressed upon it, and it is worn pale below her where something has leaned for a very long time." },
-    { add: "room", id: "hands", name: "THE ROOM OF HANDS", area: "cave", at: [0, -1, -1],
+    { add: "room", id: "hands", name: "THE ROOM OF HANDS",
       describe: [
         "A small round chamber, its walls and roof printed with hands: pigment blown round a palm, so that each hand is left pale. Children's hands, a hand with six fingers, a hand without a thumb, hundreds, all spread, all at the height of someone arriving.",
         "One {handprint} at eye level is exactly your size. The way out is south."
       ],
-      exits: { s: "gallery" },
+      exits: { s: "way" },
       scenery: [
         { words: ["hands", "fingers", "pigment", "palms", "walls"], name: "the hands", says: "Hundreds of them, each one a place where somebody stood and held still. Not one has a name. Not one needed it." }
       ],
@@ -464,12 +466,12 @@ export default {
     { add: "object", id: "handprint", at: "hands", use: "touch", name: "Handprint", note: "Exactly your size.",
       words: { nouns: ["handprint", "print"], adj: ["pale", "your"] },
       examine: "A pale hand in a halo of red, spread at the height of your shoulder. Its fingers are the length of yours. It is not yours, and it is still slightly warm." },
-    { add: "room", id: "cistern", name: "THE CISTERN", area: "cave", at: [-1, 0, -1],
+    { add: "room", id: "cistern", name: "THE CISTERN",
       describe: [
         "A round chamber cut by water, with a pool in the middle so still that your light hangs in it twice. The air is cold and tastes of coins. A channel comes in under the gallery wall and stops at the pool's edge; nothing leaves.",
         "The {pool} is rain that fell before the camp and before the river, and it remembers every roof. A stone lip runs round it, worn smooth by people who came to be told things."
       ],
-      exits: { e: "gallery" },
+      exits: { e: "way" },
       scenery: [
         { words: ["channel", "lip", "edge"], name: "the channel", says: "The channel is dry, and polished by water that was not in a hurry. It runs from the river to the pool, and the pool takes everything it is given." }
       ],

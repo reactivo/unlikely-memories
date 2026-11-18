@@ -2,6 +2,9 @@
 // state: whether a conditional exit is open right now is the engine's to say (exitNow in js/engine.js), because it
 // reads the same conditions a rule does.
 //
+// A planned world (every world: js/plan.js) writes an exit without its room: "way" for an open way, or an object with the fields below
+// and no `to`; the room it leads to is the one on the next square that way, put in `to` when the world is built. What follows is the
+// built exit, which is what the engine reads, and what a test's own planless set writes:
 //   "shop"                                     a room: the way is open
 //   true                                       there is a way, but a rule answers
 //   false                                      no way
@@ -11,12 +14,11 @@
 //                                              `in: true` / `out: true` mark it as the way into / out of a place
 //                                              (a hut at the east end of the street): "in" / "out" take it. A way marked
 //                                              `in: true` also makes the way back, on the other side, the `out` (wayAt)
-//                                              `passage: true` marks a way that skips the grid inside one area (a looping
-//                                              corridor: js/space.js); the checker refuses one that does it unmarked
+//                                              `oneWay: true` (a planned world: js/plan.js): the way is not opened from the other side
 //
 // A `connect` effect writes an exit too, and may carry the same fields beside `connect`, `dir` and `to` (connectedExit).
 
-import { isObject } from "./shapes.js?v=0.65.0";
+import { isObject } from "./shapes.js?v=0.66.0";
 export const isExitObject = isObject;
 
 // The ways a thing is: the directions going through it takes, from its `door` (a door, gate or hatch on that way) or its `leads` (stairs,

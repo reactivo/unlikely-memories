@@ -24,9 +24,8 @@
 // Also: questions for words (BRIEF.md §8): an `ask` that no rule catches, and player.answers.<key> read where nothing asks "<key>",
 // are warned of (answerWarnings).
 //
-// Also: the cells add up (BRIEF.md §2): inside one area, a way north, south, east or west leads to the cell next door that way (x grows east,
-// y south: north is y − 1), or is marked `passage: true`; else it is a problem, as a taken cell is a refusal (cellProblems in js/checklint.js). The map
-// draws a line, and a tap on a room walks, only between neighbouring cells, so a world with north drawn south loses both.
+// Also: the plan adds up (BRIEF.md §2): every room is on one square, and a way leads to the room on the next square that way (planProblems in
+// js/checklint.js; the engine builds the exits from the plan, js/plan.js, and refuses a world whose plan does not fit).
 //
 // Also: an exit with a condition (`{ to, if, closed }`) is well formed, and can open: the playthrough waits for the hour
 // of a timed one, and a way no property or hour could ever open is warned of (neverOpen in js/checklint.js).
@@ -56,16 +55,16 @@
 // The lints of a world as written (everything above but the playthrough: js/checklint.js, `lintWorld`) run first; the playthrough here only
 // when they found no problem. The checker's cache key (tools/checked.mjs) hashes every file of js/, so both files are in it.
 
-import { parse } from "./parser.js?v=0.65.0";
-import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.65.0";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.65.0";
-import { solveCommand } from "./narrator.js?v=0.65.0";
-import { isExitObject, exitTo } from "./exits.js?v=0.65.0";
-import { moveTo, worldTime } from "./time.js?v=0.65.0";
-import { musicOf } from "./music.js?v=0.65.0";
-import { withoutPractice } from "./practice.js?v=0.65.0";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.65.0";
-import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.65.0";
+import { parse } from "./parser.js?v=0.66.0";
+import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.66.0";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.66.0";
+import { solveCommand } from "./narrator.js?v=0.66.0";
+import { isExitObject, exitTo } from "./exits.js?v=0.66.0";
+import { moveTo, worldTime } from "./time.js?v=0.66.0";
+import { musicOf } from "./music.js?v=0.66.0";
+import { withoutPractice } from "./practice.js?v=0.66.0";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.66.0";
+import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.66.0";
 
 export function check(state, pack, bible, { before = null } = {}) {
   state = withoutPractice(state);                       // (HELP's practice thing is the pack's: a world never declares it: js/practice.js)

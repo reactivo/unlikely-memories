@@ -9,19 +9,19 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.65.0";
-import { PARTS, LINES } from "./opening.js?v=0.65.0";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.65.0";
-import { DIRECTIONS } from "./space.js?v=0.65.0";
-import { isObject, isLine } from "./shapes.js?v=0.65.0";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.65.0";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.65.0";
-import { PART_IDS } from "./time.js?v=0.65.0";
+import { ANSWERED } from "./verbs.js?v=0.66.0";
+import { PARTS, LINES } from "./opening.js?v=0.66.0";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.66.0";
+import { DIRECTIONS } from "./space.js?v=0.66.0";
+import { isObject, isLine } from "./shapes.js?v=0.66.0";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.66.0";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.66.0";
+import { PART_IDS } from "./time.js?v=0.66.0";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
-const ROOM = ["name", "area", "at", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "music", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
+const ROOM = ["name", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "music", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
   "here", "lies", "words", "sprite", "floorSprite", "portrait", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
   "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
@@ -33,7 +33,7 @@ const MUSIC = ["mode", "tempo", "colour", "instruments", "tone", "lines", "melod
 const LEVELS = "levels";
 
 export const FIELDS = {
-  changeSet: ["because", "facts", "effects", "opening", "properties"],
+  changeSet: ["because", "facts", "effects", "opening", "properties", "plan"],
   opening: [...PARTS, "lines"],
   openingLines: [...LINES],
   property: ["type", "min", "max", "start"],
@@ -52,7 +52,7 @@ export const FIELDS = {
   place: PLACE_FIELDS,
   rounds: ROUNDS_FIELDS,
   roundsEvery: ["seconds"],
-  exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "passage"],   // an exit that is not just a room: { to, if?, closed?, in?, out?, requires?, spends?, lacking?, passage? }
+  exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "oneWay"],   // an exit that is not just a way: { to?, if?, closed?, in?, out?, requires?, spends?, lacking?, oneWay? } (a planned world writes no `to`: js/plan.js)
   picture: ["version", "draw", "cycles", "overlays", "loops", "shot"],   // `shot`: the drawing description (English, data only: BRIEF.md §7)
   // Music (MUSIC.md §4): the world's, a room's, an instrument, a line, the theme and its chords. An unknown field inside music
   // only warns (MUSIC.md §2.4), in a world and in what the AI proposes alike.
@@ -83,7 +83,7 @@ export const FIELDS = {
     start: ["start"], stop: ["stop"],                          // a condition starts, a condition stops (js/conditions.js)
     filter: ["filter"], unfilter: ["unfilter"],                // a picture filter on, off; shake: a jolt, once (js/filters.js)
     travel: ["travel"],
-    connect: ["connect", "dir", "to", "passage", ...CONNECT_FIELDS],   // and the exit's own: in, out (marks), if, closed
+    connect: ["connect", "dir", "to", "oneWay", ...CONNECT_FIELDS],   // and the exit's own: in, out (marks), if, closed
     disconnect: ["disconnect", "dir"],
     inside: ["inside"], unlock: ["unlock"], rattle: ["rattle"],   // rattle: a locked thing refusing (the engine's own: the picture shakes lightly)
     change: ["change", "optional"],

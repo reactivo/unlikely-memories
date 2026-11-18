@@ -1,10 +1,11 @@
 // "The River Turns at Noon": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -59,12 +60,12 @@ const endingPictures = {
 // the river at noon: the steps, the court north of them, the bell chamber north of that. Every picture faces north.
 const rooms = {
   bivouac: {
-    name: "THE TENT", area: "bank", at: [0, 1, 0],
+    name: "THE TENT",
     describe: [
       "A canvas tent on a mud bank, shut up against the morning. Rain taps the roof like a clerk with a pencil, and everything that can go green has.",
       "The cot is made, your {boots} stand by it, and a lantern hangs from the ridge pole. The only way out is the {flap}, tied half back on grey light and wet leaves."
     ],
-    exits: { n: { to: "landing", if: { "boots.worn": true }, closed: "You start for the flap in your stockings. The mud outside has views on stockings, and your boots are standing by the cot." } },
+    exits: { n: { if: { "boots.worn": true }, closed: "You start for the flap in your stockings. The mud outside has views on stockings, and your boots are standing by the cot." } },
     scenery: [
       { words: ["cot", "bed", "blanket", "net"], name: "the cot", says: "Made with a precision the rest of the camp gave up some weeks ago." },
       { words: ["lantern", "lamp", "pole", "ridge"], name: "the lantern", says: "A hurricane lantern with a short flame, burning for want of anyone to put it out." },
@@ -83,12 +84,12 @@ const rooms = {
   },
 
   landing: {
-    name: "THE LANDING", area: "bank", at: [0, 0, 0],
+    name: "THE LANDING",
     describe: [
       "A bank of grey mud where the river bends, where the expedition tied up and stopped expecting anything. The {canoe} lies half out of the water beside the Society's {crate}, which has been rained on in three languages.",
       "The river runs down to the sea, brown and in no hurry. A trail climbs into the green to the north, and smoke rises from the village to the west. Your {tent} is south."
     ],
-    exits: { n: "trail", w: "village", s: { to: "bivouac", in: true } },
+    exits: { n: "way", w: "way", s: { in: true } },
     scenery: [
       { words: ["river", "water", "current", "weed"], name: "the river", says: "Brown water the width of a street. A line of weed on the bank shows that it runs both ways, which is the sort of thing you write down and then cross out." },
       { words: ["mud", "bank", "bend"], name: "the mud", says: "Grey, soft and honest. It keeps every footprint, and the footprints say who has been here: you, and a great many fish." },
@@ -107,12 +108,12 @@ const rooms = {
   },
 
   village: {
-    name: "THE VILLAGE", area: "village", at: [0, 0, 0],
+    name: "THE VILLAGE",
     describe: [
       "Eleven houses on stilts, thatched to the ground, round a yard of beaten earth. Fish dry on racks over a low fire, and the smoke goes where it likes.",
       "A path leads east, back to the landing."
     ],
-    exits: { e: "landing" },
+    exits: { e: "way" },
     scenery: [
       { words: ["houses", "house", "thatch", "stilts", "roofs"], name: "the houses", says: "Eleven, each on its own stilts, each with a ladder pulled up for the night and not yet put down." },
       { words: ["fish", "racks", "rack"], name: "the racks", says: "Fish in rows, split and smoked. They are counted every morning, and nobody has ever found one missing." },
@@ -130,12 +131,12 @@ const rooms = {
   },
 
   trail: {
-    name: "THE TRAIL", area: "bank", at: [0, -1, 0],
+    name: "THE TRAIL",
     describe: [
       "The trail climbs from the river between trunks too wide to see round. Toucans argue overhead, and the ground is a soft green rot that keeps every footprint, yours and one much larger.",
       "A carved {post} stands at the fork. The landing is south, the fig is north, and a gap in the leaves to the east lets in the sound of a gorge."
     ],
-    exits: { s: "landing", n: "fig", e: "gorge" },
+    exits: { s: "way", n: "way", e: "way" },
     scenery: [
       { words: ["toucans", "toucan"], name: "the toucans", says: "Three of them, black and orange, quarrelling over a fig as though it were the last, which it is not." },
       { words: ["footprints", "footprint", "prints", "print", "tracks"], name: "the footprints", says: "Yours, small and boot-shaped. And going north, one set as wide as a dinner plate, each print holding its own little pool." },
@@ -153,12 +154,12 @@ const rooms = {
   },
 
   fig: {
-    name: "THE FIG", area: "bank", at: [0, -2, 0],
+    name: "THE FIG",
     describe: [
       "A strangler fig has taken a dead tree and kept its shape. The roots make rooms, and in the largest the air is warm and smells of cat.",
       "A {jaguar} lies along the lowest limb, thin as a hawser, with one eye on you. The trail is south."
     ],
-    exits: { s: "trail" },
+    exits: { s: "way" },
     scenery: [
       { words: ["fig", "tree", "roots", "root", "rooms", "room"], name: "the fig", says: "Roots as thick as a man, folded round the dead tree like hands round a cup. The tree is still in there, and has not been told." },
       { words: ["limb", "branch", "cord", "leather"], name: "the limb", says: "A grey branch worn smooth along its top by something that has lain there a long time." }
@@ -174,12 +175,12 @@ const rooms = {
   },
 
   gorge: {
-    name: "THE GORGE", area: "bank", at: [1, -1, 0],
+    name: "THE GORGE",
     describe: [
       "The forest stops at the lip of a gorge as if it had been told to. You look east: far below, white water; far across, grey steps climb out of the trees to a temple.",
       "A rope {bridge} crosses to it, its planks grey as bone, three of them gone, the ropes frayed to what ropes are made of. The trail is west."
     ],
-    exits: { w: "trail", e: true },
+    exits: { w: "way", e: true },
     scenery: [
       { words: ["gorge", "water", "spray", "falls", "river", "drop"], name: "the gorge", says: "A long way down, the river goes white and loud, and the sound arrives a moment after the sight of it." },
       { words: ["temple", "steps", "stone", "trees"], name: "the temple", says: "A stepped grey front, green at the edges, the stairs going down into the water at its foot. It is nearer than it is, and further than the bridge admits." }
@@ -194,12 +195,12 @@ const rooms = {
   },
 
   steps: {
-    name: "THE STEPS", area: "temple", at: [0, 0, 0],
+    name: "THE STEPS",
     describe: [
       "The river, running the wrong way, has put you down at the foot of a long flight of grey steps, green with a thousand years of being left alone. A stone figure sits on every tenth step, facing the water.",
       "At the top, a {gate} like a wide stone mouth. Your {canoe|canoe_up} waits at the water's edge, ready to go back when the river does."
     ],
-    exits: { n: "court" },
+    exits: { n: "way" },
     scenery: [
       { words: ["steps", "step", "stairs", "flight"], name: "the steps", says: "Wide, shallow and slick, cut for people who were in no hurry and expected to arrive." },
       { words: ["figures", "figure", "statues", "statue"], name: "the figures", says: "Squat stone shapes with their hands on their knees, all facing the river, as if waiting for it to say something." },
@@ -216,12 +217,12 @@ const rooms = {
   },
 
   court: {
-    name: "THE COURT", area: "temple", at: [0, -1, 0],
+    name: "THE COURT",
     describe: [
       "A court of flagstones with grass in every joint. Daylight falls straight down through a round hole in the roof, onto a stone {basin} that holds a hand of rainwater and not one leaf.",
       "A {frieze} runs along the wall, and a low passage leads north into the dark. The steps are back south."
     ],
-    exits: { s: "steps", n: "chamber" },
+    exits: { s: "way", n: "way" },
     scenery: [
       { words: ["flagstones", "flagstone", "floor", "grass", "joints", "court"], name: "the flagstones", says: "Big grey slabs, each with a green seam. Nobody has swept here, and nothing has been dropped." },
       { words: ["hole", "roof", "light", "daylight", "shaft", "sky"], name: "the hole", says: "A round hole the size of a cartwheel, with a circle of sky in it. The light comes down like a plumb line." },
@@ -237,12 +238,12 @@ const rooms = {
   },
 
   chamber: {
-    name: "THE BELL CHAMBER", area: "temple", at: [0, -2, 0],
+    name: "THE BELL CHAMBER",
     describe: [
       "A square chamber with a hole in its roof, and no floor but a stone walk round a {pool} of black water. Two eyes sit on the water as two stones would, if stones watched.",
       "Over the pool, from a beam, hangs the {bell}: gold, the size of a bread oven, its mouth open and empty. The walk runs back south."
     ],
-    exits: { s: "court" },
+    exits: { s: "way" },
     scenery: [
       { words: ["eyes", "eye"], name: "the eyes", says: "Two pale knobs on the black water, level, patient, and not stones." },
       { words: ["walk", "walkway", "stone", "floor"], name: "the walk", says: "A ledge of grey stone a foot wide, going round the pool, polished by a great many people being careful." },
@@ -526,6 +527,7 @@ const rules = [
 // ---- The world ---------------------------------------------------------------------------------------------------------
 export default {
   because: "A British explorer on a jungle river in 1871: a village, a rotten bridge, a jaguar's fig, and a temple the river reaches only at noon, where a gold bell has lost its tongue.",
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "The river runs up the valley between 12:00 and 13:00; the canoe reaches the temple steps only then, and the bell rings the ending only then.",
     "The paddle comes from Kito for the hooks, the shell from Ennu for the salt, both from the crate; the stone tongue hangs in the fig beside a jaguar who leaves for a fish.",

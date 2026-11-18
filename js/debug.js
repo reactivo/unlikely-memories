@@ -3,12 +3,12 @@
 // the page (ui/debug.js draws the panel) and never changes a state itself: the engine does. Nothing in the game imports this
 // file but the panel's block at the end of js/main.js; delete both and the panel is gone.
 
-import { step, applyChangeSet } from "./engine.js?v=0.65.0";
-import { parse } from "./parser.js?v=0.65.0";
-import { text, listName } from "./narrator.js?v=0.65.0";
-import { ORDER, PARAMS, MOMENTS } from "./filters.js?v=0.65.0";
-import { levelName } from "./map.js?v=0.65.0";
-import { musicOf, sceneOf } from "./music.js?v=0.65.0";
+import { step, applyChangeSet } from "./engine.js?v=0.66.0";
+import { parse } from "./parser.js?v=0.66.0";
+import { text, listName } from "./narrator.js?v=0.66.0";
+import { ORDER, PARAMS, MOMENTS } from "./filters.js?v=0.66.0";
+import { levelName } from "./map.js?v=0.66.0";
+import { musicOf, sceneOf } from "./music.js?v=0.66.0";
 
 // What you type at the prompt to open the panel. Read before the parser: never a turn, never echoed, never kept.
 export const COMMAND = "/debug";
@@ -127,16 +127,16 @@ export const stop = (state, id) => (state.conditions?.[id] ? [{ stop: id }] : []
 // Go to a room, whatever the way: the engine's travel (the room described, marked visited).
 export const travel = (room) => [{ travel: room }];
 
-// Every room of the world, grouped by area and level (lowest level first, then by area), each with its name in the pack's words,
-// whether you are there and whether you have been.
+// Every room of the world, grouped by floor (lowest first), each with its name in the pack's words, whether you are there and whether
+// you have been.
 export function rooms(state, pack) {
   const groups = new Map();
   for (const [id, r] of Object.entries(state.world.rooms)) {
-    const z = r.at?.[2] ?? 0, area = r.area ?? "", key = z + "|" + area;
-    if (!groups.has(key)) groups.set(key, { area, z, label: area + " · " + levelName(z, pack), rooms: [] });
-    groups.get(key).rooms.push({ id, name: r.name ? text(r.name, pack) : id, here: id === state.player.at, visited: (state.seen?.visited || []).includes(id) });
+    const z = state.world.plan?.[id]?.[2] ?? 0;
+    if (!groups.has(z)) groups.set(z, { z, label: levelName(z, pack), rooms: [] });
+    groups.get(z).rooms.push({ id, name: r.name ? text(r.name, pack) : id, here: id === state.player.at, visited: (state.seen?.visited || []).includes(id) });
   }
-  return [...groups.values()].sort((a, b) => a.z - b.z || (a.area < b.area ? -1 : a.area > b.area ? 1 : 0));
+  return [...groups.values()].sort((a, b) => a.z - b.z);
 }
 
 // The rooms not visited yet.

@@ -3,27 +3,27 @@
 // the puzzles' own facts, the sprites, the exits and what they lead to, what a text mentions and marks, topics, conditions, harm, food,
 // the pictures, the commands, clock times, regional words and the words from the state written in the texts, the exits and waits that
 // can never open or fire, and the start room's guarantees (checkOpening). Pure: reads the state and the pack, never changes either.
-// (Also here: `cellProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
+// (Also here: `planProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.65.0";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.65.0";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.65.0";
-import { isAction } from "./actions.js?v=0.65.0";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.65.0";
-import { solveCommand } from "./narrator.js?v=0.65.0";
-import { isLine } from "./shapes.js?v=0.65.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, thingsFor, inOutExits } from "./exits.js?v=0.65.0";
-import { nextCell } from "./space.js?v=0.65.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.65.0";
-import * as opening from "./opening.js?v=0.65.0";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.65.0";
-import art from "../content/art.js?v=0.65.0";
-import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.65.0";
-import { paintPicture, CLEAR } from "./paint.js?v=0.65.0";
-import { contrast, MIN_CONTRAST } from "./hist.js?v=0.65.0";
-import { filterProblem } from "./filters.js?v=0.65.0";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.65.0";
+import { parse, normalise } from "./parser.js?v=0.66.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.66.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.66.0";
+import { isAction } from "./actions.js?v=0.66.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.66.0";
+import { solveCommand } from "./narrator.js?v=0.66.0";
+import { isLine } from "./shapes.js?v=0.66.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "./exits.js?v=0.66.0";
+import { roomBeside } from "./plan.js?v=0.66.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.66.0";
+import * as opening from "./opening.js?v=0.66.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.66.0";
+import art from "../content/art.js?v=0.66.0";
+import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems } from "./picture.js?v=0.66.0";
+import { paintPicture, CLEAR } from "./paint.js?v=0.66.0";
+import { contrast, MIN_CONTRAST } from "./hist.js?v=0.66.0";
+import { filterProblem } from "./filters.js?v=0.66.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.66.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -33,19 +33,18 @@ export const NO_MUSIC = "music: the world has no `add music`, so it plays nothin
 const unmarked = (t) => String(t).replace(/\{([^|}]*)(?:\|[^}]*)?\}/g, "$1");
 // A rule's effects with each named change it runs written out after it (one level: what the rule itself does).
 const withChanges = (state, effects) => (effects || []).flatMap(x => x && typeof x.change === "string" ? [x, ...(state.changes?.[x.change] || [])] : [x]);
-// The cells add up: inside one area, each way north, south, east or west leads to the room in the cell next door that way, unless the
-// exit is marked `passage: true` (a looping corridor). Between areas, and up, down, in and out, a way is a passage by itself. One problem
-// for each exit that breaks it, saying where the room is and where that way's cell is.
-export function cellProblems(state) {
-  const rooms = state.world.rooms, found = [];
+// The plan adds up (js/plan.js builds the exits from it, so this repeats what the engine already holds a world to, for a state built by
+// other means): a world has a plan, every room has a square, and each way north, south, east, west, up or down leads to the room on the
+// next square that way. One problem for each exit that doesn't. A state with no worldId (a test's own rooms) has no plan to ask for.
+export function planProblems(state) {
+  const rooms = state.world.rooms, plan = state.world.plan, found = [];
+  if (!plan) return state.worldId ? ["plan: the world has no plan: BRIEF.md §2 (every room is on one square of a grid for its floor; exits are made from it)"] : [];
   for (const [id, room] of Object.entries(rooms)) {
-    for (const dir of ["n", "s", "e", "w"]) {
-      const raw = room.exits?.[dir], to = exitTo(raw), there = typeof to === "string" ? rooms[to] : null;
-      if (!there?.at || !room.at || there.area !== room.area || (isExitObject(raw) && raw.passage === true)) continue;
-      const cell = nextCell(room, dir);
-      if (cell.every((v, i) => v === there.at[i])) continue;
-      found.push(`${id}: exit ${dir} leads to ${to}, at [${there.at.join(", ")}], but the cell ${dir} of ${id} [${room.at.join(", ")}] is [${cell.join(", ")}] ` +
-        `(x grows east, y south: north is y − 1): put ${to} there, or mark the exit passage: true if it skips the grid on purpose`);
+    if (!plan[id]) { found.push(`${id}: is on no square of the plan`); continue; }
+    for (const dir of ["n", "s", "e", "w", "u", "d"]) {
+      const to = exitTo(room.exits?.[dir]);
+      if (typeof to === "string" && roomBeside(plan, id, dir) !== to)
+        found.push(`${id}: exit ${dir} leads to ${to}, but the room on the next square that way is ${roomBeside(plan, id, dir) ?? "none"}: move ${to} on the plan, or take the exit out`);
     }
   }
   return found;
@@ -169,7 +168,9 @@ function exitsLeadProblems(state, pack, arrived, badExits, problems, warnings) {
     const leading = [...(room.scenery || []).map(x => ({ word: x.words?.[0], thing: x })),
       ...Object.entries(arrived.world.objects).filter(([, o]) => o.at === id && wayOf(o)).map(([, o]) => ({ word: o.words?.nouns?.[0], thing: o }))];
     for (const { word, thing } of leading.filter(x => wayOf(x.thing) && x.word)) {
-      const missing = waysOf(thing).filter(dir => !(dir in (room.exits || {})));
+      // (IN and OUT are names for a real direction: the exit marked `in: true` / `out: true`, js/exits.js wayAt)
+      const real = (dir) => (dir === "in" || dir === "out" ? wayAt(arrived.world.rooms, id, dir) ?? dir : dir);
+      const missing = waysOf(thing).filter(dir => !(real(dir) in (room.exits || {})));
       for (const dir of missing) problems.push(`${id}: "${word}" leads ${dir}, but there's no way ${dir} from here`);
       if (!missing.length && travels(there, climb + " " + word) !== wayOf(thing)) problems.push(`${id}: "${climb} ${word}" doesn't go ${wayOf(thing)}`);
     }
@@ -484,7 +485,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   puzzleProblems(state, pack, puzzles, problems, warnings);
   spriteProblems(state, problems);
   portraitChecks(state, problems, warnings);
-  problems.push(...cellProblems(state));
+  problems.push(...planProblems(state));
   const badExits = exitShapeProblems(state, problems);
   const arrived = state;                                            // (the game as it starts: where the exits are walked and the texts read)
   exitsLeadProblems(state, pack, arrived, badExits, problems, warnings);
@@ -1807,7 +1808,8 @@ export function checkOpening(state, pack, play) {
         const run = play(s, { [first]: p });
         run.solve(first);
         if (run.problem) return run.problem;
-        if (exitTo(run.state.world.rooms[roomId].exits?.[dir]) !== p.reaches || !run.state.seen.visited.includes(p.reaches))
+        const wayNow = exitTo(run.state.world.rooms[roomId].exits?.[dir]);       // a room, or true: a way a rule answers (a hatch down to a cellar that is not under the van: BRIEF.md §2)
+        if (!(wayNow === p.reaches || (wayNow === true && run.state.player.at === p.reaches)) || !run.state.seen.visited.includes(p.reaches))
           return `it reaches ${p.reaches}, but not through the way out "${W}" (${dir})`;
         through?.(run.state, run.clock);
         return null;
@@ -1864,7 +1866,8 @@ function goesBack(s, clock, there, roomId) {
     const r = step(s, { verb: "go", dir: d, at: clock + 1000 });
     if (!r.refused.length && r.next.player.at === roomId) return true;
   }
-  return false;
+  const out = step(s, { verb: "go", dir: "out", at: clock + 1000 });        // or a rule answers OUT (the way out was a move by a rule: it is climbed back)
+  return !out.refused.length && out.next.player.at === roomId;
 }
 
 // What a player could do in the start room that loses a thing the way out needs (B in docs/start-room/PLAN.md: nothing can be lost or
@@ -1939,17 +1942,31 @@ function matchActions(m, t) {
 // `replayCommand` is the one way to replay a command of an ending: a mark moves the clock (as the checker did), any other
 // command is typed through the parser and the engine. Returns { state, refused: [reasons], error } (error: not understood).
 
+// A move by a rule (BRIEF.md §2: travel that is not a step, a stair that is not under the room above it): a rule on `go <dir>` that asks only where you
+// are and `travel`s. The way is `true` on the room's compass (a rule answers it); the walk may use it. Map "room dir" → the room it travels to.
+export function ruleMoves(state) {
+  const moves = new Map();
+  for (const r of state.rules || []) {
+    const m = r.match || {}, at = Array.isArray(r.if) && r.if.length === 1 ? r.if[0]?.["player.at"] : null;
+    const to = (r.do || []).find(e => e && typeof e.travel === "string")?.travel;
+    if (m.verb === "go" && typeof m.dir === "string" && !m.obj && typeof at === "string" && to) moves.set(at + " " + m.dir, to);
+  }
+  return moves;
+}
+
 // The shortest walk between two rooms by exits that lead to rooms (a shut one counts when waiting for its hour opens
 // it; with `locks`, a way shut by a locked thing counts too, the player unlocking it on the way: see lockOn): a list of directions, or null.
+// A way a rule answers counts when a rule moves you along it (ruleMoves).
 export function route(state, from, to, { locks = false } = {}) {
-  const seen = new Set([from]), queue = [[from, []]];
+  const seen = new Set([from]), queue = [[from, []]], moves = ruleMoves(state);
   while (queue.length) {
     const [room, path] = queue.shift();
     if (room === to) return path;
     for (const [dir, raw] of Object.entries(state.world.rooms[room].exits || {})) {
-      const next = exitTo(raw);
+      const moved = exitTo(raw) === true ? moves.get(room + " " + dir) : null;
+      const next = moved ?? exitTo(raw);
       if (typeof next !== "string" || seen.has(next) || !state.world.rooms[next]) continue;
-      if (!exitNow(state, room, dir).go && !opensByWaiting(state, room, dir) && !(locks && lockOn(state, room, dir))) continue;   // shut, and waiting won't open it
+      if (!moved && !exitNow(state, room, dir).go && !opensByWaiting(state, room, dir) && !(locks && lockOn(state, room, dir))) continue;   // shut, and waiting won't open it
       seen.add(next); queue.push([next, [...path, dir]]);
     }
   }

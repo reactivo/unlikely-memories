@@ -3,10 +3,11 @@
 // Un solo conjunto de cambios, todo o nada. Los ids, las coordenadas, las cifras, los dibujos y los
 // sprites son los de la versión inglesa; solo cambia lo que lleva lenguaje.
 
-import pictures, { endings } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
 export const bible = {
@@ -57,12 +58,12 @@ const endingPictures = {
 const rooms = {
   // La sala del comienzo (BRIEF.md §3): el pasaje de atrás de los almacenes, cerrado por los dos extremos; se sale por la puerta giratoria cuando la empujas.
   pavement: {
-    name: "EL PASAJE", area: "store", at: [1, 2, 0],
+    name: "EL PASAJE",
     describe: [
       "El pasaje de atrás de Hartley's, a las cinco y diez de un sábado: un corredor de baldosas bajo un techo de cristal, con la persiana echada a tu espalda. Todos los escaparates están encendidos, y los vestidos se han vuelto un poco hacia ti. Huele a paraguas mojados.",
       "La única entrada es la {puerta giratoria|street_door}, al norte."
     ],
-    exits: { n: { to: "front_hall", in: true, if: false, closed: "La puerta pasa de largo sin dejarte ningún hueco, como pasan las puertas ante quien solo se queda mirando. Su barra de latón dice EMPUJE." } },
+    exits: { n: { in: true, if: false, closed: "La puerta pasa de largo sin dejarte ningún hueco, como pasan las puertas ante quien solo se queda mirando. Su barra de latón dice EMPUJE." } },
     scenery: [
       { words: ["escaparate", "escaparates", "cristal", "cristales", "vitrina", "vitrinas", "vestidos", "vestido"], name: "los escaparates", says: "Vestidos sobre sus bustos, de colores de antes de que nacieras, cada uno vuelto unos grados hacia ti. Los del fondo, unos grados más." },
       { words: ["repisa", "repisas", "borde", "saliente", "alféizar", "alfeizar"], name: "la repisa", says: "Una repisa de piedra, lo bastante ancha para dejar un paquete, pulida por gente que se paró a mirar vestidos y ya no se marchó." },
@@ -75,13 +76,13 @@ const rooms = {
     }
   },
   front_hall: {
-    name: "HARTLEY'S", area: "store", at: [1, 1, 0],
+    name: "HARTLEY'S",
     describe: [
       "La planta baja de Hartley's, toda caoba y latón, como lo es desde que a tu abuela le tomaron medidas para su primer abrigo. Estás de pie sobre el mosaico, junto al {directorio|directory}, como si siempre hubieras estado a punto de entrar.",
       "La {puerta giratoria|revolving_door} gira despacio, sola. El {señor Gage|gage}, jefe de planta, lleva un clavel y lo vigila todo. Perfumería queda al oeste, guantería al este, los ascensores al norte."
     ],
-    exits: { w: "perfumery", e: "gloves", n: "lift_lobby",
-      s: "pavement" },
+    exits: { w: "way", e: "way", n: "way",
+      s: "way" },
     scenery: [{ words: ["mosaico", "caoba", "latón", "laton", "mostradores", "mostrador", "techo", "araña", "arana", "vestíbulo", "vestibulo"], name: "el vestíbulo", says: "Un mosaico de un barco a toda vela, gastado en la proa por cien años de gente que se ha puesto donde tú te pones." }],
     mentions: ["clavel"],
     ambience: { lines: ["En algún lugar suena una caja registradora, aunque nadie ha comprado nada.", "Una cápsula pasa por encima de ti, por su tubo, con prisa, como un pensamiento camino de alguien.", "La puerta giratoria da una vuelta vacía y se detiene."], every: [45, 90] },
@@ -89,12 +90,12 @@ const rooms = {
     alt: "Un gran vestíbulo de almacén: mostradores de caoba, latón y un suelo de mosaico con un barco. Un panel de directorio sobre un pie, un jefe de planta con un clavel y una puerta giratoria al frente."
   },
   perfumery: {
-    name: "PERFUMERÍA", area: "store", at: [0, 1, 0],
+    name: "PERFUMERÍA",
     describe: [
       "Mostradores de frascos alineados como un coro a punto de cantar. Cada frasco huele a una tarde concreta. {Madame Corre|corre} está entre ellos, con guantes blancos.",
       "Sobre el mostrador, una {muestra|tester} con una etiqueta escrita de su puño y letra. El vestíbulo queda al este."
     ],
-    exits: { e: "front_hall" },
+    exits: { e: "way" },
     scenery: [{ words: ["frascos", "frasco", "mostradores", "mostrador", "coro", "perfumes", "botellas", "estantes"], name: "los frascos", says: "Frasquitos con etiquetas escritas a mano: EL ÚLTIMO DÍA DE LAS VACACIONES. UN PASILLO DE HOSPITAL POR LA NOCHE. LA NIEVE, ANTES DE CAER. No están en venta. Son la materia prima de Madame Corre." }],
     mentions: ["guantes", "etiqueta"],
     smell: "Veinte tardes a la vez, ninguna tuya, todas casi.",
@@ -102,110 +103,110 @@ const rooms = {
     alt: "Un mostrador de perfumería abarrotado de frasquitos en estantes de cristal. Una mujer alta con guantes blancos detrás; un solo frasco de muestra sobre el mostrador, delante."
   },
   gloves: {
-    name: "GUANTERÍA", area: "store", at: [2, 1, 0],
+    name: "GUANTERÍA",
     describe: [
       "Cajones de guantes hasta el techo, cada par dormido entre papel de seda. Una cartulina sobre el mostrador dice VUELVO EN CINCO MINUTOS, con una letra que hace mucho que pasó de moda.",
       "Sobre el mostrador yace un {guante|glove} solo, con los dedos cerrados, como se cierra una mano sobre algo que lleva en el bolsillo. El vestíbulo queda al oeste."
     ],
-    exits: { w: "front_hall" },
+    exits: { w: "way" },
     scenery: [{ words: ["cajones", "cajón", "cajon", "papel", "seda", "pares", "mostrador", "cartulina", "letrero", "minutos"], name: "los cajones", says: "Cada cajón lleva una talla y un sentimiento: SIETE Y MEDIO, NERVIOSA. OCHO, PARA ENTIERROS. La cartulina del mostrador se ha puesto amarilla de esperar." }],
     mentions: ["papel de seda"],
     alt: "Un mostrador de guantería con paredes altas de cajoncitos de madera. Sobre el mostrador, un guante color crema solo, con los dedos curvados y cerrados."
   },
   lift_lobby: {
-    name: "LOS ASCENSORES", area: "store", at: [1, 0, 0],
+    name: "LOS ASCENSORES",
     describe: [
       "{Puertas de ascensor|lobby_doors}, de latón, bajo un {indicador|indicator} que señala plantas que nadie pide desde hace años: S, PB, 1, 2, 4.",
       "El ascensor está al norte, con la reja abierta. Una escalera sube a la primera planta; unos escalones bajan al sótano. El vestíbulo queda al sur."
     ],
-    exits: { n: { to: "lift", in: true }, s: "front_hall", u: "first_landing", d: "basement" },
+    exits: { n: { in: true }, s: "way", u: "way", d: "way" },
     scenery: [{ words: ["escalera", "escaleras", "barandilla", "pasamanos"], name: "la escalera", says: "Una escalera ancha, con barandilla de caoba, que sube.", leads: "u" },
               { words: ["escalones", "escalón", "escalon", "sótano", "sotano"], name: "los escalones", says: "Escalones de piedra que bajan al sótano, con un olor a jabón que sube por ellos.", leads: "d" }],
     alt: "Un vestíbulo de ascensores: puertas de latón con una reja plegable abierta, un indicador semicircular de plantas encima, una escalera que sube a un lado y escalones de piedra que bajan al otro."
   },
   lift: {
-    name: "EL ASCENSOR", area: "store", at: [1, -1, 0],
+    name: "EL ASCENSOR",
     describe: [
       "Un ascensor como un pequeño salón: un espejo, un banco de terciopelo, una reja de latón. El {señor Pell|pell} está sentado en su taburete junto a la {palanca|lift_lever} y mira al techo, donde estarían las plantas.",
       "La reja se abre al sur, al vestíbulo."
     ],
-    exits: { s: "lift_lobby", u: true, d: false },
+    exits: { s: "way", u: true, d: false },
     scenery: [{ words: ["espejo", "banco", "terciopelo", "taburete", "techo", "botones", "boton", "botón", "reja", "ascensor"], name: "el ascensor", says: "No hay botones. Está el señor Pell, y la palanca, y una pequeña cerradura de latón junto al número 4. La reja está plegada, abierta al vestíbulo.", leads: "s" }],
     sleep: "En el ascensor no. El señor Pell te subiría y te bajaría toda la noche.",
     alt: "El interior de un ascensor antiguo: un espejo, un banco de terciopelo rojo, una reja plegable de latón y un hombre de uniforme sentado en un taburete, con una mano cerca de una palanca de latón."
   },
   first_landing: {
-    name: "PRIMERA PLANTA", area: "store", at: [1, 0, 1],
+    name: "PRIMERA PLANTA",
     describe: [
       "El descansillo de la primera planta: una palmera en una maceta de latón y una alfombra gastada hasta la trama por quienes dudan hacia dónde ir.",
       "Mercería queda al oeste, juguetes al este. La escalera sube y baja."
     ],
-    exits: { w: "haberdashery", e: "toys", u: "second_landing", d: "lift_lobby" },
+    exits: { w: "way", e: "way", u: "way", d: "way" },
     scenery: [{ words: ["palmera", "maceta", "alfombra", "hilos", "trama"], name: "la palmera", says: "Una palmera que lleva en la primera planta más tiempo que nadie. Se inclina hacia la escalera, como si pensara irse." },
               { words: ["escalera", "escaleras", "barandilla"], name: "la escalera", says: "Una escalera de caoba que sube a la segunda planta y baja a la planta baja." }],
     alt: "Un descansillo ancho con alfombra roja gastada, una palmera en una maceta de latón y escaleras que suben y bajan. Arcos a izquierda y derecha."
   },
   haberdashery: {
-    name: "MERCERÍA", area: "store", at: [0, 0, 1],
+    name: "MERCERÍA",
     describe: [
       "Cintas en carretes, botones en cajones y un mostrador donde la {señorita Thimble|thimble} lo mide todo dos veces. Sobre ella, los {tubos|tubes} de latón del correo neumático suben hasta el techo.",
       "Una {cápsula|canister} espera en su soporte, bajo un {tirador|handle}. El descansillo queda al este."
     ],
-    exits: { e: "first_landing" },
+    exits: { e: "way" },
     scenery: [{ words: ["cintas", "cinta", "carretes", "carrete", "botones", "cajones", "mostrador", "metro"], name: "las cintas", says: "Cintas de todos los colores, en carretes, y un metro de latón atornillado al borde del mostrador, gastado en la primera vara." }],
     sleep: "En el mostrador de la señorita Thimble no. Te mediría dos veces.",
     alt: "Un mostrador de mercería con carretes de cinta de colores y cajoncitos de botones. Una mujer con un metro. Sobre ella, tubos de latón suben hasta el techo; una cápsula descansa en su soporte, bajo un tirador."
   },
   toys: {
-    name: "JUGUETES", area: "store", at: [2, 0, 1],
+    name: "JUGUETES",
     describe: [
       "Caballitos de balancín, soldados de plomo, un tren eléctrico que da vueltas a una mesa en un bucle que no lleva a ninguna parte. Un {oso de cuerda|bear} espera en un estante a que le den cuerda.",
       "El descansillo queda al oeste."
     ],
-    exits: { w: "first_landing" },
+    exits: { w: "way" },
     scenery: [{ words: ["soldados", "soldado", "tren", "trenecito", "mesa", "bucle", "juguetes", "estante", "estantes", "caballitos"], name: "los juguetes", says: "Los soldados forman en filas, de cara a la escalera. El tren da vueltas. Nadie ha comprado aquí un juguete desde que los niños crecieron." }],
     alt: "Una sección de juguetes: estantes de soldados y caballitos de balancín, un tren en miniatura que rodea una mesa y un pequeño oso marrón de cuerda sentado en un estante."
   },
   second_landing: {
-    name: "SEGUNDA PLANTA", area: "store", at: [1, 0, 2],
+    name: "SEGUNDA PLANTA",
     describe: [
       "El descansillo de la segunda planta, más tranquilo, con olor a moqueta nueva. Una {puerta|roof_door} al final de un tramo corto de escalones dice JARDÍN DE LA AZOTEA, CERRADO POR INVIERNO. Lleva cerrada muchos inviernos.",
       "Muebles queda al oeste, abrigos al este. La escalera baja."
     ],
-    exits: { w: "furniture", e: "coats", d: "first_landing", u: "roof_garden" },
+    exits: { w: "way", e: "way", d: "way", u: "way" },
     scenery: [{ words: ["escalera", "escaleras", "barandilla", "moqueta"], name: "la escalera", says: "La escalera principal baja a la primera planta.", leads: "d" },
               { words: ["tramo", "escalones", "peldaños", "peldanos"], name: "el tramo", says: "Un tramo corto sube hasta la puerta de la azotea.", leads: "u" }],
     alt: "Un descansillo tranquilo con moqueta nueva. Un corto tramo de escalones sube a una puerta pintada con un letrero. Arcos a izquierda y derecha."
   },
   furniture: {
-    name: "MUEBLES", area: "store", at: [0, 0, 2],
+    name: "MUEBLES",
     describe: [
       "Habitaciones sin paredes: un comedor, un dormitorio, una sala de estar, cada una dispuesta para una familia que no ha llegado. El {sofá|sofa} de la sala de estar aún conserva la forma de alguien.",
       "El descansillo queda al este; el salón de té, al oeste."
     ],
-    exits: { e: "second_landing", w: "tea_room" },
+    exits: { e: "way", w: "way" },
     scenery: [{ words: ["habitaciones", "habitación", "habitacion", "comedor", "dormitorio", "sala", "estar", "mesa", "cama", "lámpara", "lampara", "familia"], name: "las habitaciones", says: "Cubiertos puestos en la mesa, una lámpara en la mesilla, zapatillas junto a la cama. Todo está esperando a ser de alguien." }],
     mentions: ["sala de estar"],
     alt: "Una planta de muebles dispuesta como habitaciones sin paredes: una mesa de comedor puesta para cuatro, una cama con una lámpara y un sofá hondo con un hueco en los cojines."
   },
   tea_room: {
-    name: "SALÓN DE TÉ", area: "store", at: [-1, 0, 2],
+    name: "SALÓN DE TÉ",
     describe: [
       "Doce mesas, palmeras, un carrito de pasteles bajo campanas de plata. {Dot|dot}, la camarera, lleva desde la guerra sirviendo la misma tetera en la misma mesa vacía.",
       "Una ventana da a los tejados de la ciudad. Muebles queda al este."
     ],
-    exits: { e: "furniture" },
+    exits: { e: "way" },
     scenery: [{ words: ["mesas", "mesa", "palmeras", "carrito", "pasteles", "campanas", "ventana", "tejados", "tetera"], name: "el salón de té", says: "Desde la ventana, los tejados de la ciudad se alejan en todas direcciones. Por encima de la tienda, una azotea que nadie visita." }],
     sleep: "En el salón de té no. Dot solo te serviría otra taza.",
     alt: "Un salón de té: mesitas redondas con manteles blancos, palmeras en macetas, un carrito de pasteles con campanas de plata, una camarera con una tetera y una ventana alta sobre los tejados."
   },
   coats: {
-    name: "ABRIGOS", area: "store", at: [2, 0, 2],
+    name: "ABRIGOS",
     describe: [
       "Abrigos en las barras y abrigos puestos a los {maniquíes|mannequins}, en fila, de cara a la puerta. Cuando miras a otro lado, se vuelven hacia ti.",
       "Uno lleva un abrigo exactamente como el tuyo, solo que algo más cálido. El descansillo queda al oeste."
     ],
-    exits: { w: "second_landing" },
+    exits: { w: "way" },
     scenery: [{ words: ["barras", "barra", "abrigos", "perchas"], name: "las barras", says: "Abrigos para todos los climas, y una barra al fondo para los climas que aún no se han inventado." }],
     mentions: ["abrigo"],
     ambience: { lines: ["Por el rabillo del ojo, un maniquí baja la mano.", "Una percha tintinea contra una barra, una vez, sin que nadie esté cerca.", "Los maniquíes están exactamente donde estaban. Casi lo podrías jurar."], every: [40, 80] },
@@ -213,34 +214,34 @@ const rooms = {
     alt: "Una sección de abrigos: barras de abrigos y una fila de maniquíes pálidos con abrigos y sombreros, todos de cara a la puerta."
   },
   basement: {
-    name: "SÓTANO", area: "store", at: [1, 0, -1],
+    name: "SÓTANO",
     describe: [
       "El sótano: ollas, escobas, olor a jabón. En el centro se alza la caja, una cabina de latón y cristales esmerilados donde desembocan todos los tubos de la tienda.",
       "Dentro, la {señorita Ruth|ruth} ordena las cápsulas según caen. Los escalones suben."
     ],
-    exits: { u: "lift_lobby" },
+    exits: { u: "way" },
     scenery: [{ words: ["ollas", "cazuelas", "escobas", "jabón", "jabon", "cabina", "caja", "cristales", "tubos", "latón", "laton"], name: "la caja", says: "Una cabina de latón con cristales esmerilados y un cartelito: TODOS LOS PAGOS POR TUBO. Los tubos de todas las plantas bajan hasta ella como las raíces de algo." },
               { words: ["escalones", "escalera"], name: "los escalones", says: "Escalones de piedra que suben a los ascensores.", leads: "u" }],
     alt: "Un sótano de estantes con ollas y escobas. En el centro, una cabina de latón con cristales esmerilados, tubos que bajan del techo hasta su tejado y la silueta de una mujer dentro."
   },
   roof_garden: {
-    name: "LA AZOTEA", area: "store", at: [1, 0, 3],
+    name: "LA AZOTEA",
     describe: [
       "Grava, rosales desnudos en tinas y un {banco|roof_bench} frente a la ciudad. Los tejados se pierden en todas direcciones, con las chimeneas de pie, como gente esperando el autobús.",
       "Nadie se ha sentado aquí desde que cerraron el jardín. La puerta de la escalera está abajo."
     ],
-    exits: { d: "second_landing" },
+    exits: { d: "way" },
     scenery: [{ words: ["grava", "rosales", "rosal", "tinas", "tejados", "chimeneas", "ciudad", "cielo"], name: "los tejados", says: "Pizarra y chimeneas, la fábrica de gas, el chapitel de una iglesia. Desde aquí arriba la ciudad parece algo que se podría doblar y guardar." },
               { words: ["puerta", "escalera"], name: "la puerta", says: "La puerta de la azotea, abierta, y la escalera que baja.", leads: "d" }],
     alt: "Un jardín en la azotea: grava, rosales desnudos en tinas, un banco de madera frente a un horizonte de tejados y chimeneas bajo un cielo azul oscuro."
   },
   fourth_floor: {
-    name: "LA CUARTA PLANTA", area: "fourth", at: [0, 0, 4],
+    name: "LA CUARTA PLANTA",
     describe: [
       "Una sala larga de barras y, en las barras, tardes, colgadas como abrigos, cada una con una etiqueta de letra cuidadosa. Una lluviosa, de un gris que te favorecería. Una azul que huele a mar.",
       "Bajo su propia lámpara cuelga la {tarde|afternoon} a la que no fuiste. La {modista|fitter} espera con alfileres en la boca. El {ascensor|fourth_lift} queda al sur."
     ],
-    exits: { s: { to: "lift", in: true } },
+    exits: { s: { to: true, in: true } },
     scenery: [{ words: ["barras", "barra", "tardes", "etiquetas", "etiqueta", "gris", "azul", "lámpara", "lampara"], name: "las tardes", says: "AGOSTO DE 1958, LA FERIA. UN DOMINGO SIN VISITAS. EL AUTOBÚS QUE SE DEJÓ PASAR. Cada una cortada a la medida de alguien, y ninguna recogida." }],
     alt: "Una sala larga y en penumbra, con barras de ropa de las que cuelgan formas blandas de distintos colores, como abrigos hechos de tiempo. Al fondo, una cuelga bajo una lámpara y una mujer con un acerico espera a su lado."
   }
@@ -446,7 +447,7 @@ const rules = [
   { id: "push_street_door", match: { verb: "push", obj: "street_door" }, if: [at("pavement"), { "street_door.gap": false }],
     do: [{ set: "street_door.gap", to: true },
          { say: "Apoyas la mano en la barra de latón y empujas. La puerta afloja, se lo piensa, y te trae una hoja con un hueco, justo de tu tamaño." },
-         { connect: "pavement", dir: "n", to: "front_hall", in: true }, { change: "arrival" }] },
+         { connect: "pavement", dir: "n", in: true }, { change: "arrival" }] },
   { id: "push_street_door_again", match: { verb: "push", obj: "street_door" }, if: [at("pavement")],
     do: [{ say: "La puerta sigue girando, y te guarda el hueco." }] },
   // La puerta giratoria del vestíbulo: te saca al pasaje, la sala del comienzo, y vuelves a entrar por la del pasaje (BRIEF.md §3).
@@ -558,6 +559,7 @@ export default {
   because: "Un pasaje detrás de unos grandes almacenes, y los almacenes a la hora de cierre.",
   opening,
   // Las propiedades que guardan las reglas de este mundo (ARCHITECTURE.md §3, «Fields and properties»); las del motor no se declaran.
+  plan,                                   // where every room is (plan.js): exits are made from it
   properties: {
     "street_door.gap": { type: "boolean", start: false }   // has empujado la puerta giratoria del pasaje: te guarda un hueco
   },

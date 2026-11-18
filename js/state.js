@@ -2,10 +2,11 @@
 // Plain data, no behaviour. Only the engine (js/engine.js) makes a new one; everything else only reads it.
 // Interface-only things (text reveal, focus, "restarting…") stay out.
 
-import { worldFor, DEFAULT } from "../worlds/load.js?v=0.65.0";   // (what is loaded: the page loads a world when it is opened; Node has every world)
-import { applyChangeSet } from "./engine.js?v=0.65.0";
-import { newSeed } from "./random.js?v=0.65.0";
-import { withPractice } from "./practice.js?v=0.65.0";
+import { worldFor, DEFAULT } from "../worlds/load.js?v=0.66.0";   // (what is loaded: the page loads a world when it is opened; Node has every world)
+import { applyChangeSet } from "./engine.js?v=0.66.0";
+import { newSeed } from "./random.js?v=0.66.0";
+import { withPractice } from "./practice.js?v=0.66.0";
+import { readPlan, NO_PLAN } from "./plan.js?v=0.66.0";
 
 // The shape of the state. Bump it when the state changes shape, so older saved games aren't loaded into code
 // that doesn't understand them. (9: waitFor can now hold an `if`, so a saved game from before may have waitFor: null. 10: `properties` and `warnings`.
@@ -26,7 +27,8 @@ export function newState({ lang, health = 5, seed = newSeed(), sequel = true, pr
   // one (a test, a rule) can never change the world itself for the next game (worlds are plain JSON: tests/worlds.test.js).
   const world = sequel === true ? structuredClone(worldFor(lang, id)) : sequel ? structuredClone(sequel) : null;
   if (world) {
-    const r = applyChangeSet(state, world, { protect, fields: "warn" });
+    // A world of worlds/ has a plan (js/plan.js); a test's own set (sequel: a set) may leave it out, with its exits written room to room.
+    const r = sequel === true && world.plan === undefined ? { refused: [{ effect: null, reason: NO_PLAN }] } : applyChangeSet(state, world, { protect, fields: "warn" });
     if (r.warnings?.length) console.warn(`The world${sequel === true ? ` "${id}"` : ""} has ${r.warnings.length} warning(s):\n  ` + r.warnings.join("\n  "));
     if (!r.refused.length) return withPractice({ ...r.next, worldId: sequel === true ? id : null });
     console.warn(refusalReport(r.refused, sequel === true ? id : null), r.refused);
@@ -113,10 +115,20 @@ export function refusalReport(refused, id = null) {
 function nowhere(state) {
   const blankPicture = { version: 1, draw: [{ id: "blank", rect: [0, 0, 320, 136], fill: 0 }] };
   return { ...state, player: { ...state.player, at: "nowhere" }, seen: { ...state.seen, held: [], visited: ["nowhere"] },
-    world: { objects: {}, rooms: { nowhere: { name: "@noWorld.place", area: "nowhere", at: [0, 0, 0], exits: {},
+    world: { objects: {}, rooms: { nowhere: { name: "@noWorld.place", exits: {},
       describe: ["@noWorld.text"], alt: "@noWorld.alt", picture: blankPicture } } } };
 }
 
 // The state a new game of a world starts from, only to be looked at: a world's own page (ui/splash.js) hands it to the music, which plays the
 // start room's theme from it. Never played, never saved (a game itself is made by js/main.js, begin).
 export const startOf = (lang, id) => newState({ lang, id });
+
+// A saved game from before the plan has no squares in its world: they are the world's, never changed in play, so they come from its plan
+// as the game is continued (the saved rooms keep their own exits and texts). The same state when it has them, or its world has no plan.
+export function withPlan(state) {
+  if (state.world.plan || !state.worldId) return state;
+  try {
+    const set = worldFor(state.lang, state.worldId), read = set?.plan ? readPlan(set.plan, Object.keys(state.world.rooms)) : null;
+    return read && !read.problems.length ? { ...state, world: { ...state.world, plan: read.squares } } : state;
+  } catch (e) { return state; }
+}

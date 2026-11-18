@@ -2,10 +2,11 @@
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.65.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.65.0";
-import levels from "./levels.js?v=0.65.0";
-import sprites from "./sprites.js?v=0.65.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.66.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
+import levels from "./levels.js?v=0.66.0";
+import sprites from "./sprites.js?v=0.66.0";
+import plan from "./plan.js?v=0.66.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -67,18 +68,18 @@ const visionPictures = {
 };
 
 // ---- Rooms -----------------------------------------------------------------------------------------------------------
-// Area "row" (x grows east, y grows south): the court north of the Row, the Bell west and the pie shop east of it; the
-// last lamp south, with the substation west, the hut east and the river steps south; the bridge east of the steps. The cab,
-// the start room, stands at the Row's kerb: you get OUT onto the Row (once the fare is paid) and back IN from it, so it has a
-// cell of its own beside the court, joined to nothing by north, south, east or west.
+// The plan (plan.js; x grows east, y grows south): the court north of the Row, the cab, the start room, at its kerb to the west, on
+// the street, and the pie shop east of it; the last lamp south, with the substation west, the hut east and the river steps south; the
+// bridge east of the steps and the Bell west of them, down by the river. You get OUT of the cab onto the Row (once the fare is paid:
+// east) and back IN from it (west).
 const rooms = {
   cab: {
-    name: "THE CAB", area: "row", at: [0, -1, 0],
+    name: "THE CAB",
     describe: [
       "Inside a hansom cab, stopped. The horse has gone, and the cabman with it; the reins hang past the window like a sentence nobody finished. Through the glass there is only white.",
       "In front of your knees the folding doors stand open on the {fog|cab_fog}, the only way out; it waits in them like a doorman."
     ],
-    exits: { out: { to: "row", if: false, closed: "You put a foot on the step, and the fog puts it back, politely, the way a doorman would. Nobody gets down from a cab without paying the fare." } },
+    exits: { e: { out: true, if: false, closed: "You put a foot on the step, and the fog puts it back, politely, the way a doorman would. Nobody gets down from a cab without paying the fare." } },
     scenery: [
       { words: ["reins", "cabman", "horse", "shafts"], name: "the reins", says: "Leather reins, going up over the roof to where a cabman was. They are still warm where he held them." },
       { words: ["window", "glass", "pane"], name: "the window", says: "A small side window, misted. On the other side of it, white, and nothing in the white." },
@@ -99,19 +100,18 @@ const rooms = {
     }
   },
   row: {
-    name: "LANTERN ROW", area: "row", at: [1, 0, 0],
+    name: "LANTERN ROW",
     describe: [
       "Lantern Row: a short street of shop fronts between the coroner's court and the river, lit by gas. In this fog the lamps hang like oranges wrapped in muslin, and it could be any hour.",
-      "{Constable Pye|pye} walks his beat, which is the Row, which is short. The court is north, behind oak {doors|court_doors}. The Bell is west, the pie shop east. South, the Row runs down to the last lamp and the river."
+      "{Constable Pye|pye} walks his beat, which is the Row, which is short. The court is north, behind oak {doors|court_doors}. Your cab waits at the kerb, west; the pie shop is east. South, the Row runs down to the last lamp and the river."
     ],
     exits: {
-      n: { to: "court", if: { "time.hour": { between: [0, 6] } }, closed: "The court doors are shut. The card on them says the inquest sits at midnight." },
-      w: { to: "bell", if: { "time.hour": { between: [11, 23] } }, closed: "The Bell is shut. Through the window the chairs stand on the tables with their legs in the air, like something that has given up." },
-      e: "pie_shop", s: "last_lamp", in: "cab"
+      n: { if: { "time.hour": { between: [0, 6] } }, closed: "The court doors are shut. The card on them says the inquest sits at midnight." },
+      w: { in: true }, e: "way", s: "way"
     },
     scenery: [
       { words: ["lamps", "lamp", "gas", "oranges", "muslin"], name: "the lamps", says: "Gas lamps on iron posts, one every few doors, each lit by hand. In the fog they give light to themselves and not much to anyone else." },
-      { words: ["bell", "pub"], name: "the Bell", says: "A low pub front, brown varnish and brass, with a smell of porter coming through the door.", leads: "w" },
+      { words: ["bell", "pub"], name: "the Bell", says: "You cannot see it from here: the Bell is down by the river steps, a red smear in the fog and a smell of porter on the damp." },
       { words: ["pie", "pies", "halloran's"], name: "the pie shop", says: "The pie shop's window is yellow and steamed over.", leads: "e" },
       { words: ["shops", "shop", "fronts", "front", "street", "row"], name: "the shop fronts", says: "A tobacconist, a chandler, a shop that mends umbrellas and nothing else. All shut, all lit by somebody else's lamp." },
       { words: ["fog", "muck", "peasouper"], name: "the fog", says: "Yellow-grey and thick enough to lean on. Now and then a word goes by in it at head height, too faint to make out." },
@@ -128,15 +128,15 @@ const rooms = {
     // The court sits at midnight: worth waiting for here whenever it isn't sitting.
     waitFor: { time: "next 00:00", says: "You wait by the court doors. The fog comes and stands beside you, and waits too.", if: [{ "time.hour": { between: [6, 24] } }] },
     sleep: "Not in the street. Constable Pye would move you on.",
-    alt: "A street of shop fronts in thick grey fog, seen from the middle of the cobbles: gas lamps going away as orange blurs, the Bell's red window on the left, the pie shop's yellow one on the right, the court's dark doors at the far end, and a policeman in a helmet standing on the right."
+    alt: "A street of shop fronts in thick grey fog, seen from the middle of the cobbles: gas lamps going away as orange blurs, a red smear of window far off on the left, the pie shop's yellow one on the right, the court's dark doors at the far end, and a policeman in a helmet standing on the right."
   },
   bell: {
-    name: "THE BELL", area: "row", at: [0, 0, 0],
+    name: "THE BELL",
     describe: [
       "The Bell: brown varnish, low beams, and a warmth like the inside of somebody's coat. Men in caps sing at the bar, each a little behind the one before.",
-      "{Mr Cotter|cotter}, the landlord, polishes a glass that will never be clean enough for him. A {fire} burns in the grate. The Row is east, through the {door|bell_door}."
+      "{Mr Cotter|cotter}, the landlord, polishes a glass that will never be clean enough for him. A {fire} burns in the grate. The river steps are east, through the {door|bell_door}."
     ],
-    exits: { e: { to: "row", out: true } },
+    exits: { e: { out: true } },
     scenery: [
       { words: ["bar", "counter", "pumps"], name: "the bar", says: "Mahogany, scarred with forty years of elbows. The pumps have brass handles worn to the shape of hands." },
       { words: ["men", "man", "caps", "cap", "singers", "singing", "song", "chorus"], name: "the men at the bar", says: "Dockers and cabmen, singing about a river and a girl who wouldn't. None of them knows all the words. Between them they nearly do." },
@@ -154,12 +154,12 @@ const rooms = {
     alt: "A low-beamed public house in silhouette: men in caps black against the red and orange glow of a coal fire on the left, a long dark bar, the landlord behind it holding up a glass."
   },
   pie_shop: {
-    name: "HALLORAN'S PIES", area: "row", at: [2, 0, 0],
+    name: "HALLORAN'S PIES",
     describe: [
       "A pie shop the width of a coat rack: a counter, a window steamed blind, and an {oven} that has not gone out since the old Queen. Everything smells of pastry and hot fat.",
       "{Mrs Halloran|halloran} stands behind the counter with flour to the elbow, wiping a place that is already clean. The Row is west, through the {shop door|pie_door}."
     ],
-    exits: { w: { to: "row", out: true } },
+    exits: { w: { out: true } },
     scenery: [
       { words: ["counter", "trays", "tray", "pies", "pastry"], name: "the counter", says: "Trays of pies in rows, each with a little steam hole cut in the shape of a leaf. One row has a gap in it." },
       { words: ["window", "steam", "letter"], name: "the window", says: "Steamed blind from the inside. Someone has written a single letter in the steam with a finger, an A, and the steam has nearly taken it back." }
@@ -170,12 +170,12 @@ const rooms = {
     alt: "A pie shop seen from above: a long brown counter with trays of golden pies in rows, the glowing mouth of an iron oven at the top, a steamed window along the bottom, and a woman in a white cap leaning over the counter on the right."
   },
   court: {
-    name: "CORONER'S COURT", area: "row", at: [1, -1, 0],
+    name: "CORONER'S COURT",
     describe: [
       "A varnished room with a bench, a {witness box|witness_box} and a jury of twelve chairs, in which the fog sits, listening. Inquests on the Row are held at midnight, so the deceased can attend if he likes.",
       "{Dr Mabbott|mabbott}, the coroner, waits at the bench with his pen. The Row is south, through the {doors|court_doors_in}."
     ],
-    exits: { s: { to: "row", out: true } },
+    exits: { s: { out: true } },
     scenery: [
       { words: ["bench", "panels", "leather"], name: "the bench", says: "High and green, with brass studs. It was built so that coroners could look down on things, and they do." },
       { words: ["chairs", "chair", "jury", "fog"], name: "the jury", says: "Twelve chairs in two rows. The fog has taken all of them and sits very still, the way a jury does when it has already decided to listen." }
@@ -185,15 +185,15 @@ const rooms = {
     alt: "Looking up from the witness box at a high green coroner's bench: a thin man in black above it with a pen, a green-shaded lamp beside him, and on the right twelve jury chairs with pale fog sitting in them."
   },
   last_lamp: {
-    name: "THE LAST LAMP", area: "row", at: [1, 1, 0],
+    name: "THE LAST LAMP",
     describe: [
       "The bottom of the Row, where the cobbles stop at the river wall. Every lamp on the Row is lit except the last {lamp|dark_lamp}. Under it, on the kerb, sits {Mr Fenn|fenn}, the lamplighter, his hands on his knees. He died here this evening, and has not been relieved.",
       "The {fog|fog_lamp} is thickest here, and murmurs. His {hut|hut_door} is east, the Electric Company's substation west. Steps go down to the river, south; the Row goes back up north."
     ],
     exits: {
-      n: "row", w: "substation", s: "river_steps",
+      n: "way", w: "way", s: "way",
       // The hut is the one building here "in" means (the substation is entered by its name): the way east is also the way in.
-      e: { to: "hut", in: true }
+      e: { in: true }
     },
     scenery: [
       { words: ["kerb", "cobbles", "wall", "river"], name: "the river wall", says: "A low wall of black stone, and the river slapping it somewhere below. The kerb is worn where one man has sat down on it once." },
@@ -212,12 +212,12 @@ const rooms = {
     alt: "A wide view along a river wall in dark blue fog. On the left a tall iron lamp-post, unlit, its glass black; at its foot a small man in a cap sits on the kerb. On the right, a green wooden hut with its door. Far off up the Row, the faint glow of other lamps."
   },
   hut: {
-    name: "THE LAMPLIGHTER'S HUT", area: "row", at: [2, 1, 0],
+    name: "THE LAMPLIGHTER'S HUT",
     describe: [
       "Mr Fenn's hut: a wooden box the size of a wardrobe, smelling of gas and paraffin. Forty years of caps hang on forty years of nails, the oldest at the top.",
       "His {log book|logbook} lies open on the shelf at today's page. The door is west."
     ],
-    exits: { w: "last_lamp" },
+    exits: { w: "way" },
     scenery: [
       { words: ["caps", "cap", "nails", "nail"], name: "the caps", says: "The same cap forty times, each a little greener than the one after it. The newest nail is empty." },
       { words: ["shelf", "tin", "matches"], name: "the shelf", says: "A plank on two brackets, holding the log book and a tin of matches nobody has needed in forty years." },
@@ -228,12 +228,12 @@ const rooms = {
     overlayAlt: { trumpet: "A dented brass ear trumpet lies on the floor." }
   },
   substation: {
-    name: "THE SUBSTATION", area: "row", at: [0, 1, 0],
+    name: "THE SUBSTATION",
     describe: [
       "The Electric Company's substation: a brick room with the only electric bulb on the Row, and a {dynamo} that hums like a man who knows he is right.",
       "{Mr Voss|voss} sits at a desk under the bulb with his {ledger} open, in a bowler hat he has not taken off since the Company sent him. The last lamp is east, through the {door|substation_door}."
     ],
-    exits: { e: { to: "last_lamp", out: true } },
+    exits: { e: { out: true } },
     scenery: [
       { words: ["bulb", "light", "flex"], name: "the bulb", says: "One electric bulb on a flex, very white, very sure. It makes the brick look as if it had been caught at something." },
       { words: ["desk", "brick", "bricks", "wires", "wire"], name: "the desk", says: "A Company desk, Company brick, Company wires going down into the floor, waiting for Monday." }
@@ -248,13 +248,14 @@ const rooms = {
     alt: "A brick room lit by one bare electric bulb: a big humming dynamo on the left, and on the right a man in a bowler hat at a desk with an open ledger."
   },
   river_steps: {
-    name: "THE RIVER STEPS", area: "row", at: [1, 2, 0],
+    name: "THE RIVER STEPS",
     describe: [
       "Stone steps go down from the river wall to a strip of mud, and below it the Thames goes by, brown and in no hurry. You hear it better than you see it.",
-      "At the bottom {Pip|pip}, a mudlark, turns things over with a stick and keeps the good ones in a bucket. The {river} slaps the last step, as if it wanted the next one. The bridge is east; the last lamp, back up north."
+      "At the bottom {Pip|pip}, a mudlark, turns things over with a stick and keeps the good ones in a bucket. The {river} slaps the last step, as if it wanted the next one. The bridge is east, the Bell west; the last lamp, back up north."
     ],
-    exits: { n: "last_lamp", e: "bridge" },
+    exits: { n: "way", e: "way", w: { if: { "time.hour": { between: [11, 23] } }, closed: "The Bell is shut. Through the window the chairs stand on the tables with their legs in the air, like something that has given up." } },
     scenery: [
+      { words: ["bell", "pub"], name: "the Bell", says: "A low pub front, brown varnish and brass, with a smell of porter coming through the door.", leads: "w" },
       { words: ["steps", "stairs", "wall"], name: "the steps", says: "Stone steps, green at the bottom, going back up to the last lamp, north.", leads: "n" },
       { words: ["mud", "strip", "foreshore"], name: "the mud", says: "Black mud, shining. Things go into it and, if Pip is about, come out again." }
     ],
@@ -269,12 +270,12 @@ const rooms = {
     alt: "Looking down from a river wall: stone steps going down on the left to a strip of black mud, a small girl in a big coat with a bucket on the mud, and the brown river filling the picture up to a far bank lost in fog."
   },
   bridge: {
-    name: "THE BRIDGE", area: "row", at: [2, 2, 0],
+    name: "THE BRIDGE",
     describe: [
       "Out on the bridge the fog thins, as if it had stopped to catch its breath. The river goes under you without a sound. Back on the bank, Lantern Row is a short string of lit lamps with a gap at the end.",
       "The {parapet} is wet and cold under your hands. The far half of the bridge has been lost in the fog for years, and nobody goes to look for it. The river steps are west."
     ],
-    exits: { w: "river_steps" },
+    exits: { w: "way" },
     scenery: [
       { words: ["river", "water", "thames"], name: "the river", says: "Below, the river, going under the bridge as if it had an appointment." },
       { words: ["lamps", "lamp", "string", "gap", "bank", "lantern", "row"], name: "the Row", says: "Eleven lamps in a line, small and yellow, and then a gap where the twelfth should be." },
@@ -397,7 +398,7 @@ const objects = {
 
   // The ways out of the Bell, the pie shop, the court and the substation (their exits marked `out: true`): each its door (BRIEF.md §8,
   // "Exits": every way in or out is a thing). The cab's is the fog, its way out (west, and out).
-  bell_door: { at: "bell", door: "e", material: "wood", name: "Door", note: "Out to the Row.",
+  bell_door: { at: "bell", door: "e", material: "wood", name: "Door", note: "Out to the river steps.",
     words: { nouns: ["door"], adj: ["bell", "pub"] },
     examine: "A heavy door with a brass handle worn thin. Every time it opens, the fog looks in." },
   pie_door: { at: "pie_shop", door: "w", material: "glass", name: "Shop door", note: "Out to the Row.",
@@ -516,7 +517,7 @@ const changes = {
   fare_paid: [
     { say: "You hold out the shilling. The fog takes it, the way a good doorman takes a tip, without seeming to, and stands aside. Somewhere above it a church clock strikes, and doesn't sound sure of the hour." },
     { move: "shilling", to: null },
-    { connect: "cab", dir: "out", to: "row" }
+    { connect: "cab", dir: "e", out: true }
   ],
   key_taken: [
     { set: "fenn.examine", to: "A small man in a cap and a coat gone green at the seams, sitting very straight on the kerb with his hands on his knees. His neck looks bare without the string. He is dead, and still on duty." },
@@ -675,10 +676,10 @@ const rules = [
 
   // The Bell shuts at eleven; the court sits at midnight and rises at six.
   { id: "bell_shuts_inside", when: "at", at: "23:00", if: [{ "player.at": "bell" }],
-    do: [{ say: "Mr Cotter rings the handbell over the bar. \"Time,\" he says, and the singing stops in the middle of a word. You find yourself out on the Row with the others, who go off into the fog in different directions and do not come out of it." },
-         { travel: "row" }] },
+    do: [{ say: "Mr Cotter rings the handbell over the bar. \"Time,\" he says, and the singing stops in the middle of a word. You find yourself out on the river steps with the others, who go off into the fog in different directions and do not come out of it." },
+         { travel: "river_steps" }] },
   { id: "bell_shuts", when: "at", at: "23:00", if: [{ "player.at": { in: ["row", "last_lamp", "pie_shop", "substation", "hut", "river_steps"] } }],
-    do: [{ say: "Up the Row a handbell rings in the Bell, and the singing stops in the middle of a word. Lantern Row goes quiet, quiet enough to hear a word drop." }] },
+    do: [{ say: "Down by the river a handbell rings in the Bell, and the singing stops in the middle of a word. Lantern Row goes quiet, quiet enough to hear a word drop." }] },
   // What the Row's picture shows of it: the Bell's window goes dark at eleven and lights at eleven in the morning; the
   // court doors stand open from midnight to six.
   { id: "bell_dark", when: "at", at: "23:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:0,4@0.2" }] }] },
@@ -729,6 +730,7 @@ const opening = {
 export default {
   because: "A fog-bound street on the night of a lamplighter's inquest, and the cab that brought you, stopped at its kerb.",
   opening,
+  plan,                                   // where every room is (plan.js): exits are made from it
   facts: [
     "The player starts in a cab stopped on Lantern Row, London, in thick fog, on a Thursday at half past ten at night.",
     "Albert Fenn, lamplighter, died this evening under the one lamp he didn't light, and sits there still, dead, until relieved.",
@@ -739,8 +741,8 @@ export default {
     { time: "day 1 22:30", weekday: "thu" },                 // the game starts at half past ten
     // Verbs this world needs
     { add: "word", verb: "accuse", words: ["accuse", "blame", "name", "charge", "denounce"], absent: true, reply: "Names are for the inquest: the coroner's court, north of the Row, when it sits at midnight." },
-    { add: "word", verb: "order", reply: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." },
-    { add: "word", verb: "buy", reply: "There is porter at the Bell, west on the Row, and pies at Halloran's, east of it." },
+    { add: "word", verb: "order", reply: "There is porter at the Bell, down by the river steps, and pies at Halloran's, east on the Row." },
+    { add: "word", verb: "buy", reply: "There is porter at the Bell, down by the river steps, and pies at Halloran's, east on the Row." },
     { add: "word", verb: "breathe", words: ["breathe", "breathe in", "take a breath", "inhale"], reply: "You breathe in fog, and it breathes you back. Out on the bridge, past the river steps, the air is thinner." },
     { add: "word", verb: "swim", words: ["swim", "wade", "paddle", "dive"] },
     { add: "word", verb: "pay", words: ["pay", "tip", "pay off"], object: "optional", reply: "Nobody here is waiting to be paid." },
