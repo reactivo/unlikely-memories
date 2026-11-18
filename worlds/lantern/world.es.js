@@ -2,11 +2,11 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.66.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
-import levels from "./levels.js?v=0.66.0";
-import sprites from "./sprites.js?v=0.66.0";
-import plan from "./plan.js?v=0.66.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.66.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
+import levels from "./levels.js?v=0.66.1";
+import sprites from "./sprites.js?v=0.66.1";
+import plan from "./plan.js?v=0.66.1";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -137,7 +137,7 @@ const rooms = {
     // El tribunal se reúne a medianoche: vale la pena esperarla aquí siempre que no esté reunido.
     waitFor: { time: "next 00:00", says: "Esperas junto a las puertas del tribunal. La niebla viene y se pone a tu lado, y también espera.", if: [{ "time.hour": { between: [6, 24] } }] },
     sleep: "En la calle no. El agente Pye te haría circular.",
-    alt: "Una calle de fachadas de tiendas en espesa niebla gris, vista desde el centro de los adoquines: faroles de gas que se alejan como borrones naranjas, un borrón rojo de ventana, lejos, a la izquierda, la amarilla de la tienda de pasteles a la derecha, las puertas oscuras del tribunal al fondo y, a la derecha, un policía con casco de pie."
+    alt: "Una calle de fachadas de tiendas en espesa niebla gris, vista desde el centro de los adoquines: faroles de gas que se alejan como borrones naranjas, una casa oscura con postigos cerrados, lejos, a la izquierda, la amarilla de la tienda de pasteles a la derecha, las puertas oscuras del tribunal al fondo y, a la derecha, un policía con casco de pie."
   },
   bell: {
     name: "THE BELL",
@@ -690,10 +690,7 @@ const rules = [
          { travel: "river_steps" }] },
   { id: "bell_shuts", when: "at", at: "23:00", if: [{ "player.at": { in: ["row", "last_lamp", "pie_shop", "substation", "hut", "river_steps"] } }],
     do: [{ say: "Junto al río suena una campanilla en The Bell, y el canto se corta en mitad de una palabra. Lantern Row se queda callada, lo bastante para oír caer una palabra." }] },
-  // Lo que la imagen de la calle muestra: la ventana de The Bell se oscurece a las once y se enciende a las once de la mañana; las
-  // puertas del tribunal están abiertas de medianoche a las seis.
-  { id: "bell_dark", when: "at", at: "23:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:0,4@0.2" }] }] },
-  { id: "bell_lit", when: "at", at: "11:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:4,12@0.45" }] }] },
+  // Lo que la imagen de la calle muestra: las puertas del tribunal están abiertas de medianoche a las seis.
   { id: "court_open", when: "at", at: "00:00", do: [{ draw: "row", restyle: [{ id: "court_doors", fill: "mix:6,14@0.5" }] }] },
   { id: "court_shut", when: "at", at: "06:00", do: [{ draw: "row", restyle: [{ id: "court_doors", fill: "mix:6,0@0.5" }] }] },
   { id: "court_sits", when: "at", at: "00:00", if: [{ "player.at": "row" }],

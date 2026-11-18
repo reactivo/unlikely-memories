@@ -2,11 +2,11 @@
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.66.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
-import levels from "./levels.js?v=0.66.0";
-import sprites from "./sprites.js?v=0.66.0";
-import plan from "./plan.js?v=0.66.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.66.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
+import levels from "./levels.js?v=0.66.1";
+import sprites from "./sprites.js?v=0.66.1";
+import plan from "./plan.js?v=0.66.1";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -128,7 +128,7 @@ const rooms = {
     // The court sits at midnight: worth waiting for here whenever it isn't sitting.
     waitFor: { time: "next 00:00", says: "You wait by the court doors. The fog comes and stands beside you, and waits too.", if: [{ "time.hour": { between: [6, 24] } }] },
     sleep: "Not in the street. Constable Pye would move you on.",
-    alt: "A street of shop fronts in thick grey fog, seen from the middle of the cobbles: gas lamps going away as orange blurs, a red smear of window far off on the left, the pie shop's yellow one on the right, the court's dark doors at the far end, and a policeman in a helmet standing on the right."
+    alt: "A street of shop fronts in thick grey fog, seen from the middle of the cobbles: gas lamps going away as orange blurs, a dark shuttered house far off on the left, the pie shop's yellow one on the right, the court's dark doors at the far end, and a policeman in a helmet standing on the right."
   },
   bell: {
     name: "THE BELL",
@@ -680,10 +680,7 @@ const rules = [
          { travel: "river_steps" }] },
   { id: "bell_shuts", when: "at", at: "23:00", if: [{ "player.at": { in: ["row", "last_lamp", "pie_shop", "substation", "hut", "river_steps"] } }],
     do: [{ say: "Down by the river a handbell rings in the Bell, and the singing stops in the middle of a word. Lantern Row goes quiet, quiet enough to hear a word drop." }] },
-  // What the Row's picture shows of it: the Bell's window goes dark at eleven and lights at eleven in the morning; the
-  // court doors stand open from midnight to six.
-  { id: "bell_dark", when: "at", at: "23:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:0,4@0.2" }] }] },
-  { id: "bell_lit", when: "at", at: "11:00", do: [{ draw: "row", restyle: [{ id: "bell_window", fill: "mix:4,12@0.45" }] }] },
+  // What the Row's picture shows of it: the court doors stand open from midnight to six.
   { id: "court_open", when: "at", at: "00:00", do: [{ draw: "row", restyle: [{ id: "court_doors", fill: "mix:6,14@0.5" }] }] },
   { id: "court_shut", when: "at", at: "06:00", do: [{ draw: "row", restyle: [{ id: "court_doors", fill: "mix:6,0@0.5" }] }] },
   { id: "court_sits", when: "at", at: "00:00", if: [{ "player.at": "row" }],

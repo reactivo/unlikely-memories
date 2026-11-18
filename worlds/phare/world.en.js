@@ -1,11 +1,11 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.66.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.66.0";
-import levels from "./levels.js?v=0.66.0";
-import sprites from "./sprites.js?v=0.66.0";
-import plan from "./plan.js?v=0.66.0";
+import pictures, { endings } from "./pictures.js?v=0.66.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.66.1";
+import levels from "./levels.js?v=0.66.1";
+import sprites from "./sprites.js?v=0.66.1";
+import plan from "./plan.js?v=0.66.1";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -57,9 +57,9 @@ const endingPictures = {
 
 // ---- Rooms ------------------------------------------------------------------------------------------------------------
 // The van, the start room (BRIEF.md §3), is at the loading dock south of the vestibule, on the street's level (no exit joins it to the ground
-// floor); its hatch is a way down into the cellar by a rule, once the rope has lifted it, and the cellar climbs back into it by a rule (OUT, by
-// the hatch overhead): the cellar is under the vestibule (a real down and up by the stairs), not under the van, so the hatch is a move, not a
-// step. The cellar is on the floor below, the ground floor, the landing and lens room are a floor up, and the roof two.
+// floor); its hatch is a real way down into the cellar, directly under it, once the rope has lifted it, and the cellar's way up is the same
+// hatch. The packing room is under the vestibule, at the foot of its stairs (a real down and up), and the cellar is south of it; the boiler
+// room is east of the cellar. Those three are the floor below, the ground floor, the landing and lens room are a floor up, and the roof two.
 const rooms = {
   cart: {
     name: "THE PACKING VAN",
@@ -67,7 +67,7 @@ const rooms = {
       "A packing van, backed against the Galerie Aubry's loading dock, the tarpaulin laced down on every side. Straw underfoot, crates stacked to the roof, a lantern turned low.",
       "The only way on is the {hatch} in the floor, down into the cellar, nailed down for the drive. A {rope} runs from its ring to a coil in the straw."
     ],
-    exits: { d: { to: true, if: { "rope.pulled": true }, closed: "Nailed down for the drive: four nails. A hatch that rattles on the cobbles is a hatch a gendarme looks at. The rope on its ring is for lifting it." } },
+    exits: { d: { in: true, if: { "rope.pulled": true }, closed: "Nailed down for the drive: four nails. A hatch that rattles on the cobbles is a hatch a gendarme looks at. The rope on its ring is for lifting it." } },
     scenery: [
       { words: ["straw"], name: "the straw", says: "Packing straw, and not clean: someone has slept in it." },
       { words: ["tarpaulin", "tarp"], name: "the tarpaulin", says: "Laced to the rail every hand's width. Nothing gets in or out that way." },
@@ -82,30 +82,31 @@ const rooms = {
   cellar: {
     name: "CRATE CELLAR",
     describe: [
-      "Brick vaults, blackened by gas and damp, and packing cases stencilled for Calais and Marseille. A watchman's {tally} is chalked by the stairs.",
-      "Stairs climb to the vestibule. West is the packing room, east the boiler room. Overhead, the van's {hatch} stands open on the dock, its rope hanging down."
+      "Brick vaults, blackened by gas and damp, and packing cases stencilled for Calais and Marseille. A watchman's {tally} is chalked on the wall.",
+      "North, through an arch, the packing room and the glow of its stairs; east, the boiler room. Overhead, the van's {hatch} stands open on the dock, its rope hanging down."
     ],
-    exits: { u: "way", w: "way", e: "way" },
+    exits: { u: { out: true }, n: "way", e: "way" },
     scenery: [
       { words: ["cases", "case", "crates"], name: "the cases", says: "Stencilled, nailed, and not yours." },
-      { words: ["stairs", "stair"], name: "the stairs", leads: "u" },
+      { words: ["stairs", "stair", "glow", "arch"], name: "the stairs", says: "Through the north arch, in the packing room, the foot of the vestibule's stairs, lit from the floor above." },
       { words: ["vaults", "brick", "bricks"], name: "the vaults", says: "Old brick, sweating." }
     ],
     ambience: { lines: ["Water ticks somewhere in the brick.", "The floor above you creaks under a heavy, slow tread.", "A rat considers you and decides against."], every: [30, 70], chance: 0.8 },
-    alt: "A brick cellar under the gallery: stacked packing cases, a stair going up, chalk marks on the wall, doorways to the west and east.",
+    alt: "A brick cellar under the gallery: stacked packing cases, a lit stair at the far end, chalk marks on the wall, doorways at the sides.",
     overlayAlt: {}
   },
   packing_room: {
     name: "PACKING ROOM",
     describe: [
       "A bench scarred by crowbars, wood-wool in drifts, and a row of bare frames waiting to be wrapped. A {label} is tacked to the nearest.",
-      "The cellar is east."
+      "Stairs climb to the vestibule. The cellar is south."
     ],
-    exits: { e: "way" },
+    exits: { u: "way", s: "way" },
     scenery: [
       { words: ["bench", "crowbars"], name: "the bench", says: "Scarred pine. Someone has been prising lids here for forty years." },
       { words: ["wood-wool", "wool", "shavings"], name: "the wood-wool", says: "Soft, pale and everywhere." },
-      { words: ["frames", "frame"], name: "the frames", says: "Bare gilt, wrapped in brown paper. Nothing in them." }
+      { words: ["frames", "frame"], name: "the frames", says: "Bare gilt, wrapped in brown paper. Nothing in them." },
+      { words: ["stairs", "stair"], name: "the stairs", leads: "u" }
     ],
     ambience: { lines: ["Wood-wool shifts in a corner of its own accord, the way it does.", "A hammer hangs on a nail and does not swing.", "Something above you drags a chair, and thinks better of it."], every: [30, 70], chance: 0.8 },
     alt: "A packing room: a scarred bench, drifts of wood-wool, bare frames leaning on the wall, a paper label on the nearest.",
@@ -131,7 +132,7 @@ const rooms = {
     name: "VESTIBULE",
     describe: [
       "Marble floor, a visitors' {book} open on its stand, and the street doors chained for the night.",
-      "The great hall is north, the cloakroom east. Stairs go down to the cellar."
+      "The great hall is north, the cloakroom east. Stairs go down to the packing room."
     ],
     exits: { n: "way", e: "way", d: "way" },
     scenery: [
@@ -140,7 +141,7 @@ const rooms = {
       { words: ["stairs", "stair"], name: "the stairs", leads: "d" }
     ],
     ambience: { lines: ["The chain on the street doors shifts against its lock.", "Gaslight breathes in the globes, and out.", "A carriage goes by outside and sends a shadow over the ceiling."], every: [30, 70], chance: 0.8 },
-    alt: "A marble vestibule under gaslight: a visitors' book on a stand, chained street doors, a stair going down, doorways north and east.",
+    alt: "A marble vestibule under gaslight: a visitors' book on a stand, chained street doors, a stair going down to the packing room, doorways north and east.",
     overlayAlt: {}
   },
   cloakroom: {
@@ -272,9 +273,9 @@ const objects = {
     words: { nouns: ["rope", "coil"], adj: ["hemp"] },
     examine: "Good hemp, one end knotted to the hatch's ring with a hitch that knows its business, the rest coiled in the straw."
   },
-  // The van's hatch from below: the way back up into the start room (OUT, climbing the rope).
+  // The van's hatch from below: the way back up into the start room.
   van_hatch: {
-    at: "cellar", name: "Hatch", note: "Up into the van.",
+    at: "cellar", name: "Hatch", note: "Up into the van.", leads: "u",
     words: { nouns: ["hatch", "trapdoor", "rope"], adj: ["van's", "open"] },
     examine: "The van's hatch, open in the vault where the dock is let into it, a square of lantern-light with the rope hanging down through it. Enough to climb by, if the van is where you left something."
   },
@@ -376,7 +377,7 @@ const objects = {
 
 // ---- Rules ------------------------------------------------------------------------------------------------------------
 const rules = [
-  // The start room's way out: the rope lifts the nailed hatch (a rule that `connect`s the exit), and the picture follows.
+  // The start room's way out: the rope lifts the nailed hatch (it makes the exit's `if` hold), and the picture follows.
   { id: "pull_rope", match: { verb: ["pull", "use"], obj: "rope" }, if: [{ "rope.pulled": false }],
     do: [{ say: "You take up the slack and lean back on the rope. The nails come up one at a time, each with a small complaint, and the hatch lifts on the dark and the smell of the cellar. Below, the Galerie Aubry ticks and settles, like a clock that has been told a secret." },
       { set: "rope.pulled", to: true },
@@ -388,12 +389,6 @@ const rules = [
       { draw: "cart", restyle: [{ id: "hatch", fill: "mix:0,6@0.3" }, { id: "hatch_plank1", color: 0 }, { id: "hatch_plank2", color: 0 }, { id: "hatch_nails", color: 0 }, { id: "hatch_ring", fill: 0 }] },
       { set: "cart.alt", to: "The inside of a covered van: crates stacked to the roof, straw on the floor, a low lantern, and a square hatch open in the floor, a rope running to it from a coil." }] },
   { id: "pull_rope_again", match: { verb: ["pull", "use"], obj: "rope" }, do: [{ say: "The hatch is up. The rope has done its work, and knows it." }] },
-  // From the cellar, the rope is climbed back up into the van (OUT, by the hatch overhead).
-  { id: "climb_van_hatch", match: { verb: "climb", obj: "van_hatch" }, do: [{ travel: "cart" }] },
-  // The cellar is under the vestibule (the stairs are a real down and up), not under the van: the lifted hatch is a move by a rule
-  // (the plan, BRIEF.md §2), down from the van, and up again from the cellar (OUT, or climbing the rope).
-  { id: "hatch_down", match: { verb: "go", dir: "d" }, if: [{ "player.at": "cart" }, { "rope.pulled": true }], do: [{ travel: "cellar" }] },
-  { id: "hatch_out", match: { verb: "go", dir: "out" }, if: [{ "player.at": "cellar" }], do: [{ travel: "cart" }] },
   { id: "pull_hatch", match: { verb: "pull", obj: "hatch" }, if: [{ "rope.pulled": false }],
     do: [{ say: "Four nails hold it, and fingers will not do. Your weight on the rope will." }] },
   { id: "give_flask", match: { verb: "give", obj: "flask", obj2: "gaspard" }, if: [{ "gaspard.asleep": false }],
