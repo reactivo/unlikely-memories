@@ -8,8 +8,8 @@
 // "bottom"); the lines one font pixel (the font's own line gap) apart at that scale; the block centred in its band. A capital with a mark (Á) rises
 // above the capitals' height: its line gets that much room above it, so a mark never touches the line above.
 
-import art from "../content/art.js?v=0.67.0";
-import { TITLE_FONTS } from "../content/titlefonts/index.js?v=0.67.0";
+import art from "../content/art.js?v=0.68.0";
+import { TITLE_FONTS } from "../content/titlefonts/index.js?v=0.68.0";
 
 const C = art.cover;
 

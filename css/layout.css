@@ -23,6 +23,14 @@
     --splash-skip: 0;
     --splash-width: min(100%, var(--column));   /* a wide window: the game's own column (it narrows on a low window); the rows shown follow the height (ui/splash.js) */
 
+    /* The game's height: the window's (phones: 100dvh), or in the strip layout at most --screen-max, the game centred in the window
+       with --screen-gap above and below it (Diego, 18 November 2026). Everything that shares out the window's height reads
+       --screen-h, never 100dvh; on a window no taller than --screen-max both are the same and the gap is 0. Only on a window wider
+       than it is high: an upright tablet fills its height (Diego, 18 November 2026; the fourth breakpoint, below). */
+    --screen-max: 960px;                       /* the game's greatest height: the column's greatest width, so at most a 960 x 960 square */
+    --screen-h:   100dvh;
+    --screen-gap: 0px;
+
     /* The column: title bar, picture, story and prompt are all this wide. */
     --column-max: 960px;                       /* widest: the game's column and the landing page's */
     --column:     100%;                         /* phones: the whole width inside the side padding */
@@ -38,7 +46,7 @@
     /* The two lines of fade above the prompt, and the same space left empty after the newest text. */
     --fade: calc(var(--log-text) * var(--log-line) * 2);   /* (two lines of the story: typography.css) */
 
-    /* The three breakpoints, always written exactly like this (CSS variables can't be used inside media queries), only in
+    /* The four breakpoints, always written exactly like this (CSS variables can't be used inside media queries), only in
        this file and tokens.css; the scripts ui/map.js and ui/tabs.js ask the same question as the second:
          (min-height: 560px)                         the title bar and the picture stick at the top of the window; below
                                                      that (a phone turned sideways) they scroll away with the story.
@@ -46,6 +54,9 @@
          (min-width: 760px) and (min-height: 560px)  the strip layout: the strip (≡, directions, inventory) sits beside
                                                      the story, no tabs, bigger text (tokens.css). Anything smaller,
                                                      a phone turned sideways too, gets the phone layout.
+         (min-width: 760px) and (min-height: 560px) and (orientation: landscape)
+                                                     the strip layout on a window wider than it is high: the game at most
+                                                     --screen-max high, centred (an upright tablet fills its height).
          (width < 760px) and (height >= 560px)       an upright phone: the phone layout with a picture that sticks (the
                                                      first one, without the second), and there it is the crop (the third
                                                      block below; ui/crop.js asks the CSS whether it is, it has no copy).
@@ -81,7 +92,7 @@
   @media (min-width: 760px) and (min-height: 560px) {
     :root {
       --page-bottom: max(var(--space-l), env(safe-area-inset-bottom, 0px));  /* below the prompt (the home indicator, if any) */
-      --strip-height: 40dvh;                                                  /* the strip's share of the window's height */
+      --strip-height: calc(var(--screen-h) * 0.4);                            /* the strip's share of the game's height */
       --tile: round(down, min(var(--tile-max), calc(var(--strip-height) / 8.333)), 1px);   /* what fits, in whole pixels (so the keys'
                                                                                  1px lines stay sharp: css/key.css): 7 tiles high (the compass's two rows and SEE MAP,
                                                                                  the inventory's three, SETTINGS) plus gaps adding up to 1⅓
@@ -99,8 +110,17 @@
         + var(--text-m) * var(--line-s)          /* the prompt: one line of interface text */
         + var(--page-bottom)                     /* the padding below the prompt */
       );
-      --picture-height: calc(100dvh - var(--strip-height) - var(--fixed-rows));   /* what is left for the picture */
+      --picture-height: calc(var(--screen-h) - var(--strip-height) - var(--fixed-rows));   /* what is left for the picture */
       --column: min(var(--column-max), calc(var(--picture-height) * 320 / 136));   /* as wide as a picture that high */
+    }
+  }
+
+  /* The strip layout on a window wider than it is high (a computer's, a tablet on its side): the game at most --screen-max high,
+     centred. Upright (a tablet held upright, a window narrower than it is high) it fills the window's height as before. */
+  @media (min-width: 760px) and (min-height: 560px) and (orientation: landscape) {
+    :root {
+      --screen-h: min(100dvh, var(--screen-max));                                  /* the game's height: the window's, at most --screen-max… */
+      --screen-gap: round(down, max(0px, (100dvh - var(--screen-max)) / 2), 1px);   /* …and centred: the rest shared above and below (whole pixels) */
     }
   }
 
@@ -166,7 +186,9 @@
   }
 
   /* A column of three: the top, the story, the bottom. At least the window high, so the bottom is at the window's bottom
-     even before there is much story. (Not a grid: some browsers keep a sticky part of a grid inside its own row.) */
+     even before there is much story. (Not a grid: some browsers keep a sticky part of a grid inside its own row.) On a window
+     taller than --screen-max the game is that high, centred: the gap above and below it is padding, and the top and the bottom
+     stick a gap in from the window's edges. */
   .layout {
     cursor: text;
 
@@ -175,6 +197,7 @@
     width: 100%;
     max-width: var(--column);
     min-height: 100dvh;
+    padding-block: var(--screen-gap);
     margin-inline: auto;
     box-sizing: border-box;
   }
@@ -191,6 +214,16 @@
     padding-bottom: var(--row-gap);   /* the gap between the picture and the story */
     background: var(--color-bg);
     box-shadow: var(--edges);
+
+    /* A tall window (--screen-gap, above): the gap above the game in the page's colour, so the story scrolling up under the top
+       never shows there. (0 high everywhere else.) */
+    &::before {
+      content: "";
+      position: absolute;
+      inset: auto calc(-1 * var(--space-xs)) 100% calc(-1 * var(--space-xs));
+      height: var(--screen-gap);
+      background: var(--color-bg);
+    }
   }
 
   .strip {
@@ -209,7 +242,7 @@
   @media (min-height: 560px) {
     .top {
       position: sticky;
-      top: 0;
+      top: var(--screen-gap);
       z-index: 3;
     }
   }
@@ -254,11 +287,11 @@
     flex: 1 0 auto;
   }
 
-  /* The bottom: the prompt, and the tabs on phones. Sticks to the bottom of the window. The
+  /* The bottom: the prompt, and the tabs on phones. Sticks to the bottom of the window (a gap above it on a tall one). The
      fade is a gradient from the page's colour to nothing, over the story just above it. */
   .bottom {
     position: sticky;
-    bottom: 0;
+    bottom: var(--screen-gap);
     z-index: 2;
     display: grid;
     gap: var(--space-m);
@@ -274,6 +307,15 @@
       height: var(--fade);
       background: linear-gradient(to top, var(--color-bg), transparent);
       pointer-events: none;   /* the story under it can still be clicked and selected */
+    }
+
+    /* A tall window: the gap below the game, as the top's (0 high everywhere else). */
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 100% calc(-1 * var(--space-xs)) auto calc(-1 * var(--space-xs));
+      height: var(--screen-gap);
+      background: var(--color-bg);
     }
   }
 

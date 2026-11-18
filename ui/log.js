@@ -24,9 +24,9 @@
 //   `Look`              a command → shown as <LOOK>; clicking runs it
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
-import { spriteSVG } from "./sprite.js?v=0.67.0";
-import { mount as mountFollow } from "./follow.js?v=0.67.0";
-import { figures } from "./crt.js?v=0.67.0";
+import { spriteSVG } from "./sprite.js?v=0.68.0";
+import { mount as mountFollow } from "./follow.js?v=0.68.0";
+import { figures } from "./crt.js?v=0.68.0";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
@@ -52,6 +52,7 @@ export function mount(root, on, crop) {
   const follow = mountFollow(root);   // where the page is put and kept (ui/follow.js)
   // The CRT look on each examine picture (ui/crt.js): its scanlines are as tall as the scene's rows, from the picture's box.
   const looks = figures(() => document.querySelector(".picture"));
+  const pageTop = document.querySelector(".top"), pageBottom = document.querySelector(".bottom");   // (what sticks above and below the story: hint())
   // The fading pieces of the reveal still going (the text and pictures phraseReveal has set to fade in); finishReveal ends only these,
   // never every .ph the story ever wrote. Dropped once everything has appeared (the next reveal starts a new list).
   let fading = [];
@@ -257,7 +258,9 @@ export function mount(root, on, crop) {
       const px = (name) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0;
       const look = () => {
         if (hints.some(({ o }) => !o.isConnected || o.getAttribute("aria-disabled") === "true")) return stopHints();   // (the room was left)
-        const t = performance.now(), top = px("--top-h"), bottom = innerHeight - px("--bottom-h") - px("--fade");
+        // (Between the top's and the bottom's edges as they are on screen: on a tall window the game is centred, css/layout.css.)
+        const t = performance.now(), top = px("--top-h") > 0 ? pageTop.getBoundingClientRect().bottom : 0;
+        const bottom = pageBottom.getBoundingClientRect().top - px("--fade");
         for (const h of hints) {
           if (t < h.at) continue;                                   // (not appeared yet)
           const r = h.o.getBoundingClientRect(), inView = r.top >= top && r.bottom <= bottom;

@@ -6,7 +6,7 @@
    0–469 (the bottom band, 470–559, is the same flat colour as the page, which carries on below it), as wide as the poster: on an upright phone
    the crop (columns 80–399) as wide as the screen, on a wide window as many of the 480 columns as the column is wide, the column as wide as the
    window's height allows (--splash-width: css/layout.css). Any scale: the CRT look hides the unevenness. Extra height is the background's:
-   the whole is centred in it. This file never sets display on .splash (layout.css). */
+   the whole is centred in it. The poster is as high as the game (--screen-h: at most 960px on a wide window, centred in it). This file never sets display on .splash (layout.css). */
 @layer ui {
   .splash {
     box-sizing: border-box;
@@ -14,12 +14,13 @@
     color: var(--color-text);
     flex-direction: column;
     align-items: center;
+    justify-content: center;                              /* (a window taller than the game: the poster centred, as the game is) */
 
     & .poster {
       position: relative;
       box-sizing: border-box;
       width: var(--splash-width, 100%);
-      height: 100dvh;
+      height: var(--screen-h, 100dvh);                   /* the game's height (css/layout.css: the window's, at most --screen-max on a wide one) */
       overflow: hidden;
       padding-block: max(var(--space-m), env(safe-area-inset-top, 0px)) max(var(--space-l), env(safe-area-inset-bottom, 0px));   /* (read by ui/splash.js: where the cover may go) */
       background: var(--splash-bg, var(--color-bg));

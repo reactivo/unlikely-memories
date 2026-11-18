@@ -15,8 +15,8 @@ html {
   /* The page is the one thing that scrolls. Jumping to something (a button reached with Tab) leaves room for what sticks
      at the top and at the bottom, whose heights ui/page.js measures. Here, not in a layer: the artifact's wrapper sets
      scroll-padding-top on html too. */
-  scroll-padding-top: var(--top-h, 0px);
-  scroll-padding-bottom: var(--bottom-h, 0px);
+  scroll-padding-top: calc(var(--top-h, 0px) + var(--screen-gap, 0px));       /* (the gap: a tall window, css/layout.css) */
+  scroll-padding-bottom: calc(var(--bottom-h, 0px) + var(--screen-gap, 0px));
 
   /* No scrollbar: it would break the old-screen look (the wheel, a finger or the keys still scroll the page). The story hid
      its own scrollbar for this reason when it was a scroll box; now the page scrolls, so the page hides its. */
