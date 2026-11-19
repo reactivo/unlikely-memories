@@ -4,11 +4,11 @@
 // Reworked 2026-11-19 from Diego's changes: the real Prosperidad of Madrid in an unnamed year, darker (darkness 3), the Minister a dealer
 // with his book of debts, drink at the bar, a bad batch with its cure, the cover on the Emperor.
 
-import pictures, { endings } from "./pictures.js?v=0.70.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.0";
-import levels from "./levels.js?v=0.70.0";
-import sprites from "./sprites.js?v=0.70.0";
-import plan from "./plan.js?v=0.70.0";
+import pictures, { endings } from "./pictures.js?v=0.70.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
+import levels from "./levels.js?v=0.70.1";
+import sprites from "./sprites.js?v=0.70.1";
+import plan from "./plan.js?v=0.70.1";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

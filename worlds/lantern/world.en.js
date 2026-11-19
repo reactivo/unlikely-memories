@@ -2,11 +2,11 @@
 // world (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the
 // data, ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.70.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.0";
-import levels from "./levels.js?v=0.70.0";
-import sprites from "./sprites.js?v=0.70.0";
-import plan from "./plan.js?v=0.70.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.70.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
+import levels from "./levels.js?v=0.70.1";
+import sprites from "./sprites.js?v=0.70.1";
+import plan from "./plan.js?v=0.70.1";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -166,7 +166,6 @@ const rooms = {
     ],
     mentions: ["flour"],
     smell: "Pastry and hot fat, and under them something sweeter: the smell of a kitchen where someone is always expected.",
-    sleep: "Not in a shop the width of a coat rack. Mrs Halloran would only put a pie in front of you.",
     alt: "A pie shop seen from above: a long brown counter with trays of golden pies in rows, the glowing mouth of an iron oven at the top, a steamed window along the bottom, and a woman in a white cap leaning over the counter on the right."
   },
   court: {
@@ -181,7 +180,6 @@ const rooms = {
       { words: ["chairs", "chair", "jury", "fog"], name: "the jury", says: "Twelve chairs in two rows. The fog has taken all of them and sits very still, the way a jury does when it has already decided to listen." }
     ],
     mentions: ["pen"],
-    sleep: "Not in court. Dr Mabbott does not hold with it.",
     alt: "Looking up from the witness box at a high green coroner's bench: a thin man in black above it with a pen, a green-shaded lamp beside him, and on the right twelve jury chairs with pale fog sitting in them."
   },
   last_lamp: {
@@ -244,7 +242,6 @@ const rooms = {
       "The bulb flickers once, and Mr Voss looks up at it, hurt.",
       "Under the floor, the Row's new wires hum to themselves, waiting for Monday."
     ], every: [40, 80] },
-    sleep: "Not with the dynamo humming at you like a man who knows he is right.",
     alt: "A brick room lit by one bare electric bulb: a big humming dynamo on the left, and on the right a man in a bowler hat at a desk with an open ledger."
   },
   river_steps: {
@@ -266,7 +263,6 @@ const rooms = {
       "Far out on the water a boat's bell rings, and nobody answers it.",
       "A word floats by on the current, face down."
     ], every: [35, 75] },
-    sleep: "Not on the steps, with the river going by below in no hurry.",
     alt: "Looking down from a river wall: stone steps going down on the left to a strip of black mud, a small girl in a big coat with a bucket on the mud, and the brown river filling the picture up to a far bank lost in fog."
   },
   bridge: {

@@ -2,11 +2,11 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.70.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.0";
-import levels from "./levels.js?v=0.70.0";
-import sprites from "./sprites.js?v=0.70.0";
-import plan from "./plan.js?v=0.70.0";
+import pictures, { endings, visions } from "./pictures.js?v=0.70.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
+import levels from "./levels.js?v=0.70.1";
+import sprites from "./sprites.js?v=0.70.1";
+import plan from "./plan.js?v=0.70.1";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -176,7 +176,6 @@ const rooms = {
     ],
     mentions: ["señora Halloran", "harina"],
     smell: "Masa y grasa caliente, y debajo algo más dulce: el olor de una cocina donde siempre se espera a alguien.",
-    sleep: "No en una tienda tan ancha como un perchero. La señora Halloran solo te pondría un pastel delante.",
     alt: "Una tienda de pasteles vista desde arriba: un largo mostrador marrón con bandejas de pasteles dorados en filas, la boca encendida de un horno de hierro arriba, un escaparate empañado a lo largo del borde inferior y una mujer con gorro blanco inclinada sobre el mostrador, a la derecha."
   },
   court: {
@@ -191,7 +190,6 @@ const rooms = {
       { words: ["sillas", "silla", "jurado", "niebla"], name: "el jurado", says: "Doce sillas en dos filas. La niebla las ha ocupado todas y está muy quieta, como se queda un jurado que ya ha decidido escuchar." }
     ],
     mentions: ["doctor Mabbott", "pluma"],
-    sleep: "En el tribunal no. El doctor Mabbott no lo consentiría.",
     alt: "Mirando hacia arriba desde el estrado de testigos a un alto pupitre verde de forense: un hombre delgado de negro encima con una pluma, una lámpara de pantalla verde a su lado y, a la derecha, doce sillas de jurado con niebla pálida sentada en ellas."
   },
   last_lamp: {
@@ -254,7 +252,6 @@ const rooms = {
       "La bombilla parpadea una vez, y el señor Voss la mira, dolido.",
       "Bajo el suelo, los cables nuevos de la calle zumban para sí, esperando al lunes."
     ], every: [40, 80] },
-    sleep: "No con la dínamo zumbándote como un hombre que sabe que tiene razón.",
     alt: "Una sala de ladrillo iluminada por una sola bombilla eléctrica desnuda: una gran dínamo zumbante a la izquierda y, a la derecha, un hombre con sombrero hongo ante un escritorio con un libro de cuentas abierto."
   },
   river_steps: {
@@ -276,7 +273,6 @@ const rooms = {
       "Lejos, sobre el agua, suena la campana de un barco, y nadie le contesta.",
       "Una palabra pasa flotando con la corriente, boca abajo."
     ], every: [35, 75] },
-    sleep: "En la escalera no, con el río pasando abajo sin prisa.",
     alt: "Mirando hacia abajo desde un muro de río: una escalera de piedra baja a la izquierda hasta una franja de barro negro, una niña pequeña con un abrigo grande y un cubo sobre el barro, y el río pardo llenando el cuadro hasta una orilla lejana perdida en la niebla."
   },
   bridge: {

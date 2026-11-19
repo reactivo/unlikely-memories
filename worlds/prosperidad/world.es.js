@@ -4,11 +4,11 @@
 // Reescrito el 2026-11-19 con los cambios de Diego: la Prosperidad real de Madrid en un año sin nombre, más oscuro (oscuridad 3), el Ministro
 // camello con su libro de deudas, la cerveza en la barra, una tanda mala con su remedio, la portada sobre el Emperador.
 
-import pictures, { endings } from "./pictures.js?v=0.70.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.0";
-import levels from "./levels.js?v=0.70.0";
-import sprites from "./sprites.js?v=0.70.0";
-import plan from "./plan.js?v=0.70.0";
+import pictures, { endings } from "./pictures.js?v=0.70.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
+import levels from "./levels.js?v=0.70.1";
+import sprites from "./sprites.js?v=0.70.1";
+import plan from "./plan.js?v=0.70.1";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
