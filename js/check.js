@@ -37,7 +37,8 @@
 //
 // A puzzle: { where?, needs: [thing or puzzle ids], solve: [commands], gives?: [things], reaches?: room,
 //             ending?: true, clues: [object, rule or puzzle ids], time?: "next 22:00" }
-// `time`: when it can be solved; the checker moves the world's clock there first (a player would play on, or wait).
+// `time`: when it can be solved; the checker moves the world's clock there first (a player would play on, or wait), once it has walked to `where`. A wait for a
+// timed way or a thing that moves is a "@time" command in the playthrough too, and every ending is played again, as the tests play it (replayProblem).
 // Two puzzles that give the same thing are two ways to it: each ending takes the first written, and a way no ending took is played
 // too, in the first ending that needs what it gives (endings["<ending>/<puzzle>"]).
 //
@@ -55,16 +56,16 @@
 // The lints of a world as written (everything above but the playthrough: js/checklint.js, `lintWorld`) run first; the playthrough here only
 // when they found no problem. The checker's cache key (tools/checked.mjs) hashes every file of js/, so both files are in it.
 
-import { parse } from "./parser.js?v=0.68.1";
-import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.68.1";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.68.1";
-import { solveCommand } from "./narrator.js?v=0.68.1";
-import { isExitObject, exitTo } from "./exits.js?v=0.68.1";
-import { moveTo, worldTime } from "./time.js?v=0.68.1";
-import { musicOf } from "./music.js?v=0.68.1";
-import { withoutPractice } from "./practice.js?v=0.68.1";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.68.1";
-import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.68.1";
+import { parse } from "./parser.js?v=0.69.0";
+import { step, applyChangeSet, holds, exitNow } from "./engine.js?v=0.69.0";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.69.0";
+import { solveCommand } from "./narrator.js?v=0.69.0";
+import { isExitObject, exitTo } from "./exits.js?v=0.69.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.69.0";
+import { musicOf } from "./music.js?v=0.69.0";
+import { withoutPractice } from "./practice.js?v=0.69.0";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.69.0";
+import { lintWorld, checkOpening, atHour, opensByWaiting, effectsOf, NO_MUSIC, route, lockOn } from "./checklint.js?v=0.69.0";
 
 export function check(state, pack, bible, { before = null } = {}) {
   state = withoutPractice(state);                       // (HELP's practice thing is the pack's: a world never declares it: js/practice.js)
@@ -87,7 +88,11 @@ export function check(state, pack, bible, { before = null } = {}) {
     if (run.problem) problems.push(`ending "${name}": ${run.problem}`);
     else if (!run.state.ended) problems.push(`ending "${name}": played to the end, but the story didn't end`);
     else if (!run.state.ending) problems.push(`ending "${name}": the story ended without a picture (end: true, picture: "…")`);
-    else played.add(run.state.ending);
+    else {
+      const why = run.skipped ? null : replayProblem(state, pack, run);   // (a wait by play time, for a mover on a round of seconds, is no command: that ending is not replayed)
+      if (why) problems.push(`ending "${name}": ${why}`);
+      played.add(run.state.ending);
+    }
     endings[name] = run.played;
     runs.push({ id, solved: run.solved });
   };
@@ -114,6 +119,22 @@ export function check(state, pack, bible, { before = null } = {}) {
 export const startRoomProblems = (state, pack) => checkOpening(withoutPractice(state), pack, (s, puzzles) => new Run(s, pack, puzzles));
 
 const TIME_MARK = "@time ";
+
+// The playthrough above, typed again as the tests type it (replayCommand, from the start, as at += 2000 a command): the playthrough's own clock
+// is not the replay's (and waiting for a timed way, in `go`, leaves no command), so a puzzle that waits for an hour, or a way that shuts at one,
+// can be finished here and stranded there. Returns what stopped the replay (naming the puzzle the command belongs to), or null.
+function replayProblem(state, pack, run) {
+  let s = state, at = 0;
+  for (const [i, c] of run.played.entries()) {
+    const r = replayCommand(s, c, pack, at += 2000), puzzle = run.owner[i];
+    const stuck = r.error ? `is not understood (${typeof r.error === "string" ? r.error : r.error.say ?? JSON.stringify(r.error)})` : r.refused.length ? `is refused (${r.refused[0]})` : null;
+    if (stuck) return `puzzle "${puzzle}": played again from the start, as the tests play it, "${c}" ${stuck}. Where the checker's own run got through, a player would be stopped: a puzzle that waits for an hour (\`time\`) walks to its place first and only then waits (BRIEF.md §4)`;
+    s = r.state;
+    if (run.where[i] && s.player.at !== run.where[i])
+      return `puzzle "${puzzle}": played again from the start, as the tests play it, "${c}" leaves you in ${s.player.at}, not ${run.where[i]} where the checker's own run was: a way that is shut at that hour (the replay's clock is not the playthrough's), or a wait the playthrough made that no command says. A puzzle that waits for an hour (\`time\`) walks to its place first and only then waits (BRIEF.md §4)`;
+  }
+  return s.ended && s.ending === run.state.ending ? null : `played again from the start, as the tests play it, the story ${s.ended ? `ends on "${s.ending}", not "${run.state.ending}"` : "does not end"} (the last puzzle played was "${run.owner[run.owner.length - 1]}")`;
+}
 export function replayCommand(state, command, pack, at = 0) {
   if (command.startsWith(TIME_MARK)) {
     const r = applyChangeSet(state, { effects: [{ time: command.slice(TIME_MARK.length) }] });
@@ -137,14 +158,14 @@ class Run {
   // prefer: { thing: puzzle }, the way to get a thing that more than one puzzle gives (else the first written).
   constructor(state, pack, puzzles, warnings = [], before = null, prefer = {}) {
     this.state = state; this.pack = pack; this.puzzles = puzzles; this.warnings = warnings; this.before = before; this.prefer = prefer;
-    this.solved = new Set(); this.played = []; this.problem = null; this.clock = 0; this.unlocking = new Set();
+    this.solved = new Set(); this.played = []; this.owner = []; this.where = []; this.skipped = false; this.current = null; this.problem = null; this.clock = 0; this.unlocking = new Set();
   }
 
   // Type a command, as a player would. Fails on words the parser can't read or effects the engine refuses.
   type(command) {
     if (this.problem) return;
     command = solveCommand(command, this.pack);
-    this.played.push(command);
+    this.played.push(command); this.owner.push(this.current);
     const parsed = parse(command, this.state, this.pack);
     if (!parsed.actions) return this.fail(`"${command}" isn't understood (${parsed.error ? parsed.error.say : parsed.meta})`);
     for (const action of parsed.actions) {
@@ -153,6 +174,13 @@ class Run {
       this.state = r.next;
       if (this.state.pending.question) break;
     }
+    this.where[this.played.length - 1] = this.state.player.at;   // (where this command left you: a replay must be there too)
+  }
+  // Wait for an hour (a thing that moves, or a timed way): the clock moves to the next time it is `h`:00, and the playthrough says so as
+  // a time command, so a replay of it (replayCommand) waits too.
+  waitTo(h) {
+    this.state = atHour(this.state, h);
+    this.played.push(TIME_MARK + `next ${h}:00`); this.owner.push(this.current); this.where[this.played.length - 1] = this.state.player.at;
   }
   fail(why) { if (!this.problem) this.problem = why; }
 
@@ -161,16 +189,19 @@ class Run {
     if (this.problem || this.solved.has(id)) return;
     const p = this.puzzles[id];
     this.solved.add(id);
+    const outer = this.current;                           // (the puzzle each played command belongs to, for a problem that names it)
+    this.current = id;
     for (const n of p.needs || []) {
       if (this.puzzles[n]) this.solve(n);
       else this.get(n, id);
+      this.current = id;
     }
     if (p.where) this.go(p.where);
     if (p.time) {
       const r = applyChangeSet(this.state, { effects: [{ time: p.time }] });
       if (r.refused.length) return this.fail(`"${id}": ${r.refused[0].reason}`);
       this.state = r.next;
-      this.played.push(TIME_MARK + p.time);   // (a replay of the commands moves the clock here too: see replayCommand)
+      this.played.push(TIME_MARK + p.time); this.owner.push(id); this.where[this.played.length - 1] = this.state.player.at;   // (a replay of the commands moves the clock here too: see replayCommand)
     }
     // (a thing that moves, found in another room for one command: the next is typed back where the puzzle is, as a player would go back)
     p.solve.forEach((c, i) => {
@@ -181,6 +212,7 @@ class Run {
       this.type(c);
       if (went && i < p.solve.length - 1 && !this.state.ended) this.go(room);
     });
+    this.current = outer;
     if (this.problem) return;
     const s = this.state;
     for (const g of p.gives || []) if (!s.world.objects[g] || !inScope(s, g)) return this.fail(`solving "${id}" should give "${g}", but it isn't to hand`);
@@ -207,14 +239,14 @@ class Run {
     for (let tries = 0; tries < 200 && !this.problem && thing().at !== this.state.player.at; tries++) {
       const o = thing(), here = this.state.player.at, rec = this.state.movers?.[id];
       if (o.rounds?.rooms?.includes(here) && !(o.places && placeHolding(this.state, o, holds))) {   // it comes round: wait for it
-        if (inSeconds(o.rounds) && rec?.due > this.clock + 1000) this.clock = rec.due - 1000;   // (the play time to its next step)
+        if (inSeconds(o.rounds) && rec?.due > this.clock + 1000) { this.clock = rec.due - 1000; this.skipped = true; }   // (the play time to its next step: no command says it, so a replay can't)
         this.type(wait);
         continue;
       }
       if (o.places) {                                                          // the soonest hour one of its places is here
         const now = worldTime(this.state), hours = [...Array(24).keys()].map(h => [moveTo(`next ${h}:00`, now).to, h]).sort((a, b) => a[0] - b[0]);
-        const later = hours.map(([, h]) => atHour(this.state, h)).find(x => x && placeNow(x, x.world.objects[id], holds) === here);
-        if (later) { this.state = later; continue; }
+        const h = hours.map(([, h]) => h).find(h => { const x = atHour(this.state, h); return x && placeNow(x, x.world.objects[id], holds) === here; });
+        if (h !== undefined) { this.waitTo(h); continue; }
       }
       if (o.at && this.state.world.rooms[o.at] && o.at !== here) { this.go(o.at); continue; }   // where it is now
       break;
@@ -323,7 +355,7 @@ class Run {
       if (shut) {                                                        // shut: wait for its hour (the clock moves, as a puzzle's `time` does)
         const later = opensByWaiting(this.state, here, dir);
         if (!later) return this.fail(`${dir} from ${here} is shut, and waiting doesn't open it`);
-        this.state = later;
+        this.waitTo(parts(worldTime(later)).hour);
       }
       this.type(this.pack.words.dirs[dir][0]);
       if ((isExitObject(raw) || shut) && !this.problem && this.state.player.at === here) return this.fail(`${dir} from ${here}: the way stays shut`);

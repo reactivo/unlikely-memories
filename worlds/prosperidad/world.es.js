@@ -1,798 +1,727 @@
-// «El emperador de la costra»: el mundo, en español. No es una traducción: está escrito como lo escribiría un autor
-// de aquí. Mismos ids, mismas salas, mismas reglas y mismos finales que world.en.js; cambian las palabras. Un solo conjunto de cambios,
-// todo o nada; datos llanos. Las imágenes, los sprites y la música se comparten (pictures.js, sprites.js, music.js): no llevan palabras.
-// Reescrito el 2026-11-15 (extrañeza 0): ahora la historia es la caza de un camello que hace su ronda por las salas de la avenida.
+import pictures, { endings, cover, boxart } from "./pictures.js?v=0.69.0";
+import music, { rooms } from "./music.js?v=0.69.0";
+import levels from "./levels.js?v=0.69.0";
+import sprites from "./sprites.js?v=0.69.0";
+import plan from "./plan.js?v=0.69.0";
 
-import pictures, { endings } from "./pictures.js?v=0.68.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.68.1";
-import levels from "./levels.js?v=0.68.1";
-import sprites from "./sprites.js?v=0.68.1";
-import plan from "./plan.js?v=0.68.1";
+export { cover, boxart };
 
-// ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
-  title: "El emperador de la costra",
-  blurb: "Prosperidad, 1985. El Emperador busca al Ministro, un camello que hace su ronda de bares, no acepta dinero y pide un favor antes que nada. Va a ser larga.",
-  thumbnail: { picture: "avenida", x: 40 },   // la tarjeta de la página de inicio: la imagen de esta sala, recortada 225 píxeles desde la columna x (0-95)
+  title: "Ministro con cartera",
+  synopsis: `Eres Emperador, un nombre que te puso la calle de broma, con un colchón en un piso ocupado de Prosperidad, en Madrid, una noche de viernes de un año que parece mediados de los ochenta. El Ministro vende heroína en una ronda que hace como un cartero, y guarda en su cartera lo que el barrio le debe. Esta noche, a la una, subasta esas deudas en un cine viejo, lote a lote. El lote nueve es Dolo, la del otro colchón. El diez eres tú, con las botas incluidas.`,
+  blurb: `Viernes de noche en Prosperidad, Madrid, mediados de los ochenta. A la una, en un cine viejo, el Ministro subasta lo que debe el barrio. Dolo es el lote nueve.`,
+  thumbnail: { picture: "street", x: 60 },
   style: "flat",
-  palettes: "neon: la avenida, El Charlie, la esquina, la plaza y el callejón (la noche como un resplandor suave); lamplight: las salas con bombilla o vela (la trastienda, La Ópera, la pensión, la habitación siete, la casa tomada); institution: las salas de fluorescente (la estafeta y la lavandería); moonlight: la oscuridad abierta por encima y más allá de las luces (el patio, la azotea, el terraplén); ember: la fábrica, con un solo horno encendido",
-  genre: "novela picaresca",
-  strangeness: "0 (pedida: nada imposible en ninguna parte; la sorpresa viene de la gente y del lugar)",
-  size: "large",
-  ingredient: "un catálogo de venta por correo; un deshollinador",
-  discarded: [
-    "reglas: un camello que vende horas de la noche; un camello que es policía; una ciudad que es gris de día por algo que debe",
-    "extrañeza 0: un camello que es cura; una redada en los bares a las cuatro como final; una sobredosis trágica como moraleja",
-    "sala del comienzo: una celda que se abre con una llave bajo el felpudo; una puerta que cede a un hombro en su abolladura (la primera versión); un ascensor atascado entre dos pisos"
-  ],
-  synopsis: "Eres el Emperador, un punk de la calle en Prosperidad, una ciudad gris de 1985 que vive de noche, y esta noche tienes una sola gestión: " +
-    "dar con el Ministro, un camello que recorre cada noche las mismas salas y no acepta nunca dinero. Acepta favores, y quiere algo que " +
-    "ninguna tienda te va a vender a estas horas. Así que te buscas la vida entre la avenida, las casas ocupadas, dos bares y una lavandería, " +
-    "cambiando pequeños favores con la gente que sigue despierta, y descubres por el camino quién eras antes de ser el emperador de nadie.",
-  stuff: "pesetas y duros, una radio de transistores sintonizada en un programa de llamadas, fichas de lavandería, el cepillo de un deshollinador y un bote de hollín, el kohl, un juego de cuerdas de bajo, " +
-    "cinta americana en una batería, una pensión que alquila por horas, una estafeta de casilleros, una boa de plumas, una cuchilla y un espejo, un lazo de luto en la portería, anís, una corbata negra de seda, el primer autobús",
-  tone: "Picaresco: un narrador socarrón y con hambre que le pone precio a todo y lleva la cuenta de quién debe a quién, frases cortas y rápidas con " +
-    "el aguijón al final, franco con los cuerpos, el trabajo y la química y sin juzgar nunca, cariñoso con la gente, aficionado a la trapacería. " +
-    "Se fija en lo que cuestan las cosas y en quién está en los portales; no suelta sermones ni sentimentalismos. El ánimo es irónico y tierno, " +
-    "una noche dura para todos y graciosa de todos modos. " +
-    "«La avenida vende todo dos veces: una al cliente y otra al que dice que lo vio». " +
-    "«Marisol trabaja la esquina con la paciencia de un banco y los modales de una duquesa». " +
-    "«En Prosperidad el color se enciende de noche, y siempre hay alguien que pasa la factura».",
-  start: "Sábado, 01:00, en el callejón sin salida de detrás de El Charlie; la una y diez al cruzar su puerta de incendios.",
+  palettes: "neon: la calle, el bordillo, la plazuela y la fachada de la Alborada, de noche; lamplight: el piso, el bar y la cabina, cada uno con una sola luz; arcade: el vestíbulo y el patio de butacas del cine viejo; institution: el portal y la farmacia",
+  genre: "pícara de las calles de noche: la noche de un granuja entre hipócritas",
+  strangeness: 0,
+  darkness: 3,
+  humour: 2,
+  feeling: 1,
+  tension: 0,
+  dialsNote: "Extrañeza 0 y oscuridad 3 vienen dadas y se mantienen. Humor 2, sorteado 3: la semilla pide la calle contada con franqueza, sin suavizar, así que la comedia baja un escalón y se queda en la gente y sus equívocos. Sentimiento 1, sorteado y mantenido. Tensión 0, sorteada y mantenida: nada te persigue, y la subasta se repite cada noche.",
+  size: "medium",
+  ingredient: "una subasta; un proyeccionista",
+  discarded: "Historia: debes una cantidad al camello para el viernes y tienes que reunirla; un amigo ha muerto de sobredosis y te vengas o quemas el alijo; te vas de Madrid en un autobús nocturno con la chica. Sala de inicio: despertar con resaca, la puerta con cadena y la llave bajo la almohada; una redada; un bebé llorando al otro lado de la pared. Extrañeza: nada que descartar, es 0. Finales: un incendio, una navaja, un autobús.",
+  stuff: "una moneda de cien pesetas, la devolución de una cabina, bocadillos de calamares en papel, una pizarra de deudas a tiza, una radio pirata, latas de NO-DO, una cartera de cuero de imitación, papel de aluminio y un mechero, una cruz verde de farmacia, una linterna de diapositivas, un mazo, un armario con ruedas",
+  tone: "Un relato rápido y seco, en segunda persona del presente, con la voz de alguien que lleva toda la vida contando monedas y favores. Frases cortas que van a los hechos: quién debe a quién, cuánto cuesta algo, a qué huele. El registro es de calle, sin jerga y sin moraleja. Se fija en el dinero, la comida, la ropa y en quién miente; deja fuera la lástima y la explicación. Frases de muestra: La farola de la esquina lleva sin encenderse desde la primavera. Se abre una puerta en el portal y se vuelve a cerrar. Tus botas están junto al colchón, una de ellas tumbada.",
   rules: [
-    "Prosperidad es gris de día y vive del neón de noche, y todo lo que brilla se ha pagado, con dinero o con favores.",
-    "El Ministro no para quieto: hace cada noche la misma ronda, El Charlie, la avenida, La Ópera, la estafeta y otra vez la avenida, una copa en cada puerta, y no acepta dinero.",
-    "En la avenida nadie da nada por nada y nadie olvida lo que le deben: un favor es una deuda con mejores modales.",
-    "Pasada la medianoche cada cual va por el nombre que le puso la calle; el de los papeles es para el día y para quien te conoció de pequeño."
+    "Todo el mundo en Prosperidad debe a alguien, y el Ministro lo apunta.",
+    "Nando no deja entrar a nadie sobrio en la Alborada: sobrio es policía.",
+    "La subasta de deudas se celebra cada noche a la una, en el patio de butacas de la Alborada.",
+    "Dos cañas de La Torera emborrachan a cualquiera durante un rato.",
+    "Lo que se vende en la plazuela por menos que el precio del Ministro va cortado con algo.",
   ],
-  opening: "Un callejón sin salida detrás de un club, la sala del comienzo, al norte de su trastienda: una radio de transistores sobre un cajón (pistas, un programa de llamadas de madrugada), la introducción, el mensaje de un posavasos sobre el Ministro (por qué has venido). La puerta de incendios del fondo está pintada contra su marco: una palanca apoyada en el contenedor la fuerza.",
-  music: "un chacachá dórico nervioso, oído a través de la pared de un club; un bombo que se salta un golpe, una guitarra barata sobre un solo acorde y el silbido de un deshollinador; la radio entre dos emisoras",
-  characters: ["Cuco, que lleva el sonido de El Charlie", "Pelayo, que lleva su barra", "doña Aurora, dueña y cantante de La Ópera", "Marisol, que trabaja la esquina",
-    "doña Remedios, de la estafeta", "Tomás, el deshollinador", "don Nicanor, de la Pensión Esperanza", "Marga, la batería de la fábrica",
-    "el Ministro, que hace su ronda"],
-  endings: [
-    "Emperador: cambia la corbata, da el nombre que te puso la calle y sal a que te coronen.",
-    "Javier: cambia la corbata, da el nombre de los papeles y coge el primer autobús, que va a un entierro."
-  ],
-  chaos: 0.3
+  opening: "El piso; la radio es la cosa de las pistas; la salida es la puerta, atrancada por un armario con ruedas que se aparta empujándolo; la introducción da el armario, la emisora pirata, la manta vacía de Dolo y el lote nueve.",
+  music: "fraseo frigio lento con una cojera en el baile; un acordeón y una guitarra cansada, el traqueteo de un proyector debajo y una radio pirata entre emisoras",
+  start: { day: 1, time: "22:20", weekday: "fri" },
 };
 
-// Las cosas llevadas tienen sus sprites (sprites.js).
-const item = (id) => ({ sprite: sprites[id], ...(sprites[id + "_floor"] ? { floorSprite: sprites[id + "_floor"] } : {}) });
-
-// Lo que el Ministro acepta cuando pregunta a nombre de quién lo apunta (reglas sign_*), también como «soy …», «me llamo …» o «a nombre de …».
-const dicho = (nombres) => nombres.flatMap(n => [n, "soy " + n, "me llamo " + n, "a nombre de " + n, "es " + n, "apunta " + n, "pon " + n]);
-const CORONA = dicho(["emperador", "el emperador", "emperador de prosperidad", "el emperador de prosperidad"]);
-const NOMBRE = dicho(["javier", "javier ortega", "javi"]);
-
-// ---- Las imágenes de los finales ----------------------------------------------------------------------------------------------
-// Los dibujos no llevan lenguaje (pictures.js); lo que cada uno dice a quien usa un lector de pantalla (alt) se dice aquí, en el idioma del mundo.
-const endingPictures = {
-  crowned: { alt: "La avenida de noche vista desde la acera de enfrente: una figura pequeña con una corona de cartón dorado está subida a un cajón en medio de la calle, con un corro de siluetas oscuras alrededor y neón en todos los escaparates.", picture: endings.crowned },
-  named: { alt: "Una parada de autobús en el amanecer gris: el primer autobús con las ventanillas amarillas y, en el escalón, una figura pequeña con abrigo gris y una maleta marrón lisa, y detrás la ciudad, gris.", picture: endings.named }
-};
-
-// ---- Salas -----------------------------------------------------------------------------------------------------------
-// Área "club": el callejón sin salida, la sala del comienzo, al norte de la trastienda tras su puerta de incendios; la trastienda y la sala de El Charlie. Área "calle" (x crece al este, y al sur):
-// la avenida con la estafeta al este y La Ópera al oeste, la esquina al sur con la pensión al este y la lavandería al oeste, y la plaza más abajo.
-// Área "casa": el portal, el patio y la azotea. Área "vias": el terraplén y la fábrica.
-const rooms = {
-  callejon: {
-    name: "CALLEJÓN SIN SALIDA",
+const roomText = {
+  flat: {
+    name: "EL PISO",
     describe: [
-      "Ladrillo gris a los lados y una pared al fondo: la parte de atrás de El Charlie, con cajones, un contenedor y charcos que guardan el rosa de un tubo de neón. El tubo lleva desde la primavera diciendo media palabra.",
-      "La única salida es la {puerta de incendios|puerta} del fondo, pintada contra su marco. El bajo atraviesa el acero como un pulso a través de una pared."
+      "Dos colchones sobre el entarimado, uno con la manta de Dolo. Las ventanas están tapiadas por fuera y el agua la cortaron en primavera.",
+      "El {armario|wardrobe} está pegado a la {puerta|door}, al norte.",
     ],
-    exits: { s: "way" },
+    exits: { n: { if: { "wardrobe.moved": true }, closed: "El armario está pegado a la puerta. Tiene ruedecillas." } },
     scenery: [
-      { words: ["contenedor", "basura", "basuras", "tapa"], name: "el contenedor", says: "Lleno. Lleva lleno desde antes de que el club tuviera nombre, y se guarda sus opiniones." },
-      { words: ["cajones", "cajon", "cajón", "botellas", "cajas"], name: "los cajones", says: "Cajones de cerveza, vacíos, apilados por alguien con mejor memoria para la pila que para la cerveza." },
-      { words: ["charcos", "charco", "agua", "rosa"], name: "los charcos", says: "Agua de lluvia del color del rótulo. En Prosperidad hasta los charcos se ponen de color de noche." },
-      { words: ["tubo", "neon", "neón", "rotulo", "rótulo", "palabra"], name: "el tubo de neón", says: "Media palabra en cristal rosa, y la otra media apagada. Fuera lo que fuese lo que vendía, ya lo ha dejado." },
-      { words: ["pared", "paredes", "ladrillo", "ladrillos", "pintadas", "club"], name: "las paredes", says: "Ladrillo gris, y encima, en rotulador negro, los nombres de otros que estuvieron aquí esperando también algo." }
+      { words: ["colchón", "colchones", "cama", "manta", "entarimado", "botas", "bota"], name: "los colchones", says: "Dos colchones de gomaespuma y una manta militar gris. El lado de Dolo está hecho. En el tuyo, las botas al lado." },
+      { words: ["ventana", "ventanas", "ladrillos", "ladrillo", "hueco"], name: "las ventanas", says: "Tapiadas por fuera, con un ladrillo que falta. Por el hueco pasa una raya de luz de la calle y se tiende en el suelo." },
+      { words: ["vela", "cabo", "caja"], name: "la vela", says: "Un cabo de vela sobre una caja de cervezas, gastado hasta el último dedo." },
     ],
+    alt: "Un piso vacío con una sola vela: dos colchones sobre tablas y un armario pegado a la puerta.",
+    overlayAlt: { radio: "Un transistor en el suelo, entre los colchones." },
     ambience: { lines: [
-      "Detrás del ladrillo, el bajo de alguien da la vuelta y se vuelve a dormir.",
-      "Un gato cruza el fondo del callejón, mira la puerta de incendios y lo piensa mejor.",
-      "El tubo de neón chisporrotea. Es lo único de aquí que tiene ambiciones.",
-      "Alguien se ríe al otro lado de la pared durante un buen rato y se calla de golpe, como si le hubieran dicho algo."
-    ], every: [25, 60] },
-    alt: "Un callejón sin salida de noche entre dos paredes de ladrillo gris: un tubo de neón rosa en la pared de la izquierda, un contenedor y cajones apilados contra el ladrillo, y una puerta de incendios de acero cerrando el fondo.",
-    overlayAlt: { radio: "Una pequeña radio de transistores sobre un cajón, con la antena fuera.", palanca: "Una palanca apoyada en el contenedor." }
+      "Pasa un coche por fuera y su luz cruza el hueco de los ladrillos.",
+      "Arriba arrastran una silla sobre el entarimado, y luego nada.",
+      "La vela se inclina y se endereza.",
+      "En la pared golpea una tubería, aunque cortaron el agua.",
+    ] },
   },
-  trastienda: {
-    name: "TRASTIENDA",
+  hall: {
+    name: "EL PORTAL",
     describe: [
-      "La trastienda de El Charlie: cajas de amplificadores, un perchero de chaquetas de lentejuelas que dejó un grupo glam que no le gustó a nadie y un espejo rodeado de bombillas, la mitad fundidas. Una {funda de guitarra|funda} yace boca arriba en el suelo, de nadie que mire.",
-      "El ruido llega por la cortina del este, todo graves y ningún agudo. La {puerta de incendios|puerta_trasera} del callejón queda al norte, abierta sobre su barra."
+      "Azulejos verdes, una bombilla colgada de un cable y una hilera de buzones reventados para que no salga nada de ellos. La escalera sube a unos pisos que nadie paga.",
+      "La calle queda al norte. Al sur, la {puerta del piso|flat_door} por la que has salido.",
     ],
-    exits: { e: "way", n: "way" },
+    exits: { n: "way", s: { in: true } },
     scenery: [
-      { words: ["amplificadores", "amplificador", "amplis", "cajas", "altavoces"], name: "las cajas de los amplificadores", says: "Cajas negras con el nombre del club en plantilla y, debajo, el teléfono de alguien tachado dos veces." },
-      { words: ["perchero", "chaquetas", "chaqueta", "lentejuelas", "abrigos"], name: "el perchero", says: "Chaquetas de lentejuelas en tallas de gente que ya no las necesita. Devuelven las bombillas en calderilla." },
-      { words: ["espejo", "bombillas", "bombilla"], name: "el espejo", says: "Tienes pinta de alguien a quien le deben dinero y no piensa mencionarlo. El espejo se pone de tu parte." },
-      { words: ["cortina", "terciopelo"], name: "la cortina", says: "Terciopelo negro, gris a la altura de las manos. Tiembla al compás del bombo.", leads: "e" }
+      { words: ["buzones", "buzón", "cartas"], name: "los buzones", says: "Abiertos a destornillador, los cuarenta." },
+      { words: ["escalera", "escaleras", "peldaños", "pisos", "rellano"], name: "la escalera", says: "Tapiada en el primer rellano por los dueños, piso tras piso, según se iban los inquilinos." },
+      { words: ["bombilla", "cable"], name: "la bombilla", says: "Una bombilla desnuda en su propio cable, con una pelusa de polvo encima." },
+      { words: ["azulejos", "azulejo", "suelo", "lirios"], name: "los azulejos", says: "Verdes, con un dibujo de lirios gastado hasta hacerse camino." },
     ],
+    alt: "Un portal con azulejos bajo una bombilla desnuda, con buzones reventados a lo largo de una pared y una puerta verde al fondo.",
+    overlayAlt: { notice: "Una hoja mecanografiada en el suelo de azulejos." },
     ambience: { lines: [
-      "Una bombilla del espejo se apaga, y las demás se miran.",
-      "Alguien en la sala aplaude, muy lejos, algo que pasó hace un minuto.",
-      "El perchero se estremece con el bombo y reparte lentejuelas por el techo."
-    ], every: [30, 70] },
-    alt: "Una trastienda abarrotada de noche: un espejo rodeado de bombillas, un perchero de chaquetas de lentejuelas, cajas de amplificadores apiladas, una funda de guitarra en el suelo y una cortina negra a la derecha que da al bar."
+      "La bombilla chasquea al calentarse.",
+      "Desde la calle, un autobús frena y suspira.",
+      "En la escalera una paloma se da la vuelta y se acomoda.",
+    ] },
   },
-  charlie: {
-    name: "EL CHARLIE",
+  street: {
+    name: "LÓPEZ DE HOYOS",
     describe: [
-      "El Charlie a la una: un escenario bajo, una batería sujeta con cinta americana, paredes negras de pegatinas y un suelo que se queda con tus zapatos. Ochenta punks y, en la mesa del fondo, dos cortando rayas sobre un espejo.",
-      "{Cuco|cuco} lleva el sonido desde un tablón; {Pelayo|pelayo}, la barra, otro tablón más largo. La cortina queda al oeste, la calle al sur."
+      "Persianas bajadas a ambos lados y una sola fachada encendida al fondo: el letrero de la Alborada, rosa y turquesa sobre el asfalto mojado. Una farola lleva muerta desde la primavera.",
+      "La puerta de La Torera está al oeste y la plazuela al este. Al sur, la {puerta del portal|portal} de tu casa.",
+    ],
+    exits: { n: "way", e: "way", w: "way", s: { in: true } },
+    scenery: [
+      { words: ["torera", "bar", "ventana"], name: "La Torera", says: "Una ventana encendida con el precio del café a mano, y olor a fritura." },
+      { words: ["letrero", "luces", "alborada", "cine", "neón", "tubos"], name: "el letrero", says: "Tubos rosas y turquesas alrededor de un marco de bombillas que se persiguen." },
+      { words: ["persianas", "persiana", "tiendas", "farola", "asfalto", "calzada"], name: "la calle", says: "Persianas de acero con carteles arrancados hasta las grapas, y una calzada mojada que tiene el letrero boca abajo." },
+    ],
+    alt: "Una calle ancha de noche: persianas bajadas, la ventana encendida de un bar a la izquierda y un letrero rosa y turquesa al fondo.",
+    overlayAlt: { minister: "El Ministro, un hombre de traje marrón con una cartera al brazo." },
+    ambience: { lines: [
+      "Un autobús frena en la esquina y sigue.",
+      "Tacones en la acera, rápidos, y luego una risa desde un portal.",
+      "Las bombillas del letrero se persiguen alrededor del marco.",
+      "Una persiana vibra con el viento y se queda quieta.",
+    ] },
+    sleep: "En plena calle no. La calle tiene su opinión sobre los que se tumban.",
+  },
+  bar: {
+    name: "LA TORERA",
+    describe: [
+      "Una barra de zinc, ocho taburetes y una televisión atornillada muy alta, sin sonido. Una campana de cristal sobre el zinc guarda los calamares de la noche, y junto a la caja hay una pizarra con nombres y sumas a tiza, casi todas borradas y vueltas a escribir.",
+      "La puerta da al este, a la calle.",
+    ],
+    exits: { e: "way" },
+    scenery: [
+      { words: ["barra", "zinc", "mostrador"], name: "la barra", says: "Zinc, abollado en el borde donde van los codos." },
+      { words: ["taburetes", "taburete"], name: "los taburetes", says: "Ocho, atornillados al suelo para que se queden donde el dueño los vea." },
+      { words: ["televisión", "tele", "televisor"], name: "la televisión", says: "Hombres de traje inauguran una fábrica, sin sonido, una y otra vez." },
+      { words: ["campana", "cristal"], name: "la campana", says: "Cosas fritas dentro de pan, bajo cristal, cada una en el mismo papel." },
+      { words: ["pizarra", "tiza", "nombres", "sumas", "caja", "grifo"], name: "la pizarra", says: "Nombres y sumas a tiza. El tuyo está cerca del final, con una cifra al lado." },
+      { words: ["lámpara", "pantalla", "bombilla"], name: "la lámpara", says: "Una pantalla roja en un cable, y una bombilla amarilla que ha visto tiempos mejores." },
+    ],
+    alt: "Una barra de zinc con ocho taburetes, una televisión alta, una campana de cristal y una pizarra de tiza bajo una lámpara amarilla.",
+    overlayAlt: { minister: "El Ministro, un hombre de traje marrón con una cartera al brazo." },
+    ambience: { lines: [
+      "El grifo bufa y escupe.",
+      "Alguien al fondo se ríe y se calla.",
+      "Dejan un vaso con más fuerza de la necesaria.",
+      "Un hombre pide fiado, bajito, y Rufino le dice la cifra.",
+    ] },
+    sleep: "Rufino tendría algo que decirte. Aquí no.",
+  },
+  kerb: {
+    name: "EL BORDILLO",
+    describe: [
+      "Tres farolas a lo largo de un tramo de acera y una barandilla donde apoyarse. Las mujeres esperan bajo las farolas y los coches suben despacio desde la Avenida, paran, y siguen o no.",
+      "Al oeste, la fachada de la Alborada. Al sur, la plazuela.",
     ],
     exits: { w: "way", s: "way" },
     scenery: [
-      { words: ["escenario", "bateria", "batería", "bombo", "cinta", "americana"], name: "el escenario", says: "A la altura de la rodilla y pegajoso. La batería es más cinta que batería, y el batería le pega como si le debiera dinero." },
-      { words: ["paredes", "pared", "pegatinas", "carteles", "pintadas"], name: "las paredes", says: "Pegatinas sobre pegatinas: grupos, fiestas, un partido, un gato perdido. El negro de debajo no se ve desde 1981." },
-      { words: ["punks", "gente", "publico", "público", "chavales", "cuerpos", "suelo"], name: "los punks", says: "Cuero, imperdibles, pelos de colores que cuestan más que la cerveza. Todos son hijos de alguien y han decidido no mencionarlo." },
-      { words: ["mesa", "espejo", "rayas", "cuchilla", "billete", "polvo", "fondo"], name: "la mesa del fondo", says: "Un espejo, una cuchilla, un billete enrollado y dos amigos que se han puesto de acuerdo en el precio. Aquí nadie juzga; el espejo se limpia cuando acaban." },
-      { words: ["mesa de sonido", "tablon", "tablón", "faders", "mezclador", "consola"], name: "la mesa de sonido", says: "Un tablón sobre dos cajones de cerveza, con una mesa de mezclas más vieja que el grupo. Tiene tres potenciómetros que funcionan y toda la opinión de Cuco sobre el mundo." },
-      { words: ["entrada", "calle", "sello", "puerta"], name: "la puerta de la calle", says: "Una puerta con un punk a cada lado y un sello para el dorso de la mano. Un portero mira y otro cobra.", leads: "s" }
+      { words: ["farolas", "farola"], name: "las farolas", says: "Tres farolas, y la del medio apagada. Las mujeres se ponen bajo las otras dos." },
+      { words: ["barandilla", "baranda"], name: "la barandilla", says: "Oxidada, y pulida en un punto por las caderas." },
+      { words: ["avenida", "puente", "faros"], name: "la Avenida", says: "El puente cuelga sobre el fondo, con una hilera de faros que lo cruza." },
+      { words: ["coches", "coche", "mujeres", "acera", "calzada", "asfalto"], name: "los coches", says: "Cuatro mujeres, dos farolas y coches que frenan y aceleran. A nadie le sorprende nada de esto." },
     ],
+    alt: "Una acera bajo tres farolas junto a un puente, con una barandilla, mujeres en el bordillo y un coche frenando.",
+    overlayAlt: { minister: "El Ministro, un hombre de traje marrón con una cartera al brazo." },
     ambience: { lines: [
-      "El bajo te encuentra las costillas y se instala.",
-      "Se alza un grito por una razón que no sobrevive a la siguiente canción.",
-      "Alguien pogea solo, y bien, y nadie lo menciona.",
-      "Se rompe una botella en algún lado y el grupo sigue tocando, que para eso están los grupos."
-    ], every: [30, 70] },
-    alt: "Un bar punk de noche: un escenario bajo con una batería a la izquierda, una mesa de sonido con un hombre de cresta doblado sobre ella, una barra larga con un barman enorme a la derecha, una mesa al fondo con un espejo y rayas blancas, y una multitud de figuras oscuras.",
-    overlayAlt: { ministro: "El Ministro, de pie junto a la mesa del fondo con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano." }
-  },
-  avenida: {
-    name: "LA AVENIDA",
-    describe: [
-      "La avenida: una calle larga de persianas grises que, ya entrada la noche, se abren a todos los colores que cuestan dinero. El neón corre mojado por la calzada, y la acera es de quien la pisa.",
-      "El frente negro de El Charlie queda al norte, con su ojo de buey encendido. La estafeta, al este, y La Ópera, al oeste. Al sur la avenida se dobla hacia la esquina."
-    ],
-    exits: { n: "way", e: "way", w: "way", s: "way" },
-    scenery: [
-      { words: ["persianas", "persiana", "escaparates", "tiendas", "locales"], name: "las persianas", says: "Medio subidas, medio bajadas, como párpados. Detrás, alguien vende algo que no figura en el rótulo." },
-      { words: ["neon", "neón", "rotulos", "rótulos", "tubos", "color", "colores"], name: "el neón", says: "Rosa, cian, un rojo que se alquila por meses. Cada tubo de aquí es el alquiler de alguien." },
-      { words: ["calzada", "calle", "asfalto", "bordillo", "acera"], name: "la calzada", says: "Negra y mojada, con los rótulos repetidos en ella como manchas blandas. Hace una hora que no pasa nadie por encima." },
-      { words: ["club", "charlie", "frente", "ojo"], name: "El Charlie", says: "Una fachada negra que fue una sala de baile llamada el Submarino, con una ventana redonda encendida y una cola que avanza cuando le apetece.", leads: "n" },
-      { words: ["gente", "portales", "portal", "figuras", "hombres", "mujeres"], name: "la gente de los portales", says: "Esperan a cubierto y vigilan la calle como tenderos. La mayoría lo son." }
-    ],
-    ambience: { lines: [
-      "Un coche baja por la avenida a paso de tortuga, lo mira todo y no se lleva nada.",
-      "Una persiana sube con ruido de tos y queda a la venta una habitación llena de rosa.",
-      "Alguien se ríe en un portal, y otro alguien se detiene.",
-      "Suena una radio en una ventana, una canción que casi conoces, en un tono que no es el de la calle."
-    ], every: [30, 70] },
-    sleep: "En la avenida, no. Alguien te vendería, y no verías el dinero.",
-    alt: "La avenida de noche, mirando al norte por una calle mojada: persianas y rótulos de neón a ambos lados en rosa, cian y magenta, al fondo el frente negro de un club con una ventana redonda como un ojo de buey, y gente de pie en los portales.",
-    overlayAlt: { ministro: "El Ministro, de pie en medio de la acera con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano.", monedas: "Tres monedas yacen en la acera, delante de la puerta del club." }
-  },
-  esquina: {
-    name: "LA ESQUINA",
-    describe: [
-      "La esquina donde se dobla la avenida, con la única farola que funciona. {Marisol|marisol} lleva once años debajo y habla de ella como otras hablan de un contrato de alquiler.",
-      "La Pensión Esperanza queda al este, la Lavandería al oeste, la avenida al norte. Al sur se abre una plazuela."
-    ],
-    exits: { n: "way", e: "way", w: "way", s: "way" },
-    scenery: [
-      { words: ["farola", "poste", "luz", "globo"], name: "la farola", says: "Un poste y un globo naranja. Alumbra un círculo de acera cuyo alquiler Marisol paga con buenos modales." },
-      { words: ["pension", "pensión", "esperanza", "cartel"], name: "la Pensión Esperanza", says: "Una fachada estrecha con un cartel verde: HABITACIONES POR HORAS, en letras que lo han oído todo.", leads: "e" },
-      { words: ["lavanderia", "lavandería", "lavadoras", "escaparate"], name: "la Lavandería", says: "Un escaparate muy iluminado lleno de máquinas blancas, abierto toda la noche, como si alguien tuviera que quitarse la noche de encima a base de jabón.", leads: "w" },
-      { words: ["acera", "bordillo", "esquina", "calle"], name: "la acera", says: "Desgastada en un punto hasta formar un óvalo pálido, del tamaño de la paciencia de una persona." },
-      { words: ["coches", "coche", "trafico", "tráfico"], name: "los coches", says: "Dan la vuelta despacio, con las ventanillas bajadas y la decisión a medio tomar." }
-    ],
-    ambience: { lines: [
-      "Un coche aminora junto al bordillo, Marisol niega con la cabeza sin volverse, y el coche acelera.",
-      "Alguien tira de la cadena en la pensión y toda la esquina lo oye.",
-      "La farola zumba, se atenúa y vuelve a brillar, como si se hubiera acordado del alquiler.",
-      "Una mujer sale de la Lavandería con una sábana limpia al brazo y se aleja por la avenida como un fantasma con factura."
-    ], every: [30, 70] },
-    sleep: "En la esquina, no. Es el lugar de trabajo de alguien.",
-    alt: "Una esquina de noche bajo una farola naranja: una mujer con abrigo corto junto al poste a la izquierda, una pensión de cartel verde a la derecha, el escaparate iluminado de una lavandería más allá y el color del neón sobre la calzada mojada."
-  },
-  estafeta: {
-    name: "LA ESTAFETA",
-    describe: [
-      "Una oficina de correos que no cerró nunca, porque nadie le explicó cómo. Casilleros hasta el techo, un fluorescente que tartamudea y un mostrador largo donde {doña Remedios|remedios} sella cartas de gente que se ha mudado.",
-      "Un saco de lona se hunde en un rincón, esperando a la furgoneta de la noche. La avenida queda al oeste."
-    ],
-    exits: { w: "way" },
-    scenery: [
-      { words: ["saco", "lona", "furgoneta", "bolsa"], name: "el saco de correo", says: "Lona con CORREOS estampado, hinchada con la correspondencia de la avenida: reclamaciones, cartas de amor y cartas de la misma letra cada semana a la misma dirección, devueltas." },
-      { words: ["casilleros", "casillero", "cartas", "correo", "huecos"], name: "los casilleros", says: "Miles, y todos llenos. Nadie recoge. El correo espera a que la gente aprenda a tener dirección." },
-      { words: ["mostrador", "sellos", "sello", "tampon", "tampón", "tinta"], name: "el mostrador", says: "Con cantos de latón y arañado, y en medio un tampón del color de un cardenal." },
-      { words: ["fluorescente", "tubo", "luz", "techo"], name: "el fluorescente", says: "Tartamudea sobre una nota gris y larga. Debajo, todo el mundo parece un impreso." },
-      { words: ["aviso", "cartel", "normas", "horario"], name: "el aviso", says: "«ABIERTO MIENTRAS HAYA CORREO. SIEMPRE HAY CORREO». Alguien ha añadido a lápiz: «MENOS PARA TI»." }
-    ],
-    ambience: { lines: [
-      "Un sello cae sobre algo, una nota limpia y plana, como una puerta pequeña que se cierra.",
-      "Un casillero escupe una carta, y doña Remedios la vuelve a archivar sin leerla.",
-      "El fluorescente tartamudea, y en el hueco doña Remedios no se ha movido en absoluto."
-    ], every: [30, 70] },
-    alt: "Una oficina de correos de noche bajo un fluorescente: casilleros por toda la pared del fondo, un mostrador largo con una mujer robusta en rebeca detrás, a la izquierda, y un saco de correo de lona hinchado en un estante a la derecha.",
-    overlayAlt: { ministro: "El Ministro, de pie al final del mostrador con su abrigo de camello y su sombrero gris, esperando su correo." }
-  },
-  opera: {
-    name: "LA ÓPERA",
-    describe: [
-      "La Ópera: terciopelo rojo vuelto marrón, espejos sin dorado, un escenario diminuto bajo una lámpara de siete bombillas. Doña Aurora canta en él cada noche, desnuda de cintura para arriba bajo una boa de plumas, para hombres de buen abrigo a los que se les cerraron los teatros.",
-      "{Doña Aurora|aurora} es dueña de la sala, del escenario y de las deudas, y su voz las ha sobrevivido. La avenida queda al este."
-    ],
-    exits: { e: "way" },
-    scenery: [
-      { words: ["escenario", "lampara", "lámpara", "bombillas", "boa", "plumas"], name: "el escenario", says: "Un escenario diminuto con una lámpara de siete bombillas, tres encendidas. Doña Aurora está debajo con una boa de plumas y nada más, con la dignidad de quien ha visto lo peor de la ópera y lo mejor del público." },
-      { words: ["terciopelo", "cortinas", "reservados", "asientos"], name: "el terciopelo", says: "Rojo en otro tiempo, marrón ahora, con un brillo en los brazos donde mil codos han apoyado sus opiniones." },
-      { words: ["espejos", "espejo", "dorado"], name: "los espejos", says: "Marcos dorados con cristal viejo, y en el cristal una sala el doble de llena y el doble de joven. Es una mentira piadosa." },
-      { words: ["hombres", "parroquianos", "abrigos", "publico", "público", "caballeros"], name: "los parroquianos", says: "Hombres mayores de buen abrigo, cada uno con su copa y su asiento, escuchando con los ojos cerrados como si el aria la cantara alguien a quien quisieron." },
-      { words: ["barra", "mostrador", "botellas", "anis", "anís", "vasos"], name: "la barra", says: "Una barra corta de caoba con un espejo detrás y un camarero llamado Gaspar al que nadie ha oído hablar. El anís llega en vasitos del tamaño de un dedal y cuesta del tamaño de un cubo. Una cafetera silba al fondo de la barra, y un café es una moneda." },
-      { words: ["mesa", "vela", "asiento"], name: "la mesa del escenario", says: "Una mesa redonda con una vela en una botella y vistas a la puerta. No se sienta nadie que no sea esperado." }
-    ],
-    ambience: { lines: [
-      "Doña Aurora llega a una nota alta un poco tarde y se agarra a ella como a un sombrero con viento.",
-      "Un hombre de buen abrigo llora bajito, y nadie mira, y esa es la norma de la casa.",
-      "La lámpara pierde una bombilla. La sala no lo menciona."
-    ], every: [30, 70] },
-    alt: "Un bar de terciopelo gastado de noche: un escenario diminuto bajo una lámpara de siete bombillas con una mujer con boa de plumas, desnuda de cintura para arriba, cantando, hombres mayores de buen abrigo en los reservados, un espejo dorado y, a la derecha, una mesa redonda con una vela.",
-    overlayAlt: { ministro: "El Ministro, de pie junto a la mesa redonda del escenario con su abrigo de camello y su sombrero gris, un maletín de cuero en una mano." }
-  },
-  pension: {
-    name: "PENSIÓN ESPERANZA",
-    describe: [
-      "El vestíbulo de una pensión que alquila por horas, por noches y, una vez, por años. Un tablero de llaves, un timbre de latón, una alfombra gastada hasta la trama en el camino hacia la escalera.",
-      "{Don Nicanor|nicanor} atiende el mostrador, y un libro de registro al que llama el Libro de Horas. La {escalera|escalera_pension} sube a las habitaciones. La esquina queda al oeste."
-    ],
-    exits: { w: "way", u: "way" },
-    scenery: [
-      { words: ["mostrador", "timbre", "latón", "laton", "recepcion", "recepción"], name: "el mostrador", says: "Un mostrador barnizado con un timbre que nadie toca. A todo el que viene aquí lo esperan." },
-      { words: ["llaves", "llave", "tablero", "ganchos"], name: "el tablero de llaves", says: "Doce ganchos, diez llaves. Dos ganchos tienen un nombre a lápiz debajo en vez de un número." },
-      { words: ["alfombra", "trama", "pasillo"], name: "la alfombra", says: "Antes roja. Ahora, del color de una costumbre larga." },
-      { words: ["libro", "libro de horas", "registro", "horas"], name: "el libro de registro", says: "El Libro de Horas, con letra de oficinista: nombres, habitaciones, duración de la estancia. Don Nicanor lo lee en voz alta cuando se siente solo." }
-    ],
-    ambience: { lines: [
-      "Arriba, una cama contesta a una pregunta, y don Nicanor pasa una página.",
-      "El timbre del mostrador suena una vez, al rozarlo una manga, y no viene nadie a ver por qué.",
-      "Una pareja baja la escalera sin mirarse y sale a la avenida sin mirar nada."
-    ], every: [30, 70] },
-    sleep: "En el vestíbulo, no. Don Nicanor vende las camas de arriba, por horas, y el suelo no lo regala.",
-    alt: "El vestíbulo estrecho de una pensión con una sola lámpara: un mostrador barnizado con un hombre delgado detrás, a la derecha, un tablero de llaves en la pared y una escalera con alfombra roja gastada a la izquierda que sube a la oscuridad."
-  },
-  pension_hab: {
-    name: "HABITACIÓN SIETE",
-    describe: [
-      "La habitación siete: una cama hecha a tensión, un armario, un lavabo con la palangana rota y una ventana a un rótulo de neón, de modo que toda la habitación se pone rosa y deja de estarlo cada cuatro segundos. Está limpia, y es de alguien.",
-      "Un {tarro de kohl|kohl} reposa en el lavabo, rascado hasta el fondo. En el papel de la pared, junto a la cama, hay una {pintada|pintada} de pintalabios. La escalera baja."
-    ],
-    exits: { d: "way" },
-    scenery: [
-      { words: ["cama", "manta", "sabanas", "sábanas", "almohada"], name: "la cama", says: "Hecha con tanta tensión que botaría un duro. Las sábanas están limpias, y ese es el punto." },
-      { words: ["armario", "ropa", "vestidos", "vestido", "perchas"], name: "el armario", says: "Unos cuantos vestidos en perchas de alambre, cada uno una noche distinta. Al fondo, una chaqueta de hombre que nadie ha tenido el valor de devolver." },
-      { words: ["palangana", "lavabo", "jarra", "agua", "espejo"], name: "el lavabo", says: "Una palangana rota, una jarra, un espejo del tamaño de una mano. Quien vive aquí se pinta la cara a tientas." },
-      { words: ["ventana", "rotulo", "rótulo", "neon", "neón", "cortina"], name: "la ventana", says: "Un rótulo rosa al otro lado de la calle: HOTEL, con la O muerta. Es la única luz de la habitación y se enciende y se apaga como un pulso." }
-    ],
-    ambience: { lines: [
-      "El rótulo de enfrente se pone rosa, luego se apaga, luego rosa, como un pulso lento.",
-      "Por el suelo sube la respuesta de una cama de la habitación de abajo.",
-      "El armario se asienta. La chaqueta del fondo se balancea en su percha, una vez."
-    ], every: [30, 70] },
-    sleep: "En la habitación de otra persona, no. Y menos sin que te hayan invitado.",
-    alt: "Una pequeña habitación de pensión teñida de rosa por un rótulo de neón en la ventana: una cama hecha a tensión con una manta roja, un armario, un lavabo con palangana y un espejito, y letras de pintalabios en el papel de la pared junto a la cama."
-  },
-  lavanderia: {
-    name: "LA LAVANDERÍA",
-    describe: [
-      "Una lavandería abierta toda la noche, porque el dueño está en Valencia y nadie se lo ha dicho a las máquinas. Una pared de lavadoras, un banco atornillado al suelo y, al fondo, una {secadora grande|secadora} con una ranura para fichas y un ojo de buey.",
-      "Algo largo y oscuro descansa contra el cristal de la secadora, detrás de un pestillo que no suena desde hace un año. La esquina queda al este."
-    ],
-    exits: { e: "way" },
-    scenery: [
-      { words: ["lavadoras", "lavadora", "maquinas", "máquinas", "tambores", "tambor"], name: "las lavadoras", says: "Diez tambores blancos girando en diez mares pequeños. Cada uno va lleno de la semana de alguien." },
-      { words: ["banco", "asiento", "tornillos"], name: "el banco", says: "Atornillado al suelo por razones que la lavandería se reserva. Buen sitio para esperar y mal sitio para que te pidan que te muevas." },
-      { words: ["cartel", "aviso", "instrucciones"], name: "el cartel", says: "«SOLO FICHAS. SIN FICHAS, NO HAY LAVADO. NO NOS HACEMOS RESPONSABLES DE LO QUE SE QUEDE»." },
-      { words: ["luz", "luces", "fluorescentes", "tubos"], name: "los fluorescentes", says: "Blanco frío, la luz de un sitio que quiere que te vayas pero no tiene nada en contra de que te quedes." }
-    ],
-    ambience: { lines: [
-      "Un tambor termina su ciclo con un largo suspiro y toda la pared lo considera.",
-      "Un calcetín da vueltas en la ventana de una lavadora, una y otra vez, como alguien que busca su parada.",
-      "En alguna máquina cae una moneda, y nadie ha echado ninguna."
-    ], every: [30, 70] },
-    sleep: "En el banco, no. Las máquinas te lavarían.",
-    alt: "Una lavandería de noche bajo tubos de luz blanca fría: una fila de lavadoras blancas en la pared del fondo, un banco atornillado a la izquierda y una secadora grande con una tapa redonda de cristal a la derecha, con un cepillo largo y negro apoyado contra el cristal.",
-    overlayAlt: { cepillo: "El cepillo largo y negro de un deshollinador, sobre la puerta abierta de la secadora." }
+      "Un coche frena, se queda un minuto y sigue.",
+      "Se abre una puerta, se cierra y el coche se va. Once minutos después la devuelve a la misma farola, y ella cuenta lo que tiene en la mano.",
+      "Los faros cruzan el puente en fila y se espacian.",
+      "La farola del medio chasquea, como si fuera a encenderse.",
+    ] },
+    sleep: "En el bordillo no. Al que se tumba aquí, alguien se lo cobra.",
   },
   plaza: {
-    name: "PLAZA DEL CARBÓN",
+    name: "LA PLAZUELA",
     describe: [
-      "Una plaza con una fuente seca y una sola farola de sodio, naranja en una ciudad que guarda el color para la noche. Aquí se vendió carbón. El nombre sobrevivió al carbón, como suelen los nombres.",
-      "Las casas de vecinos la rodean, cada ventana de un tono, y de vez en cuando una rata cruza los adoquines, del desagüe a un portal. La esquina al norte, la casa tomada al sur, el terraplén al este."
+      "Una plazuela del tamaño de un autobús, con cuatro acacias, una cabina y un banco. En la cuneta, junto al sumidero, hay una jeringuilla con el capuchón naranja puesto.",
+      "La calle queda al oeste y el bordillo al norte.",
     ],
-    exits: { n: "way", s: "way", e: "way" },
+    exits: { w: "way", n: "way" },
     scenery: [
-      { words: ["fuente", "pilon", "pilón", "seca", "pez"], name: "la fuente", says: "Un pilón de piedra con un pez de piedra de surtidor, seco desde antes de que se fueran los marineros. Alguien lo ha llenado de macetas y chapas de botella." },
-      { words: ["farola", "sodio"], name: "la farola de sodio", says: "Naranja. La única luz de Prosperidad que es del mismo color todo el día, por lo que nadie se fía de ella." },
-      { words: ["casas", "casa de vecinos", "ventanas", "ventana", "edificios", "colada"], name: "las casas de vecinos", says: "Seis pisos de gris y una ventana en cada piso encendida de otro color: verde con una tele, roja con una bombilla, azul con algo que nadie quiere ver." },
-      { words: ["rata", "desague", "desagüe", "portal"], name: "la rata", says: "Se ha ido antes de que hayas mirado: una rata gris, un desagüe, un portal, por ese orden." },
-      { words: ["casa tomada", "ocupa", "okupa"], name: "la casa tomada", says: "Una casa alta y gris con una bicicleta encadenada en el portal y una bandera en una ventana. Doce familias, algunas emparentadas.", leads: "s" },
-      { words: ["terraplen", "terraplén", "via", "vía", "vias", "vías"], name: "el terraplén", says: "Un hueco entre dos casas por donde antes pasaba el tren. Al fondo, una chimenea altísima contra el cielo.", leads: "e" }
+      { words: ["acacias", "acacia", "árboles", "árbol"], name: "las acacias", says: "Cuatro, podadas hasta el tocón para que nadie se esconda en ellas, y volviendo a crecer." },
+      { words: ["banco"], name: "el banco", says: "Un banco de cemento sin tablillas, pulido por mucha gente esperando algo." },
+      { words: ["jeringuilla", "aguja", "cuneta", "sumidero", "capuchón"], name: "la jeringuilla", says: "Capuchón naranja, una aguja torcida debajo y un sumidero al que le da igual." },
     ],
+    alt: "Una plazuela de noche con cuatro acacias, un banco y una cabina, y un chaval desplomado contra el banco.",
+    overlayAlt: { wrap: "Un papel retorcido en el suelo, junto al zapato del chaval.", minister: "El Ministro, un hombre de traje marrón con una cartera al brazo." },
     ambience: { lines: [
-      "Se abre una ventana en una casa de vecinos, llega un barreño de agua sucia y se cierra la ventana.",
-      "La farola de sodio chasca al enfriarse y toda la plaza escucha.",
-      "Un niño, despierto a deshoras, se sienta en la fuente seca y le cuenta algo."
-    ], every: [30, 70] },
-    sleep: "En la plaza, no. La farola no se apaga nunca, y los vecinos tampoco.",
-    alt: "Una plaza pequeña de noche: una fuente de piedra seca con macetas dentro en el centro, una farola de sodio naranja a la derecha y casas de vecinos altas alrededor con ventanas encendidas en verde, rojo y azul."
+      "Una paloma recorre el banco de punta a punta y mira al chaval.",
+      "Se abre una ventana sobre las acacias, una mujer mira abajo, y se cierra.",
+      "Las hojas se mueven sobre el suelo con la corriente de la Avenida.",
+    ] },
+    sleep: "En la plazuela no. El banco está ocupado.",
   },
-  casa: {
-    name: "LA CASA TOMADA",
+  front: {
+    name: "LA ALBORADA",
     describe: [
-      "El portal de la casa tomada, mirando al sur: una pared de buzones, todos reventados, y una bicicleta encadenada a un radiador que dejó el edificio en 1979. En el primer escalón arde una vela, pagada por turnos.",
-      "El zaguán sigue hacia el patio y su luz. La plaza queda a tu espalda, al norte."
+      "El viejo cine Alborada, con el letrero todavía encendido sobre unas {puertas acolchadas|club_door} y una vitrina de carteles. Tres personas hacen cola apoyadas unas en otras, que sale más barato que estar de pie.",
+      "Las puertas están al norte. Al oeste, la farmacia; al este, el bordillo; al sur, la calle.",
     ],
-    exits: { n: "way", s: "way" },
+    exits: {
+      n: { in: true, if: { "player.conditions": { has: "drunk" } }, closed: "Nando se agacha y te huele como un aduanero abre una maleta. «Sobrio», dice. «Aquí no entra nadie sobrio. Sobrio es policía. Vuelve con algo dentro»." },
+      s: "way", w: "way", e: "way",
+    },
     scenery: [
-      { words: ["buzones", "buzon", "buzón", "correo", "cartas"], name: "los buzones", says: "Cuarenta buzones con nombres en rotulador, todos reventados de folletos, multas y catálogos que nadie abrirá. En uno pone «Maza, 3.º», tachado." },
-      { words: ["bicicleta", "bici", "radiador", "cadena"], name: "la bicicleta", says: "Encadenada a un radiador que dejó de calentar el edificio en 1979. La bicicleta tiene una rueda pinchada y un candado buenísimo, que es lo normal en esta ciudad." },
-      { words: ["vela", "escalon", "escalón", "escalones", "turno", "turnos"], name: "la vela", says: "Un cabo en un platillo sobre el primer escalón. Un papel al lado apunta quién ha pagado la cera de esta noche, y la lista es más larga que la vela." },
-      { words: ["pintadas", "lemas", "pared", "paredes", "carteles"], name: "las paredes", says: "Lemas sobre lemas y carteles sobre carteles, tantas capas que el edificio es sobre todo papel. Uno dice, en rojo: LO QUE SE VENDE NO ES TUYO." },
-      { words: ["zaguan", "zaguán", "pasillo", "baldosas"], name: "el zaguán", says: "Baldosas blancas y negras, sobre todo negras. Sigue al sur, hacia la luz fría y limpia del patio." }
+      { words: ["cartel", "carteles", "vitrina", "mujer", "cama", "botella"], name: "el cartel", says: "El cartel de una película que el cine dejó de poner: una mujer pintada, desnuda sobre una cama junto a una botella, con el título medio despegado." },
+      { words: ["cola", "gente", "bolsa"], name: "la cola", says: "Tres personas, calladas. Una lleva una botella en una bolsa de papel." },
+      { words: ["letrero", "alborada", "cine", "tubos", "bombillas"], name: "el letrero", says: "Tubos rosas y turquesas, y un marco de bombillas con dos muertas en la esquina." },
+      { words: ["farmacia", "cruz"], name: "la farmacia", says: "Una cruz verde al oeste de la acera, zumbando." },
     ],
+    alt: "La fachada de un cine viejo de noche: un letrero encendido, puertas acolchadas, una vitrina de carteles y una cola corta.",
     ambience: { lines: [
-      "Un bebé llora arriba, y alguien le canta por encima en un idioma que nadie de aquí habla.",
-      "La vela se inclina con una corriente del patio.",
-      "Un portazo en el tercero, y la bicicleta del zaguán suena en su cadena."
-    ], every: [30, 70] },
-    sleep: "En el portal, no. Hay turnos para el suelo, y tu nombre no figura en ninguno.",
-    alt: "El zaguán de una casa ocupada de noche, mirando al sur: una pared de buzones reventados a la izquierda, una bicicleta encadenada a un radiador a la derecha, una vela en el primer escalón y, al fondo, un cuadrado luminoso que es el patio."
+      "El bajo atraviesa las puertas acolchadas, el peso de una pista entera, y se corta.",
+      "Mandan a alguien de la cola a casa y se va sin discutir.",
+      "Las bombillas del letrero chasquean, una tras otra.",
+    ] },
+    sleep: "Delante de Nando, no.",
   },
-  patio: {
-    name: "EL PATIO",
+  foyer: {
+    name: "EL VESTÍBULO",
     describe: [
-      "Un patio abierto al cielo, seis pisos de cuerdas de tender y ventanas con velas. Alguien ha pintado las paredes del color de un cielo que no ve, y la lluvia se ha llevado casi todo.",
-      "Una {escalera de hierro|escalera_patio} sube por la pared norte hasta el tejado. El zaguán queda al norte."
+      "El vestíbulo del viejo cine: un mostrador de mármol donde se vendían las entradas, una alfombra gastada hasta la trama y una pizarra sobre un caballete. El sonido del patio de butacas llega por las puertas dobles, al norte.",
+      "La {escalera|stairs} sube a la cabina. La calle queda al sur.",
     ],
-    exits: { n: "way", u: "way" },
+    exits: { n: "way", s: "way", u: "way" },
     scenery: [
-      { words: ["colada", "cuerdas", "cuerda", "sabanas", "sábanas", "ropa"], name: "la colada", says: "Sábanas, camisas y un par de pantalones enorme, tendidos con la esperanza de un sol." },
-      { words: ["ventanas", "ventana", "velas", "vela", "pisos"], name: "las ventanas", says: "Velas en las ventanas, seis pisos. El edificio no tiene luz y tiene mucha claridad." },
-      { words: ["paredes", "pared", "pintura"], name: "las paredes", says: "Pintadas de azul por alguien con ambición y poco presupuesto. Hay una nube en blanco, borrada con una manga." },
-      { words: ["cielo", "estrellas", "estrella"], name: "el cielo", says: "Un cuadrado gris con el neón de la ciudad iluminado por debajo. Las estrellas tienen la noche libre." },
-      { words: ["losas", "suelo", "charcos", "rayuela"], name: "las losas", says: "Agrietadas y verdes en las grietas. Un niño ha pintado una rayuela con tiza, hasta un número que no existe." }
+      { words: ["mostrador", "mármol", "reja", "entradas", "taquilla"], name: "el mostrador", says: "Mármol agrietado, con una reja de latón que nadie ha cerrado desde la última entrada." },
+      { words: ["alfombra", "trama"], name: "la alfombra", says: "Roja, antes. La han pisado hasta la trama en un camino de la puerta al patio." },
+      { words: ["pizarra", "caballete", "lotes", "tiza"], name: "la pizarra", says: "A tiza: 8, un ciclomotor. 9, Dolores M., 38.400. 10, E., 1.100, botas incluidas. Debajo, con otra letra: Entrada libre." },
+      { words: ["puertas", "puerta"], name: "las puertas dobles", says: "Acolchadas y claveteadas, con la música pasando a través." },
     ],
+    alt: "Un vestíbulo de cine destartalado con un mostrador de mármol, una pizarra sobre un caballete y una escalera que sube.",
     ambience: { lines: [
-      "Una sábana se agita en su cuerda, y por un momento es un fantasma con buenos modales.",
-      "Desde una ventana alta, una guitarra toca los mismos cuatro acordes y vuelve a aprenderlos.",
-      "Empieza a llover y se lo piensa mejor."
-    ], every: [30, 70] },
-    sleep: "A cielo abierto, no. Lo vería toda la casa.",
-    alt: "Un patio alto de noche visto desde el suelo: seis plantas de pared gris con ventanas de velas y cuerdas de tender, un trozo de cielo oscuro arriba y una escalera de hierro subiendo por la pared de la derecha."
+      "El bajo golpea las puertas dobles y se para.",
+      "Una risa desde el patio, corta y afilada.",
+      "El caballete cruje: alguien se apoya y lo piensa mejor.",
+    ] },
+    sleep: "En el vestíbulo no. Te cobrarían la alfombra.",
   },
-  azotea: {
-    name: "LA AZOTEA",
+  stalls: {
+    name: "EL PATIO DE BUTACAS",
     describe: [
-      "El tejado de la casa tomada: alquitrán, antenas y una fila de chimeneas en la oscuridad como una congregación. Toda la ciudad se extiende abajo, gris de día y de color mojado ahora.",
-      "{Tomás|tomas} está sentado en el caballete, negro de pies a cabeza. Lo único limpio que tiene son los blancos de los ojos. La escalera baja."
+      "El viejo patio de butacas, con las filas del medio arrancadas para hacer pista y las demás dejadas junto a las paredes. Una lámpara en un poste ilumina el escenario, y la pantalla rota cuelga detrás, gris como una sábana lavada.",
+      "Una {caja|crate} descansa bajo el escenario. El vestíbulo está al sur.",
+    ],
+    exits: { s: "way" },
+    scenery: [
+      { words: ["butacas", "butaca", "asientos", "abrigos"], name: "las butacas", says: "Arrancadas por el medio. Las de las paredes tienen abrigos, y algunos abrigos tienen gente." },
+      { words: ["pantalla", "rotura", "sábana"], name: "la pantalla", says: "Gris como una sábana lavada, con una rotura desde la esquina de arriba hasta una costura." },
+      { words: ["escenario", "lámpara", "poste"], name: "el escenario", says: "Un escenario bajo, con una lámpara en un poste, un atril y un mazo." },
+      { words: ["atril", "mazo", "martillo", "aro"], name: "el atril", says: "Un atril con un mazo encima, y un aro marrón donde ha estado un vaso." },
+      { words: ["pista", "suelo", "tablas"], name: "la pista", says: "Tablas desnudas, pulidas con la forma de la última hora." },
+    ],
+    alt: "Un patio de butacas de cine viejo hecho pista de baile, con un escenario iluminado, un atril, una pantalla rota y una caja bajo el escenario.",
+    overlayAlt: { minister: "El Ministro, un hombre de traje marrón con una cartera al brazo." },
+    ambience: { lines: [
+      "La aguja salta y alguien la vuelve a poner.",
+      "Una silla rasca: alguien se está haciendo una cama de abrigos.",
+      "La pantalla rota se mueve cuando se abre una puerta, y se asienta.",
+      "Dos personas discuten por una botella con las frentes juntas.",
+    ] },
+    waitFor: { time: "next 01:00", says: "Encuentras un asiento junto a la pared y esperas a que se apaguen las luces de la sala. Se apagan.", if: [{ "time.hour": { between: [2, 1] } }] },
+    sleep: "La pista es para bailar, y las butacas están ocupadas.",
+  },
+  booth: {
+    name: "LA CABINA",
+    describe: [
+      "Una caja sobre el vestíbulo con dos ventanillas cuadradas hacia el patio de butacas, de modo que toda la sala de abajo es una larga inclinación gris de cabezas. Un {proyector|projector} sobre un pie de hierro ocupa casi todo, con una linterna de diapositivas al lado, y una cama de campaña hecha como la de un soldado.",
+      "La escalera baja.",
     ],
     exits: { d: "way" },
     scenery: [
-      { words: ["chimeneas", "chimenea", "tubos", "fila", "congregacion", "congregación"], name: "las chimeneas", says: "Once, de ladrillo y barro, cada una con un capuchón de hollín. Solo la duodécima, lejos, en la fábrica, tira todavía." },
-      { words: ["antenas", "antena", "cables", "alambres"], name: "las antenas", says: "Un bosque de perchas de alambre y ideas valientes, todas apuntando a una televisión que se mudó." },
-      { words: ["ciudad", "horizonte", "luces", "color", "abajo"], name: "la ciudad", says: "Neón de todos los colores que uno puede pagarse, y detrás, si miras, el gris, esperando a la mañana." },
-      { words: ["alquitran", "alquitrán", "tejado", "caballete", "tejas"], name: "el alquitrán", says: "Blando bajo los pies y tibio todavía del día. Huele a veranos viejos y a azúcar quemado." },
-      { words: ["luna", "nubes", "humo"], name: "la luna", says: "Una luna baja con un velo de humo. El humo sube de las chimeneas, como antes de que a nadie se le ocurriera preguntar." }
+      { words: ["linterna", "diapositivas", "diapositiva", "bandeja"], name: "la linterna", says: "Una linterna para los lotes. Una bandeja de diapositivas de cristal, cada una con un número rayado a lápiz graso." },
+      { words: ["ventanillas", "ventanilla", "cristal", "cabezas"], name: "las ventanillas", says: "Dos ventanillas cuadradas en la pared. Por ellas el escenario se ve pequeño y brillante, y las cabezas de abajo se mueven como algo que se vierte." },
+      { words: ["cama", "catre", "campaña", "manta"], name: "la cama de campaña", says: "Hecha con esquinas de hospital por alguien que lleva aquí mucho tiempo." },
     ],
+    alt: "Una cabina de proyección con un proyector de cine, una linterna de diapositivas y una anciana en los mandos, con dos ventanillas que miran al patio de butacas.",
     ambience: { lines: [
-      "Una paloma se posa en una chimenea, piensa algo y se va.",
-      "Tomás silba entre dientes tres notas y espera una respuesta de algún sitio.",
-      "Una ráfaga sube por la pared todo el ruido de la ciudad de golpe, y lo suelta."
-    ], every: [30, 70] },
-    sleep: "En el caballete, no. El deshollinador tendría que bajarte en brazos.",
-    alt: "Una azotea plana de noche bajo una luna baja: una fila de chimeneas como figuras oscuras a la izquierda, un deshollinador de negro con sombrero de copa sentado contra una chimenea en el primer tercio izquierdo, un horizonte de neón de colores abajo a la derecha y antenas contra el cielo."
+      "El ventilador de la linterna chasquea al enfriarse.",
+      "Abajo salta la aguja y alguien la vuelve a poner.",
+      "Ofelia se dice el título de una película, como comprobando que sigue ahí.",
+    ] },
+    waitFor: { time: "next 01:00", says: "Te sientas en una lata vacía a los pies de Ofelia y ves cómo se llena la sala de abajo. A la una, la música se corta.", if: [{ "time.hour": { between: [2, 1] } }] },
+    sleep: "La cama de campaña está hecha para Ofelia.",
   },
-  terraplen: {
-    name: "EL TERRAPLÉN",
+  pharm: {
+    name: "LA FARMACIA",
     describe: [
-      "Un terraplén de ferrocarril bajo una luna baja: balasto gris, dos raíles oxidados y un vagón en una vía muerta con el portón cegado por lemas que nadie ha leído. No pasa un tren desde hace diez años.",
-      "Al este, los raíles siguen hasta la fábrica y su gran chimenea. La plaza queda al oeste."
+      "Una farmacia de guardia: estantes blancos, un mostrador de cristal y un diploma enmarcado detrás, más grande que la caja. La cruz verde zumba al otro lado del escaparate.",
+      "La calle queda al este.",
     ],
-    exits: { w: "way", e: "way" },
+    exits: { e: "way" },
     scenery: [
-      { words: ["railes", "raíles", "rail", "carril", "carriles", "vias", "vías", "balasto", "traviesas"], name: "los raíles", says: "Dos líneas oxidadas hasta el horizonte, y el horizonte es una fábrica. Nada ha rodado sobre ellas desde hace diez años." },
-      { words: ["vagon", "vagón", "porton", "portón", "lemas", "apartadero"], name: "el vagón", says: "Un vagón de mercancías con el portón cubierto de lemas: SUELDOS, PAN, ESTO NO. Debajo, en pintura más vieja: PROSPERIDAD S.A." },
-      { words: ["chimenea", "fabrica", "fábrica", "nave"], name: "la fábrica", says: "Una nave negra y, saliendo de ella, una chimenea más alta que las casas de vecinos. Es lo único de Prosperidad que es más grande que su fama." },
-      { words: ["luna", "cielo", "nubes"], name: "la luna", says: "Baja y amarilla, envuelta en un velo del humo de la fábrica." },
-      { words: ["farol", "senal", "señal", "semaforo", "semáforo"], name: "la señal", says: "Una señal de ferrocarril, en rojo, que lleva mucho tiempo diciendo alto a nadie." }
+      { words: ["estantes", "estante", "frascos", "cajas", "botes"], name: "los estantes", says: "Estantes blancos con las cajas de cara al público, en filas tan rectas como un regimiento." },
+      { words: ["mostrador", "cristal", "caja", "báscula"], name: "el mostrador", says: "Un mostrador de cristal sobre un expositor de cuchillas, básculas y cosas para bebés." },
+      { words: ["cruz", "escaparate"], name: "la cruz", says: "Una cruz de neón verde, con un brazo parpadeando." },
+      { words: ["diploma", "marco", "sello"], name: "el diploma", says: "Un diploma con marco marrón, más grande que la caja, con un sello rojo." },
     ],
+    alt: "Una farmacia de guardia, blanca y luminosa, con un mostrador de cristal, un diploma enmarcado y una cruz verde en el escaparate.",
     ambience: { lines: [
-      "Una señal chasca, roja, y sigue roja.",
-      "El viento recorre el terraplén, levanta un periódico, le da vuelta a las hojas y lo suelta.",
-      "En algún lugar de la fábrica una batería arranca un ritmo, lo pierde y vuelve a empezar."
-    ], every: [30, 70] },
-    sleep: "En el balasto, no. Los raíles están fríos, y la fábrica no.",
-    alt: "Un terraplén de ferrocarril de noche bajo una luna baja: dos raíles oxidados que corren hacia el este, hacia una nave negra de fábrica en el tercio derecho con una chimenea altísima contra el cielo, y un vagón de mercancías en una vía muerta a la izquierda."
+      "El tubo fluorescente zumba en una sola nota.",
+      "Un coche para fuera y su puerta no se abre nunca.",
+      "Don Eladio endereza el diploma un pelo.",
+    ] },
+    sleep: "Don Eladio llamaría a alguien.",
   },
-  fabrica: {
-    name: "LA FÁBRICA",
-    describe: [
-      "La vieja fábrica de Prosperidad S.A., que imprimía catálogos hasta que se acabó el dinero. Un horno sigue encendido al fondo de la nave, alimentado con palés por quien duerme aquí, y la gran chimenea se alza en medio del suelo, negra desde la base hasta el techo, el tiro alrededor del cual se levantó el edificio.",
-      "{Marga|marga} está sentada a su batería junto al horno. El camino de vuelta queda al oeste, por la vía."
-    ],
-    exits: { w: "way" },
-    scenery: [
-      { words: ["horno", "fuego", "brasas", "resplandor", "parrilla", "pales", "palés"], name: "el horno", says: "Una boca de ladrillo con un ojo rojo, alimentada con palés. Es la única calefacción del grupo, y el grupo está en deuda con el horno." },
-      { words: ["ceniza", "cenizas", "suelo", "hollin", "hollín", "escoria"], name: "la ceniza", says: "Tibia, gris y tan honda que se traga un zapato. Debajo, un suelo de viejas páginas de catálogo, quemadas en pliegos." },
-      { words: ["maquinas", "máquinas", "imprenta", "rodillos", "cintas", "prensas"], name: "las prensas", says: "Rodillos de hierro altos como un hombre, todavía entintados en un gris que no sale de las paredes." },
-      { words: ["techo", "agujero", "cielo", "nube"], name: "el techo", says: "Un gran agujero por donde sube la chimenea, y por el agujero, el humo de los palés." },
-      { words: ["nave", "paredes", "pared", "ladrillos", "ladrillo"], name: "la nave", says: "Ladrillo alto como una catedral, chamuscado con la forma de una mano muy grande allí donde reventó una caldera." },
-      { words: ["chimenea", "tiro", "gran chimenea"], name: "la gran chimenea", says: "Una chimenea de ladrillo ancha como una casa, que sube por la nave y sale por el techo, negra del suelo a la nube. Una compuerta de hierro a su pie lleva ochenta años sin abrirse." }
-    ],
-    ambience: { lines: [
-      "El horno chasca y suspira, como si soltara algo que se había guardado.",
-      "Un pliego de papel quemado se pone en pie sobre la ceniza con la corriente, y vuelve a tumbarse.",
-      "La gran chimenea cruje de arriba abajo, una nota larga, y luego nada."
-    ], every: [30, 70] },
-    sleep: "En la ceniza, no. Marga dice que se queda con quien se tumba.",
-    alt: "El interior de una vieja fábrica iluminado de rojo por un horno: la boca de ladrillo de un horno brillando a la izquierda, una chica junto a una batería a su lado, la gran chimenea negra subiendo por el centro de la nave hasta un agujero del techo, a la derecha, prensas de hierro y un suelo de ceniza gris."
-  }
 };
 
-// ---- Objetos -----------------------------------------------------------------------------------------------------------
-const objects = {
-  // La sala del comienzo: las pistas, la salida (una puerta pintada contra su marco) y la palanca que la abre (BRIEF.md §3).
-  radio: { at: "callejon", portable: true, material: "metal", name: "Radio", note: "Un programa de madrugada.",
-    words: { nouns: ["radio", "transistor", "transistores"], adj: ["transistor", "pequeña", "vieja"], g: "f" }, ...item("radio"),
-    here: "Una {radio} de transistores sobre un cajón está sintonizada en un programa de llamadas de madrugada.",
-    examine: "Una radio de transistores pequeña, sujeta con esparadrapo. Está puesta en un programa donde, de noche, desconocidos llaman para darse consejos unos a otros, y algunos son buenos." },
-  puerta: { at: "callejon", material: "metal", name: "Puerta de incendios", note: "Pintada contra el marco.", door: "s", locked: true,
-    lock: { key: "palanca",
-      says: "La puerta de incendios está pintada contra su marco. Hay una rendija por el lado de las bisagras, lo bastante ancha para el pico de algo plano y fuerte.",
-      opens: "Metes el pico de la palanca en la rendija y haces fuerza. La pintura cede como hielo, la puerta de incendios se abre hacia dentro sobre su barra y el bajo sale a recibirte.",
-      then: "arrival" },
-    shut: "Le echas el hombro a la abolladura. La puerta de incendios ni siquiera vibra.",
-    words: { nouns: ["puerta"], adj: ["incendios", "acero", "metálica", "metalica", "gris"], g: "f" },
-    parts: [{ words: ["rendija", "pintura", "marco", "bisagras", "bisagra", "abolladura"], name: "la rendija", says: "Una línea negra de pintura vieja por el lado de las bisagras, y una abolladura a la altura del hombro donde otros lo han intentado." }],
-    examine: "Una puerta de incendios de acero con barra y sin pomo por este lado, pintada contra su marco por una década de capas. Una abolladura a la altura del hombro dice que otros lo han intentado; una rendija por el lado de las bisagras dice que debieron traer algo." },
-  palanca: { at: "callejon", portable: true, material: "metal", name: "Palanca", note: "Pesada, plana en la punta.",
-    words: { nouns: ["palanca", "palanqueta", "barra"], adj: ["hierro", "oxidada", "pesada"], g: "f" }, ...item("palanca"),
-    here: "Una {palanca} apoyada en el contenedor, negra de la pintura de otras puertas.",
-    examine: "Una palanca oxidada, con el pico atascado de pintura de otras puertas. Lo bastante pesada para ser un argumento." },
-
-  // Trastienda
-  puerta_trasera: { at: "trastienda", material: "metal", name: "Puerta trasera", note: "Al callejón.", door: "n",
-    words: { nouns: ["puerta"], adj: ["trasera", "incendios", "acero", "metálica", "metalica", "gris"], g: "f" },
-    examine: "La puerta de incendios por dentro: una barra, abierta y calzada, y al otro lado los charcos rosas del callejón." },
-  funda: { at: "trastienda", container: true, open: false, material: "wood", name: "Funda de guitarra", note: "Suena al inclinarla.",
-    words: { nouns: ["funda"], adj: ["guitarra", "negra", "vieja"], g: "f" },
-    examine: "Una funda de guitarra negra con el cierre roto, sujeta con un cinturón. Al inclinarla suena algo pequeño y abundante, y no es una guitarra." },
-  cuerdas: { at: "funda", portable: true, material: "paper", name: "Cuerdas de bajo", note: "Todavía en su sobre.",
-    words: { nouns: ["cuerdas", "cuerda", "sobre", "juego"], adj: ["bajo", "nuevas", "precintadas"], g: "f", pl: true }, ...item("cuerdas"),
-    examine: "Un sobre de papel con cuerdas de bajo, precintado, con el nombre de un grupo a boli: NADA PERSONAL. Alguien las guardaba para una noche como esta." },
-
-  // El Charlie
-  cuco: { portrait: sprites.cuco_portrait, at: "charlie", name: "Cuco", note: "Lleva el sonido.",
-    words: { nouns: ["cuco", "sonido", "técnico", "tecnico"], adj: [], proper: true, g: "m" },
-    examine: "Un hombre flaco con chupa de cuero y una cresta como un trazo de pintura negra, doblado sobre una mesa de sonido con tres potenciómetros que funcionan. Tiene aire de hombre cuya música se ha ido de casa.",
-    talk: "«No me pidas canciones —dice Cuco sin volverse—. Solo me queda media noche».",
-    topics: {
-      deck: { open: true, label: "la cinta", words: ["cinta", "casete", "cassette", "musica", "música", "mesa", "noche", "sonido"], says: "«Entre grupo y grupo pongo una cinta, siempre la misma, y esta noche es la que no es —dice Cuco—. La que es se la quedó alguien a quien no sé cómo pedírsela. El orgullo es mala tarima para bailar»." },
-      marisol: { label: "Marisol", words: ["marisol", "esquina", "mujer"], says: "Algo le cruza la cara y lo guarda enseguida. «¿Marisol? En la esquina, donde siempre. Fuimos amigos. Tiene mi cinta, y no pienso pedírsela»." },
-      tie: { label: "una corbata negra", words: ["corbata", "negra", "seda", "entierro", "funeral"], says: "«¿Una corbata negra?». Cuco te mira como si le hubieras pedido el hígado. «Tengo una, en el cajón de la mesa. La de mi padre, para su entierro y para el mío. De seda, por cierto. La daría por la cinta, y por nada más»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿Él? Se planta junto a la mesa del fondo cuando viene, y no mira el espejo, y los chavales que sí lo miran lo miran a él —dice Cuco—. Pregunta a Pelayo cuándo toca. Pelayo lleva el reloj»." },
-      default: "«Perdona —dice Cuco, por encima del bajo—. Solo oigo lo que me llega por los cascos»."
-    },
-    give: "«Qué detalle —dice Cuco—. Pero esa no es mi cinta»." },
-  pelayo: { portrait: sprites.pelayo_portrait, at: "charlie", name: "Pelayo", note: "Lleva la barra.",
-    words: { nouns: ["pelayo", "barman", "camarero", "portero"], adj: ["grande"], proper: true, g: "m" },
-    examine: "Un hombre enorme con un collar de pinchos, brazos como dos perros dormidos y un lápiz detrás de cada oreja. Sirve la cerveza como quien pone la mesa a los muertos, y no derrama nunca.",
-    talk: "«¿Qué? —dice Pelayo, que es como saluda—. ¿Cerveza o ruido?».",
-    topics: {
-      band: { open: true, label: "el grupo", words: ["grupo", "nacho", "cuerda", "cuerdas", "fabrica", "fábrica", "bajo", "bajista"], says: "«Nada Personal están esta noche en la fábrica, ensayando con un horno —dice Pelayo—. A Nacho se le rompió una cuerda del bajo el martes y se pone borde sin ella. Hay un juego de recambio en la funda de guitarra de la trastienda, por si alguien quisiera hacerse el héroe»." },
-      bar: { open: true, label: "la barra", words: ["barra", "cerveza", "copa", "precio", "fiado"], says: "«Una cerveza es una moneda —dice Pelayo—. Ni treinta pelas ni un favor: una moneda. Los chavales las pierden en la acera de ahí fuera, al entrar, y para eso están. Y no pidas fiado, que he visto tu cara en un cartel de se busca»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "ronda", "cuando"], says: "«Puntual como el correo —dice Pelayo—. Hace El Charlie, una cerveza, baja por la avenida a La Ópera, vuelve por la avenida a la estafeta a por su carta, otra vez la avenida y vuelta conmigo. Cuatro minutos por puerta y ni un segundo más, porque quien se queda es quien llama la atención»." },
-      default: "«No es cosa mía —dice Pelayo—. Lo mío es ese vaso»."
-    },
-    give: "«Yo cobro en efectivo o no cobro —dice Pelayo, y te lo devuelve»." },
-
-  // La cerveza de El Charlie: una cerveza es una moneda, y las tres monedas de la acera de la avenida se gastan una a una (`remains`: tres
-  // monedas, dos monedas, una moneda; el `requires` de la cerveza es la primera). La segunda cerveza te emborracha (las `doses` de la condición).
-  cerveza: { at: null, from: "pelayo", requires: "monedas", spends: true, times: 3, material: "glass", name: "Cerveza", note: "Fría, en un vaso.",
-    lacking: "«Una cerveza es una moneda —dice Pelayo, y espera—. Yo no fío».",
-    brought: ["Pelayo coge una moneda, tira una {cerveza} y la deja en la barra como quien pone la mesa a los muertos.", "Pelayo coge otra moneda y tira otra {cerveza}.", "Pelayo coge la última moneda, tira la última {cerveza} y te mira como quien cuenta la sala."],
-    already: "«Bébete esa primero», dice Pelayo.", again: "«Son tres —dice Pelayo—. Pasadas las tres cantan, luego lloran, y luego friego yo».",
-    consumable: true, starts: "drunk", drink: ["Fría y amarga, y lo primero de esta noche que ha sido tuyo.", "Más templada, y un poco más lejos del suelo.", "Baja como un reto."],
-    words: { nouns: ["cerveza", "vaso", "caña", "cana"], adj: ["fria", "fría"], g: "f" },
-    examine: "Un vaso de cerveza, fría, con una espuma que Pelayo ha cortado con el canto de un cuchillo." },
-  // El café de La Ópera: también una moneda (las mismas que las de la cerveza), servido por la palabra de doña Aurora y las manos de Gaspar. Acaba con
-  // la condición de borracho (`stops`); borracho o no, sabe a café. Un café en total (`times: 1`). Borracho se acaba también con el tiempo (el `lasts` de
-  // la condición) y con un sueño de cuatro horas o más (el del motor: js/sleep.js, SOBERS), así que el mundo no escribe nada para dormir.
-  cafe: { at: null, from: "aurora", requires: "monedas", spends: true, times: 1, material: "glass", name: "Café", note: "Solo, en una taza pequeña.",
-    lacking: "«Un café es una moneda, cariño —dice doña Aurora entre dos compases—. A mi coro no lo pago con buenas intenciones».",
-    brought: "Doña Aurora te coge la moneda de la mano sin perder el compás y hace una seña a Gaspar, que deja un {café|cafe} negro en la barra sin decir palabra.",
-    already: "«Bébete ese primero, cariño», dice doña Aurora.", again: "«Con uno basta —dice doña Aurora—. Con dos te da por cantar, y yo el escenario no lo comparto».",
-    consumable: true, stops: "drunk", drink: "Negro, amargo y hirviendo. Sabe a café, y al lado bueno de la noche.",
-    words: { nouns: ["cafe", "café", "taza", "cafecito"], adj: ["negro", "caliente", "pequeña", "pequena"], g: "m" },
-    examine: "Una taza pequeña de café negro sobre un platillo, humeante, con la desportilladura del borde vuelta con educación hacia el otro lado." },
-  monedas: { at: "avenida", portable: true, material: "metal", name: "Tres monedas", note: "Una consumición cada una.", remains: "monedas_2",
-    words: { nouns: ["monedas", "moneda", "dinero", "calderilla", "suelto"], adj: ["tres", "cobre"], g: "f", pl: true }, ...item("monedas"),
-    here: "Tres {monedas} yacen en la acera, delante de la puerta de El Charlie, donde hace cola la gente y los bolsillos van sueltos.",
-    lies: "Tres monedas yacen donde las dejaron.",
-    examine: "Tres monedas de cobre, tibias del bolsillo de alguien, gastadas de tanto andar. Una moneda es una cerveza en El Charlie, o un café en La Ópera." },
-  monedas_2: { at: null, portable: true, material: "metal", name: "Dos monedas", note: "Una consumición cada una.", remains: "moneda_1",
-    words: { nouns: ["monedas", "moneda", "dinero", "calderilla", "suelto"], adj: ["dos", "cobre"], g: "f", pl: true }, ...item("monedas_2"),
-    lies: "Dos monedas yacen donde las dejaron.", examine: "Dos monedas de cobre, gastadas. Una moneda es una cerveza en El Charlie, o un café en La Ópera." },
-  moneda_1: { at: null, portable: true, material: "metal", name: "Moneda", note: "Una consumición.",
-    words: { nouns: ["moneda", "dinero", "calderilla", "suelto"], adj: ["ultima", "última", "cobre"], g: "f" }, ...item("moneda_1"),
-    lies: "Una moneda yace donde la dejaron.", examine: "Una moneda de cobre, gastada. Una consumición más: una cerveza en El Charlie, un café en La Ópera." },
-
-  // El Ministro: en su ronda (las salas, por orden, un paso cada cuatro movimientos tuyos)
-  ministro: { portrait: sprites.ministro_portrait, at: "opera", name: "El Ministro", note: "En su ronda.",
-    rounds: { rooms: ["charlie", "avenida", "opera", "avenida", "estafeta", "avenida"], every: [4, 4] },
-    arrives: ["El Ministro entra, saluda a la sala como a un auditorio de provincias y se coloca en el mejor sitio que hay.", "El Ministro llega con su maletín, su sombrero y sus cuatro minutos."],
-    leaves: ["El Ministro apura su copa, se abotona el abrigo y sigue a la siguiente puerta.", "El Ministro mira un reloj que no lleva y se va."],
-    words: { nouns: ["ministro", "camello", "dealer", "ildefonso"], adj: ["el", "viejo", "alto"], g: "m" }, ...item("ministro"), figure: sprites.ministro_figure,
-    here: "{El Ministro|ministro} está aquí, con abrigo de camello y sombrero gris, un maletín de cuero en una mano y aire de quien visita las provincias.",
-    examine: "Un hombre alto y delgado de sesenta años, con abrigo de camello, sombrero gris y gafas de montura dorada, y un maletín de cuero que no suelta nunca. Lleva el cuello abierto y sin corbata. Da la mano como un obispo y cuenta como un banco.",
-    talk: "«Buenas noches —dice el Ministro, como a una delegación—. Tengo cuatro minutos y no los gasto nunca mal».",
-    topics: {
-      want: { open: true, label: "lo que acepta", words: ["acepta", "dinero", "precio", "quiere", "favor", "favores", "pago"], opens: ["tie"], says: "«El dinero es un rastro de papel, y yo no dejo papeles —dice el Ministro—. Acepto cosas. Esta noche necesito una, y es una corbata negra, buena, de seda si la ciudad da para tanto. Las tiendas están cerradas, la mía está donde no debería y no pienso ir a un entierro con el cuello abierto»." },
-      coat: { open: true, label: "lo que has venido a buscar", words: ["maletin", "maletín", "mercancia", "mercancía", "papelina", "papelinas", "polvo", "buscar", "venido"], says: "«Lo que has venido a buscar está en este maletín, y seguirá en este maletín cuando tenga mi corbata —dice el Ministro—. Antes, no. No he vendido nunca a crédito y no me he arrepentido nunca»." },
-      tie: { label: "la corbata", words: ["corbata", "seda", "negra", "entierro", "cuello"], opens: ["matilde"], says: "«El entierro es por la mañana. Una corbata negra, amigo mío, o me quedo en el portal —dice el Ministro—. Pregunta a los que entierran y a los que casan: siempre queda una corbata que se odia. Y tráemela en mi ronda, no a mi casa. No tengo casa»." },
-      matilde: { label: "el entierro", words: ["entierro", "matilde", "hermana", "iglesia", "misa", "judas"], says: "«Mi hermana. Matilde Peláez, treinta años portera del número nueve de la calle Hierro, hoy la casa tomada —dice el Ministro—. Dio de comer a media escalera con un sueldo que no daba para un gato. Misa en San Judas, a primera hora. El primer autobús para delante, y yo estaré allí, con la corbata puesta»." },
-      round: { open: true, label: "su ronda", words: ["ronda", "camina", "rondas", "donde", "dónde", "correo", "carta"], says: "«Hago El Charlie, la avenida, La Ópera, la avenida, la estafeta a por mi carta, la avenida otra vez —dice el Ministro—. Cuatro minutos por puerta. Llevo once años y no me han robado nunca, porque nadie puede prever a un hombre del todo previsible»." },
-      default: "«Una pregunta agradable —dice el Ministro—, pero solo tengo cuatro minutos»."
-    },
-    give: "«Un detalle —dice el Ministro—, pero no. Esta noche quiero una sola cosa, y no es esa»." },
-
-  // La avenida y la esquina
-  marisol: { portrait: sprites.marisol_portrait, at: "esquina", name: "Marisol", note: "Trabaja la esquina.",
-    words: { nouns: ["marisol", "mujer", "señora", "senora"], adj: [], proper: true, g: "f" },
-    examine: "Una mujer con abrigo corto y buenos zapatos, el pelo recogido, la cara sin pintar y cansada. Tiene la paciencia de un banco y los modales de una duquesa, y no ha fingido nunca ser otra cosa.",
-    talk: "«Buenas, Emperador —dice Marisol—. Si vienes a trabajar, trabaja en la otra acera. Si vienes a mirar, mira la farola».",
-    topics: {
-      work: { open: true, label: "su trabajo", words: ["trabajo", "oficio", "esquina", "farola", "precio", "clientes"], says: "«Un cuarto de hora, cien pesetas, sin besos. Once años, una farola y nadie al que haya tenido que sacar a rastras —lo dice como el horario de un tren—. Es un oficio. Nadie se avergüenza de vender pan»." },
-      eyes: { open: true, label: "sus ojos", words: ["ojos", "cara", "kohl", "maquillaje", "cansada"], opens: ["tape"], says: "«Tengo mala cara porque se me ha acabado el kohl —dice—. Quince años con el mismo negro, y la tienda que lo vendía ha quebrado. El hollín de un deshollinador hace por una señora lo que no hace un tarro, y el único deshollinador que queda está en la azotea de la casa tomada»." },
-      tape: { label: "la cinta", words: ["cinta", "casete", "cassette", "cuco"], says: "«La cinta de Cuco —dice, sin sonreír—. La dejó conmigo la noche que dejó de hablarme. Lleva la canción que no puede tocar ni puede dejar de tocar. Si alguien me trajera un poco de ese negro para los ojos, podría prescindir de ella»." },
-      name: { label: "tu nombre", words: ["nombre", "javier", "emperador", "papeles"], says: "«Eres el Emperador desde que fuiste un chiste que alguien contó —dice—. Antes eras Javier, el del tercero, el de la tos. Doña Matilde, la portera, te daba de comer en la escalera. Nicanor lo tiene apuntado en algún sitio»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿El Ministro? No intentes comprarle. Mira el dinero como un cura mira una cuenta atrás —dice Marisol—. Acepta favores. Y va de ronda: pregunta en El Charlie, que le llevan el horario»." },
-      default: "«De eso no sé, cariño —dice Marisol—, pero si lo averiguas, cuéntaselo a la farola»."
-    },
-    give: "«Para mí no, cariño —dice Marisol—. Yo solo cojo lo que puedo usar»." },
-  hollin: { at: null, portable: true, material: "soft", name: "Bote de hollín", note: "Fino y negro.",
-    words: { nouns: ["hollin", "hollín", "bote", "tarro"], adj: ["fino", "negro"], g: "m" }, ...item("hollin"),
-    examine: "Un tarro de mermelada con hollín de chimenea, fino como harina y negro como un juramento. Bueno para los ojos, si conoces a las señoras, y para los pulmones de nadie." },
-
-  // La estafeta
-  remedios: { portrait: sprites.remedios_portrait, at: "estafeta", name: "Doña Remedios", note: "Lo sella todo.",
-    words: { nouns: ["remedios", "dona", "doña", "empleada", "mujer"], adj: ["doña", "robusta"], proper: true, g: "f" },
-    examine: "Una mujer robusta con rebeca y redecilla, un sello en cada mano y un tercero detrás de la oreja. No levanta la vista a nada que no haya archivado ya.",
-    talk: "«El siguiente —dice doña Remedios, aunque no hay nadie más—. Nombre, calle, piso, por ese orden. Por ese no. Primero el piso».",
-    topics: {
-      post: { open: true, label: "el correo", words: ["correo", "cartas", "saco", "sello", "trabajo", "furgoneta"], says: "«Clasifico lo que llega, sello lo que sale, devuelvo lo que no tiene a quién ir —dice doña Remedios—. Nueve de cada diez son devoluciones. La gente se muda más deprisa que sus direcciones»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "carta", "correo"], says: "«Cada sábado una carta certificada, su pensión del Colegio de Farmacéuticos —dice doña Remedios—. El único dinero que acepta, y lo llama devolución. Firma con letra de receta. Un boticario expulsado, si quiere mi opinión, y nadie me la ha pedido»." },
-      matilde: { label: "Matilde", words: ["matilde", "portera", "peláez", "pelaez", "entierro"], says: "«Treinta años de cartas de Matilde a un chico del tercero del nueve, y treinta años de devueltas con el sello de desconocido —dice doña Remedios—. Javier Maza, calle Hierro, nueve. No dejó de escribir. Yo no dejé de devolverlas. No me mires a mí: yo sello lo que viene sellado»." },
-      default: "«Eso no lo puedo sellar —dice doña Remedios, y sella otra cosa»."
-    },
-    give: "«Yo cojo cartas y cojo sellos —dice doña Remedios—, y eso no es ninguna de las dos cosas»." },
-
-  // La pensión
-  nicanor: { portrait: sprites.nicanor_portrait, at: "pension", name: "Don Nicanor", note: "Atiende el mostrador.",
-    words: { nouns: ["nicanor", "don", "casero", "recepcionista", "encargado"], adj: ["don"], proper: true, g: "m" },
-    examine: "Un hombre delgado con un bigote que ha sobrevivido a dos esposas, con una rebeca del color del vestíbulo. Tiene el don de no enterarse, y lo usa como oficio.",
-    talk: "«Habitaciones por horas, por noches o por años —dice don Nicanor—. Lo de los años es para quien se ha rendido. No lo recomiendo».",
-    topics: {
-      rooms: { open: true, label: "una habitación", words: ["habitacion", "habitación", "habitaciones", "cama", "noche", "hora", "alquiler"], says: "«Ocho pesetas la hora, treinta la noche, y sin preguntas a ninguna de las dos tarifas. La única habitación que no alquilo es la siete. Esa está ocupada, por una señora que paga el día uno»." },
-      book: { open: true, opens: ["name"], label: "el Libro de Horas", words: ["libro", "registro", "horas", "nombres"], says: "«Todo nombre que se ha alojado aquí está en el Libro —dice don Nicanor—. También el tuyo. Javier Maza, número siete, 1979, tercera noche. Un bebé con tos, en una habitación sin calefacción, y una madre en el turno de noche. La portera de la calle Hierro subió una cazuela de sopa por la escalera. Lo recuerdo porque dormías mejor que tu madre»." },
-      marisol: { label: "Marisol", words: ["marisol", "siete", "inquilina"], says: "«La siete es de Marisol —dice don Nicanor—. Paga el día uno y no ha dado un portazo en su vida. Si quiere ver cómo vive una señora, suba y mire. No le importa. Deja la puerta abierta»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«Un caballero —dice don Nicanor—. Alquiló la habitación del rincón por noches durante veinte años, hasta la noche en que dejó de hacerlo. No pregunto qué lleva un caballero en el maletín, y un caballero no me lo dice»." },
-      default: "«No sabría decirle —dice don Nicanor, y anota algo en el Libro»."
-    },
-    give: "«Se lo agradezco, pero llevo un establecimiento muy serio —dice don Nicanor, y te lo devuelve»." },
-  escalera_pension: { at: "pension", leads: "u", name: "Escalera", note: "Sube a las habitaciones.",
-    words: { nouns: ["escalera", "escaleras", "peldaños", "peldanos"], adj: ["estrecha", "gastada"], g: "f" },
-    examine: "Una escalera estrecha con una alfombra roja gastada, que sube a un rellano y a una fila de habitaciones con número y sin nombre." },
-  kohl: { at: "pension_hab", name: "Tarro de kohl", note: "Rascado hasta el fondo.",
-    words: { nouns: ["tarro", "kohl", "bote", "lápiz", "lapiz"], adj: ["kohl", "negro", "vacío", "vacio"], g: "m" },
-    examine: "Un tarro redondo pequeño, rascado hasta el fondo con una uña. Ni una escama. Quien lo usa lo usa con el cuidado de quien hace cuentas." },
-  pintada: { at: "pension_hab", name: "Pintada", note: "De pintalabios, en la pared.",
-    words: { nouns: ["pintada", "letras", "papel", "pintalabios", "mensaje"], adj: ["pintalabios"], g: "f" },
-    examine: "De pintalabios, en el papel de la pared junto a la cama, con letra grande y decidida: «CUCO. TU CINTA ESTÁ AQUÍ CUANDO VENGAS A POR ELLA TÚ MISMO». Debajo, más pequeño: «Antes, no»." },
-  escalera_pension_hab: { at: "pension_hab", leads: "d", name: "Escalera", note: "De vuelta abajo.",
-    words: { nouns: ["escalera", "escaleras", "peldaños", "peldanos"], adj: ["estrecha", "gastada"], g: "f" },
-    examine: "La escalera baja al vestíbulo, donde un reloj no acaba de dar bien la hora." },
-
-  // La Ópera
-  aurora: { portrait: sprites.aurora_portrait, at: "opera", name: "Doña Aurora", note: "Dueña del escenario.",
-    words: { nouns: ["aurora", "dona", "doña", "cantante", "mujer", "dueña", "duena"], adj: ["doña", "emplumada"], proper: true, g: "f" },
-    examine: "Una mujer de cincuenta y ocho años con una mata de pelo teñido de rojo, una boa de plumas verde y nada más por encima de la cintura, que se planta como si el escenario fuera un púlpito y la sala una congregación de sus deudores. Canta como quien fue tomada en serio una vez y ha decidido tomarse así ella.",
-    talk: "«Cariño —dice doña Aurora entre dos compases—, si has venido a escuchar, calla. Si has venido a beber, Gaspar es sordo».",
-    topics: {
-      room: { open: true, label: "la sala", words: ["sala", "bar", "ópera", "opera", "escenario", "cantar", "canta"], says: "«Hace cuarenta años esto era el café de enfrente de la ópera, y todas las coristas de la ciudad tomaban el café en esa mesa —dice doña Aurora—. La ópera es un banco ahora. Las coristas son abuelas. Yo soy la última que sigue con plumas»." },
-      coffee: { open: true, label: "el café", words: ["cafe", "café", "taza", "gaspar", "maquina", "máquina", "sobrio"], says: "«Una moneda, cariño, igual que antes de que la ópera fuera un banco —dice doña Aurora—. Gaspar lo hace negro y no lo discute nunca. Ha despejado a hombres mejores que tú»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer", "mesa", "caballero"], says: "«¿Don Ildefonso? Mesa redonda, espalda a la pared, un carajillo que no acaba nunca —dice doña Aurora—. Es un caballero y lleva once años de ministro, porque visita sus circunscripciones con puntualidad. Espera un poco y llegará, a mí me da cuatro minutos»." },
-      tie: { label: "una corbata negra", words: ["corbata", "negra", "seda", "entierro"], says: "«¿Una corbata negra? Anoche me pidió una, pobre hombre, con su hermana aún sin enterrar —dice doña Aurora—. Las que tengo son pajaritas y amarillas. Pregunta por los bares, cariño. Alguien habrá enterrado a alguien»." },
-      matilde: { label: "Matilde", words: ["matilde", "hermana", "portera", "entierro"], says: "«Matilde Peláez, la portera de la calle Hierro nueve. No dijo nunca a nadie que tenía una hermana, hasta que fue una muerta —dice doña Aurora—. Mantuvo vivo a un chico del tercero a base de sopa, y le escribió cartas durante treinta años que no lo encontraron nunca. El Ministro lo cuenta él mismo, con su carajillo, todas las noches de esta semana»." },
-      default: "«No sabría decirte, cariño —dice doña Aurora—, y me haría falta un coro para decirlo por mí»."
-    },
-    give: "«Qué amable —dice doña Aurora—. Pero yo solo colecciono corazones y deudas»." },
-
-  // La lavandería
-  secadora: { at: "lavanderia", name: "Secadora grande", note: "Quiere fichas.",
-    words: { nouns: ["secadora", "maquina", "máquina", "ojo", "ranura"], adj: ["grande", "gran"], g: "f" },
-    parts: [{ words: ["forma", "pestillo", "cristal", "tambor"], name: "la forma del tambor", says: "Algo largo y oscuro descansa contra el cristal, sujeto por el pestillo. El pestillo solo suelta al final de un ciclo pagado." }],
-    examine: "Una secadora enorme y vieja con una tapa redonda de cristal y una ranura que dice FICHAS. Dentro hay algo largo y oscuro, sujeto por un pestillo que solo suelta al terminar un ciclo.",
-    switch_on: "La secadora no hace nada. La ranura dice FICHAS, y lo dice como un alguacil.",
-    push: "La secadora no hace nada. La ranura dice FICHAS.",
-    take: "Está atornillada al suelo, y lo está desde la Guerra Civil." },
-  cepillo: { at: null, portable: true, material: "wood", name: "Cepillo de deshollinador", note: "Largo, negro, rígido.",
-    words: { nouns: ["cepillo", "escobillón", "escobillon"], adj: ["deshollinador", "largo", "negro"], g: "m" }, ...item("cepillo"),
-    examine: "Un cepillo de deshollinador con un mango articulado, negro como el interior de una olla. En el mango, quemado con un clavo al rojo: T. H." },
-  fichas: { at: null, portable: true, material: "metal", name: "Fichas de lavandería", note: "De latón, con un agujero.",
-    words: { nouns: ["fichas", "ficha"], adj: ["lavandería", "lavanderia", "latón", "laton"], g: "f", pl: true }, ...item("fichas"),
-    examine: "Un puñado de fichas de latón con LAVANDERÍA estampado y un agujerito en medio. Las justas para una máquina, y la máquina sabe cuántas." },
-
-  // La cinta y la corbata
-  cinta: { at: null, portable: true, material: "paper", name: "Cinta", note: "Sin etiqueta.",
-    words: { nouns: ["cinta", "casete", "cassette"], adj: ["sin", "etiqueta", "barata"], g: "f" }, ...item("cinta"),
-    examine: "Un casete barato sin etiqueta, solo con una huella de pulgar en algo que podría ser lápiz de ojos. Las bobinas están muy parejas, como si la cinta se hubiera guardado para algo." },
-  corbata: { at: null, portable: true, material: "soft", name: "Corbata negra", note: "De seda, arrugada.",
-    words: { nouns: ["corbata"], adj: ["negra", "seda", "estrecha"], g: "f" }, ...item("corbata"),
-    examine: "Una corbata negra y estrecha de seda, arrugada por el medio de tanto entierro y todavía, de algún modo, lo mejor del bar." },
-  papelina: { at: null, portable: true, material: "paper", name: "Papelina", note: "Doblada pequeña.",
-    words: { nouns: ["papelina", "papel", "sobre", "paquetito"], adj: ["doblada", "pequeña"], g: "f" }, ...item("papelina"),
-    examine: "Un cuadradito de papel doblado al tamaño de una uña, y más pesado de lo que parece. Es lo que has venido a buscar, y nadie te ha dicho qué haces con ello después." },
-
-  // La casa tomada
-  escalera_patio: { at: "patio", leads: "u", name: "Escalera", note: "Sube al tejado.",
-    words: { nouns: ["escalera", "peldaños", "peldanos"], adj: ["hierro", "oxidada"], g: "f" },
-    examine: "Una escalera de hierro atornillada a la pared norte, con los peldaños pulidos a la altura de las manos. Sube hacia el humo." },
-  escalera_azotea: { at: "azotea", leads: "d", name: "Escalera", note: "De vuelta abajo.",
-    words: { nouns: ["escalera", "peldaños", "peldanos"], adj: ["hierro", "oxidada"], g: "f" },
-    examine: "La escalera por la que has subido, bajando hacia la luz de velas del patio." },
-  tomas: { portrait: sprites.tomas_portrait, at: "azotea", name: "Tomás", note: "El deshollinador.",
-    words: { nouns: ["tomas", "tomás", "deshollinador", "hombre"], adj: [], proper: true, g: "m" },
-    examine: "Un deshollinador de pies a sombrero de copa, que también es negro, y una cara tan tiznada que cuando sonríe parece un defecto de la oscuridad. Un hueco con forma de cepillo en el cinturón marca el sitio donde estaba su cepillo.",
-    talk: "«Cuidado con las chimeneas —dice Tomás—. Están tibias, y se quedan con lo que les das».",
-    topics: {
-      sweeping: { open: true, label: "el deshollinado", words: ["deshollinar", "deshollinado", "chimenea", "chimeneas", "trabajo", "hollin", "hollín", "oficio"], says: "«Hay once chimeneas aquí arriba y una duodécima en la fábrica que es más grande que todas —dice Tomás—. Llevo cuarenta años deshollinándolas. Quien deshollina una chimenea se queda con el hollín. Esa es toda la ley»." },
-      brush: { open: true, label: "su cepillo", words: ["cepillo", "perdido", "mango"], says: "«Lo dejé en la secadora de la Lavandería el invierno pasado, en el mono —dice Tomás—. El pestillo se cerró sobre él y no tenía ficha para dar el ciclo, y el dueño está en Valencia. Un deshollinador sin cepillo es un hombre con una chimenea en la cabeza»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿Don Ildefonso? A mí me paga con amabilidad y yo le pago con hollín —dice Tomás—. Cada chimenea bajo la que se ha sentado la ha deshollinado un hombre que le debía algo. Eso es un ministro, supongo»." },
-      default: "«No sé decirle —dice Tomás—. Yo solo sé de hollín»."
-    },
-    give: "«Eso no es mío —dice Tomás—, pero gracias»." },
-
-  // La fábrica
-  marga: { portrait: sprites.marga_portrait, at: "fabrica", name: "Marga", note: "Batería, Nada Personal.",
-    words: { nouns: ["marga", "batería", "bateria", "chica"], adj: [], proper: true, g: "f" },
-    examine: "Una chica de diecinueve años ante una batería hecha de dos tambores y un cubo, con el pelo negro a trasquilones, la camiseta rota y las baquetas en el cinturón como cuchillos. Te mira con la paciencia de quien ha aprendido a esperar por todo.",
-    talk: "«Si vienes a decirme que baje el volumen, la respuesta es el horno —dice Marga—. Hace más ruido que yo».",
-    topics: {
-      band: { open: true, opens: ["strings"], label: "el grupo", words: ["grupo", "nada", "personal", "nacho", "ensayo", "bateria", "batería", "baquetas"], says: "«Nada Personal. Cuatro, y tres aquí: Nacho se ha ido a ponerse borde. Se le rompió una cuerda del bajo el martes y la tienda de música no abre hasta el lunes, y dice que sin ella no puede tocar, lo cual es mentira, pero testaruda —dice Marga»." },
-      strings: { label: "las cuerdas", words: ["cuerdas", "cuerda", "bajo", "sobre", "juego"], says: "«¿Cuerdas de bajo? ¿Tienes un juego de recambio? Tráelo y te doy el fondo de la colada del grupo. Catorce fichas en una lata de café. Nacho puede lavar los calcetines el lunes, y se alegrará —dice Marga»." },
-      dealer: { open: true, label: "el Ministro", words: ["ministro", "camello", "dealer"], says: "«¿El Ministro? Vino una vez a oírnos. Se quedó al fondo tres canciones, con el sombrero puesto. Dejó una propina en la lata: cien pesetas, en monedas, como un sombrero en una iglesia —dice Marga»." },
-      default: "«Ni idea —dice Marga, y golpea el cubo»."
-    },
-    give: "«No es mío —dice Marga—. Las cuerdas, en cambio, sí las cojo»." }
-};
-
-// ---- Los puzles -----------------------------------------------------------------------------------------------------------
-const puzzles = {
-  // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la radio hablan de ella.
-  way_out: { where: "callejon", needs: [], solve: ["{take} palanca", "abrir puerta con palanca", "sur"], reaches: "trastienda", clues: ["puerta", "palanca"],
-    hints: ["La puerta de incendios está pintada contra su marco, con una rendija por el lado de las bisagras, y algo pesado se apoya en el contenedor.", "Coge la palanca, fuerza con ella la puerta de incendios y ve al sur."] },
-  take_strings: { where: "trastienda", needs: [], solve: ["abrir funda", "{take} cuerdas"], gives: ["cuerdas"], clues: ["funda", "pelayo"],
-    hints: ["La funda de guitarra de la trastienda suena al inclinarla, y a un grupo le falta algo.", "Abre la funda de guitarra y coge las cuerdas de bajo."] },
-  strings_for_tokens: { where: "fabrica", needs: ["cuerdas"], solve: ["dar cuerdas a marga"], gives: ["fichas"], clues: ["marga", "pelayo"],
-    hints: ["Al grupo de Marga le falta una cuerda, y guardan el dinero de la colada en una lata.", "Da las cuerdas de bajo a Marga, en la fábrica, y te dará las fichas de lavandería."] },
-  run_dryer: { where: "lavanderia", needs: ["fichas"], solve: ["meter fichas en secadora", "{take} cepillo"], gives: ["cepillo"], clues: ["secadora", "tomas"],
-    hints: ["La secadora de la Lavandería acepta fichas, y algo largo espera detrás de su pestillo.", "Mete las fichas en la secadora y coge lo que salga."] },
-  sweep_roof: { where: "azotea", needs: ["cepillo"], solve: ["dar cepillo a tomas"], gives: ["hollin"], clues: ["tomas", "cepillo", "marisol"],
-    hints: ["Al deshollinador de la azotea de la casa tomada le falta su cepillo.", "Da el cepillo a Tomás, en la azotea, y deshollinará una chimenea y te dará el hollín."] },
-  line_eyes: { where: "esquina", needs: ["hollin"], solve: ["dar hollin a marisol"], gives: ["cinta"], clues: ["marisol", "hollin", "kohl"],
-    hints: ["El tarro de kohl de Marisol está vacío, y el hollín de deshollinador hace por los ojos lo que no hace un tarro.", "Da el hollín a Marisol, en la esquina, y te dará la cinta de Cuco."] },
-  tape_for_tie: { where: "charlie", needs: ["cinta"], solve: ["dar cinta a cuco"], gives: ["corbata"], clues: ["cuco", "pintada"],
-    hints: ["La cinta de Cuco está en la esquina, y él tiene la única corbata negra que necesita el Ministro.", "Da la cinta a Cuco, en El Charlie, y coge la corbata negra."] },
-  corona: { where: "avenida", needs: ["corbata"], solve: ["dar corbata a ministro", "decir emperador"], ending: true, clues: ["ministro", "cuco"],
-    hints: ["El Ministro no acepta dinero y quiere una corbata negra para un entierro por la mañana. Preguntará a nombre de quién lo apunta.", "Da la corbata al Ministro y dile que eres el Emperador."] },
-  nombre: { where: "avenida", needs: ["corbata"], solve: ["dar corbata a ministro", "decir javier"], ending: true, clues: ["ministro", "marisol", "nicanor"],
-    hints: ["Marisol y don Nicanor recuerdan un nombre que no es el de Emperador.", "Da la corbata al Ministro y dile que eres Javier."] }
-};
-
-// ---- Reglas -----------------------------------------------------------------------------------------------------------------
-const rules = [
-  // La secadora: las fichas dentro, el pestillo suelta.
-  { id: "put_tokens", match: { verb: ["put", "use"], obj: "fichas", obj2: "secadora" }, if: [{ "player.at": "lavanderia" }], once: true,
-    again: "La secadora ya ha tenido sus fichas y sigue dando vueltas, pensando.",
-    do: [{ say: "Las fichas entran una a una, cada una con una notita mojada. La secadora se estremece durante un ciclo, el pestillo suena como un nudillo y la tapa cae abierta sobre un {cepillo|cepillo} largo y negro, caliente como el pan." },
-         { draw: "lavanderia", remove: ["cepillo_*"] }, { move: "fichas", to: null }, { move: "cepillo", to: "lavanderia" }] },
-  // Marga: cuerdas por las fichas de la colada del grupo.
-  { id: "give_strings", match: { verb: ["give", "show", "use", "put"], obj: "cuerdas", obj2: "marga" }, if: [{ "player.at": "fabrica" }], once: true,
-    again: "«Con un juego basta, gracias —dice Marga—. Nacho solo rompe una cada vez».",
-    do: [{ say: "Marga coge el sobre como si estuviera vivo y besa una vez el nombre del grupo. Busca debajo del cubo una lata de café, vuelca catorce {fichas|fichas} de latón en la palma y te las pasa a la tuya. «Dile a Nacho que lo he hecho yo —dice—. No le digas nada más»." },
-         { move: "cuerdas", to: null }, { move: "fichas", to: "player" }] },
-  // El deshollinador: el cepillo de vuelta, el hollín fuera.
-  { id: "give_brush", match: { verb: ["give", "show", "use", "put"], obj: "cepillo", obj2: "tomas" }, if: [{ "player.at": "azotea" }], once: true,
-    again: "«Ya he deshollinado una —dice Tomás—. El bote es todo tuyo».",
-    do: [{ say: "Tomás coge el cepillo como otro hombre cogería a un niño. Deshollina la chimenea más cercana, una vez, con un sonido como un suspiro largo, y sale una nube de hollín, negra como una iglesia. Llena un tarro de {hollín|hollin} sin mirar y te lo da. «Guárdalo para los ojos de una señora —dice—. Para eso sirve». El cepillo vuelve al cinturón, y el hueco se cierra." },
-         { move: "cepillo", to: null }, { move: "hollin", to: "player" }] },
-  // Marisol: hollín para sus ojos, y la cinta.
-  { id: "give_soot", match: { verb: ["give", "show", "use", "put"], obj: "hollin", obj2: "marisol" }, if: [{ "player.at": "esquina" }], once: true,
-    again: "«Con un bote me basta —dice Marisol—. No me malacostumbres».",
-    do: [{ say: "Marisol coge el bote y se moja un dedo. Se traza una raya en cada ojo, un remate en la comisura, sin espejo, en cuatro segundos. Cuando se vuelve hacia la farola parece alguien que no se ha cansado nunca. «Ya —dice—. Ahora estoy abierta al público. Anda, cógela». Busca en el abrigo y saca una {cinta|cinta} con una huella en negro. «Dile que es de la esquina. No le digas nada más»." },
-         { move: "hollin", to: null }, { move: "cinta", to: "player" }] },
-  // Cuco: la cinta, y la corbata.
-  { id: "give_tape", match: { verb: ["give", "show", "use", "put"], obj: "cinta", obj2: "cuco" }, if: [{ "player.at": "charlie" }], once: true,
-    again: "«Con una me basta —dice Cuco—. Ya tengo la noche de vuelta».",
-    do: [{ say: "Cuco sostiene la cinta como si quemara. La mete en un radiocasete hecho polvo bajo la mesa, y los primeros compases de algo barato y enorme salen por un altavoz, y toda la sala se desplaza un cuarto de vuelta, como si alguien se hubiera acordado de algo. No se vuelve. Abre el cajón de la mesa, saca una {corbata negra|corbata} y te la pasa sin girarse. «La de mi padre. No la manches»." },
-         { move: "cinta", to: null }, { move: "corbata", to: "player" }] },
-  // El Ministro: la corbata por lo que has venido a buscar, y a nombre de quién lo apunta.
-  { id: "trade_tie", match: { verb: ["give", "show", "use", "put"], obj: "corbata", obj2: "ministro" }, if: [{ "ministro.traded": false }],
-    do: [{ say: "El Ministro coge la corbata con dos dedos y la pasa entre ellos como un rosario. Se la pone, a oscuras, sin espejo, y el cuello abierto se cierra sobre su garganta como una puerta sobre una discusión. «Servirá —dice—. Servirá muy bien». Del maletín de cuero saca una {papelina|papelina}, doblada al tamaño de una uña, y te la deja en la palma. «Lo que has venido a buscar. Ahora el libro: yo apunto todas las operaciones, y apunto el nombre al que quiero poder reclamar. ¿A nombre de quién?»." },
-         { set: "ministro.traded", to: true }, { move: "corbata", to: null }, { move: "papelina", to: "player" }] },
-  { id: "sign_crown", match: { verb: "say" }, if: [{ "ministro.traded": true }, { "ministro.at": "$here" }, { $text: { in: CORONA } }],
-    do: [{ say: "«El Emperador —dice el Ministro, y lo apunta—. Un título y no un nombre, pero he firmado cosas peores». Cierra el libro. «A reinar, pues. La avenida querrá a su emperador, y le mandará la factura»." },
-         { say: "Antes de que cruces la avenida, la noticia ha corrido más deprisa que él. Alguien encuentra un cajón, alguien una corona de cartón dorado de una ópera cerrada hace mucho, y la avenida, que tiene todo en venta, te da esto gratis, que es como sabes que te va a costar. Nadie se ríe. El trabajo sigue." },
-         { end: true, picture: "crowned" }] },
-  { id: "sign_name", match: { verb: "say" }, if: [{ "ministro.traded": true }, { "ministro.at": "$here" }, { $text: { in: NOMBRE } }],
-    do: [{ say: "La pluma se detiene. «Javier —dice el Ministro, y por un momento no está vendiendo nada—. El chico de Matilde, el del tercero. Decía que aparecerías cuando costara algo». Escribe el nombre despacio, el primero de verdad que hay en el libro. «Puedes quedarte con lo que tienes en la mano. Yo no devuelvo el dinero y no doy consejos. El primer autobús sale de la plaza hacia San Judas. Tiene un asiento, y yo, con la corbata puesta, otro»." },
-         { say: "Nadie en la avenida te llama Emperador cuando andas hasta la parada. Dicen el otro nombre. Suena pequeño, y raro, y te sienta bien. Marisol, bajo su farola, levanta una mano y no dice nada, y llevas lo que has venido a buscar en un bolsillo y una camisa limpia en el otro." },
-         { end: true, picture: "named" }] },
-  { id: "sign_early", match: { verb: "say" }, if: [{ "ministro.traded": false }, { "ministro.at": "$here" }, { $text: { in: [...CORONA, ...NOMBRE] } }],
-    do: [{ say: "«Los nombres, después del negocio —dice el Ministro, sin acritud—. ¿Qué tienes para mí?»." }] },
-  { id: "sign_other", match: { verb: "say" }, if: [{ "ministro.traded": true }, { "ministro.at": "$here" }],
-    do: [{ say: "«Eso no lo puedo apuntar —dice el Ministro—. Un nombre es algo a lo que se te puede reclamar. Inténtalo otra vez»." }] }
+const hurtLines = [
+  "Tienes las manos frías hasta las muñecas y los labios no parecen tuyos.",
+  "La plazuela se inclina y vuelve cada vez un poco menos.",
+  "Respiras dos veces por cada aliento que consigues.",
 ];
 
-// ---- La sala del comienzo, declarada (BRIEF.md §3) ----------------------------------------------------------------------------------------
-const opening = {
-  room: "callejon", hints: "radio", way: "puerta",
-  intro: "Eres el Emperador de Prosperidad, y esta noche el Emperador quiere algo. Lo tiene el Ministro, que hace cada noche su ronda de bares y no acepta dinero. Te lo dijo un posavasos, en mayúsculas, antes de que se lo llevara el viento. Es la una de la madrugada, y de todos modos no tienes dinero.",
-  lines: {
-    hintFrame: "Te pones la radio al oído. En el programa de llamadas de madrugada alguien dice:"
-  }
-};
+const things = [
+  // el piso
+  { add: "object", id: "radio", at: "flat", portable: true, material: "metal", ...sprites.radio,
+    name: "Radio", note: "Emisora pirata, con catarro.",
+    here: "Una {radio} sisea en el suelo, entre los colchones.",
+    words: { nouns: ["radio", "transistor", "aparato"], adj: ["pirata", "pegada"], g: "f" },
+    examine: "Un transistor sujeto con cinta aislante, sintonizado en una emisora pirata que pincha discos y lee el tiempo a una ciudad que no escucha. El locutor tiene catarro." },
+  { add: "object", id: "wardrobe", at: "flat", use: "push",
+    name: "Armario", note: "Con ruedas.",
+    words: { nouns: ["armario", "ropero"], adj: ["nogal"], g: "m" },
+    examine: "Un armario de nogal con cuatro ruedecillas de latón. Quien vivió aquí antes lo rodaba cada noche delante de la puerta, y rueda de vuelta." },
+  { add: "object", id: "door", at: "flat", door: "n", material: "wood",
+    name: "Puerta", note: "Detrás del armario.",
+    words: { nouns: ["puerta"], adj: ["verde"], g: "f" },
+    examine: "Una puerta hueca pintada del verde de todas las puertas del edificio, con la cerradura arrancada hace años. El armario le da la espalda." },
+  { add: "object", id: "monedas", at: "player", portable: true, droppable: false, remains: "monedas_2", material: "metal", ...sprites.monedas,
+    name: "Tres monedas", note: "Monedas de cien pesetas.",
+    words: { nouns: ["monedas", "moneda", "dinero", "pesetas"], adj: ["tres"], g: "f", pl: true },
+    examine: "Tres monedas de cien pesetas, calientes del bolsillo. Una caña en La Torera cuesta una." },
+  { add: "object", id: "monedas_2", at: null, portable: true, droppable: false, remains: "monedas_1", material: "metal", ...sprites.monedas_2,
+    name: "Dos monedas", note: "Monedas de cien pesetas.",
+    lies: "Dos monedas quedan donde las dejaste.",
+    words: { nouns: ["monedas", "moneda", "dinero", "pesetas"], adj: ["dos"], g: "f", pl: true },
+    examine: "Dos monedas de cien pesetas." },
+  { add: "object", id: "monedas_1", at: null, portable: true, droppable: false, material: "metal", ...sprites.monedas_1,
+    name: "Una moneda", note: "Una moneda de cien pesetas.",
+    lies: "Una moneda queda donde la dejaste.",
+    words: { nouns: ["moneda", "dinero", "peseta"], adj: ["una"], g: "f" },
+    examine: "Una moneda de cien pesetas." },
 
-// ---- El conjunto de cambios -----------------------------------------------------------------------------------------------------
+  // el portal
+  { add: "object", id: "notice", at: "hall", portable: true, material: "paper", ...sprites.notice,
+    name: "Notificación", note: "Mecanografiada, sellada.",
+    here: "Una {notificación|notice} mecanografiada yace en las baldosas, colada bajo una puerta y empujada a patadas.",
+    words: { nouns: ["notificación", "aviso", "carta"], adj: ["mecanografiada"], g: "f" },
+    examine: "Una notificación mecanografiada en papel fino, con un escudo arriba, un sello violeta abajo y mucho orgullo en medio. Está hecha para leerse.",
+    read: "«MINISTERIO. Oficina de Cobros y Subastas. Se notifica a los interesados que esta noche, a las 01:00, se celebrará en la Alborada, patio de butacas, la subasta ordinaria de efectos y créditos. Lote 9: Dolores Mena, 38.400 pesetas. Lote 10: el llamado Emperador, 1.100 pesetas, botas incluidas. Entrada libre. Rematador: el Ministro». Va sellada, y firmada con una letra que ensaya.",
+    lies: "Una notificación mecanografiada queda donde la dejaste." },
+  { add: "object", id: "flat_door", at: "hall", door: "s", material: "wood",
+    name: "Puerta del piso", note: "Verde. La tuya.",
+    words: { nouns: ["puerta"], adj: ["del", "piso", "verde"], g: "f" },
+    examine: "La puerta del piso donde duermes, verde como todas las del edificio, con la cerradura arrancada." },
+
+  // la calle
+  { add: "object", id: "portal", at: "street", door: "s", material: "wood",
+    name: "Puerta del portal", note: "A tu portal.",
+    words: { nouns: ["puerta", "portal"], adj: ["del", "portal"], g: "f" },
+    examine: "La puerta de la calle de tu edificio, sujeta con un ladrillo para que nadie necesite llave." },
+
+  // el bar
+  { add: "object", id: "rufino", at: "bar", material: "soft", ...sprites.rufino,
+    name: "Rufino", note: "Sirviendo sin mirar.",
+    here: "{Rufino|rufino}, el dueño, envuelve en papel un bocadillo de calamares que nadie ha pedido.",
+    words: { nouns: ["rufino", "dueño", "camarero", "hombre"], adj: [], g: "m", proper: true },
+    examine: "Sesenta años, un mandil hasta las rodillas y antebrazos como cuerdas. Sirve sin mirar, porque sabe dónde está cada vaso y qué debe su dueño.",
+    give: "Rufino lo mira y lo devuelve por el zinc.",
+    topics: {
+      drinks: { words: ["cerveza", "cervezas", "caña", "cañas", "beber", "grifo", "copa"], open: true, says: "«La primera es para la sed», dice Rufino. «La segunda es para Nando, si subes a la Alborada. Nando te huele en la puerta»." },
+      sandwich: { words: ["bocadillo", "bocadillos", "calamares", "ofelia", "cabina"], open: true, says: "«Calamares, para Ofelia, la de la cabina. A su cuenta, que paga el lunes. Nando los sube cuando se acuerda, o sea, nunca. Llévatelo tú, si vas»." },
+      slate: { words: ["pizarra", "deuda", "deudas", "debo", "fiado", "tiza"], open: true, says: "«Todo el mundo está», dice Rufino sin volverse. «Tú estás cerca del final. Cerca del final es bueno: quiere decir que debes poco»." },
+      minister: { words: ["ministro"], says: "«Se toma el café al final de la barra cuando le da la gana», dice Rufino. «Y paga. El único que nunca necesita la pizarra»." },
+      default: "Rufino levanta un vaso a la luz y lo deja. «No es asunto mío».",
+    } },
+  { add: "object", id: "beer", at: null, from: "rufino", requires: "monedas", spends: true, times: 6, daily: true, consumable: true, material: "glass",
+    starts: "drunk",
+    name: "Caña", note: "Fría, en vaso pequeño.",
+    brought: "Rufino tira una {caña|beer} y la desliza por el zinc sin derramar una gota.",
+    again: "«Con eso basta por hoy, incluso para ti», dice Rufino, y sacude la cabeza.",
+    lacking: "Rufino señala la pizarra con la barbilla. «Primero el dinero. No estás cerca de lo alto de nada».",
+    words: { nouns: ["caña", "cerveza", "vaso"], adj: [], g: "f" },
+    examine: "Un vaso pequeño de cerveza con su cuello de espuma, sudando sobre el zinc.",
+    drink: [
+      "Fría y amarga, se acaba en cuatro tragos. La primera se va a la sed.",
+      "La segunda baja mejor y te llega a las rodillas. El suelo se inclina un poco a la izquierda.",
+    ] },
+  { add: "object", id: "bocadillo", at: null, from: "rufino", portable: true, times: 3, consumable: true, heals: 1, material: "soft", ...sprites.bocadillo,
+    name: "Bocadillo", note: "Calamares, en papel.",
+    brought: "Rufino envuelve en papel un {bocadillo|bocadillo} de calamares y te lo pasa. «Para Ofelia. A su cuenta».",
+    again: "«Uno para Ofelia ya es bastante», dice Rufino. «Lo demás es negocio».",
+    words: { nouns: ["bocadillo", "bocata", "panecillo"], adj: ["calamares"], g: "m" },
+    examine: "Un panecillo abierto sobre anillas de calamar frito, grasiento a través del papel. Huele a fritura y a quien se lo han hecho.",
+    eat: "Calamar caliente en pan, y sal. Se acaba antes de que hayas decidido que te gusta.",
+    lies: "Un bocadillo de calamares queda donde lo dejaste, enfriándose." },
+
+  // el bordillo
+  { add: "object", id: "dolo", at: "kerb", material: "soft", ...sprites.dolo,
+    name: "Dolo", note: "Bajo la segunda farola.",
+    here: "{Dolo|dolo} está bajo la segunda farola con un abrigo de hombre, contando los coches.",
+    words: { nouns: ["dolo", "dolores", "mujer", "chica"], adj: [], g: "f", proper: true },
+    examine: "Veintinueve años, la boca pintada y los ojos sin pintar. El abrigo es de hombre. Se abre cuando un coche frena y se cierra cuando se va.",
+    topics: {
+      lot: { words: ["lote", "subasta", "venta", "nueve", "diapositivas", "cabina", "ofelia", "calamares"], open: true, says: "«Vende lo que debemos, a la una», dice Dolo. «El mío es el nueve. Me lo dijo con recibo». No aparta la vista de la carretera. «Ofelia pone los números desde la cabina. No la deja nunca. Vive de los calamares de Rufino, cuando Nando se acuerda de subírselos»." },
+      alborada: { words: ["alborada", "sala", "nando", "puerta", "portero", "cine", "sobrio"], open: true, says: "«Nando, en la puerta, te huele», dice Dolo. «No deja entrar a nadie sobrio. Sobrio es policía, dice. Dos cañas de Rufino y ya eres persona»." },
+      debts: { words: ["deuda", "deudas", "debo", "emperador", "diez", "botas", "yo"], open: true, says: "«Tú eres el diez», dice Dolo. «Mil cien, botas incluidas. Las botas las habrías vendido por menos, y él lo sabe»." },
+      minister: { words: ["ministro"], says: "«El Ministro», dice Dolo. «Se lo puso Ofelia hace años, cuando el cine aún pasaba el noticiario antes de la película. Dijo que era clavado a un ministro que inauguró un pantano. Lo tomó como un cumplido. Todo lo toma como un cumplido»." },
+      overdose: { words: ["chaval", "chico", "papelina", "papelinas", "partida", "plazuela", "papel", "barata", "cortada"], says: "«El chaval de la plazuela», dice Dolo. «Tercero esta semana con esas papelinas, las baratas, de al otro lado de la Avenida. Lo del Ministro es lo que dice que es». Mira un coche y lo deja pasar. «Don Eladio, el de la farmacia, guarda algo para eso detrás del mostrador. No lo da por favor»." },
+      default: "Dolo se encoge de hombros, y el abrigo con ella. «Ahora no. Un coche».",
+    } },
+
+  // la plazuela
+  { add: "object", id: "lad", at: "plaza", material: "soft", listen: "Un soplo, un hueco, un soplo.", opens: ["overdose"],
+    name: "Chaval", note: "Azul alrededor de los labios.",
+    here: "Un {chaval|lad} está desplomado contra el banco, con los labios azules y un papel retorcido en el puño.",
+    words: { nouns: ["chaval", "chico", "muchacho", "crío"], adj: [], g: "m" },
+    examine: "Dieciocho años como mucho, con una chaqueta de colegio que aún es suya. Tiene los labios azules y la respiración con huecos. El papel que lleva en el puño está vacío. No está dormido.",
+    take: "No puedes llevártelo a ningún sitio que ayude." },
+  { add: "object", id: "wrap", at: "plaza", portable: true, material: "paper", ...sprites.wrap,
+    name: "Papelina", note: "Papel plegado, como un sello.",
+    here: "Otra {papelina|wrap} yace en el suelo, junto a su zapato.",
+    words: { nouns: ["papelina", "papel", "envoltorio"], adj: ["segunda"], g: "f" },
+    examine: "Un papel mugriento del tamaño de un sello, con el pliegue mal hecho. Los del Ministro van apretados y cuadrados. Este es el papel del puño del chaval, y el polvo que lleva es más gris de lo que debería.",
+    lies: "Un papel mugriento queda donde lo dejaste." },
+  { add: "object", id: "cabina", at: "plaza", material: "metal",
+    name: "Cabina", note: "Monedas, a veces.",
+    words: { nouns: ["cabina", "teléfono", "ranura", "devolución"], adj: ["telefónica"], g: "f" },
+    examine: "Una cabina con un cristal menos y una devolución de monedas que cuelga abierta como un labio. La gente se deja cosas dentro." },
+
+  // la Alborada, fachada
+  { add: "object", id: "nando", at: "front", material: "soft", ...sprites.nando,
+    name: "Nando", note: "Oliendo a la cola.",
+    here: "{Nando|nando} llena el hueco entre las puertas, oliendo a la cola de uno en uno.",
+    words: { nouns: ["nando", "portero", "gorila", "hombre"], adj: [], g: "m", proper: true },
+    examine: "Un muro con una cabeza rapada y una cazadora negra que ha visto noches peores que esta. Revisa a cada persona de la cola por el olfato.",
+    give: "Nando lo mira como a algo que has encontrado en la suela.",
+    topics: {
+      door: { words: ["puerta", "puertas", "sobrio", "borracho", "cola", "dejar", "entrar", "policía"], open: true, says: "«Sobrio es policía», dice Nando. «Huelo a un policía desde la esquina. Vuelve con algo dentro»." },
+      sale: { words: ["subasta", "lotes", "lote", "venta", "una", "ministro"], open: true, says: "«Lotes a la una. Entrada libre. Las pujas, no». Lo dice por encima de tu cabeza." },
+      default: "Nando mira un punto por encima de tu cabeza y espera a que te vayas.",
+    } },
+  { add: "object", id: "club_door", at: "front", door: "n", material: "soft",
+    name: "Puertas acolchadas", note: "Cuero rojo, agrietado.",
+    words: { nouns: ["puertas", "puerta"], adj: ["acolchadas", "rojas"], g: "f", pl: true },
+    examine: "Dos puertas acolchadas en cuero rojo agrietado, con un ojo de buey en cada una a la altura del cinturón de Nando. El bajo las atraviesa como un golpe que notas en las plantas de los pies." },
+
+  // la farmacia
+  { add: "object", id: "eladio", at: "pharm", material: "soft", ...sprites.eladio,
+    name: "Don Eladio", note: "Bata blanca, diploma.",
+    here: "{Don Eladio|eladio} está detrás del mostrador con bata blanca y una mano en el marco del diploma.",
+    words: { nouns: ["eladio", "don", "farmacéutico", "boticario", "hombre"], adj: [], g: "m", proper: true },
+    examine: "Sesenta años, la bata abrochada hasta el cuello y el pelo peinado desde muy lejos. Cada vez que se endereza mira de reojo el diploma.",
+    give: "Don Eladio lo toma con dos dedos y lo devuelve.",
+    topics: {
+      pharmacy: { words: ["farmacia", "guardia", "noche", "tienda"], open: true, says: "«De guardia, joven», dice don Eladio. «Lo cual significa que respondo ante el Ministerio a todas horas»." },
+      diploma: { words: ["diploma", "marco", "título", "doctor", "licenciado"], open: true, says: "«Licenciado en Farmacia, mil novecientos setenta y uno». Te deja mirarlo. «Doctor, en el uso antiguo. Puede llamarme don Eladio»." },
+      overdose: { words: ["chaval", "chico", "sobredosis", "antídoto", "papelina", "veneno", "jeringuilla", "azul", "algo"], says: "«Para eso solo dispenso con receta, o al Ministerio», dice don Eladio. «El Ministerio es muy suyo. Manda sus notificaciones en buen papel»." },
+      default: "«Estoy de guardia», dice don Eladio, como si eso fuera una respuesta.",
+    } },
+  { add: "object", id: "antidote", at: null, portable: true, use: "inject", material: "glass", ...sprites.antidote,
+    name: "Antídoto", note: "Jeringuilla y ampolla.",
+    words: { nouns: ["antídoto", "ampolla", "estuche"], adj: [], g: "m" },
+    examine: "Una jeringuilla en un cucurucho de papel, con la ampolla al lado. La etiqueta es del farmacéutico, con la letra de un hombre que enmarca sus diplomas.",
+    lies: "Un cucurucho de papel con una jeringuilla queda donde lo dejaste." },
+
+  // el vestíbulo
+  { add: "object", id: "stairs", at: "foyer", leads: "u", material: "wood",
+    name: "Escalera", note: "Arriba, a la cabina.",
+    words: { nouns: ["escalera", "escaleras", "peldaños"], adj: [], g: "f" },
+    examine: "Una escalera con pasamanos de latón y la alfombra gastada hasta la trama. Arriba hay una luz encendida y, debajo, el tictac de una máquina." },
+
+  // el patio de butacas
+  { add: "object", id: "crate", at: "stalls", container: true, open: false, material: "wood",
+    name: "Caja", note: "Latas de película, mal clavada.",
+    words: { nouns: ["caja", "cajón"], adj: ["madera"], g: "f" },
+    examine: "Una caja de madera empujada bajo el escenario, con la tapa sujeta por dos clavos y la costumbre. Los años están escritos a lápiz en las latas que se ven por las rendijas: 1961, 1962, 1964, 1971.",
+    parts: [{ words: ["latas", "años"], name: "las latas", says: "Latas de película con años a lápiz. Las demás están oxidadas hasta cerrarse." }] },
+  { add: "object", id: "reel", at: "crate", portable: true, material: "metal", ...sprites.reel,
+    name: "Bobina", note: "NO-DO, 1964.",
+    words: { nouns: ["bobina", "película", "carrete"], adj: ["plana"], g: "f" },
+    examine: "Una lata plana de película de 35 milímetros, oxidada en el borde. En la tapa, a lápiz: NO-DO, 1964, el pantano.",
+    lies: "Una lata plana de película queda donde la dejaste." },
+
+  // la cabina
+  { add: "object", id: "ofelia", at: "booth", material: "soft", ...sprites.ofelia,
+    name: "Ofelia", note: "Junto a la máquina.",
+    here: "{Ofelia|ofelia} está sentada junto a la máquina con el abrigo puesto, aunque en la cabina hace calor.",
+    words: { nouns: ["ofelia", "proyeccionista", "mujer"], adj: [], g: "f", proper: true },
+    examine: "Sesenta años o más, gafas con cadenita y una rebeca sobre una chaqueta de acomodadora sin botones. Las manos van a la película antes que los ojos.",
+    give: "Ofelia lo sostiene a la distancia del brazo, como una diapositiva, y te lo devuelve.",
+    topics: {
+      slides: { words: ["diapositivas", "diapositiva", "subasta", "lotes", "lote", "nueve", "diez", "linterna"], says: "«Me da las diapositivas y yo las pongo», dice Ofelia. «El nueve es Dolores. El diez, unas botas». No aparta la vista de la máquina." },
+      face: { words: ["ministro", "cara", "gafas", "noticiario", "parecido"], says: "«Conocí al hombre al que se parece», dice Ofelia. «Las mismas gafas, las mismas manos delante, la misma sonrisa de aburrimiento ante una cinta. Un ministro en un pantano, 1964. Lo pasábamos antes de cada película ese año»." },
+      reservoir: { words: ["pantano", "bobina", "lata", "nodo", "1964", "cajas", "caja", "película"], says: "«NO-DO, mil novecientos sesenta y cuatro, el pantano. Cuando dejaron el noticiario, las latas se fueron bajo el escenario con el resto. Hay una caja. Súbeme la lata y se la pongo a la sala a la una, cuando él se levante con el martillo. Antes no: le daría tiempo a irse»." },
+      default: "Ofelia se encoge de hombros, con un ojo en la ventanilla.",
+    } },
+  { add: "object", id: "projector", at: "booth", container: true, open: "always", use: "switch_on", material: "metal",
+    name: "Proyector", note: "Esperando una bobina.",
+    words: { nouns: ["proyector", "máquina"], adj: [], g: "m" },
+    examine: "Un proyector de 35 milímetros sobre un pie de hierro fundido, con el esmalte negro gastado y brillante donde se agarran las manos. La ventanilla está vacía y el brazo del carrete espera una bobina." },
+
+  // el Ministro
+  { add: "object", id: "minister", at: "bar", material: "soft", ...sprites.minister,
+    name: "Ministro", note: "Cobrando, apuntando.",
+    here: "El {Ministro|minister} está de pie con la cartera al brazo, escribiendo en un librito.",
+    words: { nouns: ["ministro", "señor", "hombre"], adj: [], g: "m" },
+    examine: "Cincuenta años, traje marrón de tres piezas, gafas gruesas, bigote corto y las dos manos dobladas delante. Tiene la cara de un ministro de noticiario antiguo, aburrida y satisfecha. La gente le da dinero y se va con algo pequeño, y a cada uno lo apunta.",
+    parts: [{ words: ["cartera", "maletín", "librito", "libro"], name: "la cartera", says: "Cuero de imitación marrón, cierres de latón, las esquinas desgastadas hasta el blanco. Se queda cerrada, y él la mira cuando tú la miras." }],
+    give: "«No acepto regalos», dice el Ministro, y vuelve a doblar las manos.",
+    rounds: { rooms: ["bar", "street", "kerb", "plaza", "street"], every: [5, 8] },
+    places: [{ at: "stalls", if: [{ "time.hour": { between: [1, 2] } }] }],
+    arrives: ["El Ministro entra con la cartera al brazo, y la gente le hace sitio sin levantar la vista.", "El Ministro llega escribiendo algo en el librito mientras anda."],
+    leaves: ["El Ministro cierra el librito y sigue hacia el siguiente sitio.", "El Ministro se mete la cartera bajo el brazo y se va."],
+    topics: {
+      round: { words: ["ronda", "negocio", "trabajo", "vender", "vende", "prestar", "cobrar"], open: true, says: "«Vendo, presto, cobro», dice el Ministro. «Nadie se va sin una página»." },
+      debt: { words: ["deuda", "deudas", "debo", "libro", "crédito"], open: true, says: "«Todo el mundo debe a alguien», dice el Ministro, y vuelve a doblar las manos. «Yo solo llevo las cuentas, que es el único oficio honrado de este barrio»." },
+      sale: { words: ["subasta", "lotes", "lote", "venta", "alborada", "una"], open: true, says: "«A la una, en la Alborada, en el patio de butacas», dice el Ministro. «Entrada libre. Las pujas, no»." },
+      dolo: { words: ["dolo", "dolores", "nueve"], says: "«Dolores Mena. Un buen papel. Treinta y ocho mil cuatrocientas, y trabaja por ello». Golpea la cartera. «Un placer venderlo. Sus deudas van con ella»." },
+      notice: { words: ["notificación", "ministerio", "formulario", "formularios"], says: "«Un trámite», dice el Ministro. «El Ministerio insiste en los formularios»." },
+      default: "El Ministro mira el reloj, luego a ti, y no encuentra a ninguno de los dos digno de su tiempo.",
+    } },
+];
+
+const rules = [
+  // el piso
+  { id: "push_wardrobe", match: { verb: ["push", "move", "pull"], obj: "wardrobe" }, if: [{ "player.at": "flat" }, { "wardrobe.moved": { "!=": true } }],
+    do: [
+      { set: "wardrobe.moved", to: true },
+      { set: "door.examine", to: "La puerta verde, libre del armario y entornada sobre el portal." },
+      { set: "wardrobe.examine", to: "Un armario de nogal con cuatro ruedecillas de latón, rodado contra la pared." },
+      { set: "flat.alt", to: "Un piso vacío con una sola vela: dos colchones sobre tablas y un armario apartado de la puerta." },
+      { set: "flat.describe", to: [
+        "Dos colchones sobre el entarimado, uno con la manta de Dolo. Las ventanas están tapiadas por fuera y el agua la cortaron en primavera.",
+        "El {armario|wardrobe} está contra la pared ahora, y la {puerta|door} queda libre, al norte.",
+      ] },
+      { draw: "flat", remove: ["ward_*"], add: [
+        "rect ward2_body 128,44,48,70 6 e0 after:door_knob",
+        "rect ward2_lit 128,44,5,70 14 after:ward2_body",
+        "rect ward2_dark 171,44,5,70 8 after:ward2_lit",
+        "rect ward2_d1 136,50,17,56 6 e0 after:ward2_dark",
+        "rect ward2_d2 155,50,17,56 6 e0 after:ward2_d1",
+        "dots ward2_handles 151,76 157,76 c14 after:ward2_d2",
+        "rect ward2_top 125,40,54,5 6 e0 after:ward2_handles",
+        "rect ward2_top_lit 125,40,54,2 14 after:ward2_top",
+        "rect ward2_foot_a 130,114,6,4 0 after:ward2_top_lit",
+        "rect ward2_foot_b 168,114,6,4 0 after:ward2_foot_a",
+        "poly ward2_shadow 176,114 214,108 214,114 184,120 0 after:ward2_foot_b",
+      ] },
+      { say: "Apoyas el hombro en el armario y rueda por el entarimado sobre sus ruedecillas, como cada mañana. La puerta queda libre." },
+    ] },
+  { id: "push_wardrobe_again", match: { verb: ["push", "move", "pull"], obj: "wardrobe" }, if: [{ "wardrobe.moved": true }],
+    do: [{ say: "Rueda un palmo más a lo largo de la pared y se para. La puerta sigue libre." }] },
+  { id: "sleep_flat", match: { verb: "sleep" }, if: [{ "player.at": "flat" }],
+    do: [
+      { say: "Te tumbas en tu colchón y el día pasa por encima sin pedirte permiso. Cuando despiertas ya anochece, y el barrio ha vuelto a salir." },
+      { sleep: "next 20:30" },
+    ] },
+
+  // el Ministro trabajando
+  { id: "deal_bar", when: "every", every: { seconds: [45, 90] }, chance: 0.7, if: [{ "player.at": "bar" }, { "minister.place": "bar" }],
+    do: [{ say: ["Un hombre en los taburetes desliza un billete doblado por el zinc. El Ministro lo tapa con la mano, anota en el librito y un papel retorcido viaja en sentido contrario.", "El Ministro cobra de un hombre que nunca lo mira, escribe una línea en el librito y lo deja ir."] }] },
+  { id: "deal_street", when: "every", every: { seconds: [45, 90] }, chance: 0.7, if: [{ "player.at": "street" }, { "minister.place": "street" }],
+    do: [{ say: ["Un hombre que lleva un rato siguiendo al Ministro le paga en medio de la calzada. El Ministro lo apunta allí mismo.", "El Ministro recibe un fajo de billetes de un chico en un portal y le devuelve un papel del tamaño de un sello."] }] },
+  { id: "deal_kerb", when: "every", every: { seconds: [45, 90] }, chance: 0.7, if: [{ "player.at": "kerb" }, { "minister.place": "kerb" }],
+    do: [{ say: ["Una mujer cruza desde la farola, paga al Ministro en billetes arrugados y se lleva un papel retorcido. Él lo apunta.", "El Ministro cuenta lo que le da una mujer, descuenta algo en el librito y le devuelve menos de lo que ella esperaba."] }] },
+  { id: "deal_plaza", when: "every", every: { seconds: [45, 90] }, chance: 0.7, if: [{ "player.at": "plaza" }, { "minister.place": "plaza" }],
+    do: [{ say: ["Dos chicos esperan al Ministro bajo las acacias. Él coge su dinero, escribe una línea y da a cada uno un papel sin mirar a ninguno.", "El Ministro rodea al chaval del suelo como tú rodeas un charco, y sigue con su ronda."] }] },
+
+  // la cerveza, la puerta
+  { id: "go_front_in", match: { verb: "go", dir: "n" }, if: [{ "player.at": "front" }, { "player.conditions": { has: "drunk" } }],
+    do: [{ say: "Nando te huele, asiente y da un paso a un lado. «Cerveza. Bien. Dentro»." }], then: "default" },
+  { id: "show_notice_nando", match: { verb: ["show", "give"], obj: "notice", obj2: "nando" },
+    do: [{ say: "Nando la sostiene del revés, estudia el escudo y te la devuelve. «Sobrio sigue siendo sobrio»." }] },
+
+  // la plazuela
+  { id: "smoke_wrap", match: { verb: "smoke", obj: "wrap" },
+    do: [
+      { say: "Abres el papel sobre un trozo de papel de aluminio y persigues el humo. Sabe amargo, luego frío, y el frío no se detiene." },
+      { start: "poisoned" },
+    ] },
+  { id: "search_cabina", match: { verb: ["search", "touch", "push"], obj: "cabina" },
+    if: [{ "monedas.at": { "!=": "player" } }, { "monedas_2.at": { "!=": "player" } }, { "monedas_1.at": { "!=": "player" } }],
+    do: [
+      { move: "monedas_1", to: "player" },
+      { say: "Tu dedo encuentra una moneda de cien pesetas en la devolución, olvidada por alguien cuya llamada sí salió." },
+    ] },
+  { id: "search_cabina_none", match: { verb: ["search", "touch", "push"], obj: "cabina" },
+    do: [{ say: "Una colilla, y el olor de las llamadas de otros." }] },
+  { id: "give_antidote_lad", match: { verb: ["give", "inject", "use"], obj: "antidote", obj2: "lad" }, if: [{ "lad.saved": { "!=": true } }],
+    do: [
+      { set: "lad.saved", to: true },
+      { move: "antidote", to: null },
+      { set: "lad.here", to: "El {chaval|lad} está sentado contra el banco, gris y temblando, con el abrigo de otro sobre los hombros." },
+      { set: "lad.examine", to: "Se incorpora contra el banco, gris y temblando, y mira sus manos como si se las hubieran prestado. Sus labios vuelven a ser labios." },
+      { set: "plaza.alt", to: "Una plazuela de noche con cuatro acacias, un banco y una cabina, y un chaval sentado contra el banco." },
+      { draw: "plaza", remove: ["lad_*"], add: [
+        "poly lad2_legs 84,106 114,108 116,114 84,114 8 after:bench_shadow",
+        "ellipse lad2_shoe_l 117,112,4,3 0 after:lad2_legs",
+        "ellipse lad2_shoe_r 113,116,4,2 0 after:lad2_shoe_l",
+        "poly lad2_body 76,84 94,84 96,108 78,108 7 after:lad2_shoe_r",
+        "poly lad2_coat 72,86 98,84 100,102 72,104 6 after:lad2_body",
+        "ellipse lad2_head 84,76,6,7 15 after:lad2_coat",
+        "poly lad2_hair 78,72 84,66 92,72 90,76 80,76 0 after:lad2_head",
+        "rect lad2_hand 90,100,4,4 15 after:lad2_hair",
+      ] },
+      { say: "Encuentras la vena como has visto hacerlo, y empujas. Al chaval se le afloja todo el cuerpo, y luego se sacude, y respira como quien sale de debajo del agua. Tose, te maldice y te da las gracias en el mismo aliento, e intenta ponerse de pie." },
+    ] },
+  { id: "give_antidote_lad_again", match: { verb: ["give", "inject", "use"], obj: "antidote", obj2: "lad" },
+    do: [{ say: "Ya tuvo lo suyo. Está sentado contra el banco con la cabeza entre las rodillas, y te despacha con la mano." }] },
+  { id: "inject_self", match: { verb: "inject", obj: "antidote" }, if: [{ "player.conditions": { has: "poisoned" } }],
+    do: [
+      { stop: "poisoned" },
+      { move: "antidote", to: null },
+      { say: "Te clavas la aguja en el brazo y quema, y luego el frío te suelta las muñecas dedo a dedo." },
+    ] },
+  { id: "inject_self_well", match: { verb: "inject", obj: "antidote" },
+    do: [{ say: "No te pasa nada que esto vaya a arreglar. Te lo guardas." }] },
+
+  // la farmacia
+  { id: "show_notice_eladio", match: { verb: ["show", "give"], obj: "notice", obj2: "eladio" }, if: [{ "antidote.at": { "!=": "player" } }],
+    do: [
+      { move: "antidote", to: "player" },
+      { say: "Don Eladio lee el escudo, luego el sello, luego otra vez el escudo, y se pone del color de su bata. «El Ministerio. Por qué no dijeron nada. Enseguida, enseguida». Vuelve con una {ampolla|antidote} y una jeringuilla en un cucurucho antes de que hayas guardado la notificación. «Con los saludos del Ministerio», dice a la sala, por si alguien escucha." },
+    ] },
+  { id: "show_notice_eladio_again", match: { verb: ["show", "give"], obj: "notice", obj2: "eladio" },
+    do: [{ say: "Don Eladio está ocupado agradeciendo al Ministerio. «Tiene usted lo que vino a buscar», dice, y endereza el diploma." }] },
+
+  // la cabina
+  { id: "ofelia_hungry", match: { verb: ["ask", "talk"], obj: "ofelia" }, if: [{ "ofelia.fed": { "!=": true } }],
+    do: [{ say: "Ofelia responde de espaldas y con la nariz en alto. «No hablo con el estómago vacío. Rufino hace un bocadillo de calamares, si conoces a alguien que baje»." }] },
+  { id: "give_bocadillo_ofelia", match: { verb: "give", obj: "bocadillo", obj2: "ofelia" }, if: [{ "ofelia.fed": { "!=": true } }],
+    do: [
+      { move: "bocadillo", to: null },
+      { set: "ofelia.fed", to: true },
+      { know: "slides" }, { know: "face" }, { know: "reservoir" },
+      { say: "Ofelia quita el papel con los pulgares y se come la primera mitad sin apartar los ojos de la ventanilla. «Nando», dice con la boca llena, «me lleva once años olvidada». La segunda mitad va más despacio, y ella también. «Pregunta, anda»." },
+    ] },
+  { id: "give_bocadillo_ofelia_again", match: { verb: "give", obj: "bocadillo", obj2: "ofelia" },
+    do: [{ say: "«Ya he comido», dice Ofelia. «Cómetelo tú, o dáselo a quien se lo haya ganado»." }] },
+  { id: "load_reel", match: { verb: ["put", "load"], obj: "reel", obj2: [null, "projector"] }, if: [{ "player.at": "booth" }, { "ofelia.fed": true }],
+    do: [{ change: "thread_reel" }] },
+  { id: "load_reel_projector", match: { verb: "load", obj: "projector" }, if: [{ "player.at": "booth" }, { "ofelia.fed": true }, { "reel.at": "player" }],
+    do: [{ change: "thread_reel" }] },
+  { id: "load_reel_hungry", match: { verb: ["put", "load"], obj: "reel", obj2: [null, "projector"] }, if: [{ "player.at": "booth" }],
+    do: [{ say: "Ofelia pone la mano plana sobre la lata. «Con el estómago vacío, no. No enhebro para quien no me ha dado de comer»." }] },
+  { id: "projector_run", match: { verb: "switch_on", obj: "projector" },
+    if: [{ "player.at": "booth" }, { "reel.at": "projector" }, { "ofelia.fed": true }, { "time.hour": { between: [1, 2] } }],
+    do: [
+      { say: "Ofelia acciona el interruptor y el cuadrado blanco de la pantalla se convierte en un pantano de 1964. Un hombre de gafas gruesas corta una cinta con las manos dobladas y asiente a una multitud de hombres con sombrero. Es la cara del Ministro, de doce metros de ancho, con el bigote y la sonrisa de aburrimiento. Alguien se ríe y luego se ríe toda la pista. El Ministro se queda con el mazo en alto hasta que se acaba la cinta. Nadie puja por el nueve. Nadie puja por nada, y el abrigo de cuero de la tercera fila ya está en la escalera. El domingo la cabina de Ofelia tiene un candado, y en la plazuela hay dos vendedores nuevos, uno de ellos cortando con algo." },
+      { end: true, picture: "humbled" },
+    ] },
+  { id: "projector_early", match: { verb: "switch_on", obj: "projector" }, if: [{ "reel.at": "projector" }],
+    do: [{ say: "Ofelia te pone dos dedos en la muñeca. «A la una, cuando se levante con el martillo. Antes no. Si no, le da tiempo a irse»." }] },
+  { id: "projector_empty", match: { verb: "switch_on", obj: "projector" },
+    do: [{ say: "La lámpara ilumina una ventanilla vacía y proyecta un cuadrado blanco en la pared. Ofelia lo apaga. «Eso es electricidad», dice. «Alguien la paga»." }] },
+
+  // la subasta
+  { id: "sale_stalls", when: "at", at: "01:00", if: [{ "player.at": "stalls" }],
+    do: [{ say: "El disco se corta a mitad de compás. El Ministro sube al escenario con su cartera, golpea el atril con el mazo y asiente hacia la cabina. Un cuadrado blanco salta sobre la pantalla rota: lote uno, un televisor. Luego un ciclomotor. Luego un buen reloj, por el suspiro que arranca. El nueve no queda lejos." }] },
+  { id: "sale_booth", when: "at", at: "01:00", if: [{ "player.at": "booth" }],
+    do: [{ say: "Abajo, el disco se corta a mitad de compás y el Ministro sube al escenario con su cartera y el mazo. Ofelia mete una diapositiva en la linterna sin mirar: lote uno, un televisor. Las cabezas del patio se alzan hacia ella a la vez. Un lote por minuto, y el nueve no queda lejos." }] },
+  { id: "give_reel_minister", match: { verb: ["give", "show"], obj: "reel", obj2: "minister" }, if: [{ "player.at": "stalls" }, { "time.hour": { between: [1, 2] } }],
+    do: [
+      { say: "Sostienes la lata donde el Ministro pueda leerla: NO-DO, 1964, el pantano. La lee dos veces, dobla las dos manos sobre ella y sonríe con media boca. «Se retira el lote nueve por falta de papeles», dice a la sala, y golpea el atril. Dolo sale sin que nadie la toque. Después, en el vestíbulo, te da la cartera para que se la lleves, y se la llevas. El libro tiene una página nueva, y empieza por tu nombre." },
+      { end: true, picture: "cartera" },
+    ] },
+  { id: "give_reel_minister_early", match: { verb: ["give", "show"], obj: "reel", obj2: "minister" },
+    do: [{ say: "El Ministro lee la tapa, dobla las manos sobre la lata y te mira un buen rato. «Quédatela», dice. «Tráemela al patio de butacas a la una. Me gusta hacer negocios delante de testigos»." }] },
+  { id: "wait_sale", match: { verb: "wait" }, if: [{ "player.at": "stalls" }, { "time.hour": { between: [1, 2] } }],
+    do: [
+      { say: "Te sientas junto a la pared y dejas pasar los lotes: un televisor, un ciclomotor, un buen reloj. En el nueve la pantalla muestra un nombre y una cifra, y el Ministro la lee como se lee un menú. Un hombre de abrigo de cuero levanta dos dedos. Cae el mazo. Dolo está en las puertas antes de que acabe el sonido, y se va con él sin mirar a la pista. El diez eres tú. Nadie puja, así que el Ministro se queda contigo, y te apunta en el libro." },
+      { end: true, picture: "sold" },
+    ] },
+];
+
+const named = [
+  { add: "change", id: "thread_reel", effects: [
+    { move: "reel", to: "projector" },
+    { say: "Ofelia te quita la lata, la enhebra con los ojos cerrados y cierra la ventanilla. «Un hombre cortando una cinta», dice. «Avísame»." },
+  ] },
+];
+
 export default {
-  because: "Un callejón sin salida detrás de un bar punk, luego la avenida de una ciudad gris, dos bares y una lavandería en un sábado por la noche de 1985, y un camello que hace su ronda y quiere una corbata negra.",
-  opening,
-  plan,                                   // where every room is (plan.js): exits are made from it
+  because: "Una noche de viernes en Prosperidad: el Ministro subasta las deudas del barrio a la una en un cine viejo, y Dolo es el lote nueve.",
   facts: [
-    "El jugador es el Emperador, un punk de la avenida en Prosperidad, 1985; antes de eso se llamaba Javier (Maza, de la calle Hierro nueve, tercero); la sala del comienzo es el callejón de detrás de El Charlie, al norte de la trastienda, tras la puerta de incendios.",
-    "El Ministro, don Ildefonso Peláez, es un camello que hace su ronda: El Charlie, la avenida, La Ópera, la avenida, la estafeta, la avenida; no acepta dinero. Quiere una corbata negra para el entierro de su hermana Matilde.",
-    "La cadena: la palanca, las cuerdas de bajo de la funda de guitarra, las fichas de Marga, el cepillo del deshollinador de la secadora de la Lavandería, el hollín de Tomás, la cinta de Marisol, la corbata negra de Cuco y la papelina del Ministro.",
-    "Dos finales: el Emperador se queda la papelina y la corona; Javier coge el primer autobús al entierro."
+    "La subasta de deudas se celebra cada noche a las 01:00 en el patio de butacas de la Alborada; el lote nueve es Dolo, el diez Emperador.",
+    "Nando solo deja entrar a quien va bebido: dos cañas de La Torera.",
+    "Ofelia, la proyeccionista, pone las diapositivas de los lotes y pondrá la bobina NO-DO 1964 si le dan de comer.",
+    "Don Eladio, el farmacéutico, da el antídoto a quien le enseñe una notificación del Ministerio.",
   ],
   properties: {
-    "ministro.traded": { type: "boolean", start: false }   // el Ministro tiene la corbata y ha preguntado a nombre de quién lo apunta
+    "wardrobe.moved": { type: "boolean", start: false },
+    "ofelia.fed": { type: "boolean", start: false },
+    "lad.saved": { type: "boolean", start: false },
   },
+  opening: {
+    room: "flat",
+    hints: "radio",
+    way: "door",
+    intro: "El armario se pone de noche delante de la puerta para que nadie entre mientras duermes, y por la mañana vuelve a su sitio. Es viernes, algo después de las diez, y la emisora pirata lee el tiempo a una ciudad que no escucha. La manta de Dolo está en el otro colchón, sin nadie debajo.\n\nEres Emperador. La calle te puso el nombre de broma y después olvidó que lo era. Esta noche, a la una, en la Alborada, el Ministro vende lo que Prosperidad le debe, lote a lote, y Dolo es el lote nueve.",
+    lines: { hintFrame: "La emisora pirata chisporrotea, y una voz con catarro dice:" },
+  },
+  plan,
   effects: [
-    { time: "day 1 01:00", weekday: "sat" },                 // la partida empieza a la una de la madrugada, en el callejón
-    // Lo que deja entrar la puerta de incendios al abrirse (el `then` de su cerradura): la hora de la avenida, su línea y las palabras de la puerta.
-    { add: "change", id: "arrival", effects: [
-      { time: "day 1 01:10", weekday: "sat" },
-      { set: "puerta.examine", to: "La puerta de incendios, abierta sobre su barra, con una raja limpia de acero desnudo por el lado de las bisagras donde cedió la pintura." },
-      { set: "puerta.note", to: "Abierta, sobre su barra." },
-      { set: "callejon.describe", to: [
-        "Ladrillo gris a los lados y una pared al fondo: la parte de atrás de El Charlie, con cajones, un contenedor y charcos que guardan el rosa de un tubo de neón. El tubo lleva desde la primavera diciendo media palabra.",
-        "La {puerta de incendios|puerta} del fondo está abierta sobre su barra, con una raja limpia de acero por el lado de las bisagras, y el bajo sale por ella como un pulso a través de una pared."
-      ] },
-      { say: "La una y diez, y toda la ciudad está pagando sus colores." }
-    ] },
-    // Borracho, tras un par de cervezas: la imagen se bambolea y se dobla, las palabras se arrastran, los pies toman otro camino; se pasa con el tiempo.
-    { add: "condition", id: "drunk", doses: 2, lasts: { seconds: [60, 90] }, starts: "Se te sube la cerveza", ends: "Se te pasa la borrachera", status: "La cerveza se te ha subido a la cabeza",
-      filters: ["sway", "ghost"], speech: { slur: true, answer: "«¿Cómo?», dicen, ante tu balbuceo." },
-      movement: { chance: 0.3, says: ["Los pies te llevan por otro camino del que querías.", "Sales por un lado, y la calle te da la vuelta."] } },
-    // Verbos que necesita este mundo
-    { add: "word", verb: "open", words: ["forzar", "apalancar", "hacer palanca", "palanquear"] },
-    { add: "word", verb: "order", reply: "Aquí nadie tiene uso para las pesetas; la avenida las olvidó. Una moneda compra una cerveza o un café, y todo lo demás esta noche se paga con favores." },
-    { add: "word", verb: "buy", reply: "Aquí nadie tiene uso para las pesetas; la avenida las olvidó. Una moneda compra una cerveza o un café, y todo lo demás esta noche se paga con favores." },
-    { add: "word", verb: "dance", words: ["bailar", "pogear", "mover el esqueleto"], reply: "Te mueves un poco. La avenida lo ve y no le da importancia, que es para lo que sirve bailar en la avenida." },
+    { time: "day 1 22:20", weekday: "fri" },
+    { add: "music", ...music, levels },
 
-    ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
-    ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
-    { add: "music", ...music, levels },   // la música (music.js, compartida por los dos idiomas; sus niveles, levels.js, generados); la de cada sala, como su `music`
-    ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
-    ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
-    ...rules.map((rule) => ({ add: "rule", rule }))
-  ]
+    { add: "word", verb: "load", words: ["cargar", "enhebrar"], reply: "Aquí no hay nada que cargar." },
+    { add: "word", verb: "smoke", words: ["fumar", "chinear", "chinar"], reply: "Aquí no hay nada que fumar." },
+    { add: "word", verb: "inject", words: ["inyectar", "pinchar"], reply: "Aquí no hay nada que inyectar." },
+
+    { add: "condition", id: "drunk", doses: 2, lasts: { seconds: [150, 200] },
+      starts: "Te has emborrachado", ends: "Se te ha pasado la borrachera", status: "La cerveza de La Torera se te ha subido a la cabeza",
+      filters: ["sway", "ghost"], speech: { slur: true } },
+    { add: "condition", id: "poisoned", filters: ["tint:poison"],
+      starts: "Tienes algo malo en la sangre", ends: "El veneno ha salido de ti", status: "Te ha envenenado la papelina",
+      health: { every: { turns: [3, 3] }, hurt: 1, says: hurtLines } },
+
+    ...Object.entries(roomText).map(([id, room]) => ({ add: "room", id, ...room, picture: pictures[id], ...(rooms[id] ? { music: rooms[id] } : {}) })),
+    ...named,
+    ...things,
+    ...rules.map((rule) => ({ add: "rule", rule })),
+
+    { add: "picture", id: "humbled", alt: "Una pantalla de cine a oscuras llena de un noticiario antiguo: un hombre de gafas gruesas cortando una cinta ante un pantano, y la sala de abajo riéndose.", picture: endings.humbled },
+    { add: "picture", id: "cartera", alt: "Una calle de neón de noche: una figura con cresta de punk lleva una cartera marrón, y detrás camina un hombre de traje con las manos dobladas.", picture: endings.cartera },
+    { add: "picture", id: "sold", alt: "Un coche se aleja del bordillo bajo una farola, con un abrigo de cuero en la ventanilla, y un abrigo de hombre abandonado sobre la barandilla.", picture: endings.sold },
+    { add: "picture", id: "died", alt: "Un banco de la plazuela al amanecer, un papel retorcido en el suelo y unas botas al lado.", picture: endings.died },
+
+    { add: "puzzle", id: "open_flat", where: "flat", needs: [], solve: ["empujar armario", "norte"], reaches: "hall", clues: ["door", "wardrobe"],
+      hints: ["El armario tiene ruedas, y la puerta está detrás.", "Empuja el armario a un lado y ve al norte."] },
+    { add: "puzzle", id: "get_bocadillo", where: "bar", needs: ["open_flat"], solve: ["pedir bocadillo"], gives: ["bocadillo"], clues: ["rufino", "dolo"],
+      hints: ["Rufino envuelve un bocadillo que nadie ha pedido, y alguien en la Alborada vive de ellos.", "En La Torera, pide el bocadillo."] },
+    { add: "puzzle", id: "get_in", where: "bar", needs: ["get_bocadillo"], solve: ["pedir caña", "beber caña", "pedir caña", "beber caña", "este", "norte", "norte"], reaches: "foyer", clues: ["nando", "rufino", "dolo"],
+      hints: ["Nando no deja pasar a nadie sobrio, y la primera caña es solo para la sed.", "Pide y bébete dos cañas en La Torera, y luego ve al este, al norte y otra vez al norte."] },
+    { add: "puzzle", id: "feed_ofelia", where: "foyer", needs: ["get_in", "get_bocadillo"], solve: ["arriba", "dar bocadillo a ofelia"], reaches: "booth", clues: ["ofelia", "bocadillo"],
+      hints: ["Ofelia, en la cabina, no habla con el estómago vacío.", "Sube la escalera y dale el bocadillo."] },
+    { add: "puzzle", id: "get_reel", where: "stalls", needs: ["feed_ofelia"], solve: ["abrir caja", "coger bobina"], gives: ["reel"], clues: ["crate", "ofelia", "minister"],
+      hints: ["Ofelia dice que las latas del viejo noticiario se fueron bajo el escenario.", "En el patio de butacas, abre la caja y coge la bobina."] },
+    { add: "puzzle", id: "ending_humbled", where: "booth", time: "next 01:00", needs: ["feed_ofelia", "get_reel"], solve: ["meter bobina en proyector", "encender proyector"], ending: true, clues: ["projector", "ofelia", "reel"],
+      hints: ["El proyector necesita una bobina, y Ofelia el momento justo.", "En la cabina, mete la bobina en el proyector, espera a la una y enciéndelo."] },
+    { add: "puzzle", id: "ending_cartera", where: "stalls", time: "next 01:00", needs: ["get_reel"], solve: ["dar bobina a ministro"], ending: true, clues: ["minister", "reel"],
+      hints: ["El Ministro es vanidoso con su cara, y a la una está en el escenario.", "En el patio de butacas, a la una, dale la bobina al Ministro."] },
+    { add: "puzzle", id: "ending_sold", where: "stalls", time: "next 01:00", needs: ["get_in"], solve: ["esperar"], ending: true, clues: ["notice", "dolo"],
+      hints: ["Si no haces nada, los lotes pasan por orden.", "Espera en el patio de butacas a la una."] },
+  ],
 };

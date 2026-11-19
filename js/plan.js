@@ -8,7 +8,7 @@
 // A plan that doesn't fit (an unknown id, a room on two squares or none, a way to an empty square) refuses the world with a message that
 // says what to move. Pure: reads the set, changes nothing.
 
-import { isObject } from "./shapes.js?v=0.68.1";
+import { isObject } from "./shapes.js?v=0.69.0";
 
 export const COMPASS = ["n", "s", "e", "w", "u", "d"];       // the directions an exit of a planned world is written in
 export const BACK = { n: "s", s: "n", e: "w", w: "e", u: "d", d: "u" };
