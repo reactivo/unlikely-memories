@@ -6,24 +6,24 @@
 // (Also here: `planProblems`, `bibleProblems`, `clockMentions`, `NO_MUSIC`, and the two walks the playthrough needs, `atHour` and
 // `opensByWaiting`.)
 
-import { parse, normalise } from "./parser.js?v=0.69.1";
-import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.69.1";
-import { placeOf, inScope, holderOf, person } from "./place.js?v=0.69.1";
-import { isAction } from "./actions.js?v=0.69.1";
-import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.69.1";
-import { solveCommand } from "./narrator.js?v=0.69.1";
-import { isLine } from "./shapes.js?v=0.69.1";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "./exits.js?v=0.69.1";
-import { roomBeside } from "./plan.js?v=0.69.1";
-import { moveTo, worldTime, parts } from "./time.js?v=0.69.1";
-import * as opening from "./opening.js?v=0.69.1";
-import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.69.1";
-import art from "../content/art.js?v=0.69.1";
-import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems, readFigure, outsideBox, FIGURE } from "./picture.js?v=0.69.1";
-import { paintPicture, CLEAR } from "./paint.js?v=0.69.1";
-import { contrast, MIN_CONTRAST } from "./hist.js?v=0.69.1";
-import { filterProblem } from "./filters.js?v=0.69.1";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.69.1";
+import { parse, normalise } from "./parser.js?v=0.70.0";
+import { step, applyChangeSet, answers as answered, holds, exitNow } from "./engine.js?v=0.70.0";
+import { placeOf, inScope, holderOf, person } from "./place.js?v=0.70.0";
+import { isAction } from "./actions.js?v=0.70.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "./words.js?v=0.70.0";
+import { solveCommand } from "./narrator.js?v=0.70.0";
+import { isLine } from "./shapes.js?v=0.70.0";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "./exits.js?v=0.70.0";
+import { roomBeside } from "./plan.js?v=0.70.0";
+import { moveTo, worldTime, parts } from "./time.js?v=0.70.0";
+import * as opening from "./opening.js?v=0.70.0";
+import { FIELDS, suggest, conditionProblems, ownFields, ownerOf, heldThings, hasSprite, noSprite, portraitFault } from "./fields.js?v=0.70.0";
+import art from "../content/art.js?v=0.70.0";
+import { isGroup, colorsOf, areaPixels, parseShapes, shownDraw, openDrawingProblems, readFigure, outsideBox, FIGURE } from "./picture.js?v=0.70.0";
+import { paintPicture, CLEAR } from "./paint.js?v=0.70.0";
+import { contrast, MIN_CONTRAST } from "./hist.js?v=0.70.0";
+import { filterProblem } from "./filters.js?v=0.70.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "./movers.js?v=0.70.0";
 
 // The game as it is, with you in another room (nothing else moved): where the checker reads a text or tries a command.
 const inRoom = (state, room) => ({ ...state, player: { ...state.player, at: room } });
@@ -462,6 +462,13 @@ function roomLengthWarnings(state, warnings) {
   }
 }
 
+// Sleep (BRIEF.md §8, "Time"): a room refuses it (`sleep: "<line>"`) only as the exception. Past half the rooms it is warned of: the
+// refusals are steering the clock or the player, which a world never does.
+function sleepWarnings(state, warnings) {
+  const rooms = Object.values(state.world.rooms), refusing = rooms.filter(r => typeof r?.sleep === "string" && r.sleep).length;
+  if (refusing * 2 > rooms.length) warnings.push(`${refusing} of the ${rooms.length} rooms refuse sleep: more than half; a room refuses it only where lying down really can't happen, never to steer the clock or the player (BRIEF.md §8, "Time")`);
+}
+
 // The intro (BRIEF.md §3, §6 "How long"): the text shown once at the start, above the start room's, its `opening.intro`. It is there
 // (js/opening.js refuses a world without one, or one that names a thing), in the world's language, and near its length: about 90 words,
 // two short paragraphs, warned past 150. The language is told by the pack's own small words (its articles, prepositions and "and"):
@@ -506,6 +513,7 @@ export function lintWorld(state, pack, bible, puzzles, problems, warnings) {
   problems.push(...pictureProblems(state));   // the ending's picture: each `end` names one the world has; a world that can hurt you has a `died` one
   if (bible) problems.push(...bibleProblems(bible, state));
   roomLengthWarnings(state, warnings);
+  sleepWarnings(state, warnings);
   introChecks(state, pack, problems, warnings);
   // What the texts say: the commands in them parse; a clock time they name has something in the world at that hour, or
   // [time] (BRIEF.md §4); a way in or out has an exit; a verb offered on scenery is answered; no words of the other region;

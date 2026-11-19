@@ -3,14 +3,19 @@
 // by the part's numbers; the parts every world shares are in content/levels.js. The world files add them to its music as `levels`.
 export default {
   // notes
-  "v1:instrument:3856e0d6": [-26.18, -30.77],   // guitarra (plucked, octave 3)
-  "v1:instrument:1b27e067": [-26.55, -27.14],   // acordeon (reed, octave 3)
-  "v1:instrument:f2d2585a": [-26.61, -27.53],   // guitarra (plucked, octave 4)
-  "v1:instrument:b5fe4c9f": [-24.17, -27.46],   // acordeon (reed, octave 2)
-  "v1:instrument:5b5ef93f": [-19.23, -30.59],   // martillo (struck, octave 2)
-  "v1:instrument:53e5144b": [-25.55, -25.59],   // acordeon (reed, octave 4)
+  "v1:instrument:1ffd95d7": [-26.60, -27.19],   // club_organ (reed, octave 3)
+  "v1:instrument:2d99c60b": [-23.48, -24.48],   // sweeps_whistle (blown, octave 4)
+  "v1:instrument:5c62e81b": [-21.93, -32.05],   // cheap_guitar (plucked, octave 2)
+  "v1:instrument:1d954577": [-23.81, -30.45],   // sweeps_whistle (blown, octave 3)
+  "v1:instrument:755f8cc5": [-22.78, -46.59],   // cheap_guitar (plucked, octave 1)
+  "v1:instrument:1aadef9b": [-25.63, -25.68],   // club_organ (reed, octave 4)
+  "v1:instrument:297ff6df": [-26.30, -27.20],   // cheap_guitar (plucked, octave 4)
+  "v1:instrument:598421f3": [-25.88, -30.21],   // cheap_guitar (plucked, octave 3)
+  "v1:instrument:2df05791": [-26.06, -26.13],   // sweeps_whistle (blown, octave 5)
   // rhythm
-  "v1:instrument:803c18c6": [-48.93, -49.04],   // proyector (clack, octave 3)
+  "v1:instrument:aaa77b29": [-29.42, -51.45],   // bombo (knock, octave 2)
+  "v1:instrument:40acddee": [-45.52, -45.54],   // rubber_stamp (tick, octave 3)
+  "v1:instrument:18fdb511": [-37.09, -37.62],   // washing_drum (brush, octave 3)
   // sounds
   "v1:sound:7d3f1ff3": [-24.31, -24.42],   // metal (chime, octave 5)
   "v1:sound:124d7bb4": [-33.79, -33.80],   // glass (struck, octave 6)

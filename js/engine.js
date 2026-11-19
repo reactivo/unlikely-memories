@@ -2,26 +2,26 @@
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
 
-import { random, between } from "./random.js?v=0.69.1";
-import standardVerbs from "./verbs.js?v=0.69.1";
-import { DIRECTIONS } from "./space.js?v=0.69.1";
-import { compilePlan, roomBeside, BACK } from "./plan.js?v=0.69.1";
-import { clean, isLine } from "./shapes.js?v=0.69.1";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.69.1";
-import { readPicture, editPicture } from "./picture.js?v=0.69.1";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.69.1";
-import * as opening from "./opening.js?v=0.69.1";
-import { PRACTICE } from "./practice.js?v=0.69.1";
-import { translate as translateUse } from "./use.js?v=0.69.1";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.69.1";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.69.1";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.69.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.69.1";
-import { makeSleeping } from "./sleeping.js?v=0.69.1";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.69.1";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.69.1";
-import { answerLine } from "./speech.js?v=0.69.1";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.69.1";
+import { random, between } from "./random.js?v=0.70.0";
+import standardVerbs from "./verbs.js?v=0.70.0";
+import { DIRECTIONS } from "./space.js?v=0.70.0";
+import { compilePlan, roomBeside, BACK } from "./plan.js?v=0.70.0";
+import { clean, isLine } from "./shapes.js?v=0.70.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.70.0";
+import { readPicture, editPicture } from "./picture.js?v=0.70.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.70.0";
+import * as opening from "./opening.js?v=0.70.0";
+import { PRACTICE } from "./practice.js?v=0.70.0";
+import { translate as translateUse } from "./use.js?v=0.70.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.70.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.70.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.70.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.70.0";
+import { makeSleeping } from "./sleeping.js?v=0.70.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.70.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.70.0";
+import { answerLine } from "./speech.js?v=0.70.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.70.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -89,7 +89,9 @@ export function step(state, input) {
       g.mentioned = [id, ...(g.mentioned || []).filter(x => x !== id)].slice(0, 6);   // for "lo" / "la" / "them"
     }
     out.waiting = question;                                     // (what was waiting as this input came: SLEEP is refused over it)
+    const wentFrom = g.player.at;
     runAction(g, action, out, question);
+    if (action.verb === "go" && action.dir && g.player.at === wentFrom && !g.ended) out.refused_way = true;   // a way you could not go, whatever the reason: the picture shakes (felt)
     if (open && !g.pending.question && !g.ended) g.pending.question = open;
   }
   if (g.player.at !== startedIn) g.asked = {};                 // a new room: conversations start afresh
@@ -123,8 +125,8 @@ export function step(state, input) {
     if (!out.applied.some(dying)) echo(x => out.applied.push(x), g, "hurt", 0);   // (and the echo of it)
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
-  felt(g, out.applied);
-  const { viewed, lists, drawn, waiting, woke: _, trusted: _t, depth: _d, ...told } = out;   // (the moment's own bookkeeping)
+  felt(g, out.applied, out.refused_way);
+  const { viewed, lists, drawn, waiting, woke: _, trusted: _t, depth: _d, refused_way: _w, ...told } = out;   // (the moment's own bookkeeping)
   return { next: g, ...told };
 }
 
@@ -133,12 +135,14 @@ export function step(state, input) {
 // health echo: a rule's heal, something eaten, a heal at full health too) adds one to state.reactions.heal. One a moment,
 // however many hurts and heals it had, and a hurt wins. The screen plays each new one once (ui/effects.js, reactionOf); a
 // world writes nothing for it. Made with the first one, so a game that was never hurt nor healed has no key (as `shakes`).
-// A locked thing refusing (OPEN, UNLOCK, PUSH, PULL, ENTER, going a way it shuts: the `rattle` effect) adds one to state.reactions.locked,
+// A locked thing refusing (OPEN, UNLOCK, PUSH, PULL, ENTER: the `rattle` effect), or any way you cannot go (a GO, IN or OUT, a compass
+// tile, ENTER or GO THROUGH a way thing, that leaves you where you were: locked, shut by a condition or an hour, lacking something, a door's
+// `shut`, a person or a rule in the way, or no way at all) adds one to state.reactions.locked,
 // the picture's light shake (content/art.js, effects.reactions.locked): no flash, and it never takes the place of a hurt or a heal.
-function felt(g, applied) {
+function felt(g, applied, wayRefused) {
   const kind = (k) => applied.some(e => "echo" in e && e.kind === k);
   const r = kind("hurt") ? "hurt" : kind("healed") ? "heal" : null;
-  const rattled = applied.some(e => "rattle" in e);   // a locked thing refused (`rattle`): a light shake of the picture, one a moment, counted apart (state.reactions.locked; the page doesn't flash)
+  const rattled = wayRefused || applied.some(e => "rattle" in e);   // a locked thing refused (`rattle`): a light shake of the picture, one a moment, counted apart (state.reactions.locked; the page doesn't flash)
   if (!r && !rattled) return;
   g.reactions = { hurt: 0, heal: 0, ...g.reactions };
   if (r) g.reactions[r]++;

@@ -49,6 +49,7 @@ export default { v: 1, parts: {
     "v1:sound:8e96838d": [-29.69, -44.29],   // soft (struck, octave 3)
     "v1:sound:1ead92a1": [-28.39, -39.28],   // generic (plucked, octave 3)
     "v1:sound:15c4f72a": [-49.81, -49.93],   // latch (clack, octave 4)
+    "v1:sound:78a723a7": [-20.59, -38.91],   // thud (foley)
     "v1:sound:fa0df62c": [-41.47, -41.82],   // slide (brush, octave 4)
     "v1:sound:30c6aa25": [-24.50, -26.89],   // bell (struck, octave 4)
 } };

@@ -213,6 +213,10 @@ export default {
                 { type: "click", after: [0.05, 0.09], bands: [[3200, 1.8, 1], [1100, 1, 0.3]], level: [0.8, 1], tc: 0.003, count: 2,         // the latch: "ka-chunk"
                   gap: [0.008, 0.014], decay: 0.4 }],
                 as: { metal: { bright: 1.9, ring: 4, length: 1 } } },
+      // A shoulder against a wall (a refused way that is not a locked thing): one low, dull thunk, no click, no crack, no air.
+      thud:   { kind: "foley", length: 0.3, layers: [
+                { type: "thunk", modes: 5, range: [55, 230], tc: [0.025, 0.05], level: [0.5, 0.8], drop: 1.03, spread: 0.01,
+                  noise: { lowpass: 260, level: 0.6, tc: 0.04 } }] },
       crunch: { kind: "foley", length: 0.85, layers: [                                                                // two bites: "chomp-chomp"
                 { type: "grains", bites: 2, bite: [0.18, 0.22], gap: [0.26, 0.36], density: [320, 40],
                   bands: [[1600, 2.5], [2400, 3], [3300, 3], [4300, 3.5]], tc: [0.0006, 0.0025], level: [0.3, 1], skew: 1, first: 1.5 }] }
@@ -235,6 +239,7 @@ export default {
       close:    [{ play: "clunk" }],                                                                        // a door closes
       unlock:   [{ play: "latch", step: 5, octave: 5 }, { play: "material", step: 1, shift: -1, at: 0.1 }],                                 // a door unlocks
       rattle:   [{ play: "latch", step: 1, octave: 4 }, { play: "latch", step: 2, octave: 4, at: 0.07 }, { play: "latch", step: 1, octave: 4, at: 0.14 }],   // a locked door
+      thud:     [{ play: "thud" }],                                                                         // a way you cannot go (no locked thing): a soft thud
       lid:      [{ play: "slide", step: 3, octave: 4, length: 0.14 }, { play: "material", step: 3, at: 0.12 }],                            // a container opens
       solved:   [{ play: "bell", step: 5, octave: 4 }, { play: "bell", step: 8, octave: 4, at: 0.09 }, { play: "bell", step: 10, octave: 4, at: 0.18 },
                  { play: "bell", step: 12, octave: 4, at: 0.27, length: 0.6 }]                                  // the old games' "points"

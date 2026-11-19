@@ -3,9 +3,9 @@
 // `effectsOf` (the picture's filters the music follows), `soundsOf` (a moment's list read into plain terms: the sounds), and the
 // lists of the sounds and materials a debug panel or a bench can try. The piece that plays them is ui/sound.js. Pure.
 
-import S from "../content/music.js?v=0.69.1";
-import { partAt } from "../js/time.js?v=0.69.1";
-import { parseFilter } from "../js/filters.js?v=0.69.1";
+import S from "../content/music.js?v=0.70.0";
+import { partAt } from "../js/time.js?v=0.70.0";
+import { parseFilter } from "../js/filters.js?v=0.70.0";
 
 // Night by the world's clock (ms since day 1, 00:00): when the part of the day is "night" (content/time.js; dawn and dusk change nothing).
 export const nightAt = (ms) => partAt(ms) === "night";
@@ -33,6 +33,8 @@ export function effectsOf(filters = []) {
 //   lid              a container opened (set open, or unlocked), with its material
 //   rattle           a locked door refusing: one of its own lines said (`shut`, its lock's `says`), or the stock "locked" with it
 //                    in the room
+//   thud             a way you could not go that no locked thing shuts (the engine counted a refused way, state.reactions.locked,
+//                    and no locked thing refused with it, a `rattle` effect: such a way keeps its rattle, or its silence): one a moment
 //   solved           a puzzle solved (the engine's mark, never an ending's)
 // `now` is the game after the moment, `was` before it (both read only); a thing's material is its own word, as written.
 export function soundsOf(applied, now, was = now) {
@@ -68,6 +70,7 @@ export function soundsOf(applied, now, was = now) {
     } else if (refusing) out.push({ kind: "rattle", material: thing(refusing[0]).material });
     else if ("solved" in e) out.push({ kind: "solved" });
   }
+  if ((now.reactions?.locked ?? 0) > (was.reactions?.locked ?? 0) && !applied.some(e => "rattle" in e)) out.push({ kind: "thud" });
   return out;
 }
 
