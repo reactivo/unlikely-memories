@@ -5,12 +5,12 @@
 // js/plan.js), and a line for each way between two of them on neighbouring squares. Nothing is placed, moved or left off: a room is
 // where the plan says. x grows east, y south.
 
-import { exitTo } from "./exits.js?v=0.69.0";
-import { roomBeside, BACK } from "./plan.js?v=0.69.0";
-import { text, describe } from "./narrator.js?v=0.69.0";
-import { step } from "./engine.js?v=0.69.0";
-import { parse } from "./parser.js?v=0.69.0";
-import { story } from "./view.js?v=0.69.0";
+import { exitTo } from "./exits.js?v=0.69.1";
+import { roomBeside, BACK } from "./plan.js?v=0.69.1";
+import { text, describe } from "./narrator.js?v=0.69.1";
+import { step } from "./engine.js?v=0.69.1";
+import { parse } from "./parser.js?v=0.69.1";
+import { story } from "./view.js?v=0.69.1";
 
 const COMPASS = ["n", "s", "e", "w"];    // the directions a map draws a line in: up and down are marked in the room's corner
 

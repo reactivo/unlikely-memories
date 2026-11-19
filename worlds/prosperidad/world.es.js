@@ -1,13 +1,13 @@
-import pictures, { endings, cover, boxart } from "./pictures.js?v=0.69.0";
-import music, { rooms } from "./music.js?v=0.69.0";
-import levels from "./levels.js?v=0.69.0";
-import sprites from "./sprites.js?v=0.69.0";
-import plan from "./plan.js?v=0.69.0";
+import pictures, { endings, cover, boxart } from "./pictures.js?v=0.69.1";
+import music, { rooms } from "./music.js?v=0.69.1";
+import levels from "./levels.js?v=0.69.1";
+import sprites from "./sprites.js?v=0.69.1";
+import plan from "./plan.js?v=0.69.1";
 
 export { cover, boxart };
 
 export const bible = {
-  title: "Ministro con cartera",
+  title: "El emperador de la costra",
   synopsis: `Eres Emperador, un nombre que te puso la calle de broma, con un colchón en un piso ocupado de Prosperidad, en Madrid, una noche de viernes de un año que parece mediados de los ochenta. El Ministro vende heroína en una ronda que hace como un cartero, y guarda en su cartera lo que el barrio le debe. Esta noche, a la una, subasta esas deudas en un cine viejo, lote a lote. El lote nueve es Dolo, la del otro colchón. El diez eres tú, con las botas incluidas.`,
   blurb: `Viernes de noche en Prosperidad, Madrid, mediados de los ochenta. A la una, en un cine viejo, el Ministro subasta lo que debe el barrio. Dolo es el lote nueve.`,
   thumbnail: { picture: "street", x: 60 },

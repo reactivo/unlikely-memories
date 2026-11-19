@@ -1,13 +1,13 @@
-import pictures, { endings, cover, boxart } from "./pictures.js?v=0.69.0";
-import music, { rooms } from "./music.js?v=0.69.0";
-import levels from "./levels.js?v=0.69.0";
-import sprites from "./sprites.js?v=0.69.0";
-import plan from "./plan.js?v=0.69.0";
+import pictures, { endings, cover, boxart } from "./pictures.js?v=0.69.1";
+import music, { rooms } from "./music.js?v=0.69.1";
+import levels from "./levels.js?v=0.69.1";
+import sprites from "./sprites.js?v=0.69.1";
+import plan from "./plan.js?v=0.69.1";
 
 export { cover, boxart };
 
 export const bible = {
-  title: "Lot Nine",
+  title: "Emperor of the Crust",
   synopsis: `You are Emperador, a name the street gave you as a joke, with a mattress in an occupied flat in Prosperidad, Madrid, on a Friday night in a year that looks like the middle of the eighties. The Minister sells heroin from a round he walks like a postman, and keeps what the district owes him in a briefcase. Tonight at one he auctions those debts in an old cinema, lot by lot. Lot nine is Dolo, from the other mattress. Lot ten is you, boots included.`,
   blurb: `A Friday night in Prosperidad, Madrid, in the mid-eighties. At one the Minister auctions what the district owes him in an old cinema. Dolo is lot nine.`,
   thumbnail: { picture: "street", x: 60 },

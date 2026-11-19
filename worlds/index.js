@@ -17,35 +17,35 @@
 // to that page. A world without a cover has no page and no field.
 // A new world: add its folder, import it here, add it to WORLDS and run `node tools/cards.mjs`.
 
-import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.69.0";
-import sea, { bible as seaBible } from "./sea/world.en.js?v=0.69.0";
-import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.69.0";
-import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.69.0";
-import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.69.0";
-import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.69.0";
-import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.69.0";
-import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.69.0";
-import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.69.0";
-import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.69.0";
-import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.69.0";
-import noon, { bible as noonBible } from "./noon/world.en.js?v=0.69.0";
-import phare, { bible as phareBible } from "./phare/world.en.js?v=0.69.0";
-import prosperidad, { bible as prosperidadBible } from "./prosperidad/world.en.js?v=0.69.0";
-import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.69.0";
-import prosperidadEs, { bible as prosperidadBibleEs } from "./prosperidad/world.es.js?v=0.69.0";
-import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.69.0";
-import { cover as prosperidadCover, boxart as prosperidadBoxart } from "./prosperidad/pictures.js?v=0.69.0";
-import { cover as boathouseCover, boxart as boathouseBoxart } from "./boathouse/pictures.js?v=0.69.0";
-import { cover as hartleysCover, boxart as hartleysBoxart } from "./hartleys/pictures.js?v=0.69.0";
-import { cover as lanternCover, boxart as lanternBoxart } from "./lantern/pictures.js?v=0.69.0";
-import { cover as meridianCover, boxart as meridianBoxart } from "./meridian/pictures.js?v=0.69.0";
-import { cover as noonCover, boxart as noonBoxart } from "./noon/pictures.js?v=0.69.0";
-import { cover as phareCover, boxart as phareBoxart } from "./phare/pictures.js?v=0.69.0";
-import { cover as seaCover, boxart as seaBoxart } from "./sea/pictures.js?v=0.69.0";
-import { cover as thirdglassCover, boxart as thirdglassBoxart } from "./thirdglass/pictures.js?v=0.69.0";
-import { cover as tuesdayCover, boxart as tuesdayBoxart } from "./tuesday/pictures.js?v=0.69.0";
-import { cover as testbedCover, boxart as testbedBoxart } from "./testbed/pictures.js?v=0.69.0";
-import { parseShapes, shownDraw } from "../js/picture.js?v=0.69.0";
+import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.69.1";
+import sea, { bible as seaBible } from "./sea/world.en.js?v=0.69.1";
+import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.69.1";
+import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.69.1";
+import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.69.1";
+import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.69.1";
+import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.69.1";
+import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.69.1";
+import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.69.1";
+import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.69.1";
+import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.69.1";
+import noon, { bible as noonBible } from "./noon/world.en.js?v=0.69.1";
+import phare, { bible as phareBible } from "./phare/world.en.js?v=0.69.1";
+import prosperidad, { bible as prosperidadBible } from "./prosperidad/world.en.js?v=0.69.1";
+import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.69.1";
+import prosperidadEs, { bible as prosperidadBibleEs } from "./prosperidad/world.es.js?v=0.69.1";
+import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.69.1";
+import { cover as prosperidadCover, boxart as prosperidadBoxart } from "./prosperidad/pictures.js?v=0.69.1";
+import { cover as boathouseCover, boxart as boathouseBoxart } from "./boathouse/pictures.js?v=0.69.1";
+import { cover as hartleysCover, boxart as hartleysBoxart } from "./hartleys/pictures.js?v=0.69.1";
+import { cover as lanternCover, boxart as lanternBoxart } from "./lantern/pictures.js?v=0.69.1";
+import { cover as meridianCover, boxart as meridianBoxart } from "./meridian/pictures.js?v=0.69.1";
+import { cover as noonCover, boxart as noonBoxart } from "./noon/pictures.js?v=0.69.1";
+import { cover as phareCover, boxart as phareBoxart } from "./phare/pictures.js?v=0.69.1";
+import { cover as seaCover, boxart as seaBoxart } from "./sea/pictures.js?v=0.69.1";
+import { cover as thirdglassCover, boxart as thirdglassBoxart } from "./thirdglass/pictures.js?v=0.69.1";
+import { cover as tuesdayCover, boxart as tuesdayBoxart } from "./tuesday/pictures.js?v=0.69.1";
+import { cover as testbedCover, boxart as testbedBoxart } from "./testbed/pictures.js?v=0.69.1";
+import { parseShapes, shownDraw } from "../js/picture.js?v=0.69.1";
 
 export const WORLDS = {
   sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 20, minutes: null, bible: { es: seaBibleEs }, cover: seaCover, boxart: seaBoxart, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
@@ -57,7 +57,7 @@ export const WORLDS = {
   boathouse: { title: boathouseBible.title, blurb: boathouseBible.blurb, thumbnail: boathouseBible.thumbnail, made: "2026-11-10", model: "Claude Sonnet 5.5", effort: "medium", version: 13, minutes: 31, cover: boathouseCover, boxart: boathouseBoxart, text: { en: boathouse } },     // "The Lake Lights It Again"
   noon: { title: noonBible.title, blurb: noonBible.blurb, thumbnail: noonBible.thumbnail, made: "2026-11-12", model: "Claude Sonnet 5.5", effort: "medium", version: 10, minutes: 34, cover: noonCover, boxart: noonBoxart, text: { en: noon } },     // "The River Turns at Noon"
   phare: { title: phareBible.title, blurb: phareBible.blurb, thumbnail: phareBible.thumbnail, made: "2026-11-14", model: "Claude Sonnet 5.5", effort: "medium", version: 12, minutes: 24, cover: phareCover, boxart: phareBoxart, text: { en: phare } },     // "A Light for the Galerie Aubry"
-  prosperidad: { title: prosperidadBible.title, blurb: prosperidadBible.blurb, thumbnail: prosperidadBible.thumbnail, made: "2026-11-15", model: "Claude Sonnet 5.5", effort: "high", version: 13, minutes: 66, bible: { es: prosperidadBibleEs }, cover: prosperidadCover, boxart: prosperidadBoxart, text: { en: prosperidad, es: prosperidadEs } },     // "Lot Nine" / "Ministro con cartera"
+  prosperidad: { title: prosperidadBible.title, blurb: prosperidadBible.blurb, thumbnail: prosperidadBible.thumbnail, made: "2026-11-15", model: "Claude Sonnet 5.5", effort: "high", version: 14, minutes: 66, bible: { es: prosperidadBibleEs }, cover: prosperidadCover, boxart: prosperidadBoxart, text: { en: prosperidad, es: prosperidadEs } },     // "Lot Nine" / "Ministro con cartera"
   testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 15, minutes: null, bible: { es: testbedBibleEs }, cover: testbedCover, boxart: testbedBoxart, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
 };
 
