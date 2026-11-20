@@ -7,11 +7,11 @@
 // la sala de cada mecanismo. Todos los ids
 // de sala empiezan por `tb-`. Es el mismo mapa que el de world.en.js (cabecera de ese archivo).
 
-import pictures, { endings, visions } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings, visions } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -111,7 +111,7 @@ const rooms = {
   "tb-lab": {
     name: "LABORATORIO",
     describe: [
-      "Una sala de banco, llena de cables. Una {palanca|lever} se alza en una ranura de acero junto a un {zócalo|socket} abierto, un {dial} está en la pared y un {botón|button} brilla junto a la {puerta|lab_door}. Una {radio} sisea en una balda.",
+      "Una sala de banco, llena de cables, y miras hacia el sur a lo largo de ella. Una {palanca|lever} se alza en una ranura de acero junto a un {zócalo|socket} abierto, un {dial} está en la pared y un {botón|button} brilla junto a la {puerta|lab_door}, a tu derecha. Una {radio} sisea en una balda.",
       "Un gancho cuelga del techo. La clínica está al oeste."
     ],
     exits: { w: { out: true } },
@@ -120,7 +120,7 @@ const rooms = {
       { words: ["cables", "cable", "banco", "balda"], name: "los cables", says: "Cables negros, pegados con cinta al banco y entre sí." }
     ],
     ambience: { lines: ["Algo en la pared hace tic, y se calma.", "Un cable se calienta, y se enfría."], every: [30, 70] },
-    alt: "Una sala baja de banco llena de cables negros: una palanca alta de acero en una ranura a la derecha, un zócalo abierto a su lado, un dial redondo en la pared, un botón verde encendido junto a la puerta y una radio pequeña en una balda.",
+    alt: "Una sala baja de banco llena de cables negros: una palanca alta de acero en una ranura a la derecha, un zócalo abierto a su lado, un dial redondo en la pared, un botón verde encendido junto a la puerta, al fondo a la derecha, y una radio pequeña en una balda.",
     overlayAlt: { wire: "Un rollo de hilo yace sobre el banco." }
   },
 
@@ -152,7 +152,6 @@ const rooms = {
       { words: ["escritorio", "mesa"], name: "el escritorio", says: "Un escritorio alto, demasiado ordenado." },
       { words: ["marco", "pared"], name: "el marco", says: "Un marco con una sola palabra y una fina línea de polvo en lo alto." }
     ],
-    mentions: ["lunes"],
     sleep: "En el despacho no. La señora Oduya lo apuntaría.",
     alt: "Un despacho pequeño: un escritorio alto de madera ocupa la sala, detrás una mujer con una rebeca gris y, delante de ella, un libro grueso abierto; en la pared, un marco pequeño.",
     overlayAlt: {}
@@ -341,10 +340,9 @@ const rooms = {
     ],
     exits: { u: "way", n: "way", e: "way", w: "way", s: "way" },
     scenery: [{ words: ["calzos", "pared", "balda", "piedra"], name: "la pared", says: "Piedra labrada, húmeda al tacto." }],
-    mentions: ["trozo"],
     ambience: { lines: ["Gotea agua en algún sitio, y cuenta.", "El bote cruje sobre sus calzos, sin ir a ninguna parte."], every: [25, 60] },
     sleep: "En el sótano no: hay demasiada humedad.",
-    alt: "Un sótano bajo de piedra con una puerta de cámara redonda de acero en la pared derecha, una puerta pequeña de madera a la izquierda, unos barrotes bajos de hierro en la esquina derecha, un cofre grande y oscuro junto a la pared del fondo y un bote pequeño sobre calzos en medio.",
+    alt: "Un sótano bajo de piedra con una puerta de cámara redonda de acero en la pared derecha, una puerta pequeña de madera a la izquierda, un cofre grande y oscuro junto a la pared del fondo y un bote pequeño sobre calzos en medio.",
     overlayAlt: {}
   },
   // La cascada: un cuadro que se mueve (una cascada que corre, destellos que parpadean cada uno a su aire, una antorcha, una bandera y una onda).
@@ -399,7 +397,7 @@ const rooms = {
     exits: { e: "way" },
     scenery: [{ words: ["estantes", "estante", "telaranas", "telarana", "rendija"], name: "los estantes", says: "Estantes de madera, colgados de telarañas viejas." }],
     alt: "Una despensa estrecha de estantes oscuros de madera con una rendija de luz blanca en la pared del fondo y un tarro pequeño de cristal en el estante del medio.",
-    overlayAlt: {}
+    overlayAlt: { spoon: "Una cuchara de madera está en el estante de arriba." }
   }
 };
 
@@ -603,7 +601,6 @@ const objects = {
   ledger: { at: "tb-office", name: "Libro mayor", note: "Quién debe qué.", opens: ["debt"],
     words: { nouns: ["libro", "mayor", "registro"], adj: ["grueso", "negro"], g: "m" },
     parts: [{ words: ["columnas", "columna", "pagina", "paginas"], name: "las columnas", says: "Nombres a la izquierda, sumas a la derecha, y nada en el medio." }],
-    mentions: ["lunes"],
     examine: "Un libro mayor grueso y negro. Cada página tiene dos columnas: un nombre y lo que se debe. Un día de la semana está aplastado entre dos páginas.", read: "$ledger.examine" },
   monday: { at: "tb-office", unnoticed: true, name: "Lunes", note: "El día enmarcado.",
     words: { nouns: ["lunes"], proper: true, g: "m" },
@@ -642,7 +639,8 @@ const objects = {
     talk: "El gato te mira, y luego mira algo detrás de ti." },
   watchman: { at: "tb-yard", name: "Vigilante", note: "En su ronda.",
     rounds: { rooms: ["tb-yard", "tb-lane"], every: [4, 4] },
-    words: { nouns: ["vigilante", "guardia"], adj: ["largo"], g: "m" }, ...item("watchman"), figure: sprites.watchman_figure,
+    words: { nouns: ["vigilante", "guardia"], adj: ["largo"], g: "m" }, figure: sprites.watchman_figure, portrait: sprites.watchman_portrait,   // (una figura y un retrato: ningún sprite)
+    talk: "«Vuelta y vuelta», dice el vigilante, y no se para.",
     here: "Un {vigilante|watchman} hace su ronda.",
     examine: "Un vigilante de abrigo largo. Recorre el patio y el callejón, un paso cada cuatro movimientos tuyos." },
   bird: { at: "tb-lane", name: "Pájaro", note: "Se mueve solo.",
@@ -696,7 +694,7 @@ const objects = {
   ladder: { at: "tb-ways", leads: ["u", "d"], name: "Escalera de mano", note: "Arriba, o abajo.",
     words: { nouns: ["escalera"], adj: ["hierro", "mano"], g: "f" },
     examine: "Una escalera de mano de hierro. Subir lleva arriba; bajar, abajo." },
-  pole: { at: "tb-annex", portable: true, material: "wood", shape: "pole_shape", name: "Pértiga", note: "Larga, para el gancho.",
+  pole: { at: "tb-annex", portable: true, material: "wood", name: "Pértiga", note: "Larga, para el gancho.",
     here: "Una pértiga larga de madera yace a lo largo del suelo, de pared a pared.",
     words: { nouns: ["pertiga", "palo"], adj: ["larga", "madera"], g: "f" }, ...item("pole"),
     examine: "Una pértiga larga de madera, tan larga como la sala." },
@@ -717,7 +715,7 @@ const objects = {
     lock: { key: "pantry_key", says: "La puerta del sótano está cerrada también por este lado.", opens: "La llave diminuta gira, y la puerta del sótano se abre." },
     words: { nouns: ["puerta del sotano", "puerta"], adj: ["sotano", "madera"], g: "f" },
     examine: "Una puerta pequeña de madera, la misma vista desde el otro lado." },
-  // Barrotes: un paso cerrado con llave que no es una puerta (`leads`): dibujados cerrados y abiertos (`bars`, `bars_open`), que sacuden la imagen al probarlos y ofrecen el paso una vez abiertos.
+  // Barrotes: un paso cerrado con llave que no es una puerta (`leads`): no dibujado (es la salida al sur, a tu espalda en un cuadro que mira al norte: BRIEF §7, «Pictures face north»), que sacuden la imagen al probarlos y ofrecen el paso una vez abiertos.
   bars: { at: "tb-cellar", leads: "s", material: "metal", locked: true, name: "Barrotes", note: "Encadenados, tapando un hueco.",
     shut: "Te apoyas en los barrotes de hierro. No ceden.",
     lock: { key: "grate_key", says: "Los barrotes están encadenados, con un candado negro pequeño.", opens: "La llave pequeña gira, y los barrotes se apartan sobre sus bisagras." },
@@ -754,12 +752,34 @@ const objects = {
     examine: "Un trozo de papel con media palabra." },
   jar: { at: "tb-pantry", container: true, open: false, material: "glass", name: "Tarro", note: "Cerrado.",
     words: { nouns: ["tarro", "bote"], adj: ["cristal"], g: "m" },
-    examine: "Un tarro de cristal con tapa de rosca, vacío." },
+    examine: "Un tarro de cristal con tapa de rosca." },
+  // Las pistas dan (BRIEF.md §4): open_jar abre el tarro y deja el caramelo dentro, a mano; sus pistas acaban con cogerlo.
+  sweet: { at: "jar", portable: true, material: "paper", name: "Caramelo", note: "Verde, envuelto.", words: { nouns: ["caramelo"], adj: ["verde"], g: "m" }, ...item("pill"),
+    examine: "Un caramelo verde en un papel retorcido." },
   tin: { at: "tb-vault", portable: true, material: "metal", name: "Lata", note: "Suena.",
     heldActions: ["Agitar la lata"],
     words: { nouns: ["lata"], adj: ["abollada"], g: "f" }, ...item("tin"),
-    here: "Una {lata|tin} abollada está en el suelo.",
-    examine: "Una lata abollada que suena cuando se agita." }
+    here: "Una {lata} abollada está en el suelo.",
+    examine: "Una lata abollada que suena cuando se agita." },
+
+  // Puzles por id (BRIEF.md §4, "Writing a solve"): la cadena del sumidero y la válvula de la bodega, para el puzle drain_sump, cuyo solve es una
+  // dirección, una acción con una cosa y otra con dos, y que solo cambia algo (`sets`); el camino hasta él cruza los barrotes cerrados con llave,
+  // así que el último nivel de sus pistas añade coger la llave de la reja y abrirlos (tests/testbed.test.js).
+  sump_chain: { at: "tb-sump", material: "metal", name: "Cadena", note: "Cuelga de lo oscuro.",
+    here: "Una {cadena|sump_chain} oxidada cuelga de lo oscuro, sobre el agua.",
+    words: { nouns: ["cadena"], adj: ["oxidada"], g: "f" },
+    examine: "Una cadena oxidada que cuelga de una compuerta, en algún sitio bajo el suelo de la bodega. Si tiras de ella, algo se levanta." },
+  sump_valve: { at: "tb-cellar", material: "metal", name: "Válvula", note: "Un vástago cuadrado.",
+    here: "Una {válvula|sump_valve} de vástago cuadrado asoma del suelo junto a los barrotes.",
+    turn: "El vástago cuadrado no gira con la mano: pide el ojo de una llave.",
+    words: { nouns: ["válvula"], adj: ["cuadrada"], g: "f" },
+    examine: "Una válvula de vástago cuadrado, para vaciar el sumidero. El ojo de una llave pequeña encajaría en el vástago." },
+  // Valores por defecto del motor (BRIEF.md §7, "Sprites"): una cosa que se puede llevar sin `sprite` propio. El juego dibuja el sencillo de su material (madera: una caja)
+  // en el inventario, junto al texto de examinar, en el eco de cogerla y en la imagen de la despensa, y el comprobador avisa.
+  spoon: { at: "tb-pantry", portable: true, material: "wood", name: "Cuchara", note: "Gastada en el borde.",
+    words: { nouns: ["cuchara"], adj: ["madera"], g: "f" },
+    here: "Una {cuchara|spoon} de madera está en el estante de arriba.",
+    examine: "Una cuchara de madera, gastada y lisa en el borde." }
 };
 
 // ---- Cambios con nombre ------------------------------------------------------------------------------------------------------
@@ -798,7 +818,7 @@ const rules = [
   { id: "push_button", match: { verb: "push", obj: "button" }, do: [{ say: "El botón hace clic, y el suelo se te va de debajo, con educación." }, { travel: "tb-landing" }] },
   { id: "use_pole_hook", match: { verb: "use", obj: "pole", scenery: "annex_hook" }, if: [{ "player.at": "tb-annex" }],
     do: [{ say: "Cuelgas la pértiga del gancho, y se balancea una vez, y se queda ahí." }, { move: "pole", to: "tb-annex" }] },
-  { id: "put_coin_socket", match: { verb: "put", obj: "coin", obj2: "socket", prep: "in" }, if: [{ "$obj2": "socket" }],
+  { id: "put_coin_socket", match: { verb: "put", obj: "coin", obj2: "socket" }, if: [{ "$obj2": "socket" }],
     do: [{ say: "La moneda es demasiado fina para los contactos, y vuelve rodando a tu mano." }] },
   { id: "tune_radio", match: { verb: "tune", obj: "radio" },
     do: [{ say: "Sintonizas la radio, y el siseo cesa, y llega una palabra: Testbed." }, { set: "radio.tuned", to: true }, { remove: "rule", id: "radio_hiss" },
@@ -814,7 +834,7 @@ const rules = [
   { id: "summon_dot", match: { verb: "summon", obj: "dot" }, if: [{ "dot.place": { "!=": "$here" } }, { "$here": { "!=": "tb-bar" } }],
     do: [{ say: "Dot está en el bar, al este del centro. Desde aquí no puede oírte." }] },
   { id: "shake_tin", match: { verb: "shake", obj: "tin" }, once: true, again: "La lata suena otra vez, de la misma manera.",
-    do: [{ say: "La lata suena: una moneda muy pequeña, o una alubia muy grande." }] },
+    do: [{ say: "La lata suena: una moneda muy pequeña, o una alubia muy grande." }, { set: "tin.shaken", to: true }] },
   { id: "dial_0", match: { verb: "turn", obj: "dial" }, if: [{ "dial.setting": 0 }],
     do: [{ filter: "vignette" }, { set: "dial.setting", add: 1 }, { say: "La imagen se oscurece por los bordes." }] },
   { id: "dial_1", match: { verb: "turn", obj: "dial" }, if: [{ "dial.setting": 1 }],
@@ -895,6 +915,11 @@ const rules = [
   { id: "think_ledger", match: { verb: "think", obj: "ledger" }, do: [{ say: "Piensas en el libro mayor, y te viene a la cabeza una deuda.", style: "sys" }, { know: "debt" }] },
   { id: "think_absent", match: { verb: "think", absent: "wire" }, do: [{ say: "Piensas en el alambre, pero no está aquí." }] },
   { id: "ask_default", match: { verb: "ask", obj: "dot" }, if: [{ "$topic": null }], do: [{ say: "Dot espera a que le preguntes por algo." }] },
+  // Una persona dibujada con formas en el cuadro de una sala (dot_body, dot_head, dot_apron) a la que una regla lleva fuera y de vuelta: sus formas van con ella, sin `draw`.
+  { id: "dot_break", match: { verb: "relieve", obj: "dot" }, if: [{ "dot.at": "tb-bar" }],
+    do: [{ say: "«Cinco minutos», dice Dot, y sale al centro." }, { move: "dot", to: "tb-hub" }] },
+  { id: "dot_back", match: { verb: "relieve", obj: "dot" }, if: [{ "dot.at": "tb-hub" }],
+    do: [{ say: "«Vale», dice Dot, y vuelve detrás de la barra." }, { move: "dot", to: "tb-bar" }] },
   { id: "read_ledger", match: { verb: "read", obj: "ledger" }, do: [{ say: "$ledger.examine", img: "coin" }] },
   { id: "tear_scrap", match: { verb: "attack", obj: "scrap" }, do: [{ say: "Rompes el trozo, y la media palabra desaparece." }, { remove: "object", id: "scrap" }] },
   // El centro: el tablón lee de vuelta el estado, y una o dos reglas programadas.
@@ -909,36 +934,60 @@ const rules = [
   { id: "bell_tower", when: "at", at: "day 2 08:00", once: true, do: [{ say: "En algún lugar sobre el piso, una campana da las ocho, y a nadie le sorprende." }] },
   { id: "hub_tick", when: "every", every: { turns: [8, 12] }, chance: 0.5, if: [{ "player.at": "tb-hub" }], do: [{ say: "Las puertas del centro hacen clic, una tras otra." }] },
   // Una regla añadida en juego, antes de otra (BRIEF §8, «Rules»): el tablón se lee primero de la manera llana una vez apagada la lámpara.
-  { id: "board_dim", match: { verb: "read", obj: "board" }, if: [{ "tb-hub.dim": true }], do: [{ say: "El tablón cuesta de leer en la oscuridad." }] }
+  { id: "board_dim", match: { verb: "read", obj: "board" }, if: [{ "tb-hub.dim": true }], do: [{ say: "El tablón cuesta de leer en la oscuridad." }] },
+  // Puzles por id: el sumidero se vacía cuando la cadena ha levantado la compuerta y la válvula gira con la llave de la reja.
+  { id: "pull_sump_chain", match: { verb: "pull", obj: "sump_chain" }, do: [{ say: "Tiras de la cadena. Bajo el suelo se levanta una compuerta, y el agua negra empieza a moverse." }, { set: "sump_chain.pulled", to: true }] },
+  { id: "turn_valve_early", match: { verb: "turn", obj: "sump_valve", obj2: "grate_key" }, if: [{ "sump_chain.pulled": false }],
+    do: [{ say: "El ojo de la llave encaja en el vástago, y la válvula gira, pero no se vacía nada: la compuerta de abajo sigue cerrada." }] },
+  { id: "turn_valve", match: { verb: "turn", obj: "sump_valve", obj2: "grate_key" }, if: [{ "sump_valve.turned": false }],
+    do: [{ say: "El ojo de la llave encaja en el vástago. Giras la válvula, y abajo, en el sumidero, el agua se va con un largo suspiro." }, { set: "sump_valve.turned", to: true }] }
 ];
 // ---- Puzles ------------------------------------------------------------------------------------------------------------------
 const puzzles = {
   // La salida de la sala de inicio va primero (BRIEF.md §3): las primeras pistas del auricular son sobre ella.
-  way_out: { where: "tb-start", needs: [], solve: ["{take} ficha", "mete la ficha en el torniquete", "norte"], reaches: "tb-hub", clues: ["gate", "token"],
+  way_out: { where: "tb-start", needs: [], solve: [{ verb: "take", obj: "token" }, { verb: "put", obj: "token", obj2: "gate" }, "n"], reaches: "tb-hub", clues: ["gate", "token"],
     hints: ["El torniquete tiene una ranura, y hay una ficha en el platillo.", "Coge la ficha, métela en el torniquete, y ve al norte."] },
-  take_coin: { where: "tb-bar", needs: [], solve: ["{take} moneda"], gives: ["coin"], clues: ["dot", "coin"],
+  take_coin: { where: "tb-bar", needs: [], solve: [{ verb: "take", obj: "coin" }], gives: ["coin"], clues: ["dot", "coin"],
     hints: ["Hay una moneda junto al vaso, en la barra.", "Coge la moneda del bar."] },
-  buy_key: { where: "tb-bar", needs: ["take_coin"], solve: ["pide llave pequeña"], gives: ["chest_key"], clues: ["dot", "chest_key"],
+  buy_key: { where: "tb-bar", needs: ["take_coin"], solve: [{ verb: "buy", obj: "chest_key" }], gives: ["chest_key"], clues: ["dot", "chest_key"],
     hints: ["Dot vende una llave pequeña por una sola moneda.", "Pide a Dot la llave del cofre, con la moneda."] },
-  open_chest: { where: "tb-cellar", needs: ["buy_key"], solve: ["abre el cofre con la llave pequeña", "saca el fusible del cofre"], gives: ["fuse"], clues: ["chest", "chest_key"],
+  open_chest: { where: "tb-cellar", needs: ["buy_key"], solve: [{ verb: "unlock", obj: "chest", obj2: "chest_key" }, { verb: "take", obj: "fuse", obj2: "chest" }], gives: ["fuse"], clues: ["chest", "chest_key"],
     hints: ["La llave pequeña encaja en el cofre grande del sótano.", "Abre el cofre con la llave del cofre, y saca el fusible."] },
-  take_vault_key: { where: "tb-cellar", needs: ["open_chest"], solve: ["saca la llave larga del cofre"], gives: ["vault_key"], clues: ["chest", "vault_door"],
+  take_vault_key: { where: "tb-cellar", needs: ["open_chest"], solve: [{ verb: "take", obj: "vault_key", obj2: "chest" }], gives: ["vault_key"], clues: ["chest", "vault_door"],
     hints: ["El cofre guarda también una llave larga de latón.", "Saca la llave de la cámara del cofre."] },
-  open_vault: { where: "tb-cellar", needs: ["take_vault_key"], solve: ["abre la puerta de la cámara con la llave larga", "este"], reaches: "tb-vault", clues: ["vault_door", "vault_key"],
+  open_vault: { where: "tb-cellar", needs: ["take_vault_key"], solve: [{ verb: "unlock", obj: "vault_door", obj2: "vault_key" }, "e"], reaches: "tb-vault", clues: ["vault_door", "vault_key"],
     hints: ["La llave de latón encaja en la puerta de la cámara.", "Abre la puerta de la cámara con la llave larga, y ve al este."] },
-  open_sump: { where: "tb-cellar", needs: [], solve: ["saca la llave de la reja del cubo", "abre los barrotes con la llave de la reja", "sur"], reaches: "tb-sump", clues: ["bars", "grate_key"],
+  open_sump: { where: "tb-cellar", needs: [], solve: [{ verb: "take", obj: "grate_key", obj2: "bin" }, { verb: "unlock", obj: "bars", obj2: "grate_key" }, "s"], reaches: "tb-sump", clues: ["bars", "grate_key"],
     hints: ["El cubo guarda una llave pequeña negra.", "Saca la llave de la reja del cubo, abre con ella los barrotes, y ve al sur."] },
-  open_pantry: { where: "tb-cellar", needs: [], solve: ["saca la llave diminuta de la caja", "abre la puerta de la despensa con la llave diminuta", "oeste"], reaches: "tb-pantry", clues: ["box", "cellar_door"],
+  open_pantry: { where: "tb-cellar", needs: [], solve: [{ verb: "take", obj: "pantry_key", obj2: "box" }, { verb: "unlock", obj: "cellar_door", obj2: "pantry_key" }, "w"], reaches: "tb-pantry", clues: ["box", "cellar_door"],
     hints: ["La caja guarda una llave diminuta.", "Saca la llave diminuta de la caja, abre con ella la puerta de la despensa, y ve al oeste."] },
-  light: { where: "tb-lab", needs: ["open_chest"], solve: ["pon el fusible en el zocalo", "tira de la palanca", "si"], ending: true, clues: ["lever", "socket", "fuse"],
+  light: { where: "tb-lab", needs: ["open_chest"], solve: [{ verb: "put", obj: "fuse", obj2: "socket" }, { verb: "pull", obj: "lever" }, { verb: "answer", value: "yes" }], ending: true, clues: ["lever", "socket", "fuse"],
     hints: ["El zócalo está vacío, y la palanca no hace nada sin un fusible dentro.", "Pon el fusible en el zócalo, tira de la palanca, y di que sí."] },
-  named: { where: "tb-office", needs: [], solve: ["examina el libro mayor", "pregunta a oduya por el libro", "pregunta a oduya por la deuda", "pregunta a oduya por el veredicto", "oduya"], ending: true,
+  named: { where: "tb-office", needs: [], solve: [{ verb: "examine", obj: "ledger" }, { verb: "ask", obj: "oduya", topic: "ledger" }, { verb: "ask", obj: "oduya", topic: "debt" }, { verb: "ask", obj: "oduya", topic: "verdict" }, { verb: "answer", text: "oduya" }], ending: true,
     clues: ["oduya", "ledger"],
     hints: ["La señora Oduya lleva el libro, y el libro guarda un nombre.", "Pregúntale por el libro, luego por la deuda, luego por el veredicto, y responde con su propio nombre."] },
-  meet_clerk: { where: "tb-yard", needs: [], solve: ["oeste"], reaches: "tb-lane", time: "next 20:00", clues: ["clerk", "watchman"],
+  meet_clerk: { where: "tb-yard", needs: [], solve: ["w"], reaches: "tb-lane", time: "next 20:00", clues: ["clerk", "watchman"],
     hints: ["El callejón tiene un oficinista de noche, pasadas las ocho.", "Espera a que anochezca, y ve al oeste."] },
-  fell: { where: "tb-roof", needs: [], solve: ["salta"], ending: true, clues: ["ladder", "landing_stairs"],
-    hints: ["La azotea tiene un borde, y el borde tiene una caída.", "Sube a la azotea, y salta."] }
+  fell: { where: "tb-roof", needs: [], solve: [{ verb: "jump" }], ending: true, clues: ["ladder", "landing_stairs"],
+    hints: ["La azotea tiene un borde, y el borde tiene una caída.", "Sube a la azotea, y salta."] },
+  // Puzles por id: un paso que solo cambia algo (`sets`), tras los barrotes cerrados con llave.
+  drain_sump: { where: "tb-sump", needs: [], solve: [{ verb: "pull", obj: "sump_chain" }, "n", { verb: "turn", obj: "sump_valve", obj2: "grate_key" }], sets: "sump_valve.turned",
+    clues: ["sump_chain", "sump_valve"],
+    hints: ["El sumidero se vacía por una válvula de la bodega, cuando su compuerta está arriba.", "Tira de la cadena del sumidero, y luego gira la válvula de la bodega con la llave de la reja."] },
+  // Las pistas llevan (BRIEF.md §4): una necesidad que es una cosa que ningún puzle da. El pase está en los accesos, así que las pistas vienen
+  // aquí antes de cogerlo, y dicen cogerlo; la lata está tras la puerta de la cámara, así que esperan hasta que sus llaves se pueden tener.
+  pass_guard: { where: "tb-ways", needs: ["pass"], solve: ["n"], reaches: "tb-annex", clues: ["pass"],
+    hints: ["El guardia deja pasar a quien lleva un pase.", "Coge el pase del suelo, y ve al norte."] },
+  rattle_tin: { where: "tb-vault", needs: ["tin"], solve: [{ verb: "shake", obj: "tin" }], sets: "tin.shaken", clues: ["tin"],
+    hints: ["La lata de la cámara tiene algo suelto dentro.", "Coge la lata, y agítala."] },
+  open_jar: { where: "tb-pantry", needs: [], solve: [{ verb: "open", obj: "jar" }], gives: ["sweet"], clues: ["jar"],
+    hints: ["El tarro de la despensa no está tan vacío como parece.", "Abre el tarro de la despensa."] },
+  // La caminata va a buscar (BRIEF.md §4): un paso que nombra una cosa dejada en otra sala (la lata, en la cámara a la que llegó open_vault) la trae
+  // por el camino; un puzzle que da una cosa que no se lleva (los escalones del foso) está hecho en cuanto se han visto a mano.
+  shake_tin_hub: { where: "tb-hub", needs: ["open_vault"], solve: [{ verb: "shake", obj: "tin" }], sets: "tin.shaken", clues: ["tin"],
+    hints: ["La lata suena igual de bien en el centro.", "Trae la lata de la cámara al centro, y agítala."] },
+  dig_pit: { where: "tb-ways", needs: [], solve: [{ verb: "turn", obj: "wheel" }, "s"], gives: ["pit_steps"], clues: ["wheel"],
+    hints: ["La rueda de los accesos cava un foso, con escalones para salir.", "Gira la rueda, y baja al foso por el sur."] }
 };
 
 // ---- La apertura, declarada: la sala de inicio (BRIEF.md §3) -------------------------------------------------------------------
@@ -969,7 +1018,10 @@ export default {
     "bunk.slept": { type: "number", min: 0, max: 99, start: 0 },
     "radio.tuned": { type: "boolean", start: false },
     "tb-hub.dim": { type: "boolean", start: false },
-    "player.rank": { type: "string", start: "Pruebas" }
+    "player.rank": { type: "string", start: "Pruebas" },
+    "sump_chain.pulled": { type: "boolean", start: false },   // Puzles por id: drain_sump
+    "sump_valve.turned": { type: "boolean", start: false },
+    "tin.shaken": { type: "boolean", start: false }            // Las pistas llevan: rattle_tin
   },
   effects: [
     { time: "day 1 12:00", weekday: "mon" },                  // el juego empieza a mediodía
@@ -979,6 +1031,7 @@ export default {
     { add: "word", verb: "intone", words: ["entonar", "entona", "entone", "entono", "recitar", "recita", "recite", "recito"], speech: true, reply: "Entonas, y la sala no hace caso." },
     { add: "word", verb: "summon", words: ["convocar", "convoca", "convoque", "convoco", "avisar", "avisa", "avise", "aviso"], absent: true, reply: "No viene nadie." },
     { add: "word", verb: "shake", words: ["agitar", "agita", "agite", "agito", "sacudir", "sacude", "sacuda", "sacudo"], object: "required", reply: "Eso no se agita." },
+    { add: "word", verb: "relieve", words: ["relevar", "releva", "releve", "relevo"], object: "required", reply: "Aquí nadie necesita relevo." },
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
@@ -997,6 +1050,9 @@ export default {
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),
-    { add: "rule", rule: { id: "board_first", match: { verb: "examine", obj: "board" }, do: [{ say: "$board.examine" }] }, before: "board_status" }
+    { add: "rule", rule: { id: "board_first", match: { verb: "examine", obj: "board" }, do: [{ say: "$board.examine" }] }, before: "board_status" },
+    // Valores por defecto del motor (BRIEF.md §8, "Rules"): una regla cuyo `before` nombra una regla escrita más abajo; OLER el tablón lo responde la primera, como si estuviera escrita bajo la otra.
+    { add: "rule", rule: { id: "board_smell_first", match: { verb: "smell", obj: "board" }, do: [{ say: "El tablón huele a tiza y a cinta vieja." }] }, before: "board_smell_plain" },
+    { add: "rule", rule: { id: "board_smell_plain", match: { verb: "smell", obj: "board" }, do: [{ say: "Huele a corcho." }] } }
   ]
 };

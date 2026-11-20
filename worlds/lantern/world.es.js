@@ -2,11 +2,11 @@
 // como lo escribiría un autor de aquí (WRITING-DIRECTION.md §8). Mismos ids, mismas salas, mismas reglas, mismos finales
 // que world.en.js; cambian las palabras y los juegos de palabras. Un solo conjunto de cambios, todo o nada; datos llanos.
 
-import pictures, { endings, visions } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings, visions } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -95,7 +95,6 @@ const rooms = {
       { words: ["asiento", "cojin", "felpa", "banqueta"], name: "el asiento", says: "Felpa roja, gastada hasta brillar por muchísima gente que iba a algún sitio con prisa. El tuyo es el único lugar tibio." },
       { words: ["gancho", "techo", "tejado"], name: "el gancho", says: "Un gancho de latón en el techo, para un farol. Alguien ha colgado en él un pájaro." }
     ],
-    mentions: ["portezuelas"],
     ambience: { lines: [
       "El coche se mece un poco sobre sus ballestas, como si el caballo acabara de salir de las varas.",
       "En algún punto del blanco suena una campana, una vez, muy lejos, para otro.",
@@ -126,7 +125,6 @@ const rooms = {
       { words: ["niebla", "bruma", "calima"], name: "la niebla", says: "Gris amarillenta y tan espesa que se puede apoyar uno en ella. De vez en cuando pasa una palabra a la altura de la cabeza, demasiado débil para entenderla." },
       { words: ["adoquines", "adoquin", "bordillo"], name: "los adoquines", says: "Adoquines mojados. La niebla lleva tanto tiempo tendida sobre ellos que han tomado su color." }
     ],
-    mentions: ["agente Pye"],
     ambience: { lines: [
       "Un farol más abajo tose, y se serena.",
       "Pasan pasos entre la niebla, muy cerca, y nadie los acompaña.",
@@ -153,7 +151,6 @@ const rooms = {
       { words: ["vaso", "vasos", "copa", "copas"], name: "el vaso", says: "El señor Cotter lo levanta contra el farol, le encuentra un defecto que nadie más sería capaz de ver y sigue sacándole brillo." },
       { words: ["chimenea", "hogar", "rejilla", "parrilla"], name: "la chimenea", says: "Una rejilla de hierro, con el carbón amontonado hasta arriba." }
     ],
-    mentions: ["señor Cotter"],
     ambience: { lines: [
       "El canto se detiene el tiempo de un aliento, y vuelve a empezar un poco más adelante.",
       "Alguien en la barra dice el nombre de Fenn, y los demás beben por él sin saber muy bien por qué.",
@@ -174,7 +171,6 @@ const rooms = {
       { words: ["mostrador", "bandejas", "bandeja", "pasteles", "masa"], name: "el mostrador", says: "Bandejas de pasteles en filas, cada uno con un respiradero cortado en forma de hoja. En una de las filas falta uno." },
       { words: ["escaparate", "ventana", "vaho", "vapor", "letra", "cristal"], name: "el escaparate", says: "Empañado por dentro hasta no ver. Alguien ha escrito con un dedo una sola letra en el vaho, una A, y el vaho casi se la ha llevado de vuelta." }
     ],
-    mentions: ["señora Halloran", "harina"],
     smell: "Masa y grasa caliente, y debajo algo más dulce: el olor de una cocina donde siempre se espera a alguien.",
     alt: "Una tienda de pasteles vista desde arriba: un largo mostrador marrón con bandejas de pasteles dorados en filas, la boca encendida de un horno de hierro arriba, un escaparate empañado a lo largo del borde inferior y una mujer con gorro blanco inclinada sobre el mostrador, a la derecha."
   },
@@ -189,7 +185,6 @@ const rooms = {
       { words: ["pupitre", "tribuna", "sitial", "tachuelas", "cuero", "paneles"], name: "el pupitre", says: "Alto y verde, con tachuelas de latón. Lo construyeron para que los forenses miraran las cosas desde arriba, y lo hacen." },
       { words: ["sillas", "silla", "jurado", "niebla"], name: "el jurado", says: "Doce sillas en dos filas. La niebla las ha ocupado todas y está muy quieta, como se queda un jurado que ya ha decidido escuchar." }
     ],
-    mentions: ["doctor Mabbott", "pluma"],
     alt: "Mirando hacia arriba desde el estrado de testigos a un alto pupitre verde de forense: un hombre delgado de negro encima con una pluma, una lámpara de pantalla verde a su lado y, a la derecha, doce sillas de jurado con niebla pálida sentada en ellas."
   },
   last_lamp: {
@@ -207,7 +202,6 @@ const rooms = {
       { words: ["muro", "bordillo", "adoquines", "rio"], name: "el muro del río", says: "Un muro bajo de piedra negra, y el río chapoteando contra él en algún lugar de abajo. El bordillo está gastado allí donde un solo hombre se sentó una vez." },
       { words: ["escalones", "escalon", "escalera", "peldaños", "peldanos"], name: "los escalones", says: "Escalones de piedra que bajan al río, al sur.", leads: "s" }
     ],
-    mentions: ["señor Fenn", "muro del río"],
     ambience: { lines: [
       "La niebla murmura, una palabra aquí, media palabra allá, como un público en otra sala.",
       "El río chapotea contra el muro, una vez, como para dejar algo claro.",
@@ -246,7 +240,6 @@ const rooms = {
       { words: ["bombilla", "luz", "foco", "cable"], name: "la bombilla", says: "Una bombilla eléctrica colgada de su cable, muy blanca, muy segura de sí. Hace que el ladrillo parezca sorprendido en falta." },
       { words: ["escritorio", "mesa", "ladrillo", "ladrillos", "cables"], name: "el escritorio", says: "Un escritorio de la Compañía, ladrillo de la Compañía, cables de la Compañía que bajan al suelo, esperando al lunes." }
     ],
-    mentions: ["señor Voss", "sombrero hongo"],
     ambience: { lines: [
       "La dínamo cambia un poco de nota, como si se le hubiera ocurrido algo.",
       "La bombilla parpadea una vez, y el señor Voss la mira, dolido.",
@@ -266,7 +259,6 @@ const rooms = {
       { words: ["escalera", "escalones", "escalon", "muro"], name: "la escalera", says: "Escalones de piedra, verdes abajo, que vuelven a subir al último farol, al norte.", leads: "n" },
       { words: ["barro", "fango", "franja", "orilla"], name: "el barro", says: "Barro negro, brillante. Las cosas se hunden en él y, si Pip anda cerca, vuelven a aparecer." }
     ],
-    mentions: ["cubo", "palo", "Támesis"],
     ambience: { lines: [
       "El río chupa el último escalón y lo suelta.",
       "Pip sostiene algo ante la niebla, lo piensa mejor y lo deja caer otra vez en el barro.",
@@ -287,7 +279,6 @@ const rooms = {
       { words: ["faroles", "farol", "collar", "hueco", "orilla", "calle", "lantern", "row"], name: "la calle", says: "Once faroles en fila, pequeños y amarillos, y luego un hueco donde debería estar el duodécimo." },
       { words: ["mitad", "lejana", "otra", "final"], name: "la mitad lejana", says: "Niebla, y más niebla. El puente se mete en ella y no sale. Nadie en la calle ha necesitado nunca la otra orilla." }
     ],
-    mentions: ["mitad lejana"],
     alt: "A lo lejos, sobre una niebla de azul pálido y un agua oscura, una orilla baja con una corta hilera de faroles amarillos diminutos y un hueco al final; un parapeto de piedra a lo largo del borde inferior de la imagen."
   }
 };
@@ -316,7 +307,7 @@ const objects = {
   pye: { portrait: sprites.pye_portrait, at: "row", name: "Agente Pye", note: "Haciendo su ronda.",
     words: { nouns: ["pye", "agente", "policia", "guardia", "bobby"], adj: ["agente", "policia"], g: "m" },
     examine: "Un agente joven y alto, con capa, con un farol propio y una {libreta|notebook} que sostiene como un devocionario. En la copa del casco se le ha juntado un poco de niebla.",
-    parts: [{ words: ["casco", "capa"], name: "su casco", says: "La niebla se ha estancado en la copa. Él no se ha dado cuenta, o es demasiado educado para decirlo." }], mentions: ["casco", "capa"],
+    parts: [{ words: ["casco", "capa"], name: "su casco", says: "La niebla se ha estancado en la copa. Él no se ha dado cuenta, o es demasiado educado para decirlo." }],
     talk: "«Buenas noches», dice el agente Pye. «A ti te toca declarar. La investigación es a medianoche, en el tribunal. Tengo apuntados a los presentes, si los quieres».",
     topics: {
       present: { about: "notebook", label: "los presentes", words: ["presentes", "presente", "personas", "lista", "sospechosos", "gente", "libreta"], says: "«Presentes junto al último farol esta noche», lee. «El señor Voss, de la Compañía. La señora Halloran, de los pasteles. El difunto. Es todo lo que la niebla me ha dejado ver»." },
@@ -364,7 +355,7 @@ const objects = {
   halloran: { portrait: sprites.halloran_portrait, at: "pie_shop", name: "Señora Halloran", note: "Harina hasta los codos.",
     words: { nouns: ["halloran", "mujer", "pastelera", "panadera"], adj: ["señora", "senora"], g: "f" },
     examine: "Una mujer menuda con gorro blanco y delantal enharinado. Las manos siguen trabajando cuando el resto de ella ha parado.",
-    parts: [{ words: ["harina", "delantal", "manos", "gorro"], name: "su delantal", says: "Harina hasta los codos, y en el delantal dos huellas enharinadas de manos, donde ha apretado algo contra él." }], mentions: ["harina", "delantal"],
+    parts: [{ words: ["harina", "delantal", "manos", "gorro"], name: "su delantal", says: "Harina hasta los codos, y en el delantal dos huellas enharinadas de manos, donde ha apretado algo contra él." }],
     talk: "«Estamos cerrados», dice la señora Halloran, aunque la puerta estaba abierta y el horno encendido. «Toma un pastel de todos modos. Alguien tiene que hacerlo».",
     topics: {
       pie: { open: true, label: "un pastel", words: ["pastel", "pasteles", "comida", "cena"], says: "«De carne, con un poco de riñón», dice. «Nadie pregunta qué llevan. Él nunca lo preguntó»." },
@@ -388,7 +379,7 @@ const objects = {
   mabbott: { portrait: sprites.mabbott_portrait, at: "court", name: "Doctor Mabbott", note: "El forense.",
     words: { nouns: ["mabbott", "forense", "doctor", "juez"], adj: ["doctor", "dr"], g: "m" },
     examine: "Un hombre delgado con abrigo negro, con una pluma detrás de cada oreja y una tercera en la mano. Ha presidido la investigación de cada muerte de la calle desde los tiempos de la vieja Reina, y ha estado de acuerdo con casi todas.",
-    parts: [{ words: ["pluma", "plumas", "tinta", "plumilla"], name: "su pluma", says: "De plumilla de acero, y seca. Espera un nombre." }], mentions: ["pluma"],
+    parts: [{ words: ["pluma", "plumas", "tinta", "plumilla"], name: "su pluma", says: "De plumilla de acero, y seca. Espera un nombre." }],
     talk: "«Ah, vienes a declarar», dice el doctor Mabbott. «Tómate tu tiempo. El tribunal oye palabras, y el tribunal oye nombres. Lo que aquí se dice, aquí se queda dicho».",
     topics: {
       words: { open: true, label: "las pruebas", words: ["pruebas", "prueba", "palabras", "palabra", "testimonio", "testigo", "evidencias"], says: "«Palabras, si las tienes», dice. «La niebla habrá guardado las últimas que se dijeron junto al farol. Tráelas, y el tribunal las oirá hasta el final»." },
@@ -422,7 +413,7 @@ const objects = {
     words: { nouns: ["fenn", "farolero", "albert", "hombre", "cuerpo", "difunto", "cadaver"], adj: ["señor", "senor", "muerto", "viejo"], g: "m" },
     examine: "Un hombre menudo con gorra y un abrigo verdoso en las costuras, sentado muy recto en el bordillo con las manos en las rodillas. Lleva una {llave|hut_key} colgada de un cordel al cuello. Está muerto, y sigue de servicio.",
     take: "Pesa más de lo que parece. Lleva mucho tiempo en su puesto.",
-    parts: [{ words: ["abrigo", "costuras", "manos", "rodillas", "gorra"], name: "su abrigo", says: "Verde en las costuras, pulido en los codos por cuarenta años de alcanzar lo alto." }], mentions: ["abrigo", "gorra"],
+    parts: [{ words: ["abrigo", "costuras", "manos", "rodillas", "gorra"], name: "su abrigo", says: "Verde en las costuras, pulido en los codos por cuarenta años de alcanzar lo alto." }],
     talk: "«Buenas noches», dice el señor Fenn, sin levantarse. «No puedo dejar mi puesto. No hasta que me releven».",
     topics: {
       death: { open: true, label: "la muerte", words: ["muerte", "murio", "muerto", "asesinato", "matado", "quien", "morir"], says: "«No sabría decirte quién», dice. «No sería justo, no antes de la investigación. Pregunta a la niebla. Estaba aquí»." },
@@ -456,7 +447,7 @@ const objects = {
     words: { nouns: ["trompetilla", "trompeta"], adj: ["laton", "abollada", "acustica"], g: "f" }, ...item("trumpet"),
     here: "Hay una {trompetilla|trumpet} de latón, abollada.",
     examine: "Una trompetilla de latón, abollada, de las que los viejos faroleros acercaban a un farol para saber si el gas respiraba. Por dentro del pabellón el latón brilla, como si hubiera estado escuchando algo tibio." },
-  pole: { at: "hut", portable: true, shape: ["pole_shape", "pole_flame"], material: "wood", name: "Pértiga del farolero", note: "Todavía encendida.",
+  pole: { at: "hut", portable: true, material: "wood", name: "Pértiga del farolero", note: "Todavía encendida.",
     words: { nouns: ["pertiga", "llama", "gancho", "vara"], adj: ["farolero", "larga", "laton", "azul", "de", "del"], g: "f" }, ...item("pole"),
     here: "La larga {pértiga|pole} del señor Fenn está apoyada aquí, con su pequeña llama azul todavía encendida.",
     examine: "Una larga pértiga con un gancho de latón para la llave del gas y una pequeña llama azul en la punta que no se ha apagado en cuarenta años. Pesa más en el extremo que hizo el trabajo." },
@@ -493,7 +484,7 @@ const objects = {
   pip: { portrait: sprites.pip_portrait, at: "river_steps", name: "Pip", note: "Rebusca en el fango.",
     words: { nouns: ["pip", "niña", "nina", "chica", "rebuscadora"], adj: [], g: "f", proper: true },
     examine: "Una niña de unos diez años con un abrigo de hombre, con barro hasta la rodilla, un {cubo|bucket} de cosas perdidas y un palo para encontrar más.",
-    parts: [{ words: ["cubo", "palo", "abrigo"], name: "su cubo", says: "Cucharas, botones, un pomo de puerta, medio par de gafas. Y en el fondo, algo pequeño y pálido que tapa con la mano cuando lo miras." }], mentions: ["palo"],
+    parts: [{ words: ["cubo", "palo", "abrigo"], name: "su cubo", says: "Cucharas, botones, un pomo de puerta, medio par de gafas. Y en el fondo, algo pequeño y pálido que tapa con la mano cuando lo miras." }],
     talk: "«Quien lo encuentra se lo queda», dice Pip, sin levantar la vista. «Pregúntame qué he encontrado, si quieres».",
     topics: {
       found: { open: true, label: "los hallazgos", words: ["hallazgos", "hallazgo", "encontrado", "encontrar", "cubo", "cosas", "barro"], opens: ["heard"], says: "«Cucharas. Un botón. Palabras, a veces, cuando caen al río. Se ponen duras en el barro, como galletas. Esta noche nada». Mira escalera arriba. «Esta noche oí»." },
@@ -526,8 +517,7 @@ const changes = {
     { connect: "cab", dir: "e", out: true }
   ],
   key_taken: [
-    { set: "fenn.examine", to: "Un hombre menudo con gorra y un abrigo verdoso en las costuras, sentado muy recto en el bordillo con las manos en las rodillas. Sin el cordel, el cuello se le ve desnudo. Está muerto, y sigue de servicio." },
-    { set: "fenn.mentions", to: ["abrigo", "gorra"] }
+    { set: "fenn.examine", to: "Un hombre menudo con gorra y un abrigo verdoso en las costuras, sentado muy recto en el bordillo con las manos en las rodillas. Sin el cordel, el cuello se le ve desnudo. Está muerto, y sigue de servicio." }
   ],
   hut_opened: [
     { set: "hut_door.examine", to: "La puerta de la caseta del señor Fenn, abierta sobre un olor a gas y a parafina. La llave giró en ella como si te conociera." }
@@ -699,24 +689,24 @@ const rules = [
 
 // ---- Rompecabezas (para el verificador y las pistas; BRIEF.md §4). Los finales, en el orden en que las pistas deben alcanzarlos. ----
 const puzzles = {
-  pay_fare: { where: "cab", needs: [], solve: ["{take} chelín", "da el chelín a la niebla", "sal"], reaches: "row", clues: ["cab_fog", "shilling"],
+  pay_fare: { where: "cab", needs: [], solve: [{ verb: "take", obj: "shilling" }, { verb: "give", obj: "shilling", obj2: "cab_fog" }, "e"], reaches: "row", clues: ["cab_fog", "shilling"],
     hints: ["La niebla se planta en las portezuelas del coche como un portero, y la carrera está en el asiento.", "Coge el chelín, dáselo a la niebla y sal."] },
-  take_key: { where: "last_lamp", needs: [], solve: ["{take} llave"], gives: ["hut_key"], clues: ["fenn", "hut_door"],
+  take_key: { where: "last_lamp", needs: [], solve: [{ verb: "take", obj: "hut_key" }], gives: ["hut_key"], clues: ["fenn", "hut_door"],
     hints: ["El señor Fenn guarda la llave de su caseta en un cordel, al cuello.", "Coge la llave del señor Fenn, junto al último farol."] },
-  open_hut: { where: "last_lamp", needs: ["hut_key"], solve: ["abre la puerta con la llave", "este"], reaches: "hut", clues: ["hut_door", "fenn"],
+  open_hut: { where: "last_lamp", needs: ["hut_key"], solve: [{ verb: "unlock", obj: "hut_door", obj2: "hut_key" }, "e"], reaches: "hut", clues: ["hut_door", "fenn"],
     hints: ["Su caseta está justo al este del último farol, y la llave encaja.", "Abre la puerta de la caseta con la llave, y ve al este."] },
-  take_trumpet: { where: "hut", needs: ["open_hut"], solve: ["{take} trompetilla"], gives: ["trumpet"], clues: ["fenn", "pye"],
+  take_trumpet: { where: "hut", needs: ["open_hut"], solve: [{ verb: "take", obj: "trumpet" }], gives: ["trumpet"], clues: ["fenn", "pye"],
     hints: ["El señor Fenn escuchaba el gas con una vieja trompetilla. La guarda en su caseta.", "En la caseta, coge la trompetilla."] },
-  hear_words: { where: "last_lamp", needs: ["trumpet"], solve: ["espera hasta que cierre The Bell", "escucha la niebla"], gives: ["last_words"], clues: ["pye", "fenn", "trumpet", "cotter"],
+  hear_words: { where: "last_lamp", needs: ["trumpet"], solve: [{ verb: "wait" }, { verb: "listen", obj: "fog_lamp" }], gives: ["last_words"], clues: ["pye", "fenn", "trumpet", "cotter"],
     hints: ["La niebla guarda lo que se dijo en ella, pero hace falta la trompetilla de un farolero para oírlo, y silencio. En la calle nunca hay silencio hasta que cierra The Bell, a las once.",
             "Con la trompetilla de la caseta, espera junto al último farol hasta que cierre The Bell, y luego escucha la niebla."] },
-  open_court: { where: "row", needs: [], solve: ["espera hasta medianoche", "norte"], reaches: "court", clues: ["court_doors", "pye", "fenn"],
+  open_court: { where: "row", needs: [], solve: [{ verb: "wait" }, "n"], reaches: "court", clues: ["court_doors", "pye", "fenn"],
     hints: ["La investigación es a medianoche, en el tribunal, al norte de la calle.", "Espera en la calle hasta medianoche, y luego ve al norte, al tribunal."] },
-  truth: { where: "court", needs: ["last_words", "open_court"], solve: ["da las palabras a Mabbott"], ending: true, clues: ["mabbott", "halloran", "pip", "logbook", "parapet"],
+  truth: { where: "court", needs: ["last_words", "open_court"], solve: [{ verb: "give", obj: "last_words", obj2: "mabbott" }], ending: true, clues: ["mabbott", "halloran", "pip", "logbook", "parapet"],
     hints: ["El tribunal oye palabras, y tú tienes las últimas que se dijeron junto al farol.", "En el tribunal, da las últimas palabras al doctor Mabbott."] },
-  relieve: { where: "last_lamp", needs: ["pole"], solve: ["enciende el farol", "si"], ending: true, clues: ["fenn", "pole", "logbook"],
+  relieve: { where: "last_lamp", needs: ["pole"], solve: [{ verb: "switch_on", obj: "dark_lamp" }, { verb: "answer", value: "yes" }], ending: true, clues: ["fenn", "pole", "logbook"],
     hints: ["Quien enciende el último farol ocupa el puesto del farolero.", "Con la pértiga de la caseta, enciende el último farol, y di que sí."] },
-  blame_voss: { where: "court", needs: ["open_court"], solve: ["acusa a Voss", "si"], ending: true, clues: ["pye", "voss", "notebook", "mabbott"],
+  blame_voss: { where: "court", needs: ["open_court"], solve: [{ verb: "accuse", obj: "voss" }, { verb: "answer", value: "yes" }], ending: true, clues: ["pye", "voss", "notebook", "mabbott"],
     hints: ["El doctor Mabbott quiere un nombre, y el señor Voss espera que sea el suyo.", "En el tribunal, acusa al señor Voss, y di que sí."] }
 };
 

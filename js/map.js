@@ -5,14 +5,13 @@
 // js/plan.js), and a line for each way between two of them on neighbouring squares. Nothing is placed, moved or left off: a room is
 // where the plan says. x grows east, y south.
 
-import { exitTo } from "./exits.js?v=0.70.1";
-import { roomBeside, BACK } from "./plan.js?v=0.70.1";
-import { text, describe } from "./narrator.js?v=0.70.1";
-import { step } from "./engine.js?v=0.70.1";
-import { parse } from "./parser.js?v=0.70.1";
-import { story } from "./view.js?v=0.70.1";
-
-const COMPASS = ["n", "s", "e", "w"];    // the directions a map draws a line in: up and down are marked in the room's corner
+import { exitTo } from "./exits.js?v=0.71.0";
+import { roomBeside } from "./plan.js?v=0.71.0";
+import { BACK, MAP_COMPASS } from "./space.js?v=0.71.0";
+import { text, describe } from "./narrator.js?v=0.71.0";
+import { step } from "./engine.js?v=0.71.0";
+import { parse } from "./parser.js?v=0.71.0";
+import { story } from "./view.js?v=0.71.0";
 
 // The layout of the map for the state: where each shown room sits, and which ways join neighbouring ones.
 //   { z, placed: Map(id → { x, y }), edges: [{ from, dir, to }] }
@@ -30,7 +29,7 @@ function layout(state) {
   for (const [id, [x, y, f]] of Object.entries(plan)) if (f === z && (id === here || visited.has(id)) && rooms[id]) placed.set(id, { x, y });
   const edges = [];
   for (const id of placed.keys()) {
-    for (const dir of COMPASS) {
+    for (const dir of MAP_COMPASS) {
       const to = exitTo(rooms[id].exits?.[dir]), next = roomBeside(plan, id, dir);
       if (typeof to === "string" && placed.has(to) && next === to) edges.push({ from: id, dir, to });
       // A rule answers this way: if the room next door has a way back here they are joined (the walk finds out what the rule says).
@@ -66,7 +65,7 @@ export function mapOf(state, pack) {
   lines.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : 1));   // the same order every time
   const stubs = [];
   for (const { id } of list) {
-    for (const dir of COMPASS) {
+    for (const dir of MAP_COMPASS) {
       const to = exitTo(rooms[id].exits?.[dir]);
       if ((to === true && !L.edges.some(e => e.from === id && e.dir === dir)) || (typeof to === "string" && !L.placed.has(to))) stubs.push({ room: id, dir });
     }

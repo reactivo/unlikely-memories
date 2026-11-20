@@ -1,6 +1,6 @@
 // Sprites for "Testbed": 16 × 16, rows of palette numbers in hex (0–f, ART-DIRECTION.md §3), "." clear, outlined in black so they read
-// on the dark inventory slot. Each carried or moving thing in the world has one; the cat, the watchman, the bird and the clerk are
-// drawn on the floor with theirs too.
+// on the dark inventory slot. Each carried or moving thing in the world has one, but the watchman: a moving character with a figure (drawn in the
+// rooms) and a portrait (shown when examined) shows a sprite nowhere (BRIEF.md §7). The cat, the bird and the clerk are drawn on the floor with theirs.
 export default {
   // The watchman's figure (BRIEF.md §7, "Overlays"): a long blue coat, a black cap, a lamp in one hand, in a 40 x 120 box, feet on the bottom line at x = 20.
   watchman_figure: `
@@ -394,24 +394,6 @@ outline watch e0
     "................",
     "................"
   ],
-  watchman: [
-    "................",
-    "......0000......",
-    ".....000000.....",
-    "....00000000....",
-    "....08ffff80....",
-    "....08f8f8f80...",
-    ".....0888800....",
-    "....08888880....",
-    "...0888888880...",
-    "...0888888880...",
-    "...0888888880...",
-    "...0888888880...",
-    "....08800880....",
-    ".....00..00.....",
-    "................",
-    "................"
-  ],
   bird: [
     "................",
     "................",
@@ -465,6 +447,25 @@ outline watch e0
     ".07774444444470.",
     "0774444444444440",
     "0444444444444440",
+    "0000000000000000"
+  ],
+  // The watchman's face, shown when he is examined: he has a figure and a portrait, and no sprite (BRIEF.md §7, "Sprites").
+  watchman_portrait: [
+    "................",
+    "....00000000....",
+    "...0000000000...",
+    "...0888888880...",
+    "....0cccccc0....",
+    "....0c0cc0c6....",
+    "....0cccccc6....",
+    "....0cc22cc6....",
+    "....0cccccc0....",
+    ".....0cccc0.....",
+    "...0011111100...",
+    "..011111111110..",
+    ".01111111111110.",
+    "0111111111111110",
+    "0111111111111110",
     "0000000000000000"
   ]
 };

@@ -24,9 +24,9 @@
 //   `Look`              a command → shown as <LOOK>; clicking runs it
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
-import { spriteSVG } from "./sprite.js?v=0.70.1";
-import { mount as mountFollow } from "./follow.js?v=0.70.1";
-import { figures } from "./crt.js?v=0.70.1";
+import { spriteSVG, examineSVG } from "./sprite.js?v=0.71.0";
+import { mount as mountFollow } from "./follow.js?v=0.71.0";
+import { figures } from "./crt.js?v=0.71.0";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
@@ -46,7 +46,7 @@ const GLUED = /^[,;:.!?…)\]"»”']+/;
 export const slotArt = (slot) => (slot && typeof slot === "object" ? spriteSVG(slot.sprite) : null);
 
 // Set up the log on its element, with the picture's crop (ui/crop.js) it tells when a room starts. Returns
-// update(), say(), clear(), suggest(), newVisit(), markup(), busy(), hurry(), busyFor(), page(), seen(), toEnd() and atEnd().
+// update(), say(), line(), clear(), suggest(), newVisit(), markup(), busy(), hurry(), busyFor(), page(), seen(), toEnd() and atEnd().
 export function mount(root, on, crop) {
   let revealAt = 0;              // when the next phrase may start (performance.now() time)
   const follow = mountFollow(root);   // where the page is put and kept (ui/follow.js)
@@ -95,7 +95,7 @@ export function mount(root, on, crop) {
   // Any key, or a press anywhere but on a control: show all text that is still fading in, at once. A press on a control
   // (a direction, a tab, a command in the story…) changes nothing on screen: on an iPhone, text that appears during the tap
   // makes Safari take the tap for a hover and wait for a second one to click ("tap twice to move", 15 November 2026). What
-  // the control then does shows the text at once itself, before its answer (hurry(), from js/main.js: a command, a walk on
+  // the control then does shows the text at once itself, before its answer (hurry(), from js/turn.js: a command, a walk on
   // the map, an object examined).
   const CONTROL = "button, a, input, select, textarea, label, [role='button'], [tabindex]";
   function finishReveal(e) {
@@ -166,6 +166,10 @@ export function mount(root, on, crop) {
     return p;
   }
 
+  // A paragraph as the controller keeps it ({ text, style, img, level, slot }), with the picture of its `img` (a thing's id) drawn
+  // from the state (ui/sprite.js, examineSVG). instant: a restored game's, at once. Returns it, as say() does.
+  const line = (p, state, instant) => say(p.text, p.style || "", p.img ? examineSVG(p.img, state) : undefined, instant, p.level, p.slot);
+
   // The five health bars before a health line (log.css): one shared piece for echoes and STATUS. Decoration only: the
   // phrase says it, so it is hidden from screen readers.
   function bars(level) {
@@ -210,7 +214,8 @@ export function mount(root, on, crop) {
       if (part[0] === "`") {                                        // `Command` → <COMMAND> button
         const cmdText = part.slice(1, -1);
         into.appendChild(marker("command text-command", cmdText, () => on.useCommand(cmdText)));
-      } else if (part[0] === "{") {                                 // {label|id} → object button
+      } else if (part[0] === "{") {                                 // {label|id} → object button ({word}: its id is the word, a bare mark of a noun
+                                                                    // being written out {word|id} by the narrator: js/narrator.js, resolveMarks)
         const [label, id] = part.slice(1, -1).split("|");
         const o = marker("object", label, () => { if (!root.classList.contains("over")) on.showObject(id || label, label); });
         if (root.classList.contains("over")) disable(o, true);
@@ -235,7 +240,7 @@ export function mount(root, on, crop) {
       root.classList.toggle("over", !!next.state.ended);
       root.querySelectorAll(".object:not(.past *)").forEach(o => disable(o, !!next.state.ended));
     },
-    say, newVisit,
+    say, line, newVisit,
     // Story text built outside the log, with working markers (the hint beside the prompt). Returns a fragment.
     markup(text) { const f = document.createDocumentFragment(); build(f, text); return f; },
     // Is text still fading in? (The world waits for it before acting on its own.)

@@ -6,9 +6,9 @@
 // SEE MAP (under the six) opens the map: the button itself does it (popovertarget, index.html; ui/map.js); this names it. Once the
 // story has ended the whole compass, SEE MAP included, is dim and ignores clicks and Tab (the game is locked).
 
-import { exitTo } from "../js/exits.js?v=0.70.1";
+import { exitTo } from "../js/exits.js?v=0.71.0";
+import { COMPASS as DIRS } from "../js/space.js?v=0.71.0";
 
-const DIRS = ["n", "s", "e", "w", "u", "d"];
 
 // Set up the compass on its element. Returns update().
 export function mount(root, on) {

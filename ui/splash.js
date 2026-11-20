@@ -1,6 +1,6 @@
 // A world's own page, /<id>/ (docs/splash/PLAN.md; INTERFACE.md §13a): its cover (a 480 × 400 picture, painted by the game's painter and
 // animated by its cycles and loops, as the room's picture is: ui/scene.js) with the world's title drawn into its pixels, and the buttons: CONTINUE
-// (only with a saved game), NEW GAME, and the way back to the list of games. Drawn from what the controller hands it (js/main.js,
+// (only with a saved game), NEW GAME, and the way back to the list of games. Drawn from what the controller hands it (js/screens.js,
 // showSplash), never from the game's state; it decides nothing about which game is saved or what starting one does (the buttons are
 // on.play(id), on.play(id, true), as on a card of the list: ui/home.js). The music is the controller's too (ui/sound.js).
 // The canvas is the cover's own 480 × 400 pixels; CSS stretches it with hard edges (ui/splash.css). On an upright phone the box shows only the
@@ -11,20 +11,20 @@
 // shape onto the grid as it is) in art.cover.drawIn.ms in all (js/cover.js, shownAt), under the title (there from the start), then the cycles and loops begin. A tap,
 // click or key skips to the finished poster (it only finishes: a button pressed then does its own action as always); reduced motion shows the
 // finished poster at once. It plays at every opening of the page (QUIT back to it too).
-// A cover is a full poster; a pixel no shape paints is still clear (transparent: js/paint.js, CLEAR). The title is the engine's: laid out by
+// A cover is a full poster: its canvas starts in the world's colour (`bg`, js/hist.js; the shapes may write it too), so no pixel is clear unless a cover is handed in without one (then clear: transparent, js/paint.js, CLEAR). The title is the engine's: laid out by
 // js/title.js (capitals, in the cover's `title` colour, in its band, `titleAt`, in the font the cover or the debug panel names:
 // content/titlefonts/) and stamped on every frame after the painting and the cycles, so nothing animated covers it. The CRT look (ui/crt.js) is
 // drawn from the finished pixels each frame drawn, as the room's picture has it; a cover with clear pixels (transparent) gets none, as the
 // look is an opaque rectangle.
 
-import art from "../content/art.js?v=0.70.1";
-import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.70.1";
-import { putPixels, compileLoop, underMask, RGB, CLEAR_PIXEL } from "./draw.js?v=0.70.1";
-import { painter } from "../js/paint.js?v=0.70.1";
-import { shownAt, fitWidth, cropColumns } from "../js/cover.js?v=0.70.1";
-import { screen, settings as lookSettings } from "./crt.js?v=0.70.1";
-import { prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.70.1";
-import { reducedMotion, calm } from "./media.js?v=0.70.1";
+import art from "../content/art.js?v=0.71.0";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.71.0";
+import { putPixels, compileLoop, underMask, RGB, CLEAR_PIXEL } from "./draw.js?v=0.71.0";
+import { painter } from "../js/paint.js?v=0.71.0";
+import { shownAt, fitWidth, liveCycles } from "../js/cover.js?v=0.71.0";
+import { screen, settings as lookSettings } from "./crt.js?v=0.71.0";
+import { prepareCycles, motionInto, stepsOf } from "./effects.js?v=0.71.0";
+import { reducedMotion, calm } from "./media.js?v=0.71.0";
 
 // The cover's size (art.cover): 480 wide, 400 tall.
 export const COVER = { width: art.cover.width, height: art.cover.height };
@@ -156,7 +156,7 @@ export function mount(root, on) {
     from = now;
     frame = build.px; layer.src = frame; build = null;
     opaque = frame.every(c => c !== CLEAR_PIXEL);
-    cycles = (draw.cycles || []).map(c => prepareCycle(c, frame, areas, W, H, now));
+    cycles = prepareCycles(liveCycles(draw.cycles, draw.bg), frame, areas, W, H, now);
     loops = (draw.loops || []).map(l => ({ l, sprite: compileLoop(l), mem: { tick: 0, frame: 0 }, t0: now, hide: underMask(l, areas, W, H) }));
     render(now); animate();
   }
@@ -219,7 +219,8 @@ export function mount(root, on) {
       font = fontNamed(id ?? art.cover.titleFont).id;
       if (frame) { layoutInk(); fit(); render(performance.now()); }
     },
-    // Draw the page: data = { id, title, lang, cover: { titleColor, titleAt, draw (a drawing list), cycles, loops }, pack, saved }.
+    // Draw the page: data = { id, title, lang, cover: { bg (the world's colour: the canvas starts in it, and "bg" in the shapes is it), titleColor, titleAt,
+    // draw (a drawing list), cycles, loops }, pack, saved }.
     show({ id, title: name, cover, pack, saved, lang }) {
       const t = pack.home, now = performance.now();
       data = { name, cover, lang, kick: t.kicker ?? "" };
@@ -234,7 +235,7 @@ export function mount(root, on) {
       kicker.textContent = t.kicker ?? "";                  // (for a screen reader: the line itself is drawn into the cover)
       stopSkip(); cancelAnimationFrame(loop); loop = 0;
       draw = cover; cycles = []; loops = []; lastSteps = "";
-      build = painter(cover.draw, W, H, CLEAR_PIXEL); frame = build.px; layer.src = frame;
+      build = painter(cover.draw, W, H, cover.bg ?? CLEAR_PIXEL); frame = build.px; layer.src = frame;   // (the canvas starts in the world's colour: a cover with no `bg` given starts clear, as covers did)
       began = now; shown = Math.min(1, cover.draw.length); build.to(shown);   // the first shape, the background, at once
       while (frame[240] === CLEAR_PIXEL && shown < cover.draw.length) build.to(++shown);   // (and on until the band's colour is there)
       opaque = frame.every(c => c !== CLEAR_PIXEL);           // (a cover's first shape fills it: the rules; if not, finish() says so once it is all painted)

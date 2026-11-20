@@ -2,9 +2,10 @@
 // here); this file puts a grid on the canvas, and holds the overlays, the thumbnails, the scroll's plan and the loops' sprites. Pure: no page, so tests
 // can run it too. ui/scene.js turns the grid into colours on the canvas.
 
-import art from "../content/art.js?v=0.70.1";
-import { parseShapes, readFigure, placeFigure } from "../js/picture.js?v=0.70.1";
-import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.70.1";
+import art from "../content/art.js?v=0.71.0";
+import { parseShapes, readFigure, placeFigure, isShapeOf } from "../js/picture.js?v=0.71.0";
+import { spriteRows } from "../js/sprites.js?v=0.71.0";
+import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.71.0";
 export { paint, paintPicture, threshold, lit, CLEAR_PIXEL };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].
@@ -94,7 +95,7 @@ function overlayPixels(picture, state, roomId, width, height, fn) {
       for (let i = 0; i < f.k.length; i++) fn(f.k[i], f.c[i]);
       continue;
     }
-    const rows = own.floorSprite || own.sprite;
+    const rows = own.floorSprite || spriteRows(state, o.object);
     if (rows) rows.forEach((row, j) => [...row].forEach((ch, i) => {
       const c = HEX_INDEX[ch], x = o.at[0] + i, y = o.at[1] + j;
       if (c !== undefined && x >= 0 && y >= 0 && x < width && y < height) fn(y * width + x, c);
@@ -163,10 +164,9 @@ export function scrollInto(out, src, covered, plan, step) {
 // ---- Loops: small animated sprites in a picture (a picture's `loops`; ART-DIRECTION.md §6.3) ---------------------------------------------
 // A loop's frames as palette numbers, once for a picture: { at, w, h, frames: [Uint8Array, …] }, 255 where a frame is clear ("." and
 // anything that isn't a hex digit), so a frame is drawn over the picture with holes where it is clear.
-export const CLEAR = 255;
 export function compileLoop(loop) {
   const h = loop.frames[0].length, w = loop.frames[0][0]?.length ?? 0;
-  return { at: loop.at ?? loop.path?.[0], w, h, frames: loop.frames.map(rows => Uint8Array.from(rows.join(""), ch => HEX_INDEX[ch] ?? CLEAR)) };
+  return { at: loop.at ?? loop.path?.[0], w, h, frames: loop.frames.map(rows => Uint8Array.from(rows.join(""), ch => HEX_INDEX[ch] ?? CLEAR_PIXEL)) };
 }
 
 // A loop that passes BEHIND a figure (a loop's `under: "<id>"`): the pixels where a shape whose id is that name or starts with "<name>_" shows (the
@@ -174,7 +174,7 @@ export function compileLoop(loop) {
 export function underMask(l, areas, width, height) {
   if (!l?.under) return null;
   const mask = new Uint8Array(width * height);
-  for (const [id, ks] of Object.entries(areas || {})) if (id === l.under || id.startsWith(l.under + "_")) for (const k of ks) mask[k] = 1;
+  for (const [id, ks] of Object.entries(areas || {})) if (isShapeOf(id, l.under)) for (const k of ks) mask[k] = 1;
   return mask;
 }
 
@@ -187,7 +187,7 @@ export function drawLoop(out, lp, frame, width = art.picture.width, height = art
     if (y < 0 || y >= height) continue;
     for (let i = 0; i < lp.w; i++) {
       const c = px[j * lp.w + i], x = where[0] + i;
-      if (c !== CLEAR && x >= 0 && x < width && !(hide && hide[y * width + x])) out[y * width + x] = c;
+      if (c !== CLEAR_PIXEL && x >= 0 && x < width && !(hide && hide[y * width + x])) out[y * width + x] = c;
     }
   }
 }

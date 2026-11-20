@@ -1,27 +1,31 @@
 // Engine: the only code that changes the game. Takes a state and an action (or a tick) and returns a new state
 // plus the effects it applied (ARCHITECTURE.md §4–5). Pure: no page, no timers, no clock of its own —
 // the game time `at` comes in with the input. The state passed in is never changed.
+// The effects are a table of handlers (EFFECTS), keyed and ordered as fields.js FIELDS.effect (the order an effect with two main keys
+// is read in); TOUCHES says which id each kind touches.
 
-import { random, between } from "./random.js?v=0.70.1";
-import standardVerbs from "./verbs.js?v=0.70.1";
-import { DIRECTIONS } from "./space.js?v=0.70.1";
-import { compilePlan, roomBeside, BACK } from "./plan.js?v=0.70.1";
-import { clean, isLine } from "./shapes.js?v=0.70.1";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.70.1";
-import { readPicture, editPicture } from "./picture.js?v=0.70.1";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.70.1";
-import * as opening from "./opening.js?v=0.70.1";
-import { PRACTICE } from "./practice.js?v=0.70.1";
-import { translate as translateUse } from "./use.js?v=0.70.1";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.70.1";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES, hasSprite, hasPortrait } from "./fields.js?v=0.70.1";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.70.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.70.1";
-import { makeSleeping } from "./sleeping.js?v=0.70.1";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.70.1";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.70.1";
-import { answerLine } from "./speech.js?v=0.70.1";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.70.1";
+import { random, between } from "./random.js?v=0.71.0";
+import standardVerbs from "./verbs.js?v=0.71.0";
+import { DIRECTIONS, BACK } from "./space.js?v=0.71.0";
+import { compilePlan, roomBeside } from "./plan.js?v=0.71.0";
+import { clean, isLine } from "./shapes.js?v=0.71.0";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.71.0";
+import { readPicture, editPicture } from "./picture.js?v=0.71.0";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.71.0";
+import * as opening from "./opening.js?v=0.71.0";
+import { PRACTICE } from "./practice.js?v=0.71.0";
+import { translate as translateUse } from "./use.js?v=0.71.0";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.71.0";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES } from "./fields.js?v=0.71.0";
+import { hasSprite, hasPortrait, spriteRows, fallbackRows } from "./sprites.js?v=0.71.0";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.71.0";
+import { ACTIONS, isAction } from "./actions.js?v=0.71.0";
+import { makeSleeping } from "./sleeping.js?v=0.71.0";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.71.0";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.71.0";
+import { answerLine } from "./speech.js?v=0.71.0";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.71.0";
+import { hintSteps, hintRun } from "./walkthrough.js?v=0.71.0";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.
@@ -117,7 +121,6 @@ export function step(state, input) {
   if (asked && g.pending.question?.ask === asked.ask && !choosing(g.pending.question))
     out.applied.push({ say: "@typeAnswer", style: "sys", at: worldTime(g) });
   seeHere(g);                                                   // what's in the room has now been seen
-  drawLongThings(g, out);                                       // a long thing's shape where it lies (G8)
   solvedMarks(g, solved0, out);                                 // the puzzles this moment solved (never shown as text)
   if (g.player.health <= 0 && !g.ended) {                        // out of health: the story ends, whatever the world
     if (!out.applied.some(e => e.say === "@hurt.dead"))          // (its line was said when the health went)
@@ -126,7 +129,7 @@ export function step(state, input) {
     apply(g, { end: true, ...(g.pictures.died ? { picture: "died" } : {}) }, {}, out, "died");   // with the world's `died` picture, if it has one
   }
   felt(g, out.applied, out.refused_way);
-  const { viewed, lists, drawn, waiting, woke: _, trusted: _t, depth: _d, refused_way: _w, ...told } = out;   // (the moment's own bookkeeping)
+  const { viewed, lists, waiting, woke: _, trusted: _t, depth: _d, refused_way: _w, ...told } = out;   // (the moment's own bookkeeping)
   return { next: g, ...told };
 }
 
@@ -188,36 +191,6 @@ function cameIntoView(g, out) {
   return fresh.filter(id => placeOf(g, id) !== "player");
 }
 
-// ---- Long things ------------------------------------------------------------------------------------------------
-// A thing too long for a sprite (a pole, a ladder, a pair of oars) is drawn as shapes in its home room's picture, named by its `shape`
-// (an id, or a list of ids): the room whose picture has them. While it lies in that room (there itself, not inside something, not
-// carried) the shapes are drawn; anywhere else they are not (G8). A world writes no rule for it. Shapes taken out are kept in the
-// picture's `hidden` list, each with its place in the drawing (`at`), and come back to it. Each change is a new version
-// of the picture, like any `draw`, one a moment however many change (`out`: null as the world is built, where the picture is as it
-// starts, version and all).
-function drawLongThings(g, out) {
-  for (const [id, o] of Object.entries(g.world.objects)) {
-    if (o.shape == null) continue;
-    const ids = [].concat(o.shape);
-    const home = Object.keys(g.world.rooms).find(r => { const p = g.world.rooms[r].picture; return p && [...(p.draw || []), ...(p.hidden || [])].some(x => ids.includes(x.id)); });
-    if (!home) continue;
-    const room = g.world.rooms[home], pic = room.picture, show = o.at === home;
-    let draw = pic.draw, hidden = pic.hidden || [];
-    if (show && hidden.some(x => ids.includes(x.id))) {
-      for (const { at, ...shape } of hidden.filter(x => ids.includes(x.id)).sort((x, y) => x.at - y.at))
-        draw = [...draw.slice(0, at), shape, ...draw.slice(at)];
-      hidden = hidden.filter(x => !ids.includes(x.id));
-    } else if (!show && draw.some(x => ids.includes(x.id))) {
-      hidden = [...hidden, ...draw.map((x, at) => ({ ...x, at })).filter(x => ids.includes(x.id))];   // (each at its place before any goes)
-      draw = draw.filter(x => !ids.includes(x.id));
-    } else continue;
-    const bump = out && !out.drawn?.has(home);                    // one new version a moment: none if a `draw` made one already
-    room.picture = { ...pic, draw, ...(bump ? { version: pic.version + 1 } : {}) };
-    if (hidden.length) room.picture.hidden = hidden; else delete room.picture.hidden;
-    if (bump) { out.drawn = (out.drawn ?? new Set()).add(home); out.applied.push({ draw: home, version: room.picture.version }); }
-  }
-}
-
 // ---- What you hold ----------------------------------------------------------------------------------------------
 // What you hold: every thing whose place is "player" (in your hands, or in something you carry: a mint in the tin), in the
 // world's order, each with what its echo needs if it is gone by then: its name, gender, number and proper-name mark
@@ -225,7 +198,7 @@ function drawLongThings(g, out) {
 function holding(g) {
   const held = new Map();
   for (const [id, o] of Object.entries(g.world.objects))
-    if (placeOf(g, id) === "player") held.set(id, { name: o.name, who: grammarOf(o.words), sprite: o.sprite });
+    if (placeOf(g, id) === "player") held.set(id, { name: o.name, who: grammarOf(o.words), sprite: hasSprite(o) ? o.sprite : fallbackRows(o) });   // (held: a thing with no sprite shows its material's plain one)
   return held;
 }
 // The echoes of what changed in your hands between two moments (INTERFACE.md §6c): one line for each thing you no longer have
@@ -262,7 +235,7 @@ const choosing = (q) => !!(q?.yesNo || q?.choices);
 export const askedFor = (state) => { const q = state.pending.question; return (choosing(q) ? q.then : q) ?? null; };
 // Does an empty line count now? Only as the answer to a question for words waiting on top (`ask`). With nothing asked, at a
 // yes/no question (one asked over a question for words too: the yes/no one waits for yes or no) and after the end, a blank
-// Enter does nothing (js/main.js runCommand).
+// Enter does nothing (js/turn.js runCommand).
 export const takesBlank = (state) => !state.ended && !!state.pending.question && !choosing(state.pending.question);
 // The state with no yes/no question waiting, as a session command leaves it (UNDO, SAVE, MAP…): a question for words stays open.
 // (SLEEP's question is dropped the same way.)
@@ -303,15 +276,46 @@ export function applyChangeSet(state, planned, { protect = true, fields = null }
   if (squares) g.world.plan = squares;                          // where each room is: { room: [x, y, z] } (the plan, js/plan.js)
   if (set.properties && typeof set.properties === "object") g.properties = { ...g.properties, ...structuredClone(set.properties) };
   const out = { applied: [], refused: [], trusted: false };     // a world's changes never touch the opening
-  each(g, set.effects || [], {}, out, "changeset#");
+  const placed = ruleOrder(g, set.effects || []);               // (a rule's `before` may name a rule written later in the set)
+  if (placed.problem) return { next: state, applied: [], refused: [{ effect: null, reason: placed.problem }] };
+  each(g, placed.effects, {}, out, "changeset#");
   if (set.opening && !out.refused.length) buildOpening(g, set.opening, out, protect);
   if (out.refused.length) return { next: state, applied: [], refused: out.refused };
-  drawLongThings(g, null);                                      // the pictures as the world starts: a long thing not at home isn't drawn
   placeMovers(g, holds);                                               // and each thing that moves where its fact says (a time jump too)
   const warnings = found.filter(f => fields === "warn" || f.warn).map(f => `${f.piece}: ${f.text}`);
   if (warnings.length) g.warnings = [...(g.warnings || []), ...warnings];
-  const { lists, drawn, trusted: _t, depth: _d, ...told } = out;   // (bookkeeping: not part of the result)
+  const { lists, trusted: _t, depth: _d, ...told } = out;   // (bookkeeping: not part of the result)
   return { next: g, ...told, warnings };
+}
+
+// The set's effects with each rule that goes `before` a rule written LATER in the same set moved to just after that rule, so the rule it
+// names is there when it is added and it lands right before it (the order it would have had if written below: rules that name the same
+// rule keep their written order). A `before` that names a rule the game has already, or no rule of the set, stays as it is (the engine
+// tells the second as it adds it). Two rules each before the other (or a ring of them) are a problem naming them.
+// → { effects } or { problem }.
+function ruleOrder(g, effects) {
+  const ruleOf = (e) => (e && e.add === "rule" && e.rule && typeof e.rule.id === "string" ? e.rule : null);
+  const byId = new Map();
+  effects.forEach((e, i) => { const r = ruleOf(e); if (r && !byId.has(r.id)) byId.set(r.id, i); });
+  // The effect (its index) the rule at i must come after: the rule of this set it goes before, unless the game has that one already.
+  const needs = (i) => { const e = effects[i], t = ruleOf(e) && typeof e.before === "string" ? byId.get(e.before) : undefined; return t !== undefined && t !== i && !g.rules.some(r => r.id === e.before) ? t : undefined; };
+  if (!effects.some((_, i) => needs(i) !== undefined)) return { effects };
+  // In written order; a rule whose target is not added yet waits, and is added (so it lands right before it) as soon as its target is.
+  const out = [], done = new Set(), waiting = new Map();
+  const emit = (i) => { out.push(effects[i]); done.add(i); for (const w of waiting.get(i) ?? []) emit(w); };
+  effects.forEach((_, i) => {
+    const t = needs(i);
+    if (t === undefined || done.has(t)) emit(i);
+    else waiting.set(t, [...(waiting.get(t) ?? []), i]);
+  });
+  if (out.length === effects.length) return { effects: out };
+  let at = effects.findIndex((_, i) => !done.has(i));          // some rule never came: they wait on each other; follow the waiting to the ring
+  const seen = [];
+  while (!seen.includes(at)) { seen.push(at); at = needs(at); }
+  const ring = seen.slice(seen.indexOf(at)).map(k => ruleOf(effects[k]).id);
+  const names = ring.length === 2 ? ring.join(" and ") : `${ring.slice(0, -1).join(", ")} and ${ring.at(-1)}`;
+  return { problem: ring.length === 2 ? `rules ${names} are each "before" the other, so neither can come first: write the "before" on one only`
+                                      : `rules ${names} each go "before" one of the others, round and round, so none can come first: write the "before" on one of them only` };
 }
 
 // A change set the AI proposes in play: refused whole if it has a field the engine doesn't know or uses a property
@@ -447,9 +451,11 @@ const fits = (g, r, action) => !spent(g, r) && matches(r.match, action) && holds
 
 // Does the action match? Every key in `match` must equal the action's, or be one of a list ({} matches any action).
 // null in a list means "none": { obj: [null, "boat"] } matches "row" and "row boat". An action's value that is itself a list (`absent`:
-// the things named that aren't here) matches when that list holds the rule's value, or any of the rule's list.
+// the things named that aren't here) matches when that list holds the rule's value, or any of the rule's list. A rule's `prep` is never compared:
+// the preposition is the language's word ("in", "en"), so a rule that named one would answer in one language only; obj and obj2 say which thing is which.
 function matches(match = {}, action) {
   return Object.entries(match).every(([k, v]) => {
+    if (k === "prep") return true;
     const have = action[k];
     if (Array.isArray(have)) return Array.isArray(v) ? v.some(x => have.includes(x)) : have.includes(v);
     return Array.isArray(v) ? v.includes(have ?? null) : have === v;
@@ -563,7 +569,7 @@ function read(g, path, action) {
   if (prop === "chain" && g.world.objects[id]) return chainOf(g, id);   // "<id>.chain": itself, then what it is in, and what that is in…
   if (prop === "person" && g.world.objects[id]) return person(o);       // "<id>.person": someone you can talk to
   if (prop === "holder" && g.world.objects[id]) return holderOf(g, id); // "<id>.holder": the person who has it, if one does
-  if (prop === "img" && g.world.objects[id]) return o.img ?? (hasSprite(o) || hasPortrait(o) ? id : null);   // its picture beside its line: its own sprite (a character's face, its portrait), unless it names another
+  if (prop === "img" && g.world.objects[id]) return o.img ?? (hasPortrait(o) || spriteRows(g, id) ? id : null);   // its picture beside its line: its own sprite (a character's face, its portrait), unless it names another
   if (rest.length > 1) return rest.reduce((x, k) => (x == null ? x : x[k]), o) ?? null;   // deeper: "beach.describe.0"
   return o[prop] ?? DEFAULTS[prop] ?? startOf(g, id, prop);
 }
@@ -600,28 +606,45 @@ function seeHere(g) {
 
 // ---- Hints ------------------------------------------------------------------------------------------------
 
-// Is a puzzle solved? What it gives has been in your hands, the room it reaches has been visited, an ending has
-// happened. A thing that's needed: it has been in your hands.
+// Has the player had a thing (what a puzzle gives, or a thing it needs)? It has been in their hands; or, one that can't be carried (`portable` not
+// true: a machine now running, steps now dug), it has been seen to hand: it stood in the room they stood in, not shut in a closed container nor
+// `unnoticed`, at the end of a moment (seeHere, `seen.things`). The one test of "given": solved and met here, hintRun's takes and the checker's
+// `play.gives-missing` (js/walkthrough.js).
+export const had = (g, id) => g.seen.held.includes(id) || (g.world.objects[id]?.portable !== true && g.seen.things.includes(id));
+
+// Is a puzzle solved? What it gives has been had (above), the room it reaches has been visited, the property it sets is true, an ending has
+// happened. A need is met when the puzzle it names is solved, or the thing it names has been had.
 function solved(g, p) {
   if (p.ending) return !!g.ended;
-  if (!(p.gives || []).length && !p.reaches) return false;
-  return (p.gives || []).every(id => g.seen.held.includes(id)) && (!p.reaches || g.seen.visited.includes(p.reaches));
+  if (!(p.gives || []).length && !p.reaches && !p.sets) return false;
+  return (p.gives || []).every(id => had(g, id)) && (!p.reaches || g.seen.visited.includes(p.reaches)) && (!p.sets || read(g, p.sets) === true);
 }
-const met = (g, need) => (g.puzzles[need] ? solved(g, g.puzzles[need]) : g.seen.held.includes(need));
+const met = (g, need) => (g.puzzles[need] ? solved(g, g.puzzles[need]) : had(g, need));
+// A thing no puzzle gives: it lies somewhere in the world (or comes into it), for the player to find.
+const loose = (g, need) => !g.puzzles[need] && !Object.values(g.puzzles).some(p => (p.gives || []).includes(need));
+// Can the hints be at this puzzle? Every need met; or the only ones not met are loose things, and the walkthrough of this puzzle alone, from
+// here, takes them where they lie and solves it (js/walkthrough.js, hintRun): then every command the hints list can be carried out. A loose
+// thing that can't be got yet (behind a way nothing done has opened, not in the world yet) waits, as a thing a puzzle gives waits for it.
+function ready(g, id, p) {
+  const waiting = (p.needs || []).filter(n => !met(g, n));
+  return !waiting.length || (waiting.every(n => loose(g, n)) && !hintRun(g, id).problem);
+}
 
-// The next hint: the first puzzle not yet solved whose needs are met (a step on the way before an ending), one
-// level more each time it's asked for: its own hint lines (the world's `hints`), then the commands that solve it.
+// The next hint: the first puzzle not yet solved that is ready (above; a step on the way before an ending), one
+// level more each time it's asked for: its own hint lines (the world's `hints`), then the steps that solve it from here: its own, and the
+// ones a player must also do on the way (a lock turned with its key, a container opened, a thing taken: js/walkthrough.js, hintSteps), each with
+// the game as it will be when it is done (the narrator words them there: js/view.js, commandFor).
 // An ending only once every step is solved, the first one written first: while a step waits for something still to be
 // found, the hint says so ("Not yet"), and never points at an ending (walking into the sand) instead.
 function nextHint(g) {
   const all = Object.entries(g.puzzles || {}), steps = all.filter(([, p]) => !p.ending);
-  const open = all.filter(([, p]) => !solved(g, p) && (p.needs || []).every(n => met(g, n)));
-  const pick = open.find(([, p]) => !p.ending) || (steps.every(([, p]) => solved(g, p)) ? open[0] : null);
+  const open = all.filter(([, p]) => !solved(g, p)), isReady = ([id, p]) => ready(g, id, p);   // (asked in order, and only as far as needed: a walkthrough each)
+  const pick = open.find(e => !e[1].ending && isReady(e)) || (steps.every(([, p]) => solved(g, p)) ? open.find(isReady) : null);
   if (!pick) return { none: true };
   const [id, p] = pick, hints = p.hints || [];
   const level = Math.min((g.hinted[id] || 0) + 1, hints.length + 1);
   g.hinted[id] = level;
-  if (level > hints.length) return { puzzle: id, commands: p.solve };
+  if (level > hints.length) return { puzzle: id, commands: hintSteps(g, id) };
   return { puzzle: id, text: hints[level - 1] };
 }
 
@@ -1055,7 +1078,6 @@ const EFFECTS = {
     const next = editPicture(room.picture, e);
     if (typeof next === "string") return refuse(next);
     room.picture = next;
-    (out.drawn ??= new Set()).add(fill(g, e.draw, action));   // (a long thing's shape that changes in the same moment shares this version)
     done({ draw: e.draw, version: next.version });
   },
   time(g, e, action, out, key) {  // move the world's clock: "+8h", "-1d", "next 06:00", "day 1 17:00"
@@ -1356,7 +1378,7 @@ function addThing(g, e, refuse, done) {
     g.music = structuredClone(music);              // (made with the first: a game saved before music loads unchanged, with none)
   } else if (e.add === "puzzle") {                 // a puzzle described as data (BRIEF.md §4; checked by js/check.js)
     const { add, id, ...props } = e;
-    if (!id || !Array.isArray(props.solve) || !props.solve.length) return refuse("a puzzle needs an id and the commands that solve it");
+    if (!id || !Array.isArray(props.solve) || !props.solve.length) return refuse("a puzzle needs an id and the steps that solve it");
     const clash = idTaken(g, "puzzle", id);
     if (clash) return refuse(clash);
     g.puzzles[id] = structuredClone(props);

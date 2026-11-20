@@ -717,6 +717,7 @@ export default {
   // ---- THE GORGE: from the lip, looking east along the rope bridge to the temple across the chasm -----------------------------------
   gorge: {
     version: 1,
+    facing: "e",
     shot: "Wide landscape from the lip of the gorge, facing east (the text says you look east across it; the bridge is the way east), one-point, vp 213,62 (the temple across); noon palette; the sun overhead, no cast shadows; sky in three flat bands, far forest in greens; subject the rope {bridge} on x107 running away to the far side, its planks grey as bone with three gaps and its ropes frayed, second the stepped {temple} among trees on x213, a dark gate in its front; chasm walls in brown and yellow steps, white water far below, a {falls} on the far wall; wings: near cliff tops with tufts and a leaning tree at the left, rocks and ferns at the right; moves: the fall (running water), birds far off (loop)",
     draw: `
       vp 213,62

@@ -5,16 +5,16 @@
 // closed at the start and opened by an action the world writes with the engine's own
 // mechanisms (a locked door and its key, a rule that `connect`s the way, USE on a rope, a thing given to someone). The world names
 // the room and its two things (the hints thing, the way out), writes its intro (the short text shown once, above the start room's, as a
-// new game starts: js/main.js, js/narrator.js `introOf`) and one line; this module gives the hints thing its mechanics, the same for
+// new game starts: js/session.js, js/narrator.js `introOf`) and one line; this module gives the hints thing its mechanics, the same for
 // every world. The way out is the world's own: no rule here touches it. (Beginning again is not in the opening: it is the session's,
-// in js/main.js.)
+// in js/session.js.)
 // Pure: reads the state, never changes it. The engine (js/engine.js) applies what these return and keeps the hints thing fixed; the
-// checker (js/checklint.js, checkOpening) holds the start room to its guarantees.
+// checker (js/checks/start.js, checkOpening) holds the start room to its guarantees.
 //
 //   opening: { room, hints, way, intro, lines: { hintFrame } }
 
-import { DIRECTIONS } from "./space.js?v=0.70.1";
-import { waysOf, wayAt, exitTo } from "./exits.js?v=0.70.1";
+import { DIRECTIONS } from "./space.js?v=0.71.0";
+import { waysOf, wayAt, exitTo } from "./exits.js?v=0.71.0";
 
 export const IDS = ["room", "hints", "way"];                       // the parts that name a room or a thing, by id
 export const PARTS = [...IDS, "intro"];                            // and the intro, a text
@@ -54,7 +54,7 @@ export function beyond(g, d, dir) {
 }
 
 // What is wrong with an opening declaration, if anything (the engine refuses a world with these problems; the checker repeats them
-// for a state built by other means, then holds the start room to the rest of its guarantees: js/checklint.js). BRIEF.md §3.
+// for a state built by other means, then holds the start room to the rest of its guarantees: js/checks/start.js). BRIEF.md §3.
 export function problems(g, d) {
   if (!d || typeof d !== "object") return ["the opening isn't declared"];
   const why = [], obj = (id) => g.world.objects[id];

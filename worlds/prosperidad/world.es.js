@@ -4,11 +4,11 @@
 // Reescrito el 2026-11-19 con los cambios de Diego: la Prosperidad real de Madrid en un año sin nombre, más oscuro (oscuridad 3), el Ministro
 // camello con su libro de deudas, la cerveza en la barra, una tanda mala con su remedio, la portada sobre el Emperador.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- La biblia del juego -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -707,23 +707,23 @@ const objects = {
 // ---- Los puzles -----------------------------------------------------------------------------------------------------------------
 const puzzles = {
   // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la radio son sobre ella.
-  way_out: { where: "callejon", needs: [], solve: ["{take} palanca", "abrir puerta con palanca", "sur"], reaches: "trastienda", clues: ["puerta", "palanca"],
+  way_out: { where: "callejon", needs: [], solve: [{ verb: "take", obj: "palanca" }, { verb: "unlock", obj: "puerta", obj2: "palanca" }, "s"], reaches: "trastienda", clues: ["puerta", "palanca"],
     hints: ["La puerta de incendios está pintada contra su marco, con una rendija por el lado de las bisagras, y algo pesado se apoya en el contenedor.", "Coge la palanca, fuerza con ella la puerta de incendios y ve al sur."] },
-  take_strings: { where: "trastienda", needs: [], solve: ["abrir funda", "{take} cuerdas"], gives: ["cuerdas"], clues: ["funda", "pelayo"],
+  take_strings: { where: "trastienda", needs: [], solve: [{ verb: "open", obj: "funda" }, { verb: "take", obj: "cuerdas" }], gives: ["cuerdas"], clues: ["funda", "pelayo"],
     hints: ["La funda de guitarra de la trastienda suena al inclinarla, y a un grupo le falta algo.", "Abre la funda de guitarra y coge las cuerdas de bajo."] },
-  strings_for_tokens: { where: "fabrica", needs: ["cuerdas"], solve: ["dar cuerdas a marga"], gives: ["fichas"], clues: ["marga", "pelayo"],
+  strings_for_tokens: { where: "fabrica", needs: ["cuerdas"], solve: [{ verb: "give", obj: "cuerdas", obj2: "marga" }], gives: ["fichas"], clues: ["marga", "pelayo"],
     hints: ["Al grupo de Marga le falta una cuerda, y guardan el dinero de la colada en una lata.", "Da las cuerdas de bajo a Marga, en la fábrica, y te dará las fichas de lavandería."] },
-  run_dryer: { where: "lavanderia", needs: ["fichas"], solve: ["meter fichas en secadora", "{take} cepillo"], gives: ["cepillo"], clues: ["secadora", "tomas"],
+  run_dryer: { where: "lavanderia", needs: ["fichas"], solve: [{ verb: "put", obj: "fichas", obj2: "secadora" }, { verb: "take", obj: "cepillo" }], gives: ["cepillo"], clues: ["secadora", "tomas"],
     hints: ["La secadora de la Lavandería admite fichas, y algo largo espera tras su pestillo.", "Mete las fichas en la secadora y coge lo que salga."] },
-  sweep_roof: { where: "azotea", needs: ["cepillo"], solve: ["dar cepillo a tomas"], gives: ["hollin"], clues: ["tomas", "cepillo", "marisol"],
+  sweep_roof: { where: "azotea", needs: ["cepillo"], solve: [{ verb: "give", obj: "cepillo", obj2: "tomas" }], gives: ["hollin"], clues: ["tomas", "cepillo", "marisol"],
     hints: ["Al deshollinador de la azotea de la casa tomada le falta el cepillo.", "Da el cepillo a Tomás, en la azotea, y deshollinará una chimenea y te dará el hollín."] },
-  line_eyes: { where: "esquina", needs: ["hollin"], solve: ["dar hollin a marisol"], gives: ["cinta"], clues: ["marisol", "hollin", "kohl"],
+  line_eyes: { where: "esquina", needs: ["hollin"], solve: [{ verb: "give", obj: "hollin", obj2: "marisol" }], gives: ["cinta"], clues: ["marisol", "hollin", "kohl"],
     hints: ["El bote de kohl de Marisol está vacío, y el hollín de un deshollinador hace lo que un bote no puede.", "Da el hollín a Marisol, en la esquina, y te dará la cinta del hermano de Cuco."] },
-  tape_for_tie: { where: "charlie", needs: ["cinta"], solve: ["dar cinta a cuco"], gives: ["corbata"], clues: ["cuco", "pintada"],
+  tape_for_tie: { where: "charlie", needs: ["cinta"], solve: [{ verb: "give", obj: "cinta", obj2: "cuco" }], gives: ["corbata"], clues: ["cuco", "pintada"],
     hints: ["La cinta de Cuco está en la esquina, y él tiene la única corbata negra que necesita el Ministro.", "Da la cinta a Cuco, en El Charlie, y coge la corbata negra."] },
-  corona: { where: "avenida", needs: ["corbata"], solve: ["dar corbata a ministro", "decir emperador"], ending: true, clues: ["ministro", "cuco"],
+  corona: { where: "avenida", needs: ["corbata"], solve: [{ verb: "give", obj: "corbata", obj2: "ministro" }, { verb: "say", text: "emperador" }], ending: true, clues: ["ministro", "cuco"],
     hints: ["El Ministro quiere una corbata negra para un entierro, y te saldará la página por ella. Preguntará a nombre de quién escribe el recibo.", "Da la corbata al Ministro y dile que eres Emperador."] },
-  nombre: { where: "avenida", needs: ["corbata"], solve: ["dar corbata a ministro", "decir javier"], ending: true, clues: ["ministro", "marisol", "nicanor"],
+  nombre: { where: "avenida", needs: ["corbata"], solve: [{ verb: "give", obj: "corbata", obj2: "ministro" }, { verb: "say", text: "javier" }], ending: true, clues: ["ministro", "marisol", "nicanor"],
     hints: ["Marisol y don Nicanor recuerdan un nombre que no es el de Emperador.", "Da la corbata al Ministro y dile que eres Javier."] }
 };
 
@@ -733,7 +733,7 @@ const rules = [
   { id: "put_tokens", match: { verb: ["put", "use"], obj: "fichas", obj2: "secadora" }, if: [{ "player.at": "lavanderia" }], once: true,
     again: "La secadora ya ha tenido sus fichas y sigue dando vueltas.",
     do: [{ say: "Las fichas entran una a una, cada una con una nota mojada. La secadora se estremece durante un ciclo, el pestillo chasquea y la puerta cae abierta sobre un {cepillo|cepillo} largo y negro, caliente como el pan." },
-         { draw: "lavanderia", remove: ["cepillo_*"] }, { move: "fichas", to: null }, { move: "cepillo", to: "lavanderia" }] },
+         { draw: "lavanderia", remove: ["dryer_brush_*"] }, { move: "fichas", to: null }, { move: "cepillo", to: "lavanderia" }] },
   // Marga: cuerdas por las fichas de la colada del grupo.
   { id: "give_strings", match: { verb: ["give", "show", "use", "put"], obj: "cuerdas", obj2: "marga" }, if: [{ "player.at": "fabrica" }], once: true,
     again: "«Con un juego basta, gracias —dice Marga—. Nacho solo rompe una cada vez».",

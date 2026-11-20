@@ -18,7 +18,7 @@
 //
 // A `connect` effect writes an exit too, and may carry the same fields beside `connect`, `dir` and `to` (connectedExit).
 
-import { isObject } from "./shapes.js?v=0.70.1";
+import { isObject } from "./shapes.js?v=0.71.0";
 export const isExitObject = isObject;
 
 // The ways a thing is: the directions going through it takes, from its `door` (a door, gate or hatch on that way) or its `leads` (stairs,
@@ -85,7 +85,7 @@ export function waysAsThings(world, roomId, way) {
 }
 
 // The exits of a room that are a way in or out of somewhere: its `in` and `out` exits (not `false`), and the ones marked `in: true` /
-// `out: true`. Each needs its thing in the room (thingsFor; js/checklint.js, inOutProblems). [direction, "in" | "out"] pairs.
+// `out: true`. Each needs its thing in the room (thingsFor; js/checks/space.js, inOutProblems). [direction, "in" | "out"] pairs.
 export const inOutExits = (exits) => Object.entries(exits || {}).flatMap(([d, x]) =>
   (d === "in" || d === "out") ? (exitTo(x) !== false ? [[d, d]] : []) : isExitObject(x) ? ["in", "out"].filter(w => x[w] === true).map(w => [d, w]) : []);
 

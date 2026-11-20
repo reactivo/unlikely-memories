@@ -3,12 +3,15 @@
 // without words of their own (a move, a set) say nothing: the rule that caused them says what happened.
 // Pure: never touches the page or the state.
 
-import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.70.1";
-import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.70.1";
-import { activeIds, conditionTone } from "./conditions.js?v=0.70.1";
-import { placeOf, noticed } from "./place.js?v=0.70.1";
-import { isMover } from "./movers.js?v=0.70.1";
-import { clean } from "./shapes.js?v=0.70.1";
+import { worldTime, parts, partAt, hhmm } from "./time.js?v=0.71.0";
+import { PROPERTY_WORD, ANSWER_WORD, propertyText, answerText, grammarOf } from "./words.js?v=0.71.0";
+import { activeIds, conditionTone } from "./conditions.js?v=0.71.0";
+import { placeOf, noticed } from "./place.js?v=0.71.0";
+import { isMover } from "./movers.js?v=0.71.0";
+import { clean } from "./shapes.js?v=0.71.0";
+import { commandFor } from "./view.js?v=0.71.0";
+import { normalise } from "./parser.js?v=0.71.0";
+import { thingsOf } from "./picture.js?v=0.71.0";
 
 // Story paragraphs for these applied effects: [{ text, style?, img? }]. state = the state after them.
 export function tell(applied, state, pack) {
@@ -38,7 +41,8 @@ export function tell(applied, state, pack) {
     // A health echo (e.level) also carries the level its line describes, for the bars before it. An echo of a thing you gained
     // or lost (e.thing) names it, with its article, and carries `slot`: the small inventory slot drawn before it, with the
     // thing's sprite (its rows, kept with the line so a loaded game draws it again, even of a thing that is gone). A thing
-    // with no sprite gets no slot at all, just the words (the checker refuses a world with one you can carry: js/check.js).
+    // with no sprite and nothing you can carry gets no slot at all, just the words (what you can carry always has rows: its own sprite or its
+    // material's plain one, js/engine.js `holding`).
     if (e.echo) {
       const arg = e.thing !== undefined ? heldName(e, state, pack) : undefined;
       out.push(clean({ text: timed(text(echoPhrase(e, pack), pack, arg, undefined, undefined, e.who), state, pack, e.at),
@@ -50,6 +54,10 @@ export function tell(applied, state, pack) {
     else if (e.describe === "time") out.push({ text: timeNow(state, pack, e.at) });
     else if (e.describe === "status") out.push(statusLine(state, pack), ...conditionsLine(state, pack));
     else if (e.describe) out.push(...describe(state, e.describe, pack, e.without));   // (without: what came in after it, js/movers.js)
+    for (let i = from; i < out.length; i++) {                // a bare mark, {word}, written out as the thing it names here (resolveMarks)
+      const t = resolveMarks(out[i].text, state, state.player?.at, pack);
+      if (t !== out[i].text) out[i] = { ...out[i], text: t };
+    }
     if (e.inView) out.push(...cameIntoView(out, part, e.inView, state, pack));   // what came into view: marked, or said where it lies
     if (e.aside) for (let i = from; i < out.length; i++) out[i] = { ...out[i], style: styled(out[i].style) };   // the world's own: set apart
   }
@@ -86,14 +94,39 @@ function cameIntoView(lines, from, ids, state, pack) {
   return loose.length ? [{ text: lyingLine(loose, state, pack) }, ...added] : added;
 }
 
-// A thing's own line (its `here`, its `lies`), said now and marked at the first mention of the thing if the world did not mark it.
-function markedLine(raw, id, state, pack) {
-  const t = timed(text(raw, pack), state, pack);
+// A thing's own line (its `here`, its `lies`), said now in room `roomId` and marked at the first mention of the thing if the world did not mark it.
+function markedLine(raw, id, state, pack, roomId = state.player?.at) {
+  const t = resolveMarks(timed(text(raw, pack), state, pack), state, roomId, pack);
   return marks(t, id) ? t : markFirst(t, id, state, pack) ?? t;
 }
 
-// Does a text mark this thing ({label|id}, or {id})?
+// Does a text mark this thing ({label|id}, or {id})? (A bare mark of one of its nouns is written out as {word|id} first: resolveMarks.)
 const marks = (t, id) => typeof t === "string" && (t.includes("|" + id + "}") || t.includes("{" + id + "}"));
+
+// ---- A bare mark (BRIEF.md §6, "Markup") ------------------------------------------------------------------------------
+// The thing a bare mark `{word}` names where a text is read, in room `roomId`: the thing whose id is the word; else the one thing of that
+// room (thingsOf, js/picture.js: in it, or that can come there) with the word among its nouns, folded as the parser folds a noun (case,
+// accents: normalise); else, none of the room's answering, the one thing the player carries that does. { id }, { several: [ids] } (two
+// or more answer), or {} (none: the mark stays as written, a word and no thing). The one reading of a bare mark: the narrator writes
+// its id into the text (resolveMarks), so the link a player clicks and the first-mention marking take it, and the checker reads it so
+// (js/checks/mentions.js). (In a first language the word is often the id; in a second, `{lata}` for the thing `tin`, it never is.)
+export function markOf(state, word, roomId, pack) {
+  const objects = state.world.objects;
+  if (Object.hasOwn(objects, word)) return { id: word };
+  const g = pack.words?.grammar, w = normalise(String(word), g);
+  const answer = (ids) => [...ids].filter(id => Object.hasOwn(objects, id) && (objects[id].words?.nouns || []).some(n => normalise(String(n), g) === w));
+  for (const ids of [thingsOf(state, roomId), Object.keys(objects).filter(id => placeOf(state, id) === "player")]) {
+    const found = answer(ids);
+    if (found.length) return found.length === 1 ? { id: found[0] } : { several: found };
+  }
+  return {};
+}
+
+// A text with each bare mark that names one thing (markOf) and is not its id written out as `{word|id}`; anything else as written.
+export function resolveMarks(t, state, roomId, pack) {
+  if (typeof t !== "string" || !t.includes("{")) return t;
+  return t.replace(/\{([^|{}]+)\}/g, (m, word) => { const r = markOf(state, word, roomId, pack); return r.id && r.id !== word ? `{${word}|${r.id}}` : m; });
+}
 
 // A text with its first mention of a thing marked, `{label|id}`, or null if it names it nowhere a mark may go. The mention is its
 // name as a sentence says it ("old coin", "Mrs Hale") or one of its nouns, whichever comes first (the longer at the same place), and
@@ -138,27 +171,13 @@ const styled = (style) => [style, "aside"].filter(Boolean).join(" ");
 // name): { g, pl, proper } from its `words` (js/words.js, grammarOf), or nothing.
 const whoOf = (o) => grammarOf(o?.words);
 
-// What a hint says (the hints thing's frame goes round it, pack.framed): the world's line, or the commands that solve
-// it ("`Wait for the train`, then `board train`"), or that there's nothing left to find.
+// What a hint says (the hints thing's frame goes round it, pack.framed): the world's line, or the commands that solve it, each step worded where
+// it is played ("`Unlock gate with key`, then `North`": js/view.js, commandFor; the steps are the walkthrough's, js/walkthrough.js hintSteps), or
+// that there's nothing left to find.
 function hintText(e, pack) {
   if (e.none) return text("@hintNone", pack);
-  if (e.commands) return text("@hintDo", pack, e.commands.map(c => solveCommand(c, pack)).map(c => "`" + c.charAt(0).toUpperCase() + c.slice(1) + "`"));
+  if (e.commands) return text("@hintDo", pack, e.commands.map(x => commandFor(x.state, pack, x.step)).filter(Boolean).map(c => "`" + c.charAt(0).toUpperCase() + c.slice(1) + "`"));
   return text(e.text, pack);
-}
-
-// A command that solves a puzzle, in this game's language. It may start with a verb in braces, "{take} tin": the pack's
-// first word for that verb stands in its place ("coge tin"). "{enter+} door" puts the word the verb takes before its
-// object after it too, if the pack has one (`grammar.verbPreps`: Spanish "entrar en puerta"; English none: "enter door").
-// Two of them, `{take}` and `{enter+}`, are the pack's phrases for them (`basic.take`, `basic.enterIn`), so they read as every
-// command the engine words. Any other command is returned as it is.
-const BASIC = { take: "take", "enter+": "enterIn" };
-export function solveCommand(command, pack) {
-  return String(command).replace(/^\{(\w+)(\+?)\}(?:\s+(.+))?/, (whole, verb, plus, rest) => {
-    const phrase = rest && pack.basic?.[BASIC[verb + plus]];
-    if (phrase) { const said = phrase(rest); return said.charAt(0).toLowerCase() + said.slice(1); }
-    const word = pack.words.verbs[verb]?.[0], prep = plus && pack.words.grammar?.verbPreps?.[verb];
-    return word === undefined ? whole : (prep ? word + " " + prep : word) + (rest ? " " + rest : "");
-  });
 }
 
 // A room's description: its paragraphs (a skeleton room, BRIEF.md §1, has its `placeholder` line instead), then a line for each object lying there whose `here` is in force (hereNow) or that has its own
@@ -168,9 +187,10 @@ export function solveCommand(command, pack) {
 // its own line says it comes in).
 export function describe(state, roomId, pack, without = []) {
   const room = state.world.rooms[roomId];
-  const lines = [].concat(room.describe ?? room.placeholder ?? []).map(k => ({ text: timed(text(k, pack), state, pack) }));
+  const said = (k) => resolveMarks(timed(text(k, pack), state, pack), state, roomId, pack);   // (a bare mark read in this room)
+  const lines = [].concat(room.describe ?? room.placeholder ?? []).map(k => ({ text: said(k) }));
   for (const [id, o] of Object.entries(state.world.objects)) if (o.at === roomId && (hereNow(state, id) || liesNow(state, id)) && !without.includes(id))
-    lines.push({ text: isMover(o) && hereNow(state, id) ? markedLine(o.here, id, state, pack) : timed(text(hereNow(state, id) ? o.here : o.lies, pack), state, pack) });
+    lines.push({ text: isMover(o) && hereNow(state, id) ? markedLine(o.here, id, state, pack, roomId) : said(hereNow(state, id) ? o.here : o.lies) });
   const loose = lyingIn(state, roomId);
   if (loose.length) lines.push({ text: lyingLine(loose, state, pack) });
   const inside = state.player.in && state.world.objects[state.player.in];        // you're in or on something here
@@ -180,11 +200,11 @@ export function describe(state, roomId, pack, without = []) {
 }
 
 // The world's intro (its opening's `intro`, BRIEF.md §3): the short text shown once as a new game starts, in a paragraph of its own above
-// the start room's (js/main.js, begin), read as a room's text is ([time], [way]). Never again: a game continued or loaded shows its kept
+// the start room's (js/session.js, begin), read as a room's text is ([time], [way]). Never again: a game continued or loaded shows its kept
 // story. [] for a world with none (a placeholder game).
 export function introOf(state, pack) {
   const t = state.opening?.intro;
-  return typeof t === "string" && t.trim() ? [{ text: timed(text(t, pack), state, pack) }] : [];
+  return typeof t === "string" && t.trim() ? [{ text: resolveMarks(timed(text(t, pack), state, pack), state, state.player.at, pack) }] : [];
 }
 
 // Is a thing's `here` line said where it lies? A thing that can be taken: until it is first taken (decision 33, Inform's initial

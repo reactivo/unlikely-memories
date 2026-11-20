@@ -1,17 +1,21 @@
-// Screen helpers that read the state: the suggestion line for a clicked object or item, and the topics line. Pure.
+// Screen helpers that read the state: the suggestion line for a clicked object or item, what USE alone offers, a thing's basic
+// actions (`basicActions`), and the topics line. A thing's own command is offered only if it would be answered meaningfully, and not
+// by a standard rule that only shows its examine (verbs.js `EXAMINED`, std_read) when its EXAMINE is the standard one too; which rule
+// answers comes from engine.js `answers`, tried on a copy of the state. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.70.1";
-import { grammarOf } from "./words.js?v=0.70.1";
-import { parse } from "./parser.js?v=0.70.1";
-import { answers } from "./engine.js?v=0.70.1";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.70.1";
-import { ACTIONS } from "./actions.js?v=0.70.1";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.70.1";
-import { receives } from "./use.js?v=0.70.1";
-import { spellings, called } from "./names.js?v=0.70.1";
-import { wayOf, waysOf } from "./exits.js?v=0.70.1";
-import { openness } from "./picture.js?v=0.70.1";
-import { LISTEN } from "./opening.js?v=0.70.1";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.71.0";
+import { grammarOf } from "./words.js?v=0.71.0";
+import { parse } from "./parser.js?v=0.71.0";
+import { answers } from "./engine.js?v=0.71.0";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.71.0";
+import { ACTIONS } from "./actions.js?v=0.71.0";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.71.0";
+import { receives } from "./use.js?v=0.71.0";
+import { spellings, called } from "./names.js?v=0.71.0";
+import { wayOf, waysOf, thingsFor, waysAsThings } from "./exits.js?v=0.71.0";
+import { openness } from "./picture.js?v=0.71.0";
+import { LISTEN } from "./opening.js?v=0.71.0";
+import { actionOf, sameStep, ANSWER } from "./walkthrough.js?v=0.71.0";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't
@@ -258,6 +262,58 @@ export function basicActions(state, t, id, held = inHands(state, id), memo = new
   }
   if (op && id === op.hints) add(b.listen, is(...LISTEN));
   return out.filter(offering(state, t, id, memo));
+}
+
+// ---- A step of a puzzle, worded --------------------------------------------------------------------------------------------------
+// A step of a puzzle's solve (js/walkthrough.js: a direction, or an action by id), as a player types it in the game's language, in the state where it
+// is played: the first wording the parser reads back as that same step (sameStep). The hints' last level says them (js/narrator.js), and the checker's
+// endings are them (js/check.js). A direction whose way is a thing in the room is worded as the game offers it on that thing ("Go through the gate", "Climb up the stairs") when that reads back as the same move, else it is the pack's word for it ("North"); an answer, the pack's yes or no, or the words; a thing is named as its
+// name writes it (js/names.js), and the second thing of a pair as the USE line names it. A command one of its things offers (the world's own wording)
+// comes first; then the pack's phrases: `basic` for one thing, `useWith` and `steps` for a second thing, a question and a wait, else the verb's first word. When no wording reads back (never, for a world the checker
+// accepts: tests/worlds.test.js), the first one; null only for what is no step at all.
+export function commandFor(state, t, s) {
+  const a = actionOf(state, s).action ?? (s && typeof s === "object" ? s : typeof s === "string" ? { verb: "go", dir: s } : null);
+  if (!a || typeof a.verb !== "string") return null;
+  const o = state.world.objects, memo = new Map(), tries = [], st = t.steps || {};
+  const cap = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+  const names = (id, second = false) => (o[id] ? spellings(o[id], nameOf(id, state, t), t.titled, { lowerNumbers: t.lowerNumbers, second }).slice(0, 6) : [id]);
+  const one = (phrase, id) => { if (phrase) for (const n of names(id)) tries.push(contracted(t, phrase(n))); };
+  const two = (phrase, x, y) => {
+    if (!phrase) return;
+    const A = names(x), B = names(y, true);
+    for (let n = 0; n < A.length + B.length - 1; n++) for (let i = 0; i <= n; i++) if (i < A.length && n - i < B.length) tries.push(contracted(t, phrase(A[i], B[n - i])));
+  };
+  const word = (verb) => t.words?.verbs?.[verb]?.[0] ?? state.vocab?.[verb]?.words?.[0];
+  const { verb } = a;
+  // The world's own wording first: a command its things offer (`actions`, `heldActions`) that is this same step ("Put Monday on calendar").
+  for (const id of [a.obj, a.obj2]) for (const x of [...(o[id]?.actions || []), ...(o[id]?.heldActions || [])]) if (typeof x === "string") tries.push(text(x, t));
+  if (verb === "go" && a.dir) {
+    // A way that is a thing (a door, stairs, a hole) is worded as the game offers it on that thing ("Go through the gate", "Climb up the stairs", "Enter the hut"),
+    // when the parser reads it back as this same move; the compass word otherwise (the loop below keeps the first that reads back).
+    const here = state.player.at, ways = new Map();
+    for (const { id } of [...thingsFor(state.world, here, a.dir), ...(a.dir === "in" || a.dir === "out" ? waysAsThings(state.world, here, a.dir) : [])]) ways.set(id, o[id]);
+    if (t.basic) for (const [id, thing] of ways) for (const [phrase] of wayPhrases(thing, t.basic)) one(phrase, id);
+    tries.push(...[t.dirs?.[a.dir], ...(t.words?.dirs?.[a.dir] || [])].filter(Boolean).map(cap));
+  }
+  else if (verb === ANSWER) tries.push(a.value !== undefined ? cap(String(t.words?.[a.value]?.[0] ?? a.value)) : String(a.text ?? ""));
+  else if (verb === "ask" && a.obj && a.topic && a.topic !== "?") {
+    const topic = o[a.obj]?.topics?.[a.topic], labels = [topic?.label, ...(topic?.words || []), a.topic].filter(x => typeof x === "string");
+    for (const l of labels) one(st.askAbout && ((who) => st.askAbout(who, l)), a.obj);
+  }
+  else if (verb === "ask" && a.obj && a.obj2) two(st.askFor, a.obj, a.obj2);
+  else if (verb === "wait" && a.obj) one(st.waitFor, a.obj);
+  else if (a.obj && a.obj2) {
+    const phrase = phraseFor(state, t, verb);
+    two(t.useWith?.[verb] ?? st[verb] ?? (phrase && st.other && ((x, y) => st.other(phrase(x), y))), a.obj, a.obj2);
+  }
+  else if (a.obj) {
+    const enterable = o[a.obj]?.enterable === "on" ? "enterOn" : "enterIn";
+    one(verb === "enter" ? t.basic?.[enterable] : verb === "sit" ? t.basic?.enterOn : phraseFor(state, t, verb), a.obj);
+  }
+  else if (a.text !== undefined && word(verb)) tries.push(cap(word(verb)) + " " + a.text);
+  else if (word(verb)) tries.push(cap(word(verb)));
+  for (const c of tries) { const r = look(memo, state, t, c).r; if (r.actions?.length === 1 && sameStep(r.actions[0], a)) return c; }
+  return tries[0] ?? null;
 }
 
 // The pack's phrase for going through a thing that is a way, for each of its ways: a door is gone through, stairs and the like climbed or entered

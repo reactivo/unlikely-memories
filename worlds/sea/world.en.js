@@ -5,11 +5,11 @@
 // Texts are literal (a game is written in one language, ARCHITECTURE.md §8); ids and the drawing lists aren't
 // shown to the player.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible (what the author would write; here written to match the corridor) --------------------------
 // Kept with the world so the director can read it later; nothing in the engine uses it yet.
@@ -477,7 +477,7 @@ const objects = {
     enter: "You step inside. It smells of rope and of summers. There's nothing else here but what you can see.",
     words: { nouns: ["hut", "7", "seven", "door", "padlock", "lock", "crack"], adj: ["bathing", "fresh", "freshly", "painted", "new", "number"] },
     examine: "Number 7, in blue. The padlock is new. Through a crack in the boards you can see the handle of an oar." },
-  oars: { at: "hut", portable: true, shape: ["oars_shaft", "oars_blade"], ...item("oars"), material: "wood", name: "Oars", note: "Two, worn smooth.",
+  oars: { at: "hut", portable: true, ...item("oars"), material: "wood", name: "Oars", note: "Two, worn smooth.",
     words: { nouns: ["oars", "oar", "paddles", "paddle"], adj: ["wooden", "two", "pair"], pl: true },
     examine: "Two oars, worn smooth where hands have held them. Your hands fit the worn places exactly.",
     here: "A pair of {oars} lies on the sand by the open hut." },
@@ -842,29 +842,29 @@ const rules = [
 // that point at it.
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the suggestion box's first hints are about it.
-  way_out:    { where: "corridor", needs: [], solve: ["knock on door", "{enter+} door"], reaches: "beach", clues: ["green_door", "green_door_knock"],
+  way_out:    { where: "corridor", needs: [], solve: [{ verb: "knock", obj: "green_door" }, "u"], reaches: "beach", clues: ["green_door", "green_door_knock"],
                 hints: ["The plaque over the little green door asks for a knock, if you remember your name. You do, for now.", "Knock on the green door, give it your name, and go through."] },
-  vouch:      { where: "post_office", needs: ["shell"], solve: ["give shell to postmaster"], gives: ["parcel"],
+  vouch:      { where: "post_office", needs: ["shell"], solve: [{ verb: "give", obj: "shell", obj2: "postmaster" }], gives: ["parcel"],
                 clues: ["letter", "guests", "post_talk"],
                 hints: ["The postmaster gives nothing to anyone without a name, but he trusts the sea. Something the tide left on the sand might speak for you.", "Carry the pale shell from the tide line to the post office and let the postmaster hear it."] },
-  vouch_cat:  { where: "post_office", needs: [], solve: ["stroke admiral", "show admiral to postmaster"], gives: ["parcel"],
+  vouch_cat:  { where: "post_office", needs: [], solve: [{ verb: "touch", obj: "cat" }, { verb: "show", obj: "cat", obj2: "postmaster" }], gives: ["parcel"],
                 clues: ["guests", "post_talk", "cat"],
                 hints: ["The postmaster wants someone to vouch for where you're from. At the hotel they say Admiral walks only with people who belong here.", "Stroke Admiral, the hotel cat, and he will follow you; take him to the post office and speak to the postmaster."] },
-  open_parcel: { needs: ["parcel"], solve: ["open parcel"], gives: ["key"], clues: ["parcel", "post_shell", "post_cat"],
+  open_parcel: { needs: ["parcel"], solve: [{ verb: "open", obj: "parcel" }], gives: ["key"], clues: ["parcel", "post_shell", "post_cat"],
                 hints: ["The parcel is addressed in your handwriting, and the string is only string.", "Undo the parcel in your hands; what is inside is small and brass."] },
-  open_hut:   { where: "huts", needs: ["key"], solve: ["unlock hut with key"], gives: ["oars", "photograph"],
+  open_hut:   { where: "huts", needs: ["key"], solve: [{ verb: "unlock", obj: "hut", obj2: "key" }], gives: ["oars", "photograph"],
                 clues: ["letter", "cave_voice", "hut"],
                 hints: ["One bathing hut is freshly painted, as if somebody were expected, and its padlock is new. Your tag says seven.", "The brass key from the parcel belongs to the padlock on hut 7, at the bathing huts. Inside, take what you find."] },
-  row_out:    { where: "pier_end", needs: ["oars"], solve: ["put oars in boat", "row"], reaches: "lighthouse_base",
+  row_out:    { where: "pier_end", needs: ["oars"], solve: [{ verb: "put", obj: "oars", obj2: "boat" }, { verb: "row" }], reaches: "lighthouse_base",
                 clues: ["boat", "letter", "lighthouse_near"],
                 hints: ["The boat at the end of the pier has rowlocks and nothing to put in them. Hut 7 kept something worn smooth by hands like yours.", "Bring the oars from hut 7 to the boat at the end of the pier, set them in the rowlocks, and row out to the lighthouse."] },
-  forget_photograph: { where: "lantern", needs: ["photograph", "row_out"], solve: ["put photograph in lamp"], ending: true,
+  forget_photograph: { where: "lantern", needs: ["photograph", "row_out"], solve: [{ verb: "put", obj: "photograph", obj2: "lamp" }], ending: true,
                 clues: ["lamp", "letter", "guests"],
                 hints: ["The lamp burns only what you are willing to forget. One thing you carry is a life you did not have.", "In the lantern room, feed the photograph from hut 7 to the lamp."] },
-  forget_shell: { where: "lantern", needs: ["shell", "row_out"], solve: ["burn shell"], ending: true,
+  forget_shell: { where: "lantern", needs: ["shell", "row_out"], solve: [{ verb: "burn", obj: "shell" }], ending: true,
                 clues: ["lamp", "letter", "cave_voice"],
                 hints: ["The lamp is not particular, only that you choose. One thing you carry is the sea speaking for you, and the Ministry still inside it.", "In the lantern room, burn the shell from the tide line, and let the Ministry forget you."] },
-  drown: { where: "beach", needs: [], solve: ["swim", "swim", "swim"], ending: true, clues: ["swim_hurt", "swim_hurt_last"],
+  drown: { where: "beach", needs: [], solve: [{ verb: "swim" }, { verb: "swim" }, { verb: "swim" }], ending: true, clues: ["swim_hurt", "swim_hurt_last"],
                 hints: ["The sea takes your ankle and lets go, and each time it holds on longer.", "Swim from the beach three times; the third time, the sea keeps you."] }
 };
 

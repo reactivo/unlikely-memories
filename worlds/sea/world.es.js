@@ -7,11 +7,11 @@
 // Los ids, la estructura, las reglas, los tiempos y los dibujos son los de world.en.js; solo cambia lo que lleva lengua:
 // los textos, las palabras para el intérprete (con su género) y las órdenes que resuelven los puzles.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- La biblia del juego (lo que escribiría el autor; aquí escrita para que case con el pasillo) -------------------
 // Se guarda con el mundo para que el director pueda leerla después; el motor todavía no la usa.
@@ -480,7 +480,7 @@ const objects = {
     enter: "Entras. Huele a cuerda y a veranos. No hay nada más aquí que lo que ya ves.",
     words: { nouns: ["caseta", "7", "siete", "puerta", "candado", "cerradura", "rendija", "grieta"], adj: ["baño", "bano", "recien", "pintada", "nueva", "numero"], g: "f" },
     examine: "El número 7, en azul. El candado es nuevo. Por una rendija entre las tablas se ve el mango de un remo." },
-  oars: { at: "hut", portable: true, shape: ["oars_shaft", "oars_blade"], ...item("oars"), material: "wood", name: "Remos", note: "Dos, gastados y lisos.",
+  oars: { at: "hut", portable: true, ...item("oars"), material: "wood", name: "Remos", note: "Dos, gastados y lisos.",
     words: { nouns: ["remos", "remo", "palas"], adj: ["madera", "dos", "par"], g: "m", pl: true },
     examine: "Dos remos, lisos y gastados allí donde los han sujetado manos. Tus manos encajan exactamente en los sitios gastados.",
     here: "Un par de {remos|oars} yace en la arena, junto a la caseta abierta." },
@@ -845,29 +845,29 @@ const rules = [
 // que lo señalan.
 const puzzles = {
   // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas del buzón son para ella.
-  way_out:    { where: "corridor", needs: [], solve: ["llama a la puerta", "{enter+} puerta"], reaches: "beach", clues: ["green_door", "green_door_knock"],
+  way_out:    { where: "corridor", needs: [], solve: [{ verb: "knock", obj: "green_door" }, "u"], reaches: "beach", clues: ["green_door", "green_door_knock"],
                 hints: ["La placa sobre la puertecita verde pide que llames, si recuerdas tu nombre. Por ahora lo recuerdas.", "Llama a la puerta verde, dale tu nombre y crúzala."] },
-  vouch:      { where: "post_office", needs: ["shell"], solve: ["dar caracola a administrador"], gives: ["parcel"],
+  vouch:      { where: "post_office", needs: ["shell"], solve: [{ verb: "give", obj: "shell", obj2: "postmaster" }], gives: ["parcel"],
                 clues: ["letter", "guests", "post_talk"],
                 hints: ["El administrador no da nada a quien no tiene nombre, pero se fía del mar. Algo que la marea dejó en la arena podría responder por ti.", "Lleva la caracola pálida de la línea de la marea hasta Correos y deja que el administrador la escuche."] },
-  vouch_cat:  { where: "post_office", needs: [], solve: ["acariciar a almirante", "enseñar almirante a administrador"], gives: ["parcel"],
+  vouch_cat:  { where: "post_office", needs: [], solve: [{ verb: "touch", obj: "cat" }, { verb: "show", obj: "cat", obj2: "postmaster" }], gives: ["parcel"],
                 clues: ["guests", "post_talk", "cat"],
                 hints: ["El administrador quiere que alguien responda de dónde vienes. En el hotel dicen que Almirante solo va con la gente que es de aquí.", "Acaricia a Almirante, el gato del hotel, y te seguirá; llévalo a Correos y habla con el administrador."] },
-  open_parcel: { needs: ["parcel"], solve: ["abrir paquete"], gives: ["key"], clues: ["parcel", "post_shell", "post_cat"],
+  open_parcel: { needs: ["parcel"], solve: [{ verb: "open", obj: "parcel" }], gives: ["key"], clues: ["parcel", "post_shell", "post_cat"],
                 hints: ["El paquete está dirigido con tu letra, y el cordel es solo cordel.", "Deshaz el paquete entre las manos; lo que hay dentro es pequeño y de latón."] },
-  open_hut:   { where: "huts", needs: ["key"], solve: ["abrir caseta con llave"], gives: ["oars", "photograph"],
+  open_hut:   { where: "huts", needs: ["key"], solve: [{ verb: "unlock", obj: "hut", obj2: "key" }], gives: ["oars", "photograph"],
                 clues: ["letter", "cave_voice", "hut"],
                 hints: ["Una de las casetas de baño está recién pintada, como si esperaran a alguien, y su candado es nuevo. Tu etiqueta dice siete.", "La llave de latón del paquete es del candado de la caseta 7, en las casetas de baño. Dentro, coge lo que encuentres."] },
-  row_out:    { where: "pier_end", needs: ["oars"], solve: ["meter remos en barca", "remar"], reaches: "lighthouse_base",
+  row_out:    { where: "pier_end", needs: ["oars"], solve: [{ verb: "put", obj: "oars", obj2: "boat" }, { verb: "row" }], reaches: "lighthouse_base",
                 clues: ["boat", "letter", "lighthouse_near"],
                 hints: ["La barca del extremo del muelle tiene horquillas y nada que poner en ellas. La caseta 7 guardaba algo gastado por manos como las tuyas.", "Lleva los remos de la caseta 7 a la barca del extremo del muelle, ponlos en las horquillas y rema hasta el faro."] },
-  forget_photograph: { where: "lantern", needs: ["photograph", "row_out"], solve: ["meter fotografia en lampara"], ending: true,
+  forget_photograph: { where: "lantern", needs: ["photograph", "row_out"], solve: [{ verb: "put", obj: "photograph", obj2: "lamp" }], ending: true,
                 clues: ["lamp", "letter", "guests"],
                 hints: ["La lámpara solo quema lo que aceptes olvidar. Una de las cosas que llevas es una vida que no tuviste.", "En la linterna, dale a la lámpara la fotografía de la caseta 7."] },
-  forget_shell: { where: "lantern", needs: ["shell", "row_out"], solve: ["quemar caracola"], ending: true,
+  forget_shell: { where: "lantern", needs: ["shell", "row_out"], solve: [{ verb: "burn", obj: "shell" }], ending: true,
                 clues: ["lamp", "letter", "cave_voice"],
                 hints: ["A la lámpara le da igual qué sea, con tal de que elijas. Una de las cosas que llevas es el mar hablando por ti, y el Ministerio todavía dentro.", "En la linterna, quema la caracola de la línea de la marea, y deja que el Ministerio te olvide."] },
-  drown: { where: "beach", needs: [], solve: ["nadar", "nadar", "nadar"], ending: true, clues: ["swim_hurt", "swim_hurt_last"],
+  drown: { where: "beach", needs: [], solve: [{ verb: "swim" }, { verb: "swim" }, { verb: "swim" }], ending: true, clues: ["swim_hurt", "swim_hurt_last"],
                 hints: ["El mar te agarra el tobillo y te suelta, y cada vez tarda más en soltarte.", "Métete a nadar desde la playa tres veces; a la tercera, el mar se queda contigo."] }
 };
 

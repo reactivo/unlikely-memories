@@ -6,7 +6,7 @@
 //   tb-start    eye level, looking in; 100 (the floor line); the turnstile on the right third, a third of the height; light grey 7
 //   tb-hub      eye level, looking in; 100; four doors across the wall, the board above them, the middle of the frame; light blue 9
 //   tb-clinic   looking down; 10; the spike plate in the lower third, the cot small at the top; light cyan 11
-//   tb-lab      eye level, looking in; 96 (the bench top); the lever tall on the right third; green 2
+//   tb-lab      eye level, facing south (its text says so: west, the way out, is on the right); 96 (the bench top); the lever tall on the right third, the door at the far right; green 2
 //   tb-bar      silhouette; the counter at 84; Dot black against the stove's red glow on the left third; red 4
 //   tb-office   close-up; none; the desk and the woman filling two thirds of the frame; brown 6
 //   tb-bedroom  looking up; 120; the lamp's pool of yellow in the middle, the clock high on the right; blue 1
@@ -23,6 +23,7 @@
 //   tb-cellar   eye level, looking in; 78; the round vault door on the right third, the boat in the middle; dark grey 8
 //   tb-vault    close-up; none; brushed steel in two tones, the open door a dark disc at the left; white 15
 //   tb-pantry   from above; none; two shelves laid flat, the jar on the lower one; brown 6
+//               (chest_crumbs and chest_open_dust: dressing named like the cellar's chest, which is not a thing of this room: the picture's own, always shown)
 //   tb-falls    eye level, looking in; 92; the waterfall tall in the middle, the pool wide below it, a torch and a pennant on the walls; light blue 9
 //   lit         (ending) close-up; none; the lever thrown over, white sparks along a cable; yellow 14
 //   named       (ending) close-up; none; the open ledger on the desk, the last name in ink; white 15
@@ -124,9 +125,10 @@ export default {
     overlays: [{ object: "pill", at: [40, 20] }]
   },
 
-  // ---- LAB: a bench of cables, the lever tall on the right with its green lamp, a socket, a dial, the radio ---------------------------
+  // ---- LAB: facing south, a bench of cables, the lever tall on the right with its green lamp, a socket, a dial, the radio, the door (west) on the right ---------------------------
   "tb-lab": {
     version: 1,
+    facing: "s",
     draw: `
       rect wall 0,0,320,96 fade:2,10/0,0/0,96
       rect floor 0,96,320,40 fade:8,0/0,96/0,136
@@ -150,9 +152,9 @@ export default {
       ellipse dial 134,62,16,16 7 e0
       poly dial_hand 134,62 140,50 142,52 136,64 0
       dots dial_marks 120,62 122,52 134,46 146,52 148,62 c0
-      ellipse button 90,74,9,9 10 e0
-      ellipse button_glow 90,74,14,12 mix:,10@0.2
-      rect door 6,60,26,48 8 e0
+      ellipse button 280,74,9,9 10 e0
+      ellipse button_glow 280,74,14,12 mix:,10@0.2
+      rect lab_door 292,60,26,48 8 e0
     `,
     overlays: []
   },
@@ -541,17 +543,6 @@ rect window_rim 156,56,8,10 none e6
       rect cellar_door_open 24,40,34,52 0 e0
       rect cellar_door_open_light 28,44,26,44 mix:0,6@0.4
       poly cellar_door_open_leaf 24,40 31,43 31,89 24,92 6 e0
-      rect bars 250,100,50,28 0 e8
-      line bars_v1 256,100 256,128 c7
-      line bars_v2 264,100 264,128 c7
-      line bars_v3 272,100 272,128 c7
-      line bars_v4 280,100 280,128 c7
-      line bars_v5 288,100 288,128 c7
-      line bars_chain 250,114 300,114 c14
-      rect bars_open 250,100,50,28 0 e8
-      line bars_open_v1 256,100 256,128 c7
-      line bars_open_v2 262,100 262,128 c7
-      poly bars_open_leaf 300,100 306,104 306,124 300,128 8 e7
       poly boat 100,100 180,100 172,120 108,120 6 e0
       line boat_rim 100,100 180,100 c14
       rect boat_blocks 112,120,56,8 8 e0
@@ -613,10 +604,13 @@ rect window_rim 156,56,8,10 none e6
       line joint_1 80,0 80,22 c0
       line joint_2 200,22 200,46 c0
       line joint_3 120,46 120,70 c0
+      rect moss 10,24,40,8 mix:2,10@0.5
+      rect patch 4,22,52,14 8
       rect floor 0,70,320,66 fade:8,0/0,70/0,136
       line - 0,70 320,70 c0
       ellipse pool 160,104,110,18 mix:1,0@0.5 e8
       ellipse pool_deep 160,106,70,10 0
+      rect drip 100,72,3,34 mix:9,15@0.5
       line ladder_l 270,20 270,100 c6
       line ladder_r 284,20 284,100 c6
       line rung_1 270,34 284,34 c6
@@ -624,7 +618,14 @@ rect window_rim 156,56,8,10 none e6
       line rung_3 270,70 284,70 c6
       line rung_4 270,88 284,88 c6
     `,
-    cycles: [{ name: "the pool", areas: ["pool"], colors: [1, 9], style: "rotate", ms: 3200 }],
+    // The three kinds of thing a cycle can be given that the engine settles itself (BRIEF.md §7 "Cycles"; the checker only warns): a scroll (the drip, first in
+    // the list) whose pixels the pool's cycle also names (the pool's cycle names "drip": the first cycle in the list has each shared pixel), and a cycle (the
+    // moss) whose whole area the patch is drawn over (it is not run: it has no pixel to change).
+    cycles: [
+      { name: "the drip", areas: ["drip"], style: "scroll", dir: "down", ms: 120 },
+      { name: "the pool", areas: ["pool", "drip"], colors: [1, 9], style: "rotate", ms: 3200 },
+      { name: "the moss", areas: ["moss"], colors: [2, 10], style: "pingpong", ms: 2400 }
+    ],
     overlays: []
   },
 
@@ -645,6 +646,8 @@ rect window_rim 156,56,8,10 none e6
       ellipse jar_open_in 150,96,10,10 mix:11,0@0.4
       ellipse jar_open_lid 170,100,8,3 3 e0
       dots webs 34,20 40,26 286,22 280,30 40,82 46,90 c7
+      dots chest_crumbs 40,62 52,66 64,60 c7
+      rect chest_open_dust 100,64,12,2 mix:6,7@0.4
       line web_a 24,14 60,14 24,48 c7
       line web_b 296,14 260,14 296,48 c7
       rect slit 292,0,20,136 mix:,15@0.3
@@ -654,7 +657,7 @@ rect window_rim 156,56,8,10 none e6
     `,
     // A sparkle beside the jar: three dots in the colour under them (unseen), a sweep opening a point into a star and fading, then nothing for about five seconds.
     cycles: [{ name: "the sparkle", areas: ["core", "middle", "tips"], colors: [15, 15, 11, 6], rest: 46, style: "rotate", sweep: true, ms: 110 }],
-    overlays: []
+    overlays: [{ object: "spoon", at: [64, 24] }]
   },
 
   // ---- THE FALLS: a cave: a waterfall with an outline (it scrolls down inside it), a pool of glints that each flicker on their own (a scatter flicker,
@@ -826,6 +829,10 @@ export const visions = {
   }
 };
 
+// ---- The posters' colour: the Testbed states it (BRIEF.md §7, "Cover and box art"; js/hist.js, posterBackground). Blue 1, not the grey 8 the game would measure from
+// its rooms, so the tests can tell a stated colour from a measured one. It has no words: both languages' bibles take it from here.
+export const bg = 1;
+
 // ---- The cover: the Testbed's splash page (docs/splash/PLAN.md; /testbed/) -------------------------------------------------------------------
 // A cover is 320 x 400 (coordinates 0-319, 0-399), a full poster written like a room's picture: the first shape paints the whole canvas. The engine draws
 // the world's title in its band (js/title.js): `titleAt` "top" is rows 0-95, "bottom" rows 305-399, one flat colour with nothing crossing it, and `title`
@@ -834,10 +841,11 @@ export const visions = {
 // under a flat blue band for the title. A cover has at least two cycles and one loop.
 export const cover = {
   shot: "archetype: the icon (it turns on one thing, the lever that lights the floor; it beat the split, the floor and its plan, which any test lab could claim): a huge steel lever thrown over out of its slot in a brown bench plate, a lamp lit on its arm, sparks running off along a cable to the right; no figures; moves: the lamp (green to yellow), the sparks (flicker), the slot light, a moth crossing, a signal running along the cable.",
-  title: 15,
   titleAt: "top",
+  // No sky and no title colour: the canvas starts in the world's colour (`bg`, stated above: blue 1) and the title is white; `bg` is written where the art
+  // meets it (the halo's mix, the lever's shade, the knob's ring, the slot's stripes), and no cycle names it.
   draw: `
-    rect sky 0,0,480,560 8
+    ellipse halo_wide 338,164,84,36 mix:bg,15@0.1
     ellipse halo_core 338,154,46,30 mix:,14@0.12
     poly plate 104,446 122,318 150,292 330,292 358,318 376,446 6 e0
     poly plate_lit 124,318 152,296 328,296 356,318 340,306 150,306 mix:6,15@0.35
@@ -845,6 +853,7 @@ export const cover = {
     poly plate_side 330,296 356,318 376,446 346,446 mix:6,0@0.3
     rect slot_frame 186,306,108,56 7 e0
     rect slot_in 198,318,84,32 0
+    rect slot_floor 198,350,84,4 stripes:bg,0
     rect slot_light 204,326,72,3 14
     poly shadow 226,362 176,448 206,448 250,362 mix:6,0@0.55
     dots rivets 124,304 356,304 124,436 356,436 124,370 356,370 c7
@@ -853,10 +862,11 @@ export const cover = {
     poly lever_arm 226,340 256,340 350,166 326,152 7 e0
     line lever_rim 256,340 350,166 c15
     line lever_rim2 254,340 348,167 c15
-    line lever_shade 228,340 327,154 c8
+    line lever_shade 228,340 327,154 cbg
     line lever_shade2 230,340 329,155 c0
     ellipse lever_knob 338,148,22,22 6 e0
     ellipse knob_hi 331,141,7,7 mix:6,15@0.5
+    ellipse knob_ring 338,148,26,26 none ebg
     ellipse lamp 292,236,8,8 2 e0
     ellipse lamp_glow 292,236,13,11 mix:,2@0.25
     dots lamp_hi 290,234 c15
@@ -899,10 +909,9 @@ export const cover = {
 
 // ---- The box art (the list of games: ui/home.js): the earlier 480 x 400 cover (16 November 2026), shown as its phone crop, columns 80-399, still. ----
 export const boxart = {
- "shot": "Looking up from the plain, facing the tower, frontal; 480 x 400, the tower in the phone's crop (columns 80-399), the wings (0-79, 400-479) carrying the plain on: two far huts and a pylon, hills, more stars. Palette: night blue and grey, the window's yellow 14 the one light. The tower on the middle third, half the cover's height; a flat blue band above it, across the whole width, for the title. The question: why one window is lit. moves: the lit window (flickers), the lamp (pulses), a twinkling star and a bat crossing behind the tower (loops).",
- "title": 15,
+ "shot": "Looking up from the plain, facing the tower, frontal; 480 x 400, the tower in the phone's crop (columns 80-399), the wings (0-79, 400-479) carrying the plain on: two far huts and a pylon, hills, more stars. Palette: the world's blue (`bg`, stated: 1), the tower dark grey with a light edge so it stands out against the blue, black ground and huts, the window's yellow 14 the one light. The tower on the middle third, half the cover's height; the world's own colour above it, across the whole width, for the title (the canvas starts in it: no sky shape). The question: why one window is lit. moves: the lit window (flickers), the lamp (pulses), a twinkling star and a bat crossing behind the tower (loops).",
  "titleAt": "top",
- "draw": "\n    rect sky 0,0,480,400 1\n    ellipse moon 330,150,16,16 15\n    rect tower 200,110,80,230 8 e7\n    rect tower_top 192,98,96,12 7\n    rect window 232,150,16,22 14\n    rect window_glow 228,146,24,30 mix:,14@0.25\n    rect door 228,300,24,40 0\n    rect lamp 245,306,6,6 6\n    rect ground 0,340,480,60 fade:8,/0,340/0,400\n    ellipse hill_l 100,380,70,30 0\n    ellipse hill_r 380,380,70,30 0\n    ellipse hill_wl 20,376,60,34 0\n    ellipse hill_wr 450,378,56,32 0\n    rect hut_l 10,300,34,40 0\n    poly roof_l 6,300 27,282 48,300 0\n    rect hut_l_win 22,314,8,8 6\n    rect hut_r 420,308,38,32 0\n    poly roof_r 416,308 439,290 462,308 0\n    rect pylon_r 466,230,4,110 0\n    rect pylon_r_arm 456,240,24,4 0\n    dots stars 110,130 150,164 190,124 104,200 140,270 370,210 20,180 52,230 410,160 450,130 c15\n  ",
+ "draw": "\n    ellipse moon_halo 330,150,34,34 mix:bg,15@0.12\n    ellipse moon 330,150,16,16 15\n    rect tower 200,110,80,230 8 e7\n    rect tower_top 192,98,96,12 7\n    rect window 232,150,16,22 14\n    rect window_glow 228,146,24,30 mix:,14@0.25\n    rect door 228,300,24,40 0 e7\n    rect lamp 245,306,6,6 6\n    rect ground 0,340,480,60 fade:,0/0,340/0,400\n    ellipse hill_l 100,380,70,30 0\n    ellipse hill_r 380,380,70,30 0\n    ellipse hill_wl 20,376,60,34 0\n    ellipse hill_wr 450,378,56,32 0\n    rect hut_l 10,300,34,40 0\n    poly roof_l 6,300 27,282 48,300 0\n    rect hut_l_win 22,314,8,8 6\n    rect hut_r 420,308,38,32 0\n    poly roof_r 416,308 439,290 462,308 0\n    rect pylon_r 466,230,4,110 0\n    rect pylon_r_arm 456,240,24,4 0\n    dots stars 110,130 150,164 190,124 104,200 140,270 370,210 20,180 52,230 410,160 450,130 c15\n  ",
  "cycles": [
   {
    "name": "the lit window",

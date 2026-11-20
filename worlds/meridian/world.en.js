@@ -2,11 +2,11 @@
 // (BRIEF.md, built from WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data,
 // ART-DIRECTION.md for the pictures). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings as endingPictures } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -116,7 +116,7 @@ export default {
         { say: "You press the buzzer once. Somewhere deep in the building it answers, a little late, and the door gives, then opens the rest of the way, as if it had remembered how." },
         { connect: "yard", dir: "u", in: true }
       ] } },
-    { add: "puzzle", id: "buzz_in", where: "yard", needs: [], solve: ["push buzzer", "in"], reaches: "corridor", clues: ["door", "buzzer"],
+    { add: "puzzle", id: "buzz_in", where: "yard", needs: [], solve: [{ verb: "push", obj: "buzzer" }, "u"], reaches: "corridor", clues: ["door", "buzzer"],
       hints: ["The door has a buzzer beside its frame, and the label under it asks to be pressed once.", "Press the buzzer, then go in through the door."] },
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
@@ -159,7 +159,6 @@ export default {
         "Behind the desk, {Mrs Hale|archivist} sorts index cards into an order nobody has asked for in years. A shelf label points down at the {drawer}. Stairs go down to the cellar."
       ],
       exits: { e: "way", d: "way" },
-      mentions: ["hale"],
       scenery: [
         { words: ["ledgers", "shelves"], name: "the ledgers", says: "Columns of names, each with dates beside them. Most of the dates are the same." },
         { words: ["lamp", "desk lamp"], name: "the desk lamp", says: "It is on. It is not, quite, on for you." },
@@ -407,25 +406,25 @@ export default {
       ] } },
 
     // ---- puzzles: the chain, each step needing the one before ---------------------------------------------------
-    { add: "puzzle", id: "print_slip", where: "staff", needs: [], solve: ["push printer"], gives: ["slip"],
+    { add: "puzzle", id: "print_slip", where: "staff", needs: [], solve: [{ verb: "push", obj: "printer" }], gives: ["slip"],
       clues: ["notice_board", "printer"],
       hints: ["The notice board says where a lost summons can be printed again.", "Push the printer."] },
-    { add: "puzzle", id: "find_crank", where: "records", needs: [], solve: ["open drawer", "take crank"], gives: ["crank"],
+    { add: "puzzle", id: "find_crank", where: "records", needs: [], solve: [{ verb: "open", obj: "drawer" }, { verb: "take", obj: "crank" }], gives: ["crank"],
       clues: ["stair_gate", "archivist"],
       hints: ["The gate wants something the shelf label says is in the desk.", "Open the drawer and take the crank."] },
-    { add: "puzzle", id: "open_gate", where: "stairwell", needs: ["crank"], solve: ["unlock gate with crank", "go up"], reaches: "registry",
+    { add: "puzzle", id: "open_gate", where: "stairwell", needs: ["crank"], solve: [{ verb: "unlock", obj: "stair_gate", obj2: "crank" }, "u"], reaches: "registry",
       clues: ["stair_gate", "crank"],
       hints: ["The gate has a hole that is not for a key.", "Unlock the gate with the crank, then go up."] },
-    { add: "puzzle", id: "confirm_presence", where: "registry", needs: ["slip", "open_gate"], solve: ["put slip in slot"], ending: true,
+    { add: "puzzle", id: "confirm_presence", where: "registry", needs: ["slip", "open_gate"], solve: [{ verb: "put", obj: "slip", obj2: "slot" }], ending: true,
       clues: ["slot", "notice_board"],
       hints: ["The slot is the width of a summons, and it is warm.", "Put the slip in the slot."] },
-    { add: "puzzle", id: "sit_in_booth", where: "registry", needs: ["open_gate"], solve: ["sit in booth"], ending: true,
+    { add: "puzzle", id: "sit_in_booth", where: "registry", needs: ["open_gate"], solve: [{ verb: "sit", obj: "booth" }], ending: true,
       clues: ["booth", "notice_board", "terminal"],
       hints: ["The last booth is dark, and its chair has been kept for someone.", "Sit in the last booth."] },
-    { add: "puzzle", id: "erase_presence", where: "registry", needs: ["slip", "open_gate"], solve: ["put slip in shredder"], ending: true,
+    { add: "puzzle", id: "erase_presence", where: "registry", needs: ["slip", "open_gate"], solve: [{ verb: "put", obj: "slip", obj2: "shredder" }], ending: true,
       clues: ["shredder", "slot"],
       hints: ["Something in this room is quieter than the slot, and it destroys.", "Put the slip in the shredder."] },
-    { add: "puzzle", id: "step_into_shaft", where: "corridor", needs: [], solve: ["enter shaft"], ending: true,
+    { add: "puzzle", id: "step_into_shaft", where: "corridor", needs: [], solve: [{ verb: "enter", obj: "shaft" }], ending: true,
       clues: ["shaft", "generator"],
       hints: ["The lift shaft stands open on a warm dark, and its sign asks you kindly not to.", "Step into the lift shaft."] }
   ]

@@ -4,11 +4,11 @@
 // Reworked 2026-11-19 from Diego's changes: the real Prosperidad of Madrid in an unnamed year, darker (darkness 3), the Minister a dealer
 // with his book of debts, drink at the bar, a bad batch with its cure, the cover on the Emperor.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -706,23 +706,23 @@ const objects = {
 // ---- The puzzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the radio's first hints are about it.
-  way_out: { where: "callejon", needs: [], solve: ["{take} crowbar", "unlock door with crowbar", "south"], reaches: "trastienda", clues: ["puerta", "palanca"],
+  way_out: { where: "callejon", needs: [], solve: [{ verb: "take", obj: "palanca" }, { verb: "unlock", obj: "puerta", obj2: "palanca" }, "s"], reaches: "trastienda", clues: ["puerta", "palanca"],
     hints: ["The fire door is painted into its frame, with a seam down the hinge side, and something heavy leans against the bin.", "Take the crowbar, prise the fire door open with it, and go south."] },
-  take_strings: { where: "trastienda", needs: [], solve: ["open case", "{take} strings"], gives: ["cuerdas"], clues: ["funda", "pelayo"],
+  take_strings: { where: "trastienda", needs: [], solve: [{ verb: "open", obj: "funda" }, { verb: "take", obj: "cuerdas" }], gives: ["cuerdas"], clues: ["funda", "pelayo"],
     hints: ["The guitar case backstage rattles when it is tipped, and a band is short of something.", "Open the guitar case and take the bass strings."] },
-  strings_for_tokens: { where: "fabrica", needs: ["cuerdas"], solve: ["give strings to marga"], gives: ["fichas"], clues: ["marga", "pelayo"],
+  strings_for_tokens: { where: "fabrica", needs: ["cuerdas"], solve: [{ verb: "give", obj: "cuerdas", obj2: "marga" }], gives: ["fichas"], clues: ["marga", "pelayo"],
     hints: ["Marga's band is down a string, and they keep their laundry money in a tin.", "Give the bass strings to Marga at the works, and she will give you the laundry tokens."] },
-  run_dryer: { where: "lavanderia", needs: ["fichas"], solve: ["put tokens in dryer", "{take} brush"], gives: ["cepillo"], clues: ["secadora", "tomas"],
+  run_dryer: { where: "lavanderia", needs: ["fichas"], solve: [{ verb: "put", obj: "fichas", obj2: "secadora" }, { verb: "take", obj: "cepillo" }], gives: ["cepillo"], clues: ["secadora", "tomas"],
     hints: ["The dryer in the Lavandería takes tokens, and something long is waiting behind its latch.", "Put the tokens in the dryer, and take what comes out."] },
-  sweep_roof: { where: "azotea", needs: ["cepillo"], solve: ["give brush to tomas"], gives: ["hollin"], clues: ["tomas", "cepillo", "marisol"],
+  sweep_roof: { where: "azotea", needs: ["cepillo"], solve: [{ verb: "give", obj: "cepillo", obj2: "tomas" }], gives: ["hollin"], clues: ["tomas", "cepillo", "marisol"],
     hints: ["The sweep on the roof of the casa tomada is missing his brush.", "Give the brush to Tomás, on the roof, and he will sweep a pot and give you the soot."] },
-  line_eyes: { where: "esquina", needs: ["hollin"], solve: ["give soot to marisol"], gives: ["cinta"], clues: ["marisol", "hollin", "kohl"],
+  line_eyes: { where: "esquina", needs: ["hollin"], solve: [{ verb: "give", obj: "hollin", obj2: "marisol" }], gives: ["cinta"], clues: ["marisol", "hollin", "kohl"],
     hints: ["Marisol's kohl pot is empty, and a sweep's soot does what a pot cannot.", "Give the soot to Marisol on the corner, and she will give you Cuco's brother's tape."] },
-  tape_for_tie: { where: "charlie", needs: ["cinta"], solve: ["give tape to cuco"], gives: ["corbata"], clues: ["cuco", "pintada"],
+  tape_for_tie: { where: "charlie", needs: ["cinta"], solve: [{ verb: "give", obj: "cinta", obj2: "cuco" }], gives: ["corbata"], clues: ["cuco", "pintada"],
     hints: ["Cuco's tape is on the corner, and he owns the one black tie the Minister needs.", "Give the tape to Cuco, at El Charlie, and take the black tie."] },
-  corona: { where: "avenida", needs: ["corbata"], solve: ["give tie to minister", "say emperor"], ending: true, clues: ["ministro", "cuco"],
+  corona: { where: "avenida", needs: ["corbata"], solve: [{ verb: "give", obj: "corbata", obj2: "ministro" }, { verb: "say", text: "emperador" }], ending: true, clues: ["ministro", "cuco"],
     hints: ["The Minister wants a black tie for a funeral, and will clear your page for it. He will ask in whose name he writes the receipt.", "Give the tie to the Minister, and tell him you are Emperador."] },
-  nombre: { where: "avenida", needs: ["corbata"], solve: ["give tie to minister", "say javier"], ending: true, clues: ["ministro", "marisol", "nicanor"],
+  nombre: { where: "avenida", needs: ["corbata"], solve: [{ verb: "give", obj: "corbata", obj2: "ministro" }, { verb: "say", text: "javier" }], ending: true, clues: ["ministro", "marisol", "nicanor"],
     hints: ["Marisol and Don Nicanor both remember a name that is not Emperador.", "Give the tie to the Minister, and tell him you are Javier."] }
 };
 
@@ -732,7 +732,7 @@ const rules = [
   { id: "put_tokens", match: { verb: ["put", "use"], obj: "fichas", obj2: "secadora" }, if: [{ "player.at": "lavanderia" }], once: true,
     again: "The dryer has had its tokens and tumbles on.",
     do: [{ say: "The tokens go in one by one, each with a small wet note. The dryer shudders through a cycle, the latch clicks, and the door drops open on a long black {brush|cepillo}, warm as bread." },
-         { draw: "lavanderia", remove: ["cepillo_*"] }, { move: "fichas", to: null }, { move: "cepillo", to: "lavanderia" }] },
+         { draw: "lavanderia", remove: ["dryer_brush_*"] }, { move: "fichas", to: null }, { move: "cepillo", to: "lavanderia" }] },
   // Marga: strings for the band's laundry tokens.
   { id: "give_strings", match: { verb: ["give", "show", "use", "put"], obj: "cuerdas", obj2: "marga" }, if: [{ "player.at": "fabrica" }], once: true,
     again: `"One pack is enough, thanks," says Marga. "Nacho can only break one at a time."`,

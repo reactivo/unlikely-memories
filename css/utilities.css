@@ -14,6 +14,14 @@
     border: 0;
   }
 
+  /* The CRT look's dark edges, written once: ui/crt.js sets data-crt on the box that holds its canvas (the game's picture, a tile of the landing
+     page, a figure of the story) and --crt-vignette on it (0 = none). The box's own ::after (ui/scene.css, ui/home.css, ui/log.css: where it is
+     and how big) takes this gradient, clear inside 55% of the way out, black at the edge. It is a rule, not a token, because the variable it
+     reads is the box's own: a token would read it where the token is declared. */
+  [data-crt]::after {
+    background: radial-gradient(ellipse closest-side at 50% 50%, transparent 55%, rgb(0 0 0 / var(--crt-vignette, 0)) 100%);
+  }
+
   /* An icon's box: <span class="icon" data-icon="north"> (index.html), which ui/icons.js fills with an inline <svg> (img/icons/'s drawing,
      filled with currentColor, so it takes the text colour of its button: open, faint, hover, blinking…). It fills its (flex)
      button and shows the drawing at its own size, in the middle: redraw the file, run tools/icons.mjs and the icon changes, size and all. */

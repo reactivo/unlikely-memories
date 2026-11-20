@@ -4,15 +4,15 @@
 // how a condition ends, the line of a health tick), so this file never imports the engine back. `makeSleeping(host)` returns { sleep,
 // conditionHold }: what the engine calls. Everything inside is as it was in the engine.
 
-import { worldTime, moveTo, parts, hhmm } from "./time.js?v=0.70.1";
-import { lengthOf, kindOf, healOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js?v=0.70.1";
-import { activeIds, conditionClass } from "./conditions.js?v=0.70.1";
-import { RANGES } from "./fields.js?v=0.70.1";
-import { clean, isLine } from "./shapes.js?v=0.70.1";
-import { placeOf, person } from "./place.js?v=0.70.1";
-import { isAction } from "./actions.js?v=0.70.1";
-import { spoken, slurring, slur } from "./speech.js?v=0.70.1";
-import { movementNow, stray } from "./movement.js?v=0.70.1";
+import { worldTime, moveTo, parts, hhmm } from "./time.js?v=0.71.0";
+import { lengthOf, kindOf, healOf, choicesAt, HEAL_GAP, DREAM_CHANCE, SOBERS } from "./sleep.js?v=0.71.0";
+import { activeIds, conditionClass } from "./conditions.js?v=0.71.0";
+import { RANGES } from "./fields.js?v=0.71.0";
+import { clean, isLine } from "./shapes.js?v=0.71.0";
+import { placeOf, person } from "./place.js?v=0.71.0";
+import { isAction } from "./actions.js?v=0.71.0";
+import { spoken, slurring, slur } from "./speech.js?v=0.71.0";
+import { movementNow, stray } from "./movement.js?v=0.71.0";
 
 export function makeSleeping(host) {
   const { apply, roll, rollBetween, activeRules, fits, exitNow, solved, met, endCondition, saysOf } = host;
@@ -73,7 +73,7 @@ export function makeSleeping(host) {
   }
 
   // The sleep itself, `ms` long (the player's at most LONGEST). The applied effects carry two marks for the screen (ui/scene.js plays the eyelids
-  // and the dark between them, and the story is told in time with it, js/main.js): { sleep: <kind>, ms, wake, vision? } where the
+  // and the dark between them, and the story is told in time with it, js/turn.js): { sleep: <kind>, ms, wake, vision? } where the
   // eyes close, and { woke: true } where they open; what lies between is said in the dark (a dream, a vision's line).
   //   "You close your eyes." Then, in a harmful condition (one whose health hurts: poison, cold), you never wake: "You fall asleep, and
   //   do not wake.", and the death that follows is any death's (step(): its lines, its echo, the `died` ending). Otherwise, in the dark:
@@ -121,7 +121,8 @@ export function makeSleeping(host) {
     const fresh = (key, d) => d && typeof d === "object" && isLine(d.says) && !(d.once === true && (slept.visions || []).includes(key));
     return fresh(g.player.in, thing?.dream) ? { key: g.player.in, d: thing.dream } : fresh(g.player.at, room?.dream) ? { key: g.player.at, d: room.dream } : null;
   }
-  // A dream: one of the puzzles the hints thing could hint now (unsolved, its needs met, not an ending), with a hint line, never one
+  // A dream: one of the puzzles unsolved whose needs are met (each done, or had once: js/engine.js `had`; not an ending: the hints may also lead to one whose
+  // needed thing still lies where it can be taken, js/engine.js `ready`, a dream does not), with a hint line, never one
   // dreamt before, picked with the game's own numbers; its first hint line. The hints thing's own count is left alone (g.hinted).
   function dreamNow(g, slept) {
     const pool = Object.entries(g.puzzles || {}).filter(([id, p]) => !p.ending && !solved(g, p) && (p.needs || []).every(n => met(g, n))

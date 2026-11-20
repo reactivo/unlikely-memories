@@ -1,6 +1,6 @@
 // Saved games, kept in this browser (IndexedDB: plenty of room, unlike localStorage's ~5 MB). Per world, two saves: "auto", the
 // automatic save after every turn, so leaving and coming back continues the game; and "game", the one you keep yourself
-// (SAVE / LOAD), which nothing removes: a new game of that world (js/main.js restart()) only replaces the automatic one. A record is { state, transcript, savedAt };
+// (SAVE / LOAD), which nothing removes: a new game of that world (js/session.js restart()) only replaces the automatic one. A record is { state, transcript, savedAt };
 // its key is "<world id>/<kind>". Every call takes the world's id. Storage can be blocked (private windows, previews): every
 // call can fail, and the game carries on without it.
 

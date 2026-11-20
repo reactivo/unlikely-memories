@@ -1,11 +1,11 @@
 // Options panel (≡): two blocks, SOUND (the sliders, mounted by ui/soundpanel.js) and GAME: Restart game and Quit (back to the
 // list of games). No title of its own, no language here: it is chosen on the list of games.
-// "Restart game" closes the panel and asks in the story, like every other yes/no question (js/main.js; after the end, no
+// "Restart game" closes the panel and asks in the story, like every other yes/no question (js/session.js; after the end, no
 // question); "Quit" closes it and goes at once. Opening focuses the panel itself (tabindex -1: no ring; Tab then goes to the
 // sound switch, Esc closes it; until 15 November 2026 the Music slider, which showed the keyboard ring on a phone); closing
 // returns the focus to the command line. A switch's whole line flips it; Restart game and Quit take their whole line.
 
-import { hang } from "./popup.js?v=0.70.1";
+import { hang } from "./popup.js?v=0.71.0";
 
 // Set up the panel on its popover element. Returns update().
 export function mount(panel, on) {

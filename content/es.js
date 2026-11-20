@@ -235,6 +235,14 @@ export default {
   useHow: (d, w) => `¿Usar ${el(d.name, w)} cómo? ${d.list}.`,
   // Las órdenes de dos cosas que ofrece USAR solo, como las escribiría un jugador (nombres, sin artículos).
   useWith: { unlock: (door, key) => `Abrir ${door} con ${key}`, put: (thing, into) => `Meter ${thing} en ${into}`, give: (thing, who) => `Dar ${thing} a ${who}` },
+  // Las órdenes que el motor redacta para los pasos de un puzle fuera de `basic` y `useWith` (el último nivel de las pistas y los finales del
+  // comprobador: js/view.js, commandFor), como las escribe quien juega: preguntar a alguien por un tema o pedirle una cosa, esperar algo, sacar una
+  // cosa de otra, enseñarla o tirarla, y cualquier otro verbo con una segunda cosa (`other`: la orden del verbo, y luego la segunda cosa).
+  steps: {
+    askAbout: (who, topic) => `Preguntar a ${who} por ${topic}`, askFor: (who, x) => `Pedir ${x} a ${who}`, waitFor: (x) => `Esperar a ${x}`,
+    take: (x, from) => `Sacar ${x} de ${from}`, show: (x, who) => `Enseñar ${x} a ${who}`, throw: (x, at) => `Tirar ${x} a ${at}`,
+    other: (said, y) => `${said} con ${y}`
+  },
   // Las órdenes que el motor escribe él mismo para una cosa (js/narrator.js, las pistas de la apertura), como las escribiría un jugador:
   // x = el nombre de la cosa como lo escribe una orden (js/names.js: su nombre entero si tiene más de una palabra, con el artículo que traiga,
   // «la modista»; si no, su sustantivo, tal como lo deletrea su nombre: «Salir de cabina»). «a el» y «de el» se contraen al escribir la orden

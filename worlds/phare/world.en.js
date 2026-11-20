@@ -1,11 +1,11 @@
 // "A Light for the Galerie Aubry": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -76,8 +76,7 @@ const rooms = {
     ],
     ambience: { lines: ["Over your head a gas jet sputters, and settles.", "Boots cross the dock above you, and stop, and go on.", "The tarpaulin breathes in and out with the draught.", "A wheel passes in the street and does not stop."], every: [30, 70], chance: 0.8 },
     alt: "The inside of a covered van: crates stacked to the roof, straw on the floor, a low lantern, and a square hatch in the floor, a rope running to it from a coil.",
-    overlayAlt: { horn: "A brass speaking horn hanging on a nail." },
-    mentions: []
+    overlayAlt: { horn: "A brass speaking horn hanging on a nail." }
   },
   cellar: {
     name: "CRATE CELLAR",
@@ -481,23 +480,23 @@ const changes = {
 // ---- Puzzles ----------------------------------------------------------------------------------------------------------
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the horn's first hints are about it.
-  lift_hatch: { where: "cart", needs: [], solve: ["pull rope", "go down"], reaches: "cellar", clues: ["hatch", "rope"],
+  lift_hatch: { where: "cart", needs: [], solve: [{ verb: "pull", obj: "rope" }, "d"], reaches: "cellar", clues: ["hatch", "rope"],
     hints: ["The hatch is nailed down for the drive, and its ring has a rope on it.", "Pull the rope, and go down through the hatch."] },
-  get_flask: { where: "cloakroom", needs: [], solve: ["take flask"], gives: ["flask"], clues: ["flask", "gaspard"],
+  get_flask: { where: "cloakroom", needs: [], solve: [{ verb: "take", obj: "flask" }], gives: ["flask"], clues: ["flask", "gaspard"],
     hints: ["Gaspard's brandy has to be somewhere he thinks nobody looks.", "Take the flask from the cloakroom, east of the vestibule."] },
-  get_oil: { where: "boiler", needs: [], solve: ["take oil can"], gives: ["oilcan"], clues: ["oilcan", "lamp"],
+  get_oil: { where: "boiler", needs: [], solve: [{ verb: "take", obj: "oilcan" }], gives: ["oilcan"], clues: ["oilcan", "lamp"],
     hints: ["A lens needs lamp oil, and a boiler room keeps tins.", "Take the oil can from the boiler room, east of the cellar."] },
-  get_matches: { where: "office", needs: [], solve: ["take matches"], gives: ["matches"], clues: ["matches", "lamp"],
+  get_matches: { where: "office", needs: [], solve: [{ verb: "take", obj: "matches" }], gives: ["matches"], clues: ["matches", "lamp"],
     hints: ["A desk keeps matches for the gas bracket.", "Take the matches from the office, east of the great hall."] },
-  sleep_gaspard: { where: "west_gallery", needs: ["flask"], solve: ["give flask to gaspard", "take key"], gives: ["lens_key"], clues: ["gaspard", "flask", "lens_door", "tally"],
+  sleep_gaspard: { where: "west_gallery", needs: ["flask"], solve: [{ verb: "give", obj: "flask", obj2: "gaspard" }, { verb: "take", obj: "lens_key" }], gives: ["lens_key"], clues: ["gaspard", "flask", "lens_door", "tally"],
     hints: ["The watchman keeps the lens room's key on his belt, and he would sooner have a drink.", "Give him the flask, then take the key from the floor."] },
-  free_painting: { where: "lens_room", needs: ["oilcan", "matches", "lens_key"], solve: ["put oil can in lamp", "light lamp", "take painting"], gives: ["canvas"], clues: ["ledger", "label", "painting", "lens"],
+  free_painting: { where: "lens_room", needs: ["oilcan", "matches", "lens_key"], solve: [{ verb: "put", obj: "oilcan", obj2: "lamp" }, { verb: "switch_on", obj: "lamp" }, { verb: "take", obj: "painting" }], gives: ["canvas"], clues: ["ledger", "label", "painting", "lens"],
     hints: ["The ledger says the lens first, then let the picture say when.", "Fill the lamp with oil, light it with a match, then take the painting."] },
-  caught: { where: "lens_room", needs: ["lens_key"], solve: ["take painting"], ending: true, clues: ["wire", "painting", "label"],
+  caught: { where: "lens_room", needs: ["lens_key"], solve: [{ verb: "take", obj: "painting" }], ending: true, clues: ["wire", "painting", "label"],
     hints: ["Every frame has a wire, and every wire has a bell.", "Take the painting while the lens is dark, and every bell rings."] },
-  carried: { where: "roof", needs: ["canvas"], solve: ["go up", "climb pipe"], ending: true, clues: ["drainpipe", "canvas"],
+  carried: { where: "roof", needs: ["canvas"], solve: ["u", { verb: "climb", obj: "drainpipe" }], ending: true, clues: ["drainpipe", "canvas"],
     hints: ["The roof has a drainpipe, and an alley behind it.", "With the canvas, go up the ladder and climb the drainpipe."] },
-  keeper: { where: "lens_room", needs: ["oilcan", "matches", "lens_key"], solve: ["put oil can in lamp", "light lamp", "turn lens"], ending: true, clues: ["lens", "lamp"],
+  keeper: { where: "lens_room", needs: ["oilcan", "matches", "lens_key"], solve: [{ verb: "put", obj: "oilcan", obj2: "lamp" }, { verb: "switch_on", obj: "lamp" }, { verb: "turn", obj: "lens" }], ending: true, clues: ["lens", "lamp"],
     hints: ["A lit lens can be turned.", "Light the lens and turn it."] }
 };
 

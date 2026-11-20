@@ -2,11 +2,11 @@
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -82,7 +82,6 @@ const rooms = {
     exits: { w: "way", e: "way", n: "way",
       s: "way" },
     scenery: [{ words: ["mosaic", "mahogany", "brass", "counters", "ceiling", "chandelier"], name: "the hall", says: "A mosaic of a ship in full sail, worn through at the bow by a hundred years of people standing where you stand." }],
-    mentions: ["carnation"],
     ambience: { lines: ["Somewhere a till rings, though nobody has bought anything.", "A cash canister goes overhead in its tube, hurrying, like a thought on its way to someone.", "The revolving door turns once, empty, and stops."], every: [45, 90] },
     sleep: "Not on the shop floor, under Mr Gage's eye.",
     alt: "A grand store hall: mahogany counters, brass, a mosaic floor of a ship. A directory board on a stand, a floorwalker with a carnation, and a revolving door at the front."
@@ -95,7 +94,6 @@ const rooms = {
     ],
     exits: { e: "way" },
     scenery: [{ words: ["bottles", "bottle", "counters", "counter", "choir", "perfume", "perfumes"], name: "the bottles", says: "Small bottles with handwritten labels: THE LAST DAY OF THE HOLIDAYS. A HOSPITAL CORRIDOR AT NIGHT. SNOW, BEFORE IT FALLS. They are not for sale. They are what Madame Corre makes things from." }],
-    mentions: ["gloves", "label"],
     smell: "Twenty afternoons at once, none of them yours, all of them nearly.",
     sleep: "Not among the bottles. You would wake smelling of somebody else's afternoon.",
     alt: "A perfume counter crowded with small bottles on glass shelves. A tall woman in white gloves stands behind it; a single tester bottle on the counter in front."
@@ -162,7 +160,6 @@ const rooms = {
     ],
     exits: { w: "way" },
     scenery: [{ words: ["soldiers", "soldier", "train", "set", "table", "loop", "toys", "shelf", "shelves"], name: "the toys", says: "The soldiers stand in rows, facing the stairs. The train goes round. Nobody has bought a toy here since the children grew up." }],
-    mentions: ["train set"],
     alt: "A toy department: shelves of soldiers and rocking horses, a model train circling a table, and a small brown clockwork bear sitting on a shelf."
   },
   second_landing: {
@@ -184,7 +181,6 @@ const rooms = {
     ],
     exits: { e: "way", w: "way" },
     scenery: [{ words: ["rooms", "dining", "bedroom", "parlour", "table", "bed", "lamp", "family"], name: "the rooms", says: "Places laid at the table, a lamp on the bedside, slippers by the bed. Everything is waiting to be somebody's." }],
-    mentions: ["dining room"],
     alt: "A furniture floor laid out as rooms with no walls: a dining table set for four, a bed with a lamp, and a deep sofa with a dent in its cushions."
   },
   tea_room: {
@@ -206,7 +202,6 @@ const rooms = {
     ],
     exits: { w: "way" },
     scenery: [{ words: ["rails", "rail", "coats", "hangers"], name: "the rails", says: "Coats for every weather, and one rail at the end for weathers that haven't been invented." }],
-    mentions: ["coat"],
     ambience: { lines: ["Out of the corner of your eye, a mannequin lowers its hand.", "A hanger rings against a rail, once, though nobody is near it.", "The mannequins are exactly where they were. You are almost sure."], every: [40, 80] },
     sleep: "Not with the mannequins watching. They move when you look away, and you would be looking away for hours.",
     alt: "A coat department: rails of coats and a row of pale mannequins in coats and hats, all facing the doorway."
@@ -220,7 +215,6 @@ const rooms = {
     exits: { u: "way" },
     scenery: [{ words: ["pans", "brooms", "soap", "booth", "office", "panes", "tubes", "brass"], name: "the cash office", says: "A brass booth with frosted panes and a small sign: ALL PAYMENTS BY TUBE. The tubes from every floor come down into it like the roots of something." },
               { words: ["steps", "stairs"], name: "the steps", says: "Stone steps going up to the lifts.", leads: "u" }],
-    mentions: ["cash office"],
     alt: "A basement of shelves with pans and brooms. In the middle, a brass booth with frosted panes, tubes coming down into its roof from above, a woman's shape inside."
   },
   roof_garden: {
@@ -242,7 +236,6 @@ const rooms = {
     ],
     exits: { s: { to: true, in: true } },
     scenery: [{ words: ["rails", "rail", "afternoons", "labels", "label", "grey", "blue", "lamp"], name: "the afternoons", says: "AUGUST 1958, THE FAIR. A SUNDAY, NOT VISITING. THE BUS NOT TAKEN. Each one cut to fit somebody, and none of them collected." }],
-    mentions: ["fitter"],
     alt: "A long dim room of clothes rails hung with soft shapes of different colours, like coats made of weather. At the end, one hangs under a lamp, and a woman with a pincushion waits beside it."
   }
 };
@@ -285,7 +278,7 @@ const objects = {
   corre: { portrait: sprites.corre_portrait, at: "perfumery", name: "Madame Corre", note: "Perfumer. White gloves.",
     words: { nouns: ["corre", "perfumer", "woman", "madame"], adj: ["madame"], proper: true },
     examine: "A tall woman with her hair up like a question. Her white gloves have never touched anything that didn't want to be touched.",
-    parts: [{ words: ["gloves", "hair"], name: "her gloves", says: "White gloves, buttoned at the wrist. She takes them off for nobody." }], mentions: ["gloves"],
+    parts: [{ words: ["gloves", "hair"], name: "her gloves", says: "White gloves, buttoned at the wrist. She takes them off for nobody." }],
     talk: "\"Smell the tester,\" she says. \"I bottle what you remember. It is the only thing anyone here will take as payment.\"",
     topics: {
       tester: { about: "tester", label: "the tester", words: ["tester", "perfume", "smell", "bottle"], says: "\"Number seven. It reminds everyone of something they had. One each; memories are not samples.\"" },
@@ -391,7 +384,7 @@ const objects = {
     examine: "Pale figures in coats and hats. The one in a coat like yours has a ticket pinned to its sleeve: FOURTH FLOOR. PAID FOR IN FULL, BY TUBE. Its pocket is buttoned.",
     search: "In the pocket of the coat like yours, a note in pencil: \"Haberdashery. Canister, then the handle. Pay with what you have. It is worth it, they say.\" The handwriting is yours.",
     parts: [{ words: ["sleeve", "pocket", "note", "hats", "hat", "pin"], name: "the coat", says: "The coat like yours. Its pocket is buttoned, and something crackles in it." },
-            { words: ["ticket"], name: "the ticket on the sleeve", says: "FOURTH FLOOR. PAID FOR IN FULL, BY TUBE. Pinned on, the way they pin a price." }], mentions: ["sleeve", "pocket", "hats", "ticket"] },
+            { words: ["ticket"], name: "the ticket on the sleeve", says: "FOURTH FLOOR. PAID FOR IN FULL, BY TUBE. Pinned on, the way they pin a price." }] },
 
   // Basement
   ruth: { portrait: sprites.ruth_portrait, at: "basement", name: "Miss Ruth", note: "The cash office.",
@@ -527,21 +520,21 @@ const rules = [
 // ---- Puzzles (for the checker; BRIEF.md §4) ---------------------------------------------------------------------------
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the wireless's first hints are about it.
-  way_out: { where: "pavement", needs: [], solve: ["push door", "north"], reaches: "front_hall", clues: ["street_door", "push_street_door"],
+  way_out: { where: "pavement", needs: [], solve: [{ verb: "push", obj: "street_door" }, "n"], reaches: "front_hall", clues: ["street_door", "push_street_door"],
     hints: ["The revolving door turns past people who only stand and look. Its brass bar says what it wants.", "Push the revolving door, then go north through the gap."] },
-  get_memory: { where: "perfumery", needs: [], solve: ["smell tester"], gives: ["memory"], clues: ["tester", "corre", "gage"],
+  get_memory: { where: "perfumery", needs: [], solve: [{ verb: "smell", obj: "tester" }], gives: ["memory"], clues: ["tester", "corre", "gage"],
     hints: ["Madame Corre bottles what you remember, if you smell her tester.", "Smell the tester in perfumery."] },
-  pay_by_tube: { where: "haberdashery", needs: ["memory"], solve: ["put memory in canister", "pull handle"], gives: ["lift_ticket"], clues: ["thimble", "mannequins", "ruth", "pell"],
+  pay_by_tube: { where: "haberdashery", needs: ["memory"], solve: [{ verb: "put", obj: "memory", obj2: "canister" }, { verb: "pull", obj: "handle" }], gives: ["lift_ticket"], clues: ["thimble", "mannequins", "ruth", "pell"],
     hints: ["Payment goes to the cash office by tube, from the canister in haberdashery.", "Put the memory in the canister, then pull the handle."] },
-  ride_up: { where: "lift", needs: ["lift_ticket"], solve: ["show ticket to Mr Pell"], reaches: "fourth_floor", clues: ["pell", "directory", "gage"],
+  ride_up: { where: "lift", needs: ["lift_ticket"], solve: [{ verb: "show", obj: "lift_ticket", obj2: "pell" }], reaches: "fourth_floor", clues: ["pell", "directory", "gage"],
     hints: ["Mr Pell only goes to the fourth, and only by appointment.", "In the lift, show Mr Pell your ticket."] },
-  try_on: { where: "fourth_floor", needs: ["ride_up"], solve: ["wear afternoon"], ending: true, clues: ["fitter", "afternoon"],
+  try_on: { where: "fourth_floor", needs: ["ride_up"], solve: [{ verb: "wear", obj: "afternoon" }], ending: true, clues: ["fitter", "afternoon"],
     hints: ["The fitter has it ready, in your size.", "Wear the afternoon."] },
-  get_roof_key: { where: "gloves", needs: [], solve: ["shake glove"], gives: ["roof_key"], clues: ["glove", "gage", "bear"],
+  get_roof_key: { where: "gloves", needs: [], solve: [{ verb: "shake", obj: "glove" }], gives: ["roof_key"], clues: ["glove", "gage", "bear"],
     hints: ["The glove in Gloves is holding something for whoever greets it properly.", "Shake the glove."] },
-  open_roof: { where: "second_landing", needs: ["roof_key"], solve: ["unlock door", "up"], reaches: "roof_garden", clues: ["roof_door", "directory", "dot"],
+  open_roof: { where: "second_landing", needs: ["roof_key"], solve: [{ verb: "unlock", obj: "roof_door", obj2: "roof_key" }, "u"], reaches: "roof_garden", clues: ["roof_door", "directory", "dot"],
     hints: ["The roof door on the second floor wants a long brass key.", "Unlock the roof door, then go up."] },
-  let_it_out: { where: "roof_garden", needs: ["memory", "open_roof"], solve: ["open memory"], ending: true, clues: ["corre", "dot", "bear"],
+  let_it_out: { where: "roof_garden", needs: ["memory", "open_roof"], solve: [{ verb: "open", obj: "memory" }], ending: true, clues: ["corre", "dot", "bear"],
     hints: ["Madame Corre said a memory let out somewhere high stays yours.", "On the roof, open the memory."] }
 };
 

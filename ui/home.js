@@ -1,14 +1,14 @@
 // Landing page: the list of games. One card per world (thumbnail, title, blurb, and buttons: NEW GAME, with CONTINUE beside it when
 // the world has a saved game), under the logo. Drawn from the list the controller hands it, not from the game's state.
-// Never decides which games exist or what a saved game is (js/main.js, worlds/index.js, js/saves.js); CONTINUE is the intent
+// Never decides which games exist or what a saved game is (js/session.js and js/screens.js read them; worlds/index.js, js/saves.js); CONTINUE is the intent
 // on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)). A world with a cover has a page of its own
 // (/<id>/, ui/splash.js: CONTINUE and NEW GAME are there), so its card has one button, LOAD GAME, on.open(id).
 
-import { VERSION } from "../js/version.js?v=0.70.1";
-import { THUMB, thumbnailPixels, putPixels, RGB, paintPicture } from "./draw.js?v=0.70.1";
-import art from "../content/art.js?v=0.70.1";
-import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.70.1";
-import { thumbnails } from "./crt.js?v=0.70.1";
+import { VERSION } from "../js/version.js?v=0.71.0";
+import { THUMB, thumbnailPixels, putPixels, RGB, paintPicture } from "./draw.js?v=0.71.0";
+import art from "../content/art.js?v=0.71.0";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.71.0";
+import { thumbnails } from "./crt.js?v=0.71.0";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
@@ -44,7 +44,7 @@ export function mount(root, on) {
   function paintBox(box, id, lang) {
     const key = "box/" + lang + "/" + id;
     if (!painted.has(key)) {
-      const full = paintPicture(box.draw, BOX.width, BOX.height).px;
+      const full = paintPicture(box.draw, BOX.width, BOX.height, box.bg ?? 0).px;   // (the canvas starts in the world's colour, `bg`: the shapes may write it too)
       const ink = titlePixels(layoutTitle(box.title, fontNamed(art.cover.titleFont), box.titleAt, lang, "", 1, BOX), BOX.width, BOX.height);
       stampTitle(full, ink, box.titleColor);
       const out = new Uint8Array(BW * BH);
@@ -71,7 +71,7 @@ export function mount(root, on) {
     if (w.thumb) { const c = paintThumb(w.thumb, w.id, lang); c.setAttribute("role", "img"); c.setAttribute("aria-label", w.thumb.alt || w.title); shot.append(c); }
     const buttons = el("div", "buttons text-button");
     for (const b of buttonsFor(saved, t, w.cover)) buttons.append(button(b.label, w.title, () => { dialog.close(); b.open ? on.open(w.id) : on.play(w.id, b.fresh); }));
-    const close = el("button", "close", "×"); close.type = "button"; close.setAttribute("aria-label", t.close ?? "Close"); close.addEventListener("click", () => dialog.close());
+    const close = el("button", "close", "×"); close.type = "button"; close.setAttribute("aria-label", t.close); close.addEventListener("click", () => dialog.close());
     dialog.replaceChildren(el("div", "pop card", ""));
     dialog.firstChild.append(close, shot, el("h2", "title text-heading", w.title), el("p", "blurb text-story", w.blurb), buttons);
     dialog.showModal();

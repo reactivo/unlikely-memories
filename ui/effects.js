@@ -3,9 +3,9 @@
 // hash of the pixel and the moment, so the same moment always draws the same.
 // (How one picture changes into another, a room's or an ending's, is not here: it is all in ui/transitions.js.)
 
-import art from "../content/art.js?v=0.70.1";
-import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.70.1";
-import { colorsOf, areaPixels } from "../js/picture.js?v=0.70.1";
+import art from "../content/art.js?v=0.71.0";
+import { lit, rgbOf, scrollPlan, scrollInto, drawLoop } from "./draw.js?v=0.71.0";
+import { colorsOf, areaPixels } from "../js/picture.js?v=0.71.0";
 
 // A tint's palette as [r, g, b] colours, parsed once for each palette (the scene asks every frame).
 const tints = new WeakMap();
@@ -75,18 +75,38 @@ const isScatter = (c) => c.scatter && c.style !== "scroll" && !c.sweep;
 // shape id shows. A sweep (rotate only; `sweep: true`, or a list of whole numbers, one for each entry of `areas`) takes every pixel painted
 // in one of the colours, each starting at (its own colour's place in the list − its area's step) mod the number of colours; a group of
 // ids is one area. Otherwise only the pixels painted in one of the colours, each starting at its own.
-export function prepareCycle(c0, px, areas, w, h, t0 = 0) {
+// `skip` (a Set of pixels, optional) are pixels the cycle does not take (prepareCycles: another cycle has them).
+export function prepareCycle(c0, px, areas, w, h, t0 = 0, skip = null) {
   const colors = colorsOf(c0), c = colors === c0.colors ? c0 : { ...c0, colors };
   const pixels = [], start = [], own = [], scroll = c.style === "scroll", sweep = c.style === "rotate" && c.sweep;
   (c.areas || []).forEach((a, ai) => {
     const list = areaPixels(a, areas, w, h), n = scroll ? 0 : colors.length, off = sweep ? (Array.isArray(c.sweep) ? c.sweep[ai] : ai) : 0;
     for (const k of list) {
+      if (skip?.has(k)) continue;
       if (scroll) { pixels.push(k); continue; }
       const i = colors.indexOf(px[k]);
       if (i >= 0) { pixels.push(k); own.push(i); start.push((((i - off) % n) + n) % n); }
     }
   });
   return { c, pixels, start, own, plan: scroll ? scrollPlan(pixels, c.dir, w) : null, mem: {}, t0 };
+}
+
+// All of a picture's cycles made ready (prepareCycle), the way the engine runs them: a pixel a scroll and another cycle both claim goes to
+// the first of them in the list (a palette cycle's claim is the pixels painted in its colours; two palette cycles may share one), and a
+// cycle left with no pixel to change (every shape of its area covered by later shapes, no pixel in its colours) is not run at all.
+export function prepareCycles(cycles, px, areas, w, h, t0 = 0) {
+  const list = (cycles || []).filter(c => c && typeof c === "object");
+  let prepared = list.map(c => prepareCycle(c, px, areas, w, h, t0));
+  if (list.some(c => c.style === "scroll") && list.length > 1) {
+    const owner = new Map();   // a pixel → the first cycle (by place in the list) that claims it
+    prepared.forEach((cy, i) => { for (const k of cy.pixels) if (!owner.has(k)) owner.set(k, i); });
+    prepared = prepared.map((cy, i) => {
+      const lost = new Set(), scroll = cy.c.style === "scroll";
+      for (const k of cy.pixels) { const o = owner.get(k); if (o !== i && (scroll || prepared[o].c.style === "scroll")) lost.add(k); }
+      return lost.size ? prepareCycle(list[i], px, areas, w, h, t0, lost) : cy;
+    });
+  }
+  return prepared.filter(cy => cy.pixels.length > 0);
 }
 
 // What a cycle does to the frame at this step (the scene's `steps`; a scatter cycle's is its scatterTick). `cy` is a prepared cycle (prepareCycle);

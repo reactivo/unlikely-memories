@@ -4,8 +4,8 @@
 // on phones, whether you are typing (see followTyping), the background's flash when you are hurt or healed (see flash), and what is
 // locked while you sleep (see sleeper).
 
-import { reactionOf } from "./effects.js?v=0.70.1";
-import { touch, topMode } from "./media.js?v=0.70.1";
+import { reactionOf } from "./effects.js?v=0.71.0";
+import { touch, topMode } from "./media.js?v=0.71.0";
 
 // The page scrolls and two parts of it stick: the top (title bar and picture) and the bottom (prompt and tabs). How
 // tall they are depends on the window and the text, so the page measures them and reports them, as the one exception to
@@ -75,7 +75,7 @@ function flash(root) {
   };
 }
 
-// While you sleep (INTERFACE.md §6c, "Sleep"; js/main.js, sleepThrough): data-asleep on <html>, and the compass, the inventory and the
+// While you sleep (INTERFACE.md §6c, "Sleep"; js/turn.js, sleepThrough): data-asleep on <html>, and the compass, the inventory and the
 // command line locked (inert) and greyed (their own CSS reads data-asleep, as it reads the end's `over`). Nothing can be typed or
 // clicked: a tap, a click or any key only skips to waking (`skip`), once; the key's release and the click that follow are swallowed
 // too, so they don't act after you wake (Esc, a release, restarts). Scrolling the story still works. Returns lock(on, skip).

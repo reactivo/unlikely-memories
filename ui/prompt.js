@@ -4,12 +4,12 @@
 // room's description has appeared; it steps aside while you type, and goes with your command. After two minutes with
 // no command and nothing typed (IDLE_HINT), it fades in again.
 
-import { makeHistory } from "./history.js?v=0.70.1";
-import { touch } from "./media.js?v=0.70.1";
+import { makeHistory } from "./history.js?v=0.71.0";
+import { touch } from "./media.js?v=0.71.0";
 
 const IDLE_HINT = 120000;   // ms with no command and nothing typed before the hint comes back
 
-// Earlier commands (↑ / ↓): the commands run, typed or clicked (js/main.js runCommand calls remember()), kept for this visit to the page (ui/history.js). This module
+// Earlier commands (↑ / ↓): the commands run, typed or clicked (js/turn.js runCommand calls remember()), kept for this visit to the page (ui/history.js). This module
 // is created once, so they carry across a new game and a loaded one; they are never saved.
 
 // Set up the command line on its <form>. Returns update(), focus(), remember(), typing(), hint(), clearHint() and clear().
@@ -103,7 +103,7 @@ export function mount(root, on) {
       if (!prev || prev.state.lang !== next.state.lang) cmd.setAttribute("aria-label", next.pack.a11y.command);
     },
     focus,
-    // A command is being run, typed or clicked (js/main.js runCommand): remember it for ↑ / ↓.
+    // A command is being run, typed or clicked (js/turn.js runCommand): remember it for ↑ / ↓.
     remember(line) { earlier.add(line); },
     // Is something typed on the line? (The world waits while you type.)
     typing() { return cmd.value !== ""; },

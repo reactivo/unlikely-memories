@@ -3,11 +3,11 @@
 // conjunto de cambios, con su sala del comienzo, todo o nada (WRITING-DIRECTION.md, BRIEF.md, ARCHITECTURE.md §3–6).
 // Las imágenes y los sprites son los del mundo inglés; aquí solo se reescribe el texto que describe imágenes (alt).
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- La biblia del juego -------------------------------------------------------------------------------------------
 export const bible = {
@@ -111,7 +111,6 @@ const rooms = {
     exits: { n: "way", s: { out: true }, w: "way", e: "way" },
     waitFor: { time: "next 21:00", says: "Esperas bajo el reloj. No miente en ningún minuto.", if: [hours(6, 21)] },
     scenery: [{ words: ["techo", "cristal", "azulejos", "azulejo", "vestíbulo", "vestibulo", "palomas", "paloma"], name: "el vestíbulo", says: "Azulejos verdes y crema, y un cristal tan alto que las palomas de debajo parecen pensamientos." }],
-    mentions: ["reloj", "reja", "postigo"],
     sleep: "Aquí no, bajo el reloj, con tanta gente que tiene un tren que coger.",
     overlayAlt: { booking_clerk: "El postigo de la ventanilla está levantado: tras la reja, una mujer de uniforme azul espera con su sacabocados." },
     alt: "Un vestíbulo de estación con azulejos verdes y crema bajo un techo de cristal. Un gran reloj con un calendario debajo y un aviso enmarcado. A la derecha, una ventanilla de billetes con reja de latón; en la pared de la izquierda, un horario."
@@ -125,7 +124,6 @@ const rooms = {
     ],
     exits: { w: "way" },
     scenery: [{ words: ["bancos", "banco", "estufa", "carteles", "cartel", "balnearios"], name: "la sala de espera", says: "La estufa lleva mucho tiempo fría. Los carteles prometen aire de mar, aire de montaña, cualquier aire menos este." }],
-    mentions: ["cortina", "maleta"],
     alt: "Una sala de espera en penumbra, con bancos de madera y una estufa negra. Una anciana sentada con una maleta sobre las rodillas. Un fotomatón con la cortina echada en un rincón."
   },
   platform: {
@@ -137,7 +135,6 @@ const rooms = {
     exits: { s: "way", e: "way", w: "way", n: true },
     scenery: [{ words: ["raíles", "railes", "riel", "rieles", "vía", "via", "vías", "vias", "línea", "linea", "carriles", "marquesina", "túnel", "tunel"], name: "la vía", says: "Una sola vía, pulida por un solo tren, que va en un solo sentido." },
               { words: ["caseta", "casilla", "garita", "señales", "senales", "pilotes"], name: "la caseta de señales", says: "Una caja de madera sobre pilotes, toda ventanas, al oeste del andén. Alguien dentro vigila la vía." }],
-    mentions: ["caseta de señales"],
     // Vale la pena esperar mientras el tren no está; cuando ya ha estado, las palabras cambian (train_out).
     waitFor: { time: "next 23:30", says: "Esperas en el andén. Las horas vuelven como vuelven los trenes, todas de golpe.", if: [{ "train.at": { "!=": "platform" } }] },
     sleep: "En el andén no, con los trenes.",
@@ -170,7 +167,6 @@ const rooms = {
     describe: squareDusk,
     exits: { n: "way", w: "way", e: { if: hours(7, 22), closed: "El café está a oscuras, con las sillas sobre las mesas. Un cartel en la puerta: DE 7 A 22." }, s: "way" },
     scenery: [{ words: ["farolas", "farola", "escalera", "adoquines", "palomas", "sombrero", "farolero"], name: "las farolas", says: "Farolas de hierro con sombreritos de cristal. Alguien las enciende a las ocho, y también la que está bajo el agua de la fuente." }],
-    mentions: ["estatua"],
     // Vale la pena esperar desde las siete de la mañana hasta que se encienden las farolas, a las ocho; desde la primera mañana las palabras cambian (daybreak).
     waitFor: { time: "next 20:00", says: "Esperas junto a la fuente mientras se va la luz.", if: [hours(7, 20)] },
     alt: "Una plaza empedrada al anochecer: una fuente redonda con la estatua de un hombre de chistera, farolas de hierro todavía apagadas y una escalera apoyada en una. Al norte la fachada de la estación, a la izquierda un hotel, a la derecha un café de ventanas amarillas."
@@ -256,7 +252,6 @@ const rooms = {
     exits: { w: { out: true } },
     scenery: [{ words: ["mostrador", "banco", "pinzas"], name: "el mostrador" },
               { words: ["relojes", "paredes", "tictac", "lupa", "esferas"], name: "los relojes", says: "Laten a velocidades distintas. Juntos suenan como una lluvia que no se decide." }],
-    mentions: ["reloj del revés"],
     sleep: "Aquí no, con todos los relojes de la pared llevando la hora de alguien.",
     alt: "Una tienda pequeña atestada de relojes de todos los tamaños en las paredes. Un anciano en un banco con una lupa de joyero; sobre el mostrador, un reloj con las manecillas girando al revés."
   },
@@ -304,7 +299,6 @@ const rooms = {
     ],
     exits: { e: "way", s: "way" },
     scenery: [{ words: ["asientos", "asiento", "felpa", "redecilla", "portaequipajes", "equipaje", "cartel", "martes"], name: "el compartimento", says: "Los asientos recuerdan a otras personas. El cartel dice MARTES y, debajo, más pequeño: NO SE EXPIDEN BILLETES DE VUELTA." }],
-    mentions: ["correa"],
     waitFor: { time: "next 23:40", says: "Te sientas. El asiento está caliente. Por todo el tren se cierran puertas, una tras otra, como una frase al acabar." },
     alt: "El interior de un compartimento de tren: asientos de felpa verde, una redecilla para el equipaje, una ventanilla con una correa de cuero, un cartelito en la pared."
   },
@@ -349,17 +343,17 @@ const objects = {
   ledger: { at: "lost_property", name: "Libro de registro", note: "Todo lo perdido, en orden.", opens: ["monday", "umbrella"],
     words: { nouns: ["libro", "registro"], adj: ["grande", "negro"], g: "m" },
     examine: "Columnas de cosas perdidas. Hacia el final, con la misma letra paciente: «Un paraguas, gris. Dejado un lunes. Sin reclamar». Al lado, el nombre del dueño se ha corrido con la lluvia, en una letra que es la tuya.",
-    parts: [{ words: ["columnas", "columna", "letra", "anotación", "anotacion", "anotaciones", "entradas"], name: "las anotaciones" }], mentions: ["columnas"] },
+    parts: [{ words: ["columnas", "columna", "letra", "anotación", "anotacion", "anotaciones", "entradas"], name: "las anotaciones" }] },
   umbrella: { at: "lost_property", portable: false, unnoticed: true, name: "Paraguas gris", note: "Tuyo, según la etiqueta.", heldActions: ["Dar paraguas a archivera"],
     words: { nouns: ["paraguas"], adj: ["gris"], g: "m" }, ...item("umbrella"),
     examine: "Un paraguas gris con mango de madera y una etiqueta de papel. Huele a la última lluvia del último lunes.",
-    parts: [{ words: ["etiqueta", "mango"], name: "la etiqueta", says: "Un nombre, corrido por la lluvia. Con tu letra, aunque no recuerdas haberlo escrito." }], mentions: ["etiqueta", "mango"] },
+    parts: [{ words: ["etiqueta", "mango"], name: "la etiqueta", says: "Un nombre, corrido por la lluvia. Con tu letra, aunque no recuerdas haberlo escrito." }] },
   sea_crate: { at: "lost_property", name: "Cajón", note: "MAR, UNO, SIN RECLAMAR.", actions: ["Abrir cajón"],
     words: { nouns: ["cajón", "cajon", "mar"], adj: ["húmedo", "humedo", "mojado", "madera"], g: "m" },
     examine: "Un cajón de madera, rotulado con plantilla: MAR, UNO, SIN RECLAMAR. El agua perla sus junturas y corre, despacio, hacia tus pies.",
     listen: "Dentro, muy pequeñas, las olas se dan la vuelta mientras duermen.",
     locked: true, lock: { says: "La tapa está clavada. Alguien decidió que el mar debía seguir perdido." },
-    parts: [{ words: ["junturas", "juntura", "agua", "tapa", "clavos", "plantilla"], name: "las junturas", says: "Agua salada. Te encuentra los pies cada vez, como si tuviera adónde ir." }], mentions: ["junturas", "agua", "tapa"] },
+    parts: [{ words: ["junturas", "juntura", "agua", "tapa", "clavos", "plantilla"], name: "las junturas", says: "Agua salada. Te encuentra los pies cada vez, como si tuviera adónde ir." }] },
 
   // Vestíbulo
   station_clock: { at: "station_hall", name: "Reloj de la estación", note: "No miente en ningún minuto.",
@@ -368,15 +362,14 @@ const objects = {
   calendar: { at: "station_hall", name: "Calendario", note: "Arrancado hasta el domingo.", opens: ["monday"],
     words: { nouns: ["calendario", "almanaque", "taco", "hojas"], adj: ["pared"], g: "m" },
     examine: "Un calendario de hojas que marca DOMINGO. Entre la hoja del domingo y la siguiente, la del martes, queda el resto de una que arrancaron, y un poco de cola, todavía pegajosa.",
-    parts: [{ words: ["cola", "pegamento", "resto", "hueco"], name: "el hueco", says: "Sitio para una hoja. La cola sigue pegajosa, después de tantos años." }], mentions: ["hueco", "cola"] },
+    parts: [{ words: ["cola", "pegamento", "resto", "hueco"], name: "el hueco", says: "Sitio para una hoja. La cola sigue pegajosa, después de tantos años." }] },
   decree: { at: "station_hall", name: "Decreto", note: "Enmarcado y firmado.", opens: ["monday"],
     words: { nouns: ["decreto", "aviso", "marco", "cuadro"], adj: ["enmarcado"], g: "m" },
     examine: "«Por decreto: queda abolido el lunes en este pueblo, con efecto desde el próximo. El último lunes se guardará en el ayuntamiento, por si acaso». Firmado por el Ministro, con una rúbrica que se alarga demasiado.",
-    parts: [{ words: ["rúbrica", "rubrica", "firma", "ministro"], name: "la firma" }], mentions: ["firma"] },
+    parts: [{ words: ["rúbrica", "rubrica", "firma", "ministro"], name: "la firma" }] },
   window: { at: "station_hall", name: "Ventanilla de billetes", note: "Billetes desde las nueve de la noche.",
     words: { nouns: ["ventanilla", "taquilla", "reja", "rejilla", "postigo", "cartel", "tarjeta"], adj: ["billetes", "billete", "latón", "laton"], g: "f" },
-    examine: "Una reja de latón, un postigo y un cartel: BILLETES DESDE LAS 21:00. UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA.",
-    mentions: ["reja", "postigo", "cartel"] },
+    examine: "Una reja de latón, un postigo y un cartel: BILLETES DESDE LAS 21:00. UN VIAJE, UNA MONEDA. SOLO MONEDA ANTIGUA." },
   // Cumple el horario de la ventanilla (de nueve de la noche a seis de la mañana): el juego la mueve, dice cuándo llega y se va, y la dibuja.
   booking_clerk: { portrait: sprites.booking_clerk_portrait, at: null, name: "Taquillera", note: "Tras la reja.",
     places: [{ at: "station_hall", if: [hours(21, 6)] }],
@@ -398,8 +391,7 @@ const objects = {
     words: { nouns: ["fotomatón", "fotomaton", "cabina", "cortina"], adj: ["foto", "fotográfica", "fotografica"], g: "m" }, enterable: "in",
     enter: "Corres la cortina y te sientas en el taburete. Hay un botón y un espejo que anda un poco retrasado.",
     examine: "Un fotomatón con un taburete y un botón rojo. Un cartel avisa de que revela las fotos de MAÑANA, NO SE ADMITEN DEVOLUCIONES.",
-    parts: [{ words: ["taburete", "espejo", "cartel", "aviso"], name: "el espejo", says: "Tu cara llega a él un instante después que tú." }],
-    mentions: ["taburete", "botón"] },
+    parts: [{ words: ["taburete", "espejo", "cartel", "aviso"], name: "el espejo", says: "Tu cara llega a él un instante después que tú." }] },
   button: { at: "booth", name: "Botón", note: "Rojo, gastado.", actions: ["Pulsar botón"],
     words: { nouns: ["botón", "boton", "pulsador"], adj: ["rojo"], g: "m" }, examine: "Un botón rojo, gastado y pálido en el centro." },
   photograph: { at: null, portable: true, material: "paper", name: "Fotografía", note: "De mañana, aún mojada.",
@@ -420,7 +412,7 @@ const objects = {
   bench: { at: "platform", name: "Banco", note: "Para esperar.", opens: ["monday"],
     words: { nouns: ["banco", "asiento"], adj: ["madera"], g: "m" }, enterable: "on",
     examine: "Un banco con una placa de latón: EN MEMORIA DEL LUNES, QUE NOS TENÍA ENTRETENIDOS.",
-    parts: [{ words: ["placa"], name: "la placa", says: "EN MEMORIA DEL LUNES, QUE NOS TENÍA ENTRETENIDOS." }], mentions: ["placa"] },
+    parts: [{ words: ["placa"], name: "la placa", says: "EN MEMORIA DEL LUNES, QUE NOS TENÍA ENTRETENIDOS." }] },
   board: { at: "platform", name: "Panel de horarios", note: "Una sola línea.",
     words: { nouns: ["panel", "cuadro", "horario", "horarios"], adj: ["colgante"], g: "m" },
     examine: "MARTES, SALIDA 23:40. El tren llega diez minutos antes. Solo pasajeros con billete." },
@@ -454,14 +446,14 @@ const objects = {
   fountain: { at: "square", name: "Fuente", note: "Con monedas dentro.", actions: ["Coger moneda"],
     words: { nouns: ["fuente", "pilón", "pilon", "agua"], adj: ["piedra"], g: "f" },
     examine: "Un pilón de piedra con el agua quieta. En el fondo hay monedas, de una moneda que ya nadie usa. En el suelo del pilón hay empotrada una lamparita.",
-    parts: [{ words: ["lámpara", "lampara", "lamparita", "fondo"], name: "la lámpara bajo el agua", says: "Una lámpara de latón en el fondo del pilón. Se enciende a las ocho, con las demás." }], mentions: ["monedas", "lámpara"] },
+    parts: [{ words: ["lámpara", "lampara", "lamparita", "fondo"], name: "la lámpara bajo el agua", says: "Una lámpara de latón en el fondo del pilón. Se enciende a las ocho, con las demás." }] },
   coin: { at: "fountain", portable: true, material: "metal", name: "Moneda antigua", note: "La moneda de antes.",
     words: { nouns: ["moneda", "monedas", "dinero", "pieza"], adj: ["antigua", "vieja", "pesada"], g: "f" }, ...item("coin"),
     examine: "Una moneda antigua y pesada. Por una cara, un perfil con los ojos cerrados. Por la otra, la semana, con sus siete días." },
   statue: { at: "square", name: "Estatua", note: "El Ministro.",
     words: { nouns: ["estatua", "ministro", "bronce"], adj: [], g: "f" },
     examine: "El Ministro que abolió los lunes, en bronce, con una mano en el corazón y la otra sosteniendo una pluma como un cuchillo. En el pedestal: NOS DEVOLVIÓ LOS DOMINGOS.",
-    parts: [{ words: ["pedestal", "pluma", "mano"], name: "el pedestal" }], mentions: ["pedestal", "pluma"] },
+    parts: [{ words: ["pedestal", "pluma", "mano"], name: "el pedestal" }] },
 
   // Hotel
   porter: { portrait: sprites.porter_portrait, at: "hotel", name: "Conserje de noche", note: "Leyendo el sábado.",
@@ -564,7 +556,7 @@ const objects = {
   gravestones: { at: "chapel", name: "Lápidas", note: "Todas lunes.", opens: ["monday"],
     words: { nouns: ["lápidas", "lapidas", "lápida", "lapida", "piedras", "tumbas", "fechas"], adj: ["sencillas"], g: "f", pl: true },
     examine: "Lápidas pequeñas y sencillas, cada una con una fecha, todas lunes. La más nueva dice solo: AQUÍ NO ESTÁ EL ÚLTIMO. SE GUARDA EN EL AYUNTAMIENTO, POR SI ACASO.",
-    parts: [{ words: ["fecha", "nueva", "reciente", "última", "ultima"], name: "la lápida más nueva", says: "AQUÍ NO ESTÁ EL ÚLTIMO. SE GUARDA EN EL AYUNTAMIENTO, POR SI ACASO." }], mentions: ["fecha"] },
+    parts: [{ words: ["fecha", "nueva", "reciente", "última", "ultima"], name: "la lápida más nueva", says: "AQUÍ NO ESTÁ EL ÚLTIMO. SE GUARDA EN EL AYUNTAMIENTO, POR SI ACASO." }] },
   pond_water: { at: "pond", name: "Estanque", note: "El pueblo, cabeza abajo.",
     words: { nouns: ["estanque", "agua", "reflejo"], adj: ["redondo"], g: "m" },
     examine: "En el agua el reloj de la estación está cabeza abajo y marcha en el sentido correcto. En el calendario que hay debajo, en el reflejo, hay una hoja entre el domingo y el martes." },
@@ -760,16 +752,16 @@ const rules = [
 // Las órdenes son las que un jugador escribiría en español.
 const puzzles = {
   // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la lata son para ella.
-  way_out: { where: "halt", needs: [], solve: ["siéntate en el banco", "este"], reaches: "lost_property", clues: ["carriage_door", "halt_bench"],
+  way_out: { where: "halt", needs: [], solve: [{ verb: "sit", obj: "halt_bench" }, "e"], reaches: "lost_property", clues: ["carriage_door", "halt_bench"],
     hints: ["El vagón no se lleva a un pasajero que anda de pie de acá para allá. Alguien ha pintado el banco.", "Siéntate en el banco hasta que el vagón esté listo para ti, y sube: al este."] },
-  get_coin: { where: "square", needs: [], solve: ["esperar hasta que se enciendan las farolas", "coger moneda"], gives: ["coin"], clues: ["oduya", "booking_clerk", "ines", "fountain"], hints: ["Las monedas antiguas están en la fuente, pero el agua solo las enseña cuando se enciende su lámpara, a las ocho.", "Espera junto a la fuente hasta que se enciendan las farolas, y coge una moneda."] },
-  get_ticket: { where: "station_hall", needs: ["coin"], solve: ["esperar a que abra la ventanilla", "comprar billete"], gives: ["ticket"], clues: ["window", "timetable"], hints: ["La ventanilla de billetes abre a las nueve de la noche, y quiere una moneda antigua.", "Espera en el vestíbulo a que abra la ventanilla y compra un billete."] },
-  board_train: { where: "platform", needs: ["get_ticket"], solve: ["esperar al tren", "subir al tren"], reaches: "compartment", clues: ["board", "signalman", "timetable"], hints: ["El tren del martes llega a las once y media. El revisor quiere un billete.", "Espera en el andén al tren y sube a él."] },
-  leave_tuesday: { where: "compartment", needs: ["board_train"], solve: ["esperar a que salga el tren"], ending: true, clues: ["guard", "timetable"], hints: ["Sale a las doce menos veinte. Solo tienes que estar en él.", "Siéntate en el compartimento y espera a que salga el tren."] },
-  claim_umbrella: { where: "lost_property", needs: [], solve: ["preguntar al señor Ambrose por el paraguas"], gives: ["umbrella"], clues: ["ledger", "ambrose"], hints: ["El libro de objetos perdidos tiene algo dejado un lunes, con tu letra.", "Pregunta al señor Ambrose por el paraguas."] },
-  open_hall: { where: "high_street", needs: [], solve: ["esperar hasta que abra el ayuntamiento", "oeste"], reaches: "town_hall", clues: ["plate", "ines", "oduya"], hints: ["El ayuntamiento tiene horario de oficina: de nueve a cinco.", "Espera en la calle Mayor a que abra el ayuntamiento y entra."] },
-  get_monday: { where: "archive", needs: ["umbrella", "open_hall"], solve: ["dar paraguas a archivera"], gives: ["monday_page"], clues: ["archivist", "gravestones", "photograph", "decree"], hints: ["La archivera guarda el último lunes para quien perdió algo en uno.", "Dale tu paraguas a la archivera."] },
-  restore_monday: { where: "station_hall", needs: ["monday_page"], solve: ["poner lunes en calendario"], ending: true, clues: ["calendar", "clockmaker", "pond_water", "photograph"],
+  get_coin: { where: "square", needs: [], solve: [{ verb: "wait" }, { verb: "take", obj: "coin" }], gives: ["coin"], clues: ["oduya", "booking_clerk", "ines", "fountain"], hints: ["Las monedas antiguas están en la fuente, pero el agua solo las enseña cuando se enciende su lámpara, a las ocho.", "Espera junto a la fuente hasta que se enciendan las farolas, y coge una moneda."] },
+  get_ticket: { where: "station_hall", needs: ["coin"], solve: [{ verb: "wait" }, { verb: "buy", obj: "ticket" }], gives: ["ticket"], clues: ["window", "timetable"], hints: ["La ventanilla de billetes abre a las nueve de la noche, y quiere una moneda antigua.", "Espera en el vestíbulo a que abra la ventanilla y compra un billete."] },
+  board_train: { where: "platform", needs: ["get_ticket"], solve: [{ verb: "wait", obj: "train" }, "n"], reaches: "compartment", clues: ["board", "signalman", "timetable"], hints: ["El tren del martes llega a las once y media. El revisor quiere un billete.", "Espera en el andén al tren y sube a él."] },
+  leave_tuesday: { where: "compartment", needs: ["board_train"], solve: [{ verb: "wait" }], ending: true, clues: ["guard", "timetable"], hints: ["Sale a las doce menos veinte. Solo tienes que estar en él.", "Siéntate en el compartimento y espera a que salga el tren."] },
+  claim_umbrella: { where: "lost_property", needs: [], solve: [{ verb: "ask", obj: "ambrose", topic: "umbrella" }], gives: ["umbrella"], clues: ["ledger", "ambrose"], hints: ["El libro de objetos perdidos tiene algo dejado un lunes, con tu letra.", "Pregunta al señor Ambrose por el paraguas."] },
+  open_hall: { where: "high_street", needs: [], solve: [{ verb: "wait" }, "w"], reaches: "town_hall", clues: ["plate", "ines", "oduya"], hints: ["El ayuntamiento tiene horario de oficina: de nueve a cinco.", "Espera en la calle Mayor a que abra el ayuntamiento y entra."] },
+  get_monday: { where: "archive", needs: ["umbrella", "open_hall"], solve: [{ verb: "give", obj: "umbrella", obj2: "archivist" }], gives: ["monday_page"], clues: ["archivist", "gravestones", "photograph", "decree"], hints: ["La archivera guarda el último lunes para quien perdió algo en uno.", "Dale tu paraguas a la archivera."] },
+  restore_monday: { where: "station_hall", needs: ["monday_page"], solve: [{ verb: "put", obj: "monday_page", obj2: "calendar" }], ending: true, clues: ["calendar", "clockmaker", "pond_water", "photograph"],
                     hints: ["Al calendario bajo el reloj de la estación le falta una hoja entre el domingo y el martes.", "Pon el lunes en el calendario del vestíbulo."] }
 };
 

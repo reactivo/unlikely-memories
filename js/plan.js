@@ -1,4 +1,4 @@
-// The plan: where every room of a world is, and the exits made from it (ARCHITECTURE.md §3, "The plan"; BRIEF.md §2).
+// The plan: where every room of a world is, and the exits made from it (ARCHITECTURE.md §3, "Space: the plan"; BRIEF.md §2).
 //
 // A world's change set has a `plan`: one grid for each floor, a row of room ids for each row of squares, "." for an empty square. Every
 // room is on exactly one square and a square holds at most one room. An exit says only that there is a way in a direction (and its door,
@@ -8,11 +8,10 @@
 // A plan that doesn't fit (an unknown id, a room on two squares or none, a way to an empty square) refuses the world with a message that
 // says what to move. Pure: reads the set, changes nothing.
 
-import { isObject } from "./shapes.js?v=0.70.1";
+import { isObject } from "./shapes.js?v=0.71.0";
+import { STEP, COMPASS, BACK } from "./space.js?v=0.71.0";      // the directions are space.js's
+import { distance } from "./fields.js?v=0.71.0";                // the edit distance between two words
 
-export const COMPASS = ["n", "s", "e", "w", "u", "d"];       // the directions an exit of a planned world is written in
-export const BACK = { n: "s", s: "n", e: "w", w: "e", u: "d", d: "u" };
-const STEP = { n: [0, -1, 0], s: [0, 1, 0], e: [1, 0, 0], w: [-1, 0, 0], u: [0, 0, 1], d: [0, 0, -1] };
 const WORDS = { n: "north", s: "south", e: "east", w: "west", u: "up", d: "down" };
 export const PLAN_FORM = `{ "0": ["street  shop", ".       ."] }`;      // the shape of a plan, in every message that tells it
 export const NO_PLAN = `plan: a world has a plan: an object with a grid for each floor, e.g. ${PLAN_FORM} (a row of room ids for each row of squares, "." for an empty square), and its exits are written without the rooms they lead to`;
@@ -26,12 +25,7 @@ const quote = (s) => JSON.stringify(s);
 
 // The nearest room id to a mistyped one (a letter off), or null.
 function nearest(id, ids) {
-  const dist = (a, b) => {
-    const row = Array.from({ length: b.length + 1 }, (_, j) => j);
-    for (let i = 1; i <= a.length; i++) { let diag = row[0]; row[0] = i; for (let j = 1; j <= b.length; j++) { const up = row[j]; row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1)); diag = up; } }
-    return row[b.length];
-  };
-  const best = ids.map(x => [dist(id, x), x]).sort((a, b) => a[0] - b[0])[0];
+  const best = ids.map(x => [distance(id, x), x]).sort((a, b) => a[0] - b[0])[0];
   return best && best[0] <= 2 ? best[1] : null;
 }
 

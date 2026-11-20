@@ -9,24 +9,26 @@
 // set even where the others only warn. A finding marked `warn` (an unknown field inside music: MUSIC.md §2.4) only warns, even
 // where the others refuse: nothing about music is ever refused.
 
-import { ANSWERED } from "./verbs.js?v=0.70.1";
-import { PARTS, LINES } from "./opening.js?v=0.70.1";
-import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.70.1";
-import { DIRECTIONS } from "./space.js?v=0.70.1";
-import { isObject, isLine } from "./shapes.js?v=0.70.1";
-import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.70.1";
-import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.70.1";
-import { PART_IDS } from "./time.js?v=0.70.1";
+import { ANSWERED } from "./verbs.js?v=0.71.0";
+import { ACTIONS } from "./actions.js?v=0.71.0";
+import { PARTS, LINES } from "./opening.js?v=0.71.0";
+import { isExitObject, exitConditions, markedDirs, connectedExit, CONNECT_FIELDS } from "./exits.js?v=0.71.0";
+import { DIRECTIONS, FACINGS } from "./space.js?v=0.71.0";
+import { isObject, isLine } from "./shapes.js?v=0.71.0";
+import { MODIFIERS, CONDITION_FIELDS } from "./conditions.js?v=0.71.0";
+import { PLACE_FIELDS, ROUNDS_FIELDS, shapeProblems } from "./movers.js?v=0.71.0";
+import { PART_IDS } from "./time.js?v=0.71.0";
+import { hasSprite, noSprite, heldThings } from "./sprites.js?v=0.71.0";
 
 // ---- The list ------------------------------------------------------------------------------------------------------
 // What each piece of a world may have. A thing may also answer a verb (a field named like the action: `take`, `talk`),
 // and anything else a world keeps on a thing must be declared in `properties` ("dog.anger").
-const ROOM = ["name", "describe", "exits", "alt", "overlayAlt", "scenery", "mentions", "picture", "music", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
+const ROOM = ["name", "describe", "exits", "alt", "overlayAlt", "scenery", "picture", "music", "ambience", "waitFor", "placeholder", "dream", ...ANSWERED];
 const OBJECT = ["at", "portable", "droppable", "container", "open", "locked", "name", "note", "actions", "heldActions", "examine",
-  "here", "lies", "words", "sprite", "floorSprite", "figure", "portrait", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "mentions", "topics",
-  "unnoticed", "opens", "waitFor", "shape", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
+  "here", "lies", "words", "sprite", "floorSprite", "figure", "portrait", "img", "use", "leads", "door", "shut", "pair", "lock", "enterable", "parts", "topics",
+  "unnoticed", "opens", "waitFor", "consumable", "heals", "starts", "stops", "from", "brought", "again", "already", "times", "daily", "if",
   "requires", "spends", "lacking", "remains", "dream", "places", "rounds", "arrives", "leaves", "material", ...ANSWERED];
-const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "ending", "clues", "hints", "time"];
+const PUZZLE = ["where", "needs", "solve", "gives", "reaches", "sets", "ending", "clues", "hints", "time"];
 // The world's music (`add music`) and a room's own (its `music` field): MUSIC.md §4, read by js/music.js. The world's may also carry
 // `levels`, its parts' measured loudness, written by the step that makes the world, never by the AI (MUSIC.md §6c; not in BRIEF).
 const MUSIC = ["mode", "tempo", "colour", "instruments", "tone", "lines", "melody"];
@@ -53,7 +55,7 @@ export const FIELDS = {
   rounds: ROUNDS_FIELDS,
   roundsEvery: ["seconds"],
   exit: ["to", "if", "closed", "in", "out", "requires", "spends", "lacking", "oneWay"],   // an exit that is not just a way: { to?, if?, closed?, in?, out?, requires?, spends?, lacking?, oneWay? } (a planned world writes no `to`: js/plan.js)
-  picture: ["version", "draw", "cycles", "overlays", "loops", "shot"],   // `shot`: the drawing description (English, data only: BRIEF.md §7)
+  picture: ["version", "draw", "cycles", "overlays", "loops", "shot", "facing"],   // `shot`: the drawing description (English, data only: BRIEF.md §7); `facing`: n, e, s or w (a room's only: js/space.js sideOf)
   // Music (MUSIC.md §4): the world's, a room's, an instrument, a line, the theme and its chords. An unknown field inside music
   // only warns (MUSIC.md §2.4), in a world and in what the AI proposes alike.
   music: MUSIC,
@@ -63,8 +65,11 @@ export const FIELDS = {
   melody: ["play", "octave", "notes", "words", "shape", "chords"],
   rule: ["id", "match", "if", "do", "when", "every", "at", "chance", "then", "once", "again"],
   every: ["seconds", "turns"],
-  match: ["verb", "obj", "obj2", "dir", "prep", "topic", "text", "scenery", "absent", "question", "value", "blank"],
+  match: ["verb", "obj", "obj2", "dir", "topic", "text", "scenery", "absent", "question", "value", "blank"],
   puzzle: PUZZLE,
+  // A step of a puzzle's solve that is an action (js/walkthrough.js; a direction is a string): the engine's own action, by id, with only what a
+  // world writes (the parser's other fields, the words and the moment's, the engine works out as it plays it).
+  step: ["verb", "obj", "obj2", "topic", "text", "value"],
   // A condition the player can be in (js/conditions.js), and its parts: how long it lasts, and each modifier kind.
   condition: CONDITION_FIELDS,
   lasts: ["turns", "seconds"],
@@ -117,6 +122,10 @@ export const FIELDS = {
 // session's (`restart`, `session`). They are on the list above because the engine's own rules use them, which never pass
 // this check; a world or an AI change set that writes one is refused.
 export const ENGINE_ONLY = ["unlock", "rattle", "inside", "hint", "listenFor", "useAs", "useHow", "restart", "session", "consume", "bring"];
+// Fields the engine accepts that a world has no use for: a standard line's own (`arg`, `vary`, `things`, `marked`: the pack's lines that the
+// game's rules say, js/verbs.js, js/sleeping.js), and a match's `value` (a yes or no goes to its `confirm`, before any rule: js/engine.js). Left
+// out of BRIEF.md §11 (tools/brief-lists.js) and of what the Testbed must use (tools/golden/census.mjs); a world that writes one is warned.
+export const GAME_OWN = { say: ["arg", "vary", "things", "marked"], confirm: ["arg"], match: ["value"] };
 // The engine's own condition operator: `holds` (conditions kept as data hold: the standard WAIT reads a `waitFor.if` with
 // it). Only the engine's own rules use it; a world or an AI change set that writes it is refused, like an effect above.
 export const ENGINE_ONLY_OPERATORS = ["holds"];
@@ -124,82 +133,6 @@ export const ENGINE_ONLY_OPERATORS = ["holds"];
 // writes them whatever moved the thing; a world or an AI change set that writes `{ echo: …, kind: "gained" }` is refused, like
 // an effect above (and the engine refuses the effect itself in play).
 export const ENGINE_ECHOES = ["gained", "lost"];
-
-// ---- Things you can hold have a sprite ---------------------------------------------------------------------------------
-// The ids a value names in a rule's effects: a thing's id, or `$obj` / `$obj2` for what the rule's `match` names; nothing for another `$`.
-const idsOf = (match) => (v) => v === "$obj" ? [match?.obj].flat() : v === "$obj2" ? [match?.obj2].flat() : typeof v === "string" && !v.startsWith("$") ? [v] : [];
-
-// Every thing that can end up in the player's hands has a `sprite` (BRIEF.md §5): the inventory shows it, and so does the slot
-// before the echo of a thing gained or lost (INTERFACE.md §6c). A thing can end up there when it is `portable: true`, starts
-// `at: "player"`, is moved there (`{ move, to: "player" }`, in a world's effects, a rule, a named change, a `confirm`'s
-// answers…; `$obj` / `$obj2` as the rule's `match` names them), is made portable or put there with a `set` (`thing.portable`,
-// `thing.at`), or lies inside such a thing (carried with it: declared there, or moved or put there). A value that can't be known (`$obj` of a rule that matches any
-// thing, a `$` elsewhere) is passed over.
-//   things: { id: the thing as declared (an object, or an `add object` effect) }; groups: [{ where, match?, effects }]
-//   → [{ id, where, why }]: each thing, once, with the first reason found, in the order of `things` (then of the groups).
-export function heldThings(things, groups) {
-  const all = { ...things }, found = new Map();
-  groups = [...groups];
-  // Each effect of a group, at any depth, except inside a rule it adds: that rule is a group of its own (its own match).
-  const walk = (node, visit) => {
-    if (Array.isArray(node)) return node.forEach(x => walk(x, visit));
-    if (!isObject(node)) return;
-    if (node.add === "rule" && isObject(node.rule)) {
-      if (!groups.some(g => g.rule === node.rule)) groups.push({ where: `rules/${node.rule.id}`, match: node.rule.match, effects: node.rule.do, rule: node.rule });
-      return;
-    }
-    visit(node);
-    Object.values(node).forEach(x => walk(x, visit));
-  };
-  for (let i = 0; i < groups.length; i++) walk(groups[i].effects, (e) => { if (e.add === "object" && typeof e.id === "string" && !(e.id in all)) all[e.id] = e; });
-  const mark = (id, where, why) => { if (typeof id === "string" && Object.hasOwn(all, id) && !found.has(id)) found.set(id, { id, where, why }); };
-  for (const [id, o] of Object.entries(all)) {
-    if (!isObject(o)) continue;
-    if (o.portable === true) mark(id, `objects/${id}`, "it is portable");
-    else if (o.at === "player") mark(id, `objects/${id}`, "it starts in the player's hands");
-  }
-  for (const { where, match, effects } of groups) {
-    const ids = idsOf(match);
-    walk(effects, (e) => {
-      if ("move" in e && e.to === "player") for (const id of ids(e.move)) mark(id, where, "it is moved to the player");
-      if (typeof e.set === "string") {
-        const [, id, prop] = /^(\$?[\w-]+)\.(portable|at)$/.exec(e.set) ?? [];
-        if (prop === "portable" && e.to === true) for (const x of ids(id)) mark(x, where, "it is made portable");
-        if (prop === "at" && e.to === "player") for (const x of ids(id)) mark(x, where, "it is put in the player's hands");
-      }
-      if (e.add === "object" && e.at === "player" && typeof e.id === "string") mark(e.id, where, "it is added in the player's hands");
-    });
-  }
-  // What lies inside a thing you can hold is carried with it: declared there, or moved or put there (`{ move, to }`,
-  // `set thing.at`) by a group, its destination a thing already found; again until nothing new is found (a bag in a bag).
-  for (let more = true; more;) {
-    const before = found.size;
-    for (const [id, o] of Object.entries(all))
-      if (!found.has(id) && isObject(o) && found.has(o.at)) mark(id, `objects/${id}`, `it is inside ${o.at}, which can be carried`);
-    for (const { where, match, effects } of groups) {
-      const ids = idsOf(match);
-      const into = (v) => ids(v).find(x => found.has(x));
-      walk(effects, (e) => {
-        const bag = "move" in e ? into(e.to) : undefined;
-        if (bag) for (const id of ids(e.move)) mark(id, where, `it is moved into ${bag}, which can be carried`);
-        const [, id, prop] = typeof e.set === "string" ? /^(\$?[\w-]+)\.(at)$/.exec(e.set) ?? [] : [];
-        const put = prop === "at" ? into(e.to) : undefined;
-        if (put) for (const x of ids(id)) mark(x, where, `it is put in ${put}, which can be carried`);
-      });
-    }
-    more = found.size > before;
-  }
-  return Object.keys(all).filter(id => found.has(id)).map(id => found.get(id));
-}
-// Has it a sprite to show (rows to draw)?
-export const hasSprite = (o) => Array.isArray(o?.sprite) && o.sprite.length > 0;
-// Has it a portrait (a character's face, shown when it is examined)? Rows of the same form as a sprite's, kept apart: a sprite is for what is carried.
-export const hasPortrait = (o) => Array.isArray(o?.portrait) && o.portrait.length > 0;
-// What is wrong with a portrait: not 16 rows of 16 characters, hex 0-f and "." only. Empty when it is well formed.
-export const portraitFault = (rows) => !Array.isArray(rows) || rows.length !== 16 || rows.some(r => typeof r !== "string" || !/^[0-9a-f.]{16}$/.test(r))
-  ? "a portrait is 16 rows of 16 characters, hex 0-f and \".\" for clear" : "";
-// The sentence for a thing you can hold that has no sprite (a problem for the checker, a finding for the field check).
-export const noSprite = (h) => `${h.id} can end up in the player's hands (${h.why}) but has no sprite: every thing you can carry has one (the inventory and the echoes of what you gain and lose show it)`;
 
 // The engine's own fields of one kind of thing, the ones no world declares: an object's (with where it really is and what
 // it is in), a room's (and where it is), or the player's, the game's or the clock's. Any kind at all when it isn't known.
@@ -306,7 +239,6 @@ const MARKS = [   // a mark is there or not
   ["open", (v) => [true, false, "always"].includes(v), (v) => `open is true, false or "always" (open for good: a boat, a bin, a slot), not ${JSON_(v)}`, true],
 ];
 const EATEN = [
-  ["shape", (v) => plain(v) || (Array.isArray(v) && v.length > 0 && v.every(plain)), (v) => `shape is the id of the shape (or a list of ids) its home room's picture draws it with, not ${JSON_(v)}`],
   ["consumable", (v) => v === true, (v) => `consumable is true (it is eaten or drunk, and used up), not ${JSON_(v)}; leave it out for a thing that isn't`],
   ["heals", (v) => Number.isInteger(v) && v >= 1 && v <= 5, (v) => `heals is how much eating or drinking it heals, a whole number from 1 to 5, not ${JSON_(v)}`],
   ["starts", plain, (v) => `starts is the id of the condition eating or drinking it starts, not ${JSON_(v)}`],
@@ -353,6 +285,12 @@ export function checkSet(state, set) {
       const near = suggest(k, [...list, ...Object.keys(declared).filter(d => id && d.startsWith(id + ".")).map(d => d.slice(id.length + 1))]);
       note(piece, `${label ? label + " has unknown" : "unknown"} field "${k}"${near}`, effect ?? x);
     }
+  };
+
+  // A field of GAME_OWN: only warned, a world's or an AI change set's alike (the engine reads it; nothing a world writes needs it).
+  const gameOwn = (piece, x, names, label, effect) => {
+    const why = label === "match" ? "never reaches a rule (a yes or no answers its `confirm`)" : "is the game's own (its standard lines use it)";
+    for (const k of names ?? []) if (k in x) note(piece, `${label}: "${k}" ${why}; leave it out`, effect, false, true);
   };
 
   // Music, the world's (`add music`) or a room's: unknown fields at every level only warn (MUSIC.md §2.4). What its values
@@ -419,19 +357,25 @@ export function checkSet(state, set) {
     if (["add room", "add object", "add puzzle"].includes(kind)) claim(piece, kind.slice(4), e);
     if (kind === "remove object" && typeof e.id === "string") taken.delete(e.id);
     if (kind === "add room" || kind === "add object") {
-      // `scenery` on a thing did nothing, so it is no field (decision 16): refused, a world's too, with what to do instead
+      // `scenery` on a thing is no field (it is a room's list): told as any unknown field is (a world's: a warning, and the field does nothing), with what to do instead
       const { scenery: gone, ...own } = kind === "add object" ? e : {};
       if (kind === "add object" && "scenery" in e)
-        note(piece, `scenery is not a field of a thing: it does nothing (a thing that isn't portable stays where it is); leave it out`, e, true);
+        note(piece, `scenery is not a field of a thing: it does nothing (a thing that isn't portable stays where it is); leave it out`, e);
       fields(piece, kind === "add object" ? own : e, FIELDS.effect[kind], "", e.id, e);
       return thing(piece, e, kind === "add room" ? "room" : "object");
     }
     fields(piece, e, FIELDS.effect[kind], named ? "" : kind + " effect", null, e);
+    gameOwn(piece, e, GAME_OWN[kind], kind, e);
     if (kind === "add rule") return rule(piece, e.rule);
     if (kind === "add change") return list(piece, e.effects);
-    if (kind === "add picture") return fields(piece, e.picture, FIELDS.picture, "picture", null, e);
+    if (kind === "add picture") {                               // an ending's picture: no facing (it is no view of a room)
+      fields(piece, e.picture, FIELDS.picture, "picture", null, e);
+      if (isObject(e.picture) && e.picture.facing !== undefined) note(piece, `an ending's picture has no facing: facing is for a room's picture; leave it out`, e);
+      return;
+    }
     if (kind === "add word" && e.reply !== undefined && !isLine(e.reply)) note(piece, `reply is the line the verb says when no rule answers it (a line, or a list of lines), not ${JSON.stringify(e.reply)}`, e);
-    if (kind === "add puzzle" || kind === "add word") return;
+    if (kind === "add puzzle") return puzzle(piece, e);
+    if (kind === "add word") return;
     if (kind === "add condition") {                             // its parts, and what its `until` reads
       fields(piece, e.lasts, FIELDS.lasts, "lasts", null, e);
       for (const k of Object.keys(MODIFIERS)) fields(piece, e[k], FIELDS[k], k, null, e);
@@ -456,6 +400,27 @@ export function checkSet(state, set) {
     if (kind === "confirm") { list(piece, e.yes); list(piece, e.no); }
     for (const [k, v] of Object.entries(e)) if (k !== "set") for (const x of [].concat(v)) reference(piece, x, e);
   };
+  // A puzzle's `solve` (js/walkthrough.js): each step a direction, or an action by id with only the fields an action has, its verb one the game
+  // knows (an action of the engine, an answer, or a verb this world adds), its things things of the world, its topic one of that person's, an
+  // answer's value yes or no. (What it `sets` is the checker's: js/checks/puzzles.js.)
+  const words = new Set([...Object.keys(state.vocab || {}), ...effects.filter(x => isObject(x) && x.add === "word" && typeof x.verb === "string").map(x => x.verb)]);
+  const topicsOf = (id) => state.world.objects[id]?.topics ?? effects.find(x => isObject(x) && x.add === "object" && x.id === id)?.topics;
+  const puzzle = (piece, e) => {
+    if (!Array.isArray(e.solve)) return;
+    e.solve.forEach((x, i) => {
+      const at = `solve step ${i + 1}`;
+      if (typeof x === "string") { if (!DIRECTIONS.includes(x)) note(piece, `${at}: "${x}" is no direction (${DIRECTIONS.join(", ")}): a step is a direction, or an action by id, { "verb": …, "obj": … }`, e); return; }
+      if (!isObject(x)) return note(piece, `${at}: a step is a direction, or an action by id, { "verb": …, "obj": … }, not ${JSON.stringify(x)}`, e);
+      fields(piece, x, FIELDS.step, at, null, e);
+      if (!(typeof x.verb === "string" && (ACTIONS[x.verb] || x.verb === "answer" || words.has(x.verb))))
+        note(piece, `${at}: verb ${JSON.stringify(x.verb)} is no verb of the game (an action, "answer", or a verb this world adds with add word)${typeof x.verb === "string" ? suggest(x.verb, [...Object.keys(ACTIONS), "answer", ...words]) : ""}`, e);
+      for (const k of ["obj", "obj2"]) if (x[k] !== undefined && !objects.has(x[k])) note(piece, `${at}: ${k} "${x[k]}" is no thing of the world${suggest(String(x[k]), [...objects])}`, e);
+      if (x.topic !== undefined && !(x.verb === "ask" && isObject(topicsOf(x.obj)?.[x.topic]))) note(piece, `${at}: topic "${x.topic}" is not a topic of ${x.obj === undefined ? "the one asked (obj)" : `"${x.obj}"`}`, e);
+      if (x.value !== undefined && !(x.verb === "answer" && ["yes", "no"].includes(x.value))) note(piece, `${at}: value is "yes" or "no", an answer's to a yes/no question`, e);
+      if (x.text !== undefined && typeof x.text !== "string") note(piece, `${at}: text is the words said or answered, a string`, e);
+    });
+  };
+
   const list = (piece, effects) => {
     if (!Array.isArray(effects)) return;
     const track = tracker();
@@ -507,6 +472,7 @@ export function checkSet(state, set) {
     if (!isObject(r)) return;
     fields(piece, r, FIELDS.rule, "", null, r);
     fields(piece, r.match, FIELDS.match, "match", null, r);
+    if (isObject(r.match)) gameOwn(piece, r.match, GAME_OWN.match, "match", r);
     fields(piece, r.every, FIELDS.every, "every", null, r);
     wellFormed(piece, r.if, r, "if");
     conditions(piece, r.if, r);
@@ -553,6 +519,8 @@ export function checkSet(state, set) {
         if (marked.length > 1) note(piece, `exits ${marked.join(" and ")} are all marked ${way}: true; only one exit of a room is the way ${way}`, t);
       }
       if (isObject(t.picture)) fields(piece, t.picture, FIELDS.picture, "picture", null, t);
+      if (isObject(t.picture) && t.picture.facing !== undefined && !FACINGS.includes(t.picture.facing))   // the way the picture faces: north when left out
+        note(piece, `picture: facing is the way it faces (${FACINGS.join(" ")}), not ${JSON.stringify(t.picture.facing)}; leave it out for north`, t);
       music(piece, t.music, FIELDS.roomMusic, t);                // a room's own music: only warned
     } else {
       fields(piece, t.words, FIELDS.words, "words", null, t);
@@ -636,7 +604,7 @@ export function checkSet(state, set) {
   for (const h of heldThings(within, [{ where: "effects", effects }])) {   // (each rule it adds is read on its own, with its match)
     if (!(h.id in added) && h.where.startsWith("objects/")) continue;   // already the game's: not this set's doing
     const o = state.world.objects[h.id] ?? within[h.id];
-    if (!hasSprite(added[h.id] ?? o)) note(h.where, noSprite(h), added[h.id] ?? null);
+    if (!hasSprite(added[h.id] ?? o)) note(h.where, noSprite(h), added[h.id] ?? null, false, true);   // (a warning, in a world and in a proposal)
   }
 
   fields("change set", set, FIELDS.changeSet, "", null, set);

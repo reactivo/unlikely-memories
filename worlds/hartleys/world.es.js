@@ -3,11 +3,11 @@
 // Un solo conjunto de cambios, todo o nada. Los ids, las coordenadas, las cifras, los dibujos y los
 // sprites son los de la versión inglesa; solo cambia lo que lleva lenguaje.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- La biblia del juego ------------------------------------------------------------------------------------------------
 export const bible = {
@@ -84,7 +84,6 @@ const rooms = {
     exits: { w: "way", e: "way", n: "way",
       s: "way" },
     scenery: [{ words: ["mosaico", "caoba", "latón", "laton", "mostradores", "mostrador", "techo", "araña", "arana", "vestíbulo", "vestibulo"], name: "el vestíbulo", says: "Un mosaico de un barco a toda vela, gastado en la proa por cien años de gente que se ha puesto donde tú te pones." }],
-    mentions: ["clavel"],
     ambience: { lines: ["En algún lugar suena una caja registradora, aunque nadie ha comprado nada.", "Una cápsula pasa por encima de ti, por su tubo, con prisa, como un pensamiento camino de alguien.", "La puerta giratoria da una vuelta vacía y se detiene."], every: [45, 90] },
     sleep: "En la planta baja no, bajo la mirada del señor Gage.",
     alt: "Un gran vestíbulo de almacén: mostradores de caoba, latón y un suelo de mosaico con un barco. Un panel de directorio sobre un pie, un jefe de planta con un clavel y una puerta giratoria al frente."
@@ -97,7 +96,6 @@ const rooms = {
     ],
     exits: { e: "way" },
     scenery: [{ words: ["frascos", "frasco", "mostradores", "mostrador", "coro", "perfumes", "botellas", "estantes"], name: "los frascos", says: "Frasquitos con etiquetas escritas a mano: EL ÚLTIMO DÍA DE LAS VACACIONES. UN PASILLO DE HOSPITAL POR LA NOCHE. LA NIEVE, ANTES DE CAER. No están en venta. Son la materia prima de Madame Corre." }],
-    mentions: ["guantes", "etiqueta"],
     smell: "Veinte tardes a la vez, ninguna tuya, todas casi.",
     sleep: "Entre los frascos no. Te despertarías oliendo a la tarde de otro.",
     alt: "Un mostrador de perfumería abarrotado de frasquitos en estantes de cristal. Una mujer alta con guantes blancos detrás; un solo frasco de muestra sobre el mostrador, delante."
@@ -110,7 +108,6 @@ const rooms = {
     ],
     exits: { w: "way" },
     scenery: [{ words: ["cajones", "cajón", "cajon", "papel", "seda", "pares", "mostrador", "cartulina", "letrero", "minutos"], name: "los cajones", says: "Cada cajón lleva una talla y un sentimiento: SIETE Y MEDIO, NERVIOSA. OCHO, PARA ENTIERROS. La cartulina del mostrador se ha puesto amarilla de esperar." }],
-    mentions: ["papel de seda"],
     alt: "Un mostrador de guantería con paredes altas de cajoncitos de madera. Sobre el mostrador, un guante color crema solo, con los dedos curvados y cerrados."
   },
   lift_lobby: {
@@ -186,7 +183,6 @@ const rooms = {
     ],
     exits: { e: "way", w: "way" },
     scenery: [{ words: ["habitaciones", "habitación", "habitacion", "comedor", "dormitorio", "sala", "estar", "mesa", "cama", "lámpara", "lampara", "familia"], name: "las habitaciones", says: "Cubiertos puestos en la mesa, una lámpara en la mesilla, zapatillas junto a la cama. Todo está esperando a ser de alguien." }],
-    mentions: ["sala de estar"],
     alt: "Una planta de muebles dispuesta como habitaciones sin paredes: una mesa de comedor puesta para cuatro, una cama con una lámpara y un sofá hondo con un hueco en los cojines."
   },
   tea_room: {
@@ -208,7 +204,6 @@ const rooms = {
     ],
     exits: { w: "way" },
     scenery: [{ words: ["barras", "barra", "abrigos", "perchas"], name: "las barras", says: "Abrigos para todos los climas, y una barra al fondo para los climas que aún no se han inventado." }],
-    mentions: ["abrigo"],
     ambience: { lines: ["Por el rabillo del ojo, un maniquí baja la mano.", "Una percha tintinea contra una barra, una vez, sin que nadie esté cerca.", "Los maniquíes están exactamente donde estaban. Casi lo podrías jurar."], every: [40, 80] },
     sleep: "Con los maniquíes mirando, no. Se mueven cuando apartas la vista, y tú la apartarías durante horas.",
     alt: "Una sección de abrigos: barras de abrigos y una fila de maniquíes pálidos con abrigos y sombreros, todos de cara a la puerta."
@@ -285,7 +280,7 @@ const objects = {
   corre: { portrait: sprites.corre_portrait, at: "perfumery", name: "Madame Corre", note: "Perfumista. Guantes blancos.",
     words: { nouns: ["corre", "perfumista", "señora", "senora", "madame", "mujer"], adj: ["madame"], g: "f", proper: true },
     examine: "Una mujer alta, con el pelo recogido en lo alto, curvo como una pregunta. Sus guantes blancos nunca han tocado nada que no quisiera ser tocado.",
-    parts: [{ words: ["guantes", "guante", "moño", "mono", "pelo"], name: "sus guantes", says: "Guantes blancos, abotonados en la muñeca. No se los quita por nadie." }], mentions: ["guantes"],
+    parts: [{ words: ["guantes", "guante", "moño", "mono", "pelo"], name: "sus guantes", says: "Guantes blancos, abotonados en la muñeca. No se los quita por nadie." }],
     talk: "«Huela la muestra», dice. «Yo embotello lo que usted recuerda. Es lo único que aceptan aquí como pago».",
     topics: {
       tester: { about: "tester", label: "la muestra", words: ["muestra", "probador", "perfume", "oler", "frasco"], says: "«El número siete. Le recuerda a todo el mundo algo que tuvo. Una por cabeza; los recuerdos no son muestras»." },
@@ -391,7 +386,7 @@ const objects = {
     examine: "Figuras pálidas con abrigo y sombrero. La del abrigo como el tuyo lleva una etiqueta prendida en la manga: CUARTA PLANTA. PAGADO POR COMPLETO, POR TUBO. El bolsillo está abotonado.",
     search: "En el bolsillo del abrigo como el tuyo hay una nota a lápiz: «Mercería. La cápsula y luego el tirador. Paga con lo que tengas. Dicen que merece la pena». La letra es la tuya.",
     parts: [{ words: ["manga", "bolsillo", "nota", "sombreros", "sombrero", "alfiler"], name: "el abrigo", says: "El abrigo como el tuyo. Tiene el bolsillo abotonado, y algo cruje dentro." },
-            { words: ["etiqueta", "cartulina", "talón", "talon"], name: "la etiqueta de la manga", says: "CUARTA PLANTA. PAGADO POR COMPLETO, POR TUBO. Prendida como se prende un precio." }], mentions: ["manga", "bolsillo", "sombreros", "etiqueta"] },
+            { words: ["etiqueta", "cartulina", "talón", "talon"], name: "la etiqueta de la manga", says: "CUARTA PLANTA. PAGADO POR COMPLETO, POR TUBO. Prendida como se prende un precio." }] },
 
   // Sótano
   ruth: { portrait: sprites.ruth_portrait, at: "basement", name: "Señorita Ruth", note: "La caja.",
@@ -527,21 +522,21 @@ const rules = [
 // ---- Puzles (para el verificador; BRIEF.md §4) -------------------------------------------------------------------------------------
 const puzzles = {
   // La salida de la sala del comienzo va primero (BRIEF.md §3): las primeras pistas de la radio son para ella.
-  way_out: { where: "pavement", needs: [], solve: ["empuja la puerta", "norte"], reaches: "front_hall", clues: ["street_door", "push_street_door"],
+  way_out: { where: "pavement", needs: [], solve: [{ verb: "push", obj: "street_door" }, "n"], reaches: "front_hall", clues: ["street_door", "push_street_door"],
     hints: ["La puerta giratoria pasa de largo ante quien solo se queda mirando. Su barra de latón dice lo que quiere.", "Empuja la puerta giratoria y entra por el hueco, al norte."] },
-  get_memory: { where: "perfumery", needs: [], solve: ["oler la muestra"], gives: ["memory"], clues: ["tester", "corre", "gage"],
+  get_memory: { where: "perfumery", needs: [], solve: [{ verb: "smell", obj: "tester" }], gives: ["memory"], clues: ["tester", "corre", "gage"],
     hints: ["Madame Corre embotella lo que recuerdas, si hueles su muestra.", "Huele la muestra en perfumería."] },
-  pay_by_tube: { where: "haberdashery", needs: ["memory"], solve: ["meter el recuerdo en la cápsula", "tirar del tirador"], gives: ["lift_ticket"], clues: ["thimble", "mannequins", "ruth", "pell"],
+  pay_by_tube: { where: "haberdashery", needs: ["memory"], solve: [{ verb: "put", obj: "memory", obj2: "canister" }, { verb: "pull", obj: "handle" }], gives: ["lift_ticket"], clues: ["thimble", "mannequins", "ruth", "pell"],
     hints: ["Los pagos van a la caja por tubo, desde la cápsula de mercería.", "Mete el recuerdo en la cápsula y tira del tirador."] },
-  ride_up: { where: "lift", needs: ["lift_ticket"], solve: ["mostrar el volante a Pell"], reaches: "fourth_floor", clues: ["pell", "directory", "gage"],
+  ride_up: { where: "lift", needs: ["lift_ticket"], solve: [{ verb: "show", obj: "lift_ticket", obj2: "pell" }], reaches: "fourth_floor", clues: ["pell", "directory", "gage"],
     hints: ["El señor Pell solo sube a la cuarta, y solo con cita previa.", "En el ascensor, muestra el volante a Pell."] },
-  try_on: { where: "fourth_floor", needs: ["ride_up"], solve: ["ponerse la tarde"], ending: true, clues: ["fitter", "afternoon"],
+  try_on: { where: "fourth_floor", needs: ["ride_up"], solve: [{ verb: "wear", obj: "afternoon" }], ending: true, clues: ["fitter", "afternoon"],
     hints: ["La modista la tiene lista, a tu medida.", "Ponte la tarde."] },
-  get_roof_key: { where: "gloves", needs: [], solve: ["estrechar la mano al guante"], gives: ["roof_key"], clues: ["glove", "gage", "bear"],
+  get_roof_key: { where: "gloves", needs: [], solve: [{ verb: "shake", obj: "glove" }], gives: ["roof_key"], clues: ["glove", "gage", "bear"],
     hints: ["El guante de Guantería guarda algo para quien le dé la mano.", "Estrecha la mano al guante."] },
-  open_roof: { where: "second_landing", needs: ["roof_key"], solve: ["abrir la puerta con la llave", "arriba"], reaches: "roof_garden", clues: ["roof_door", "directory", "dot"],
+  open_roof: { where: "second_landing", needs: ["roof_key"], solve: [{ verb: "unlock", obj: "roof_door", obj2: "roof_key" }, "u"], reaches: "roof_garden", clues: ["roof_door", "directory", "dot"],
     hints: ["La puerta de la azotea, en la segunda planta, pide una llave larga de latón.", "Abre la puerta de la azotea con la llave y sube."] },
-  let_it_out: { where: "roof_garden", needs: ["memory", "open_roof"], solve: ["abrir el recuerdo"], ending: true, clues: ["corre", "dot", "bear"],
+  let_it_out: { where: "roof_garden", needs: ["memory", "open_roof"], solve: [{ verb: "open", obj: "memory" }], ending: true, clues: ["corre", "dot", "bear"],
     hints: ["Madame Corre dijo que un recuerdo soltado en un sitio alto sigue siendo tuyo.", "En la azotea, abre el recuerdo."] }
 };
 

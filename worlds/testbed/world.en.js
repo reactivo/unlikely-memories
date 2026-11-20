@@ -12,11 +12,11 @@
 //        ways (up: every kind of exit, connect and disconnect) > annex, landing, chute, closet, pit, roof (the ending `fell`)
 //        cellar (down: doors, locks, pairs, containers, bars) > vault (east), pantry (west), sump (south, behind locked iron bars)
 
-import pictures, { endings, visions } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings, visions } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible ---------------------------------------------------------------------------------------------------------
 export const bible = {
@@ -116,7 +116,7 @@ const rooms = {
   "tb-lab": {
     name: "LAB",
     describe: [
-      "A bench room of cables. A {lever} stands in a steel slot beside an open {socket}, a {dial} is set in the wall, and a {button} glows by the {door|lab_door}. A {radio} hisses on a shelf.",
+      "A bench room of cables, and you look south along it. A {lever} stands in a steel slot beside an open {socket}, a {dial} is set in the wall, and a {button} glows by the {door|lab_door} on your right. A {radio} hisses on a shelf.",
       "A hook hangs from the ceiling. The clinic is west."
     ],
     exits: { w: { out: true } },
@@ -125,7 +125,7 @@ const rooms = {
       { words: ["cables", "cable", "bench", "shelf"], name: "the cables", says: "Black cables, taped to the bench and each other." }
     ],
     ambience: { lines: ["Something in the wall ticks, and settles.", "A cable warms, and cools."], every: [30, 70] },
-    alt: "A low bench room full of black cables: a tall steel lever in a slot on the right, an open socket beside it, a round dial in the wall, a lit green button by the door and a small radio on a shelf.",
+    alt: "A low bench room full of black cables: a tall steel lever in a slot on the right, an open socket beside it, a round dial in the wall, a lit green button by the door at the far right and a small radio on a shelf.",
     overlayAlt: { wire: "A coil of wire lies on the bench." }
   },
 
@@ -157,7 +157,6 @@ const rooms = {
       { words: ["desk", "desks"], name: "the desk", says: "A high desk, far too tidy." },
       { words: ["frame", "wall"], name: "the frame", says: "A frame with one word in it, and a thin line of dust along the top." }
     ],
-    mentions: ["monday"],
     sleep: "Not in the office. Mrs Oduya would write it down.",
     alt: "A small office: a tall wooden desk across the room, a woman in a grey cardigan behind it with a thick open book in front of her, and a small frame on the wall.",
     overlayAlt: {}
@@ -346,10 +345,9 @@ const rooms = {
     ],
     exits: { u: "way", n: "way", e: "way", w: "way", s: "way" },
     scenery: [{ words: ["blocks", "wall", "shelf", "stone"], name: "the wall", says: "Dressed stone, damp to the touch." }],
-    mentions: ["scrap"],
     ambience: { lines: ["Water drips somewhere, and counts.", "The boat creaks on its blocks, going nowhere."], every: [25, 60] },
     sleep: "Not in the cellar: it is far too damp.",
-    alt: "A low stone cellar with a round vault door of steel in the right wall, a small wooden door on the left, low iron bars in the right-hand corner, a big dark chest by the back wall and a small boat on blocks in the middle.",
+    alt: "A low stone cellar with a round vault door of steel in the right wall, a small wooden door on the left, a big dark chest by the back wall and a small boat on blocks in the middle.",
     overlayAlt: {}
   },
   // The falls: a picture that moves (a scrolling waterfall, glints that flicker each on their own, a torch, a pennant and a ripple).
@@ -404,7 +402,7 @@ const rooms = {
     exits: { e: "way" },
     scenery: [{ words: ["shelves", "shelf", "cobwebs", "cobweb", "slit"], name: "the shelves", says: "Wooden shelves, hung with old webs." }],
     alt: "A narrow pantry of dark wooden shelves with a slit of white light in the back wall, and a small glass jar on the middle shelf.",
-    overlayAlt: {}
+    overlayAlt: { spoon: "A wooden spoon lies on the upper shelf." }
   }
 };
 
@@ -608,7 +606,6 @@ const objects = {
   ledger: { at: "tb-office", name: "Ledger", note: "Who owes what.", opens: ["debt"],
     words: { nouns: ["ledger", "book"], adj: ["thick", "black"] },
     parts: [{ words: ["columns", "column", "page", "pages"], name: "the columns", says: "Names on the left, sums on the right, and nothing in the middle." }],
-    mentions: ["monday"],
     examine: "A thick black ledger. Each page has two columns: a name, and what is owed. A day of the week is pressed flat between two pages.", read: "$ledger.examine" },
   monday: { at: "tb-office", unnoticed: true, name: "Monday", note: "The framed day.",
     words: { nouns: ["monday"], proper: true },
@@ -647,7 +644,8 @@ const objects = {
     talk: "The cat looks at you, and then at something behind you." },
   watchman: { at: "tb-yard", name: "Watchman", note: "On his round.",
     rounds: { rooms: ["tb-yard", "tb-lane"], every: [4, 4] },
-    words: { nouns: ["watchman", "guardsman"], adj: ["long"] }, ...item("watchman"), figure: sprites.watchman_figure,
+    words: { nouns: ["watchman", "guardsman"], adj: ["long"] }, figure: sprites.watchman_figure, portrait: sprites.watchman_portrait,   // (a figure and a portrait: no sprite)
+    talk: "\"Round and round,\" says the watchman, and does not stop.",
     here: "A {watchman} walks his round.",
     examine: "A watchman in a long coat. He walks the yard and the lane, one step every four moves of yours." },
   bird: { at: "tb-lane", name: "Bird", note: "Moves on its own.",
@@ -700,7 +698,7 @@ const objects = {
   ladder: { at: "tb-ways", leads: ["u", "d"], name: "Ladder", note: "Up, or down.",
     words: { nouns: ["ladder"], adj: ["iron"] },
     examine: "An iron ladder. Climbing goes up; climbing down goes down." },
-  pole: { at: "tb-annex", portable: true, material: "wood", shape: "pole_shape", name: "Pole", note: "Long, for the hook.",
+  pole: { at: "tb-annex", portable: true, material: "wood", name: "Pole", note: "Long, for the hook.",
     here: "A long wooden pole lies along the floor, from wall to wall.",
     words: { nouns: ["pole"], adj: ["long", "wooden"] }, ...item("pole"),
     examine: "A long wooden pole, as long as the room." },
@@ -721,7 +719,7 @@ const objects = {
     lock: { key: "pantry_key", says: "The cellar door is locked on this side too.", opens: "The tiny key turns, and the cellar door swings open." },
     words: { nouns: ["cellar door", "door"], adj: ["wooden"] },
     examine: "A small wooden door, the same one seen from the other side." },
-  // Bars: a locked way that is not a door (`leads`): drawn shut and open (`bars`, `bars_open`), shaking when you try them, offering the way through once open.
+  // Bars: a locked way that is not a door (`leads`): not drawn (it is the way south, behind you in a picture that faces north: BRIEF §7, "Pictures face north"), shaking when you try them, offering the way through once open.
   bars: { at: "tb-cellar", leads: "s", material: "metal", locked: true, name: "Iron bars", note: "Chained, across a gap.",
     shut: "You lean on the iron bars. They do not give.",
     lock: { key: "grate_key", says: "The bars are chained, with a small black padlock.", opens: "The small key turns, and the bars swing aside on their hinges." },
@@ -758,12 +756,34 @@ const objects = {
     examine: "A scrap of paper with half a word on it." },
   jar: { at: "tb-pantry", container: true, open: false, material: "glass", name: "Jar", note: "Closed.",
     words: { nouns: ["jar"], adj: ["glass"] },
-    examine: "A glass jar with a screw lid, empty." },
+    examine: "A glass jar with a screw lid." },
+  // Hints give (BRIEF.md §4): open_jar opens the jar and leaves the sweet in it, to hand; its hints end with the take.
+  sweet: { at: "jar", portable: true, material: "paper", name: "Sweet", note: "Green, wrapped.", words: { nouns: ["sweet", "candy"], adj: ["green"] }, ...item("pill"),
+    examine: "A green boiled sweet in a twist of paper." },
   tin: { at: "tb-vault", portable: true, material: "metal", name: "Tin", note: "Rattles.",
     heldActions: ["Shake tin"],
     words: { nouns: ["tin"], adj: ["dented"] }, ...item("tin"),
     here: "A dented {tin} sits on the floor.",
-    examine: "A dented tin that rattles when shaken." }
+    examine: "A dented tin that rattles when shaken." },
+
+  // Puzzles by id (BRIEF.md §4, "Writing a solve"): the sump's chain and the cellar's valve, for the puzzle drain_sump, whose solve is a direction,
+  // an action with one thing and one with two, and which only changes something (`sets`); the walk to it goes through the locked bars, so its
+  // hints' last level adds taking the grate key and unlocking them (tests/testbed.test.js).
+  sump_chain: { at: "tb-sump", material: "metal", name: "Chain", note: "Hangs from the dark.",
+    here: "A rusted {chain|sump_chain} hangs from the dark above the water.",
+    words: { nouns: ["chain"], adj: ["rusted"] },
+    examine: "A rusted chain, hanging from a sluice somewhere under the cellar floor. Pull it, and something lifts." },
+  sump_valve: { at: "tb-cellar", material: "metal", name: "Valve", note: "A square stem.",
+    here: "A {valve} with a square stem sticks out of the floor by the bars.",
+    turn: "The square stem won't turn by hand: it wants a key's bow.",
+    words: { nouns: ["valve"], adj: ["square"] },
+    examine: "A valve on a square stem, for draining the sump. A small key's bow would fit the stem." },
+  // Engine defaults (BRIEF.md §7, "Sprites"): a thing you can hold with no `sprite` of its own. The game draws its material's plain one (wood: a crate) in
+  // the inventory, beside its examine text, in the echo of getting it and in the pantry's picture, and the checker warns.
+  spoon: { at: "tb-pantry", portable: true, material: "wood", name: "Spoon", note: "Worn at the edge.",
+    words: { nouns: ["spoon"], adj: ["wooden"] },
+    here: "A wooden {spoon} lies on the upper shelf.",
+    examine: "A wooden spoon, worn smooth at the edge." }
 };
 
 // ---- Named changes -----------------------------------------------------------------------------------------------------------
@@ -803,7 +823,7 @@ const rules = [
   { id: "push_button", match: { verb: "push", obj: "button" }, do: [{ say: "The button clicks, and the floor goes out from under you, politely." }, { travel: "tb-landing" }] },
   { id: "use_pole_hook", match: { verb: "use", obj: "pole", scenery: "annex_hook" }, if: [{ "player.at": "tb-annex" }],
     do: [{ say: "You hang the pole on the hook, and it swings once, and hangs there." }, { move: "pole", to: "tb-annex" }] },
-  { id: "put_coin_socket", match: { verb: "put", obj: "coin", obj2: "socket", prep: "in" }, if: [{ "$obj2": "socket" }],
+  { id: "put_coin_socket", match: { verb: "put", obj: "coin", obj2: "socket" }, if: [{ "$obj2": "socket" }],
     do: [{ say: "The coin is too thin for the contacts, and rolls back into your hand." }] },
   { id: "tune_radio", match: { verb: "tune", obj: "radio" },
     do: [{ say: "You tune the radio, and the hiss stops, and one word comes through: Testbed." }, { set: "radio.tuned", to: true }, { remove: "rule", id: "radio_hiss" },
@@ -819,7 +839,7 @@ const rules = [
   { id: "summon_dot", match: { verb: "summon", obj: "dot" }, if: [{ "dot.place": { "!=": "$here" } }, { "$here": { "!=": "tb-bar" } }],
     do: [{ say: "Dot is in the bar, east of the hub. She cannot hear you from here." }] },
   { id: "shake_tin", match: { verb: "shake", obj: "tin" }, once: true, again: "The tin rattles again, in the same way.",
-    do: [{ say: "The tin rattles: a very small coin, or a very large bean." }] },
+    do: [{ say: "The tin rattles: a very small coin, or a very large bean." }, { set: "tin.shaken", to: true }] },
   { id: "dial_0", match: { verb: "turn", obj: "dial" }, if: [{ "dial.setting": 0 }],
     do: [{ filter: "vignette" }, { set: "dial.setting", add: 1 }, { say: "The picture darkens at the edges." }] },
   { id: "dial_1", match: { verb: "turn", obj: "dial" }, if: [{ "dial.setting": 1 }],
@@ -900,6 +920,11 @@ const rules = [
   { id: "think_ledger", match: { verb: "think", obj: "ledger" }, do: [{ say: "You think about the ledger, and a debt comes to mind.", style: "sys" }, { know: "debt" }] },
   { id: "think_absent", match: { verb: "think", absent: "wire" }, do: [{ say: "You think about the wire, but it is not here to be thought about." }] },
   { id: "ask_default", match: { verb: "ask", obj: "dot" }, if: [{ "$topic": null }], do: [{ say: "Dot waits to be asked about something." }] },
+  // A person drawn as shapes in a room's picture (dot_body, dot_head, dot_apron) whom a rule moves away and back: her shapes go with her, no `draw`.
+  { id: "dot_break", match: { verb: "relieve", obj: "dot" }, if: [{ "dot.at": "tb-bar" }],
+    do: [{ say: "\"Five minutes,\" says Dot, and goes out into the hub." }, { move: "dot", to: "tb-hub" }] },
+  { id: "dot_back", match: { verb: "relieve", obj: "dot" }, if: [{ "dot.at": "tb-hub" }],
+    do: [{ say: "\"Fine,\" says Dot, and goes back behind the bar." }, { move: "dot", to: "tb-bar" }] },
   { id: "read_ledger", match: { verb: "read", obj: "ledger" }, do: [{ say: "$ledger.examine", img: "coin" }] },
   { id: "tear_scrap", match: { verb: "attack", obj: "scrap" }, do: [{ say: "You tear the scrap, and the half word is gone." }, { remove: "object", id: "scrap" }] },
   // The hub: the board reads the state back to you, and a scheduled rule or two.
@@ -914,36 +939,60 @@ const rules = [
   { id: "bell_tower", when: "at", at: "day 2 08:00", once: true, do: [{ say: "Somewhere above the floor, a bell strikes eight, and nobody is surprised." }] },
   { id: "hub_tick", when: "every", every: { turns: [8, 12] }, chance: 0.5, if: [{ "player.at": "tb-hub" }], do: [{ say: "The doors of the hub click, one after another." }] },
   // A rule added in play, ahead of another (BRIEF §8, "Rules"): the board is read the plain way first once the lamp is out.
-  { id: "board_dim", match: { verb: "read", obj: "board" }, if: [{ "tb-hub.dim": true }], do: [{ say: "The board is hard to read in the dark." }] }
+  { id: "board_dim", match: { verb: "read", obj: "board" }, if: [{ "tb-hub.dim": true }], do: [{ say: "The board is hard to read in the dark." }] },
+  // Puzzles by id: the sump drains once the chain has lifted the sluice and the valve is turned with the grate key.
+  { id: "pull_sump_chain", match: { verb: "pull", obj: "sump_chain" }, do: [{ say: "You pull the chain. Under the floor a sluice lifts, and the black water starts to move." }, { set: "sump_chain.pulled", to: true }] },
+  { id: "turn_valve_early", match: { verb: "turn", obj: "sump_valve", obj2: "grate_key" }, if: [{ "sump_chain.pulled": false }],
+    do: [{ say: "The key's bow fits the stem, and the valve turns, but nothing drains: the sluice below is still down." }] },
+  { id: "turn_valve", match: { verb: "turn", obj: "sump_valve", obj2: "grate_key" }, if: [{ "sump_valve.turned": false }],
+    do: [{ say: "The key's bow fits the stem. You turn the valve, and down in the sump the water drains away with a long sigh." }, { set: "sump_valve.turned", to: true }] }
 ];
 // ---- Puzzles ---------------------------------------------------------------------------------------------------------------
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the handset's first hints are about it.
-  way_out: { where: "tb-start", needs: [], solve: ["{take} token", "put token in turnstile", "north"], reaches: "tb-hub", clues: ["gate", "token"],
+  way_out: { where: "tb-start", needs: [], solve: [{ verb: "take", obj: "token" }, { verb: "put", obj: "token", obj2: "gate" }, "n"], reaches: "tb-hub", clues: ["gate", "token"],
     hints: ["The turnstile has a slot, and there is a token in the dish.", "Take the token, put it in the turnstile, and go north."] },
-  take_coin: { where: "tb-bar", needs: [], solve: ["{take} coin"], gives: ["coin"], clues: ["dot", "coin"],
+  take_coin: { where: "tb-bar", needs: [], solve: [{ verb: "take", obj: "coin" }], gives: ["coin"], clues: ["dot", "coin"],
     hints: ["A coin lies by the glass on the counter.", "Take the coin from the bar."] },
-  buy_key: { where: "tb-bar", needs: ["take_coin"], solve: ["buy chest key"], gives: ["chest_key"], clues: ["dot", "chest_key"],
+  buy_key: { where: "tb-bar", needs: ["take_coin"], solve: [{ verb: "buy", obj: "chest_key" }], gives: ["chest_key"], clues: ["dot", "chest_key"],
     hints: ["Dot sells a small key for exactly one coin.", "Buy the chest key from Dot, with the coin."] },
-  open_chest: { where: "tb-cellar", needs: ["buy_key"], solve: ["unlock chest with chest key", "take fuse from chest"], gives: ["fuse"], clues: ["chest", "chest_key"],
+  open_chest: { where: "tb-cellar", needs: ["buy_key"], solve: [{ verb: "unlock", obj: "chest", obj2: "chest_key" }, { verb: "take", obj: "fuse", obj2: "chest" }], gives: ["fuse"], clues: ["chest", "chest_key"],
     hints: ["The small key fits the big chest in the cellar.", "Unlock the chest with the chest key, and take the fuse."] },
-  take_vault_key: { where: "tb-cellar", needs: ["open_chest"], solve: ["take vault key from chest"], gives: ["vault_key"], clues: ["chest", "vault_door"],
+  take_vault_key: { where: "tb-cellar", needs: ["open_chest"], solve: [{ verb: "take", obj: "vault_key", obj2: "chest" }], gives: ["vault_key"], clues: ["chest", "vault_door"],
     hints: ["The chest holds a long brass key too.", "Take the vault key from the chest."] },
-  open_vault: { where: "tb-cellar", needs: ["take_vault_key"], solve: ["unlock vault door with vault key", "east"], reaches: "tb-vault", clues: ["vault_door", "vault_key"],
+  open_vault: { where: "tb-cellar", needs: ["take_vault_key"], solve: [{ verb: "unlock", obj: "vault_door", obj2: "vault_key" }, "e"], reaches: "tb-vault", clues: ["vault_door", "vault_key"],
     hints: ["The brass key fits the vault door.", "Unlock the vault door with the vault key, then go east."] },
-  open_sump: { where: "tb-cellar", needs: [], solve: ["take grate key from bin", "unlock bars with grate key", "south"], reaches: "tb-sump", clues: ["bars", "grate_key"],
+  open_sump: { where: "tb-cellar", needs: [], solve: [{ verb: "take", obj: "grate_key", obj2: "bin" }, { verb: "unlock", obj: "bars", obj2: "grate_key" }, "s"], reaches: "tb-sump", clues: ["bars", "grate_key"],
     hints: ["The bin holds a small black key.", "Take the grate key from the bin, unlock the bars with it, and go south."] },
-  open_pantry: { where: "tb-cellar", needs: [], solve: ["take pantry key from box", "unlock pantry door with pantry key", "west"], reaches: "tb-pantry", clues: ["box", "cellar_door"],
+  open_pantry: { where: "tb-cellar", needs: [], solve: [{ verb: "take", obj: "pantry_key", obj2: "box" }, { verb: "unlock", obj: "cellar_door", obj2: "pantry_key" }, "w"], reaches: "tb-pantry", clues: ["box", "cellar_door"],
     hints: ["The box holds a tiny key.", "Take the pantry key from the box, unlock the pantry door with it, and go west."] },
-  light: { where: "tb-lab", needs: ["open_chest"], solve: ["put fuse in socket", "pull lever", "yes"], ending: true, clues: ["lever", "socket", "fuse"],
+  light: { where: "tb-lab", needs: ["open_chest"], solve: [{ verb: "put", obj: "fuse", obj2: "socket" }, { verb: "pull", obj: "lever" }, { verb: "answer", value: "yes" }], ending: true, clues: ["lever", "socket", "fuse"],
     hints: ["The socket is empty, and the lever does nothing without a fuse in it.", "Put the fuse in the socket, pull the lever, and say yes."] },
-  named: { where: "tb-office", needs: [], solve: ["examine ledger", "ask oduya about ledger", "ask oduya about debt", "ask oduya about verdict", "oduya"], ending: true,
+  named: { where: "tb-office", needs: [], solve: [{ verb: "examine", obj: "ledger" }, { verb: "ask", obj: "oduya", topic: "ledger" }, { verb: "ask", obj: "oduya", topic: "debt" }, { verb: "ask", obj: "oduya", topic: "verdict" }, { verb: "answer", text: "oduya" }], ending: true,
     clues: ["oduya", "ledger"],
     hints: ["Mrs Oduya keeps the book, and the book keeps a name.", "Ask her about the ledger, then the debt, then the verdict, and answer with her own name."] },
-  meet_clerk: { where: "tb-yard", needs: [], solve: ["west"], reaches: "tb-lane", time: "next 20:00", clues: ["clerk", "watchman"],
+  meet_clerk: { where: "tb-yard", needs: [], solve: ["w"], reaches: "tb-lane", time: "next 20:00", clues: ["clerk", "watchman"],
     hints: ["The lane has a night clerk, after eight.", "Wait for the evening, then go west."] },
-  fell: { where: "tb-roof", needs: [], solve: ["jump"], ending: true, clues: ["ladder", "landing_stairs"],
-    hints: ["The roof has an edge, and the edge has a drop.", "Climb up to the roof, and jump."] }
+  fell: { where: "tb-roof", needs: [], solve: [{ verb: "jump" }], ending: true, clues: ["ladder", "landing_stairs"],
+    hints: ["The roof has an edge, and the edge has a drop.", "Climb up to the roof, and jump."] },
+  // Puzzles by id: a step that only changes something (`sets`), behind the locked bars.
+  drain_sump: { where: "tb-sump", needs: [], solve: [{ verb: "pull", obj: "sump_chain" }, "n", { verb: "turn", obj: "sump_valve", obj2: "grate_key" }], sets: "sump_valve.turned",
+    clues: ["sump_chain", "sump_valve"],
+    hints: ["The sump drains through a valve in the cellar, once its sluice is up.", "Pull the chain in the sump, then turn the cellar's valve with the grate key."] },
+  // Hints lead (BRIEF.md §4): a need that is a thing no puzzle gives. The pass lies in the ways, so the hints come here before it is taken, and
+  // list its take; the tin lies behind the vault door, so they wait for this one until its keys can be had (the chest key bought).
+  pass_guard: { where: "tb-ways", needs: ["pass"], solve: ["n"], reaches: "tb-annex", clues: ["pass"],
+    hints: ["The guard lets through whoever holds a pass.", "Take the pass from the floor, and go north."] },
+  rattle_tin: { where: "tb-vault", needs: ["tin"], solve: [{ verb: "shake", obj: "tin" }], sets: "tin.shaken", clues: ["tin"],
+    hints: ["The tin in the vault has something loose in it.", "Take the tin, and shake it."] },
+  open_jar: { where: "tb-pantry", needs: [], solve: [{ verb: "open", obj: "jar" }], gives: ["sweet"], clues: ["jar"],
+    hints: ["The jar in the pantry is not as empty as it looks.", "Open the jar in the pantry."] },
+  // Walk fetches (BRIEF.md §4): a step that names a thing left in another room (the tin, in the vault the needed open_vault reached) fetches it on the
+  // way; a puzzle that gives a thing that can't be carried (the pit's steps) is done once they have been seen to hand.
+  shake_tin_hub: { where: "tb-hub", needs: ["open_vault"], solve: [{ verb: "shake", obj: "tin" }], sets: "tin.shaken", clues: ["tin"],
+    hints: ["The tin rattles just as well out in the hub.", "Bring the tin from the vault to the hub, and shake it."] },
+  dig_pit: { where: "tb-ways", needs: [], solve: [{ verb: "turn", obj: "wheel" }, "s"], gives: ["pit_steps"], clues: ["wheel"],
+    hints: ["The wheel in the ways digs a pit, with steps up out of it.", "Turn the wheel, and go south into the pit."] }
 };
 
 // ---- The opening, declared: the start room (BRIEF.md §3) ---------------------------------------------------------------------
@@ -974,7 +1023,10 @@ export default {
     "bunk.slept": { type: "number", min: 0, max: 99, start: 0 },
     "radio.tuned": { type: "boolean", start: false },
     "tb-hub.dim": { type: "boolean", start: false },
-    "player.rank": { type: "string", start: "tester" }
+    "player.rank": { type: "string", start: "tester" },
+    "sump_chain.pulled": { type: "boolean", start: false },   // Puzzles by id: drain_sump
+    "sump_valve.turned": { type: "boolean", start: false },
+    "tin.shaken": { type: "boolean", start: false }            // Hints lead: rattle_tin
   },
   effects: [
     { time: "day 1 12:00", weekday: "mon" },                  // the game starts at noon
@@ -984,6 +1036,7 @@ export default {
     { add: "word", verb: "intone", words: ["intone", "recite"], speech: true, reply: "You intone, and the room takes no notice." },
     { add: "word", verb: "summon", words: ["summon", "page"], absent: true, reply: "Nobody comes." },
     { add: "word", verb: "shake", words: ["shake", "rattle"], object: "required", reply: "It does not shake." },
+    { add: "word", verb: "relieve", words: ["relieve"], object: "required", reply: "Nobody here needs relieving." },
     ...Object.entries(puzzles).map(([id, p]) => ({ add: "puzzle", id, ...p })),
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
     ...Object.entries(endingPictures).map(([id, p]) => ({ add: "picture", id, ...p })),
@@ -1002,6 +1055,9 @@ export default {
     ...Object.entries(rooms).map(([id, r]) => ({ add: "room", id, ...r, picture: pictures[id], ...(roomMusic[id] ? { music: roomMusic[id] } : {}) })),
     ...Object.entries(objects).map(([id, o]) => ({ add: "object", id, ...o })),
     ...rules.map((rule) => ({ add: "rule", rule })),
-    { add: "rule", rule: { id: "board_first", match: { verb: "examine", obj: "board" }, do: [{ say: "$board.examine" }] }, before: "board_status" }
+    { add: "rule", rule: { id: "board_first", match: { verb: "examine", obj: "board" }, do: [{ say: "$board.examine" }] }, before: "board_status" },
+    // Engine defaults (BRIEF.md §8, "Rules"): a rule whose `before` names a rule written below it; SMELL on the board is answered by the first, as if it had been written under the other.
+    { add: "rule", rule: { id: "board_smell_first", match: { verb: "smell", obj: "board" }, do: [{ say: "The board smells of chalk and old tape." }] }, before: "board_smell_plain" },
+    { add: "rule", rule: { id: "board_smell_plain", match: { verb: "smell", obj: "board" }, do: [{ say: "It smells of cork." }] } }
   ]
 };

@@ -8,17 +8,17 @@
 // is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
-import art from "../content/art.js?v=0.70.1";
-import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.70.1";
-import { FILTERS, MOVING, reactionOf, prepareCycle, motionInto, stepsOf } from "./effects.js?v=0.70.1";
-import { mount as mountSleep } from "./sleep.js?v=0.70.1";
-import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.70.1";
-import { shownDraw, openKey } from "../js/picture.js?v=0.70.1";       // a thing that opens is drawn shut and open: the picture shows the one that fits (js/picture.js)
-import { transition, ROOM, ENDING } from "./transitions.js?v=0.70.1";
-import { text } from "../js/narrator.js?v=0.70.1";                  // "@key" → the pack's text, dotted keys too, as the story says it
-import { reducedMotion, calm } from "./media.js?v=0.70.1";
-import { screen } from "./crt.js?v=0.70.1";                      // the CRT look, drawn over the finished picture (ui/crt.js)
-import { reflection } from "./reflection.js?v=0.70.1";            // the light beside the picture, on wide windows (ui/reflection.js)
+import art from "../content/art.js?v=0.71.0";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.71.0";
+import { FILTERS, MOVING, reactionOf, prepareCycles, motionInto, stepsOf } from "./effects.js?v=0.71.0";
+import { mount as mountSleep } from "./sleep.js?v=0.71.0";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.71.0";
+import { roomDraw, openKey, thingsOf, awayFrom } from "../js/picture.js?v=0.71.0";   // what a room's picture paints now: its things that open shown as they are, a thing's shapes only while it is in the room (js/picture.js)
+import { transition, ROOM, ENDING } from "./transitions.js?v=0.71.0";
+import { text } from "../js/narrator.js?v=0.71.0";                  // "@key" → the pack's text, dotted keys too, as the story says it
+import { reducedMotion, calm } from "./media.js?v=0.71.0";
+import { screen } from "./crt.js?v=0.71.0";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import { reflection } from "./reflection.js?v=0.71.0";            // the light beside the picture, on wide windows (ui/reflection.js)
 
 const W = art.picture.width, H = art.picture.height;
 
@@ -44,10 +44,10 @@ export function mount(root) {
   const since = new Map();       // when each filter on came on (its moving forms run from then)
   let moment = null;             // the moment now playing, once (a shake, a wave): { name, o: its tunables, at: when it began }
 
-  // Paint (or reuse) a room's picture, as its things that open are now (`objects`: a drawing for each of their states, js/picture.js; none for
-  // an ending's picture). `key` is its own: the picture's, with the things drawn open.
-  function paintedAs(key, picture, objects) {
-    if (!painted.has(key)) painted.set(key, paintPicture(objects ? shownDraw(picture.draw, objects) : picture.draw, W, H));
+  // Paint (or reuse) a room's picture as its things are now (roomDraw: a thing that opens drawn open or shut, a thing's shapes only while it is in the
+  // room; `s`, the game, and `roomId`; none for an ending's picture). `key` is its own: the picture's, with the things drawn open and those away.
+  function paintedAs(key, picture, s, roomId) {
+    if (!painted.has(key)) painted.set(key, paintPicture(s ? roomDraw(s, roomId, picture.draw) : picture.draw, W, H));
     return painted.get(key);
   }
   // (A vision's picture, for the sleep: ui/sleep.js; it has no things that open.)
@@ -63,11 +63,11 @@ export function mount(root) {
     since.clear(); filters = [];
   }
 
-  // Prepare the picture's cycles (ui/effects.js, prepareCycle: the pixels each moves, where each starts, a scroll's plan); and its loops:
+  // Prepare the picture's cycles (ui/effects.js, prepareCycles: the pixels each moves, where each starts, a scroll's plan); and its loops:
   // their frames as palette numbers.
   function prepare(picture, areas) {
     const now = performance.now();
-    cycles = (picture.cycles || []).map(c => prepareCycle(c, frame, areas, W, H, now));
+    cycles = prepareCycles(picture.cycles, frame, areas, W, H, now);
     loops = (picture.loops || []).map(l => ({ l, sprite: compileLoop(l), mem: { tick: 0, frame: 0 }, t0: now, hide: underMask(l, areas, W, H) }));
   }
 
@@ -145,8 +145,9 @@ export function mount(root) {
       canvas.setAttribute("aria-label", [end ? end.alt : room.alt, ...shown.map(o => overlayAlt(room, o))].filter(Boolean).map(t => text(t, next.pack)).join(" "));
       // The picture filters on (none on an ending's picture: it is a shot of its own), and a new moment to play (below).
       const on = end ? [] : inOrder((s.filters || []).filter(f => FILTERS[parseFilter(f).name]));
-      // The picture as painted: its version, and which of its things that open are drawn open (a change of either is a new picture: it dissolves in).
-      const form = end ? "" : openKey(picture.draw, s.world.objects), paintKey = pictureKey(s.worldId, where, picture.version) + (form ? "+" + form : "");
+      // The picture as painted: its version, which of its things that open are drawn open and which drawn things are away (a change of any is a new picture: it dissolves in).
+      const only = end ? null : thingsOf(s, roomId);              // (the room's own things: a shape named like a thing of another room is the picture's own)
+      const form = end ? "" : openKey(picture.draw, s.world.objects, only, awayFrom(s, roomId, only)), paintKey = pictureKey(s.worldId, where, picture.version) + (form ? "+" + form : "");
       const key = paintKey + "|" + shown.map(o => o.object).join(",") + "|" + on.join(",");
       if (!prev || reason === "restore") forget();
       const played = playing(prev, next, reason, !!end);
@@ -155,7 +156,7 @@ export function mount(root) {
       for (const f of [...since.keys()]) if (!on.includes(f)) since.delete(f);
       for (const f of on) if (!since.has(f)) since.set(f, performance.now());
       filters = on;
-      const { px, areas } = paintedAs(paintKey, picture, end ? null : s.world.objects);
+      const { px, areas } = paintedAs(paintKey, picture, end ? null : s, roomId);
       const old = frame;
       frame = compose(px, picture, s, roomId, W, H);
       layer.src = px;                                            // (a scroll's pattern comes from the painted picture; overlays stay over it)

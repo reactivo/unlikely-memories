@@ -269,7 +269,7 @@
       position: relative;
     }
 
-    /* The CRT look (ui/crt.js sets data-crt and puts a canvas over the whole square): the same dark edges as the picture's (ui/scene.css).
+    /* The CRT look (ui/crt.js sets data-crt and puts a canvas over the whole square): the same dark edges as the picture's (css/utilities.css).
        The canvas follows the grey of a past room, and the fade-in, as the square does. */
     & .figure canvas {
       position: absolute;
@@ -288,7 +288,6 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(ellipse closest-side at 50% 50%, transparent 55%, rgb(0 0 0 / var(--crt-vignette, 0)) 100%);
     }
 
     & .figure svg {

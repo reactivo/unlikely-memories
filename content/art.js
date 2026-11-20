@@ -3,7 +3,139 @@
 
 export default {
   picture: { width: 320, height: 136, ratio: "40:17" },
-  sprite: { width: 16, height: 16, transparent: true },
+  // `fallback`: what the game draws for a thing that can be held and has no `sprite` (js/sprites.js, spriteRows; BRIEF.md §7, "Sprites"): one plain 16 x 16
+  // drawing for each `material` there is (BRIEF.md §8, "Objects": metal a nut, glass a flask, wood a crate, paper a folded sheet, stone a rock, soft a
+  // pouch), and `none` for any other word or no material (a plain ball). The sprites' form: rows of palette numbers in hex, "." clear, a black outline one
+  // pixel wide, light from the upper left. tools/pictures/fallbacks.mjs draws them all on one sheet.
+  sprite: { width: 16, height: 16, transparent: true,
+    fallback: {
+      metal: [
+        "................",
+        "................",
+        "....00000000....",
+        "...0fffffff70...",
+        "...0fff88ff70...",
+        "..0ff880087770..",
+        "..077800007770..",
+        ".07780000007880.",
+        ".07780000007880.",
+        "..077800007880..",
+        "..077770077880..",
+        "...0777778880...",
+        "...0777888880...",
+        "....00000000....",
+        "................",
+        "................"
+      ],
+      glass: [
+        "................",
+        ".....000000.....",
+        ".....0bbbb0.....",
+        "......0bb0......",
+        "......0bb0......",
+        ".....0bbbb0.....",
+        "....0bbbbbb0....",
+        "....0bbbbbb0....",
+        "...0bffbb3330...",
+        "...0bffbb3330...",
+        "...0bffbb3330...",
+        "...0bffbb3330...",
+        "....0bbbb330....",
+        ".....00bb00.....",
+        ".......00.......",
+        "................"
+      ],
+      wood: [
+        "................",
+        "................",
+        "................",
+        "..000000000000..",
+        "..0e66666666e0..",
+        "..066666660660..",
+        "..066666606660..",
+        "..000000000000..",
+        "..0e6660666660..",
+        "..066606666660..",
+        "..066066666660..",
+        "..060666666660..",
+        "..0e66666666e0..",
+        "..000000000000..",
+        "................",
+        "................"
+      ],
+      paper: [
+        "................",
+        "...00077........",
+        "...0fff77.......",
+        "...0ffff77......",
+        "...0fffff77.....",
+        "...0ffffff77....",
+        "...0ffffffff0...",
+        "...0f88888870...",
+        "...0fffffff70...",
+        "...0f88888870...",
+        "...0fffffff70...",
+        "...0f88888870...",
+        "...0fffffff70...",
+        "...0f888fff70...",
+        "...0000000000...",
+        "................"
+      ],
+      stone: [
+        "................",
+        "................",
+        "................",
+        ".......00.......",
+        ".....007700.....",
+        "....0fff7770....",
+        "...0ffff77770...",
+        "..07ffff77770...",
+        ".0777778777780..",
+        ".07777778778880.",
+        ".07777778788880.",
+        ".0777777788880..",
+        ".0888888888800..",
+        "..0000000000....",
+        "................",
+        "................"
+      ],
+      soft: [
+        "................",
+        "................",
+        ".....000000.....",
+        "....00666600....",
+        "......0660......",
+        "......0660......",
+        "......4444......",
+        "....00666600....",
+        "...0666666660...",
+        "..066ee6666660..",
+        "..06ee66666660..",
+        "..06e666666660..",
+        "..066666666660..",
+        "...0066666600...",
+        ".....000000.....",
+        "................"
+      ],
+      none: [
+        "................",
+        "................",
+        ".....000000.....",
+        "...0077777700...",
+        "...0fff777770...",
+        "..07fff7777770..",
+        "..07fff7777770..",
+        "..077777777780..",
+        "..077777777880..",
+        "..077777778880..",
+        "..077777788880..",
+        "...0777788880...",
+        "...0077888800...",
+        ".....000000.....",
+        "................",
+        "................"
+      ]
+    } },
   // A world's cover (docs/splash/PLAN.md; INTERFACE.md §13a): its own page's poster, 320 x 400, with the world's title drawn into its pixels by the
   // engine (js/title.js) in a band of plain colour: `bands` are the rows [from, to) of the top band and the bottom one (a cover's `titleAt`); the title
   // is set in capitals in `titleFont` (a name in content/titlefonts/, made by tools/titlefont.mjs from a pixel TTF; the debug panel's Typography
@@ -32,7 +164,7 @@ export default {
     // The shapes a picture is drawn in, by style (BRIEF.md §7, "Enough to look at"), and with the haze modifier (`haze`): [fewest, most]. Fewer than
     // the lowest is warned of by the checker (only for a world whose shots plan their motion); more than `maxShapes` is a problem.
     // An ending's picture has a lower floor than a room's (the same upper limits): `endings`; with haze, the lower of the two floors.
-    ranges: { dithered: [60, 120], flat: [100, 220], haze: { dithered: [30, 60], flat: [80, 150] }, endings: { dithered: [40, 120], flat: [70, 220] } },
+    ranges: { dithered: [60, 120], flat: [80, 160], haze: { dithered: [30, 60], flat: [65, 120] }, endings: { dithered: [40, 120], flat: [55, 160] } },
     edits: ["add", "remove", "replace", "restyle"]
   },
   // The palettes a picture is drawn in, by the names BRIEF.md §7's table gives them (a `shot` names one; a bible's `palettes` line lists the world's):
@@ -60,7 +192,7 @@ export default {
     // What the checker warns of in a picture's motion (never a problem; BRIEF.md §7, "Animation"): the fastest steps (ms) of
     // pingpong, rotate and blink without a sweep, the shortest flicker wait, scroll and sweep steps; and the most of the picture's
     // pixels all the cycles together move (flicker not counted).
-    pace: { step: 300, flicker: 400, scroll: 40, sweep: 45, moving: 1 / 6 },
+    pace: { step: 300, flicker: 400, scroll: 40, sweep: 45 },
     // Loops (a picture's `loops`: small animated sprites drawn on the picture, as Sierra's views were): the styles they step by,
     // and the limits the checker holds them to. `size` is the most a frame is, in pixels each way.
     loopStyles: ["loop", "pingpong", "random"],

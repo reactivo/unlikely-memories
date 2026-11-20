@@ -1,11 +1,11 @@
 // "The Third Glass": a world, in English, written the way the AI is asked to write a world
 // (BRIEF.md). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -144,7 +144,7 @@ export default {
         { say: "You knock. After a while someone on the other side lifts the latch, politely, and is gone before the door has finished opening. Beyond it it is morning, and cool, and the air smells of woodsmoke and tea." },
         { connect: "dunes", dir: "n" }
       ] } },
-    { add: "puzzle", id: "knock", where: "dunes", needs: [], solve: ["knock on door", "north"], reaches: "lines", clues: ["door", "shell"],
+    { add: "puzzle", id: "knock", where: "dunes", needs: [], solve: [{ verb: "knock", obj: "door" }, "n"], reaches: "lines", clues: ["door", "shell"],
       hints: ["A door with no wall is still somebody's door, and a guest knocks.", "Knock on the door, then go north through it."] },
     ...Object.entries(changes).map(([id, effects]) => ({ add: "change", id, effects })),
 
@@ -618,34 +618,34 @@ export default {
     ...Object.entries(endingPictures).map(([id, picture]) => ({ add: "picture", id, alt: endingAlts[id], picture })),
 
     // ---- the puzzles --------------------------------------------------------------------------------------------
-    { add: "puzzle", id: "get_lamp", where: "tent", needs: [], solve: ["take lamp", "light lamp"], gives: ["lamp"],
+    { add: "puzzle", id: "get_lamp", where: "tent", needs: [], solve: [{ verb: "take", obj: "lamp" }, { verb: "switch_on", obj: "lamp" }], gives: ["lamp"],
       clues: ["lamp", "fadimata", "painting"],
       hints: ["The dark under the red rock is older than manners, says someone in a black tent.", "Take the clay lamp from the shelf in the black tent, and light it."] },
-    { add: "puzzle", id: "get_cloth", where: "lines", needs: [], solve: ["take cloth"], gives: ["cloth"],
+    { add: "puzzle", id: "get_cloth", where: "lines", needs: [], solve: [{ verb: "take", obj: "cloth" }], gives: ["cloth"],
       clues: ["cloth", "aghali", "afternoon"],
       hints: ["Nobody is using the white cloth drying on the line by the camels.", "Take the white cloth from the line in the camel lines."] },
-    { add: "puzzle", id: "get_charcoal", where: "camp", needs: [], solve: ["take charcoal"], gives: ["charcoal"],
+    { add: "puzzle", id: "get_charcoal", where: "camp", needs: [], solve: [{ verb: "take", obj: "charcoal" }], gives: ["charcoal"],
       clues: ["charcoal", "painting"],
       hints: ["The fire pushes out what it cannot finish burning.", "Take the charcoal from the edge of the fire in the camp."] },
-    { add: "puzzle", id: "copy_woman", where: "gallery", needs: ["lamp", "cloth", "charcoal"], solve: ["rub painting"], gives: ["rubbing"],
+    { add: "puzzle", id: "copy_woman", where: "gallery", needs: ["lamp", "cloth", "charcoal"], solve: [{ verb: "touch", obj: "painting" }], gives: ["rubbing"],
       clues: ["painting", "afternoon", "cloth", "charcoal"],
       hints: ["The stone round the painted woman is smooth enough to keep what is pressed on it.", "Rub the painted woman with the charcoal, with the cloth over her."] },
-    { add: "puzzle", id: "stand_camel", where: "lines", needs: ["rubbing"], solve: ["show rubbing to camel"], gives: ["skin"],
+    { add: "puzzle", id: "stand_camel", where: "lines", needs: ["rubbing"], solve: [{ verb: "show", obj: "rubbing", obj2: "afternoon" }], gives: ["skin"],
       clues: ["afternoon", "rubbing", "painting", "fadimata"],
       hints: ["A camel stands for a place where someone is expecting her.", "Show the rubbing of the painted woman to Afternoon."] },
-    { add: "puzzle", id: "fill_skin", where: "cistern", needs: ["skin", "lamp"], solve: ["put skin in pool"], gives: ["water_skin"],
+    { add: "puzzle", id: "fill_skin", where: "cistern", needs: ["skin", "lamp"], solve: [{ verb: "put", obj: "skin", obj2: "pool" }], gives: ["water_skin"],
       clues: ["pool", "fadimata", "skin"],
       hints: ["The river runs west into the rock, and ends where the water is still.", "Put the goatskin in the pool in the cistern, under the painted gallery."] },
-    { add: "puzzle", id: "fill_well", where: "camp", needs: ["water_skin"], solve: ["put skin in well"], gives: ["bell"],
+    { add: "puzzle", id: "fill_well", where: "camp", needs: ["water_skin"], solve: [{ verb: "put", obj: "water_skin", obj2: "well" }], gives: ["bell"],
       clues: ["well", "fadimata", "water_skin"],
       hints: ["A well is a long listening. It has been waiting to be given something to say.", "Put the full goatskin in the well in the camp."] },
-    { add: "puzzle", id: "depart", where: "lines", needs: ["bell", "stand_camel"], solve: ["give bell to camel", "climb camel"], ending: true,
+    { add: "puzzle", id: "depart", where: "lines", needs: ["bell", "stand_camel"], solve: [{ verb: "give", obj: "bell", obj2: "afternoon" }, { verb: "climb", obj: "afternoon" }], ending: true,
       clues: ["bell", "afternoon", "cairn"],
       hints: ["A caravan leaves when its bell rings, and the camel knows where.", "Give the bell to Afternoon, and ride her."] },
-    { add: "puzzle", id: "stay", where: "tent", needs: [], solve: ["order tea", "drink tea", "order tea", "drink tea", "order tea", "drink tea"], ending: true,
+    { add: "puzzle", id: "stay", where: "tent", needs: [], solve: [{ verb: "order", obj: "tea" }, { verb: "drink", obj: "tea" }, { verb: "order", obj: "tea" }, { verb: "drink", obj: "tea" }, { verb: "order", obj: "tea" }, { verb: "drink", obj: "tea" }], ending: true,
       clues: ["tea", "fadimata"],
       hints: ["Fadimata pours in threes. Most guests leave before the last.", "Order tea and drink it, three times, and stay."] },
-    { add: "puzzle", id: "lost", where: "camp", needs: [], solve: ["go east"], ending: true,
+    { add: "puzzle", id: "lost", where: "camp", needs: [], solve: ["e"], ending: true,
       clues: ["aghali", "fadimata"],
       hints: ["The tracks go east into the sand and do not come back. Nobody walks east alone.", "Walk east from the camp, alone."] }
   ]

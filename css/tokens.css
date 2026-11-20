@@ -113,7 +113,6 @@
     --text-s:  1.25rem;   /* 20px */
     --text-m:  1.75rem;   /* 28px */
     --text-l:  2rem;   /* 32px */
-    --text-xl: 3rem;   /* 48px */
 
 
     /* ---- Line heights ----
@@ -122,8 +121,6 @@
     --line-xxs: 0.85;    /* the story log: tight lines, chosen by eye for m5x7 (accented capitals must still clear the line above) */
     --line-xs:  1;
     --line-s:   1.25;
-    --line-m:   1.375;
-    --line-l:   1.5;
 
 
     /* ---- Spacing: margins, paddings and gaps. ---- */
@@ -183,7 +180,6 @@
       --text-s:  1.5rem;   /* 24px */
       --text-m:  1.875rem;   /* 30px */
       --text-l:  2.5rem;   /* 40px */
-      --text-xl: 4rem;   /* 64px */
     }
   }
 }

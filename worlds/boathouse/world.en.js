@@ -1,11 +1,11 @@
 // "The Lake Lights It Again": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -212,7 +212,6 @@ const rooms = {
       { words: ["photographs", "photograph", "photos", "boats", "bar", "counter"], name: "the photographs", says: "Boats on the lake, in a dozen summers. In every one the same man stands in the stern with his back to the camera, rowing away." },
       { words: ["shelf", "mantel", "candle", "mug"], name: "the mantel", says: "A candle burnt down to a stub it has been told to keep, and a mug of tea gone cold, and a clean ring beside it where a second mug used to stand." }
     ],
-    mentions: [],
     ambience: { lines: [
       "The fire settles, and a log turns over to show its other side.",
       "A cup is put down on the bar, with great care, as if it were full.",
@@ -236,7 +235,6 @@ const rooms = {
       { words: ["gate", "lychgate", "lych-gate", "nails", "nail", "roof"], name: "the lychgate", says: "A little roofed gate, dry underneath, with a row of nails driven into the beam. The village hangs here what it wants kept." },
       { words: ["grass", "garlic", "flowers"], name: "the grass", says: "Long grass and wild garlic. It bends away from the lake, all together, as in a wind that is not here." }
     ],
-    mentions: ["cote"],
     ambience: { lines: [
       "The garlic gives off its smell in one breath, as though startled.",
       "A swallow goes through the lychgate and out the other side, in no hurry.",
@@ -293,7 +291,7 @@ const objects = {
     here: "A box of {matches} lies on the mantel, next to the stub of a candle that is waiting to be lit.",
     words: { nouns: ["matches", "match", "box"], adj: [], pl: true }, smell: "Sulphur, and the inside of somebody's coat pocket.",
     examine: "A box of safety matches, nearly full. On the lid, a boat, and a smaller boat.", ...item("matches") },
-  oars: { at: "loft", portable: true, material: "wood", shape: ["oars_shape", "oars_blade"], name: "Oars", note: "A pair, blades together.", use: "fit",
+  oars: { at: "loft", portable: true, material: "wood", name: "Oars", note: "A pair, blades together.", use: "fit",
     here: "A pair of {oars} lies across two rafters, the blades together, pale where hands go.",
     words: { nouns: ["oars", "oar", "paddles"], adj: ["pair"], pl: true },
     examine: "Two ash oars, the looms worn to the shape of a man who held them a particular way. The blades are painted with a band of yellow, like a lamp.", ...item("oars") },
@@ -350,27 +348,27 @@ const objects = {
 // ---- Puzzles ---------------------------------------------------------------------------------------------------------------
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the bottle's first hints are about it.
-  way_out: { where: "car", needs: [], solve: ["pull lever", "go east"], reaches: "quay", clues: ["grille", "lever"],
+  way_out: { where: "car", needs: [], solve: [{ verb: "pull", obj: "lever" }, "e"], reaches: "quay", clues: ["grille", "lever"],
     hints: ["The grille is worked from inside the car, and something red by the door works it.", "Pull the red lever, and go out through the grille."] },
-  get_key: { where: "churchyard", needs: [], solve: ["take key"], gives: ["boat_key"], clues: ["pell", "boathouse_door", "boat_key"],
+  get_key: { where: "churchyard", needs: [], solve: [{ verb: "take", obj: "boat_key" }], gives: ["boat_key"], clues: ["pell", "boathouse_door", "boat_key"],
     hints: ["Mrs Pell says what the village keeps dry: up the hill, under a little roof.", "Take the key from its nail at the lychgate, in the churchyard."] },
-  open_boathouse: { where: "quay", needs: ["boat_key"], solve: ["unlock door with key", "go east"], reaches: "boathouse", clues: ["boathouse_door", "pell", "boat_key"],
+  open_boathouse: { where: "quay", needs: ["boat_key"], solve: [{ verb: "unlock", obj: "boathouse_door", obj2: "boat_key" }, "e"], reaches: "boathouse", clues: ["boathouse_door", "pell", "boat_key"],
     hints: ["The padlock on the boathouse door has a clean keyhole.", "Unlock the boathouse door with the iron key and go in."] },
-  get_oars: { where: "loft", needs: ["open_boathouse"], solve: ["take oars"], gives: ["oars"], clues: ["pell", "boat"],
+  get_oars: { where: "loft", needs: ["open_boathouse"], solve: [{ verb: "take", obj: "oars" }], gives: ["oars"], clues: ["pell", "boat"],
     hints: ["The boat has empty rowlocks, and Mrs Pell says where the oars were put.", "Climb the ladder to the loft and take the oars."] },
-  get_lantern: { where: "boathouse", needs: ["open_boathouse"], solve: ["take lantern"], gives: ["lantern"], clues: ["pell", "boathouse_door"],
+  get_lantern: { where: "boathouse", needs: ["open_boathouse"], solve: [{ verb: "take", obj: "lantern" }], gives: ["lantern"], clues: ["pell", "boathouse_door"],
     hints: ["A boatman's lantern hangs by the lake doors, dry.", "Take the brass lantern from its hook."] },
-  get_oil: { where: "inn", needs: [], solve: ["ask pell for oil"], gives: ["oil"], clues: ["pell", "lantern"],
+  get_oil: { where: "inn", needs: [], solve: [{ verb: "ask", obj: "pell", obj2: "oil" }], gives: ["oil"], clues: ["pell", "lantern"],
     hints: ["The lantern's font is empty, and Mrs Pell keeps what it wants under the bar.", "Ask Mrs Pell for oil."] },
-  get_matches: { where: "inn", needs: [], solve: ["take matches"], gives: ["matches"], clues: ["pell", "matches"],
+  get_matches: { where: "inn", needs: [], solve: [{ verb: "take", obj: "matches" }], gives: ["matches"], clues: ["pell", "matches"],
     hints: ["Something is waiting by a stub of candle on the mantel.", "Take the matches from the mantel at the Heron."] },
-  light_lantern: { where: "lane", needs: ["lantern", "oil", "matches"], solve: ["fill lantern with oil", "light lantern"], gives: ["lit_lantern"], clues: ["lantern", "matches", "pell"],
+  light_lantern: { where: "lane", needs: ["lantern", "oil", "matches"], solve: [{ verb: "fill", obj: "lantern", obj2: "oil" }, { verb: "switch_on", obj: "lantern" }], gives: ["lit_lantern"], clues: ["lantern", "matches", "pell"],
     hints: ["The lantern wants oil in its font, and then a flame.", "Fill the lantern with the oil, then light it."] },
-  hang_lamp: { where: "jetty", needs: ["lit_lantern"], solve: ["wait for dusk", "hang lantern on post"], ending: true, clues: ["post", "pell", "lit_lantern"],
+  hang_lamp: { where: "jetty", needs: ["lit_lantern"], solve: [{ verb: "wait" }, { verb: "hang", obj: "lit_lantern", obj2: "post" }], ending: true, clues: ["post", "pell", "lit_lantern"],
     hints: ["The post at the end of the jetty has a hook at lamp height, bright at the tip.", "Wait on the jetty for the windows to light, then hang the lit lantern on the post."] },
-  row_out: { where: "boathouse", needs: ["oars", "lit_lantern"], solve: ["wait for night", "enter boat", "row"], ending: true, clues: ["boat", "pell"],
+  row_out: { where: "boathouse", needs: ["oars", "lit_lantern"], solve: [{ verb: "wait" }, { verb: "enter", obj: "boat" }, { verb: "row" }], ending: true, clues: ["boat", "pell"],
     hints: ["The boat leaves the shore only for someone who carries a light, and the island's lamp is dark.", "Wait in the boathouse until the island is ready for it, then get into the boat with the oars and the lit lantern and row."] },
-  walk_street: { where: "jetty", needs: [], solve: ["wait for dusk", "go north"], ending: true, clues: ["street", "post"],
+  walk_street: { where: "jetty", needs: [], solve: [{ verb: "wait" }, "n"], ending: true, clues: ["street", "post"],
     hints: ["The reflection of the jetty is keeping something back for the evening, and the village lights its windows at dusk.", "Wait on the jetty for the windows to light, then go north, off the end of the jetty."] }
 };
 
@@ -474,7 +472,7 @@ const rules = [
     { draw: "boathouse", remove: ["door_sun", "door_halo_c", "door_halo_b", "door_halo", "door_pool", "boat_lit", "dust"],
       restyle: [{ id: "door_sky_a", fill: "fade:0,1/196,46/196,59" }, { id: "door_sky_b", fill: 1 }, { id: "door_lake", fill: "fade:1,0/196,72/196,87" }, { id: "door_ripple_a", color: 1 }, { id: "door_ripple_b", color: 1 },
         { id: "wall_l", fill: 0 }, { id: "wall_r", fill: 0 }, { id: "floor", fill: 1 }, { id: "far_wall", fill: 0 }, { id: "door_post_l", edge: 1 }, { id: "door_post_r", edge: 1 }, { id: "door_lintel", edge: 1 },
-        { id: "boat_seat", fill: 6 }, { id: "rowlock_l", fill: 6 }, { id: "rowlock_r", fill: 6 }, { id: "hooks", color: 6 }, { id: "ropes", fill: 6 }, { id: "ropes_b", fill: 6 }, { id: "floats", fill: 6 }, { id: "floats_b", color: 6 }, { id: "boathook_head", color: 6 }, { id: "lantern_hook", fill: 6 }] },
+        { id: "boat_seat", fill: 6 }, { id: "rowlock_l", fill: 6 }, { id: "rowlock_r", fill: 6 }, { id: "hooks", color: 6 }, { id: "ropes", fill: 6 }, { id: "ropes_b", fill: 6 }, { id: "floats", fill: 6 }, { id: "floats_b", color: 6 }, { id: "boathook_head", color: 6 }, { id: "hook_lantern", fill: 6 }] },
     { set: "boathouse.alt", to: "Inside a tarred boathouse at night, looking north down the slip to the open lake doors: a small rowing boat on the slip at the left, a door to the quay, ropes, floats and a row of hooks on the left wall, a ladder and a shelf on the right, and the black lake beyond the doors." },
     { draw: "loft", remove: ["win_halo_c", "win_halo_b", "win_halo_a", "floor_light", "window_lit", "motes"],
       restyle: [{ id: "wall_gable", fill: 0 }, { id: "floor", fill: 1 }, { id: "window_glass", fill: "fade:0,1/107,48/107,76" }, { id: "bracket_bolt", fill: 6 }, { id: "bracket_bolt2", fill: 6 },

@@ -327,7 +327,7 @@ export default {
       poly bucket 302,78 312,78 310,86 304,86 0 e6
       line boathook 300,18 300,66 c0
       line boathook_head 296,18 304,18 c12
-      rect lantern_hook 241,52,3,3 14
+      rect hook_lantern 241,52,3,3 14
       poly door_pool 165,88 227,88 285,136 108,136 fade:,14/196,88/196,136
       ellipse door_halo_c 196,70,38,22 mix:,14@0.1
       ellipse door_halo_b 196,70,26,15 mix:,14@0.2

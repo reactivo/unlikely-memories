@@ -6,7 +6,7 @@
 // the bars): moved out of ui/log.js as it was, no rewrites; tests/follow.py plays it. The story's own DOM (paragraphs, phrases, visits)
 // stays in ui/log.js, which asks this. Also here: `page()`, the measurements the debug panel's Page section shows (ui/debug.js).
 
-import { reducedMotion, topMode } from "./media.js?v=0.70.1";
+import { reducedMotion, topMode } from "./media.js?v=0.71.0";
 
 // Set up the following on the story's element. Returns toEnd(), atEnd(), toTop(), glideTo(), typing(), forget(), added(), suggesting() and page().
 export function mount(root) {
@@ -53,7 +53,7 @@ export function mount(root) {
   // Bring the newest command and its answer into view with a short smooth scroll, worked out from where they are (not
   // "to the end of the page", which can stop short: a phone's browser bars change the page's height while it scrolls).
   // If they fit between the top and the bottom, they end just above the fade; if they are taller, the command goes just
-  // under the top, so you read the answer from its start. instant: no scroll animation, for a game being restored (main.js),
+  // under the top, so you read the answer from its start. instant: no scroll animation, for a game being restored (js/session.js, restore),
   // which goes to its newest text and is held there (the anchor, below) until you scroll, touch or type. The answer's whole
   // height exists as soon as it is added (it only fades in), so this can measure at once.
   function toEnd(instant) {
@@ -172,7 +172,11 @@ export function mount(root) {
     anchor = { hold: true, at: () => 0 };
     moved("new game: top");
     resync(0);
-    setTimeout(() => { if (holding()) resync(0); }, 400);   // (again once Safari has settled: its leftover scroll comes late)
+    // (again once Safari has settled: its leftover scroll comes late.) Only for the story that started it: if another placing has
+    // replaced this anchor by then (a game restored by a reload: its newest text; a room entered; text followed), the timer is
+    // dropped, or its resync(0) took the page to its top for a frame, about 450 ms after every reload (found 19 Nov 2026).
+    const mine = anchor;
+    setTimeout(() => { if (anchor === mine && holding()) resync(0); }, 400);
     clearTimeout(shotTimer);
     shotTimer = setTimeout(() => { firstScreen = measurePage(); }, 2000);
   }

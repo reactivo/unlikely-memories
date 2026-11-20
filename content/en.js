@@ -204,6 +204,14 @@ export default {
   useHow: (d, w) => `Use ${theW(d.name, w)} how? ${d.list}.`,
   // The two-thing commands USE alone offers, written the way a player types them (nouns, no articles).
   useWith: { unlock: (door, key) => `Unlock ${door} with ${key}`, put: (thing, into) => `Put ${thing} in ${into}`, give: (thing, who) => `Give ${thing} to ${who}` },
+  // The commands the engine words for a puzzle's steps beyond `basic` and `useWith` (the hints' last level and the checker's endings: js/view.js,
+  // commandFor), the way a player types them: asking someone about a topic or for a thing, waiting for something, taking a thing out of another,
+  // showing or throwing it, and any other verb with a second thing (`other`: the verb's own command, then the second thing).
+  steps: {
+    askAbout: (who, topic) => `Ask ${who} about ${topic}`, askFor: (who, x) => `Ask ${who} for ${x}`, waitFor: (x) => `Wait for ${x}`,
+    take: (x, from) => `Take ${x} from ${from}`, show: (x, who) => `Show ${x} to ${who}`, throw: (x, at) => `Throw ${x} at ${at}`,
+    other: (said, y) => `${said} with ${y}`
+  },
   // The commands the engine words itself for one thing (js/narrator.js, the opening's hints), the way a player types them: x = the thing's
   // name as a command writes it (js/names.js: its whole name when it has more than one word, with its own article, "the fitter"; else its
   // noun, as its name spells it). Each one is read back as the verb it

@@ -7,6 +7,8 @@
 // media query only), and never on the landing page. Off (the player's switch: Settings, GRAPHICS), or without WebGL: nothing is
 // drawn, no context is made, and the game is unchanged. Safe to import in Node (levels() is pure).
 
+import { wide } from "./media.js?v=0.71.0";   // the strip layout, as ui/media.js asks it (css/layout.css)
+
 const K = {
   mirror: 0.5,      // the reflection's strength at the edge
   glow: 0.17,       // the edge's own colour, very blurred, under the reflection
@@ -120,7 +122,6 @@ function pass(src, s, dx, dy) {
 export function reflection(box) {
   const none = { draw() {}, enable() {} };
   if (typeof document === "undefined" || typeof WebGLRenderingContext === "undefined") return none;
-  const wide = matchMedia("(min-width: 760px) and (min-height: 560px)");   // the strip layout (css/layout.css)
   let cv = null, gl = null, U = null, dead = false;
   let last = null, fresh = false, queued = 0, allowed = true;
 

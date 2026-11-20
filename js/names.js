@@ -1,4 +1,4 @@
-// Names in commands: how a command names a thing (ARCHITECTURE.md §6, "Naming a thing in a command"). Whenever the engine
+// Names in commands: how a command names a thing (ARCHITECTURE.md §8, "Naming a thing in a command"). Whenever the engine
 // writes a command for the player, a USE line, a hint, a click line, it names the thing the way its `name` writes it: the noun as
 // it appears there, with its accents ("Coger buzón", not "Coger buzon"), in lower case unless it is a proper name ("Hablar con
 // Ambrose"). One helper, so every command the engine words names things alike. Pure: it reads a thing's fields and its name's

@@ -7,9 +7,9 @@
 //     `died` ending, or no health left): the same, the theme slower and lower. Silence after it until the story goes on again (a
 //     new game, or UNDO), when the music starts as on arriving, the theme first. Reached on a restore (a loaded game), or with the
 //     sound turned on after it: silence, never the ending's theme late.
-//   - Sleep (js/main.js, sleepThrough, tells it: asleep()): everything fades out under the lids and back as you wake, the whole
+//   - Sleep (js/turn.js, sleepThrough, tells it: asleep()): everything fades out under the lids and back as you wake, the whole
 //     theme a few seconds later.
-//   - Night by the world's clock (js/main.js tells it the time shown on the title bar: clock()): the lines thinned, the theme lower.
+//   - Night by the world's clock (js/turn.js, showTime, tells it the time shown on the title bar: clock()): the lines thinned, the theme lower.
 //   - Health (docs/music/PLAN.md, stage 6): at 2 and below, unwell (the lines thinned, everything slightly flat); at 1, worse (the
 //     theme slower and lower too); healed above it, well again. At 0 the story has ended: the ending takes over.
 //   - The picture's filters that are on (state.filters, whatever turned them on: a condition's `filters` or a `filter` effect),
@@ -47,11 +47,11 @@
 //   - The sliders are the player's three buses (musicBus, toneBus, sfx), set with a short glide (player.volume) to the panel's curve
 //     (gainOf); a fresh player starts at them.
 
-import S from "../content/music.js?v=0.70.1";
-import { musicOf } from "../js/music.js?v=0.70.1";
-import { nightAt, unwellAt, effectsOf, soundsOf, SOUND_KINDS, MATERIALS } from "./moments.js?v=0.70.1";
-import { createPlayer, openAudio } from "./sound/player.js?v=0.70.1";
-import { PARTS, gainOf } from "./soundpanel.js?v=0.70.1";
+import S from "../content/music.js?v=0.71.0";
+import { musicOf } from "../js/music.js?v=0.71.0";
+import { nightAt, unwellAt, effectsOf, soundsOf, SOUND_KINDS, MATERIALS } from "./moments.js?v=0.71.0";
+import { createPlayer, openAudio } from "./sound/player.js?v=0.71.0";
+import { PARTS, gainOf } from "./soundpanel.js?v=0.71.0";
 
 // The death ending: the engine's own (`died`, when health runs out) or a world's ending of that name; or no health left.
 const died = (state) => state.ending === "died" || state.player.health <= 0;
@@ -173,20 +173,20 @@ export function mount(on) {
       if (want && (tapped || (ctx && ctx.state !== "running" && !document.hidden))) wake(tapped);
       follow(reason);
     },
-    // A moment played (js/main.js: a command, the world on its own, a walk, the debug panel's; a sleep's once you wake): its list, as
+    // A moment played (js/turn.js: a command, the world on its own, a walk, the debug panel's; a sleep's once you wake): its list, as
     // the log gets it, `now` the game after it and `was` before. Its sounds, if the sound is on and the audio runs.
     moment(applied, now, was) {
       if (!want || !player || ctx?.state !== "running" || !now || !mix.sounds) return;   // (the Sounds slider at 0: none made)
       state = now; read();
       player.sounds(soundsOf(applied, now, was), keyOf());
     },
-    // While you sleep (js/main.js, sleepThrough), and as you wake: the music fades out and back, the whole theme soon after.
+    // While you sleep (js/turn.js, sleepThrough), and as you wake: the music fades out and back, the whole theme soon after.
     asleep(nowAsleep) {
       const woke = asleep && !nowAsleep;
       asleep = !!nowAsleep; follow();
       if (woke && want && state && !state.ended && player?.playing) player.wake();
     },
-    // The world's time now (ms; the title bar's: js/main.js, showTime): night or day for the music.
+    // The world's time now (ms; the title bar's: js/turn.js, showTime): night or day for the music.
     clock(ms) {
       const n = nightAt(ms);
       if (n === night) return;

@@ -1,19 +1,21 @@
 // Sprites: turns a thing's pixel art into crisp inline SVG. A world's things carry their own sprites (`sprite`: rows of
 // palette numbers in hex, 0–f, "." = clear), which is how the AI writes them (ART-DIRECTION.md §3).
 
-import art from "../content/art.js?v=0.70.1";
-import { HEX_INDEX } from "./draw.js?v=0.70.1";
+import art from "../content/art.js?v=0.71.0";
+import { HEX_INDEX } from "./draw.js?v=0.71.0";
+import { spriteRows } from "../js/sprites.js?v=0.71.0";
 
 // A thing's sprite as SVG, for the inventory and beside its description in the story: one 1×1 square per coloured pixel
-// ("." and unknown characters are left empty). Null if it has none.
+// ("." and unknown characters are left empty). A thing that can be held and has no sprite shows its material's plain one (js/sprites.js,
+// spriteRows). Null if it has none.
 export function itemSVG(id, state) {
-  return spriteSVG(state?.world.objects[id]?.sprite);
+  return spriteSVG(spriteRows(state, id));
 }
 
 // The picture beside what examining a thing says: a character's portrait (its face), else the thing's own sprite. Null if it has neither.
 export function examineSVG(id, state) {
   const o = state?.world.objects[id];
-  return Array.isArray(o?.portrait) && o.portrait.length ? spriteSVG(o.portrait) : spriteSVG(o?.sprite);
+  return Array.isArray(o?.portrait) && o.portrait.length ? spriteSVG(o.portrait) : spriteSVG(spriteRows(state, id));
 }
 
 // Sprite rows (a thing's `sprite`) as SVG: the same drawing, for a thing that may no longer exist (the echo of a thing you

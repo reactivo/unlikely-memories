@@ -1,11 +1,11 @@
 // "The River Turns at Noon": a world after the opening, in English, written the way the AI is asked to write a world
 // (BRIEF.md only). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings } from "./pictures.js?v=0.70.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.70.1";
-import levels from "./levels.js?v=0.70.1";
-import sprites from "./sprites.js?v=0.70.1";
-import plan from "./plan.js?v=0.70.1";
+import pictures, { endings } from "./pictures.js?v=0.71.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.71.0";
+import levels from "./levels.js?v=0.71.0";
+import sprites from "./sprites.js?v=0.71.0";
+import plan from "./plan.js?v=0.71.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {
@@ -399,23 +399,23 @@ const objects = {
 // ---- Puzzles -----------------------------------------------------------------------------------------------------------
 const puzzles = {
   // The way out of the start room comes first (BRIEF.md §3): the parrot's first hints are about it.
-  boots_on: { where: "bivouac", needs: [], solve: ["wear boots", "go north"], reaches: "landing", clues: ["flap", "boots"],
+  boots_on: { where: "bivouac", needs: [], solve: [{ verb: "wear", obj: "boots" }, "n"], reaches: "landing", clues: ["flap", "boots"],
     hints: ["The mud outside has views on stockings, and your boots are by the cot.", "Put on your boots, and go out through the flap."] },
-  get_paddle: { where: "village", needs: ["hooks"], solve: ["ask kito for paddle"], gives: ["paddle"], clues: ["hooks", "kito", "crate"],
+  get_paddle: { where: "village", needs: ["hooks"], solve: [{ verb: "ask", obj: "kito", obj2: "paddle" }], gives: ["paddle"], clues: ["hooks", "kito", "crate"],
     hints: ["The man at the next house makes paddles, and wants something from the Society's crate.", "Open the crate on the landing, take the hooks, and ask Kito for a paddle."] },
-  get_shell: { where: "village", needs: ["salt"], solve: ["ask ennu for shell"], gives: ["shell"], clues: ["salt", "ennu", "crate"],
+  get_shell: { where: "village", needs: ["salt"], solve: [{ verb: "ask", obj: "ennu", obj2: "shell" }], gives: ["shell"], clues: ["salt", "ennu", "crate"],
     hints: ["Ennu counts guests in the good salt from your crate.", "Open the crate, take the salt, and ask Ennu for a shell."] },
-  get_clapper: { where: "fig", needs: ["fish"], solve: ["give fish to jaguar", "take clapper"], gives: ["clapper"], clues: ["fish", "jaguar", "ennu", "kito"],
+  get_clapper: { where: "fig", needs: ["fish"], solve: [{ verb: "give", obj: "fish", obj2: "jaguar" }, { verb: "take", obj: "clapper" }], gives: ["clapper"], clues: ["fish", "jaguar", "ennu", "kito"],
     hints: ["The cat in the fig is thin, and the stone beside her is not hers.", "Give the fish from the landing to the jaguar, and take the stone tongue when she has gone."] },
-  ride: { where: "landing", needs: ["paddle"], time: "next 12:00", solve: ["enter canoe", "paddle"], reaches: "steps", clues: ["canoe", "post", "ennu", "noon_landing"],
+  ride: { where: "landing", needs: ["paddle"], time: "next 12:00", solve: [{ verb: "enter", obj: "canoe" }, { verb: "paddle" }], reaches: "steps", clues: ["canoe", "post", "ennu", "noon_landing"],
     hints: ["The river runs up the valley for an hour after noon, and carries what floats on it.", "With a paddle in hand, wait for noon on the landing, get into the canoe and paddle."] },
-  open_gate: { where: "steps", needs: ["shell"], solve: ["unlock gate with shell", "go north"], reaches: "court", clues: ["gate", "shell", "ennu"],
+  open_gate: { where: "steps", needs: ["shell"], solve: [{ verb: "unlock", obj: "gate", obj2: "shell" }, "n"], reaches: "court", clues: ["gate", "shell", "ennu"],
     hints: ["The frog's mouth has a notch at its lip, the shape of something the river gave.", "Unlock the gate with the shell, and go north."] },
-  ring_bell: { where: "chamber", needs: ["clapper"], time: "next 12:00", solve: ["put clapper in bell", "ring bell"], ending: true, clues: ["frieze", "bell", "ennu"],
+  ring_bell: { where: "chamber", needs: ["clapper"], time: "next 12:00", solve: [{ verb: "put", obj: "clapper", obj2: "bell" }, { verb: "push", obj: "bell" }], ending: true, clues: ["frieze", "bell", "ennu"],
     hints: ["The frieze in the court shows what the bell wants, and when.", "Put the stone tongue in the bell, and ring it at noon."] },
-  carry_off: { where: "chamber", needs: [], solve: ["take bell"], ending: true, clues: ["bell", "frieze"],
+  carry_off: { where: "chamber", needs: [], solve: [{ verb: "take", obj: "bell" }], ending: true, clues: ["bell", "frieze"],
     hints: ["The bell is gold, and hangs by a hook.", "Take the bell."] },
-  fell: { where: "gorge", needs: [], solve: ["go east"], ending: true, clues: ["bridge", "kito"],
+  fell: { where: "gorge", needs: [], solve: ["e"], ending: true, clues: ["bridge", "kito"],
     hints: ["The bridge is old, and the planks are grey as bone.", "Go east, over the bridge."] }
 };
 

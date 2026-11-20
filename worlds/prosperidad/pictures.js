@@ -9,6 +9,7 @@ export default {
   // ---- THE BLIND ALLEY (the opening): eye level, one-point view to the steel fire door on the right third; neon pink -----------
   callejon: {
     version: 1,
+    facing: "s",
     shot: "Eye level, FACING SOUTH (the room text says so; the way out is straight ahead), one-point view, vp on the right third (213,50). Palette neon, flat. One light: a pink neon tube on the left wall, half dead, and the glow of the city over the roofs. Subject: the steel {fire door} at the far end, on the right third, painted shut: a dark seam of old paint down its hinge side and a dent at shoulder height. Open (once the crowbar has prised it, shape ids puerta_open…): the door swung in on its bar, a narrow grey slab on the hinge side, the doorway dark with the club's magenta and pink light and bass glow in it, spilling a wedge of pink on the alley floor. Left wing and near left: the pink {neon tube} on the grey brick wall, a {bin} against the wall with an iron {crowbar} leaning on it, a stack of {crates} with a flat top where the {radio} stands. Right wing: more {crates} and a pipe down the wall. Floor: bands from magenta far to blue near, with {puddles} holding the sign's pink. Sky magenta over blue, the far roofs black. moves: the tube (faulty), the puddle glints (shimmer)",
     draw: `vp 213,50
 rect sky 0,0,320,30 1
@@ -1212,9 +1213,9 @@ dots dryer_buttons 244,41 252,41 260,41 268,41 c15
 rect dryer_stop 270,36,6,6 2
 ellipse dryer_ring 246,72,22,22 8 e0
 ellipse dryer_glass 246,72,17,17 1
-line cepillo_handle 238,86 256,62 c6
-line cepillo_handle2 239,86 257,62 c6
-poly cepillo_head 230,80 238,76 244,84 240,90 232,88 0
+line dryer_brush_handle 238,86 256,62 c6
+line dryer_brush_handle2 239,86 257,62 c6
+poly dryer_brush_head 230,80 238,76 244,84 240,90 232,88 0
 line dryer_hi 232,64 236,60 c15
 rect dryer_lit 208,34,4,66 15
 rect dryer_feet 212,102,64,4 0
@@ -1403,6 +1404,7 @@ line wire_b 232,10 320,16 c8`,
   // ---- THE CASA TOMADA: looking SOUTH down the hall to the patio's light; letterboxes on the left, a bicycle on the right ------------
   casa: {
     version: 1,
+    facing: "s",
     shot: "Eye level, FACING SOUTH (the room text says so) down the hall, a one-point view, vp on the right third at the far end (213,58). Palette lamplight, flat; the far end is a picture within the picture, the patio's cold light, light cyan and blue. One light: a {candle} in a saucer on the first stair at the left third, with a hard-edged two-ellipse glow. Subject on the left third (x about 107): the wall of stuffed {letterboxes} with white leaflets sticking out, and the candle; second thing on the right: the {bicycle} chained to a radiator, flat tyre. In the middle of the floor a {mattress}, a white sheet over a long shape and two black {boots} sticking out at the foot end (Toni). Walls brown with torn {posters}, a red slogan; floor black and white tiles in bands. moves: the candle's flame and glow (flicker)",
     draw: `vp 213,58
 rect far_light 190,36,46,48 11
@@ -1761,6 +1763,7 @@ rect pole_tip 74,68,5,3 8`,
   // ---- THE CUTTING: rails converging east to the works on the right third; a goods wagon on the left third ---------------------------
   terraplen: {
     version: 1,
+    facing: "e",
     shot: "Eye level on the ballast between the rails, facing east, wide, one vanishing point at the far end of the rails (x 228, y 80). Palette moonlight, flat. One light: a low yellow moon in the left sky, its light on the rails and the wagon roof only; one red signal lamp. Subject on the right third (x about 213): the black {works} hall at the end of the line with the great chimney rising out of it, a smoke cloud on top. Left third (x about 107): the goods {wagon} on its siding, slide painted over with slogans in white. Between them the two rusted {rails} running to the works over {sleepers} on grey ballast in bands; embankments on both sides in shaded blue and black; a red {signal lamp} on a post at the right foot. Night sky blue, light blue near the horizon, white stars, the moon wrapped in smoke. moves: the signal lamp (blink), the stars (pingpong)",
     draw: `rect sky 0,0,320,48 1
 rect sky_low 0,48,320,32 9
@@ -1875,6 +1878,7 @@ rect sign_slogan_t 13,44,18,2 15`,
   // ---- THE WORKS: a cathedral of brick lit by one furnace; the great chimney in the middle of the floor on the right third ----------
   fabrica: {
     version: 1,
+    facing: "e",
     shot: "Eye level on the ash floor at the west door, facing east, one-point view, vp on the right third (213,60). Palette ember. One light: the furnace mouth at the far left, red-orange, lighting the ash and the foot of the presses. Subject on the right third (x about 213): the great chimney standing in the middle of the floor, a huge black column with soot-grey bands rising through a round hole in the roof into a cloud, scorched in the shape of a hand on the wall behind. Left third (x about 107): the {furnace} brick arch with its red eye, and the {presses}, two iron rollers as tall as a man, inked grey, with belts. Between the presses and the chimney (x about 178): {Marga}, a girl of nineteen sitting at a makeshift drum kit of a floor tom and a bucket, a black ragged bob, a torn light grey T-shirt, bare arms lit light red, sticks in her hands. The hall walls are dark brick (black and brown in bands), high; the roof beams black; {ash} on the floor in bands from red-lit near the furnace to black at the right; the sky through the roof hole dark grey with a grey cloud. moves: the furnace (flicker), the embers (flicker)",
     draw: `vp 213,60
 rect wall_top 0,0,320,40 0
