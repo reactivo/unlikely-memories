@@ -542,7 +542,12 @@ export default {
       not: ["no", "nunca", "jamas", "jamás", "tampoco"],
       // Lo que va justo antes de un verbo que el texto ofrece («puedes nadar», «podrías remar»): el verificador avisa si lo que se
       // ofrece es un decorado al que nada responde (js/check.js).
-      can: ["puedes", "podrías", "podrias", "podrás", "podras", "debes", "deberías", "deberias", "quieres"]
+      can: ["puedes", "podrías", "podrias", "podrás", "podras", "debes", "deberías", "deberias", "quieres"],
+      // Las palabras justo antes de una entrada o salida que hacen que la línea le diga al jugador que vaya (o un modo de ir): las de `can` y «para»
+      // («un modo para entrar»); y las formas que ya son de segunda persona, sin nada delante (*entras*, *sales de*). Una línea con la frase y un sujeto propio («la luz
+      // entra») es descripción y no se avisa, salvo que la frase abra la oración (el verificador: js/checks/commands.js).
+      lead: ["puedes", "podrías", "podrias", "podrás", "podras", "debes", "deberías", "deberias", "quieres", "para"],
+      second: ["entras", "sales de"]
     },
     // El español de España es el del juego: lo que el juego escribe (descripciones, líneas, nombres, pistas, finales) lleva las palabras
     // de la Península. `avoid`: palabras solo latinoamericanas; `prefer`: la de España para cada una. El verificador AVISA (nunca

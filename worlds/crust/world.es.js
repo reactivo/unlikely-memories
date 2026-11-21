@@ -1,11 +1,11 @@
 // "El emperador de la costra": the world, in Spanish, as its AI handed it in: one change set, all or nothing; plain data. Written by tools/world.mjs add
 // from the hand-in; what has no words is shared by the world's languages: pictures.js, sprites.js, music.js, plan.js (levels.js is generated).
 
-import pictures, { endings } from "./pictures.js?v=0.72.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.72.0";
-import levels from "./levels.js?v=0.72.0";
-import sprites from "./sprites.js?v=0.72.0";
-import plan from "./plan.js?v=0.72.0";
+import pictures, { endings } from "./pictures.js?v=0.72.1";
+import music, { rooms as roomMusic } from "./music.js?v=0.72.1";
+import levels from "./levels.js?v=0.72.1";
+import sprites from "./sprites.js?v=0.72.1";
+import plan from "./plan.js?v=0.72.1";
 
 export const bible = {
   title: "El emperador de la costra",
@@ -93,6 +93,7 @@ Merche dejó recado con Quino: ven antes del autocar, Javier. Es la única que u
     lines: { hintFrame: "La radio sisea entre dos emisoras. Una voz dice:" }
   },
   effects: [
+    { time: "day 1 00:10", weekday: "sat" },
     { add: "word", verb: "snort", words: ["esnifar", "inhalar"], reply: "Aquí no hay nada que quieras esnifar." },
     { add: "word", verb: "fit", words: ["encajar", "acoplar", "insertar", "cargar"], reply: "Ponlo dentro, y irá donde le toca." },
     { add: "condition", id: "drunk", lasts: { seconds: [120, 180] }, doses: 3, starts: "Te ha subido la bebida", ends: "Se te ha pasado la borrachera", status: "Borrachera", filters: ["sway", "ghost"], speech: { slur: true }, movement: { chance: 0.3, says: ["La acera se inclina y tuerces por donde no era.", "Los pies eligen otro camino y los dejas."] } },

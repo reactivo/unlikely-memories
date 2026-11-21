@@ -465,7 +465,10 @@ export default {
       not: ["not", "never", "dont", "don't", "cant", "can't", "cannot", "wont", "won't"],
       // The words right before a verb the text offers ("you can swim", "you could row out"): the checker warns when what is offered
       // is scenery that nothing answers (js/check.js, "A scenery noun with a verb that nothing answers").
-      can: ["you", "can", "could", "may", "might", "would", "should", "must", "will"]
+      can: ["you", "can", "could", "may", "might", "would", "should", "must", "will"],
+      // The words right before a way in or out that make the line tell the player to go (or a way to): the words of `can`, "to" and "please". A line that has the
+      // phrase with a subject of its own ("the bulbs go out") is description and is left alone, unless the phrase opens a sentence (the checker: js/checks/commands.js).
+      lead: ["you", "can", "could", "may", "might", "would", "should", "must", "will", "to", "please", "let's"]
     },
     articles: ["the", "a", "an", "some", "my"],
     preps: ["until", "till", "at", "on", "to", "in", "into", "with", "from", "under", "about", "of", "inside", "through", "for"],

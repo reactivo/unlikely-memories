@@ -20,14 +20,14 @@
 //                                                   the takes of what it gives; never the walk
 // Also the walks it needs, which the checks read too (js/checks/space.js): route, lockOn, opensByWaiting, atHour, ruleMoves.
 
-import { step, applyChangeSet, holds, exitNow, had } from "./engine.js?v=0.72.0";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.72.0";
-import { isExitObject, exitTo, waysOf } from "./exits.js?v=0.72.0";
-import { moveTo, worldTime, parts } from "./time.js?v=0.72.0";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.72.0";
-import { DIRECTIONS } from "./space.js?v=0.72.0";
-import { ACTIONS } from "./actions.js?v=0.72.0";
-import { FIELDS } from "./fields.js?v=0.72.0";
+import { step, applyChangeSet, holds, exitNow, had } from "./engine.js?v=0.72.1";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.72.1";
+import { isExitObject, exitTo, waysOf } from "./exits.js?v=0.72.1";
+import { moveTo, worldTime, parts } from "./time.js?v=0.72.1";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.72.1";
+import { DIRECTIONS } from "./space.js?v=0.72.1";
+import { ACTIONS } from "./actions.js?v=0.72.1";
+import { FIELDS } from "./fields.js?v=0.72.1";
 
 // ---- A step of a solve ---------------------------------------------------------------------------------------------------------------
 // The fields an action of a solve may have (the engine's own: js/parser.js gives them, js/engine.js step reads them; the list is js/fields.js's
@@ -68,7 +68,7 @@ export function actionOf(state, s) {
 
 // The step an action of the engine is, as a world writes it: what a player's command did, by id (the hints' wording is read back to it, and
 // a command typed there is the step when stepOf gives it back). A walk that names no thing is its direction; opening a thing with a second (Spanish
-// "abrir la puerta con la llave") is unlocking it; asking for a thing names it as `obj2`; what a wait waits for is its thing, or the room's `waitFor`;
+// "abrir la puerta con la llave") is unlocking it; asking for a thing names it as `obj2` (and ordering it from its source, Spanish *pedir*, is the same step); what a wait waits for is its thing, or the room's `waitFor`;
 // the words of the command (prep, what was typed after "wait") are left out.
 export function stepOf(a) {
   if (!a || typeof a !== "object") return a;
@@ -76,6 +76,10 @@ export function stepOf(a) {
   const s = {};
   for (const k of STEP_FIELDS) if (a[k] !== undefined) s[k] = a[k];
   if (s.verb === "open" && s.obj2 !== undefined) s.verb = "unlock";
+  // Ordering a thing from its source is asking the source for it (js/engine.js, wanted: the same path, the same answer). Spanish has no word for "for"
+  // after ask: asking for a thing is *pedir* (PARSER.md, decision 51), which the parser reads as ORDER, so the step `ask dot for tea` and the command
+  // *Pedir té a Dot* are one step.
+  if (s.verb === "order" && s.obj2 !== undefined) return { verb: "ask", obj: s.obj2, obj2: s.obj };
   if (s.topic === "?") delete s.topic;
   if (s.verb === "wait") delete s.text;
   if (s.verb === ANSWER && s.value !== undefined) delete s.text;

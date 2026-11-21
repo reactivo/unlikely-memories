@@ -1,28 +1,35 @@
 // What a text offers the player to type: a way in or out the room does not answer, a command in backticks the game does not read, a verb offered on
 // a scenery noun that nothing answers (BRIEF.md §4, §6, §8). Pure: reads the state and the pack, never changes either.
 
-import { parse, normalise } from "../parser.js?v=0.72.0";
-import { answers as answered } from "../engine.js?v=0.72.0";
-import { placeOf } from "../place.js?v=0.72.0";
-import { isAction } from "../actions.js?v=0.72.0";
-import { inRoom, unmarked, shortText, worldTexts } from "./shared.js?v=0.72.0";
+import { parse, normalise } from "../parser.js?v=0.72.1";
+import { answers as answered } from "../engine.js?v=0.72.1";
+import { placeOf } from "../place.js?v=0.72.1";
+import { isAction } from "../actions.js?v=0.72.1";
+import { inRoom, unmarked, shortText, worldTexts } from "./shared.js?v=0.72.1";
 
 // ---- A room that says you can go in or out, with nothing that answers ------------------------------------------------
 // A room's text (its `describe`, a scenery's `says`, the `examine` and `here` of a thing in it) that invites the player to go
-// in ("step inside", "enter") or out ("get out"), in the words of the pack's `invites` (words.invites: { in, out, not }, whole
-// words; a match right after one of `not` is a refusal, "don't go in"), while the room has nothing that answers: "in" (or
+// in ("step inside", "enter") or out ("get out"), in the words of the pack's `invites` (words.invites: { in, out, not, lead, second },
+// whole words; a match right after one of `not` is a refusal, "don't go in"), while the room has nothing that answers: "in" (or
 // "out") typed in it is only "there's no way", and for in, no "enter" alone finds a door and no boat or the like is there to get into. Like the
 // other text warnings it is a nudge: mark the exit that goes there `in: true` (`out: true`), or give the room an `in` / `out` exit.
+// It reads only a line that TELLS the player to go: the phrase opens a sentence ("Go out by the gate."), or follows a word of `lead` ("you can go
+// out", "a way to go out"), or is a second-person form of its own (`second`: Spanish *entras*); never description, where the same words have a
+// subject of their own ("the bulbs tick on and go out", "la luz entra").
 export function wayWarnings(pack, state, out) {
   const invites = pack.words.invites;
   if (!invites) return;
-  const words = (t) => unmarked(t).toLowerCase().match(/[\p{L}\p{N}'\u2019]+/gu) ?? [];
-  const find = (tokens, phrases) => {
+  const lead = new Set(invites.lead ?? invites.can ?? []), second = new Set(invites.second ?? []);
+  const find = (text, phrases) => {
+    const lowered = unmarked(text).toLowerCase(), tokens = [...lowered.matchAll(/[\p{L}\p{N}'\u2019]+/gu)].map(m => ({ w: m[0], from: m.index, to: m.index + m[0].length }));
+    const norm = (w) => w.replace(/\u2019/g, "'");
     for (const phrase of phrases) {
       const p = phrase.split(" ");
       for (let i = 0; i + p.length <= tokens.length; i++) {
-        if (!p.every((w, j) => tokens[i + j] === w)) continue;
-        if (!tokens.slice(Math.max(0, i - 2), i).some(w => invites.not.includes(w.replace(/\u2019/g, "'")))) return phrase;
+        if (!p.every((w, j) => tokens[i + j].w === w)) continue;
+        if (tokens.slice(Math.max(0, i - 2), i).some(t => invites.not.includes(norm(t.w)))) continue;
+        const opens = i === 0 || /[.!?:;"«»¡¿(\n\u2014\u2013]/.test(lowered.slice(tokens[i - 1].to, tokens[i].from));
+        if (opens || second.has(phrase) || lead.has(norm(tokens[i - 1].w))) return phrase;
       }
     }
     return null;
@@ -41,7 +48,7 @@ export function wayWarnings(pack, state, out) {
   for (const [id, room] of Object.entries(state.world.rooms)) {
     const found = texts(id, room);
     for (const [way, verb] of [["in", pack.words.verbs.enter[0]], ["out", null]]) {
-      const hit = found.map(f => ({ ...f, phrase: find(words(f.text), invites[way]) })).find(f => f.phrase);
+      const hit = found.map(f => ({ ...f, phrase: find(f.text, invites[way]) })).find(f => f.phrase);
       const enterable = way === "in" && Object.values(state.world.objects).some(o => o.at === id && o.enterable);   // a boat to get into
       if (!hit || enterable || answers(id, [pack.words.dirs[way][0], ...(verb ? [verb] : [])])) continue;
       out.add("text.invites-way", `${id} (${hit.field}): says "${hit.phrase}", but nothing in the room answers "${pack.words.dirs[way][0]}": mark the exit that goes ${way} \`${way}: true\` (or give the room an \`${way}\` exit)`);

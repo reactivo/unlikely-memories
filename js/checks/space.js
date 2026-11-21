@@ -2,14 +2,14 @@
 // are a pair. The walks the playthrough needs (`route`, `lockOn`, `opensByWaiting`, `atHour`, `ruleMoves`) are the walkthrough's (js/walkthrough.js; this file reads
 // `opensByWaiting`). Pure: reads the state and the pack, never changes either.
 
-import { parse } from "../parser.js?v=0.72.0";
-import { step, exitNow } from "../engine.js?v=0.72.0";
-import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "../exits.js?v=0.72.0";
-import { roomBeside } from "../plan.js?v=0.72.0";
-import { COMPASS } from "../space.js?v=0.72.0";
-import { opensByWaiting } from "../walkthrough.js?v=0.72.0";
-import { conditionProblems, suggest } from "../fields.js?v=0.72.0";
-import { inRoom, effectsOf } from "./shared.js?v=0.72.0";
+import { parse } from "../parser.js?v=0.72.1";
+import { step, exitNow } from "../engine.js?v=0.72.1";
+import { isExitObject, exitTo, exitConditions, wayOf, waysOf, wayAt, thingsFor, inOutExits } from "../exits.js?v=0.72.1";
+import { roomBeside } from "../plan.js?v=0.72.1";
+import { COMPASS } from "../space.js?v=0.72.1";
+import { opensByWaiting } from "../walkthrough.js?v=0.72.1";
+import { conditionProblems, suggest } from "../fields.js?v=0.72.1";
+import { inRoom, effectsOf } from "./shared.js?v=0.72.1";
 
 // The plan adds up (js/plan.js builds the exits from it, so this repeats what the engine already holds a world to, for a state built by
 // other means): a world has a plan, every room has a square, and each way north, south, east, west, up or down leads to the room on the
