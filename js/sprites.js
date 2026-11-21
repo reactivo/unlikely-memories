@@ -4,8 +4,8 @@
 // checks (js/checks/things.js), the field check (js/fields.js) and the screen's drawing (ui/sprite.js, ui/draw.js), which import
 // this and not the field list.
 
-import { isObject } from "./shapes.js?v=0.71.0";
-import art from "../content/art.js?v=0.71.0";
+import { isObject } from "./shapes.js?v=0.72.0";
+import art from "../content/art.js?v=0.72.0";
 
 // The ids a value names in a rule's effects: a thing's id, or `$obj` / `$obj2` for what the rule's `match` names; nothing for another `$`.
 const idsOf = (match) => (v) => v === "$obj" ? [match?.obj].flat() : v === "$obj2" ? [match?.obj2].flat() : typeof v === "string" && !v.startsWith("$") ? [v] : [];

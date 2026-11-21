@@ -8,17 +8,17 @@
 // is then wider than the box and CSS centres it, so nothing here changes. The CRT look (ui/crt.js) is drawn from the finished pixels, after
 // each putImageData: this canvas stays the picture, the screen reader's label and the crop's measure; a second canvas shows it.
 
-import art from "../content/art.js?v=0.71.0";
-import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.71.0";
-import { FILTERS, MOVING, reactionOf, prepareCycles, motionInto, stepsOf } from "./effects.js?v=0.71.0";
-import { mount as mountSleep } from "./sleep.js?v=0.71.0";
-import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.71.0";
-import { roomDraw, openKey, thingsOf, awayFrom } from "../js/picture.js?v=0.71.0";   // what a room's picture paints now: its things that open shown as they are, a thing's shapes only while it is in the room (js/picture.js)
-import { transition, ROOM, ENDING } from "./transitions.js?v=0.71.0";
-import { text } from "../js/narrator.js?v=0.71.0";                  // "@key" → the pack's text, dotted keys too, as the story says it
-import { reducedMotion, calm } from "./media.js?v=0.71.0";
-import { screen } from "./crt.js?v=0.71.0";                      // the CRT look, drawn over the finished picture (ui/crt.js)
-import { reflection } from "./reflection.js?v=0.71.0";            // the light beside the picture, on wide windows (ui/reflection.js)
+import art from "../content/art.js?v=0.72.0";
+import { paintPicture, pictureKey, compose, covered, overlaysShown, overlayAlt, putPixels, compileLoop, underMask, RGB } from "./draw.js?v=0.72.0";
+import { FILTERS, MOVING, reactionOf, prepareCycles, motionInto, stepsOf } from "./effects.js?v=0.72.0";
+import { mount as mountSleep } from "./sleep.js?v=0.72.0";
+import { parseFilter, inOrder, COUNTS } from "../js/filters.js?v=0.72.0";
+import { roomDraw, openKey, thingsOf, awayFrom } from "../js/picture.js?v=0.72.0";   // what a room's picture paints now: its things that open shown as they are, a thing's shapes only while it is in the room (js/picture.js)
+import { transition, ROOM, ENDING } from "./transitions.js?v=0.72.0";
+import { text } from "../js/narrator.js?v=0.72.0";                  // "@key" → the pack's text, dotted keys too, as the story says it
+import { reducedMotion, calm } from "./media.js?v=0.72.0";
+import { screen } from "./crt.js?v=0.72.0";                      // the CRT look, drawn over the finished picture (ui/crt.js)
+import { reflection } from "./reflection.js?v=0.72.0";            // the light beside the picture, on wide windows (ui/reflection.js)
 
 const W = art.picture.width, H = art.picture.height;
 

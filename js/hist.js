@@ -7,9 +7,9 @@
 // of the ranking. The background of a world's cover is the most-used colour among those on which white 15 has a contrast of at least 4.5:1
 // (in the EGA palette: 1, 4, 5, 6, 8, 9); black 0 if none.
 
-import art from "../content/art.js?v=0.71.0";
-import { paintPicture } from "./paint.js?v=0.71.0";
-import { parseShapes } from "./picture.js?v=0.71.0";
+import art from "../content/art.js?v=0.72.0";
+import { paintPicture } from "./paint.js?v=0.72.0";
+import { parseShapes } from "./picture.js?v=0.72.0";
 
 // The relative luminance of a palette colour (WCAG), and white's contrast on it: (1 + .05) / (L + .05).
 const channel = (v) => (v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;

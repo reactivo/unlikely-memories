@@ -7,35 +7,35 @@
 //   js/current.js  what they share: the game, its clock, UNDO's states, the kept story, the language, the view, the settings
 // Never draws the page (that's ui/): of the page it owns only the address, the title and which view shows (js/screens.js).
 
-import { state, packOf, LANGS, lang, setLang, view, clock, transcript, keepForUndo, setState, mix, graphics, setMix, setGraphics, mounted } from "./current.js?v=0.71.0";
-import { runCommand, travel, sentenceCase, examineObject, redraw, showTime, say, played, newTurn, seenText, pendingWhich, asleep } from "./turn.js?v=0.71.0";
-import { restart, begin, autoSaved, flushSave, restarting } from "./session.js?v=0.71.0";
-import { route, go, list, ROOT, quit, playWorld, setHomeLang, visible } from "./screens.js?v=0.71.0";
-import { listName } from "./narrator.js?v=0.71.0";
-import * as saves from "./saves.js?v=0.71.0";
-import { story } from "./view.js?v=0.71.0";
-import { listFor, loadWorld } from "../worlds/load.js?v=0.71.0";
-import { load, store } from "./prefs.js?v=0.71.0";
-import * as titlebar from "../ui/titlebar.js?v=0.71.0";
-import * as scene from "../ui/scene.js?v=0.71.0";
-import * as crop from "../ui/crop.js?v=0.71.0";
-import * as log from "../ui/log.js?v=0.71.0";
-import * as prompt from "../ui/prompt.js?v=0.71.0";
-import * as compass from "../ui/compass.js?v=0.71.0";
-import * as inventory from "../ui/inventory.js?v=0.71.0";
-import * as options from "../ui/options.js?v=0.71.0";
-import * as soundpanel from "../ui/soundpanel.js?v=0.71.0";
-import * as graphicspanel from "../ui/graphicspanel.js?v=0.71.0";
-import * as map from "../ui/map.js?v=0.71.0";
-import * as page from "../ui/page.js?v=0.71.0";
-import * as tools from "../ui/tools.js?v=0.71.0";
-import * as tabs from "../ui/tabs.js?v=0.71.0";
-import * as keys from "../ui/keys.js?v=0.71.0";
-import * as home from "../ui/home.js?v=0.71.0";
-import * as splash from "../ui/splash.js?v=0.71.0";
-import * as icons from "../ui/icons.js?v=0.71.0";
-import * as crt from "../ui/crt.js?v=0.71.0";
-import * as sound from "../ui/sound.js?v=0.71.0";
+import { state, packOf, LANGS, lang, setLang, view, clock, transcript, keepForUndo, setState, mix, graphics, setMix, setGraphics, mounted } from "./current.js?v=0.72.0";
+import { runCommand, travel, sentenceCase, examineObject, redraw, showTime, say, played, newTurn, seenText, pendingWhich, asleep } from "./turn.js?v=0.72.0";
+import { restart, begin, autoSaved, flushSave, restarting } from "./session.js?v=0.72.0";
+import { route, go, list, ROOT, quit, playWorld, setHomeLang, visible } from "./screens.js?v=0.72.0";
+import { listName } from "./narrator.js?v=0.72.0";
+import * as saves from "./saves.js?v=0.72.0";
+import { story } from "./view.js?v=0.72.0";
+import { listFor, loadWorld } from "../worlds/load.js?v=0.72.0";
+import { load, store } from "./prefs.js?v=0.72.0";
+import * as titlebar from "../ui/titlebar.js?v=0.72.0";
+import * as scene from "../ui/scene.js?v=0.72.0";
+import * as crop from "../ui/crop.js?v=0.72.0";
+import * as log from "../ui/log.js?v=0.72.0";
+import * as prompt from "../ui/prompt.js?v=0.72.0";
+import * as compass from "../ui/compass.js?v=0.72.0";
+import * as inventory from "../ui/inventory.js?v=0.72.0";
+import * as options from "../ui/options.js?v=0.72.0";
+import * as soundpanel from "../ui/soundpanel.js?v=0.72.0";
+import * as graphicspanel from "../ui/graphicspanel.js?v=0.72.0";
+import * as map from "../ui/map.js?v=0.72.0";
+import * as page from "../ui/page.js?v=0.72.0";
+import * as tools from "../ui/tools.js?v=0.72.0";
+import * as tabs from "../ui/tabs.js?v=0.72.0";
+import * as keys from "../ui/keys.js?v=0.72.0";
+import * as home from "../ui/home.js?v=0.72.0";
+import * as splash from "../ui/splash.js?v=0.72.0";
+import * as icons from "../ui/icons.js?v=0.72.0";
+import * as crt from "../ui/crt.js?v=0.72.0";
+import * as sound from "../ui/sound.js?v=0.72.0";
 
 setMix(soundpanel.readMix(load(soundpanel.KEY), load("parser-music")));   // the sound: the three sliders and the mute, as remembered (a first visit: the spec's)
 setGraphics(graphicspanel.readGraphics(load(graphicspanel.KEY)));   // the screen settings: CRT effect and Reflections, as remembered (a first visit: both on)
@@ -152,7 +152,7 @@ if (DEBUG_PANEL) {
   };
   // Open the panel (loading it the first time).
   const openPanel = () => {
-    loading ??= Promise.all([import("../ui/debug.js?v=0.71.0"), import("./debug.js?v=0.71.0")]).then(([m, d]) => {
+    loading ??= Promise.all([import("../ui/debug.js?v=0.72.0"), import("./debug.js?v=0.72.0")]).then(([m, d]) => {
       debug = d;
       panel = m.mount(dev);
       ui.debug = { update: () => panel.update() };     // redrawn with the other pieces from now on

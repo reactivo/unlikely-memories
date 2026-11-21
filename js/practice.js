@@ -5,8 +5,8 @@
 // Its words are the pack's (js/parser.js withWorld); a world's own thing with the same nouns wins over it.
 // Pure: only adds the thing to a state it is given.
 
-import en from "../content/en.js?v=0.71.0";
-import es from "../content/es.js?v=0.71.0";
+import en from "../content/en.js?v=0.72.0";
+import es from "../content/es.js?v=0.72.0";
 
 const PACKS = { en, es };
 
