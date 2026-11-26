@@ -143,6 +143,8 @@ export default {
   // largest whole scale up to `titleScale.max` at which every line fits that width and the block fits its band.
   // The box art (the list of games, ui/home.js): a still poster, 480 x 400 with the title in its top band, shown as its phone crop (columns 80-399).
   boxart: { width: 480, height: 400, crop: [80, 399], bands: { top: [0, 96], bottom: [305, 400] } },
+  // The plain box of a world with no box art (ui/home.js): the screenshot's room twice as large, from this row down (under the title's band, 16 rows clear of it and of the bottom).
+  plainBox: { scale: 2, top: 112 },
   cover: { width: 480, height: 560, crop: [80, 399], titleFont: "m3x6", bands: { top: [0, 120], bottom: [470, 560] }, kickerScale: 1, titleWidth: 300, titleScale: { min: 4, max: 5 },
     // The poster's motion, calm (checker: coverWarnings): [fewest, most] of each; at most one scatter cycle.
     motion: { cycles: [2, 3], loops: [1, 2] },

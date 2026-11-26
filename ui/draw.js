@@ -2,10 +2,11 @@
 // here); this file puts a grid on the canvas, and holds the overlays, the thumbnails, the scroll's plan and the loops' sprites. Pure: no page, so tests
 // can run it too. ui/scene.js turns the grid into colours on the canvas.
 
-import art from "../content/art.js?v=0.74.0";
-import { parseShapes, readFigure, placeFigure, isShapeOf } from "../js/picture.js?v=0.74.0";
-import { spriteRows } from "../js/sprites.js?v=0.74.0";
-import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.74.0";
+import art from "../content/art.js?v=0.74.1";
+import { parseShapes, readFigure, placeFigure, isShapeOf } from "../js/picture.js?v=0.74.1";
+import { spriteRows } from "../js/sprites.js?v=0.74.1";
+import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.74.1";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.74.1";
 export { paint, paintPicture, threshold, lit, CLEAR_PIXEL };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].
@@ -44,6 +45,21 @@ export function thumbnailPixels(draw, x) {
   const full = paint(typeof draw === "string" ? parseShapes(draw).shapes : draw);
   const left = Math.max(0, Math.min(art.picture.width - THUMB.width, Math.round(x))), out = new Uint8Array(THUMB.width * THUMB.height);
   for (let y = 0; y < THUMB.height; y++) out.set(full.subarray(y * art.picture.width + left, y * art.picture.width + left + THUMB.width), y * THUMB.width);
+  return out;
+}
+
+// The plain box of a world with no box art (a generated world whose posters were not drawn), so that no card of the list is without its title: the box art's own
+// size, crop and top band (art.boxart). The canvas is the world's colour `bg`; the title is stamped white in the top band as on a box art; under it (art.plainBox) the
+// screenshot's room, each pixel `scale` times as large: the columns at the middle of the thumbnail's own crop. Returns the box's phone crop, palette numbers (320 x 400).
+export function plainBoxPixels(draw, x, bg, title, lang) {
+  const BOX = art.boxart, P = art.plainBox, W = art.picture.width, H = art.picture.height, BW = BOX.crop[1] - BOX.crop[0] + 1, BH = BOX.height;
+  const room = paint(typeof draw === "string" ? parseShapes(draw).shapes : draw), full = new Uint8Array(BOX.width * BH).fill(bg), wide = BW / P.scale;
+  const left = Math.max(0, Math.min(W - wide, Math.round(x + (THUMB.width - wide) / 2)));
+  for (let y = 0; y < H * P.scale && P.top + y < BH; y++) for (let c = 0; c < BW; c++)
+    full[(P.top + y) * BOX.width + BOX.crop[0] + c] = room[Math.floor(y / P.scale) * W + left + Math.floor(c / P.scale)];
+  stampTitle(full, titlePixels(layoutTitle(title, fontNamed(art.cover.titleFont), "top", lang, "", 1, BOX), BOX.width, BH), 15);
+  const out = new Uint8Array(BW * BH);
+  for (let y = 0; y < BH; y++) out.set(full.subarray(y * BOX.width + BOX.crop[0], y * BOX.width + BOX.crop[0] + BW), y * BW);
   return out;
 }
 

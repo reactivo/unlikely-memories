@@ -1,11 +1,11 @@
 // What a text mentions and marks: everything a text names answers, what a click examines, what a thing offers does something, what can be taken
 // is named where it comes into view and never in a room's text, and topics are offered. Pure: reads the state and the pack, never changes either.
 
-import { parse, normalise } from "../parser.js?v=0.74.0";
-import { answers as answered } from "../engine.js?v=0.74.0";
-import { placeOf, inScope, holderOf } from "../place.js?v=0.74.0";
-import { inRoom, packText, effectsOf, plannedWorld, worldTexts, collectTexts } from "./shared.js?v=0.74.0";
-import { markOf } from "../narrator.js?v=0.74.0";
+import { parse, normalise } from "../parser.js?v=0.74.1";
+import { answers as answered } from "../engine.js?v=0.74.1";
+import { placeOf, inScope, holderOf } from "../place.js?v=0.74.1";
+import { inRoom, packText, effectsOf, plannedWorld, worldTexts, collectTexts } from "./shared.js?v=0.74.1";
+import { markOf } from "../narrator.js?v=0.74.1";
 
 // What a thing offers when clicked does something, and repeats nothing the engine offers.
 export function offeredWarnings(state, pack, out) {

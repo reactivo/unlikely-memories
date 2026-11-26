@@ -8,8 +8,8 @@
 // Node (the tests, the golden check, the tools) has every world from the start: this module loads worlds/index.js there and keeps all
 // of it, so nothing that runs in Node changes.
 
-import { CARDS, DEFAULT, TEXTS, COVERS } from "./cards.js?v=0.74.0";
-import { parseShapes, readStartsWith } from "../js/picture.js?v=0.74.0";
+import { CARDS, DEFAULT, TEXTS, COVERS } from "./cards.js?v=0.74.1";
+import { parseShapes, readStartsWith } from "../js/picture.js?v=0.74.1";
 
 export { CARDS, DEFAULT };
 
@@ -29,10 +29,10 @@ export const listFor = (lang) => Object.entries(CARDS).filter(([, c]) => c.langs
   .sort(([ia, a], [ib, b]) => (ia === "testbed") - (ib === "testbed") || b.made.localeCompare(a.made))
   .map(([id, c]) => ({ id, title: c.title[lang], blurb: c.blurb[lang], thumbnail: c.thumbnail, cover: c.cover }));
 
-// What a card's thumbnail is drawn from: its drawing list, the room's description for screen readers, and where the crop starts; or null.
+// What a card's thumbnail is drawn from: its drawing list, the room's description for screen readers, where the crop starts, and the world's colour (`bg`, for the plain box of a world with no box art); or null.
 export function thumbnailFor(id, lang) {
   const t = card(id)?.thumb;
-  return t && (t.draws?.[lang] ?? t.draw) && t.alt[lang] !== undefined ? { draw: t.draws?.[lang] ?? t.draw, alt: t.alt[lang], x: card(id).thumbnail.x } : null;
+  return t && (t.draws?.[lang] ?? t.draw) && t.alt[lang] !== undefined ? { draw: t.draws?.[lang] ?? t.draw, alt: t.alt[lang], x: card(id).thumbnail.x, bg: card(id).bg ?? 0 } : null;
 }
 
 // A world's box art (its title in the language, its colour and band, its drawing list, `bg`: the world's colour the canvas starts in and "bg" is), or null.
@@ -73,7 +73,7 @@ export function loadWorld(id, lang) {
 
 // Node and the tools: every world there is, already (worlds/index.js loads them all, in its own order). Never reached by a browser.
 if (typeof process !== "undefined" && process.versions?.node) {
-  const { WORLDS } = await import("./index.js?v=0.74.0");
+  const { WORLDS } = await import("./index.js?v=0.74.1");
   for (const [id, w] of Object.entries(WORLDS)) {
     for (const [lang, text] of Object.entries(w.text)) { texts.set(id + "/" + lang, text); asked.set(id + "/" + lang, Promise.resolve()); }
     if (w.cover) covers.set(id, w.cover);

@@ -25,38 +25,38 @@
 // A new world: `node tools/world.mjs add <id> <hand-in.en.json> [<hand-in.es.json>]` writes its folder, its imports and its WORLDS entry
 // here, and runs tools/cards.mjs and tools/pages.mjs (ARCHITECTURE.md §10, "A world in one command"); `remove <id>` undoes it.
 
-import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.74.0";
-import sea, { bible as seaBible } from "./sea/world.en.js?v=0.74.0";
-import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.74.0";
-import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.74.0";
-import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.74.0";
-import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.74.0";
-import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.74.0";
-import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.74.0";
-import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.74.0";
-import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.74.0";
-import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.74.0";
-import noon, { bible as noonBible } from "./noon/world.en.js?v=0.74.0";
-import phare, { bible as phareBible } from "./phare/world.en.js?v=0.74.0";
-import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.74.0";
-import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.74.0";
-import crust, { bible as crustBible } from "./crust/world.en.js?v=0.74.0";
-import crustEs, { bible as crustBibleEs } from "./crust/world.es.js?v=0.74.0";
-import ribbon, { bible as ribbonBible } from "./ribbon/world.en.js?v=0.74.0";
-import ferry, { bible as ferryBible } from "./ferry/world.en.js?v=0.74.0";
-import { cover as boathouseCover, boxart as boathouseBoxart } from "./boathouse/pictures.js?v=0.74.0";
-import { cover as hartleysCover, boxart as hartleysBoxart } from "./hartleys/pictures.js?v=0.74.0";
-import { cover as lanternCover, boxart as lanternBoxart } from "./lantern/pictures.js?v=0.74.0";
-import { cover as meridianCover, boxart as meridianBoxart } from "./meridian/pictures.js?v=0.74.0";
-import { cover as noonCover, boxart as noonBoxart } from "./noon/pictures.js?v=0.74.0";
-import { cover as phareCover, boxart as phareBoxart } from "./phare/pictures.js?v=0.74.0";
-import { cover as seaCover, boxart as seaBoxart } from "./sea/pictures.js?v=0.74.0";
-import { cover as thirdglassCover, boxart as thirdglassBoxart } from "./thirdglass/pictures.js?v=0.74.0";
-import { cover as tuesdayCover, boxart as tuesdayBoxart } from "./tuesday/pictures.js?v=0.74.0";
-import { cover as testbedCover, boxart as testbedBoxart, bg as testbedBg } from "./testbed/pictures.js?v=0.74.0";
-import { cover as crustCover, boxart as crustBoxart, bg as crustBg } from "./crust/pictures.js?v=0.74.0";
-import { parseShapes, roomDraw } from "../js/picture.js?v=0.74.0";
-import { posterBackground } from "../js/hist.js?v=0.74.0";
+import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.74.1";
+import sea, { bible as seaBible } from "./sea/world.en.js?v=0.74.1";
+import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.74.1";
+import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.74.1";
+import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.74.1";
+import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.74.1";
+import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.74.1";
+import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.74.1";
+import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.74.1";
+import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.74.1";
+import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.74.1";
+import noon, { bible as noonBible } from "./noon/world.en.js?v=0.74.1";
+import phare, { bible as phareBible } from "./phare/world.en.js?v=0.74.1";
+import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.74.1";
+import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.74.1";
+import crust, { bible as crustBible } from "./crust/world.en.js?v=0.74.1";
+import crustEs, { bible as crustBibleEs } from "./crust/world.es.js?v=0.74.1";
+import ribbon, { bible as ribbonBible } from "./ribbon/world.en.js?v=0.74.1";
+import ferry, { bible as ferryBible } from "./ferry/world.en.js?v=0.74.1";
+import { cover as boathouseCover, boxart as boathouseBoxart } from "./boathouse/pictures.js?v=0.74.1";
+import { cover as hartleysCover, boxart as hartleysBoxart } from "./hartleys/pictures.js?v=0.74.1";
+import { cover as lanternCover, boxart as lanternBoxart } from "./lantern/pictures.js?v=0.74.1";
+import { cover as meridianCover, boxart as meridianBoxart } from "./meridian/pictures.js?v=0.74.1";
+import { cover as noonCover, boxart as noonBoxart } from "./noon/pictures.js?v=0.74.1";
+import { cover as phareCover, boxart as phareBoxart } from "./phare/pictures.js?v=0.74.1";
+import { cover as seaCover, boxart as seaBoxart } from "./sea/pictures.js?v=0.74.1";
+import { cover as thirdglassCover, boxart as thirdglassBoxart } from "./thirdglass/pictures.js?v=0.74.1";
+import { cover as tuesdayCover, boxart as tuesdayBoxart } from "./tuesday/pictures.js?v=0.74.1";
+import { cover as testbedCover, boxart as testbedBoxart, bg as testbedBg } from "./testbed/pictures.js?v=0.74.1";
+import { cover as crustCover, boxart as crustBoxart, bg as crustBg } from "./crust/pictures.js?v=0.74.1";
+import { parseShapes, roomDraw } from "../js/picture.js?v=0.74.1";
+import { posterBackground } from "../js/hist.js?v=0.74.1";
 
 export const WORLDS = {
   sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 21, minutes: null, bible: { es: seaBibleEs }, cover: seaCover, boxart: seaBoxart, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
@@ -100,12 +100,13 @@ export function thumbnailFor(id, lang) {
   const objects = Object.fromEntries(world.effects.filter(e => e.add === "object").map(e => [e.id, e]));   // (a thing that opens is drawn as the world starts: shut)
   const rooms = Object.fromEntries(world.effects.filter(e => e.add === "room").map(e => [e.id, e]));
   const state = { world: { rooms, objects }, rules: world.effects.filter(e => e.add === "rule" || e.add === "change") };   // (the room's own things, as the game reads it)
-  return { draw: roomDraw(state, w.thumbnail.picture, drawn), alt: room.alt, x: w.thumbnail.x };
+  return { draw: roomDraw(state, w.thumbnail.picture, drawn), alt: room.alt, x: w.thumbnail.x, bg: backgroundOf(w, lang) };
 }
 
 // The world's colour in a language, what a cover's and a box art's `bg` is (js/hist.js, posterBackground): the one the world states (its entry's `bg`), else
 // measured from its rooms' pictures, as the world's text adds them.
-const backgroundFor = (w, lang) => posterBackground(w.bg, w.text[lang].effects.filter(e => e.add === "room").map(e => e.picture?.draw));
+const backgroundOf = (w, lang) => posterBackground(w.bg, w.text[lang].effects.filter(e => e.add === "room").map(e => e.picture?.draw));
+export const backgroundFor = (id, lang) => (Object.hasOwn(WORLDS, id) && WORLDS[id].text[lang] ? backgroundOf(WORLDS[id], lang) : null);
 
 // What a world's page shows, in a language: its title (the language's own bible's) and the cover's: `bg`, the world's colour (the canvas starts in it, and
 // "bg" in the shapes is it), the title's colour (a palette number, 0-15; default 15) and band ("top" or "bottom"; default "top"), its drawing list (parsed if it is
@@ -114,7 +115,7 @@ export function coverFor(id, lang) {
   const w = Object.hasOwn(WORLDS, id) ? WORLDS[id] : null;
   if (!w?.cover || !w.text[lang]) return null;
   const c = w.cover, b = w.bible?.[lang] ?? w;
-  return { title: b.title, bg: backgroundFor(w, lang), titleColor: c.title ?? 15, titleAt: c.titleAt ?? "top", draw: typeof c.draw === "string" ? parseShapes(c.draw, { bg: true }).shapes : c.draw, cycles: c.cycles || [], loops: c.loops || [] };
+  return { title: b.title, bg: backgroundOf(w, lang), titleColor: c.title ?? 15, titleAt: c.titleAt ?? "top", draw: typeof c.draw === "string" ? parseShapes(c.draw, { bg: true }).shapes : c.draw, cycles: c.cycles || [], loops: c.loops || [] };
 }
 
 // A world's box art (its pictures.js `export const boxart`: the earlier 480 x 400 cover, art.js boxart), for the list of games (ui/home.js), or null.
@@ -122,7 +123,7 @@ export function boxartFor(id, lang) {
   const w = Object.hasOwn(WORLDS, id) ? WORLDS[id] : null;
   if (!w?.boxart || !w.text[lang]) return null;
   const c = w.boxart, b = w.bible?.[lang] ?? w;
-  return { title: b.title, bg: backgroundFor(w, lang), titleColor: c.title ?? 15, titleAt: c.titleAt ?? "top", draw: typeof c.draw === "string" ? parseShapes(c.draw, { bg: true }).shapes : c.draw };
+  return { title: b.title, bg: backgroundOf(w, lang), titleColor: c.title ?? 15, titleAt: c.titleAt ?? "top", draw: typeof c.draw === "string" ? parseShapes(c.draw, { bg: true }).shapes : c.draw };
 }
 
 // The worlds that have a page of their own (a cover), by id.

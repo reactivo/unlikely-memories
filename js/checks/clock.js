@@ -1,7 +1,7 @@
 // Clock times in the texts (BRIEF.md §4): a time named in the prose with nothing in the world at that hour is a likely slip. Pure.
 
-import { worldTime, parts } from "../time.js?v=0.74.0";
-import { unmarked, worldTexts } from "./shared.js?v=0.74.0";
+import { worldTime, parts } from "../time.js?v=0.74.1";
+import { unmarked, worldTexts } from "./shared.js?v=0.74.1";
 
 // ---- Clock times in the text --------------------------------------------------------------------------------------
 // The checker can't read meaning, but a time named in the prose ("after six", "the 17:15", "a las ocho") with nothing

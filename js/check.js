@@ -56,13 +56,13 @@
 // The lints of a world as written (everything above but the playthrough: js/checks/lint.js, `lintWorld`; js/checklint.js is their index) run first; the playthrough here only
 // when they found no problem. The checker's cache key (tools/checked.mjs) hashes every file of js/, so both files are in it.
 
-import { parse } from "./parser.js?v=0.74.0";
-import { step, applyChangeSet } from "./engine.js?v=0.74.0";
-import { commandFor } from "./view.js?v=0.74.0";
-import { musicOf } from "./music.js?v=0.74.0";
-import { withoutPractice } from "./practice.js?v=0.74.0";
-import { Run } from "./walkthrough.js?v=0.74.0";
-import { lintWorld, openingCatches, Report, effectsOf, NO_MUSIC } from "./checklint.js?v=0.74.0";
+import { parse } from "./parser.js?v=0.74.1";
+import { step, applyChangeSet } from "./engine.js?v=0.74.1";
+import { commandFor } from "./view.js?v=0.74.1";
+import { musicOf } from "./music.js?v=0.74.1";
+import { withoutPractice } from "./practice.js?v=0.74.1";
+import { Run } from "./walkthrough.js?v=0.74.1";
+import { lintWorld, openingCatches, Report, effectsOf, NO_MUSIC } from "./checklint.js?v=0.74.1";
 
 export function check(state, pack, bible, { before = null } = {}) {
   state = withoutPractice(state);                       // (HELP's practice thing is the pack's: a world never declares it: js/practice.js)

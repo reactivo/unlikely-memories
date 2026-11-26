@@ -4,11 +4,11 @@
 // on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)). A world with a cover has a page of its own
 // (/<id>/, ui/splash.js: CONTINUE and NEW GAME are there), so its card has one button, LOAD GAME, on.open(id).
 
-import { VERSION } from "../js/version.js?v=0.74.0";
-import { THUMB, thumbnailPixels, putPixels, RGB, paintPicture } from "./draw.js?v=0.74.0";
-import art from "../content/art.js?v=0.74.0";
-import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.74.0";
-import { thumbnails } from "./crt.js?v=0.74.0";
+import { VERSION } from "../js/version.js?v=0.74.1";
+import { THUMB, thumbnailPixels, plainBoxPixels, putPixels, RGB, paintPicture } from "./draw.js?v=0.74.1";
+import art from "../content/art.js?v=0.74.1";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.74.1";
+import { thumbnails } from "./crt.js?v=0.74.1";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
@@ -51,6 +51,20 @@ export function mount(root, on) {
       for (let y = 0; y < BH; y++) out.set(full.subarray(y * BOX.width + BOX.crop[0], y * BOX.width + BOX.crop[0] + BW), y * BW);
       painted.set(key, out);
     }
+    const canvas = document.createElement("canvas");
+    canvas.width = BW; canvas.height = BH;
+    const image = new ImageData(BW, BH);
+    putPixels(image, painted.get(key), RGB);
+    looks.add(canvas, image);
+    return canvas;
+  }
+
+  // A world with no box art (a generated world whose posters were not drawn): a plain box the game makes itself, so that no card is without its title. The box art's
+  // own size and bands: the world's colour, the title in the top band as on a box art, and under it the screenshot's room, each pixel twice as large, the 160 columns
+  // at the middle of the thumbnail's crop (art.plainBox: where it sits).
+  function paintPlain(thumb, title, id, lang) {
+    const key = "plain/" + lang + "/" + id;
+    if (!painted.has(key)) painted.set(key, plainBoxPixels(thumb.draw, thumb.x, thumb.bg ?? 0, title, lang));
     const canvas = document.createElement("canvas");
     canvas.width = BW; canvas.height = BH;
     const image = new ImageData(BW, BH);
@@ -111,7 +125,7 @@ export function mount(root, on) {
         const card = el("li", "card box"), open = el("button", "box-open");
         open.type = "button"; open.setAttribute("aria-label", w.title); open.setAttribute("aria-haspopup", "dialog");
         // Painted one box a frame, the first at once: the grid shows straight away and fills in (17 November 2026: all of them first, a wait).
-        queue.push(() => { const c = w.boxart ? paintBox(w.boxart, w.id, lang) : w.thumb ? paintThumb(w.thumb, w.id, lang) : null; if (c) { c.setAttribute("aria-hidden", "true"); open.append(c); } });
+        queue.push(() => { const c = w.boxart ? paintBox(w.boxart, w.id, lang) : w.thumb ? paintPlain(w.thumb, w.title, w.id, lang) : null; if (c) { c.setAttribute("aria-hidden", "true"); open.append(c); } });
         open.addEventListener("click", () => openPop(w, t, lang));
         card.append(open);
         list.append(card);
