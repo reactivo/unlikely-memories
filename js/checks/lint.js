@@ -1,17 +1,17 @@
 // The lint of a world as written (not played): every check of js/checks/*.js, in the order the checker has always listed the problems and the
 // warnings. The playthrough is js/check.js. Pure: reads the state and the pack, never changes either.
 
-import { idProblems, spriteProblems, portraitChecks, useProblems, consumableProblems, sourceProblems, moverChecks } from "./things.js?v=0.73.0";
-import { puzzleProblems, harmWarnings } from "./puzzles.js?v=0.73.0";
-import { planChecks, exitShapeProblems, exitsLeadProblems, pairProblems, inOutProblems } from "./space.js?v=0.73.0";
-import { offeredWarnings, sourceTopicWarnings, mentionProblems, topicWarnings, markedThingWarnings } from "./mentions.js?v=0.73.0";
-import { conditionShapeProblems, listComparisons, neverHolds, neverOpen, neverWaits, conditionChecks } from "./conditions.js?v=0.73.0";
-import { pictureWarnings, paletteWarnings, removalWarnings, pictureProblems } from "./pictures.js?v=0.73.0";
-import { bibleChecks } from "./cover.js?v=0.73.0";
-import { roomLengthWarnings, sleepWarnings, hedgeProblems, regionalWarnings, wordWarnings, answerWarnings } from "./voice.js?v=0.73.0";
-import { introChecks } from "./start.js?v=0.73.0";
-import { commandProblems, wayWarnings, sceneryVerbWarnings } from "./commands.js?v=0.73.0";
-import { clockTimeWarnings } from "./clock.js?v=0.73.0";
+import { idProblems, spriteProblems, portraitChecks, useProblems, consumableProblems, sourceProblems, moverChecks } from "./things.js?v=0.74.0";
+import { puzzleProblems, harmWarnings } from "./puzzles.js?v=0.74.0";
+import { planChecks, exitShapeProblems, exitsLeadProblems, pairProblems, inOutProblems } from "./space.js?v=0.74.0";
+import { offeredWarnings, sourceTopicWarnings, mentionProblems, topicWarnings, markedThingWarnings } from "./mentions.js?v=0.74.0";
+import { conditionShapeProblems, listComparisons, neverHolds, neverOpen, neverWaits, conditionChecks } from "./conditions.js?v=0.74.0";
+import { pictureWarnings, paletteWarnings, removalWarnings, pictureProblems } from "./pictures.js?v=0.74.0";
+import { bibleChecks } from "./cover.js?v=0.74.0";
+import { roomLengthWarnings, sleepWarnings, hedgeProblems, regionalWarnings, wordWarnings, answerWarnings } from "./voice.js?v=0.74.0";
+import { introChecks } from "./start.js?v=0.74.0";
+import { commandProblems, wayWarnings, sceneryVerbWarnings } from "./commands.js?v=0.74.0";
+import { clockTimeWarnings } from "./clock.js?v=0.74.0";
 
 // Every lint of the world as written: into `out` (a Report: js/checks/registry.js), the problems and warnings in the order they have always had.
 export function lintWorld(state, pack, bible, puzzles, out) {
