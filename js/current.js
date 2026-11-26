@@ -4,10 +4,10 @@
 // other module only reads it (an imported `let` is live and read-only: `state` is always the game as it is now). Not an event bus:
 // nothing listens and nothing is told; a module that needs a piece reads it. Never touches the page.
 
-import en from "../content/en.js?v=0.72.1";
-import es from "../content/es.js?v=0.72.1";
-import { createClock } from "./clock.js?v=0.72.1";
-import { load } from "./prefs.js?v=0.72.1";
+import en from "../content/en.js?v=0.73.0";
+import es from "../content/es.js?v=0.73.0";
+import { createClock } from "./clock.js?v=0.73.0";
+import { load } from "./prefs.js?v=0.73.0";
 
 // The standard texts of a game: its language's pack (the world's own texts are in the world: worlds/<id>/).
 export const LANG_PACKS = { en, es };

@@ -2,8 +2,8 @@
 // Sierra's games drew their rooms from commands. Pure: no page, so the screen (ui/draw.js, which re-exports it), the tests and the checker (the
 // motion's limits need what each shape ends up showing) all use it.
 
-import art from "../content/art.js?v=0.72.1";
-import { isShapeOf } from "./picture.js?v=0.72.1";
+import art from "../content/art.js?v=0.73.0";
+import { isShapeOf } from "./picture.js?v=0.73.0";
 
 const DITHER = art.dither.matrix;                 // Bayer 4×4: the order in which pixels switch to the second colour
 

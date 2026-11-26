@@ -11,6 +11,9 @@
 // the Spanish title, and no `bible`). `entryLang` says which; `bibleOf` gives a language's bible, or the entry itself for the first.
 // The list (listFor) is newest first by `made`; the address picks a world (js/route.js). Each world's bible
 // gives its title, its blurb and its thumbnail (BRIEF.md §1).
+// `generated: true`, for a world the world generator made (tools/world.mjs add --generated; docs/generate/PLAN.md on the branch `generate`): the tests hold it to
+// the bar of a world that plays (tests/worlds.test.js, GENERATED_LOAD), not yet to a finished world's: it may have no cover and no box art (no page: its card
+// in the list is its thumbnail, and its popup starts the game), carried things with no sprite, no music, and warnings of the checker.
 // About each world, data only (nothing shows it): `model` and `effort`, of the build that made it (written by the new-world
 // skill, never by the AI that builds it), `minutes` the build took (null when it wasn't logged), and `version`, a whole number
 // from 1, one more each delivery that changes its files. The versions of the four worlds made before 30 October 2026 are a floor:
@@ -22,36 +25,37 @@
 // A new world: `node tools/world.mjs add <id> <hand-in.en.json> [<hand-in.es.json>]` writes its folder, its imports and its WORLDS entry
 // here, and runs tools/cards.mjs and tools/pages.mjs (ARCHITECTURE.md §10, "A world in one command"); `remove <id>` undoes it.
 
-import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.72.1";
-import sea, { bible as seaBible } from "./sea/world.en.js?v=0.72.1";
-import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.72.1";
-import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.72.1";
-import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.72.1";
-import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.72.1";
-import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.72.1";
-import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.72.1";
-import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.72.1";
-import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.72.1";
-import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.72.1";
-import noon, { bible as noonBible } from "./noon/world.en.js?v=0.72.1";
-import phare, { bible as phareBible } from "./phare/world.en.js?v=0.72.1";
-import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.72.1";
-import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.72.1";
-import crust, { bible as crustBible } from "./crust/world.en.js?v=0.72.1";
-import crustEs, { bible as crustBibleEs } from "./crust/world.es.js?v=0.72.1";
-import { cover as boathouseCover, boxart as boathouseBoxart } from "./boathouse/pictures.js?v=0.72.1";
-import { cover as hartleysCover, boxart as hartleysBoxart } from "./hartleys/pictures.js?v=0.72.1";
-import { cover as lanternCover, boxart as lanternBoxart } from "./lantern/pictures.js?v=0.72.1";
-import { cover as meridianCover, boxart as meridianBoxart } from "./meridian/pictures.js?v=0.72.1";
-import { cover as noonCover, boxart as noonBoxart } from "./noon/pictures.js?v=0.72.1";
-import { cover as phareCover, boxart as phareBoxart } from "./phare/pictures.js?v=0.72.1";
-import { cover as seaCover, boxart as seaBoxart } from "./sea/pictures.js?v=0.72.1";
-import { cover as thirdglassCover, boxart as thirdglassBoxart } from "./thirdglass/pictures.js?v=0.72.1";
-import { cover as tuesdayCover, boxart as tuesdayBoxart } from "./tuesday/pictures.js?v=0.72.1";
-import { cover as testbedCover, boxart as testbedBoxart, bg as testbedBg } from "./testbed/pictures.js?v=0.72.1";
-import { cover as crustCover, boxart as crustBoxart, bg as crustBg } from "./crust/pictures.js?v=0.72.1";
-import { parseShapes, roomDraw } from "../js/picture.js?v=0.72.1";
-import { posterBackground } from "../js/hist.js?v=0.72.1";
+import tuesday, { bible as tuesdayBible } from "./tuesday/world.en.js?v=0.73.0";
+import sea, { bible as seaBible } from "./sea/world.en.js?v=0.73.0";
+import hartleys, { bible as hartleysBible } from "./hartleys/world.en.js?v=0.73.0";
+import lantern, { bible as lanternBible } from "./lantern/world.en.js?v=0.73.0";
+import tuesdayEs, { bible as tuesdayBibleEs } from "./tuesday/world.es.js?v=0.73.0";
+import seaEs, { bible as seaBibleEs } from "./sea/world.es.js?v=0.73.0";
+import hartleysEs, { bible as hartleysBibleEs } from "./hartleys/world.es.js?v=0.73.0";
+import lanternEs, { bible as lanternBibleEs } from "./lantern/world.es.js?v=0.73.0";
+import meridian, { bible as meridianBible } from "./meridian/world.en.js?v=0.73.0";
+import thirdglass, { bible as thirdglassBible } from "./thirdglass/world.en.js?v=0.73.0";
+import boathouse, { bible as boathouseBible } from "./boathouse/world.en.js?v=0.73.0";
+import noon, { bible as noonBible } from "./noon/world.en.js?v=0.73.0";
+import phare, { bible as phareBible } from "./phare/world.en.js?v=0.73.0";
+import testbed, { bible as testbedBible } from "./testbed/world.en.js?v=0.73.0";
+import testbedEs, { bible as testbedBibleEs } from "./testbed/world.es.js?v=0.73.0";
+import crust, { bible as crustBible } from "./crust/world.en.js?v=0.73.0";
+import crustEs, { bible as crustBibleEs } from "./crust/world.es.js?v=0.73.0";
+import ribbon, { bible as ribbonBible } from "./ribbon/world.en.js?v=0.73.0";
+import { cover as boathouseCover, boxart as boathouseBoxart } from "./boathouse/pictures.js?v=0.73.0";
+import { cover as hartleysCover, boxart as hartleysBoxart } from "./hartleys/pictures.js?v=0.73.0";
+import { cover as lanternCover, boxart as lanternBoxart } from "./lantern/pictures.js?v=0.73.0";
+import { cover as meridianCover, boxart as meridianBoxart } from "./meridian/pictures.js?v=0.73.0";
+import { cover as noonCover, boxart as noonBoxart } from "./noon/pictures.js?v=0.73.0";
+import { cover as phareCover, boxart as phareBoxart } from "./phare/pictures.js?v=0.73.0";
+import { cover as seaCover, boxart as seaBoxart } from "./sea/pictures.js?v=0.73.0";
+import { cover as thirdglassCover, boxart as thirdglassBoxart } from "./thirdglass/pictures.js?v=0.73.0";
+import { cover as tuesdayCover, boxart as tuesdayBoxart } from "./tuesday/pictures.js?v=0.73.0";
+import { cover as testbedCover, boxart as testbedBoxart, bg as testbedBg } from "./testbed/pictures.js?v=0.73.0";
+import { cover as crustCover, boxart as crustBoxart, bg as crustBg } from "./crust/pictures.js?v=0.73.0";
+import { parseShapes, roomDraw } from "../js/picture.js?v=0.73.0";
+import { posterBackground } from "../js/hist.js?v=0.73.0";
 
 export const WORLDS = {
   sea:     { title: seaBible.title, blurb: seaBible.blurb, thumbnail: seaBible.thumbnail,     made: "2026-10-22", model: "Claude Opus 5.5", effort: "medium", version: 21, minutes: null, bible: { es: seaBibleEs }, cover: seaCover, boxart: seaBoxart, text: { en: sea, es: seaEs } },      // "The Sea Is a Rumour"
@@ -64,6 +68,7 @@ export const WORLDS = {
   noon: { title: noonBible.title, blurb: noonBible.blurb, thumbnail: noonBible.thumbnail, made: "2026-11-12", model: "Claude Sonnet 5.5", effort: "medium", version: 11, minutes: 34, cover: noonCover, boxart: noonBoxart, text: { en: noon } },     // "The River Turns at Noon"
   phare: { title: phareBible.title, blurb: phareBible.blurb, thumbnail: phareBible.thumbnail, made: "2026-11-14", model: "Claude Sonnet 5.5", effort: "medium", version: 13, minutes: 24, cover: phareCover, boxart: phareBoxart, text: { en: phare } },     // "A Light for the Galerie Aubry"
   crust: { title: crustBible.title, blurb: crustBible.blurb, thumbnail: crustBible.thumbnail, made: "2026-11-21", model: "Claude Sonnet 5.5", effort: "high", version: 2, minutes: 96, bible: { es: crustBibleEs }, cover: crustCover, boxart: crustBoxart, bg: crustBg, text: { en: crust, es: crustEs } },     // "Emperor of the Crust"
+  ribbon: { title: ribbonBible.title, blurb: ribbonBible.blurb, thumbnail: ribbonBible.thumbnail, made: "2026-11-26", model: "Gemini 3.8 Flash", effort: "low", version: 1, minutes: 3, generated: true, text: { en: ribbon } },     // "The Weight of a Ribbon"
   testbed: { title: testbedBible.title, blurb: testbedBible.blurb, thumbnail: testbedBible.thumbnail, made: "2026-11-09", model: "Claude Sonnet 5.5", effort: "default", version: 16, minutes: null, bible: { es: testbedBibleEs }, cover: testbedCover, boxart: testbedBoxart, bg: testbedBg, text: { en: testbed, es: testbedEs } }   // "Testbed": every mechanism, always last in the list
 };
 
