@@ -1,7 +1,7 @@
 // Puzzles and fairness: what a puzzle names exists, a main step has two clues, some puzzle ends the story, each thing has its gender, harm and
 // healing are fair (BRIEF.md §4, §5). Pure: reads the state and the pack, never changes either.
 
-import { withChanges } from "./shared.js?v=0.74.2";
+import { withChanges } from "./shared.js?v=0.74.3";
 
 // The main steps (BRIEF.md §4): the puzzles an ending needs, directly or through what their needs need (a thing in `needs` by the puzzle that
 // gives it, the first written: the one the endings take), and the way out of the start room (the first puzzle). An ending is no step, nor a second

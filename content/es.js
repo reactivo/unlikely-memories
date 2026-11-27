@@ -607,6 +607,7 @@ export default {
       // las pistas (`{enter+}`: «Entrar EN puerta»). La a de persona va en los verbos que casi siempre son para alguien (despertar, besar,
       // hacer señas), y en trepar («Trepar a farol»). Un nombre que empieza por «el» se contrae con ella: «Trepar al último farol».
       verbPreps: { enter: "en", knock: "a", sit: "en", lie: "en", wave: "a", wake: "a", kiss: "a", climb: "a" },
+      lateJoin: ["detras", "tras", "encima", "junto", "bajo", "debajo", "dentro"],   // preposiciones que unen dos cosas solo si la orden no se entiende sin ellas: "pon la caja DETRÁS DE la bobina" (js/parser.js, `read`); la segunda palabra («de», «a», «del», «al») ya se lee así
       nameParts: ["del"],                          // pueden ser parte de un nombre: "la butaca DEL pasillo" es una sola cosa, no dos
       contractions: { al: ["a", "el"], del: ["de", "el"] },   // justo después del verbo se leen enteras: "sal DEL coche", "sube AL tren"; las órdenes del motor las contraen
       lowerNames: true,                            // los nombres dentro de una frase, en minúscula ("lata de caramelos")

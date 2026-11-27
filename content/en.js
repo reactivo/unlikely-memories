@@ -494,6 +494,7 @@ export default {
       // What a verb takes before its object, in the commands the engine words (js/view.js, phraseFor: "Knock on door") and in hints
       // (`{knock+}`). The rest read fine bare ("enter door", "push bell").
       verbPreps: { knock: "on", lie: "on", sit: "on", wave: "at" },
+      lateJoin: ["behind", "onto", "over", "against", "beside", "under", "inside"],   // prepositions that join two things only when the command is not understood without them: "put case BEHIND coils" (js/parser.js, `read`)
       nameParts: [],                               // prepositions that can be part of a name ("butaca DEL pasillo"): none
       lowerNames: true,                            // names in a sentence start in lower case ("tin of mints"); German: false
       gender: false                                // things have no gender (`words.g`) to agree with: the standard replies ignore it

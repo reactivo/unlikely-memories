@@ -2,13 +2,13 @@
 // box art (480 x 400) as `pictures.js` gives them (docs/splash/PLAN.md; BRIEF.md §1, §7 "Cover and box art"). The cover's and the box art's
 // findings are warnings, never problems. Pure.
 
-import art from "../../content/art.js?v=0.74.2";
-import { colorsOf, areaPixels, parseShapes, isShapeOf } from "../picture.js?v=0.74.2";
-import { paintPicture } from "../paint.js?v=0.74.2";
-import { contrast, MIN_CONTRAST, STATABLE, isStatable, posterBackground, roomDraws } from "../hist.js?v=0.74.2";
-import { namesBackground } from "../cover.js?v=0.74.2";
-import { collect, collectCatches } from "./registry.js?v=0.74.2";
-import { motionChecks, loopChecks } from "./drawings.js?v=0.74.2";
+import art from "../../content/art.js?v=0.74.3";
+import { colorsOf, areaPixels, parseShapes, isShapeOf } from "../picture.js?v=0.74.3";
+import { paintPicture } from "../paint.js?v=0.74.3";
+import { contrast, MIN_CONTRAST, STATABLE, isStatable, posterBackground, roomDraws } from "../hist.js?v=0.74.3";
+import { namesBackground } from "../cover.js?v=0.74.3";
+import { collect, collectCatches } from "./registry.js?v=0.74.3";
+import { motionChecks, loopChecks } from "./drawings.js?v=0.74.3";
 
 const COVER_LOOPS = { list: "cover.loop-list", tooMany: "cover.loop-too-many", malformed: "cover.loop-malformed" };
 

@@ -14,13 +14,13 @@
 // controller hands it back to the next parse(): a reply whose words pick out exactly one candidate finishes the
 // original command with it; a reply that fits none, or several, is read as a new command (PARSER.md layer 0).
 
-import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.74.2";
-import { exitTo, wayAt, wayOf, waysOf, waysAsThings } from "./exits.js?v=0.74.2";
-import { inScope, person } from "./place.js?v=0.74.2";
-import { receives } from "./use.js?v=0.74.2";
-import { ACTIONS, isAction } from "./actions.js?v=0.74.2";
-import { distance } from "./fields.js?v=0.74.2";
-import { PRACTICE, VERB } from "./practice.js?v=0.74.2";
+import { holds, answers, ANSWER_LENGTH } from "./engine.js?v=0.74.3";
+import { exitTo, wayAt, wayOf, waysOf, waysAsThings } from "./exits.js?v=0.74.3";
+import { inScope, person } from "./place.js?v=0.74.3";
+import { receives } from "./use.js?v=0.74.3";
+import { ACTIONS, isAction } from "./actions.js?v=0.74.3";
+import { distance } from "./fields.js?v=0.74.3";
+import { PRACTICE, VERB } from "./practice.js?v=0.74.3";
 
 // Lower case, no accents, punctuation out except separators (. , ;). What's particular to a language comes from its pack's
 // grammar (words.grammar): its elisions written out in full (French "l'oiseau" → "le oiseau") and its folds: what a keyboard
@@ -134,9 +134,31 @@ function compoundFix(text, state, words, seen) {
   return null;
 }
 
+// A pack's `grammar.lateJoin` words ("behind", "onto", *detrás*, *junto*) join two things only when the command is not understood without
+// them: it is read first as the pack's other lists have it, so anything understood (or answered, even by an error) before the words were
+// added is read and answered the same, a thing whose own name holds one still found by its name. Only a command that failed, and says one
+// of them, is read again with them as prepositions that bring in a second thing; if that reads, it is the reading, else the first error stands.
+const joined = new WeakMap();
+function withLateJoin(words) {
+  if (joined.has(words)) return joined.get(words);
+  const g = words.words.grammar || {}, late = g.lateJoin || [];
+  const w = late.length ? { ...words, words: { ...words.words, preps: [...words.words.preps, ...late],
+    grammar: { ...g, secondObject: [...(g.secondObject || []), ...late] } } } : null;
+  joined.set(words, w);
+  return w;
+}
+function read(text, state, words, seen = "", which = null, picks = []) {
+  const r = readOnce(text, state, words, seen, which, picks), full = r.error ? withLateJoin(words) : null;
+  if (!full) return r;
+  const g = words.words.grammar, late = new Set((g.lateJoin || []).map(x => normalise(x, g)));
+  if (!normalise(text, g).split(" ").some(t => late.has(t))) return r;
+  const again = readOnce(text, state, full, seen, which, picks);
+  return again.actions ? again : r;
+}
+
 // The reading itself (parse() adds the "did you mean"): layer 0 (an answer, the end, "which do you mean"), session
 // commands, then each command in turn. picks: things already chosen in answer to "Which do you mean…?".
-function read(text, state, words, seen = "", which = null, picks = []) {
+function readOnce(text, state, words, seen = "", which = null, picks = []) {
   const V = vocabulary(withWorld(words, state)), seenShown = new Map();
   const W = { ...V, seen: seenWords(seen, words.words.grammar, seenShown), picks, shown: new Map([...V.shown, ...seenShown]) };
   const tokens = normalise(text, words.words.grammar).split(" ").filter(Boolean);

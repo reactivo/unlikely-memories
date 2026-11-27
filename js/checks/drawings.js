@@ -2,10 +2,10 @@
 // shapes its style asks for (BRIEF.md §7). A picture is { version, draw: [shapes], cycles?, overlays?, loops? }, a room's or an ending's.
 // Pure: reads the picture, never changes it.
 
-import art from "../../content/art.js?v=0.74.2";
-import { isGroup, isShapeOf, areaPixels, shownDraw, openDrawingProblems } from "../picture.js?v=0.74.2";
-import { paintPicture } from "../paint.js?v=0.74.2";
-import { Report, collect } from "./registry.js?v=0.74.2";
+import art from "../../content/art.js?v=0.74.3";
+import { isGroup, isShapeOf, areaPixels, shownDraw, openDrawingProblems } from "../picture.js?v=0.74.3";
+import { paintPicture } from "../paint.js?v=0.74.3";
+import { Report, collect } from "./registry.js?v=0.74.3";
 
 // What is wrong with one picture ({ version, draw: [shapes], cycles?, overlays?, loops? }), a room's or an ending's: only the shapes
 // and fills of the art spec, colours 0–15, at most `maxShapes`, unique ids, at most 3 cycles that point at real shapes (and sweep, rest and the scroll's area right), and at most 1 loop.

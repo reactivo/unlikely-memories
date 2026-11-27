@@ -1,11 +1,11 @@
 // What a text offers the player to type: a way in or out the room does not answer, a command in backticks the game does not read, a verb offered on
 // a scenery noun that nothing answers (BRIEF.md §4, §6, §8). Pure: reads the state and the pack, never changes either.
 
-import { parse, normalise } from "../parser.js?v=0.74.2";
-import { answers as answered } from "../engine.js?v=0.74.2";
-import { placeOf } from "../place.js?v=0.74.2";
-import { isAction } from "../actions.js?v=0.74.2";
-import { inRoom, unmarked, shortText, worldTexts } from "./shared.js?v=0.74.2";
+import { parse, normalise } from "../parser.js?v=0.74.3";
+import { answers as answered } from "../engine.js?v=0.74.3";
+import { placeOf } from "../place.js?v=0.74.3";
+import { isAction } from "../actions.js?v=0.74.3";
+import { inRoom, unmarked, shortText, worldTexts } from "./shared.js?v=0.74.3";
 
 // ---- A room that says you can go in or out, with nothing that answers ------------------------------------------------
 // A room's text (its `describe`, a scenery's `says`, the `examine` and `here` of a thing in it) that invites the player to go

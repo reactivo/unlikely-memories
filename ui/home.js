@@ -4,11 +4,11 @@
 // on.play(id), NEW GAME on.play(id, true) when there is a saved game it replaces (else on.play(id)). A world with a cover has a page of its own
 // (/<id>/, ui/splash.js: CONTINUE and NEW GAME are there), so its card has one button, LOAD GAME, on.open(id).
 
-import { VERSION } from "../js/version.js?v=0.74.2";
-import { THUMB, thumbnailPixels, plainBoxPixels, putPixels, RGB, paintPicture } from "./draw.js?v=0.74.2";
-import art from "../content/art.js?v=0.74.2";
-import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.74.2";
-import { thumbnails } from "./crt.js?v=0.74.2";
+import { VERSION } from "../js/version.js?v=0.74.3";
+import { THUMB, thumbnailPixels, plainBoxPixels, putPixels, RGB, paintPicture } from "./draw.js?v=0.74.3";
+import art from "../content/art.js?v=0.74.3";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.74.3";
+import { thumbnails } from "./crt.js?v=0.74.3";
 
 // The buttons on a card, left to right: CONTINUE (continues the saved game) when the world has one, then NEW GAME, which starts
 // from scratch and drops the saved game (fresh: true; Diego, 27 Oct 2026: no question, choosing NEW GAME is the answer).
