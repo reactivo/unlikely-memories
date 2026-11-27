@@ -4,28 +4,28 @@
 // The effects are a table of handlers (EFFECTS), keyed and ordered as fields.js FIELDS.effect (the order an effect with two main keys
 // is read in); TOUCHES says which id each kind touches.
 
-import { random, between } from "./random.js?v=0.74.1";
-import standardVerbs from "./verbs.js?v=0.74.1";
-import { DIRECTIONS, BACK } from "./space.js?v=0.74.1";
-import { compilePlan, roomBeside } from "./plan.js?v=0.74.1";
-import { clean, isLine } from "./shapes.js?v=0.74.1";
-import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.74.1";
-import { readPicture, editPicture } from "./picture.js?v=0.74.1";
-import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.74.1";
-import * as opening from "./opening.js?v=0.74.1";
-import { PRACTICE } from "./practice.js?v=0.74.1";
-import { translate as translateUse } from "./use.js?v=0.74.1";
-import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.74.1";
-import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES } from "./fields.js?v=0.74.1";
-import { hasSprite, hasPortrait, spriteRows, fallbackRows } from "./sprites.js?v=0.74.1";
-import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.74.1";
-import { ACTIONS, isAction } from "./actions.js?v=0.74.1";
-import { makeSleeping } from "./sleeping.js?v=0.74.1";
-import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.74.1";
-import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.74.1";
-import { answerLine } from "./speech.js?v=0.74.1";
-import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.74.1";
-import { hintSteps, hintRun } from "./walkthrough.js?v=0.74.1";
+import { random, between } from "./random.js?v=0.74.2";
+import standardVerbs from "./verbs.js?v=0.74.2";
+import { DIRECTIONS, BACK } from "./space.js?v=0.74.2";
+import { compilePlan, roomBeside } from "./plan.js?v=0.74.2";
+import { clean, isLine } from "./shapes.js?v=0.74.2";
+import { isExitObject, exitTo, exitConditions, wayAt, connectedExit, waysOf } from "./exits.js?v=0.74.2";
+import { readPicture, editPicture } from "./picture.js?v=0.74.2";
+import { worldTime, parts, partAt, moveTo, schedule as scheduleOf, occursBetween, WEEKDAYS } from "./time.js?v=0.74.2";
+import * as opening from "./opening.js?v=0.74.2";
+import { PRACTICE } from "./practice.js?v=0.74.2";
+import { translate as translateUse } from "./use.js?v=0.74.2";
+import { placeOf, chainOf, shut, person, holderOf, noticed } from "./place.js?v=0.74.2";
+import { checkSet, ownerOf, adding, removing, effectKind, RANGES, ENGINE_ECHOES } from "./fields.js?v=0.74.2";
+import { hasSprite, hasPortrait, spriteRows, fallbackRows } from "./sprites.js?v=0.74.2";
+import { propertyWords, ASK_KEY, foldAnswer, grammarOf } from "./words.js?v=0.74.2";
+import { ACTIONS, isAction } from "./actions.js?v=0.74.2";
+import { makeSleeping } from "./sleeping.js?v=0.74.2";
+import { activeIds, keptFilters, declarationProblems, conditionTone } from "./conditions.js?v=0.74.2";
+import { filterProblem, parseFilter, switched, MOMENTS, COUNTS } from "./filters.js?v=0.74.2";
+import { answerLine } from "./speech.js?v=0.74.2";
+import { runMovers, placeMovers, placeChange, moverIds, inSeconds, onTheClock, shapeProblems } from "./movers.js?v=0.74.2";
+import { hintSteps, hintRun } from "./walkthrough.js?v=0.74.2";
 
 // Game ms of quiet after each command of the player: room ambience stays silent until it has passed. The world's own
 // rules (events, consequences) and scheduled rules ignore it.

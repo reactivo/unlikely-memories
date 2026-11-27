@@ -1604,3 +1604,185 @@ line string_hum 82,82 112,118 c11`,
     loops: []
   }
 };
+
+export const cover = {
+  shot: "archetype: the split; yes: the Baltic sound severed at midnight into two tiers—the cold steel deckhouse and radar mast above in Baltic blue, and the cavernous train deck below lit by harsh sodium yellow where chained wagons loom; beat: the dwarf; Inspector Brandt stands on the upper gangway clutching a clipboard while searching flashlight sweeps downward, while below in the gloom the courier hides behind freight chains holding the violin case; background bg 0; light: cold cyan floodlight above, flickering yellow incandescent below; moves: rotating radar bar (a sweep), flickering companionway bulb (a flicker), foaming wake at the counter (a pingpong shimmer).",
+  titleAt: "top",
+  draw: `rect sky_base 0,120,480,140 1
+poly deckhouse 40,120 440,120 420,240 60,240 8
+rect deckhouse_roof 50,122,380,12 7
+rect bridge_window_1 80,140,50,28 11
+rect bridge_window_2 145,140,50,28 11
+rect bridge_window_3 215,140,50,28 11
+rect bridge_window_4 285,140,50,28 11
+rect bridge_window_5 350,140,50,28 11
+poly mast_base 230,120 250,120 244,140 236,140 7
+line mast_spire 240,120 240,128 c7
+line radar_blade_1 220,125 260,125 c15
+line radar_blade_2 226,125 254,125 c7
+line radar_blade_3 234,125 246,125 c8
+rect flood_mount 320,168,16,10 7
+poly flood_beam 328,178 180,310 280,310 11
+poly flood_core 328,178 200,310 260,310 15
+rect deck_floor 0,236,480,14 7
+line deck_rail_top 0,230 480,230 c15
+line deck_rail_mid 0,233 480,233 c7
+line deck_post_1 90,230 90,236 c7
+line deck_post_2 160,230 160,236 c7
+line deck_post_3 230,230 230,236 c7
+line deck_post_4 300,230 300,236 c7
+line deck_post_5 370,230 370,236 c7
+line deck_post_6 440,230 440,236 c7
+poly inspector_coat 340,192 364,195 368,236 336,236 bg
+poly inspector_head 348,180 358,180 357,192 347,192 bg
+rect inspector_hat 344,178,16,4 bg
+poly inspector_arm 356,198 370,210 366,216 354,206 bg
+rect clipboard 368,206,12,16 14
+rect clip_sheet 370,208,8,12 15
+rect hull_seam 0,250,480,8 bg
+rect train_deck_back 0,258,480,211 6
+rect track_bed 0,430,480,39 8
+line rail_1 0,442 480,442 c7
+line rail_2 0,448 480,448 c7
+line rail_3 0,458 480,458 c7
+line rail_4 0,464 480,464 c7
+poly wagon_1 30,280 200,280 195,435 25,435 8
+rect wagon_1_roof 28,276,174,8 7
+rect wagon_1_panel 45,295,140,115 6
+line wagon_1_rib1 75,295 75,410 c8
+line wagon_1_rib2 115,295 115,410 c8
+line wagon_1_rib3 155,295 155,410 c8
+poly wagon_2 250,270 460,270 450,435 240,435 8
+rect wagon_2_door 270,290,80,135 4
+rect wagon_2_latch 342,350,8,24 7
+line wagon_chain_1 22,435 80,380 c0
+line wagon_chain_2 195,435 150,380 c0
+line wagon_chain_3 245,435 290,380 c0
+line wagon_chain_4 445,435 390,380 c0
+rect bulkhead_lamp_housing 215,264,18,10 8
+ellipse bulkhead_lamp 224,274,8,6 14
+poly lamp_glow 224,274 160,390 288,390 14
+poly courier_body 198,335 224,335 230,425 192,425 bg
+poly courier_head 205,318 217,318 217,335 205,335 bg
+poly courier_arm 214,345 228,375 220,380 208,355 bg
+poly case_body 216,365 240,358 244,412 220,418 bg
+line case_strap 214,352 230,385 c7
+rect sea_cut 0,445,480,24 1
+poly wake_foam 120,469 190,448 290,448 360,469 11
+line wake_crest_1 140,458 175,458 c15
+line wake_crest_2 210,454 260,454 c15
+line wake_crest_3 290,460 330,460 c15
+line glint_1 160,462 178,462 c15
+line glint_2 230,464 252,464 c15
+line glint_3 300,463 322,463 c15`,
+  cycles: [
+    {
+      name: "radar sweep",
+      areas: ["radar_blade_1", "radar_blade_2", "radar_blade_3"],
+      colors: [15, 7, 8],
+      style: "rotate",
+      ms: 300
+    },
+    {
+      name: "lamp flicker",
+      areas: ["bulkhead_lamp", "lamp_glow"],
+      colors: [14, 6],
+      style: "flicker",
+      ms: [600, 2400]
+    },
+    {
+      name: "wake shimmer",
+      areas: ["glint_1", "glint_2", "glint_3"],
+      colors: [15, 11, 9],
+      style: "pingpong",
+      scatter: true,
+      ms: 420
+    }
+  ],
+  loops: []
+};
+
+export const boxart = {
+  shot: "archetype: the dwarf, beats the split because the vast industrial rail-ferry in the freezing night sea completely dwarfs the solitary courier clutching the illicit acoustic instrument case; looking south towards the stark transom and open Baltic wake; deepnight, harsh industrial deck floodlights; a lone dark silhouette of the courier clutching the violin case on the lower deck grating (columns 200-260, rows 270-360) standing before the towering steel hull, train tracks, and freight wagons chained under a glaring inspection floodlight; background bg (0 black); no motion.",
+  titleAt: "top",
+  draw: `rect sky 0,96,480,74 1
+rect sea 0,170,480,230 1
+poly wake_broad 140,400 340,400 280,230 200,230 11
+poly wake_inner 170,400 310,400 260,240 220,240 15
+line wake_foam1 120,380 180,350 c15
+line wake_foam2 360,380 300,350 c15
+line wake_foam3 150,330 210,310 c11
+line wake_foam4 330,330 270,310 c11
+poly hull_port 0,140 160,190 160,370 0,390 8
+poly hull_starboard 320,190 480,140 480,390 320,370 8
+poly hull_port_shade 0,220 160,250 160,370 0,390 0
+poly hull_starboard_shade 320,250 480,220 480,390 320,370 0
+poly transom_deck 140,190 340,190 360,380 120,380 8
+rect rail1 175,200,6,180 0
+rect rail2 195,200,6,180 0
+rect rail3 285,200,6,180 0
+rect rail4 305,200,6,180 0
+line tie1 160,230 320,230 c8
+line tie2 155,260 325,260 c8
+line tie3 150,290 330,290 c8
+line tie4 140,325 340,325 c8
+line tie5 130,360 350,360 c8
+poly superstructure 80,110 400,110 420,200 60,200 8
+poly superstructure_shadow 80,160 400,160 420,200 60,200 0
+rect bridge_band 110,120,260,18 0
+rect window1 130,124,20,10 11
+rect window2 170,124,20,10 11
+rect window3 210,124,20,10 11
+rect window4 250,124,20,10 11
+rect window5 290,124,20,10 11
+rect window6 330,124,20,10 11
+poly cargo_van 80,180 170,180 160,310 70,300 0
+poly cargo_van_top 80,180 170,180 160,170 70,170 8
+poly tanker 310,180 400,180 410,300 320,310 0
+poly tanker_top 310,180 400,180 410,170 320,170 8
+poly flood_beam 240,140 100,380 380,380 3
+poly flood_core 240,140 150,380 330,380 11
+ellipse flood_lamp 240,140,14,8 15
+line gantry_girder1 160,160 160,220 c0
+line gantry_girder2 320,160 320,220 c0
+line truss1 160,160 320,220 c0
+line truss2 320,160 160,220 c0
+rect deck_warning 160,370,160,10 14
+line hazard_line1 180,370 190,380 c0
+line hazard_line2 210,370 220,380 c0
+line hazard_line3 240,370 250,380 c0
+line hazard_line4 270,370 280,380 c0
+line hazard_line5 300,370 310,380 c0
+poly courier_shadow 225,365 295,385 245,390 215,370 0
+poly courier_coat 216,290 234,290 240,350 210,350 0
+ellipse courier_head 225,278,6,8 0
+rect courier_collar 221,284,8,6 0
+poly courier_arm_l 216,292 210,320 218,322 220,296 0
+poly courier_arm_r 234,292 244,320 238,324 230,296 0
+poly case_body 236,312 254,320 250,352 232,344 0
+line case_rim 236,312 254,320 c11
+line case_rim2 254,320 250,352 c11
+poly courier_leg_l 215,350 222,350 220,368 213,368 0
+poly courier_leg_r 228,350 235,350 237,368 230,368 0
+poly inspector_shadow 160,310 130,340 115,335 150,305 0
+poly inspector_coat 152,245 166,245 170,300 148,300 0
+ellipse inspector_head 159,235,5,7 0
+rect inspector_hat 152,231,14,4 0
+poly inspector_leg_l 152,300 157,300 156,316 151,316 0
+poly inspector_leg_r 161,300 166,300 168,316 163,316 0
+poly board 164,260 172,263 170,275 162,272 14
+line stern_rail 120,376 360,376 c7
+line stern_rail_mid 120,382 360,382 c7
+line stanchion1 140,376 140,390 c7
+line stanchion2 180,376 180,390 c7
+line stanchion3 220,376 220,390 c7
+line stanchion4 260,376 260,390 c7
+line stanchion5 300,376 300,390 c7
+line stanchion6 340,376 340,390 c7
+line acoustic_arc1 254,328 260,326 c11
+line acoustic_arc2 256,334 264,332 c11
+line acoustic_arc3 252,340 258,339 c11`
+};
+
+// The colour the cover and the box art stand on, as the world states it (BRIEF.md §7); a world that states none has none: the game measures it from the rooms.
+export const bg = 0;

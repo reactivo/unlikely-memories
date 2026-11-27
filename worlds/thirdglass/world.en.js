@@ -1,11 +1,11 @@
 // "The Third Glass": a world, in English, written the way the AI is asked to write a world
 // (BRIEF.md). One change set, all or nothing; plain data, no shortcuts.
 
-import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.74.1";
-import music, { rooms as roomMusic } from "./music.js?v=0.74.1";
-import levels from "./levels.js?v=0.74.1";
-import sprites from "./sprites.js?v=0.74.1";
-import plan from "./plan.js?v=0.74.1";
+import pictures, { endings as endingPictures, afterWell, afterWellCycles, afterStand } from "./pictures.js?v=0.74.2";
+import music, { rooms as roomMusic } from "./music.js?v=0.74.2";
+import levels from "./levels.js?v=0.74.2";
+import sprites from "./sprites.js?v=0.74.2";
+import plan from "./plan.js?v=0.74.2";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

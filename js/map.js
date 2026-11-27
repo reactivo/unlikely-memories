@@ -5,13 +5,13 @@
 // js/plan.js), and a line for each way between two of them on neighbouring squares. Nothing is placed, moved or left off: a room is
 // where the plan says. x grows east, y south.
 
-import { exitTo } from "./exits.js?v=0.74.1";
-import { roomBeside } from "./plan.js?v=0.74.1";
-import { BACK, MAP_COMPASS } from "./space.js?v=0.74.1";
-import { text, describe } from "./narrator.js?v=0.74.1";
-import { step } from "./engine.js?v=0.74.1";
-import { parse } from "./parser.js?v=0.74.1";
-import { story } from "./view.js?v=0.74.1";
+import { exitTo } from "./exits.js?v=0.74.2";
+import { roomBeside } from "./plan.js?v=0.74.2";
+import { BACK, MAP_COMPASS } from "./space.js?v=0.74.2";
+import { text, describe } from "./narrator.js?v=0.74.2";
+import { step } from "./engine.js?v=0.74.2";
+import { parse } from "./parser.js?v=0.74.2";
+import { story } from "./view.js?v=0.74.2";
 
 // The layout of the map for the state: where each shown room sits, and which ways join neighbouring ones.
 //   { z, placed: Map(id → { x, y }), edges: [{ from, dir, to }] }

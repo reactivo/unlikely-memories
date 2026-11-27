@@ -20,14 +20,14 @@
 //                                                   the takes of what it gives; never the walk
 // Also the walks it needs, which the checks read too (js/checks/space.js): route, lockOn, opensByWaiting, atHour, ruleMoves.
 
-import { step, applyChangeSet, holds, exitNow, had } from "./engine.js?v=0.74.1";
-import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.74.1";
-import { isExitObject, exitTo, waysOf } from "./exits.js?v=0.74.1";
-import { moveTo, worldTime, parts } from "./time.js?v=0.74.1";
-import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.74.1";
-import { DIRECTIONS } from "./space.js?v=0.74.1";
-import { ACTIONS } from "./actions.js?v=0.74.1";
-import { FIELDS } from "./fields.js?v=0.74.1";
+import { step, applyChangeSet, holds, exitNow, had } from "./engine.js?v=0.74.2";
+import { placeOf, inScope, chainOf, shut } from "./place.js?v=0.74.2";
+import { isExitObject, exitTo, waysOf } from "./exits.js?v=0.74.2";
+import { moveTo, worldTime, parts } from "./time.js?v=0.74.2";
+import { moverIds, placeNow, placeHolding, inSeconds } from "./movers.js?v=0.74.2";
+import { DIRECTIONS } from "./space.js?v=0.74.2";
+import { ACTIONS } from "./actions.js?v=0.74.2";
+import { FIELDS } from "./fields.js?v=0.74.2";
 
 // ---- A step of a solve ---------------------------------------------------------------------------------------------------------------
 // The fields an action of a solve may have (the engine's own: js/parser.js gives them, js/engine.js step reads them; the list is js/fields.js's

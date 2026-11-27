@@ -1604,3 +1604,189 @@ line shm12 186,125 189,125 c11`,
     loops: []
   }
 };
+
+export const cover = {
+  shot: "archetype: the split (beating the dwarf: the dividing line of the fair marquee canvas and fence splits the high festive sunlit fair above from the tense, shadowed tethering pen below); Arthur Pendrick's silhouette stands bent at left clutching a severed leather halter, staring at the empty iron ring, while above him the bustling parish marquees and judging bunting flutter in harsh noon glare; the empty tethering ring and shredded yellow ribbon pose the question; bg is 6 (brown); moves: judging bunting flutter (sweep rotate), distant flag (loop).",
+  titleAt: "top",
+  draw: `poly sky_noon 0,120 480,120 480,240 0,240 fade:11,14/240,120/240,240
+rect sun_noon 210,126,60,30 15
+poly marquee_bg_l 0,160 110,135 180,185 0,195 fade:14,6/90,135/90,195
+poly marquee_bg_r 300,180 390,130 480,155 480,210 300,210 fade:14,6/390,130/390,210
+poly marquee_main 110,135 240,120 370,140 380,240 100,240 fade:15,14/240,120/240,240
+line ridge_line 110,135 240,120 c6
+line ridge_line_r 240,120 370,140 c6
+line seam_1 160,128 150,240 c6
+line seam_2 210,123 205,240 c6
+line seam_3 270,124 275,240 c6
+line seam_4 325,131 335,240 c6
+line flag_pole 240,120 240,128 c0
+poly crowd_silhouette 0,215 480,215 480,252 0,252 0
+poly hurdle_split 0,240 480,240 480,270 0,270 fade:6,0/240,240/240,270
+line hurdle_rail_1 0,245 480,245 c8
+line hurdle_rail_2 0,255 480,255 c8
+line hurdle_rail_3 0,265 480,265 c0
+line h_stake_1 40,238 40,272 c0
+line h_stake_2 85,238 85,272 c0
+line h_stake_3 130,238 130,272 c0
+line h_stake_4 180,238 180,272 c0
+line h_stake_5 230,238 230,272 c0
+line h_stake_6 280,238 280,272 c0
+line h_stake_7 330,238 330,272 c0
+line h_stake_8 380,238 380,272 c0
+line h_stake_9 430,238 430,272 c0
+rect shed_floor 0,270,480,199 fade:0,6/240,270/240,469
+poly hay_mound_r 320,469 480,469 480,380 370,410 fade:14,6/420,380/420,469
+poly hay_strands_r 340,430 460,400 480,460 350,469 mix:14,6@0.5
+poly hay_mound_l 0,469 130,469 120,420 0,390 fade:14,6/60,390/60,469
+ellipse ring_shadow 260,420,48,16 0
+rect stake_timber 252,330,16,90 0
+poly stake_notch 252,330 268,330 260,320 0
+line stake_grain 256,335 256,415 c8
+line stake_grain2 264,340 264,410 c8
+ellipse iron_staple 260,382,7,8 8
+ellipse iron_staple_in 260,382,4,5 0
+ellipse tether_ring 260,392,14,14 7
+ellipse tether_ring_inner 260,392,9,9 0
+line ring_shine 256,386 264,386 c15
+poly broken_rope 260,392 268,412 262,416 256,396 6
+line rope_fray1 268,412 272,418 c14
+line rope_fray2 265,415 266,423 c14
+line rope_fray3 262,416 260,422 c6
+poly ribbon_piece_1 266,398 285,410 282,414 264,402 14
+poly ribbon_piece_2 284,412 305,422 312,419 288,410 14
+poly ribbon_drop 308,421 316,436 322,434 314,419 14
+line ribbon_edge 266,398 316,436 c15
+poly ribbon_torn 316,436 324,440 320,442 14
+poly arthur_shadow 80,455 210,465 190,469 70,469 mix:,0@0.7
+poly arthur_boots 115,445 130,445 136,462 110,462 0
+poly arthur_legs 110,380 140,380 144,450 106,450 0
+poly arthur_coat 95,305 145,290 152,390 90,385 0
+poly arthur_arm_r 120,305 155,340 148,355 115,320 0
+poly arthur_hand_r 152,345 162,352 158,358 148,352 6
+poly halter_held 158,354 165,375 160,378 154,357 6
+poly halter_buckle 163,372 168,375 166,380 161,377 14
+poly arthur_head 125,248 146,242 150,268 130,274 0
+poly arthur_cap 120,248 152,238 158,252 122,258 0
+line cap_peak 148,245 164,252 c0
+line shoulder_rim 100,305 135,288 c7
+line arm_rim 130,305 155,340 c7
+poly bailiff_shadow 370,250 420,250 435,258 360,258 mix:,0@0.7
+poly bailiff_body 375,202 405,198 412,252 370,252 0
+poly bailiff_head 382,185 398,185 398,202 382,202 0
+poly bailiff_hat 378,185 402,185 402,178 378,178 0
+line hat_brim 374,185 406,185 c0
+line ledger_white 395,215 405,215 c15
+poly b_swag_1 20,150 70,165 120,152 70,156 12
+poly b_swag_2 120,152 170,168 220,154 170,158 14
+poly b_swag_3 220,154 270,170 320,156 270,160 12
+poly b_swag_4 320,156 370,172 420,158 370,162 14
+poly b_swag_5 420,158 450,170 480,162 450,164 12
+poly b_flag_1 60,162 70,180 80,163 4
+poly b_flag_2 160,164 170,182 180,166 14
+poly b_flag_3 260,166 270,184 280,168 4
+poly b_flag_4 360,168 370,186 380,170 14
+line bunting_cord 0,148 480,160 c0
+dots dust_motes 200,320 220,305 245,340 280,315 295,360 215,380 235,400 310,385 c14
+rect post_l 0,260,25,209 0
+rect beam_top 0,260,480,15 0
+line post_edge 25,260 25,469 c8
+line beam_edge 0,275 480,275 c8`,
+  cycles: [
+    {
+      name: "the bunting colours",
+      areas: ["b_flag_1", "b_flag_2", "b_flag_3", "b_flag_4"],
+      colors: [4, 14, 12],
+      style: "rotate",
+      sweep: true,
+      ms: 320
+    },
+    {
+      name: "the dust motes",
+      areas: ["dust_motes"],
+      colors: [14, 6, 0],
+      style: "pingpong",
+      scatter: true,
+      ms: 450
+    }
+  ],
+  loops: [
+    {
+      name: "marquee flag",
+      at: [240, 120],
+      frames: [
+        ["222222........", "2222222.......", "222222........", "22222.........", "2222.........."],
+        [".222222.......", "22222222......", ".2222222......", "222222........", ".2222........."],
+        ["..222222......", ".22222222.....", "..2222222.....", ".2222222......", "222222........"],
+        [".222222.......", "22222222......", ".2222222......", "222222........", ".2222........."]
+      ],
+      ms: 220,
+      style: "loop"
+    }
+  ]
+};
+
+export const boxart = {
+  shot: "archetype: the icon; the empty iron tethering ring and snapped hemp tether with a trailing golden-yellow ribbon; beat the dwarf because the mystery centers specifically on the broken pledge and missing prize goat marked by the ledger ribbon; background brown 6; noon light casting hard dithered diagonal shadows across weathered deal boards and scattered straw; the question: where did Barnaby go before the 3 o'clock bell?",
+  titleAt: "top",
+  draw: `rect canvas_bg 0,96,480,304 fade:6,14/240,96/240,400
+poly floor_boards 0,160 480,160 480,400 0,400 fade:6,0/240,160/240,450
+line board_gap1 0,220 480,220 c0
+line board_gap2 0,285 480,285 c0
+line board_gap3 0,355 480,355 c0
+poly post_shadow 160,160 290,390 220,400 120,200 mix:0,6@0.65
+poly stake_shadow 320,160 440,360 380,380 290,190 mix:0,6@0.6
+rect wall_plank1 40,96,45,110 6 e0
+rect wall_plank2 95,96,40,105 fade:6,0/115,96/115,201 e0
+rect wall_plank3 350,96,50,115 6 e0
+rect wall_plank4 410,96,45,108 fade:6,0/430,96/430,204 e0
+rect post_main 180,110,88,180 fade:6,14/180,110/268,110 e0
+rect post_face 188,110,72,180 6
+line post_grain1 202,110 202,290 c0
+line post_grain2 225,110 225,290 c8
+line post_grain3 245,110 245,290 c0
+poly beam_brace 180,110 268,110 248,150 200,150 mix:6,0@0.5 e0
+ellipse plate_shadow 224,208,36,36 mix:0,6@0.7
+rect ring_plate 204,188,40,40 8 e0
+rect ring_plate_inner 208,192,32,32 7
+dots bolts 210,194 238,194 210,222 238,222 c0
+ellipse staple_base 224,208,12,12 8 e0
+ellipse staple_hole 224,208,6,6 0
+ellipse ring_shadow 242,254,28,34 mix:0,6@0.75
+ellipse ring_outer 224,236,26,32 8 e0
+ellipse ring_inner 224,236,16,22 6
+poly ring_hi 204,220 212,212 216,228 206,236 15
+poly ring_sh 238,248 248,242 244,262 236,264 0
+poly tether_shadow 210,250 170,360 215,385 240,265 mix:0,6@0.7
+poly tether_fray 212,238 236,238 244,258 206,256 6 e0
+poly rope_body 206,256 244,258 238,290 196,286 mix:6,14@0.4 e0
+poly rope_cut 196,286 238,290 230,305 186,298 14 e6
+dots rope_fibers 184,299 188,304 193,308 200,307 212,310 222,309 231,304 c14
+poly ribbon_shadow 224,230 200,320 250,380 280,370 240,290 mix:0,6@0.65
+poly ribbon_loop1 220,226 230,222 242,234 230,240 14 e6
+poly ribbon_fall1 228,238 238,234 222,284 210,282 14 e6
+poly ribbon_twist 210,282 222,284 214,310 204,306 mix:14,6@0.5 e6
+poly ribbon_fall2 204,306 214,310 236,360 222,364 14 e6
+poly ribbon_tail1 222,364 236,360 258,382 242,386 14 e6
+poly ribbon_notch1 258,382 242,386 246,394 262,388 0
+poly ribbon_fall3 226,236 234,236 262,295 252,298 14 e6
+poly ribbon_tail2 252,298 262,295 284,342 272,346 14 e6
+poly ribbon_notch2 284,342 272,346 280,354 290,348 0
+line straw1 110,260 145,280 c14
+line straw2 125,270 160,265 c14
+line straw3 270,320 310,335 c14
+line straw4 285,310 325,330 c14
+line straw5 170,360 205,375 c14
+line straw6 150,370 190,365 c14
+line straw7 330,270 365,285 c14
+line straw8 80,340 120,350 c14
+line straw9 360,340 395,360 c14
+line straw10 220,380 250,395 c14
+poly hoofprint_sh 140,320 152,314 158,328 144,336 0
+ellipse hoofprint_l 143,322,4,6 0
+ellipse hoofprint_r 151,324,4,6 0
+poly dust_motes 200,120 280,120 340,300 220,300 mix:,14@0.15
+dots motes_bright 215,145 235,160 255,140 228,190 262,210 240,245 270,270 c15`
+};
+
+// The colour the cover and the box art stand on, as the world states it (BRIEF.md §7); a world that states none has none: the game measures it from the rooms.
+export const bg = 6;

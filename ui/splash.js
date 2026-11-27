@@ -17,14 +17,14 @@
 // drawn from the finished pixels each frame drawn, as the room's picture has it; a cover with clear pixels (transparent) gets none, as the
 // look is an opaque rectangle.
 
-import art from "../content/art.js?v=0.74.1";
-import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.74.1";
-import { putPixels, compileLoop, underMask, RGB, CLEAR_PIXEL } from "./draw.js?v=0.74.1";
-import { painter } from "../js/paint.js?v=0.74.1";
-import { shownAt, fitWidth, liveCycles } from "../js/cover.js?v=0.74.1";
-import { screen, settings as lookSettings } from "./crt.js?v=0.74.1";
-import { prepareCycles, motionInto, stepsOf } from "./effects.js?v=0.74.1";
-import { reducedMotion, calm } from "./media.js?v=0.74.1";
+import art from "../content/art.js?v=0.74.2";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.74.2";
+import { putPixels, compileLoop, underMask, RGB, CLEAR_PIXEL } from "./draw.js?v=0.74.2";
+import { painter } from "../js/paint.js?v=0.74.2";
+import { shownAt, fitWidth, liveCycles } from "../js/cover.js?v=0.74.2";
+import { screen, settings as lookSettings } from "./crt.js?v=0.74.2";
+import { prepareCycles, motionInto, stepsOf } from "./effects.js?v=0.74.2";
+import { reducedMotion, calm } from "./media.js?v=0.74.2";
 
 // The cover's size (art.cover): 480 wide, 400 tall.
 export const COVER = { width: art.cover.width, height: art.cover.height };
