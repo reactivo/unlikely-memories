@@ -1,11 +1,11 @@
 // Text and voice: the lengths of the texts, the narrator never hedges, no words of the other region, the words from the state written in a
 // text and the questions for words (BRIEF.md §6, §8, §11). Pure: reads the state and the pack, never changes either.
 
-import { normalise } from "../parser.js?v=0.74.3";
-import { isAction } from "../actions.js?v=0.74.3";
-import { TEXT_WORDS, PROPERTY_WORD } from "../words.js?v=0.74.3";
-import { suggest, ownerOf } from "../fields.js?v=0.74.3";
-import { unmarked, packText, effectsOf, worldTexts, collectTexts, shownTexts } from "./shared.js?v=0.74.3";
+import { normalise } from "../parser.js?v=0.75.0";
+import { isAction } from "../actions.js?v=0.75.0";
+import { TEXT_WORDS, PROPERTY_WORD } from "../words.js?v=0.75.0";
+import { suggest, ownerOf } from "../fields.js?v=0.75.0";
+import { unmarked, packText, effectsOf, worldTexts, collectTexts, shownTexts } from "./shared.js?v=0.75.0";
 
 // Room texts within BRIEF.md §6, "How long".
 export function roomLengthWarnings(state, out) {

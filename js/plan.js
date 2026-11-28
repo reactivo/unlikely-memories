@@ -8,9 +8,9 @@
 // A plan that doesn't fit (an unknown id, a room on two squares or none, a way to an empty square) refuses the world with a message that
 // says what to move. Pure: reads the set, changes nothing.
 
-import { isObject } from "./shapes.js?v=0.74.3";
-import { STEP, COMPASS, BACK } from "./space.js?v=0.74.3";      // the directions are space.js's
-import { distance } from "./fields.js?v=0.74.3";                // the edit distance between two words
+import { isObject } from "./shapes.js?v=0.75.0";
+import { STEP, COMPASS, BACK } from "./space.js?v=0.75.0";      // the directions are space.js's
+import { distance } from "./fields.js?v=0.75.0";                // the edit distance between two words
 
 const WORDS = { n: "north", s: "south", e: "east", w: "west", u: "up", d: "down" };
 export const PLAN_FORM = `{ "0": ["street  shop", ".       ."] }`;      // the shape of a plan, in every message that tells it

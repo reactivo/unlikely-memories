@@ -1,11 +1,11 @@
 // "The Weight of a Ribbon": the world, in English, as its AI handed it in: one change set, all or nothing; plain data. Written by tools/world.mjs add
 // from the hand-in; what has no words is shared by the world's languages: pictures.js, sprites.js, music.js, plan.js (levels.js is generated).
 
-import pictures, { endings } from "./pictures.js?v=0.74.3";
-import music, { rooms as roomMusic } from "./music.js?v=0.74.3";
-import levels from "./levels.js?v=0.74.3";
-import sprites from "./sprites.js?v=0.74.3";
-import plan from "./plan.js?v=0.74.3";
+import pictures, { endings } from "./pictures.js?v=0.75.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.75.0";
+import levels from "./levels.js?v=0.75.0";
+import sprites from "./sprites.js?v=0.75.0";
+import plan from "./plan.js?v=0.75.0";
 
 export const bible = {
   title: "The Weight of a Ribbon",
