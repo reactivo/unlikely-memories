@@ -70,7 +70,8 @@
     /* The one key: an outline that blinks, on and off like a cursor (steady with reduced motion). */
     & .start {
       font: inherit;
-      font-size: var(--play-text, var(--text-m));          /* the game's keys' size (the list's PLAY: ui/home.css) */
+      font-family: var(--font-button);
+      font-size: var(--text-button);                       /* the game's keys' size and font (typography.css, .text-button) */
       line-height: var(--line-xs);
       letter-spacing: 0.08em;
       text-transform: uppercase;

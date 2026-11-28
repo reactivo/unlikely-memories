@@ -118,6 +118,7 @@
     --text-s:  calc(1.25rem * var(--scale));   /* 20px */
     --text-m:  calc(1.75rem * var(--scale));   /* 28px */
     --text-l:  calc(2rem * var(--scale));   /* 32px */
+    --text-button: var(--text-m);   /* the buttons' words (.text-button, typography.css; the keys of the list and of a world's page): M on phones, S in the strip layout (below) */
 
 
     /* ---- Line heights ----
@@ -184,6 +185,7 @@
       --text-s:  calc(1.5rem * var(--scale));     /* 24px at scale 1 */
       --text-m:  calc(1.875rem * var(--scale));   /* 30px */
       --text-l:  calc(2.5rem * var(--scale));     /* 40px */
+      --text-button: var(--text-s);               /* the buttons at S (24px at scale 1) */
     }
   }
 }

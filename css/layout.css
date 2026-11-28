@@ -385,7 +385,7 @@
   @media (min-width: 760px) and (min-height: 560px) {
 
     /* Tools ≡ (ui/tools.css): shown here only, in the strip, under the inventory: one row as high as a compass tile and the whole
-       strip wide, its name (SETTINGS) alone at size S, no icon (until 14 November 2026 one tile at the top of the strip, at its right end). */
+       strip wide, its name (SETTINGS) alone at the buttons' size (--text-button: S here), no icon (until 14 November 2026 one tile at the top of the strip, at its right end). */
     .tools {
       --tools-display: grid;
       --tools-columns: 1fr;
@@ -393,14 +393,7 @@
       --tool-width: 100%;
       --tool-height: var(--tile);
       --tool-min-height: 0px;
-      --button-text: var(--text-s);           /* the word at size S (24px at full size); centred like the tabs (typography.css: .text-button button) */
       order: 1;   /* under the inventory (the last of the strip) */
-    }
-
-    /* The compass's words (SEE MAP: its tiles are icons) at SETTINGS' size, S (until 14 November 2026 the compass's characters
-       followed their tiles, two thirds of one). */
-    .compass {
-      --button-text: var(--text-s);
     }
 
     /* Tabs (ui/tabs.css): gone, the strip shows directions and inventory. */
@@ -430,13 +423,11 @@
       --card-column-gap: var(--space-l);
       --buttons-margin-top: auto;
       --play-height: var(--tile-max);   /* its buttons as SETTINGS in the strip at full size */
-      --play-text: var(--text-s);
     }
 
     /* The world's page (ui/splash.css): its keys as the landing page's (SETTINGS' size). */
     .splash {
       --play-height: var(--tile-max);
-      --play-text: var(--text-s);
     }
 
     /* Options panel (ui/options.css): the settings that only wide windows have (GRAPHICS' Reflections: ui/reflection.js) show a row. */

@@ -9,7 +9,7 @@
    and line heights under :root[data-font="<id>"]. The old computers' fonts in fonts/ are not declared. The buttons' symbols are icons, not text (img/icons/, .icon in utilities.css). */
 @font-face {
   font-family: "m5x7";
-  src: url("../fonts/m5x7-patched.ttf?v=0.76.0") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
+  src: url("../fonts/m5x7-patched.ttf?v=0.77.0") format("truetype");   /* m5x7 with its capital and x heights written in (docs/fonts/FONTS.md) */
 }
 
 @layer typography {
@@ -17,6 +17,7 @@
   /* ---- The font, and what goes with it ---- */
   :root {
     --font-game: "m5x7", ui-monospace, monospace;   /* the family list; the fallbacks show until the fonts have loaded */
+    --font-button: var(--font-game);   /* the buttons' words (.text-button below, a world's page's key): the game's font unless a font in css/fonts/ gives the buttons their own */
     --font-page: var(--font-game);                         /* what the page's body uses (read by base.css, which no layer can override) */
 
     --font-smoothing: none;   /* -webkit-font-smoothing, set once on the body: no anti-aliasing, so the pixel letters stay sharp */
@@ -85,10 +86,11 @@
     line-height: var(--line-xxs);
   }
 
-  /* One-line boxes you click, in capitals: the tool ≡, the compass, the tabs, the landing page's buttons. In the
-     strip layout the tools and the compass follow their tiles (layout.css sets --button-text there). */
+  /* One-line boxes you click, in capitals: the tool ≡, the compass, the tabs, the landing page's buttons. Their size and font are
+     their own tokens (--text-button: tokens.css; --font-button, above), so a font or the debug panel can set the buttons alone. */
   .text-button {
-    font-size: var(--button-text, var(--text-m));
+    font-family: var(--font-button);
+    font-size: var(--text-button);
     line-height: var(--line-xs);
     text-transform: uppercase;
   }

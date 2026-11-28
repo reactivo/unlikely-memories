@@ -1,13 +1,13 @@
 // The start room's guarantees (BRIEF.md §3; docs/start-room/PLAN.md) and the intro, the text shown once at the start. Pure: reads the state
 // and the pack; the first puzzle is played with the checker's own run, which js/check.js hands in.
 
-import { normalise } from "../parser.js?v=0.76.0";
-import { step, exitNow } from "../engine.js?v=0.76.0";
-import { placeOf, person } from "../place.js?v=0.76.0";
-import { exitTo, waysOf } from "../exits.js?v=0.76.0";
-import * as opening from "../opening.js?v=0.76.0";
-import { Report } from "./registry.js?v=0.76.0";
-import { unmarked, effectsOf } from "./shared.js?v=0.76.0";
+import { normalise } from "../parser.js?v=0.77.0";
+import { step, exitNow } from "../engine.js?v=0.77.0";
+import { placeOf, person } from "../place.js?v=0.77.0";
+import { exitTo, waysOf } from "../exits.js?v=0.77.0";
+import * as opening from "../opening.js?v=0.77.0";
+import { Report } from "./registry.js?v=0.77.0";
+import { unmarked, effectsOf } from "./shared.js?v=0.77.0";
 
 // The intro (BRIEF.md §3, §6 "How long"): the text shown once at the start, above the start room's, its `opening.intro`. It is there
 // (js/opening.js refuses a world without one, or one that names a thing), in the world's language, and near its length: about 90 words,

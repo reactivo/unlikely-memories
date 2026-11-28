@@ -17,7 +17,8 @@ export const FONTS = [
   { id: "player-sans-mono",     name: "Player Sans Mono",     css: "css/fonts/player-sans-mono.css", rev: 1 },
   { id: "pixel-code",           name: "Pixel Code",           css: "css/fonts/pixel-code.css", rev: 1 },
   { id: "pixelify-sans",        name: "Pixelify Sans",        css: "css/fonts/pixelify-sans.css", rev: 1 },
-  { id: "silver",               name: "Silver",               css: "css/fonts/silver.css", rev: 1 }
+  { id: "silver",               name: "Silver",               css: "css/fonts/silver.css", rev: 1 },
+  { id: "dosage",               name: "Dosage Humanist",               css: "css/fonts/dosage.css", rev: 1 }
 ];
 
 export const fontById = (id) => FONTS.find(f => f.id === id) ?? null;

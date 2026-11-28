@@ -22,19 +22,20 @@
 // sections are open, the CRT look's values (crt: null until one is changed). Closing it with × forgets all of that, the CRT look's
 // values too (art.js's come back); /debug opens it fresh.
 
-import * as debug from "../js/debug.js?v=0.76.0";
-import { parts, partAt, hhmm } from "../js/time.js?v=0.76.0";
-import { text } from "../js/narrator.js?v=0.76.0";
-import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.76.0";
-import { touch } from "./media.js?v=0.76.0";
-import { titleFonts } from "../js/title.js?v=0.76.0";
-import art from "../content/art.js?v=0.76.0";
+import * as debug from "../js/debug.js?v=0.77.0";
+import { parts, partAt, hhmm } from "../js/time.js?v=0.77.0";
+import { text } from "../js/narrator.js?v=0.77.0";
+import { FONTS, DEFAULT as DEFAULT_FONT, useFont } from "../js/fonts.js?v=0.77.0";
+import { touch } from "./media.js?v=0.77.0";
+import { titleFonts } from "../js/title.js?v=0.77.0";
+import art from "../content/art.js?v=0.77.0";
 
 const KEY = "parser-debug";   // what this device remembers (js/main.js reads it too, to open the panel again on a reload)
-// font, logRem, logLine, letter: the Typography section's (null: the font's own value); titleFont: the cover title's font, also there (null: art.js's). (logRem: the story's size in rem; until
+// font, logRem, logLine, letter, buttonRem, sRem, mRem, lRem: the Typography section's (null: the font's own value; the sizes in rem at
+// scale 1, times --scale on the page); titleFont: the cover title's font, also there (null: art.js's). (logRem: the story's size in rem; until
 // 5 Nov 2026 it was a size in px, under another name, which is now ignored.) crt: the CRT section's settings, all of them (null: art.js's).
 const DEFAULTS = { collapsed: false, x: null, y: null, sections: {}, instant: false, nudge: true, motion: "system", rules: false, wholeMap: false,
-                   font: DEFAULT_FONT, logRem: null, logLine: null, letter: null, titleFont: null, crt: null };
+                   font: DEFAULT_FONT, logRem: null, logLine: null, letter: null, buttonRem: null, sRem: null, mRem: null, lRem: null, titleFont: null, crt: null };
 const SECTIONS = ["picture", "crt", "music", "events", "travel", "inventory", "time", "inspect", "page", "typography", "settings"];
 
 // What this device remembers, or null (nothing, or storage blocked).
@@ -108,7 +109,7 @@ function sync(a, b) {
 
 // Build the panel (hidden) and add it to the page. Returns open(), update(), showsRules() and wholeMap().
 export function mount(dev) {
-  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.76.0", import.meta.url).href });
+  const css = el("link", "", undefined, { rel: "stylesheet", href: new URL("./debug.css?v=0.77.0", import.meta.url).href });
   document.head.append(css);
   const html = document.documentElement;
   let v = null;                                    // what it remembers while open (null: closed)
@@ -172,7 +173,12 @@ export function mount(dev) {
   // m5x7 and its own values. Never part of the game or its saves.
   function type() {
     const font = v?.font ?? DEFAULT_FONT;
-    setInline("--log-text", v?.logRem != null ? v.logRem + "rem" : null);
+    const rem = (n) => n != null ? "calc(" + n + "rem * var(--scale))" : null;   // a size at scale 1, growing on a big window (css/layout.css)
+    setInline("--log-text", rem(v?.logRem));
+    setInline("--text-button", rem(v?.buttonRem));
+    setInline("--text-s", rem(v?.sRem));
+    setInline("--text-m", rem(v?.mRem));
+    setInline("--text-l", rem(v?.lRem));
     setInline("--log-line", v?.logLine != null ? String(v.logLine) : null);
     setInline("--letter-spacing", v?.letter != null ? v.letter + "em" : null);
     useFont(font).then(() => { if ((v?.font ?? DEFAULT_FONT) === font) fields(); });
@@ -393,7 +399,8 @@ export function mount(dev) {
   const probe = el("span", "text-log", undefined, { hidden: "", "aria-hidden": "true" });   // the story's style, to read its values
   const fontList = el("select", "", undefined, { "aria-label": "Font", "data-key": "font" });
   for (const f of FONTS) fontList.append(el("option", "", f.name, { value: f.id }));
-  fontList.addEventListener("change", () => { if (!v) return; v.font = fontList.value; v.logRem = v.logLine = v.letter = null; keep(v); type(); });
+  const unset = () => { v.logRem = v.logLine = v.letter = v.buttonRem = v.sRem = v.mRem = v.lRem = null; };
+  fontList.addEventListener("change", () => { if (!v) return; v.font = fontList.value; unset(); keep(v); type(); });
   // The cover title's font (a world's own page: js/title.js draws its title in it, live): the fonts of content/titlefonts/.
   const titleList = el("select", "", undefined, { "aria-label": "Cover title font", "data-key": "title-font" });
   for (const id of titleFonts()) titleList.append(el("option", "", id + (id === art.cover.titleFont ? " (default)" : ""), { value: id }));
@@ -419,20 +426,42 @@ export function mount(dev) {
     input.addEventListener("input", () => { if (!v) return; set(+input.value); keep(v); crtApply(); fields(); });
     return { input, row: row(label, input, out), show };
   }
-  // The story's values as the page has them now (the inline ones, or the font's own).
+  // Probes for the other sizes, each in the style that uses it, and one for --scale (a font size of 100px × --scale).
+  const probes = { button: el("span", "text-button"), s: el("span", "text-label"), m: el("span", "text-title"), l: el("span", "text-subtitle"),
+                   scale: el("span", "", undefined, { style: "font-size: calc(100px * var(--scale, 1))" }) };
+  for (const p of Object.values(probes)) { p.hidden = true; p.setAttribute("aria-hidden", "true"); }
+  // The story's values as the page has them now (the inline ones, or the font's own); sizes in rem at scale 1.
   const now = () => {
     const cs = getComputedStyle(probe), size = parseFloat(cs.fontSize), lh = cs.lineHeight, root = parseFloat(getComputedStyle(html).fontSize) || 16;
+    const scale = (parseFloat(getComputedStyle(probes.scale).fontSize) || 100) / 100;
+    const at1 = (p) => parseFloat(getComputedStyle(p).fontSize) / root / scale;
     // Letter spacing: the token as written (em, or 0), read from <html>, where the body inherits it.
-    return { size, rem: size / root, line: lh.endsWith("px") ? parseFloat(lh) / size : parseFloat(lh), letter: parseFloat(getComputedStyle(html).getPropertyValue("--letter-spacing")) || 0 };
+    return { size, rem: size / root / scale, line: lh.endsWith("px") ? parseFloat(lh) / size : parseFloat(lh), letter: parseFloat(getComputedStyle(html).getPropertyValue("--letter-spacing")) || 0,
+             button: at1(probes.button), s: at1(probes.s), m: at1(probes.m), l: at1(probes.l) };
   };
-  // In rem, like the font sizes (tokens.css): a step of 0.005rem is 0.08px at the usual 16px.
+  // In rem, like the font sizes (tokens.css): a step of 0.005rem is 0.08px at the usual 16px. Sizes at scale 1 (a big window multiplies them).
   const size = stepper("Story text size (rem)", 0.005, 3, () => now().rem, (n) => { v.logRem = n; });
   const line = stepper("Story line height", 0.01, 2, () => now().line, (n) => { v.logLine = n; });
   // The page's letter spacing (--letter-spacing, css/typography.css: every text, the story and the interface alike), in em.
   const letter = stepper("Letter spacing (em)", 0.01, 2, () => now().letter, (n) => { v.letter = n; }, true);
-  const reset = button("Reset to the font's defaults", () => { if (!v) return; v.logRem = v.logLine = v.letter = null; keep(v); type(); }, undefined, "type-reset");
-  parts$.typography.append(probe, row("Font", fontList), row("Cover title font", titleList), size.row, line.row, letter.row, row("", reset),
-    el("p", "note", "Not saved with the game. × puts m5x7 back."));
+  // The buttons' size (--text-button: the tools, the compass, the tabs, the keys of the list and of a world's page) and the three
+  // interface sizes (tokens.css: S labels and the map, M the title bar, the prompt and the options, L the list's subtitle).
+  const buttonSize = stepper("Buttons size (rem)", 0.005, 3, () => now().button, (n) => { v.buttonRem = n; });
+  const sSize = stepper("Size S (rem)", 0.005, 3, () => now().s, (n) => { v.sRem = n; });
+  const mSize = stepper("Size M (rem)", 0.005, 3, () => now().m, (n) => { v.mRem = n; });
+  const lSize = stepper("Size L (rem)", 0.005, 3, () => now().l, (n) => { v.lRem = n; });
+  const reset = button("Reset to the font's defaults", () => { if (!v) return; unset(); keep(v); type(); }, undefined, "type-reset");
+  // Copy: the values now, as the lines of a font's CSS file (css/fonts/), to paste back as its defaults.
+  const typeCopied = el("p", "note", "");
+  const typeCopy = button("Copy", () => {
+    const n = now(), r = (x) => "calc(" + +x.toFixed(3) + "rem * var(--scale));";
+    const css = ["/* " + (v?.font ?? DEFAULT_FONT) + " */", "--log-text: " + r(n.rem), "--log-line: " + +n.line.toFixed(2) + ";", "--letter-spacing: " + +n.letter.toFixed(2) + "em;",
+                 "--text-button: " + r(n.button), "--text-s: " + r(n.s), "--text-m: " + r(n.m), "--text-l: " + r(n.l)].join("\n");
+    (navigator.clipboard?.writeText(css) ?? Promise.reject()).then(() => { typeCopied.textContent = "Copied."; }, () => { typeCopied.textContent = "Couldn't copy: " + css; });
+  }, undefined, "type-copy");
+  parts$.typography.append(probe, ...Object.values(probes), row("Font", fontList), row("Cover title font", titleList), size.row, line.row, letter.row,
+    buttonSize.row, sSize.row, mSize.row, lSize.row, row("", reset, typeCopy), typeCopied,
+    el("p", "note", "Sizes at scale 1 (a big window grows them). Not saved with the game. × puts m5x7 back."));
   // The CRT section (the look of ui/crt.js, art.js's effects.crt): made once like Typography; fields() keeps it in line. Every change
   // keeps all the values with the panel (v.crt) and draws at once. Reset: art.js's. Copy: the values now, as JSON.
   const crt = () => dev.crt();
@@ -452,7 +481,7 @@ export function mount(dev) {
     for (const [, s] of sliders) s.show();
     if (document.activeElement !== fontList) fontList.value = v?.font ?? DEFAULT_FONT;
     if (document.activeElement !== titleList) titleList.value = v?.titleFont ?? art.cover.titleFont;
-    size.show(); line.show(); letter.show();
+    size.show(); line.show(); letter.show(); buttonSize.show(); sSize.show(); mSize.show(); lSize.show();
   }
   function inspect(st) {
     const dl = el("dl", "facts");

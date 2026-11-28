@@ -1,0 +1,42 @@
+/* DOSAGE 1.200 by Michael Alexander (MEK.txt, https://mektxt.com), a bought licence (fonts/Dosage-EULA.md; docs/fonts/FONTS.md).
+   Self-hosted as WOFF2, as the licence allows. A pixel font in four styles; the game tries two (Diego, 28 Nov 2026): Humanist
+   (proportional) for the text, Mono (every glyph 7 pixels wide) for the buttons. Chosen with data-font="dosage" on <html>
+   (js/fonts.js loads this file only then).
+
+   Overrides the font tokens (css/typography.css) and the sizes and line heights (css/tokens.css), at every breakpoint. Not in
+   a layer, so it wins over every layer whatever order a browser gives them. Sizes in rem (pixels in the comments, at the usual
+   16px), times --scale (css/layout.css: the game grows on a big window).
+
+   The grid: 1200 units per em, one font pixel is 100 units: 12 font pixels to the em. Capitals 9 pixels, x-height 6,
+   descenders 3; the font's box is 12 + 3 (1.25em), accents above the capitals inside it. Sharp at multiples of 12px (at 24px a
+   font pixel is 2 CSS pixels, capitals 18px); on a 2× screen at multiples of 6px too. Starting values, to tune live in the debug
+   panel's Typography section. */
+
+@font-face { font-family: "Dosage Humanist"; src: url("../../fonts/Dosage-Humanist.woff2?v=0.77.0") format("woff2"); }
+@font-face { font-family: "Dosage Mono"; src: url("../../fonts/Dosage-Mono.woff2?v=0.77.0") format("woff2"); }
+
+:root[data-font="dosage"] {
+  --font-game: "Dosage Humanist", ui-monospace, monospace;
+  --font-button: "Dosage Mono", ui-monospace, monospace;
+  --font-smoothing: none;
+  --letter-spacing: 0;           /* its own spacing already leaves a pixel between letters */
+
+  /* The story: 24px, the font's own box as the line (15 font pixels: accented capitals clear the line above). */
+  --log-text: calc(1.5rem * var(--scale));     /* 24px */
+  --log-line: 1.25;
+
+  /* The interface: M as the story; S at 12px (capitals 9px, about m5x7's S); the buttons in Mono at 12px. */
+  --text-xs: 0.75rem;                          /* 12px (debug only: never scaled) */
+  --text-s:  calc(0.75rem * var(--scale));     /* 12px */
+  --text-m:  calc(1.5rem * var(--scale));      /* 24px */
+  --text-l:  calc(2.25rem * var(--scale));     /* 36px */
+  --text-button: calc(0.75rem * var(--scale)); /* 12px */
+  --line-xxs: 1.25;
+
+  --object-sign-top:  -.1em;
+  --object-sign-left: .05em;
+
+  /* The capitals' top on a story line: the line is the font's box (1200 + 300 units), so no leading; the baseline 1em down,
+     the capitals 900/1200 above it: 0.25em. */
+  --figure-nudge: 0.25em;
+}

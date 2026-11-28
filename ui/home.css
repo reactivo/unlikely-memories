@@ -232,7 +232,7 @@
       flex: 1 1 0;
       min-width: 0;
       min-height: var(--play-height, var(--tile-touch));
-      font-size: var(--play-text, var(--text-m));
+      font-size: var(--text-button);
       line-height: var(--line-xs);
       text-box: trim-both cap alphabetic;
       white-space: nowrap;
