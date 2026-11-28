@@ -3,15 +3,15 @@
 // builds no text: the engine and the narrator do; the screen is ui/'s, told here what to show. What it shares lives in js/current.js;
 // a session command (undo, save…) goes to js/session.js.
 
-import { state, setState, packOf, view, clock, ui, mix, graphics, transcript, keep, keepForUndo } from "./current.js?v=0.77.0";
-import { session, confirmed, restart, autosave, restarting } from "./session.js?v=0.77.0";
-import { step, nextDue, takesBlank, withoutYesNo } from "./engine.js?v=0.77.0";
-import { parse, retype } from "./parser.js?v=0.77.0";
-import { inScope } from "./place.js?v=0.77.0";
-import { describe, text, listName, joined } from "./narrator.js?v=0.77.0";
-import { suggestion, topicsLine, story, offers } from "./view.js?v=0.77.0";
-import { walk, tripWords } from "./map.js?v=0.77.0";
-import * as soundpanel from "../ui/soundpanel.js?v=0.77.0";
+import { state, setState, packOf, view, clock, ui, mix, graphics, transcript, keep, keepForUndo } from "./current.js?v=0.77.1";
+import { session, confirmed, restart, autosave, restarting } from "./session.js?v=0.77.1";
+import { step, nextDue, takesBlank, withoutYesNo } from "./engine.js?v=0.77.1";
+import { parse, retype } from "./parser.js?v=0.77.1";
+import { inScope } from "./place.js?v=0.77.1";
+import { describe, text, listName, joined } from "./narrator.js?v=0.77.1";
+import { suggestion, topicsLine, story, offers } from "./view.js?v=0.77.1";
+import { walk, tripWords } from "./map.js?v=0.77.1";
+import * as soundpanel from "../ui/soundpanel.js?v=0.77.1";
 
 const QUIET_RETRY = 500;      // ms to wait before trying again when the world can't act yet (you're typing…)
 

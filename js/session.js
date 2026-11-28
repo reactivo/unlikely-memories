@@ -3,16 +3,16 @@
 // restoring a saved game, and restarting: the one way a new game begins. Holds no game logic and builds no text. What it shares lives
 // in js/current.js; the story's paragraphs are js/turn.js's.
 
-import { state, setState, packOf, LANG_PACKS, lang, setLang, view, clock, ui, history, takeBack, transcript, keep, clearTranscript, dropEcho, forget } from "./current.js?v=0.77.0";
-import { show, say, echo, play, redraw, schedule, unschedule, showTime, forgetTurn, lastInput, lastUnknown } from "./turn.js?v=0.77.0";
-import { quit } from "./screens.js?v=0.77.0";
-import { newState, FORMAT, withPlan } from "./state.js?v=0.77.0";
-import { withPractice } from "./practice.js?v=0.77.0";
-import { step, ask } from "./engine.js?v=0.77.0";
-import { retype } from "./parser.js?v=0.77.0";
-import { tell, describe, introOf, text, placeName } from "./narrator.js?v=0.77.0";
-import { parts, hhmm } from "./time.js?v=0.77.0";
-import * as saves from "./saves.js?v=0.77.0";
+import { state, setState, packOf, LANG_PACKS, lang, setLang, view, clock, ui, history, takeBack, transcript, keep, clearTranscript, dropEcho, forget } from "./current.js?v=0.77.1";
+import { show, say, echo, play, redraw, schedule, unschedule, showTime, forgetTurn, lastInput, lastUnknown } from "./turn.js?v=0.77.1";
+import { quit } from "./screens.js?v=0.77.1";
+import { newState, FORMAT, withPlan } from "./state.js?v=0.77.1";
+import { withPractice } from "./practice.js?v=0.77.1";
+import { step, ask } from "./engine.js?v=0.77.1";
+import { retype } from "./parser.js?v=0.77.1";
+import { tell, describe, introOf, text, placeName } from "./narrator.js?v=0.77.1";
+import { parts, hhmm } from "./time.js?v=0.77.1";
+import * as saves from "./saves.js?v=0.77.1";
 
 const RESTART_DELAY = 1800;   // ms between choosing to begin again and the new game starting
 

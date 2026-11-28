@@ -24,9 +24,9 @@
 //   `Look`              a command → shown as <LOOK>; clicking runs it
 //   {tin of mints|tin}  an object (label|id; just {door} when they're the same) → plain text; clicking examines it
 
-import { spriteSVG, examineSVG } from "./sprite.js?v=0.77.0";
-import { mount as mountFollow } from "./follow.js?v=0.77.0";
-import { figures } from "./crt.js?v=0.77.0";
+import { spriteSVG, examineSVG } from "./sprite.js?v=0.77.1";
+import { mount as mountFollow } from "./follow.js?v=0.77.1";
+import { figures } from "./crt.js?v=0.77.1";
 
 // Phrase fade-in timing: each phrase starts a little after the one before (a short gap + a bit per character).
 // The fade itself lasts --duration-phrase (tokens.css).
@@ -228,7 +228,12 @@ export function mount(root, on, crop) {
           into.replaceChild(keep, last); keep.append(last, glued);
           part = part.slice(glued.length);
         }
-        if (part) into.appendChild(document.createTextNode(part));
+        // A blank line inside a text (a world's intro is two paragraphs in one text) is a paragraph break: a block as high as the space
+        // between paragraphs (log.css, .break), not an empty line, which was taller than that space (Diego, 28 Nov 2026).
+        part.split(/\n[ \t]*\n\s*/).forEach((piece, i) => {
+          if (i) { const gap = document.createElement("span"); gap.className = "break"; into.appendChild(gap); }
+          if (piece) into.appendChild(document.createTextNode(piece));
+        });
       }
     });
   }

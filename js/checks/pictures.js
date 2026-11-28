@@ -2,12 +2,12 @@
 // palettes the bible names and the shots name, and the shapes a thing leaves behind when it is removed (BRIEF.md §7). Pure: reads the state,
 // never changes it. (What is wrong with one drawing is js/checks/drawings.js.)
 
-import art from "../../content/art.js?v=0.77.0";
-import { readFigure, outsideBox, FIGURE, formOf, shapeSpan, thingsOf, awayFrom, isShapeOf } from "../picture.js?v=0.77.0";
-import { waysOf } from "../exits.js?v=0.77.0";
-import { sideOf, FACINGS } from "../space.js?v=0.77.0";
-import { effectsOf, plannedWorld } from "./shared.js?v=0.77.0";
-import { drawingProblems, motionChecks, shapeChecks } from "./drawings.js?v=0.77.0";
+import art from "../../content/art.js?v=0.77.1";
+import { readFigure, outsideBox, FIGURE, formOf, shapeSpan, thingsOf, awayFrom, isShapeOf } from "../picture.js?v=0.77.1";
+import { waysOf } from "../exits.js?v=0.77.1";
+import { sideOf, FACINGS } from "../space.js?v=0.77.1";
+import { effectsOf, plannedWorld } from "./shared.js?v=0.77.1";
+import { drawingProblems, motionChecks, shapeChecks } from "./drawings.js?v=0.77.1";
 
 // What is wrong with the world's pictures: an `end` that names none, or one that doesn't exist; a world that can hurt the player
 // and has no `died` picture; a picture, a room's or an ending's, that is badly drawn; an ending with no description (`alt` on its `add picture`, in the

@@ -1,14 +1,14 @@
 // Conditions: the ones in `if` and `waitFor` are well formed, a list is asked with `has`, an exit or a wait whose condition can never hold, and
 // the conditions the player is in (declared, started, stopped, ended, cured in time) with the picture filters a rule turns on. Pure.
 
-import { holds } from "../engine.js?v=0.77.0";
-import { exitConditions } from "../exits.js?v=0.77.0";
-import { moveTo } from "../time.js?v=0.77.0";
-import { FIELDS, suggest, conditionProblems, ownFields } from "../fields.js?v=0.77.0";
-import { filterProblem } from "../filters.js?v=0.77.0";
-import { atHour, route } from "../walkthrough.js?v=0.77.0";
-import { limited } from "./puzzles.js?v=0.77.0";
-import { effectsOf } from "./shared.js?v=0.77.0";
+import { holds } from "../engine.js?v=0.77.1";
+import { exitConditions } from "../exits.js?v=0.77.1";
+import { moveTo } from "../time.js?v=0.77.1";
+import { FIELDS, suggest, conditionProblems, ownFields } from "../fields.js?v=0.77.1";
+import { filterProblem } from "../filters.js?v=0.77.1";
+import { atHour, route } from "../walkthrough.js?v=0.77.1";
+import { limited } from "./puzzles.js?v=0.77.1";
+import { effectsOf } from "./shared.js?v=0.77.1";
 
 // Conditions are well formed: every rule's `if` and every `waitFor`.
 export function conditionShapeProblems(state, out) {

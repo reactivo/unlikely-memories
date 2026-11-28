@@ -2,11 +2,11 @@
 // here); this file puts a grid on the canvas, and holds the overlays, the thumbnails, the scroll's plan and the loops' sprites. Pure: no page, so tests
 // can run it too. ui/scene.js turns the grid into colours on the canvas.
 
-import art from "../content/art.js?v=0.77.0";
-import { parseShapes, readFigure, placeFigure, isShapeOf } from "../js/picture.js?v=0.77.0";
-import { spriteRows } from "../js/sprites.js?v=0.77.0";
-import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.77.0";
-import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.77.0";
+import art from "../content/art.js?v=0.77.1";
+import { parseShapes, readFigure, placeFigure, isShapeOf } from "../js/picture.js?v=0.77.1";
+import { spriteRows } from "../js/sprites.js?v=0.77.1";
+import { paint, paintPicture, threshold, lit, CLEAR as CLEAR_PIXEL } from "../js/paint.js?v=0.77.1";
+import { layoutTitle, titlePixels, stampTitle, fontNamed } from "../js/title.js?v=0.77.1";
 export { paint, paintPicture, threshold, lit, CLEAR_PIXEL };       // (painting is js/paint.js, pure; the screen's own drawing is here)
 
 // A colour "#rrggbb" as [r, g, b].

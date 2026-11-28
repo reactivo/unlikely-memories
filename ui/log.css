@@ -94,6 +94,12 @@
       margin: 0 0 var(--space-m);
     }
 
+    /* A blank line inside one text (ui/log.js, build): the same space as between two paragraphs. */
+    & .break {
+      display: block;
+      height: var(--space-m);
+    }
+
     /* Each of your commands starts a new block: two lines of space above it (the paragraph before it has one; the
        two margins overlap, so the gap is exactly --space-l), so the story reads as command → answer, command → answer. */
     & .cmd {

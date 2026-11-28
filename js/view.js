@@ -3,19 +3,19 @@
 // by a standard rule that only shows its examine (verbs.js `EXAMINED`, std_read) when its EXAMINE is the standard one too; which rule
 // answers comes from engine.js `answers`, tried on a copy of the state. Pure.
 
-import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.77.0";
-import { grammarOf } from "./words.js?v=0.77.0";
-import { parse } from "./parser.js?v=0.77.0";
-import { answers } from "./engine.js?v=0.77.0";
-import { EXAMINED, ANSWERED } from "./verbs.js?v=0.77.0";
-import { ACTIONS } from "./actions.js?v=0.77.0";
-import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.77.0";
-import { receives } from "./use.js?v=0.77.0";
-import { spellings, called } from "./names.js?v=0.77.0";
-import { wayOf, waysOf, thingsFor, waysAsThings } from "./exits.js?v=0.77.0";
-import { openness } from "./picture.js?v=0.77.0";
-import { LISTEN } from "./opening.js?v=0.77.0";
-import { actionOf, sameStep, ANSWER } from "./walkthrough.js?v=0.77.0";
+import { text, tell, listName, nameOf, joined } from "./narrator.js?v=0.77.1";
+import { grammarOf } from "./words.js?v=0.77.1";
+import { parse } from "./parser.js?v=0.77.1";
+import { answers } from "./engine.js?v=0.77.1";
+import { EXAMINED, ANSWERED } from "./verbs.js?v=0.77.1";
+import { ACTIONS } from "./actions.js?v=0.77.1";
+import { carried, within, person, holderOf, placeOf, inScope } from "./place.js?v=0.77.1";
+import { receives } from "./use.js?v=0.77.1";
+import { spellings, called } from "./names.js?v=0.77.1";
+import { wayOf, waysOf, thingsFor, waysAsThings } from "./exits.js?v=0.77.1";
+import { openness } from "./picture.js?v=0.77.1";
+import { LISTEN } from "./opening.js?v=0.77.1";
+import { actionOf, sameStep, ANSWER } from "./walkthrough.js?v=0.77.1";
 
 // A command that names the room's scenery is answered by it only when it looks at it (its `says`, or "nothing special"):
 // any other verb gets the stock "There's not much you can do with the door" (the parser's @sceneryOther), so it isn't

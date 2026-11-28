@@ -1,7 +1,7 @@
 // Which view a page address shows: the list of games (no hash), or one world (#<its id>). Pure: no page, so tests can run it.
 // The controller (js/screens.js) reads location.hash through this and never decides it itself.
 
-import { hasWorld } from "../worlds/load.js?v=0.77.0";
+import { hasWorld } from "../worlds/load.js?v=0.77.1";
 
 // The view for an address's hash, in a language: { view: "home" } or { view: "game", id }; on a world's own page (/<id>/, `splash`: that world's
 // id, from <html data-world>) the page's own views instead: { view: "splash", id } (no hash: the cover, its buttons), or the game (#<id>);
