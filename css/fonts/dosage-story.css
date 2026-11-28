@@ -1,0 +1,19 @@
+/* DOSAGE HUMANIST for the story only (Diego, 28 Nov 2026): the story's words (.text-log, .text-echo) in Dosage Humanist, everything
+   else in m5x7. The font, its licence and its grid: css/fonts/dosage.css. Chosen with data-font="dosage-story" on <html> (js/fonts.js
+   loads this file only then). Not in a layer, so it wins over every layer. Sizes in rem, times --scale (css/layout.css). Starting
+   values, tuned live in the debug panel's Typography section (the story's fields; S, M, L and the buttons stay m5x7's). */
+
+@font-face { font-family: "Dosage Humanist"; src: url("../../fonts/Dosage-Humanist.woff2?v=0.78.0") format("woff2"); }
+
+:root[data-font="dosage-story"] {
+  --font-log: "Dosage Humanist", ui-monospace, monospace;
+
+  /* The story: 24px, the font's own box as the line (accented capitals clear the line above). */
+  --log-text: calc(1.5rem * var(--scale));     /* 24px */
+  --log-line: 1.25;
+
+  /* The marks that live in the story: the object's + and an object's picture lined up with the capitals (dosage.css). */
+  --object-sign-top:  -.1em;
+  --object-sign-left: .05em;
+  --figure-nudge: 0.25em;
+}

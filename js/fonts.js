@@ -5,7 +5,8 @@
 // <html>, so every piece of the page follows. A font's file is loaded only when it is first chosen (a <link> added once), so the
 // game never downloads a font it doesn't show.
 //
-// To add a font: its files in fonts/, its CSS file in css/fonts/ (copy pixel-code.css), and one line below.
+// To add a font: its files in fonts/, its CSS file in css/fonts/ (copy pixel-code.css), and one line below. `family`: the font's family
+// when it differs from the name shown; a font may set only the story's (--font-log) and leave the rest in m5x7 (dosage-story.css).
 // `rev`: bump it whenever the font's CSS file changes, so browsers fetch the new file instead of the one they keep (the
 // file's address gets ?v=<rev>; Diego's browser kept showing an earlier font file, 4 Nov 2026).
 // Used by the debug panel (ui/debug.js, Typography) today; the Options menu could offer the same list later.
@@ -18,7 +19,8 @@ export const FONTS = [
   { id: "pixel-code",           name: "Pixel Code",           css: "css/fonts/pixel-code.css", rev: 1 },
   { id: "pixelify-sans",        name: "Pixelify Sans",        css: "css/fonts/pixelify-sans.css", rev: 1 },
   { id: "silver",               name: "Silver",               css: "css/fonts/silver.css", rev: 1 },
-  { id: "dosage",               name: "Dosage Humanist",               css: "css/fonts/dosage.css", rev: 1 }
+  { id: "dosage",               name: "Dosage Humanist",               css: "css/fonts/dosage.css", rev: 1 },
+  { id: "dosage-story",         name: "Dosage Humanist, story only",   family: "Dosage Humanist", css: "css/fonts/dosage-story.css", rev: 1 }
 ];
 
 export const fontById = (id) => FONTS.find(f => f.id === id) ?? null;

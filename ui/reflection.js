@@ -7,7 +7,7 @@
 // media query only), and never on the landing page. Off (the player's switch: Settings, GRAPHICS), or without WebGL: nothing is
 // drawn, no context is made, and the game is unchanged. Safe to import in Node (levels() is pure).
 
-import { wide } from "./media.js?v=0.77.1";   // the strip layout, as ui/media.js asks it (css/layout.css)
+import { wide } from "./media.js?v=0.78.0";   // the strip layout, as ui/media.js asks it (css/layout.css)
 
 const K = {
   mirror: 0.5,      // the reflection's strength at the edge

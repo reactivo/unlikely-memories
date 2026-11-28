@@ -12,8 +12,8 @@
    font pixel is 2 CSS pixels, capitals 18px); on a 2× screen at multiples of 6px too. Starting values, to tune live in the debug
    panel's Typography section. */
 
-@font-face { font-family: "Dosage Humanist"; src: url("../../fonts/Dosage-Humanist.woff2?v=0.77.1") format("woff2"); }
-@font-face { font-family: "Dosage Mono"; src: url("../../fonts/Dosage-Mono.woff2?v=0.77.1") format("woff2"); }
+@font-face { font-family: "Dosage Humanist"; src: url("../../fonts/Dosage-Humanist.woff2?v=0.78.0") format("woff2"); }
+@font-face { font-family: "Dosage Mono"; src: url("../../fonts/Dosage-Mono.woff2?v=0.78.0") format("woff2"); }
 
 :root[data-font="dosage"] {
   --font-game: "Dosage Humanist", ui-monospace, monospace;

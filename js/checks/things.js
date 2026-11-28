@@ -1,12 +1,12 @@
 // Things: ids, sprites and portraits, a `use`, what is eaten and drunk, what comes from somewhere, and things that move.
 // Pure: reads the state, never changes it.
 
-import { person } from "../place.js?v=0.77.1";
-import { isLine } from "../shapes.js?v=0.77.1";
-import { conditionProblems } from "../fields.js?v=0.77.1";
-import { heldThings, hasSprite, hasPortrait, noSprite, portraitFault } from "../sprites.js?v=0.77.1";
-import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "../movers.js?v=0.77.1";
-import { plannedWorld } from "./shared.js?v=0.77.1";
+import { person } from "../place.js?v=0.78.0";
+import { isLine } from "../shapes.js?v=0.78.0";
+import { conditionProblems } from "../fields.js?v=0.78.0";
+import { heldThings, hasSprite, hasPortrait, noSprite, portraitFault } from "../sprites.js?v=0.78.0";
+import { moverIds, roomsOf, followsAnywhere, FOLLOWS, declarationProblems as moverProblems } from "../movers.js?v=0.78.0";
+import { plannedWorld } from "./shared.js?v=0.78.0";
 
 // Ids are unique across rooms, objects and puzzles.
 export function idProblems(state, out) {
