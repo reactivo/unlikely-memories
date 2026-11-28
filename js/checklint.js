@@ -11,11 +11,11 @@
 //   checks/clock.js       clock times in texts     checks/drawings.js   one picture's shapes, cycles, loops, motion     checks/pictures.js   endings' pictures, overlays, palettes
 //   checks/cover.js       the bible's card, the cover, the box art
 
-export { REGISTRY, Report, entryOf } from "./checks/registry.js?v=0.75.0";
-export { NO_MUSIC, effectsOf } from "./checks/shared.js?v=0.75.0";
-export { lintWorld } from "./checks/lint.js?v=0.75.0";
-export { openingCatches } from "./checks/start.js?v=0.75.0";
-export { clockMentions } from "./checks/clock.js?v=0.75.0";
-export { motionWarnings, shapeWarnings } from "./checks/drawings.js?v=0.75.0";
-export { altNames, lacksOverlay, drawnAsShapes, mainPalette, shotPalette, biblePalettes } from "./checks/pictures.js?v=0.75.0";
-export { bibleProblems, coverWarnings, boxartWarnings, coverCatches, boxartCatches, backgroundCatches, posterCatches } from "./checks/cover.js?v=0.75.0";
+export { REGISTRY, Report, entryOf } from "./checks/registry.js?v=0.76.0";
+export { NO_MUSIC, effectsOf } from "./checks/shared.js?v=0.76.0";
+export { lintWorld } from "./checks/lint.js?v=0.76.0";
+export { openingCatches } from "./checks/start.js?v=0.76.0";
+export { clockMentions } from "./checks/clock.js?v=0.76.0";
+export { motionWarnings, shapeWarnings } from "./checks/drawings.js?v=0.76.0";
+export { altNames, lacksOverlay, drawnAsShapes, mainPalette, shotPalette, biblePalettes } from "./checks/pictures.js?v=0.76.0";
+export { bibleProblems, coverWarnings, boxartWarnings, coverCatches, boxartCatches, backgroundCatches, posterCatches } from "./checks/cover.js?v=0.76.0";

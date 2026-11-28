@@ -35,6 +35,7 @@
 
     & > svg {
       flex: none;
+      zoom: var(--scale, 1);   /* grows with the window as the text does (css/layout.css, --scale); the drawing stays smooth */
     }
   }
 }

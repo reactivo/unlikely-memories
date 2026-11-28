@@ -34,7 +34,7 @@
     --object-hover: var(--color-highlight);   /* the name under the pointer */
     --past:         var(--color-text-dim);    /* everything in rooms you've left: one grey, like your echoed commands */
 
-    --figure: 144px;   /* the box of an object's picture */
+    --figure: calc(144px * var(--scale, 1));   /* the box of an object's picture */
 
     min-width: 0;
     white-space: pre-wrap;

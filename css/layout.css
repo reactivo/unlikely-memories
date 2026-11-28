@@ -15,7 +15,7 @@
 
     /* The world's page (ui/splash.css): what the poster needs besides its cover (the padding, three keys and the gaps), which the cover's width
        gives back so that the whole poster fits the window's height. */
-    --splash-rest: 190px;
+    --splash-rest: calc(190px * var(--scale));
     --splash-rows: 470;                        /* the rows shown: the title's band (0-119) and the art under it (ui/splash.js: on a wide window its middle rows, as many as the height leaves) */
     /* The cover is 480 x 560 (art.js cover): a wide window shows all 480 columns, an upright phone only the crop, columns 80-399 (320 of them: --splash-cols,
        and --splash-skip the columns left of it; ui/splash.js asks the CSS which it is, as ui/crop.js does of the room's picture). */
@@ -27,12 +27,12 @@
        with --screen-gap above and below it (Diego, 18 November 2026). Everything that shares out the window's height reads
        --screen-h, never 100dvh; on a window no taller than --screen-max both are the same and the gap is 0. Only on a window wider
        than it is high: an upright tablet fills its height (Diego, 18 November 2026; the fourth breakpoint, below). */
-    --screen-max: 960px;                       /* the game's greatest height: the column's greatest width, so at most a 960 x 960 square */
+    --screen-max: round(down, calc(960px * var(--scale)), 1px);                       /* the game's greatest height: the column's greatest width, so a 960 x 960 square at scale 1 (--scale, below) */
     --screen-h:   100dvh;
     --screen-gap: 0px;
 
     /* The column: title bar, picture, story and prompt are all this wide. */
-    --column-max: 960px;                       /* widest: the game's column and the landing page's */
+    --column-max: round(down, calc(960px * var(--scale)), 1px);                       /* widest: the game's column and the landing page's */
     --column:     100%;                         /* phones: the whole width inside the side padding */
 
     /* The tiles (≡, compass, inventory) and the gap between them. On phones the panels keep these sizes. */
@@ -121,6 +121,26 @@
     :root {
       --screen-h: min(100dvh, var(--screen-max));                                  /* the game's height: the window's, at most --screen-max… */
       --screen-gap: round(down, max(0px, (100dvh - var(--screen-max)) / 2), 1px);   /* …and centred: the rest shared above and below (whole pixels) */
+    }
+
+    /* --scale: on the game and a world's page a window taller than the game needs makes it grow, as browser zoom would, instead of
+       leaving a 960 x 960 square in empty space (Diego, 28 November 2026: grow as zoom does on big monitors, keeping the gaps).
+       --scale-gap stays above and below the game, --scale-side at each side (room for the picture's reflection), both at any scale.
+       --scale = the height or the width left after them, over the 960px the game is designed at, never under 1 (the game is not
+       shrunk: a window up to 960 + 2 gaps high is as before). The ratio of two lengths as a plain number is tan(atan2(a, b)), which
+       every current browser reads. --scale is only multiplied where a size is defined, never in a piece: the text sizes, the spacing
+       steps, --tile-max, --key-depth, --map-mark-icon (tokens.css), --screen-max, --column-max, --splash-rest (here), the fixed sizes
+       of --figure (ui/log.css), the map popup (ui/map.css, below) and the switch (ui/switch.css), and the icons (css/utilities.css).
+       1-2px lines, key corners and the hover ring stay as drawn. The list of games, phones and the debug panel stay at 1 (--text-xs
+       is the debug panel's). */
+    :root[data-view="game"],
+    :root[data-view="splash"] {
+      --scale-gap:  64px;
+      --scale-side: 128px;
+      --scale: max(1, min(
+        tan(atan2(calc(100dvh - 2 * var(--scale-gap)), 960px)),
+        tan(atan2(calc(100vw - 2 * var(--scale-side)), 960px))
+      ));
     }
   }
 
@@ -426,8 +446,8 @@
 
     /* Map popup (ui/map.css): lower, with less kept free around it; the location bar in one row. */
     .mapview {
-      --map-h: 656px;
-      --map-margin: 128px;
+      --map-h: calc(656px * var(--scale));
+      --map-margin: calc(128px * var(--scale));
       --where-direction: row;
       --where-align: baseline;
       --where-gap: var(--space-l);

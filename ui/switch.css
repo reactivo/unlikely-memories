@@ -10,8 +10,8 @@
     --knob-on:    var(--color-bg);           /* the knob while on: dark on the yellow track */
 
     /* Its size. */
-    --knob:       16px;
-    --track:      4px;    /* the sliders' track height */
+    --knob:       calc(16px * var(--scale, 1));
+    --track:      calc(4px * var(--scale, 1));   /* the sliders' track height */
     --switch-pad: 2px;
     --switch-fade: 150ms;   /* the knob slides and the track fades over this time (no duration token fits: the others are 300ms and up) */
 

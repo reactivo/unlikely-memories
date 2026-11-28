@@ -6,7 +6,7 @@
    hint have theirs too. Root class `mapview`, not `map`: the compass's SEE MAP button already has that one. */
 @layer ui {
   .mapview {
-    --map-w: 912px;   /* the popup's widest. Its height and the space kept free above and below it (so the game shows around it)
+    --map-w: calc(912px * var(--scale, 1));  /* the popup's widest. Its height and the space kept free above and below it (so the game shows around it)
                          are --map-h and --map-margin: phone values below, wider windows in layout.css */
 
     /* Colours in the map, by meaning. */

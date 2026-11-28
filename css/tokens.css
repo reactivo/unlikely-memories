@@ -34,6 +34,11 @@
 @layer tokens {
   :root {
 
+    /* The one number that grows the game on a big window (css/layout.css, "--scale"). It is 1 everywhere but the game and a world's
+       page on a wide, tall window, so every size below that multiplies it is its plain value there: the sizes are written at scale 1. */
+    --scale: 1;
+
+
     /* ---- Colour palette: the raw colours. Change a value here to recolour everything that uses it. ---- */
 
     /* Greys with the same faint warmth (hue 40°, about 6% saturation: neutral, but never a cold default grey),
@@ -92,7 +97,7 @@
     --color-key-hover:         var(--color-text);           /* the line round a key under the pointer */
     --color-key-pressed-shade: var(--palette-yellow-500);   /* a pressed key's bevel, turned round (top and left) */
     --color-key-inert:         var(--color-surface);        /* a key that does nothing (no way): flat and dim */
-    --key-depth:      4px;    /* how far a key stands up, and how far it goes down when pressed */
+    --key-depth:      round(calc(4px * var(--scale)), 1px);    /* how far a key stands up, and how far it goes down when pressed */
     --key-line:       1px;    /* the bevel's lines */
     --key-corner:     2px;    /* the corners: an L of this many pixels cut from each (a round step over 3 pixels) */
     --key-fade-1:     100%;   /* the light fades from the top left corner: how much of it each quarter of its line keeps */
@@ -109,10 +114,10 @@
        they follow the browser's default text size; at its usual 16px they are the pixel sizes beside them. Browser zoom
        scales them too. (Spacing and fixed sizes stay in pixels: they are layout, not text.)
        Which text uses which size: the .text-* classes in typography.css. */
-    --text-xs: 1rem;   /* 16px */
-    --text-s:  1.25rem;   /* 20px */
-    --text-m:  1.75rem;   /* 28px */
-    --text-l:  2rem;   /* 32px */
+    --text-xs: 1rem;   /* 16px (debug only: never scaled) */
+    --text-s:  calc(1.25rem * var(--scale));   /* 20px */
+    --text-m:  calc(1.75rem * var(--scale));   /* 28px */
+    --text-l:  calc(2rem * var(--scale));   /* 32px */
 
 
     /* ---- Line heights ----
@@ -124,15 +129,15 @@
 
 
     /* ---- Spacing: margins, paddings and gaps. ---- */
-    --space-xs: 4px;
-    --space-s:  8px;
-    --space-m:  16px;
-    --space-l:  32px;
-    --space-xl: 64px;
+    --space-xs: round(calc(4px * var(--scale)), 1px);
+    --space-s:  round(calc(8px * var(--scale)), 1px);
+    --space-m:  round(calc(16px * var(--scale)), 1px);
+    --space-l:  round(calc(32px * var(--scale)), 1px);
+    --space-xl: round(calc(64px * var(--scale)), 1px);
 
 
     /* ---- Fixed sizes shared by several pieces. ---- */
-    --tile-max:   48px;   /* the square tiles in the strip, at their biggest (css/layout.css makes them smaller on low windows) */
+    --tile-max:   round(down, calc(48px * var(--scale)), 1px);   /* the square tiles in the strip, at their biggest (css/layout.css makes them smaller on low windows) */
     --tile-touch: 44px;   /* tiles on phones: big enough for a finger */
 
     /* The open picture on an upright phone (css/layout.css): a crop of the middle of the scene, this shape (width / height).
@@ -165,10 +170,9 @@
     --map-gap:    calc(var(--map-text) * 2);     /* between rooms, where the lines run */
     --map-stub:   calc(var(--map-text) * 1.5);   /* a way not yet taken: a short line out of its room */
     /* A room's way up and down: the icons in its top right corner (CSS only, ui/map.css; 12px in and 4px apart at the full size,
-       24px text). The icons at their file's own size, 14px, at every text size, as on the compass: a pixel icon scaled by a part
-       of a pixel blurs. The distances follow the text, in whole pixels for the same reason. */
+       24px text). The icons at their file's own size, 14px, at scale 1, and growing with --scale (css/layout.css) as the compass's do. The distances follow the text, in whole pixels for the same reason. */
     --map-mark-inset: round(calc(var(--map-text) / 2), 1px);   /* from the room's top and right edges */
-    --map-mark-icon:  14px;                                    /* each icon, square: the SVG's own size */
+    --map-mark-icon:  calc(14px * var(--scale));                                   /* each icon, square: the SVG's own size */
     --map-mark-gap:   round(calc(var(--map-text) / 6), 1px);   /* between up and down */
   }
 
@@ -177,9 +181,9 @@
      css/layout.css, ui/map.js and ui/tabs.js (CSS variables can't be used inside media queries). */
   @media (min-width: 760px) and (min-height: 560px) {
     :root {
-      --text-s:  1.5rem;   /* 24px */
-      --text-m:  1.875rem;   /* 30px */
-      --text-l:  2.5rem;   /* 40px */
+      --text-s:  calc(1.5rem * var(--scale));     /* 24px at scale 1 */
+      --text-m:  calc(1.875rem * var(--scale));   /* 30px */
+      --text-l:  calc(2.5rem * var(--scale));     /* 40px */
     }
   }
 }

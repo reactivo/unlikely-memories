@@ -2,11 +2,11 @@
 // (WRITING-DIRECTION.md for the voice, BRIEF.md §2 for the shape, ARCHITECTURE.md §3–6 for the data, ART-DIRECTION.md
 // for the pictures). One change set, all or nothing.
 
-import pictures, { endings } from "./pictures.js?v=0.75.0";
-import music, { rooms as roomMusic } from "./music.js?v=0.75.0";
-import levels from "./levels.js?v=0.75.0";
-import sprites from "./sprites.js?v=0.75.0";
-import plan from "./plan.js?v=0.75.0";
+import pictures, { endings } from "./pictures.js?v=0.76.0";
+import music, { rooms as roomMusic } from "./music.js?v=0.76.0";
+import levels from "./levels.js?v=0.76.0";
+import sprites from "./sprites.js?v=0.76.0";
+import plan from "./plan.js?v=0.76.0";
 
 // ---- The game bible -----------------------------------------------------------------------------------------------
 export const bible = {

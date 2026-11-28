@@ -3,13 +3,13 @@
 // its game (#<id>). Opening a world, leaving it, quitting, and the language chosen on the list. Holds no game logic and builds no text.
 // What it shares lives in js/current.js; a game is continued or begun by js/session.js.
 
-import { lang, setLang, LANGS, LANG_PACKS, view, setView, clock, ui, landing, poster } from "./current.js?v=0.75.0";
-import { schedule, unschedule, cancelSleep, forgetShown, viewOf } from "./turn.js?v=0.75.0";
-import { restore, restart, autoSaved, saveNow, flushSave, cancelRestart } from "./session.js?v=0.75.0";
-import { startOf } from "./state.js?v=0.75.0";
-import { routeOf, hashOf } from "./route.js?v=0.75.0";
-import { listFor, thumbnailFor, coverFor, boxartFor, hasCover, loadWorld } from "../worlds/load.js?v=0.75.0";
-import { store } from "./prefs.js?v=0.75.0";
+import { lang, setLang, LANGS, LANG_PACKS, view, setView, clock, ui, landing, poster } from "./current.js?v=0.76.0";
+import { schedule, unschedule, cancelSleep, forgetShown, viewOf } from "./turn.js?v=0.76.0";
+import { restore, restart, autoSaved, saveNow, flushSave, cancelRestart } from "./session.js?v=0.76.0";
+import { startOf } from "./state.js?v=0.76.0";
+import { routeOf, hashOf } from "./route.js?v=0.76.0";
+import { listFor, thumbnailFor, coverFor, boxartFor, hasCover, loadWorld } from "../worlds/load.js?v=0.76.0";
+import { store } from "./prefs.js?v=0.76.0";
 
 // The list's address (the folder of the list's page) and the world whose page is shown (/<id>/), or none. The page loads once: going
 // from the list to a world's page and back changes the address (history.pushState) and the view, not the page (17 November 2026: each
